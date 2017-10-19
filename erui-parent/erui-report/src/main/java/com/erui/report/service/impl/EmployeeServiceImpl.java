@@ -1,8 +1,5 @@
 package com.erui.report.service.impl;
 
-import javax.annotation.Resource;
-
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Service;
 
 import com.erui.report.dao.EmployeeMapper;
@@ -11,19 +8,6 @@ import com.erui.report.service.EmployeeService;
 
 @Service
 public class EmployeeServiceImpl extends BaseService<EmployeeMapper> implements EmployeeService {
-//	private EmployeeMapper writeMapper;
-//	private EmployeeMapper readMapper;
-//
-//	@Resource(name = "sqlSessionMaster")
-//	public void setWriteMapper(SqlSessionTemplate sqlSession) {
-//		this.writeMapper = sqlSession.getMapper(EmployeeMapper.class);
-//	}
-//	@Resource(name = "sqlSessionSlave")
-//	public void setReadMapper(SqlSessionTemplate sqlSession) {
-//		this.readMapper = sqlSession.getMapper(EmployeeMapper.class);
-//	}
-
-
 
 
 	public String getName(Long empId) {
