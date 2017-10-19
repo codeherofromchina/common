@@ -3,6 +3,7 @@ package com.erui.boss.web.report;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ public class FileController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("fileUpdate");
 
+
 		return mv;
 	}
 
@@ -39,7 +41,7 @@ public class FileController {
 	 * 
 	 * @param file
 	 *            文件
-	 * @param fileName
+	 * @param otherInput
 	 *            文件名称
 	 * @return
 	 */

@@ -1,32 +1,27 @@
 package com.erui.report.service.impl;
 
-import com.erui.report.model.EmployeeExample;
+import javax.annotation.Resource;
+
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.erui.report.dao.EmployeeMapper;
 import com.erui.report.model.Employee;
 import com.erui.report.service.EmployeeService;
 
-import javax.annotation.Resource;
-import java.util.HashMap;
-
 @Service
-public class EmployeeServiceImpl implements EmployeeService {
-	private EmployeeMapper writeMapper;
-	private EmployeeMapper readMapper;
-
-	@Resource(name = "sqlSessionMaster")
-	public void setWriteMapper(SqlSessionTemplate sqlSession) {
-		this.writeMapper = sqlSession.getMapper(EmployeeMapper.class);
-	}
-	@Resource(name = "sqlSessionSlave")
-	public void setReadMapper(SqlSessionTemplate sqlSession) {
-		this.readMapper = sqlSession.getMapper(EmployeeMapper.class);
-	}
+public class EmployeeServiceImpl extends BaseService<EmployeeMapper> implements EmployeeService {
+//	private EmployeeMapper writeMapper;
+//	private EmployeeMapper readMapper;
+//
+//	@Resource(name = "sqlSessionMaster")
+//	public void setWriteMapper(SqlSessionTemplate sqlSession) {
+//		this.writeMapper = sqlSession.getMapper(EmployeeMapper.class);
+//	}
+//	@Resource(name = "sqlSessionSlave")
+//	public void setReadMapper(SqlSessionTemplate sqlSession) {
+//		this.readMapper = sqlSession.getMapper(EmployeeMapper.class);
+//	}
 
 
 
