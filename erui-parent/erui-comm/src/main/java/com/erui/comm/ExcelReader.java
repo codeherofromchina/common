@@ -49,7 +49,7 @@ public class ExcelReader {
 		Sheet shell = workbook.getSheetAt(0);
 
 		int lastRowNum = shell.getLastRowNum();
-		for (int i = startRowNum < 0 ? 0 : startRowNum; i < lastRowNum; i++) {
+		for (int i = startRowNum < 0 ? 0 : startRowNum; i <= lastRowNum; i++) {
 			Row row = shell.getRow(i);
 			list.add(readExcelRowContent(row));
 		}
@@ -98,11 +98,16 @@ public class ExcelReader {
 		String cellvalue = null;
 		if (cell != null) {
 			switch (cell.getCellTypeEnum()) {
-			case NUMERIC:
-				cellvalue = String.valueOf(cell.getNumericCellValue());
-				break;
 			case STRING:
 				cellvalue = cell.getStringCellValue();
+				break;
+			case NUMERIC:
+				if (HSSFDateUtil.isCellDateFormatted(cell)) {
+					Date date = cell.getDateCellValue();
+					cellvalue = DateUtil.format(DateUtil.FULL_DATE_FORMAT, date);
+				} else {
+					cellvalue = String.valueOf(cell.getNumericCellValue());
+				}
 				break;
 			case FORMULA: // 公式或日期等
 				if (HSSFDateUtil.isCellDateFormatted(cell)) {
@@ -127,8 +132,8 @@ public class ExcelReader {
 
 		ExcelReader reader = new ExcelReader();
 
-		String[] readExcelTitle = reader.readExcelTitle(new FileInputStream("/Users/wangxiaodan/test2.xlsx"));
-		List<String[]> bodyList = reader.readExcelBody(new FileInputStream("/Users/wangxiaodan/test2.xlsx"));
+		String[] readExcelTitle = reader.readExcelTitle(new FileInputStream("/Users/wangxiaodan/test.xlsx"));
+		List<String[]> bodyList = reader.readExcelBody(new FileInputStream("/Users/wangxiaodan/test.xlsx"));
 
 		printStrArr(readExcelTitle);
 		System.out.println();
