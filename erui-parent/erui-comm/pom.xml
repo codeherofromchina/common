@@ -65,11 +65,13 @@
 			<artifactId>mail</artifactId>
 			<version>1.4.3</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.belerweb/pinyin4j -->
 		<dependency>
-			<groupId>com.erui</groupId>
+			<groupId>com.belerweb</groupId>
 			<artifactId>pinyin4j</artifactId>
 			<version>2.5.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
@@ -77,6 +79,14 @@
 		</dependency>
 
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>nexus-releases</id>
+			<name>Nexus Releases Repository</name>
+			<url>http://172.18.19.140:8081/nexus/content/repositories/releases/</url>
+		</repository>
+	</repositories>
 
 	<distributionManagement>
 		<repository>
