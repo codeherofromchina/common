@@ -16,6 +16,8 @@ public interface HrCountMapper {
 
     int insertSelective(HrCount record);
 
+    List<HrCount> findAll();
+
     List<HrCount> selectByExample(HrCountExample example);
 
     HrCount selectByPrimaryKey(Integer id);
