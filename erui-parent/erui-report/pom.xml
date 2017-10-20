@@ -72,6 +72,10 @@
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>com.erui</groupId>
+			<artifactId>erui-comm</artifactId>
+			<version>${parent.version}</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FileUtils {
 	private final static String[] EXCEL_CONTENT_TYPE = new String[] {
-			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream" };
 	private final static String[] EXCEL_SUFFIX = new String[] { ".xls", ".xlsx" };
 
 	/**

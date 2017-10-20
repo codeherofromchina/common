@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -18,6 +19,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.erui.comm.util.data.date.DateUtil;
 
 public class ExcelReader {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelReader.class);
@@ -104,7 +107,7 @@ public class ExcelReader {
 			case NUMERIC:
 				if (HSSFDateUtil.isCellDateFormatted(cell)) {
 					Date date = cell.getDateCellValue();
-					cellvalue = DateUtil.format(DateUtil.FULL_DATE_FORMAT, date);
+					cellvalue = DateUtil.formatDateToString(date, DateUtil.FULL_FORMAT_STR);
 				} else {
 					cellvalue = String.valueOf(cell.getNumericCellValue());
 				}
@@ -112,7 +115,7 @@ public class ExcelReader {
 			case FORMULA: // 公式或日期等
 				if (HSSFDateUtil.isCellDateFormatted(cell)) {
 					Date date = cell.getDateCellValue();
-					cellvalue = DateUtil.format(DateUtil.FULL_DATE_FORMAT, date);
+					cellvalue = DateUtil.formatDateToString(date, null);
 				} else {
 					cellvalue = cell.getStringCellValue();
 				}
@@ -124,7 +127,7 @@ public class ExcelReader {
 				cellvalue = null;
 			}
 		}
-		return cellvalue;
+		return StringUtils.trimToNull(cellvalue);
 	}
 
 	public static void main(String[] args)
@@ -132,8 +135,8 @@ public class ExcelReader {
 
 		ExcelReader reader = new ExcelReader();
 
-		String[] readExcelTitle = reader.readExcelTitle(new FileInputStream("/Users/wangxiaodan/test.xlsx"));
-		List<String[]> bodyList = reader.readExcelBody(new FileInputStream("/Users/wangxiaodan/test.xlsx"));
+		String[] readExcelTitle = reader.readExcelTitle(new FileInputStream("/Users/wangxiaodan/yszk.xls"));
+		List<String[]> bodyList = reader.readExcelBody(new FileInputStream("/Users/wangxiaodan/yszk.xls"));
 
 		printStrArr(readExcelTitle);
 		System.out.println();
