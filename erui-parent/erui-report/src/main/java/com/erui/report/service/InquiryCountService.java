@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import com.erui.report.model.InquiryCount;
 import com.erui.report.util.ImportDataResponse;
 
 import java.util.Date;
@@ -26,5 +27,11 @@ public interface InquiryCountService {
 	 * @return
 	 */
 	public ImportDataResponse importData(List<String[]> datas) ;
+	/*
+	* 根据时间和产品类别查询产品数量
+	* */
+	public int selectProCountByIsOil(Date startTime,Date endTime,String isOil);
+
+
 
 }

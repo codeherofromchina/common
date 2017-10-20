@@ -1,5 +1,6 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.dao.InquiryCountMapper;
 import com.erui.report.model.InquiryCountExample;
 import com.erui.report.service.InquiryCountService;
@@ -35,15 +36,23 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return count;
     }
 
-
-
-
-
-
 	@Override
 	public ImportDataResponse importData(List<String[]> datas) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	//根据时间和产品类别查询产品数量
+	@Override
+	public int selectProCountByIsOil(Date startTime, Date endTime,String isOil) {
+        InquiryCountExample example = new InquiryCountExample();
+        InquiryCountExample.Criteria criteria = example.createCriteria();
+        criteria.andRollinTimeBetween(startTime,endTime);
+        if(StringUtil.isNotBlank(isOil)){
+            criteria.andIsOilGasEqualTo(isOil);
+        }
+        int proCount = readMapper.selectProCountByIsOil(example);
+        return proCount;
 	}
 
 

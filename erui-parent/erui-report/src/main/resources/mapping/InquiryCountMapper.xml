@@ -126,17 +126,6 @@
     lose_order_category, lose_order_cause
   </sql>
 
-  <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
-    select
-    SUM(quote_total_price)
-    from inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
 
 
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquiryCountExample" >
@@ -156,6 +145,18 @@
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     	sum(quote_Total_Price) as totalPrice
+    from inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectProCountByIsOil" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+    select
+    SUM(pro_count)
     from inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />

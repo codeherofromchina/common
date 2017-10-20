@@ -3,11 +3,11 @@ package com.erui.report.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.erui.comm.util.data.date.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.RequestCreditMapper;
 import com.erui.report.model.RequestCredit;
 import com.erui.report.service.RequestCreditService;
@@ -78,6 +78,5 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 		return response;
 	}
-	
 
 }
