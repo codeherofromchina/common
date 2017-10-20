@@ -113,11 +113,15 @@ public class ExcelReader {
 				}
 				break;
 			case FORMULA: // 公式或日期等
-				if (HSSFDateUtil.isCellDateFormatted(cell)) {
-					Date date = cell.getDateCellValue();
-					cellvalue = DateUtil.formatDateToString(date, null);
-				} else {
-					cellvalue = cell.getStringCellValue();
+				try {
+					if (HSSFDateUtil.isCellDateFormatted(cell)) {
+						Date date = cell.getDateCellValue();
+						cellvalue = DateUtil.formatDateToString(date, null);
+					} else {
+						cellvalue = String.valueOf(cell.getNumericCellValue());
+					}
+				} catch (IllegalStateException e) {
+					cellvalue = String.valueOf(cell.getRichStringCellValue());
 				}
 				break;
 			case BOOLEAN:
