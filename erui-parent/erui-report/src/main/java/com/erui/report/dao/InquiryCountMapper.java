@@ -33,5 +33,6 @@ public interface InquiryCountMapper {
 
     
     Double selectTotalAmountByExample(InquiryCountExample example);
+    int     selectProCountByIsOil(InquiryCountExample example);
 
 }
