@@ -27,4 +27,6 @@ public interface InquiryCountMapper {
     int updateByPrimaryKeySelective(InquiryCount record);
 
     int updateByPrimaryKey(InquiryCount record);
+
+    Double selectTotalAmountByExample(@Param("example") InquiryCountExample example);
 }

@@ -14,7 +14,7 @@ import java.util.List;
  */
 
 @Controller
-@RequestMapping(name = "/hrCount")
+@RequestMapping("/hrCount")
 public class HrCountController {
 
     @Autowired
