@@ -1,0 +1,33 @@
+package com.erui.comm;
+import java.text.DecimalFormat;
+
+/**
+ * Created by erui on 2017/10/20.
+ */
+public class RateUtil {
+    public static void main(String args[]){
+        System.out.println(intChainRate(5,8));
+        System.out.println(doubleChainRate(344.55,888.8));
+    }
+     
+    /**
+     * @Author:SHIGS
+     * @Description:整数计算
+     * @Date:15:21 2017/10/20
+     * @modified By
+     */
+    public static double intChainRate(int element, int denominator){
+        DecimalFormat df=new DecimalFormat("0.00");
+        return Double.parseDouble(df.format(((double) element)/((double) denominator)));
+    }
+     /**
+      * @Author:SHIGS
+      * @Description :小数计算
+      * @Date:15:22 2017/10/20
+      * @modified By
+      */
+    public static double doubleChainRate(double element, double denominator){
+        DecimalFormat df=new DecimalFormat("0.00");
+        return Double.parseDouble(df.format((element)/( denominator)));
+    }
+}
