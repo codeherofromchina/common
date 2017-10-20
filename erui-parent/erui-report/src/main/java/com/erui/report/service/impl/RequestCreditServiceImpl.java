@@ -23,12 +23,8 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		RequestCredit rc = null;
-		boolean insertFlag = true; // 是否插入标志
-		String errorMsg = null; // 插入失败后的原因
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
-			insertFlag = true;
-			errorMsg = null;
 			rc = new RequestCredit();
 			rc.setCreditSerialNum(strArr[0]);
 			rc.setOrderNum(strArr[1]);
@@ -44,16 +40,18 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 				rc.setOrderAmount(new BigDecimal(strArr[10]));
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
-				errorMsg = "订单金额字段非数字";
-				insertFlag = false;
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "订单金额字段非数字");
+				continue;
 			}
 			rc.setCreditCurrency(strArr[11]);
 			try {
 				rc.setReceiveAmount(new BigDecimal(strArr[12]));
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
-				errorMsg = "应收账款余额字段非数字";
-				insertFlag = false;
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "应收账款余额字段非数字");
+				continue;
 			}
 			rc.setWarnStatus(strArr[13]);
 			rc.setBackResponsePerson(strArr[14]);
@@ -62,25 +60,19 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 				rc.setBackDate(DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR,DateUtil.SHORT_FORMAT_STR));
 			} catch (Exception e) {
 				logger.error(e.getMessage());
-				errorMsg = "下次回款日期格式错误";
-				insertFlag = false;
-			}
-
-			if (insertFlag) {
-				try {
-					writeMapper.insertSelective(rc);
-				} catch (Exception e) {
-					errorMsg = e.getMessage();
-					insertFlag = false;
-				}
-			}
-
-			if (insertFlag) {
-				response.incrSuccess();
-			} else {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, errorMsg);
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "下次回款日期格式错误");
+				continue;
 			}
+
+			try {
+				writeMapper.insertSelective(rc);
+				response.incrSuccess();
+			} catch (Exception e) {
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, e.getMessage());
+			}
+
 		}
 		response.setDone(true);
 

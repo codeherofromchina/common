@@ -21,8 +21,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.erui.comm.ExcelReader;
 import com.erui.comm.FileUtils;
+import com.erui.report.service.CategoryQualityService;
+import com.erui.report.service.CreditExtensionService;
+import com.erui.report.service.HrCountService;
+import com.erui.report.service.InquiryCountService;
+import com.erui.report.service.MarketerCountService;
+import com.erui.report.service.MemberService;
+import com.erui.report.service.OrderCountService;
+import com.erui.report.service.OrderEntryCountService;
+import com.erui.report.service.OrderOutboundCountService;
 import com.erui.report.service.ProcurementCountService;
 import com.erui.report.service.RequestCreditService;
+import com.erui.report.service.StorageOrganiCountService;
+import com.erui.report.service.SupplyChainService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
@@ -30,13 +41,40 @@ import com.erui.report.util.ImportDataResponse;
 @RequestMapping("/excel")
 public class ExcelController {
 	private final static Logger logger = LoggerFactory.getLogger(ExcelController.class);
-
+	@Autowired
+	private CategoryQualityService categoryQualityService;
+	@Autowired
+	private CreditExtensionService creditExtensionService;
+	@Autowired
+	private StorageOrganiCountService storageOrganiCountService;
+	@Autowired
+	private HrCountService hrCountService;
+	@Autowired
+	private InquiryCountService inquiryCountService;
+	@Autowired
+	private MarketerCountService marketerCountService;
+	@Autowired
+	private MemberService memberService;
+	@Autowired
+	private OrderCountService orderCountService;
+	@Autowired
+	private OrderEntryCountService orderEntryCountService;
+	@Autowired
+	private OrderOutboundCountService orderOutboundCountService;
 	@Autowired
 	private ProcurementCountService procurementCountService;
-	// 注入应收账款业务类
 	@Autowired
 	private RequestCreditService requestCreditService;
+	@Autowired
+	private SupplyChainService supplyChainService;
 
+	/**
+	 * 导入excel数据
+	 * @param request
+	 * @param file	具体文件
+	 * @param type	参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
+	 * @return
+	 */
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Object updateExcel(HttpServletRequest request,
@@ -90,7 +128,7 @@ public class ExcelController {
 			// TODO这里需要验证数据的正确性，稍后实现
 
 			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize));
-			
+
 			result.put("success", true);
 			result.put("response", importDataResponse);
 		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
@@ -104,6 +142,7 @@ public class ExcelController {
 
 	/**
 	 * 选择具体使用什么业务类导入数据
+	 * 
 	 * @param typeEnum
 	 * @param datas
 	 */
@@ -111,33 +150,56 @@ public class ExcelController {
 		ImportDataResponse response = null;
 		switch (typeEnum) {
 		case CATEGORY_QUALITY:
+			logger.info("导入品控数据");
+			response = categoryQualityService.importData(datas);
 			break;
 		case CREDIT_EXTENSION:
+			logger.info("导入授信数据");
+			response = creditExtensionService.importData(datas);
 			break;
 		case STORAGE_ORGANICOUNT:
+			logger.info("导入仓储物流-事业部数据");
+			response = storageOrganiCountService.importData(datas);
 			break;
 		case HR_COUNT:
+			logger.info("导入人力资源数据");
+			response = hrCountService.importData(datas);
 			break;
 		case INQUIRY_COUNT:
+			logger.info("导入客户中心-询单数据");
+			response = inquiryCountService.importData(datas);
 			break;
 		case MARKETER_COUNT:
+			logger.info("导入市场人员数据");
+			response = marketerCountService.importData(datas);
 			break;
 		case MEMBER:
+			logger.info("导入运营数据");
+			response = memberService.importData(datas);
 			break;
 		case ORDER_COUNT:
+			logger.info("导入客户中心-订单数据");
+			response = orderCountService.importData(datas);
 			break;
 		case ORDER_ENTRY_COUNT:
+			logger.info("导入仓储物流-订单入库数据");
+			response = orderEntryCountService.importData(datas);
 			break;
 		case ORDER_OUTBOUND_COUNT:
+			logger.info("导入仓储物流-订单出库数据");
+			response = orderOutboundCountService.importData(datas);
 			break;
 		case PROCUREMENT_COUNT:
 			logger.info("导入采购数据");
 			response = procurementCountService.importData(datas);
 			break;
 		case REQUEST_CREDIT:
+			logger.info("导入应收账款数据");
 			response = requestCreditService.importData(datas);
 			break;
 		case SUPPLY_CHAIN:
+			logger.info("导入供应链数据");
+			response = supplyChainService.importData(datas);
 			break;
 		default:
 			response = new ImportDataResponse();

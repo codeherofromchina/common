@@ -19,6 +19,8 @@ public class ProcurementCount {
     private String area;
 
     private String country;
+    
+    private String oil;
 
     public Integer getId() {
         return id;
@@ -83,4 +85,8 @@ public class ProcurementCount {
     public void setCountry(String country) {
         this.country = country == null ? null : country.trim();
     }
+    
+    public void setOil(String oil) {
+		this.oil = oil;
+	}
 }

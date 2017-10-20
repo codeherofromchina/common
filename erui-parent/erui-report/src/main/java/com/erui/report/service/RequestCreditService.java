@@ -7,7 +7,7 @@ import com.erui.report.util.ImportDataResponse;
 public interface RequestCreditService {
 
 	/**
-	 * 导入应收账款的数据
+	 * 导入应收账款的数据到数据库
 	 * @param datas
 	 * @return
 	 */

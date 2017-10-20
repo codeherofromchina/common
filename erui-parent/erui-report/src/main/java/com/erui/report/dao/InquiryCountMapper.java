@@ -1,9 +1,12 @@
 package com.erui.report.dao;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.erui.report.model.InquiryCount;
 import com.erui.report.model.InquiryCountExample;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface InquiryCountMapper {
     int countByExample(InquiryCountExample example);
@@ -27,4 +30,6 @@ public interface InquiryCountMapper {
     int updateByPrimaryKeySelective(InquiryCount record);
 
     int updateByPrimaryKey(InquiryCount record);
+    
+    Double selectTotalAmountByExample(InquiryCountExample example);
 }

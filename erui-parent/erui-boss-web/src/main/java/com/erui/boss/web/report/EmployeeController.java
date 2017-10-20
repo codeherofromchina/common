@@ -1,5 +1,7 @@
 package com.erui.boss.web.report;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.erui.boss.web.report.vo.Student;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.EmployeeService;
+import com.erui.report.service.InquiryCountService;
 
 @Controller
 @RequestMapping("/abc")
@@ -24,6 +28,8 @@ public class EmployeeController {
 	private EmployeeService employeeService;
 	@Autowired
 	private Student student;
+	@Autowired
+	private InquiryCountService inquiryCountService;
 
 	@RequestMapping(value = "/name", method = RequestMethod.GET)
 	@ResponseBody
@@ -35,6 +41,17 @@ public class EmployeeController {
 		logger.info("name is {}", name);
 		result.put("name", name);
 		result.put("name2", student.getName());
+		return result;
+	}
+	
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	@ResponseBody
+	public Object test() throws ParseException {
+		Date date = new Date();
+		Date parseStringToDate = DateUtil.parseStringToDate("2016-10-10", "yyyy-MM-dd");
+		double totalPrice = inquiryCountService.inquiryAmountByTime(parseStringToDate, date);
+		Map<String,Object> result = new HashMap<>();
+		result.put("to", totalPrice);
 		return result;
 	}
 
