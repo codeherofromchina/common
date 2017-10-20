@@ -1,6 +1,5 @@
 package com.erui.comm.util.data.date;
 
-import com.erui.comm.util.data.string.StringUtils;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -8,8 +7,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.erui.comm.util.data.string.StringUtils;
+
 
 public class DateUtil {
+	public static final String FULL_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
+	public static final String SHORT_FORMAT_STR = "yyyy-MM-dd";
 	/**
 	 * <summary>
 	 * 	判断年份是否是闰年，true为闰年，false为平年
@@ -59,6 +62,29 @@ public class DateUtil {
 			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateStr);
 		else
 			return new SimpleDateFormat(format).parse(dateStr);
+	}
+	
+	/**
+	 * <summary>
+	 * 	解析字符串到日期。
+	 * </summary>
+	 * @param dateStr
+	 * @param format
+	 * @return
+	 * @throws ParseException 
+	 */
+	public static Date parseString2Date(String dateStr ,String ...formats) throws ParseException {
+		if (formats != null && formats.length > 0) {
+			for (String format:formats) {
+				try {
+					return parseStringToDate(dateStr,format);
+				}catch (ParseException ex) {
+				}
+			}
+		} else {
+			return parseStringToDate(dateStr,null);
+		}
+		throw new ParseException(org.apache.commons.lang3.StringUtils.join(formats," ") + "中没有符合的转换格式",1);
 	}
 	
 	/**
