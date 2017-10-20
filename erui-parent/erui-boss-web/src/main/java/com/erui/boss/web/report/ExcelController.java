@@ -19,10 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.erui.boss.web.report.util.ExcelUploadTypeEnum;
 import com.erui.comm.ExcelReader;
 import com.erui.comm.FileUtils;
 import com.erui.report.service.ProcurementCountService;
+import com.erui.report.service.RequestCreditService;
+import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
 @Controller
@@ -32,6 +33,9 @@ public class ExcelController {
 
 	@Autowired
 	private ProcurementCountService procurementCountService;
+	// 注入应收账款业务类
+	@Autowired
+	private RequestCreditService requestCreditService;
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
@@ -71,14 +75,17 @@ public class ExcelController {
 			if (dataRowSize < 1) {
 				result.put("success", false);
 				result.put("desc", "Excel内容为空");
+				return result;
 			}
 			if (!typeEnum.verifyTitleData(excelContent.get(0))) {
 				result.put("success", false);
 				result.put("desc", "Excel头验证失败");
+				return result;
 			}
 			if (dataRowSize == 1) {
 				result.put("success", false);
 				result.put("desc", "Excel数据为空");
+				return result;
 			}
 			// TODO这里需要验证数据的正确性，稍后实现
 
@@ -128,6 +135,7 @@ public class ExcelController {
 			response = procurementCountService.importData(datas);
 			break;
 		case REQUEST_CREDIT:
+			response = requestCreditService.importData(datas);
 			break;
 		case SUPPLY_CHAIN:
 			break;
