@@ -2,7 +2,11 @@ package com.erui.report.dao;
 
 import com.erui.report.model.Member;
 import com.erui.report.model.MemberExample;
+
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface MemberMapper {
@@ -11,7 +15,8 @@ public interface MemberMapper {
     int deleteByExample(MemberExample example);
 
     int deleteByPrimaryKey(Long id);
-
+    int selectByTime(MemberExample example);
+    Map selectMemberByTime();
     int insert(Member record);
 
     int insertSelective(Member record);

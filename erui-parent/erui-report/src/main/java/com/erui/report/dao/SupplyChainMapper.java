@@ -3,9 +3,12 @@ package com.erui.report.dao;
 import com.erui.report.model.SupplyChain;
 import com.erui.report.model.SupplyChainExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface SupplyChainMapper {
+    List<Map> selectFinishByDate(SupplyChainExample supplyChainExample);
     int countByExample(SupplyChainExample example);
 
     int deleteByExample(SupplyChainExample example);

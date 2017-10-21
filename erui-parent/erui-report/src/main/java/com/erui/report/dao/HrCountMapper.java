@@ -2,10 +2,15 @@ package com.erui.report.dao;
 
 import com.erui.report.model.HrCount;
 import com.erui.report.model.HrCountExample;
+
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface HrCountMapper {
+    Map selectHrCountByPart(HrCountExample hrCountExample);
     int countByExample(HrCountExample example);
 
     int deleteByExample(HrCountExample example);
@@ -15,8 +20,6 @@ public interface HrCountMapper {
     int insert(HrCount record);
 
     int insertSelective(HrCount record);
-
-    List<HrCount> findAll();
 
     List<HrCount> selectByExample(HrCountExample example);
 

@@ -1,8 +1,11 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.report.model.HrCountExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,8 +31,15 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	 */
 	@Override
 	public List<HrCount> findAll() {
-		return this.readMapper.findAll();
+		return this.readMapper.selectByExample(null);
 
+	}
+
+	@Override
+	public Map<String, Object> selectHrCountByPart(Date startTime, Date endDate) {
+		HrCountExample hrCountExample = new HrCountExample();
+		hrCountExample.createCriteria().andCreateAtBetween(startTime,endDate);
+		return this.readMapper.selectHrCountByPart(hrCountExample);
 	}
 
 	@Override

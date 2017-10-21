@@ -75,6 +75,16 @@
     id, create_at, organization, category, plan_sku_num, finish_sku_num, plan_spu_num, 
     finish_spu_num, plan_suppli_num, finish_suppli_num
   </sql>
+  <select id="selectFinishByDate" resultType="java.util.Map" parameterType="com.erui.report.model.SupplyChainExample">
+    SELECT finish_spu_num,finish_sku_num ,finish_suppli_num ,create_at
+    FROM supply_chain
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.SupplyChainExample" >
     select
     <if test="distinct" >
