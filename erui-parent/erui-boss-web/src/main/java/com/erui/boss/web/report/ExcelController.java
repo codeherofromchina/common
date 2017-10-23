@@ -38,7 +38,7 @@ import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
 @Controller
-@RequestMapping("/excel")
+@RequestMapping("/report/excel")
 public class ExcelController {
 	private final static Logger logger = LoggerFactory.getLogger(ExcelController.class);
 	@Autowired
@@ -157,7 +157,7 @@ public class ExcelController {
 			logger.info("导入授信数据");
 			response = creditExtensionService.importData(datas);
 			break;
-		case STORAGE_ORGANICOUNT:
+		case STORAGE_ORGANI_COUNT:
 			logger.info("导入仓储物流-事业部数据");
 			response = storageOrganiCountService.importData(datas);
 			break;

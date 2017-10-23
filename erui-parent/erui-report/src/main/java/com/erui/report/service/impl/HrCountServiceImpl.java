@@ -50,14 +50,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			hc = new HrCount();
-			try {
-				hc.setCreateAt(
-						DateUtil.parseString2Date(strArr[0], DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "日期字段格式错误");
-				continue;
+			if(strArr[0] != null ) {
+				try {
+					hc.setCreateAt(
+							DateUtil.parseString2Date(strArr[0], DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "日期字段格式错误");
+					continue;
+				}
 			}
 			hc.setDepartment(strArr[1]);
 			try {
@@ -128,6 +130,14 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "离职字段不是数字");
 				continue;
 			}
+			
+			try {
+				writeMapper.insertSelective(hc);
+				response.incrSuccess();
+			} catch (Exception e) {
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, e.getMessage());
+			}
 
 		}
 		response.setDone(true);
@@ -136,9 +146,4 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	}
 
 	
-	public static void main(String[] args) {
-		String str = "55.0a";
-		Number integer = new BigDecimal(str);
-		System.out.println(integer.intValue());
-	}
 }

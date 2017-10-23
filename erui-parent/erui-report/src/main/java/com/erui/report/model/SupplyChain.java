@@ -3,103 +3,113 @@ package com.erui.report.model;
 import java.util.Date;
 
 public class SupplyChain {
-    private Integer id;
+	private Integer id;
 
-    private Date createAt;
+	private Date createAt;
 
-    private String organization;
+	private String organization;
 
-    private String category;
+	private String category;
 
-    private Integer planSkuNum;
+	private String itemClass;
 
-    private Integer finishSkuNum;
+	private Integer planSkuNum;
 
-    private Integer planSpuNum;
+	private Integer finishSkuNum;
 
-    private Integer finishSpuNum;
+	private Integer planSpuNum;
 
-    private Integer planSuppliNum;
+	private Integer finishSpuNum;
 
-    private Integer finishSuppliNum;
+	private Integer planSuppliNum;
 
-    public Integer getId() {
-        return id;
-    }
+	private Integer finishSuppliNum;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public Date getCreateAt() {
-        return createAt;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setCreateAt(Date createAt) {
-        this.createAt = createAt;
-    }
+	public Date getCreateAt() {
+		return createAt;
+	}
 
-    public String getOrganization() {
-        return organization;
-    }
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
+	}
 
-    public void setOrganization(String organization) {
-        this.organization = organization == null ? null : organization.trim();
-    }
+	public String getOrganization() {
+		return organization;
+	}
 
-    public String getCategory() {
-        return category;
-    }
+	public void setOrganization(String organization) {
+		this.organization = organization == null ? null : organization.trim();
+	}
 
-    public void setCategory(String category) {
-        this.category = category == null ? null : category.trim();
-    }
+	public String getCategory() {
+		return category;
+	}
 
-    public Integer getPlanSkuNum() {
-        return planSkuNum;
-    }
+	public void setCategory(String category) {
+		this.category = category == null ? null : category.trim();
+	}
 
-    public void setPlanSkuNum(Integer planSkuNum) {
-        this.planSkuNum = planSkuNum;
-    }
+	public String getItemClass() {
+		return itemClass;
+	}
 
-    public Integer getFinishSkuNum() {
-        return finishSkuNum;
-    }
+	public void setItemClass(String itemClass) {
+		this.itemClass = itemClass;
+	}
 
-    public void setFinishSkuNum(Integer finishSkuNum) {
-        this.finishSkuNum = finishSkuNum;
-    }
+	public Integer getPlanSkuNum() {
+		return planSkuNum;
+	}
 
-    public Integer getPlanSpuNum() {
-        return planSpuNum;
-    }
+	public void setPlanSkuNum(Integer planSkuNum) {
+		this.planSkuNum = planSkuNum;
+	}
 
-    public void setPlanSpuNum(Integer planSpuNum) {
-        this.planSpuNum = planSpuNum;
-    }
+	public Integer getFinishSkuNum() {
+		return finishSkuNum;
+	}
 
-    public Integer getFinishSpuNum() {
-        return finishSpuNum;
-    }
+	public void setFinishSkuNum(Integer finishSkuNum) {
+		this.finishSkuNum = finishSkuNum;
+	}
 
-    public void setFinishSpuNum(Integer finishSpuNum) {
-        this.finishSpuNum = finishSpuNum;
-    }
+	public Integer getPlanSpuNum() {
+		return planSpuNum;
+	}
 
-    public Integer getPlanSuppliNum() {
-        return planSuppliNum;
-    }
+	public void setPlanSpuNum(Integer planSpuNum) {
+		this.planSpuNum = planSpuNum;
+	}
 
-    public void setPlanSuppliNum(Integer planSuppliNum) {
-        this.planSuppliNum = planSuppliNum;
-    }
+	public Integer getFinishSpuNum() {
+		return finishSpuNum;
+	}
 
-    public Integer getFinishSuppliNum() {
-        return finishSuppliNum;
-    }
+	public void setFinishSpuNum(Integer finishSpuNum) {
+		this.finishSpuNum = finishSpuNum;
+	}
 
-    public void setFinishSuppliNum(Integer finishSuppliNum) {
-        this.finishSuppliNum = finishSuppliNum;
-    }
+	public Integer getPlanSuppliNum() {
+		return planSuppliNum;
+	}
+
+	public void setPlanSuppliNum(Integer planSuppliNum) {
+		this.planSuppliNum = planSuppliNum;
+	}
+
+	public Integer getFinishSuppliNum() {
+		return finishSuppliNum;
+	}
+
+	public void setFinishSuppliNum(Integer finishSuppliNum) {
+		this.finishSuppliNum = finishSuppliNum;
+	}
 }

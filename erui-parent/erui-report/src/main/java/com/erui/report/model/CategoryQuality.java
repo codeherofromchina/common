@@ -1,115 +1,116 @@
 package com.erui.report.model;
 
-import java.util.Date;
+import java.math.BigDecimal;
 
 public class CategoryQuality {
     private Long id;
 
-    private Date qualityControlDate;
+    private String qualityControlDate;
 
     private Integer inspectionTotal;
 
     private Integer proInfactoryCheckPassCount;
 
-    private String proInfactoryCheckPassRate;
+    private BigDecimal proInfactoryCheckPassRate;
 
     private Integer proOutfactoryTotal;
 
     private Integer proOutfactoryCheckCount;
 
-    private String proOutfactoryCheckRate;
+    private BigDecimal proOutfactoryCheckRate;
 
     private Integer assignmentsTotal;
 
     private Integer productsQualifiedCount;
 
-    private String productsAssignmentsQualifiedRate;
+    private BigDecimal productsAssignmentsQualifiedRate;
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Date getQualityControlDate() {
-        return qualityControlDate;
-    }
+	public String getQualityControlDate() {
+		return qualityControlDate;
+	}
 
-    public void setQualityControlDate(Date qualityControlDate) {
-        this.qualityControlDate = qualityControlDate;
-    }
+	public void setQualityControlDate(String qualityControlDate) {
+		this.qualityControlDate = qualityControlDate;
+	}
 
-    public Integer getInspectionTotal() {
-        return inspectionTotal;
-    }
+	public Integer getInspectionTotal() {
+		return inspectionTotal;
+	}
 
-    public void setInspectionTotal(Integer inspectionTotal) {
-        this.inspectionTotal = inspectionTotal;
-    }
+	public void setInspectionTotal(Integer inspectionTotal) {
+		this.inspectionTotal = inspectionTotal;
+	}
 
-    public Integer getProInfactoryCheckPassCount() {
-        return proInfactoryCheckPassCount;
-    }
+	public Integer getProInfactoryCheckPassCount() {
+		return proInfactoryCheckPassCount;
+	}
 
-    public void setProInfactoryCheckPassCount(Integer proInfactoryCheckPassCount) {
-        this.proInfactoryCheckPassCount = proInfactoryCheckPassCount;
-    }
+	public void setProInfactoryCheckPassCount(Integer proInfactoryCheckPassCount) {
+		this.proInfactoryCheckPassCount = proInfactoryCheckPassCount;
+	}
 
-    public String getProInfactoryCheckPassRate() {
-        return proInfactoryCheckPassRate;
-    }
+	public BigDecimal getProInfactoryCheckPassRate() {
+		return proInfactoryCheckPassRate;
+	}
 
-    public void setProInfactoryCheckPassRate(String proInfactoryCheckPassRate) {
-        this.proInfactoryCheckPassRate = proInfactoryCheckPassRate == null ? null : proInfactoryCheckPassRate.trim();
-    }
+	public void setProInfactoryCheckPassRate(BigDecimal proInfactoryCheckPassRate) {
+		this.proInfactoryCheckPassRate = proInfactoryCheckPassRate;
+	}
 
-    public Integer getProOutfactoryTotal() {
-        return proOutfactoryTotal;
-    }
+	public Integer getProOutfactoryTotal() {
+		return proOutfactoryTotal;
+	}
 
-    public void setProOutfactoryTotal(Integer proOutfactoryTotal) {
-        this.proOutfactoryTotal = proOutfactoryTotal;
-    }
+	public void setProOutfactoryTotal(Integer proOutfactoryTotal) {
+		this.proOutfactoryTotal = proOutfactoryTotal;
+	}
 
-    public Integer getProOutfactoryCheckCount() {
-        return proOutfactoryCheckCount;
-    }
+	public Integer getProOutfactoryCheckCount() {
+		return proOutfactoryCheckCount;
+	}
 
-    public void setProOutfactoryCheckCount(Integer proOutfactoryCheckCount) {
-        this.proOutfactoryCheckCount = proOutfactoryCheckCount;
-    }
+	public void setProOutfactoryCheckCount(Integer proOutfactoryCheckCount) {
+		this.proOutfactoryCheckCount = proOutfactoryCheckCount;
+	}
 
-    public String getProOutfactoryCheckRate() {
-        return proOutfactoryCheckRate;
-    }
+	public BigDecimal getProOutfactoryCheckRate() {
+		return proOutfactoryCheckRate;
+	}
 
-    public void setProOutfactoryCheckRate(String proOutfactoryCheckRate) {
-        this.proOutfactoryCheckRate = proOutfactoryCheckRate == null ? null : proOutfactoryCheckRate.trim();
-    }
+	public void setProOutfactoryCheckRate(BigDecimal proOutfactoryCheckRate) {
+		this.proOutfactoryCheckRate = proOutfactoryCheckRate;
+	}
 
-    public Integer getAssignmentsTotal() {
-        return assignmentsTotal;
-    }
+	public Integer getAssignmentsTotal() {
+		return assignmentsTotal;
+	}
 
-    public void setAssignmentsTotal(Integer assignmentsTotal) {
-        this.assignmentsTotal = assignmentsTotal;
-    }
+	public void setAssignmentsTotal(Integer assignmentsTotal) {
+		this.assignmentsTotal = assignmentsTotal;
+	}
 
-    public Integer getProductsQualifiedCount() {
-        return productsQualifiedCount;
-    }
+	public Integer getProductsQualifiedCount() {
+		return productsQualifiedCount;
+	}
 
-    public void setProductsQualifiedCount(Integer productsQualifiedCount) {
-        this.productsQualifiedCount = productsQualifiedCount;
-    }
+	public void setProductsQualifiedCount(Integer productsQualifiedCount) {
+		this.productsQualifiedCount = productsQualifiedCount;
+	}
 
-    public String getProductsAssignmentsQualifiedRate() {
-        return productsAssignmentsQualifiedRate;
-    }
+	public BigDecimal getProductsAssignmentsQualifiedRate() {
+		return productsAssignmentsQualifiedRate;
+	}
 
-    public void setProductsAssignmentsQualifiedRate(String productsAssignmentsQualifiedRate) {
-        this.productsAssignmentsQualifiedRate = productsAssignmentsQualifiedRate == null ? null : productsAssignmentsQualifiedRate.trim();
-    }
+	public void setProductsAssignmentsQualifiedRate(BigDecimal productsAssignmentsQualifiedRate) {
+		this.productsAssignmentsQualifiedRate = productsAssignmentsQualifiedRate;
+	}
+    
 }

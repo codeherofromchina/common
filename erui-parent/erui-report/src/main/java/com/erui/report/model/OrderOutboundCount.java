@@ -1,85 +1,115 @@
 package com.erui.report.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class OrderOutboundCount {
-    private Integer id;
+	private Integer id;
 
-    private Date createAt;
+	private Date createAt;
 
-    private String outboundNum;
+	private String outboundNum;
 
-    private String dispatchNum;
+	private String dispatchNum;
 
-    private String contractNum;
+	private String contractNum;
 
-    private String executeNum;
+	private String executeNum;
 
-    private Integer packCount;
+	private Integer packCount;
 
-    private String destination;
+	private String destination;
 
-    public Integer getId() {
-        return id;
-    }
+	private Date outboundDate;
+	private BigDecimal amounts;
+	private String remark;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public Date getCreateAt() {
-        return createAt;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setCreateAt(Date createAt) {
-        this.createAt = createAt;
-    }
+	public Date getCreateAt() {
+		return createAt;
+	}
 
-    public String getOutboundNum() {
-        return outboundNum;
-    }
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
+	}
 
-    public void setOutboundNum(String outboundNum) {
-        this.outboundNum = outboundNum == null ? null : outboundNum.trim();
-    }
+	public String getOutboundNum() {
+		return outboundNum;
+	}
 
-    public String getDispatchNum() {
-        return dispatchNum;
-    }
+	public void setOutboundNum(String outboundNum) {
+		this.outboundNum = outboundNum == null ? null : outboundNum.trim();
+	}
 
-    public void setDispatchNum(String dispatchNum) {
-        this.dispatchNum = dispatchNum == null ? null : dispatchNum.trim();
-    }
+	public String getDispatchNum() {
+		return dispatchNum;
+	}
 
-    public String getContractNum() {
-        return contractNum;
-    }
+	public void setDispatchNum(String dispatchNum) {
+		this.dispatchNum = dispatchNum == null ? null : dispatchNum.trim();
+	}
 
-    public void setContractNum(String contractNum) {
-        this.contractNum = contractNum == null ? null : contractNum.trim();
-    }
+	public String getContractNum() {
+		return contractNum;
+	}
 
-    public String getExecuteNum() {
-        return executeNum;
-    }
+	public void setContractNum(String contractNum) {
+		this.contractNum = contractNum == null ? null : contractNum.trim();
+	}
 
-    public void setExecuteNum(String executeNum) {
-        this.executeNum = executeNum == null ? null : executeNum.trim();
-    }
+	public String getExecuteNum() {
+		return executeNum;
+	}
 
-    public Integer getPackCount() {
-        return packCount;
-    }
+	public void setExecuteNum(String executeNum) {
+		this.executeNum = executeNum == null ? null : executeNum.trim();
+	}
 
-    public void setPackCount(Integer packCount) {
-        this.packCount = packCount;
-    }
+	public Integer getPackCount() {
+		return packCount;
+	}
 
-    public String getDestination() {
-        return destination;
-    }
+	public void setPackCount(Integer packCount) {
+		this.packCount = packCount;
+	}
 
-    public void setDestination(String destination) {
-        this.destination = destination == null ? null : destination.trim();
-    }
+	public String getDestination() {
+		return destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination == null ? null : destination.trim();
+	}
+
+	public Date getOutboundDate() {
+		return outboundDate;
+	}
+
+	public void setOutboundDate(Date outboundDate) {
+		this.outboundDate = outboundDate;
+	}
+
+	public BigDecimal getAmounts() {
+		return amounts;
+	}
+
+	public void setAmounts(BigDecimal amounts) {
+		this.amounts = amounts;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
 }

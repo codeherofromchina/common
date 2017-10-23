@@ -28,7 +28,7 @@ import com.erui.report.service.EmployeeService;
 import com.erui.report.service.impl.BaseService;
 
 @Controller
-@RequestMapping("/file")
+@RequestMapping("/report/file")
 public class FileController {
 	private final static Logger logger = LoggerFactory.getLogger(FileController.class);
 

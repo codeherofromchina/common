@@ -1,20 +1,92 @@
 package com.erui.report.service.impl;
 
-import com.erui.report.dao.OrderOutboundCountMapper;
-import com.erui.report.service.OrderOutboundCountService;
-import com.erui.report.util.ImportDataResponse;
-
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.dao.OrderOutboundCountMapper;
+import com.erui.report.model.OrderOutboundCount;
+import com.erui.report.service.OrderOutboundCountService;
+import com.erui.report.util.ExcelUploadTypeEnum;
+import com.erui.report.util.ImportDataResponse;
 
 @Service
 public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCountMapper>
 		implements OrderOutboundCountService {
+	private final static Logger logger = LoggerFactory.getLogger(StorageOrganiCountServiceImpl.class);
 
 	@Override
 	public ImportDataResponse importData(List<String[]> datas) {
-		// TODO Auto-generated method stub
-		return null;
+
+		ImportDataResponse response = new ImportDataResponse();
+		int size = datas.size();
+		OrderOutboundCount ooc = null;
+		for (int index = 0; index < size; index++) {
+			String[] strArr = datas.get(index);
+			if (strArr == null) {
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, "正行数据为空");
+				continue;
+			}
+			ooc = new OrderOutboundCount();
+
+			try {
+				ooc.setCreateAt(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+						DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, "时间字段格式错误");
+				continue;
+			}
+			ooc.setOutboundNum(strArr[1]);
+			ooc.setContractNum(strArr[2]);
+			ooc.setDestination(strArr[3]);
+			ooc.setExecuteNum(strArr[4]);
+
+			try {
+				ooc.setPackCount(new BigDecimal(strArr[5]).intValue());
+			} catch (NumberFormatException e) {
+				logger.error(e.getMessage());
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "包装件数字段不是数字");
+				continue;
+			}
+
+			try {
+				ooc.setOutboundDate(DateUtil.parseString2Date(strArr[6], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+						DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, "出库时间字段格式错误");
+				continue;
+			}
+			try {
+				ooc.setAmounts(new BigDecimal(strArr[7]));
+			} catch (NumberFormatException e) {
+				logger.error(e.getMessage());
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "金额字段不是数字");
+				continue;
+			}
+			ooc.setRemark(strArr[8]);
+
+			try {
+				writeMapper.insertSelective(ooc);
+				response.incrSuccess();
+			} catch (Exception e) {
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, e.getMessage());
+			}
+
+		}
+		response.setDone(true);
+
+		return response;
 	}
 }
