@@ -38,4 +38,9 @@ public interface InquiryCountService {
 	* */
 	public List<Map<String,Object>> selectProTop3(Map<String,Object>params);
 
+	/*
+	* 查询事业部列表
+	* */
+	 public  List<String>   selectOrgList();
+
 }
