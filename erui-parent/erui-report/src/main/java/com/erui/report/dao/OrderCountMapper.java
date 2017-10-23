@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.OrderCount;
 import com.erui.report.model.OrderCountExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface OrderCountMapper {
@@ -19,6 +21,12 @@ public interface OrderCountMapper {
     List<OrderCount> selectByExample(OrderCountExample example);
 
     OrderCount selectByPrimaryKey(Long id);
+
+    Double selectTotalAmountByExample(OrderCountExample example);
+
+    List<Map<String, Object>> selectOrderProTop3(Map<String, Object> params);
+
+    Double selectProfitRateByExample(OrderCountExample example);
 
     int updateByExampleSelective(@Param("record") OrderCount record, @Param("example") OrderCountExample example);
 

@@ -155,6 +155,51 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account)
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectProfitRateByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(pre_profit*project_account)/SUM(project_account)
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
+    SELECT
+    SUM(order_count) AS orderCount,
+    pro_category
+    FROM
+    order_count
+    WHERE
+    <if test="startTime != null" >
+      1=1 and project_start >= #{startTime}
+    </if>
+    <if test="endTime != null " >
+      and project_start &lt;= #{endTime}
+    </if>
+    group by pro_category  ORDER BY orderCount DESC LIMIT 0,3;
+
+  </select>
+
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

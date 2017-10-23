@@ -1,8 +1,10 @@
 package com.erui.report.dao;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.InquiryCountVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.erui.report.model.InquiryCount;
@@ -31,8 +33,12 @@ public interface InquiryCountMapper {
 
     int updateByPrimaryKey(InquiryCount record);
 
-    
+    //查询总金额
     Double selectTotalAmountByExample(InquiryCountExample example);
+    //查询油气类产品数量
     int     selectProCountByIsOil(InquiryCountExample example);
+    //查询产品Top3
+    List<Map<String,Object>> selectProTop3(Map<String,Object>params);
+
 
 }

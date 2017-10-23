@@ -1,8 +1,12 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.report.model.InquiryCountExample;
+import com.erui.report.model.OrderCountExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -390,4 +394,40 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
 		return response;
 	}
+
+	@Override
+	public int orderCountByTime(Date startTime, Date endTime,String proStatus) {
+        OrderCountExample example= new OrderCountExample();
+        OrderCountExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectStartBetween(startTime,endTime);
+        if(proStatus!=null||!proStatus.equals("")){
+            criteria.andProjectStatusEqualTo(proStatus);
+        }
+		int count = readMapper.countByExample(example);
+		return count;
+
+	}
+
+	@Override
+	public Double orderAmountByTime(Date startTime, Date endTime) {
+        OrderCountExample example= new OrderCountExample();
+        example.createCriteria().andProjectStartBetween(startTime,endTime);
+        Double amount = readMapper.selectTotalAmountByExample(example);
+        return amount;
+	}
+
+	@Override
+	public List<Map<String, Object>> selectOrderProTop3(Map<String, Object> params) {
+        List<Map<String, Object>> list = readMapper.selectOrderProTop3(params);
+        return list;
+	}
+
+	//订单利润率
+    @Override
+    public Double selectProfitRate(Date startTime, Date endTime) {
+        OrderCountExample example= new OrderCountExample();
+        example.createCriteria().andProjectStartBetween(startTime,  endTime);
+        Double profitRate = readMapper.selectProfitRateByExample(example);
+        return profitRate;
+    }
 }
