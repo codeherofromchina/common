@@ -8,7 +8,8 @@ public interface CategoryQualityService {
 	/**
 	 * 导入品控数据
 	 * @param datas
+	 * @param flag	true:只检测数据  false:插入正式库
 	 * @return
 	 */
-	public ImportDataResponse importData(List<String[]> datas) ;
+	public ImportDataResponse importData(List<String[]> datas,boolean onlyTest) ;
 }

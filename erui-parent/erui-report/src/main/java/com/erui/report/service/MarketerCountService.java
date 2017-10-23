@@ -8,7 +8,8 @@ public interface MarketerCountService {
 	/**
 	 * 导入市场人员数据
 	 * @param datas
+	 * @param flag	true:只检测数据  false:插入正式库
 	 * @return
 	 */
-	public ImportDataResponse importData(List<String[]> datas) ;
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
 }

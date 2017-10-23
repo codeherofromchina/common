@@ -23,13 +23,16 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 	 * 具体采购数据的导入实现
 	 */
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		ProcurementCount pc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.PROCUREMENT_COUNT, response, index + 1)) {
+				continue;
+			}
 			pc = new ProcurementCount();
 			try {
 				pc.setAssignTime(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d", DateUtil.FULL_FORMAT_STR,
@@ -55,8 +58,10 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 			pc.setCountry(strArr[6]);
 			pc.setOil(strArr[7]);
 			try {
-				writeMapper.insertSelective(pc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(pc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), index + 1, e.getMessage());

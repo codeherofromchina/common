@@ -38,26 +38,31 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	@Override
 	public Map<String, Object> selectHrCountByPart(Date startTime, Date endDate) {
 		HrCountExample hrCountExample = new HrCountExample();
-		hrCountExample.createCriteria().andCreateAtBetween(startTime,endDate);
+		hrCountExample.createCriteria().andCreateAtBetween(startTime, endDate);
 		return this.readMapper.selectHrCountByPart(hrCountExample);
 	}
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		HrCount hc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
-			hc = new HrCount();
-			try {
-				hc.setCreateAt(
-						DateUtil.parseString2Date(strArr[0], DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "日期字段格式错误");
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.HR_COUNT, response, index + 1)) {
 				continue;
+			}
+			hc = new HrCount();
+			if (strArr[0] != null) {
+				try {
+					hc.setCreateAt(
+							DateUtil.parseString2Date(strArr[0], DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "日期字段格式错误");
+					continue;
+				}
 			}
 			hc.setDepartment(strArr[1]);
 			try {
@@ -76,11 +81,11 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "在编人数不是数字");
 				continue;
 			}
-			//TODO 试用期人数	转正人数两字段数据库中还不存在
-//			strArr[4];
-//			strArr[5];
+			// TODO 试用期人数 转正人数两字段数据库中还不存在
+			// strArr[4];
+			// strArr[5];
 			try {
-				
+
 				hc.setChinaCount(new BigDecimal(strArr[6]).intValue());
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
@@ -129,16 +134,20 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				continue;
 			}
 
+			try {
+				if (!testOnly) {
+					writeMapper.insertSelective(hc);
+					response.incrSuccess();
+				}
+			} catch (Exception e) {
+				response.incrFail();
+				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, e.getMessage());
+			}
+
 		}
 		response.setDone(true);
 
 		return response;
 	}
 
-	
-	public static void main(String[] args) {
-		String str = "55.0a";
-		Number integer = new BigDecimal(str);
-		System.out.println(integer.intValue());
-	}
 }

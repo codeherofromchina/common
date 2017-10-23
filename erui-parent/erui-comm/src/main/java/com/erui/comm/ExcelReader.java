@@ -50,11 +50,15 @@ public class ExcelReader {
 			throws EncryptedDocumentException, InvalidFormatException, IOException {
 		List<String[]> list = new ArrayList<>();
 		Sheet shell = workbook.getSheetAt(0);
-
+		int firstRowNum = shell.getFirstRowNum();
 		int lastRowNum = shell.getLastRowNum();
-		for (int i = startRowNum < 0 ? 0 : startRowNum; i <= lastRowNum; i++) {
+		for (int i = startRowNum < firstRowNum ? firstRowNum : startRowNum; i <= lastRowNum; i++) {
 			Row row = shell.getRow(i);
-			list.add(readExcelRowContent(row));
+			if (row != null) {
+				list.add(readExcelRowContent(row));
+			} else {
+				list.add(null);
+			}
 		}
 		return list;
 	}

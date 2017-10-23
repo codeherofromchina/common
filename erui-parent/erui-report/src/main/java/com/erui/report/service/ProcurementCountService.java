@@ -13,6 +13,7 @@ public interface ProcurementCountService {
 	/**
 	 * 导入外部数据到采购信息中
 	 * @param datas
+	 * @param flag	true:只检测数据  false:插入正式库
 	 */
-	public ImportDataResponse importData(List<String[]> datas);
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly);
 }
