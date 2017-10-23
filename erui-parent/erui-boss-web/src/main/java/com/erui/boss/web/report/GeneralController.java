@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -137,7 +138,7 @@ public class GeneralController {
     }
      /**
       * @Author:SHIGS
-      * @Description
+      * @Description 战斗力
       * @Date:0:07 2017/10/21
       * @modified By
       */
@@ -191,45 +192,115 @@ public class GeneralController {
      }
       /**
        * @Author:SHIGS
+       * @Description 询订单趋势图
+       * @Date:11:19 2017/10/23
+       * @modified By
+       */
+    //询单/订单趋势
+    @ResponseBody
+    @RequestMapping(value = "/inquiryOrderTrend",method =RequestMethod.POST,produces = "application/json;charset=utf8")
+    public Object tendencyChart(@RequestBody(required = true)Map<String, Object> reqMap){
+        Map<String,Object> result=new HashMap<>();
+        Map<String,Object> data=new HashMap<>();
+        int days = (int) reqMap.get("days");
+        //封装日期,X轴
+        if(days<=30){
+            String[] dates=new String[days];
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            ArrayList<Date> dateList = new ArrayList<>();
+            for (int i = 0; i < dates.length; i++) {
+                Date datetime = DateUtil.recedeTime(days - (i+1) );
+                dateList.add(datetime);
+                String date = dateFormat.format(datetime);
+                dates[i]=date;
+            }
+            //封装查询订单和询单数据
+            Date sTime = DateUtil.recedeTime(days);
+            Integer[] inCounts=new Integer[dateList.size()];//询单数数组
+            Integer[] orderCounts=new Integer[dateList.size()];//订单数数组
+            for (int i = 0; i < dateList.size(); i++) {
+                if(i==0){
+                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0);
+                    inCounts[i]=inquiryCount;
+                    int orderCount = orderService.orderCountByTime(sTime, dateList.get(i), "");
+                    orderCounts[i]=orderCount;
+                }else {
+                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0);
+                    inCounts[i]=inquiryCount;
+                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "");
+                    orderCounts[i]=orCount;
+                }
+
+            }
+            data.put("xAxis",dates);
+            data.put("inquiry",inCounts);
+            data.put("yAxis",orderCounts);
+        }
+        result.put("code",200);
+        result.put("data",data);
+        return  result;
+    }
+
+    /**
+       * @Author:SHIGS
        * @Description
        * @Date:17:48 2017/10/21
        * @modified By
        */
-    @RequestMapping(value = "inquiryOrderTrend",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "supplyTrend",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public Object inquiryOrderTrend(@RequestBody Map<String,Object> map){
         //当前时期
-        Date startTime = DateUtil.recedeTime((int)map.get("days"));
+        int days = (int)map.get("days");
+        Date startTime = DateUtil.recedeTime(days);
         List<Map> supplyMap = supplyChainService.selectFinishByDate(startTime,new Date());
+
         List<Integer> spuList = new ArrayList<>();
         List<Integer> skuList = new ArrayList<>();
         List<Integer> supplierList = new ArrayList<>();
         List<String> dateList = new ArrayList<>();
+        Map<String,Map<String,Integer>> sqlDate = new HashMap<>();
+        Map<String,Integer> lintData = null;
         for (Map map2:supplyMap) {
-        BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
-        BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
-        BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
-        Date date = (Date) map.get("create_at");
-        String dateString = DateUtil.format("MM月dd日",date);
-            spuList.add(spu.intValue());
-            skuList.add(sku.intValue());
-            supplierList.add(supplier.intValue());
-            dateList.add(dateString);
+            lintData = new HashMap<>();
+            BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
+            BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
+            BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
+            Date date2 = (Date) map2.get("create_at");
+            String dateString = DateUtil.format("MM月dd日",date2);
+            lintData.put("spu",spu.intValue());
+            lintData.put("sku",sku.intValue());
+            lintData.put("supplier",supplier.intValue());
+            sqlDate.put(dateString,lintData);
         }
+            for (int i = 0; i < days; i++) {
+                Date datetime = DateUtil.recedeTime(days - (i+1) );
+                String date = DateUtil.format("MM月dd日",datetime);
+                if (sqlDate.containsKey(date)){
+                    dateList.add(date);
+                    spuList.add(sqlDate.get(date).get("spu"));
+                    skuList.add(sqlDate.get(date).get("sku"));
+                    supplierList.add(sqlDate.get(date).get("supplier"));
+                }else {
+                    dateList.add(date);
+                    spuList.add(0);
+                    skuList.add(0);
+                    supplierList.add(0);
+                }
+            }
         String [] s = {"SPU完成量","SKU完成量","供应商完成量"};
         Map<String,Object> data = new HashedMap();
         if (map.get("type").equals("spu")){
-            data.put("legend",s[1]);
+            data.put("legend",s[0]);
             data.put("xAxis",dateList);
             data.put("yAxis",spuList);
 
         }else if (map.get("type").equals("sku")){
-            data.put("legend",s[2]);
+            data.put("legend",s[1]);
             data.put("xAxis",dateList);
             data.put("yAxis",skuList);
         }else {
-
-            data.put("legend",s[3]);
+            data.put("legend",s[2]);
             data.put("xAxis",dateList);
             data.put("yAxis",supplierList);
         }

@@ -1,9 +1,12 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.model.RequestCreditExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,37 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> implements RequestCreditService {
 	private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
+
+	@Override
+	public Map selectTotal() {
+		return this.readMapper.selectTotal();
+	}
+
+	@Override
+	public Map selectRequestTotal(Date startDate, Date endDate) {
+		RequestCreditExample requestCreditExample = new RequestCreditExample();
+		requestCreditExample.createCriteria().andCreateAtBetween(startDate,endDate);
+		return this.readMapper.selectRequestTotal(requestCreditExample);
+	}
+
+	@Override
+	public List<Map> selectRequestTrend(Date startDate, Date endDate) {
+		RequestCreditExample requestCreditExample = new RequestCreditExample();
+		requestCreditExample.createCriteria().andCreateAtBetween(startDate,endDate);
+		return this.readMapper.selectRequestTrend(requestCreditExample);
+	}
+
+	@Override
+	public List<Map> selectRequestNext(Date startDate, Date endDate) {
+		RequestCreditExample requestCreditExample = new RequestCreditExample();
+		requestCreditExample.createCriteria().andBackDateBetween(startDate,endDate);
+		return this.readMapper.selectRequestTrend(requestCreditExample);
+	}
+
+	@Override
+	public List<Map> selectArea() {
+		return this.readMapper.selectArea();
+	}
 
 	@Override
 	public ImportDataResponse importData(List<String[]> datas) {
@@ -35,7 +69,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			rc.setCustomerCode(strArr[6]);
 			rc.setExportProName(strArr[7]);
 			rc.setTradeTerms(strArr[8]);
-			rc.setCreateAt(strArr[9]);
+		//	rc.setCreateAt(strArr[9]);
 			try {
 				rc.setOrderAmount(new BigDecimal(strArr[10]));
 			} catch (Exception ex) {
