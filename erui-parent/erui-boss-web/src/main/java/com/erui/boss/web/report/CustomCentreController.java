@@ -8,10 +8,7 @@ import com.erui.report.service.OrderCountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -22,9 +19,8 @@ import java.util.*;
  * 客户中心
  * Created by lirb on 2017/10/20.
  */
-
 @Controller
-@RequestMapping("/customCentre")
+@RequestMapping("/report_customCentre")
 public class CustomCentreController {
     @Autowired
     private InquiryCountService inquiryService;
@@ -36,13 +32,12 @@ public class CustomCentreController {
     * 询单总览
     * */
     @ResponseBody
-    @RequestMapping(value = "/inquiryPandect")
-    public Object inquiryPandect(int day){
+    @RequestMapping(value = "/inquiryPandect",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public Object inquiryPandect(@RequestBody(required = true) Map<String, Object> reqMap ){
         Map<String,Object> result=new HashMap<String,Object>();
-
-
-        Date startTime = DateUtil.recedeTime(day);
-        Date chainDate = DateUtil.recedeTime(day*2);//环比起始时间
+        int days = (int) reqMap.get("days");
+        Date startTime = DateUtil.recedeTime(days);
+        Date chainDate = DateUtil.recedeTime(days*2);//环比起始时间
         Map<String,Object> Datas=new HashMap<String,Object>();//询单统计信息
         Map<String,Object> inquiryMap=new HashMap<String,Object>();//询单统计信息
         Map<String,Object> proIsOilMap=new HashMap<String,Object>();//油气产品分析
@@ -76,7 +71,7 @@ public class CustomCentreController {
 
 
         Map<String,Object> params=new HashMap<String,Object>();
-        params.put("startTime",DateUtil.recedeTime(day));
+        params.put("startTime",DateUtil.recedeTime(days));
         params.put("endTime",new Date());
         List<Map<String,Object>> list = inquiryService.selectProTop3(params);
         if(list!=null&&list.size()>0){
@@ -102,12 +97,12 @@ public class CustomCentreController {
   * 订单总览
   * */
     @ResponseBody
-    @RequestMapping(value = "/orderPandect")
-    public Object orderPandect(int day){
+    @RequestMapping(value = "/orderPandect",method =RequestMethod.POST,produces = "application/json;charset=utf8")
+    public Object orderPandect(@RequestBody(required = true) Map<String, Object> reqMap ){
         Map<String,Object> result=new HashMap<String,Object>();
-
-        Date startTime = DateUtil.recedeTime(day);
-        Date chainDate = DateUtil.recedeTime(day*2);//环比起始时间
+        int days = (int) reqMap.get("days");
+        Date startTime = DateUtil.recedeTime(days);
+        Date chainDate = DateUtil.recedeTime(days*2);//环比起始时间
         Map<String,Object> Datas=new HashMap<String,Object>();//订单统计信息
 
 
@@ -169,7 +164,7 @@ public class CustomCentreController {
     }
 
     @ResponseBody
-    @RequestMapping("/inquiryDetail")
+    @RequestMapping(value = "/inquiryDetail")
     public Object inquiryDetail(){
         Map<String,Object> result=new HashMap<String,Object>();
         int quotedCount = inquiryService.inquiryCountByTime(null, null, "已报价",0,0);
@@ -199,17 +194,18 @@ public class CustomCentreController {
 
     //询单时间分布分析
     @ResponseBody
-    @RequestMapping(value = "/inquiryTimeDistrbute")
-    public Object inquiryTimeDistrbute(int day){
+    @RequestMapping(value = "/inquiryTimeDistrbute",method =RequestMethod.POST,produces = "application/json;charset=utf8")
+    public Object inquiryTimeDistrbute(@RequestBody(required = true)Map<String, Object> reqMap ){
 
         Map<String,Object> result=new HashMap<String,Object>();
-        Date startTime = DateUtil.recedeTime(day);
+        int days = (int) reqMap.get("days");
+        Date startTime = DateUtil.recedeTime(days);
         int totalCount = inquiryService.inquiryCountByTime(null, null, "",0,0);
-        int count1=inquiryService.inquiryCountByTime(null, null, "",1,4);
-        int count2=inquiryService.inquiryCountByTime(null, null, "",4,8);
-        int count3=inquiryService.inquiryCountByTime(null, null, "",8,16);
-        int count4=inquiryService.inquiryCountByTime(null, null, "",16,24);
-        int count5=inquiryService.inquiryCountByTime(null, null, "",24,48);
+        int count1=inquiryService.inquiryCountByTime(startTime, new Date(), "",1,4);
+        int count2=inquiryService.inquiryCountByTime(startTime, new Date(), "",4,8);
+        int count3=inquiryService.inquiryCountByTime(startTime, new Date(), "",8,16);
+        int count4=inquiryService.inquiryCountByTime(startTime, new Date(), "",16,24);
+        int count5=inquiryService.inquiryCountByTime(startTime, new Date(), "",24,48);
         HashMap<String, Object> quoteTimeMap = new HashMap<>();
         quoteTimeMap.put("oneCount",count1);
         quoteTimeMap.put("fourCount",count2);
@@ -230,23 +226,25 @@ public class CustomCentreController {
 
     //询订单趋势图
     @ResponseBody
-    @RequestMapping("/tendencyChart")
-    public Object tendencyChart(int day){
+    @RequestMapping(value = "/tendencyChart",method =RequestMethod.POST,produces = "application/json;charset=utf8")
+    public Object tendencyChart(@RequestBody(required = true)Map<String, Object> reqMap){
         Map<String,Object> result=new HashMap<String,Object>();
         Map<String,Object> data=new HashMap<String,Object>();
+
+        int days = (int) reqMap.get("days");
         //封装日期,X轴
-        if(day<=30){
-            String[] dates=new String[day];
+        if(days<=30){
+            String[] dates=new String[days];
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年M月d日");
             ArrayList<Date> dateList = new ArrayList<>();
             for (int i = 0; i < dates.length; i++) {
-                Date datetime = DateUtil.recedeTime(day - (i+1) );
+                Date datetime = DateUtil.recedeTime(days - (i+1) );
                 dateList.add(datetime);
                 String date = dateFormat.format(datetime);
                 dates[i]=date;
             }
             //封装查询订单和询单数据
-            Date sTime = DateUtil.recedeTime(day);
+            Date sTime = DateUtil.recedeTime(days);
             Integer[] inCounts=new Integer[dateList.size()];//询单数数组
             Integer[] orCounts=new Integer[dateList.size()];//订单数数组
 
@@ -278,12 +276,15 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping("/busUnitDetail")
     public Object busUnitDetail(){
+        HashMap<String, Object> result = new HashMap<>();//结果集
         //事业部列表
-        List<String> list=inquiryService.selectOrgList();
+        List<String> orgList=inquiryService.selectOrgList();
+        for (String org:orgList) {
+
+        }
 
 
-
-        return list;
+        return result;
     }
 
 }
