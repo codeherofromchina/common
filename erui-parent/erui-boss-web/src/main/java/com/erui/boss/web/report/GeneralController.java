@@ -6,6 +6,7 @@ import com.erui.report.service.*;
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,12 +39,12 @@ public class GeneralController {
       * @modified By
       */
     @ResponseBody
-    @RequestMapping(value = "memberCount",method = RequestMethod.GET)
-    public Object memberCount(int days){
+    @RequestMapping(value = "general",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
+    public Object memberCount(@RequestBody Map<String,Object> days){
         //当前时期
-        Date startTime = DateUtil.recedeTime(days);
+        Date startTime = DateUtil.recedeTime((int)days.get("days"));
         //环比时段
-        Date chainDate = DateUtil.recedeTime(days*2);
+        Date chainDate = DateUtil.recedeTime((int)days.get("days")*2);
         int curMemberCount = memberService.selectByTime(startTime,new Date());
         //环比时段数量
         int chainMemberCount = memberService.selectByTime(chainDate,startTime);
@@ -56,40 +57,44 @@ public class GeneralController {
         member.put("add",addMemberChain);
         member.put("chainRate",chainMemberRate);
         //当期询单数
-        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date());
+        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(),null,0.0,0.0);
         //当期询单数环比chain
-        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime);
+        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0.0,0.0);
 
         int chainInquiryAdd = inquiryCount-chainInquiryCount;
         //当期询单金额
         double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, new Date());
         //环比
         double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd,chainInquiryCount);
-        Map<String,Object> inquiry = new HashMap<String,Object>();
-        inquiry.put("count",(inquiryCount/10000)+"万$");
-        inquiry.put("amount",inquiryAmount);
+        Map<String,Object> inquiry = new HashMap<>();
+        inquiry.put("count",inquiryCount);
+        inquiry.put("amount",RateUtil.doubleChainRate(inquiryAmount,10000)+"万$");
         inquiry.put("chainAdd",chainInquiryAdd);
         inquiry.put("chainRate",chainInquiryRate);
 
-        //当期询单数
-        int orderCount = inquiryService.inquiryCountByTime(startTime, new Date());
-        //当期询单数环比chain
-        int chainOrderCount = inquiryService.inquiryCountByTime(chainDate, startTime);
-
-        int chainOrderAdd = orderCount-chainOrderCount;
+        //当期订单数
+        int orderCount = orderService.orderCountByTime(startTime, new Date(),"");
+        //环比订单数量
+        int chainOrderCount = orderService.orderCountByTime(chainDate,startTime,"");
         //当期询单金额
-        double orderAmount = inquiryService.inquiryAmountByTime(startTime, new Date());
-        //环比
-        double chainOrderRate = RateUtil.intChainRate(chainOrderAdd,chainOrderCount);
-        Map<String,Object> order= new HashMap<String,Object>();
-        order.put("count",(orderCount/10000)+"万$");
-        order.put("amount",orderAmount);
-        order.put("chainAdd",chainInquiryAdd);
-        order.put("chainRate",chainInquiryRate);
-        Map<String,Object> data = new HashMap<String,Object>();
-        Map<String,Object> result = new HashMap<String,Object>();
+        double orderAmount = orderService.orderAmountByTime(startTime, new Date());
+        //环比增加单数
+        int chainOrderAdd = chainOrderCount - orderCount;
+        double chainOrderRate = 0.00;
+        if(chainOrderCount>0){
+            chainOrderRate = RateUtil.intChainRate(orderCount-chainOrderCount,chainOrderCount);
+        }
+
+        Map<String,Object> order= new HashMap<>();
+        order.put("count",orderCount);
+        order.put("amount",RateUtil.doubleChainRate(inquiryAmount,10000)+"万$");
+        order.put("chainAdd",chainOrderAdd);
+        order.put("chainRate",chainOrderRate);
+        Map<String,Object> data = new HashMap<>();
+        Map<String,Object> result = new HashMap<>();
         data.put("member",member);
         data.put("inquiry",inquiry);
+        data.put("order",order);
         result.put("data",data);
         result.put("code",200);
         return result;
@@ -136,13 +141,13 @@ public class GeneralController {
       * @Date:0:07 2017/10/21
       * @modified By
       */
-     @RequestMapping(value = "capacity",method = RequestMethod.POST)
+     @RequestMapping(value = "capacity",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
      @ResponseBody
-     public Object capacity(int days){
+     public Object capacity(@RequestBody Map<String,Object> days){
          //当前时期
-         Date startTime = DateUtil.recedeTime(days);
+         Date startTime = DateUtil.recedeTime((int)days.get("days"));
          //环比时段
-         Date chainDate = DateUtil.recedeTime(days*2);
+         Date chainDate = DateUtil.recedeTime((int)days.get("days")*2);
          //当前时段
          Map CurHrCountMap = hrCountService.selectHrCountByPart(startTime,new Date());
          //环比时段
@@ -189,28 +194,21 @@ public class GeneralController {
        * @Description
        * @Date:17:48 2017/10/21
        * @modified By
-       *     "legend":[
-      "spu完成量"
-      ],
-      "xAxis":[
-      "9月1日",
-      ],
-      "yAxis":[
        */
-    @RequestMapping(value = "inquiryOrderTrend",method = RequestMethod.POST)
+    @RequestMapping(value = "inquiryOrderTrend",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Object inquiryOrderTrend(int days,String type){
+    public Object inquiryOrderTrend(@RequestBody Map<String,Object> map){
         //当前时期
-        Date startTime = DateUtil.recedeTime(days);
+        Date startTime = DateUtil.recedeTime((int)map.get("days"));
         List<Map> supplyMap = supplyChainService.selectFinishByDate(startTime,new Date());
         List<Integer> spuList = new ArrayList<>();
         List<Integer> skuList = new ArrayList<>();
         List<Integer> supplierList = new ArrayList<>();
         List<String> dateList = new ArrayList<>();
-        for (Map map:supplyMap) {
-        BigDecimal spu = new BigDecimal(map.get("finish_spu_num").toString());
-        BigDecimal sku = new BigDecimal(map.get("finish_sku_num").toString());
-        BigDecimal supplier = new BigDecimal(map.get("finish_suppli_num").toString());
+        for (Map map2:supplyMap) {
+        BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
+        BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
+        BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
         Date date = (Date) map.get("create_at");
         String dateString = DateUtil.format("MM月dd日",date);
             spuList.add(spu.intValue());
@@ -218,19 +216,20 @@ public class GeneralController {
             supplierList.add(supplier.intValue());
             dateList.add(dateString);
         }
+        String [] s = {"SPU完成量","SKU完成量","供应商完成量"};
         Map<String,Object> data = new HashedMap();
-        if (type.equals("spu")){
-            data.put("legend","SPU完成量");
+        if (map.get("type").equals("spu")){
+            data.put("legend",s[1]);
             data.put("xAxis",dateList);
             data.put("yAxis",spuList);
 
-        }else if (type.equals("sku")){
-            data.put("legend","SKU完成量");
+        }else if (map.get("type").equals("sku")){
+            data.put("legend",s[2]);
             data.put("xAxis",dateList);
             data.put("yAxis",skuList);
         }else {
-            //String [] s = {"SPU完成量"};
-            data.put("legend","供应商完成量");
+
+            data.put("legend",s[3]);
             data.put("xAxis",dateList);
             data.put("yAxis",supplierList);
         }
