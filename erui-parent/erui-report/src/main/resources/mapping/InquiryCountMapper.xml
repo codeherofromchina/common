@@ -143,6 +143,11 @@
       order by ${orderByClause}
     </if>
   </select>
+  <!--查询事业部列表-->
+  <select id="selectOrgList" resultType="java.lang.String" >
+    select DISTINCT(organization)
+    from inquiry_count
+  </select>
 
   <select id="selectProTop3" resultType="map" parameterType="Object" >
   SELECT  SUM(pro_count) as proCount ,pro_category as proCategory FROM inquiry_count

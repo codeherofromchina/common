@@ -56,9 +56,9 @@ public class GeneralController {
         member.put("add",addMemberChain);
         member.put("chainRate",chainMemberRate);
         //当期询单数
-        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date());
+        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0);
         //当期询单数环比chain
-        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime);
+        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0);
 
         int chainInquiryAdd = inquiryCount-chainInquiryCount;
         //当期询单金额
@@ -72,9 +72,9 @@ public class GeneralController {
         inquiry.put("chainRate",chainInquiryRate);
 
         //当期询单数
-        int orderCount = inquiryService.inquiryCountByTime(startTime, new Date());
+        int orderCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0);
         //当期询单数环比chain
-        int chainOrderCount = inquiryService.inquiryCountByTime(chainDate, startTime);
+        int chainOrderCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0);
 
         int chainOrderAdd = orderCount-chainOrderCount;
         //当期询单金额

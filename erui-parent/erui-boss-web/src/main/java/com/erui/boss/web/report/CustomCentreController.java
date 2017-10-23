@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 客户中心
@@ -41,6 +38,8 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping(value = "/inquiryPandect")
     public Object inquiryPandect(int day){
+        Map<String,Object> result=new HashMap<String,Object>();
+
 
         Date startTime = DateUtil.recedeTime(day);
         Date chainDate = DateUtil.recedeTime(day*2);//环比起始时间
@@ -94,8 +93,9 @@ public class CustomCentreController {
         Datas.put("isOil",proIsOilMap);
         Datas.put("proTop3",proTop3Map);
         //查询Top3产品数据
-
-        return Datas;
+        result.put("code",200);
+        result.put("data",Datas);
+        return result;
     }
 
     /*
@@ -104,6 +104,7 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping(value = "/orderPandect")
     public Object orderPandect(int day){
+        Map<String,Object> result=new HashMap<String,Object>();
 
         Date startTime = DateUtil.recedeTime(day);
         Date chainDate = DateUtil.recedeTime(day*2);//环比起始时间
@@ -161,12 +162,16 @@ public class CustomCentreController {
         Datas.put("profitRate",profitMap);
         Datas.put("sucessOrderMap",sucessOrderMap);
         Datas.put("top3",proTop3Map);
-        return Datas;
+
+        result.put("code",200);
+        result.put("data",Datas);
+        return result;
     }
 
     @ResponseBody
     @RequestMapping("/inquiryDetail")
     public Object inquiryDetail(){
+        Map<String,Object> result=new HashMap<String,Object>();
         int quotedCount = inquiryService.inquiryCountByTime(null, null, "已报价",0,0);
         int noQuoteCount = inquiryService.inquiryCountByTime(null, null, "未报价",0,0);
         int quotingCount = inquiryService.inquiryCountByTime(null, null, "报价中",0,0);
@@ -186,13 +191,18 @@ public class CustomCentreController {
         inquiryDetailMap.put("quotedInquiryRate",quotedInquiryRate);
         inquiryDetailMap.put("quotingInquiryRate",quotingInquiryRate);
         inquiryDetailMap.put("noQuoteInquiryRate",noQuoteInquiryRate);
-        return inquiryDetailMap;
+
+        result.put("code",200);
+        result.put("data",inquiryDetailMap);
+        return result;
     }
 
     //询单时间分布分析
     @ResponseBody
     @RequestMapping(value = "/inquiryTimeDistrbute")
     public Object inquiryTimeDistrbute(int day){
+
+        Map<String,Object> result=new HashMap<String,Object>();
         Date startTime = DateUtil.recedeTime(day);
         int totalCount = inquiryService.inquiryCountByTime(null, null, "",0,0);
         int count1=inquiryService.inquiryCountByTime(null, null, "",1,4);
@@ -213,31 +223,67 @@ public class CustomCentreController {
             quoteTimeMap.put("sixteenCountRate",RateUtil.intChainRate(count4,totalCount));
             quoteTimeMap.put("twentyFourCountRate",RateUtil.intChainRate(count5,totalCount));
         }
-
-        return quoteTimeMap;
+        result.put("code",200);
+        result.put("data",quoteTimeMap);
+        return result;
     }
 
     //询订单趋势图
     @ResponseBody
     @RequestMapping("/tendencyChart")
     public Object tendencyChart(int day){
-
+        Map<String,Object> result=new HashMap<String,Object>();
         Map<String,Object> data=new HashMap<String,Object>();
-
         //封装日期,X轴
         if(day<=30){
-            Date startTime = DateUtil.recedeTime(day);
             String[] dates=new String[day];
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年M月d日");
+            ArrayList<Date> dateList = new ArrayList<>();
             for (int i = 0; i < dates.length; i++) {
-                Date datetime = DateUtil.recedeTime(day - i );
+                Date datetime = DateUtil.recedeTime(day - (i+1) );
+                dateList.add(datetime);
                 String date = dateFormat.format(datetime);
                 dates[i]=date;
-                System.out.println(date);
+            }
+            //封装查询订单和询单数据
+            Date sTime = DateUtil.recedeTime(day);
+            Integer[] inCounts=new Integer[dateList.size()];//询单数数组
+            Integer[] orCounts=new Integer[dateList.size()];//订单数数组
+
+            for (int i = 0; i < dateList.size(); i++) {
+                if(i==0){
+                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0);
+                    inCounts[i]=inquiryCount;
+                    int orCount = orderService.orderCountByTime(sTime, dateList.get(i), "");
+                    orCounts[i]=orCount;
+                }else {
+                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0);
+                    inCounts[i]=inquiryCount;
+                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "");
+                    orCounts[i]=orCount;
+                }
+
             }
             data.put("dates",dates);
+            data.put("inquiry",inCounts);
+            data.put("order",orCounts);
         }
-        return  data;
+
+        result.put("code",200);
+        result.put("data",data);
+        return  result;
+    }
+
+    //事业部明细
+    @ResponseBody
+    @RequestMapping("/busUnitDetail")
+    public Object busUnitDetail(){
+        //事业部列表
+        List<String> list=inquiryService.selectOrgList();
+
+
+
+        return list;
     }
 
 }

@@ -75,6 +75,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<Map<String,Object>> list = readMapper.selectProTop3(params);
         return list;
     }
+    //查询事业部列表
+    @Override
+    public List<String> selectOrgList() {
+        return readMapper.selectOrgList();
+    }
 
 
     // //     根据时间统计询单金额
