@@ -19,16 +19,14 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 	private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		MarketerCount mc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
-			if (strArr == null) {
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "整行数据为空");
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MARKETER_COUNT, response, index + 1)) {
 				continue;
 			}
 			mc = new MarketerCount();
@@ -95,8 +93,10 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 			}
 
 			try {
-				writeMapper.insertSelective(mc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(mc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, e.getMessage());

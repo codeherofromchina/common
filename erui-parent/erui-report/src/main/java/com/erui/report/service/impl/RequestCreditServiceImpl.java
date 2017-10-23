@@ -19,12 +19,15 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		RequestCredit rc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.REQUEST_CREDIT, response, index + 1)) {
+				continue;
+			}
 			rc = new RequestCredit();
 			rc.setCreditSerialNum(strArr[0]);
 			rc.setOrderNum(strArr[1]);
@@ -57,7 +60,8 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			rc.setBackResponsePerson(strArr[14]);
 
 			try {
-				rc.setBackDate(DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR,DateUtil.SHORT_FORMAT_STR));
+				rc.setBackDate(
+						DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
@@ -66,8 +70,10 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			}
 
 			try {
-				writeMapper.insertSelective(rc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(rc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, e.getMessage());

@@ -19,13 +19,16 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 	private final static Logger logger = LoggerFactory.getLogger(CreditExtensionServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		CreditExtension ce = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CREDIT_EXTENSION, response, index + 1)){
+				continue;
+			}
 			ce = new CreditExtension();
 			try {
 				ce.setCreditDate(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
@@ -87,8 +90,10 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			}
 
 			try {
-				writeMapper.insertSelective(ce);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(ce);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, e.getMessage());

@@ -20,13 +20,16 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 	private final static Logger logger = LoggerFactory.getLogger(StorageOrganiCountServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		StorageOrganiCount soc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT, response, index + 1)) {
+				continue;
+			}
 			soc = new StorageOrganiCount();
 			try {
 				soc.setCreateAt(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
@@ -59,8 +62,10 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 			soc.setRemark(strArr[4]);
 
 			try {
-				writeMapper.insertSelective(soc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(soc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), index + 1, e.getMessage());

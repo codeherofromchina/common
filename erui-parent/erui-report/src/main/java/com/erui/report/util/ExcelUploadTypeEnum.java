@@ -71,5 +71,28 @@ public enum ExcelUploadTypeEnum {
 		}
 		return null;
 	}
+	
+	/**
+	 * 简单验证单行数据
+	 * @param data
+	 * @param excelType
+	 * @param response
+	 * @param lineNum	当前检测所在excel的行数
+	 * @return	true:存在错误  false:数据正常
+	 */
+	public static boolean verifyData(String[] data,ExcelUploadTypeEnum excelType,ImportDataResponse response,int lineNum) {
+		if (data == null) {
+			response.incrFail();
+			response.pushFailItem(excelType.getTable(), lineNum, "整行数据为空");
+			return true;
+		}
+		if (data.length < excelType.column) {
+			response.incrFail();
+			response.pushFailItem(excelType.getTable(), lineNum, "数据字段不完整");
+			return true;
+		}
+		
+		return false;
+	}
 
 }

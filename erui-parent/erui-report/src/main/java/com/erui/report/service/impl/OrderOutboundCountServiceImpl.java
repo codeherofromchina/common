@@ -20,16 +20,14 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 	private final static Logger logger = LoggerFactory.getLogger(StorageOrganiCountServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		OrderOutboundCount ooc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
-			if (strArr == null) {
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, "正行数据为空");
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT, response, index + 1)) {
 				continue;
 			}
 			ooc = new OrderOutboundCount();
@@ -77,8 +75,10 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 			ooc.setRemark(strArr[8]);
 
 			try {
-				writeMapper.insertSelective(ooc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(ooc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, e.getMessage());

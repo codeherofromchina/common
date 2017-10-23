@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.erui.report.model.InquiryCountExample;
-import com.erui.report.model.OrderCountExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.OrderCount;
+import com.erui.report.model.OrderCountExample;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
@@ -23,13 +22,16 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	private final static Logger logger = LoggerFactory.getLogger(OrderCountServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		OrderCount oc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_COUNT, response, index + 1)) {
+				continue;
+			}
 			oc = new OrderCount();
 
 			oc.setOrderSerialNum(strArr[0]);
@@ -38,10 +40,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 			oc.setPoNum(strArr[3]);
 			oc.setOrganization(strArr[4]);
 			oc.setExeCompany(strArr[5]);
-			
+
 			oc.setOrderArea(strArr[6]);
 			oc.setCustDescription(strArr[7]);
-			
+
 			oc.setProName(strArr[8]);
 			// TODO 缺少品名外文strArr[9]
 			oc.setSpecification(strArr[10]);
@@ -223,7 +225,6 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				}
 			}
 
-			
 			if (strArr[43] != null) {
 				try {
 					oc.setToStorageDate(DateUtil.parseString2Date(strArr[43], "yyyy/M/d", "yyyy/M/d",
@@ -383,8 +384,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 			oc.setRemark(strArr[64]);
 
 			try {
-				writeMapper.insertSelective(oc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(oc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, e.getMessage());
@@ -396,13 +399,13 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	}
 
 	@Override
-	public int orderCountByTime(Date startTime, Date endTime,String proStatus) {
-        OrderCountExample example= new OrderCountExample();
-        OrderCountExample.Criteria criteria = example.createCriteria();
-        criteria.andProjectStartBetween(startTime,endTime);
-        if(proStatus!=null||!proStatus.equals("")){
-            criteria.andProjectStatusEqualTo(proStatus);
-        }
+	public int orderCountByTime(Date startTime, Date endTime, String proStatus) {
+		OrderCountExample example = new OrderCountExample();
+		OrderCountExample.Criteria criteria = example.createCriteria();
+		criteria.andProjectStartBetween(startTime, endTime);
+		if (proStatus != null || !proStatus.equals("")) {
+			criteria.andProjectStatusEqualTo(proStatus);
+		}
 		int count = readMapper.countByExample(example);
 		return count;
 
@@ -410,24 +413,24 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
 	@Override
 	public Double orderAmountByTime(Date startTime, Date endTime) {
-        OrderCountExample example= new OrderCountExample();
-        example.createCriteria().andProjectStartBetween(startTime,endTime);
-        Double amount = readMapper.selectTotalAmountByExample(example);
-        return amount;
+		OrderCountExample example = new OrderCountExample();
+		example.createCriteria().andProjectStartBetween(startTime, endTime);
+		Double amount = readMapper.selectTotalAmountByExample(example);
+		return amount;
 	}
 
 	@Override
 	public List<Map<String, Object>> selectOrderProTop3(Map<String, Object> params) {
-        List<Map<String, Object>> list = readMapper.selectOrderProTop3(params);
-        return list;
+		List<Map<String, Object>> list = readMapper.selectOrderProTop3(params);
+		return list;
 	}
 
-	//订单利润率
-    @Override
-    public Double selectProfitRate(Date startTime, Date endTime) {
-        OrderCountExample example= new OrderCountExample();
-        example.createCriteria().andProjectStartBetween(startTime,  endTime);
-        Double profitRate = readMapper.selectProfitRateByExample(example);
-        return profitRate;
-    }
+	// 订单利润率
+	@Override
+	public Double selectProfitRate(Date startTime, Date endTime) {
+		OrderCountExample example = new OrderCountExample();
+		example.createCriteria().andProjectStartBetween(startTime, endTime);
+		Double profitRate = readMapper.selectProfitRateByExample(example);
+		return profitRate;
+	}
 }

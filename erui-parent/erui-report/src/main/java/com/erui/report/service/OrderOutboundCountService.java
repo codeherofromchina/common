@@ -8,7 +8,8 @@ public interface OrderOutboundCountService {
 	/**
 	 * 导入仓储物流-订单出库数据
 	 * @param datas
+	 * @param flag	true:只检测数据  false:插入正式库
 	 * @return
 	 */
-	public ImportDataResponse importData(List<String[]> datas) ;
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
 }

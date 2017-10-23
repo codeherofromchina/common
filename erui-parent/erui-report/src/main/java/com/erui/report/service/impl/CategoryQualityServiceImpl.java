@@ -18,17 +18,19 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 	private final static Logger logger = LoggerFactory.getLogger(CategoryQualityServiceImpl.class);
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		CategoryQuality cq = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CATEGORY_QUALITY, response, index + 1)){
+				continue;
+			}
+			
 			cq = new CategoryQuality();
-
 			cq.setQualityControlDate(strArr[0]);
-
 			if (strArr[1] != null) {
 				try {
 					cq.setInspectionTotal(new BigDecimal(strArr[1]).intValue());
@@ -121,8 +123,10 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 			}
 			
 			try {
-				writeMapper.insertSelective(cq);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(cq);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, e.getMessage());

@@ -35,15 +35,13 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 	}
 
 	@Override
-	public ImportDataResponse importData(List<String[]> datas) {
+	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		SupplyChain sc = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
-			if (strArr == null) {
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "整行数据为空");
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.REQUEST_CREDIT, response, index + 1)) {
 				continue;
 			}
 			sc = new SupplyChain();
@@ -111,8 +109,10 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			}
 
 			try {
-				writeMapper.insertSelective(sc);
-				response.incrSuccess();
+				if (!testOnly) {
+					writeMapper.insertSelective(sc);
+					response.incrSuccess();
+				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, e.getMessage());
