@@ -1,18 +1,30 @@
 package com.erui.boss.web.report;
 
-import com.erui.comm.DateUtil;
-import com.erui.comm.RateUtil;
-import com.erui.report.service.*;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
+
+import com.erui.comm.DateUtil;
+import com.erui.comm.RateUtil;
+import com.erui.report.service.HrCountService;
+import com.erui.report.service.InquiryCountService;
+import com.erui.report.service.MemberService;
+import com.erui.report.service.OrderCountService;
+import com.erui.report.service.SupplyChainService;
+import com.erui.report.util.CustomerCategoryNumVO;
 
 /**
  * @Author:SHIGS
@@ -314,4 +326,23 @@ public class GeneralController {
         result.put("code",200);
         return result;
     }
+    
+    /**
+     * 询订单分类 TOP N
+     * @param category
+     * @return
+     */
+    @RequestMapping("/inquiryOrderCategoryTopNum")
+    @ResponseBody
+	public Object inquiryOrderCategoryTopNum(@RequestParam(value = "topN", required = false) Integer topN,
+			@RequestParam(value = "category", required = false) String category) {
+		Map<String, Object> result = new HashMap<>();
+
+		List<CustomerCategoryNumVO> list = inquiryService.inquiryOrderCategoryTopNum(topN);
+
+		result.put("code", 200);
+		result.put("data", list);
+
+		return result;
+	}
 }

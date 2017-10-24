@@ -18,7 +18,7 @@ import com.erui.report.model.OrderCountExample.Criteria;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
-import com.erui.report.util.NumSummaryVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 
 @Service
 public class OrderCountServiceImpl extends BaseService<OrderCountMapper> implements OrderCountService {
@@ -459,7 +459,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
      * 获取数据汇总
      */
     @Override
-    public NumSummaryVO numSummary(String area, String country) {
+    public CustomerNumSummaryVO numSummary(String area, String country) {
     	OrderCountExample example= new OrderCountExample();
     	Criteria criteria = example.createCriteria();
     	if (StringUtils.isNoneBlank(area)) {
@@ -469,7 +469,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     		criteria.andExeCompanyEqualTo(country);
     	}
     	
-    	NumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
+    	CustomerNumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
     	
     	return vo;
     }
