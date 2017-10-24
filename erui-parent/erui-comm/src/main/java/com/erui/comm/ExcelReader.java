@@ -1,7 +1,7 @@
 package com.erui.comm;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,6 +34,11 @@ public class ExcelReader {
 		Sheet shell = workbook.getSheetAt(0);
 		short topRow = shell.getTopRow();
 		return readExcelRowContent(shell, topRow);
+	}
+	
+	public List<String[]> readExcel(File file)
+			throws EncryptedDocumentException, InvalidFormatException, IOException {
+		return readExcel(new FileInputStream(file));
 	}
 
 	public List<String[]> readExcel(InputStream inp)
@@ -138,25 +143,4 @@ public class ExcelReader {
 		return StringUtils.trimToNull(cellvalue);
 	}
 
-	public static void main(String[] args)
-			throws EncryptedDocumentException, InvalidFormatException, FileNotFoundException, IOException {
-
-		ExcelReader reader = new ExcelReader();
-
-		String[] readExcelTitle = reader.readExcelTitle(new FileInputStream("/Users/wangxiaodan/yszk.xls"));
-		List<String[]> bodyList = reader.readExcelBody(new FileInputStream("/Users/wangxiaodan/yszk.xls"));
-
-		printStrArr(readExcelTitle);
-		System.out.println();
-		for (String[] strArr : bodyList) {
-			printStrArr(strArr);
-			System.out.println();
-		}
-	}
-
-	private static void printStrArr(String[] strArr) {
-		for (String str : strArr) {
-			System.out.print(str + "\t");
-		}
-	}
 }
