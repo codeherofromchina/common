@@ -7,11 +7,17 @@ public class HrCount {
 
     private Date createAt;
 
+    private String bigDepart;
+
     private String department;
 
     private Integer planCount;
 
     private Integer regularCount;
+
+    private Integer tryCount;
+
+    private Integer turnRightCount;
 
     private Integer chinaCount;
 
@@ -41,6 +47,14 @@ public class HrCount {
         this.createAt = createAt;
     }
 
+    public String getBigDepart() {
+        return bigDepart;
+    }
+
+    public void setBigDepart(String bigDepart) {
+        this.bigDepart = bigDepart == null ? null : bigDepart.trim();
+    }
+
     public String getDepartment() {
         return department;
     }
@@ -63,6 +77,22 @@ public class HrCount {
 
     public void setRegularCount(Integer regularCount) {
         this.regularCount = regularCount;
+    }
+
+    public Integer getTryCount() {
+        return tryCount;
+    }
+
+    public void setTryCount(Integer tryCount) {
+        this.tryCount = tryCount;
+    }
+
+    public Integer getTurnRightCount() {
+        return turnRightCount;
+    }
+
+    public void setTurnRightCount(Integer turnRightCount) {
+        this.turnRightCount = turnRightCount;
     }
 
     public Integer getChinaCount() {

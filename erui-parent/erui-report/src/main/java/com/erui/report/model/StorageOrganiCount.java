@@ -12,7 +12,7 @@ public class StorageOrganiCount {
     private Integer trayNum;
 
     private Integer productNum;
-    
+
     private String remark;
 
     public Integer getId() {
@@ -54,12 +54,12 @@ public class StorageOrganiCount {
     public void setProductNum(Integer productNum) {
         this.productNum = productNum;
     }
-    
-    public void setRemark(String remark) {
-		this.remark = remark;
-	}
-    
+
     public String getRemark() {
-		return remark;
-	}
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
+    }
 }

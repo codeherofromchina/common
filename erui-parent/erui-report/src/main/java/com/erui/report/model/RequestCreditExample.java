@@ -806,52 +806,42 @@ public class RequestCreditExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtEqualTo(String value) {
+        public Criteria andCreateAtEqualTo(Date value) {
             addCriterion("create_at =", value, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtNotEqualTo(String value) {
+        public Criteria andCreateAtNotEqualTo(Date value) {
             addCriterion("create_at <>", value, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtGreaterThan(String value) {
+        public Criteria andCreateAtGreaterThan(Date value) {
             addCriterion("create_at >", value, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtGreaterThanOrEqualTo(String value) {
+        public Criteria andCreateAtGreaterThanOrEqualTo(Date value) {
             addCriterion("create_at >=", value, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtLessThan(String value) {
+        public Criteria andCreateAtLessThan(Date value) {
             addCriterion("create_at <", value, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtLessThanOrEqualTo(String value) {
+        public Criteria andCreateAtLessThanOrEqualTo(Date value) {
             addCriterion("create_at <=", value, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtLike(String value) {
-            addCriterion("create_at like", value, "createAt");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateAtNotLike(String value) {
-            addCriterion("create_at not like", value, "createAt");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateAtIn(List<String> values) {
+        public Criteria andCreateAtIn(List<Date> values) {
             addCriterion("create_at in", values, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtNotIn(List<String> values) {
+        public Criteria andCreateAtNotIn(List<Date> values) {
             addCriterion("create_at not in", values, "createAt");
             return (Criteria) this;
         }

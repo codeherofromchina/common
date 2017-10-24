@@ -1,7 +1,7 @@
 package com.erui.report.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class CategoryQualityExample {
@@ -175,52 +175,62 @@ public class CategoryQualityExample {
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateEqualTo(Date value) {
+        public Criteria andQualityControlDateEqualTo(String value) {
             addCriterion("quality_control_date =", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateNotEqualTo(Date value) {
+        public Criteria andQualityControlDateNotEqualTo(String value) {
             addCriterion("quality_control_date <>", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateGreaterThan(Date value) {
+        public Criteria andQualityControlDateGreaterThan(String value) {
             addCriterion("quality_control_date >", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateGreaterThanOrEqualTo(Date value) {
+        public Criteria andQualityControlDateGreaterThanOrEqualTo(String value) {
             addCriterion("quality_control_date >=", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateLessThan(Date value) {
+        public Criteria andQualityControlDateLessThan(String value) {
             addCriterion("quality_control_date <", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateLessThanOrEqualTo(Date value) {
+        public Criteria andQualityControlDateLessThanOrEqualTo(String value) {
             addCriterion("quality_control_date <=", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateIn(List<Date> values) {
+        public Criteria andQualityControlDateLike(String value) {
+            addCriterion("quality_control_date like", value, "qualityControlDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityControlDateNotLike(String value) {
+            addCriterion("quality_control_date not like", value, "qualityControlDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityControlDateIn(List<String> values) {
             addCriterion("quality_control_date in", values, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateNotIn(List<Date> values) {
+        public Criteria andQualityControlDateNotIn(List<String> values) {
             addCriterion("quality_control_date not in", values, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateBetween(Date value1, Date value2) {
+        public Criteria andQualityControlDateBetween(String value1, String value2) {
             addCriterion("quality_control_date between", value1, value2, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateNotBetween(Date value1, Date value2) {
+        public Criteria andQualityControlDateNotBetween(String value1, String value2) {
             addCriterion("quality_control_date not between", value1, value2, "qualityControlDate");
             return (Criteria) this;
         }
@@ -355,62 +365,52 @@ public class CategoryQualityExample {
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateEqualTo(String value) {
+        public Criteria andProInfactoryCheckPassRateEqualTo(BigDecimal value) {
             addCriterion("pro_infactory_check_pass_rate =", value, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateNotEqualTo(String value) {
+        public Criteria andProInfactoryCheckPassRateNotEqualTo(BigDecimal value) {
             addCriterion("pro_infactory_check_pass_rate <>", value, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateGreaterThan(String value) {
+        public Criteria andProInfactoryCheckPassRateGreaterThan(BigDecimal value) {
             addCriterion("pro_infactory_check_pass_rate >", value, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateGreaterThanOrEqualTo(String value) {
+        public Criteria andProInfactoryCheckPassRateGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("pro_infactory_check_pass_rate >=", value, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateLessThan(String value) {
+        public Criteria andProInfactoryCheckPassRateLessThan(BigDecimal value) {
             addCriterion("pro_infactory_check_pass_rate <", value, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateLessThanOrEqualTo(String value) {
+        public Criteria andProInfactoryCheckPassRateLessThanOrEqualTo(BigDecimal value) {
             addCriterion("pro_infactory_check_pass_rate <=", value, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateLike(String value) {
-            addCriterion("pro_infactory_check_pass_rate like", value, "proInfactoryCheckPassRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andProInfactoryCheckPassRateNotLike(String value) {
-            addCriterion("pro_infactory_check_pass_rate not like", value, "proInfactoryCheckPassRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andProInfactoryCheckPassRateIn(List<String> values) {
+        public Criteria andProInfactoryCheckPassRateIn(List<BigDecimal> values) {
             addCriterion("pro_infactory_check_pass_rate in", values, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateNotIn(List<String> values) {
+        public Criteria andProInfactoryCheckPassRateNotIn(List<BigDecimal> values) {
             addCriterion("pro_infactory_check_pass_rate not in", values, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateBetween(String value1, String value2) {
+        public Criteria andProInfactoryCheckPassRateBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pro_infactory_check_pass_rate between", value1, value2, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andProInfactoryCheckPassRateNotBetween(String value1, String value2) {
+        public Criteria andProInfactoryCheckPassRateNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pro_infactory_check_pass_rate not between", value1, value2, "proInfactoryCheckPassRate");
             return (Criteria) this;
         }
@@ -545,62 +545,52 @@ public class CategoryQualityExample {
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateEqualTo(String value) {
+        public Criteria andProOutfactoryCheckRateEqualTo(BigDecimal value) {
             addCriterion("pro_outfactory_check_rate =", value, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateNotEqualTo(String value) {
+        public Criteria andProOutfactoryCheckRateNotEqualTo(BigDecimal value) {
             addCriterion("pro_outfactory_check_rate <>", value, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateGreaterThan(String value) {
+        public Criteria andProOutfactoryCheckRateGreaterThan(BigDecimal value) {
             addCriterion("pro_outfactory_check_rate >", value, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateGreaterThanOrEqualTo(String value) {
+        public Criteria andProOutfactoryCheckRateGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("pro_outfactory_check_rate >=", value, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateLessThan(String value) {
+        public Criteria andProOutfactoryCheckRateLessThan(BigDecimal value) {
             addCriterion("pro_outfactory_check_rate <", value, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateLessThanOrEqualTo(String value) {
+        public Criteria andProOutfactoryCheckRateLessThanOrEqualTo(BigDecimal value) {
             addCriterion("pro_outfactory_check_rate <=", value, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateLike(String value) {
-            addCriterion("pro_outfactory_check_rate like", value, "proOutfactoryCheckRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andProOutfactoryCheckRateNotLike(String value) {
-            addCriterion("pro_outfactory_check_rate not like", value, "proOutfactoryCheckRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andProOutfactoryCheckRateIn(List<String> values) {
+        public Criteria andProOutfactoryCheckRateIn(List<BigDecimal> values) {
             addCriterion("pro_outfactory_check_rate in", values, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateNotIn(List<String> values) {
+        public Criteria andProOutfactoryCheckRateNotIn(List<BigDecimal> values) {
             addCriterion("pro_outfactory_check_rate not in", values, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateBetween(String value1, String value2) {
+        public Criteria andProOutfactoryCheckRateBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pro_outfactory_check_rate between", value1, value2, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
 
-        public Criteria andProOutfactoryCheckRateNotBetween(String value1, String value2) {
+        public Criteria andProOutfactoryCheckRateNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pro_outfactory_check_rate not between", value1, value2, "proOutfactoryCheckRate");
             return (Criteria) this;
         }
@@ -735,62 +725,52 @@ public class CategoryQualityExample {
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateEqualTo(String value) {
+        public Criteria andProductsAssignmentsQualifiedRateEqualTo(BigDecimal value) {
             addCriterion("products_assignments_qualified_rate =", value, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateNotEqualTo(String value) {
+        public Criteria andProductsAssignmentsQualifiedRateNotEqualTo(BigDecimal value) {
             addCriterion("products_assignments_qualified_rate <>", value, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateGreaterThan(String value) {
+        public Criteria andProductsAssignmentsQualifiedRateGreaterThan(BigDecimal value) {
             addCriterion("products_assignments_qualified_rate >", value, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateGreaterThanOrEqualTo(String value) {
+        public Criteria andProductsAssignmentsQualifiedRateGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("products_assignments_qualified_rate >=", value, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateLessThan(String value) {
+        public Criteria andProductsAssignmentsQualifiedRateLessThan(BigDecimal value) {
             addCriterion("products_assignments_qualified_rate <", value, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateLessThanOrEqualTo(String value) {
+        public Criteria andProductsAssignmentsQualifiedRateLessThanOrEqualTo(BigDecimal value) {
             addCriterion("products_assignments_qualified_rate <=", value, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateLike(String value) {
-            addCriterion("products_assignments_qualified_rate like", value, "productsAssignmentsQualifiedRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andProductsAssignmentsQualifiedRateNotLike(String value) {
-            addCriterion("products_assignments_qualified_rate not like", value, "productsAssignmentsQualifiedRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andProductsAssignmentsQualifiedRateIn(List<String> values) {
+        public Criteria andProductsAssignmentsQualifiedRateIn(List<BigDecimal> values) {
             addCriterion("products_assignments_qualified_rate in", values, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateNotIn(List<String> values) {
+        public Criteria andProductsAssignmentsQualifiedRateNotIn(List<BigDecimal> values) {
             addCriterion("products_assignments_qualified_rate not in", values, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateBetween(String value1, String value2) {
+        public Criteria andProductsAssignmentsQualifiedRateBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("products_assignments_qualified_rate between", value1, value2, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }
 
-        public Criteria andProductsAssignmentsQualifiedRateNotBetween(String value1, String value2) {
+        public Criteria andProductsAssignmentsQualifiedRateNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("products_assignments_qualified_rate not between", value1, value2, "productsAssignmentsQualifiedRate");
             return (Criteria) this;
         }

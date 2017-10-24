@@ -4,111 +4,113 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class OrderEntryCount {
-	private Integer id;
+    private Integer id;
 
-	private Date createAt;
-	private BigDecimal amounts;
-	private Date storageDate;
-	private String remark;
+    private Date createAt;
 
-	private String entryNum;
+    private String entryNum;
 
-	private String contractNum;
+    private String contractNum;
 
-	private String executeNum;
+    private String executeNum;
 
-	private String suppliName;
+    private String suppliName;
 
-	private String buyer;
+    private String buyer;
 
-	private Integer entryCount;
+    private Integer entryCount;
 
-	public Integer getId() {
-		return id;
-	}
+    private BigDecimal amounts;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    private Date storageDate;
 
-	public Date getCreateAt() {
-		return createAt;
-	}
+    private String remark;
 
-	public void setCreateAt(Date createAt) {
-		this.createAt = createAt;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getEntryNum() {
-		return entryNum;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setEntryNum(String entryNum) {
-		this.entryNum = entryNum == null ? null : entryNum.trim();
-	}
+    public Date getCreateAt() {
+        return createAt;
+    }
 
-	public String getContractNum() {
-		return contractNum;
-	}
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
 
-	public void setContractNum(String contractNum) {
-		this.contractNum = contractNum == null ? null : contractNum.trim();
-	}
+    public String getEntryNum() {
+        return entryNum;
+    }
 
-	public String getExecuteNum() {
-		return executeNum;
-	}
+    public void setEntryNum(String entryNum) {
+        this.entryNum = entryNum == null ? null : entryNum.trim();
+    }
 
-	public void setExecuteNum(String executeNum) {
-		this.executeNum = executeNum == null ? null : executeNum.trim();
-	}
+    public String getContractNum() {
+        return contractNum;
+    }
 
-	public String getSuppliName() {
-		return suppliName;
-	}
+    public void setContractNum(String contractNum) {
+        this.contractNum = contractNum == null ? null : contractNum.trim();
+    }
 
-	public void setSuppliName(String suppliName) {
-		this.suppliName = suppliName == null ? null : suppliName.trim();
-	}
+    public String getExecuteNum() {
+        return executeNum;
+    }
 
-	public String getBuyer() {
-		return buyer;
-	}
+    public void setExecuteNum(String executeNum) {
+        this.executeNum = executeNum == null ? null : executeNum.trim();
+    }
 
-	public void setBuyer(String buyer) {
-		this.buyer = buyer == null ? null : buyer.trim();
-	}
+    public String getSuppliName() {
+        return suppliName;
+    }
 
-	public Integer getEntryCount() {
-		return entryCount;
-	}
+    public void setSuppliName(String suppliName) {
+        this.suppliName = suppliName == null ? null : suppliName.trim();
+    }
 
-	public void setEntryCount(Integer entryCount) {
-		this.entryCount = entryCount;
-	}
+    public String getBuyer() {
+        return buyer;
+    }
 
-	public BigDecimal getAmounts() {
-		return amounts;
-	}
+    public void setBuyer(String buyer) {
+        this.buyer = buyer == null ? null : buyer.trim();
+    }
 
-	public void setAmounts(BigDecimal amounts) {
-		this.amounts = amounts;
-	}
+    public Integer getEntryCount() {
+        return entryCount;
+    }
 
-	public Date getStorageDate() {
-		return storageDate;
-	}
+    public void setEntryCount(Integer entryCount) {
+        this.entryCount = entryCount;
+    }
 
-	public void setStorageDate(Date storageDate) {
-		this.storageDate = storageDate;
-	}
+    public BigDecimal getAmounts() {
+        return amounts;
+    }
 
-	public String getRemark() {
-		return remark;
-	}
+    public void setAmounts(BigDecimal amounts) {
+        this.amounts = amounts;
+    }
 
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
+    public Date getStorageDate() {
+        return storageDate;
+    }
 
+    public void setStorageDate(Date storageDate) {
+        this.storageDate = storageDate;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
+    }
 }
