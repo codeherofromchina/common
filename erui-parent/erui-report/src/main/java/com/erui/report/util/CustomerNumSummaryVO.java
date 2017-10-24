@@ -5,7 +5,7 @@ package com.erui.report.util;
  * @author wangxiaodan
  *
  */
-public class NumSummaryVO {
+public class CustomerNumSummaryVO {
 	private Integer total;
 	private Integer oil;
 	private Integer nonoil;

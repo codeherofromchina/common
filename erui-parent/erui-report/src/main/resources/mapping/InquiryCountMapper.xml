@@ -85,6 +85,68 @@
       </foreach>
     </where>
   </sql>
+  <sql id="inquiry_alias_Example_Where_Clause" >
+    <where >
+      <foreach collection="inquiryCountExample.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  
+  
+  <sql id="orderCount_alias_Example_Where_Clause" >
+    <where >
+      <foreach collection="orderCountExample.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  
+  
   <sql id="Update_By_Example_Where_Clause" >
     <where >
       <foreach collection="example.oredCriteria" item="criteria" separator="or" >
@@ -217,7 +279,7 @@
     where id = #{id,jdbcType=BIGINT}
   </select>
   
-  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.NumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
+  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
     select
 	    count(1) as total,sum(case is_oil_gas when '油气' then 1 else 0 end) as oil,
 	    sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil
@@ -230,6 +292,27 @@
     </if>
   </select>
   
+  
+   <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
+    select t.plat_pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from 
+		(
+			select plat_pro_category,count(1) as xdCount,0 as ddCount from order_count 
+			<if test="orderCountExample != null" >
+      			<include refid="orderCount_alias_Example_Where_Clause" />
+    		</if>
+    		group by plat_pro_category
+			union all 
+			select plat_pro_category,0 as xdCount,count(1) as ddCount from inquiry_count 
+			<if test="inquiryCountExample != null" >
+      			<include refid="inquiry_alias_Example_Where_Clause" />
+    		</if>
+			group by plat_pro_category
+		) as t
+	group by t.plat_pro_category having t.plat_pro_category is not null order by 4 desc
+	<if test="limit != null">
+		limit #{limit}
+	</if>
+  </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from inquiry_count

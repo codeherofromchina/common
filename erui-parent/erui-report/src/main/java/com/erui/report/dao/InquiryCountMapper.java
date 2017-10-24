@@ -3,12 +3,13 @@ package com.erui.report.dao;
 import java.util.List;
 import java.util.Map;
 
-import com.erui.report.model.CateDetailVo;
 import org.apache.ibatis.annotations.Param;
 
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.model.InquiryCountExample;
-import com.erui.report.util.NumSummaryVO;
+import com.erui.report.util.CustomerCategoryNumVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 
 public interface InquiryCountMapper {
     int countByExample(InquiryCountExample example);
@@ -57,5 +58,12 @@ public interface InquiryCountMapper {
      * @param example
      * @return
      */
-	NumSummaryVO selectNumSummaryByExample(InquiryCountExample example);
+	CustomerNumSummaryVO selectNumSummaryByExample(InquiryCountExample example);
+	
+	/**
+	 * 根据分类查询询单和订单的数量汇总数据
+	 * @param condition {limit:'返回条数',inquiryCountExample:'询单example条件',orderCountExample:'订单Example条件'}
+	 * @return
+	 */
+	List<CustomerCategoryNumVO> selectinquiryOrderCategoryNumByCondition(Map<String,Object> condition);
 }

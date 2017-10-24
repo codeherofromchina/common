@@ -22,7 +22,7 @@ import com.erui.report.model.CateDetailVo;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.InquiryAreaVO;
-import com.erui.report.util.NumSummaryVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 
 /**
  * 客户中心
@@ -434,8 +434,8 @@ public class CustomCentreController {
 			@RequestParam(name = "country", required = false) String countryName) {
 		Map<String, Object> result = new HashMap<String, Object>();
 
-		NumSummaryVO orderNumSummary = orderService.numSummary(areaName, countryName);
-		NumSummaryVO inquiryNumSummary = inquiryService.numSummary(areaName, countryName);
+		CustomerNumSummaryVO orderNumSummary = orderService.numSummary(areaName, countryName);
+		CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(areaName, countryName);
 
 		result.put("success", true);
 		result.put("desc", "");

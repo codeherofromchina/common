@@ -2,7 +2,9 @@ package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,11 +21,13 @@ import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.model.InquiryCountExample;
 import com.erui.report.model.InquiryCountExample.Criteria;
+import com.erui.report.model.OrderCountExample;
 import com.erui.report.service.InquiryCountService;
+import com.erui.report.util.CustomerCategoryNumVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
-import com.erui.report.util.NumSummaryVO;
 
 /*
 * 客户中心-询单统计  服务实现类
@@ -386,7 +390,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	}
 
 	@Override
-	public NumSummaryVO numSummary(String area, String country) {
+	public CustomerNumSummaryVO numSummary(String area, String country) {
 		InquiryCountExample example = new InquiryCountExample();
 		Criteria criteria = example.createCriteria();
 		if (StringUtils.isNoneBlank(area)) {
@@ -395,9 +399,65 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     	if (StringUtils.isNoneBlank(country)) {
     		criteria.andInquiryUnitEqualTo(country);
     	}
-		NumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
+		CustomerNumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
 
 		return vo;
 	}
-
+	
+	
+	@Override
+	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN,String ...platCategory) {
+		
+		// 求出排名本星期
+		Map<String,Object> condition01 = new HashMap<>();
+		if (topN != null) {
+			condition01.put("limit", topN);
+		}
+		Date before7Day = com.erui.comm.DateUtil.recedeTime(7);
+		InquiryCountExample example01 = new InquiryCountExample();
+		Criteria criteria01 = example01.createCriteria().andRollinTimeGreaterThan(before7Day);
+		OrderCountExample example02 = new OrderCountExample();
+		com.erui.report.model.OrderCountExample.Criteria criteria02 = example02.createCriteria().andProjectStartGreaterThan(before7Day);
+		if (platCategory != null && platCategory.length > 0) {
+			List<String> asList = Arrays.asList(platCategory);
+			criteria01.andPlatProCategoryIn(asList);
+			
+			criteria02.andPlatProCategoryIn(asList);
+		}
+		condition01.put("inquiryCountExample", example01);
+		condition01.put("orderCountExample", example02);
+		List<CustomerCategoryNumVO> result = readMapper.selectinquiryOrderCategoryNumByCondition(condition01);
+		
+		// 求出上个星期的值，以获取环比
+		if (result != null && result.size() > 0) {
+			Map<String,Object> condition02 = new HashMap<>();
+			Date before14Day = com.erui.comm.DateUtil.recedeTime(14);
+			List<String> categoryList = result.parallelStream().map(CustomerCategoryNumVO::getCategory).collect(Collectors.toList());
+			example01 = new InquiryCountExample();
+			example01.createCriteria().andRollinTimeBetween(before14Day, before7Day).andPlatProCategoryIn(categoryList);
+			example02 = new OrderCountExample();
+			example02.createCriteria().andProjectStartBetween(before14Day, before7Day).andPlatProCategoryIn(categoryList);
+			condition02.put("inquiryCountExample", example01);
+			condition02.put("orderCountExample", example02);
+			
+			List<CustomerCategoryNumVO> beforeCategory = readMapper.selectinquiryOrderCategoryNumByCondition(condition02);
+			final Map<String,CustomerCategoryNumVO> tmpMap ;
+			if (beforeCategory != null && beforeCategory.size() > 0) {
+				tmpMap = beforeCategory.parallelStream().collect(Collectors.toMap(CustomerCategoryNumVO::getCategory, vo -> vo));
+			} else {
+				tmpMap = new HashMap<>();
+			}
+			
+			result.stream().forEach(vo -> {
+				CustomerCategoryNumVO ccnv = tmpMap.get(vo.getCategory());
+				if (ccnv == null || ccnv.getTotalNum() == 0) {
+					vo.setChainrate(1d);
+				} else {
+					vo.setChainrate(((double)vo.getTotalNum())/ccnv.getTotalNum() - 1);
+				}
+			});
+		}
+		
+		return result;
+	}
 }
