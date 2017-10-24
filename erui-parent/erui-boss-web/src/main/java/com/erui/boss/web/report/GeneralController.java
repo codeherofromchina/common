@@ -20,13 +20,16 @@ import java.util.*;
  * @Date Created in 16:08 2017/10/20
  * @modified By
  */
-@RequestMapping("general")
+
 @Controller
+@RequestMapping("general")
 public class GeneralController {
     @Autowired
     private MemberService memberService;
+
     @Autowired
     private InquiryCountService inquiryService;
+
     @Autowired
     private OrderCountService orderService;
     @Autowired
@@ -58,13 +61,14 @@ public class GeneralController {
         member.put("add",addMemberChain);
         member.put("chainRate",chainMemberRate);
         //当期询单数
-        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(),null,0.0,0.0);
+        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0,"","");
         //当期询单数环比chain
-        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0.0,0.0);
+        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0,"","");
+
 
         int chainInquiryAdd = inquiryCount-chainInquiryCount;
         //当期询单金额
-        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, new Date());
+        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, new Date(),"");
         //环比
         double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd,chainInquiryCount);
         Map<String,Object> inquiry = new HashMap<>();
@@ -73,12 +77,13 @@ public class GeneralController {
         inquiry.put("chainAdd",chainInquiryAdd);
         inquiry.put("chainRate",chainInquiryRate);
 
+
         //当期订单数
-        int orderCount = orderService.orderCountByTime(startTime, new Date(),"");
+        int orderCount = orderService.orderCountByTime(startTime, new Date(),"","","");
         //环比订单数量
-        int chainOrderCount = orderService.orderCountByTime(chainDate,startTime,"");
+        int chainOrderCount = orderService.orderCountByTime(chainDate,startTime,"","","");
         //当期询单金额
-        double orderAmount = orderService.orderAmountByTime(startTime, new Date());
+        double orderAmount = orderService.orderAmountByTime(startTime, new Date(),"");
         //环比增加单数
         int chainOrderAdd = chainOrderCount - orderCount;
         double chainOrderRate = 0.00;
@@ -220,14 +225,14 @@ public class GeneralController {
             Integer[] orderCounts=new Integer[dateList.size()];//订单数数组
             for (int i = 0; i < dateList.size(); i++) {
                 if(i==0){
-                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0);
+                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0,"","");
                     inCounts[i]=inquiryCount;
-                    int orderCount = orderService.orderCountByTime(sTime, dateList.get(i), "");
+                    int orderCount = orderService.orderCountByTime(sTime, dateList.get(i), "","","");
                     orderCounts[i]=orderCount;
                 }else {
-                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0);
+                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0,"","");
                     inCounts[i]=inquiryCount;
-                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "");
+                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "","","");
                     orderCounts[i]=orCount;
                 }
 

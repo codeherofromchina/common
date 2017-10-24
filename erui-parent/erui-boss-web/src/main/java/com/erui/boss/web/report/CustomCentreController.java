@@ -2,6 +2,7 @@ package com.erui.boss.web.report;
 
 import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.OrderCountService;
@@ -44,11 +45,11 @@ public class CustomCentreController {
         Map<String,Object> proTop3Map=new HashMap<String,Object>();//产品分类Top3
 
         //当期询单数
-        int count = inquiryService.inquiryCountByTime(startTime, new Date(),null,0,0);
+        int count = inquiryService.inquiryCountByTime(startTime, new Date(),null,0,0,"","");
         //当期询单金额
-        double amount = inquiryService.inquiryAmountByTime(startTime, new Date());
+        double amount = inquiryService.inquiryAmountByTime(startTime, new Date(),"");
         //当期询单数环比chain
-        int chainCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0,0);
+        int chainCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0,0,"","");
         int chain=count-chainCount;
         double chainRate = RateUtil.intChainRate(chain, chainCount);//环比
         inquiryMap.put("count",count);
@@ -107,11 +108,11 @@ public class CustomCentreController {
 
 
         //当期订单数
-        int count = orderService.orderCountByTime(startTime, new Date(),"");
+        int count = orderService.orderCountByTime(startTime, new Date(),"","","");
         //当期询单金额
-        double amount = orderService.orderAmountByTime(startTime, new Date());
+        double amount = orderService.orderAmountByTime(startTime, new Date(),"");
         //上期订单数
-        int chainCount = orderService.orderCountByTime(chainDate,startTime,"");
+        int chainCount = orderService.orderCountByTime(chainDate,startTime,"","","");
         double chainRate=0.00;
         if(chainCount>0){
             chainRate=RateUtil.intChainRate(count-chainCount,chainCount);
@@ -131,9 +132,9 @@ public class CustomCentreController {
         //成单率
         double successOrderRate=0.00;
         double successOrderChian=0.00;//环比
-        int successOrderCount = orderService.orderCountByTime(startTime, new Date(),"正常完成");
-        int successInquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(), "已报价",0,0);
-        int successOrderChianCount = orderService.orderCountByTime(chainDate,startTime,"正常完成");
+        int successOrderCount = orderService.orderCountByTime(startTime, new Date(),"正常完成","","");
+        int successInquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(), "已报价",0,0,"","");
+        int successOrderChianCount = orderService.orderCountByTime(chainDate,startTime,"正常完成","","");
         if(successInquiryCount>0){
             successOrderRate = RateUtil.intChainRate(successOrderCount, successInquiryCount);
         }
@@ -167,9 +168,9 @@ public class CustomCentreController {
     @RequestMapping(value = "/inquiryDetail")
     public Object inquiryDetail(){
         Map<String,Object> result=new HashMap<String,Object>();
-        int quotedCount = inquiryService.inquiryCountByTime(null, null, "已报价",0,0);
-        int noQuoteCount = inquiryService.inquiryCountByTime(null, null, "未报价",0,0);
-        int quotingCount = inquiryService.inquiryCountByTime(null, null, "报价中",0,0);
+        int quotedCount = inquiryService.inquiryCountByTime(null, null, "已报价",0,0,"","");
+        int noQuoteCount = inquiryService.inquiryCountByTime(null, null, "未报价",0,0,"","");
+        int quotingCount = inquiryService.inquiryCountByTime(null, null, "报价中",0,0,"","");
         int totalCount=quotedCount+noQuoteCount+quotingCount;
         double quotedInquiryRate=0.00;
         double quotingInquiryRate=0.00;
@@ -200,12 +201,12 @@ public class CustomCentreController {
         Map<String,Object> result=new HashMap<String,Object>();
         int days = (int) reqMap.get("days");
         Date startTime = DateUtil.recedeTime(days);
-        int totalCount = inquiryService.inquiryCountByTime(null, null, "",0,0);
-        int count1=inquiryService.inquiryCountByTime(startTime, new Date(), "",1,4);
-        int count2=inquiryService.inquiryCountByTime(startTime, new Date(), "",4,8);
-        int count3=inquiryService.inquiryCountByTime(startTime, new Date(), "",8,16);
-        int count4=inquiryService.inquiryCountByTime(startTime, new Date(), "",16,24);
-        int count5=inquiryService.inquiryCountByTime(startTime, new Date(), "",24,48);
+        int totalCount = inquiryService.inquiryCountByTime(null, null, "",0,0,"","");
+        int count1=inquiryService.inquiryCountByTime(startTime, new Date(), "",1,4,"","");
+        int count2=inquiryService.inquiryCountByTime(startTime, new Date(), "",4,8,"","");
+        int count3=inquiryService.inquiryCountByTime(startTime, new Date(), "",8,16,"","");
+        int count4=inquiryService.inquiryCountByTime(startTime, new Date(), "",16,24,"","");
+        int count5=inquiryService.inquiryCountByTime(startTime, new Date(), "",24,48,"","");
         HashMap<String, Object> quoteTimeMap = new HashMap<>();
         quoteTimeMap.put("oneCount",count1);
         quoteTimeMap.put("fourCount",count2);
@@ -250,14 +251,14 @@ public class CustomCentreController {
 
             for (int i = 0; i < dateList.size(); i++) {
                 if(i==0){
-                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0);
+                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0,"","");
                     inCounts[i]=inquiryCount;
-                    int orCount = orderService.orderCountByTime(sTime, dateList.get(i), "");
+                    int orCount = orderService.orderCountByTime(sTime, dateList.get(i), "","","");
                     orCounts[i]=orCount;
                 }else {
-                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0);
+                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0,"","");
                     inCounts[i]=inquiryCount;
-                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "");
+                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "","","");
                     orCounts[i]=orCount;
                 }
 
@@ -277,14 +278,131 @@ public class CustomCentreController {
     @RequestMapping("/busUnitDetail")
     public Object busUnitDetail(){
         HashMap<String, Object> result = new HashMap<>();//结果集
+        HashMap<String, Object> data = new HashMap<>();//数据集
         //事业部列表
         List<String> orgList=inquiryService.selectOrgList();
-        for (String org:orgList) {
-
+        String[] orgs=new String[orgList.size()];
+        Integer[] inqCounts=new Integer[orgList.size()];
+        Integer[] ordCounts=new Integer[orgList.size()];
+        Double[] successOrdCounts=new Double[orgList.size()];
+        for (int i=0;i<orgList.size();i++) {
+            int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, orgList.get(i),"");
+            int ordCount=orderService.orderCountByTime(null,null,"",orgList.get(i),"");
+            int successOrdCount=orderService.orderCountByTime(null,null,"正常完成",orgList.get(i),"");
+            inqCounts[i]=inqCount;
+            ordCounts[i]=ordCount;
+            double successRate = 0.0;
+            if(ordCount!=0){
+                successRate= RateUtil.intChainRate(successOrdCount, ordCount);
+            }
+            successOrdCounts[i]=successRate;
+            orgs[i]=orgList.get(i);
         }
+        data.put("busUnit",orgs);
+        data.put("inquiryCount",inqCounts);
+        data.put("orderCount",ordCounts);
+        data.put("seccessOrderCount",successOrdCounts);
 
-
+        result.put("code",200);
+        result.put("data",data);
         return result;
     }
+
+    //区域明细对比
+    @ResponseBody
+    @RequestMapping("/areaDetailContrast")
+    public Object areaDetailContrast(){
+        HashMap<String, Object> result = new HashMap<>();//结果集
+        //询单
+        List<String> areaList = inquiryService.selectAreaList();
+        String[] areaInqCounts=new String[areaList.size()+1];//询单数量区域列表
+        String[] areaInqAmounts=new String[areaList.size()+1];//询单金额区域列表
+        Integer[] inqCounts=new Integer[areaList.size()+1];//询单数量列表
+        Double[] inqAmounts=new Double[areaList.size()+1];//询单金额列表
+        areaInqCounts[0]="询单总数量";
+        areaInqAmounts[0]="询单总金额";
+        int inqTotalCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", "");
+        Double inqTotalAmount = inquiryService.inquiryAmountByTime(null, null,"");
+        inqCounts[0]=inqTotalCount;
+        inqAmounts[0]=inqTotalAmount;
+        //订单
+        String[] areaOrdCounts=new String[areaList.size()+1];//订单数量区域列表
+        String[] areaOrdAmounts=new String[areaList.size()+1];//订单金额区域列表
+        Integer[] OrdCounts=new Integer[areaList.size()+1];//订单数量列表
+        Double[] OrdAmounts=new Double[areaList.size()+1];//订单金额列表
+        areaOrdCounts[0]="订单总数量";
+        areaOrdAmounts[0]="订单总金额";
+        int orderTotalCount = orderService.orderCountByTime(null, null, "", "","");
+        Double orderTotalAmount = orderService.orderAmountByTime(null, null,"");
+        OrdCounts[0]=orderTotalCount;
+        OrdAmounts[0]=orderTotalAmount;
+        for (int i = 0; i <areaList.size() ; i++) {
+            areaInqCounts[i+1]=areaList.get(i);
+            areaInqAmounts[i+1]=areaList.get(i);
+            areaOrdCounts[i+1]=areaList.get(i);
+            areaOrdAmounts[i+1]=areaList.get(i);
+            int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i));
+            Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i));
+            int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i));
+            Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i));
+            inqCounts[i+1]=inqCount;
+            inqAmounts[i+1]=inqAmount;
+            OrdCounts[i+1]=ordCount;
+            OrdAmounts[i+1]=ordAmount;
+        }
+
+        HashMap<String, Object> data = new HashMap<>();//结果集
+        HashMap<String, Object> inqCount = new HashMap<>();//结果集
+        inqCount.put("marketArea",areaInqCounts);
+        inqCount.put("inqCounts",inqCounts);
+        HashMap<String, Object> inqAmount= new HashMap<>();//结果集
+        inqAmount.put("marketArea",areaInqAmounts);
+        inqAmount.put("inqAmount",inqAmounts);
+        HashMap<String, Object> ordCount = new HashMap<>();//结果集
+        ordCount.put("marketArea",areaOrdCounts);
+        ordCount.put("ordCounts",OrdCounts);
+        HashMap<String, Object> orderAmount = new HashMap<>();//结果集
+        orderAmount.put("marketArea",areaOrdAmounts);
+        orderAmount.put("ordAmount",OrdAmounts);
+        data.put("inqCount",inqCount);
+        data.put("inqAmount",inqAmount);
+        data.put("ordCount",ordCount);
+        data.put("orderAmount",orderAmount);
+
+
+        result.put("code",200);
+        result.put("data",data);
+        return result;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/areaDetail")
+    public Object areaDetail(){
+        HashMap<String, Object> result = new HashMap<>();//结果集
+        result.put("ss",5);
+        result.put("ss",65);
+        return null;
+    }
+
+
+    //品类明细
+    @ResponseBody
+    @RequestMapping("/catesDetail")
+    public Object catesDetail(){
+        HashMap<String, Object> result = new HashMap<>();//结果集
+        HashMap<String, Object> data = new HashMap<>();//结果集
+        List<CateDetailVo> list=inquiryService.selectInqDetailByCategory();
+        int inqTotalCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", "");
+        int ordTotalCount = orderService.orderCountByTime(null, null, "", "", "");
+        Double inqTotalAmount = inquiryService.inquiryAmountByTime(null, null, "");
+        Double ordTotalAmount = orderService.orderAmountByTime(null, null, "");
+
+
+        result.put("data",data);
+        return  result;
+    }
+
+
 
 }

@@ -49,7 +49,7 @@ public class EmployeeController {
 	public Object test() throws ParseException {
 		Date date = new Date();
 		Date parseStringToDate = DateUtil.parseStringToDate("2016-10-10", "yyyy-MM-dd");
-		double totalPrice = inquiryCountService.inquiryAmountByTime(parseStringToDate, date);
+		double totalPrice = inquiryCountService.inquiryAmountByTime(parseStringToDate, date,"");
 		Map<String,Object> result = new HashMap<>();
 		result.put("to", totalPrice);
 		return result;

@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+
+
+import com.erui.report.model.OrderCountExample;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,7 +16,7 @@ import org.springframework.stereotype.Service;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.OrderCount;
-import com.erui.report.model.OrderCountExample;
+
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
@@ -399,24 +403,40 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	}
 
 	@Override
-	public int orderCountByTime(Date startTime, Date endTime, String proStatus) {
-		OrderCountExample example = new OrderCountExample();
-		OrderCountExample.Criteria criteria = example.createCriteria();
-		criteria.andProjectStartBetween(startTime, endTime);
-		if (proStatus != null || !proStatus.equals("")) {
-			criteria.andProjectStatusEqualTo(proStatus);
-		}
+	public int orderCountByTime(Date startTime, Date endTime,String proStatus,String org,String area) {
+        OrderCountExample example= new OrderCountExample();
+        OrderCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+            criteria.andProjectStartBetween(startTime,endTime);
+        }
+        if(proStatus!=null&&!proStatus.equals("")){
+            criteria.andProjectStatusEqualTo(proStatus);
+        }
+        if(org!=null&&!"".equals(org)){
+            criteria.andProjectStatusEqualTo(org);
+        }
+        if(area!=null&&!"".equals(area)){
+            criteria.andProjectStatusEqualTo(area);
+        }
+
 		int count = readMapper.countByExample(example);
 		return count;
 
 	}
 
 	@Override
-	public Double orderAmountByTime(Date startTime, Date endTime) {
-		OrderCountExample example = new OrderCountExample();
-		example.createCriteria().andProjectStartBetween(startTime, endTime);
-		Double amount = readMapper.selectTotalAmountByExample(example);
-		return amount;
+	public Double orderAmountByTime(Date startTime, Date endTime,String area) {
+        OrderCountExample example= new OrderCountExample();
+        OrderCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+            criteria.andProjectStartBetween(startTime,endTime);
+        }
+        if(area!=null&&!"".equals(area)){
+            criteria.andProjectStatusEqualTo(area);
+        }
+        Double amount = readMapper.selectTotalAmountByExample(example);
+        return amount;
+
 	}
 
 	@Override
@@ -425,12 +445,15 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 		return list;
 	}
 
-	// 订单利润率
-	@Override
-	public Double selectProfitRate(Date startTime, Date endTime) {
-		OrderCountExample example = new OrderCountExample();
-		example.createCriteria().andProjectStartBetween(startTime, endTime);
-		Double profitRate = readMapper.selectProfitRateByExample(example);
-		return profitRate;
-	}
+
+	//订单利润率
+    @Override
+    public Double selectProfitRate(Date startTime, Date endTime) {
+        OrderCountExample example= new OrderCountExample();
+        example.createCriteria().andProjectStartBetween(startTime,  endTime);
+        Double profitRate = readMapper.selectProfitRateByExample(example);
+        return profitRate;
+    }
+
+
 }
