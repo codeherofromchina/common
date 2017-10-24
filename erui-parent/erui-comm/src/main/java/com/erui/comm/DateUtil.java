@@ -28,6 +28,14 @@ public class DateUtil {
                 return time;
             }
         }
-        return null;
+		Date now = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		cal.add(Calendar.DAY_OF_MONTH,-day);
+		Date time = cal.getTime();
+		if(time!=null){
+			return time;
+		}
+        return time;
 	}
 }

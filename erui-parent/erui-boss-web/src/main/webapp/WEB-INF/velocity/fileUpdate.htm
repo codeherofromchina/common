@@ -5,10 +5,24 @@
 <title>上传文件测试</title>
 </head>
 <body>
-	<form action="/erui-boss-web/excel/update" method="post" enctype="multipart/form-data">
+	<form action="/erui-boss-web/report/excel/update" method="post" enctype="multipart/form-data">
 		选择：<input name="file" type="file" />
 		<br/>
-		其他：<input type="text" name="type" /><br/>
+		文件类型：<select name="type">
+			<option value="1">品控</option>
+			<option value="2">授信数据</option>
+			<option value="3">仓储物流-事业部</option>
+			<option value="4">人力资源</option>
+			<option value="5">客户中心-询单</option>
+			<option value="6">市场人员</option>
+			<option value="7">运营数据</option>
+			<option value="8">客户中心-订单</option>
+			<option value="9">仓储物流-订单入库</option>
+			<option value="10">仓储物流-订单出库</option>
+			<option value="11">采购</option>
+			<option value="12">应收账款</option>
+			<option value="13">供应链</option>
+		</select><br/>
 		<input type="submit" value="提交文件" />&nbsp;&nbsp;&nbsp;&nbsp;
 		<input type="reset" value="重置" />
 	</form>

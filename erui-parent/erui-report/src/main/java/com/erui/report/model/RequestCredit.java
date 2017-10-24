@@ -24,7 +24,7 @@ public class RequestCredit {
 
     private String tradeTerms;
 
-    private String createAt;
+    private Date  createAt;
 
     private BigDecimal orderAmount;
 
@@ -118,12 +118,13 @@ public class RequestCredit {
         this.tradeTerms = tradeTerms == null ? null : tradeTerms.trim();
     }
 
-    public String getCreateAt() {
+    public Date getCreateAt() {
         return createAt;
     }
 
-    public void setCreateAt(String createAt) {
-        this.createAt = createAt == null ? null : createAt.trim();
+    public RequestCredit setCreateAt(Date createAt) {
+        this.createAt = createAt;
+        return this;
     }
 
     public BigDecimal getOrderAmount() {
@@ -173,4 +174,6 @@ public class RequestCredit {
     public void setBackDate(Date backDate) {
         this.backDate = backDate;
     }
+
+
 }

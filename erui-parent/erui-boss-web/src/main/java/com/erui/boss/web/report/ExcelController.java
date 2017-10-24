@@ -38,7 +38,7 @@ import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
 @Controller
-@RequestMapping("/excel")
+@RequestMapping("/report/excel")
 public class ExcelController {
 	private final static Logger logger = LoggerFactory.getLogger(ExcelController.class);
 	@Autowired
@@ -81,6 +81,7 @@ public class ExcelController {
 			@RequestParam(value = "file", required = true) MultipartFile file,
 			@RequestParam(value = "type", required = true) Integer type) {
 
+		
 		Map<String, Object> result = new HashMap<>();
 		String contentType = file.getContentType();
 		String name = file.getName();
@@ -125,9 +126,8 @@ public class ExcelController {
 				result.put("desc", "Excel数据为空");
 				return result;
 			}
-			// TODO这里需要验证数据的正确性，稍后实现
 
-			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize));
+			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize),false);
 
 			result.put("success", true);
 			result.put("response", importDataResponse);
@@ -145,64 +145,66 @@ public class ExcelController {
 	 * 
 	 * @param typeEnum
 	 * @param datas
+	 * @param testOnly	true:只做数据测试 false:导入数据库
 	 */
-	private ImportDataResponse importData(ExcelUploadTypeEnum typeEnum, List<String[]> datas) {
+	private ImportDataResponse importData(ExcelUploadTypeEnum typeEnum, List<String[]> datas,boolean testOnly) {
 		ImportDataResponse response = null;
 		switch (typeEnum) {
 		case CATEGORY_QUALITY:
 			logger.info("导入品控数据");
-			response = categoryQualityService.importData(datas);
+			response = categoryQualityService.importData(datas,testOnly);
 			break;
 		case CREDIT_EXTENSION:
 			logger.info("导入授信数据");
-			response = creditExtensionService.importData(datas);
+			response = creditExtensionService.importData(datas,testOnly);
 			break;
-		case STORAGE_ORGANICOUNT:
+		case STORAGE_ORGANI_COUNT:
 			logger.info("导入仓储物流-事业部数据");
-			response = storageOrganiCountService.importData(datas);
+			response = storageOrganiCountService.importData(datas,testOnly);
 			break;
 		case HR_COUNT:
 			logger.info("导入人力资源数据");
-			response = hrCountService.importData(datas);
+			response = hrCountService.importData(datas,testOnly);
 			break;
 		case INQUIRY_COUNT:
 			logger.info("导入客户中心-询单数据");
-			response = inquiryCountService.importData(datas);
+			response = inquiryCountService.importData(datas,testOnly);
 			break;
 		case MARKETER_COUNT:
 			logger.info("导入市场人员数据");
-			response = marketerCountService.importData(datas);
+			response = marketerCountService.importData(datas,testOnly);
 			break;
 		case MEMBER:
 			logger.info("导入运营数据");
-			response = memberService.importData(datas);
+			response = memberService.importData(datas,testOnly);
 			break;
 		case ORDER_COUNT:
 			logger.info("导入客户中心-订单数据");
-			response = orderCountService.importData(datas);
+			response = orderCountService.importData(datas,testOnly);
 			break;
 		case ORDER_ENTRY_COUNT:
 			logger.info("导入仓储物流-订单入库数据");
-			response = orderEntryCountService.importData(datas);
+			response = orderEntryCountService.importData(datas,testOnly);
 			break;
 		case ORDER_OUTBOUND_COUNT:
 			logger.info("导入仓储物流-订单出库数据");
-			response = orderOutboundCountService.importData(datas);
+			response = orderOutboundCountService.importData(datas,testOnly);
 			break;
 		case PROCUREMENT_COUNT:
 			logger.info("导入采购数据");
-			response = procurementCountService.importData(datas);
+			response = procurementCountService.importData(datas,testOnly);
 			break;
 		case REQUEST_CREDIT:
 			logger.info("导入应收账款数据");
-			response = requestCreditService.importData(datas);
+			response = requestCreditService.importData(datas,testOnly);
 			break;
 		case SUPPLY_CHAIN:
 			logger.info("导入供应链数据");
-			response = supplyChainService.importData(datas);
+			response = supplyChainService.importData(datas,testOnly);
 			break;
 		default:
 			response = new ImportDataResponse();
+			response.setDone(true);
 		}
 		return response;
 	}

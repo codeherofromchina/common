@@ -83,6 +83,33 @@
     organization, customer_code, export_pro_name, trade_terms, create_at, order_amount, 
     credit_currency, receive_amount, warn_status, back_response_person, back_date
   </sql>
+  <select id="selectTotal" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCredit">
+    SELECT SUM(receive_amount) sd,SUM(order_amount) ed FROM `request_credit`;
+  </select>
+  <select id="selectRequestTotal" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT SUM(receive_amount) sd,SUM(order_amount) sdT,SUM(order_amount-receive_amount) sded FROM `request_credit`
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+</select>
+  <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
+    SELECT sales_area FROM request_credit GROUP BY sales_area
+</select>
+  <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
+    SELECT SUM(order_amount) AS oa,SUM(receive_amount) AS ra,SUM(order_amount-receive_amount) AS received  FROM request_credit
+  </select>
+  <select id="selectRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT order_amount,receive_amount,(order_amount-receive_amount) AS received,back_date,create_at FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.RequestCreditExample" >
     select
     <if test="distinct" >
