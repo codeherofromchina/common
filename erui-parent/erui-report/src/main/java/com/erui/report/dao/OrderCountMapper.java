@@ -1,5 +1,6 @@
 package com.erui.report.dao;
 
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.OrderCount;
 import com.erui.report.model.OrderCountExample;
 import java.util.List;
@@ -35,4 +36,5 @@ public interface OrderCountMapper {
     int updateByPrimaryKeySelective(OrderCount record);
 
     int updateByPrimaryKey(OrderCount record);
+
 }

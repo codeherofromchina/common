@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.util.ImportDataResponse;
 
 public interface OrderCountService {
@@ -16,15 +17,17 @@ public interface OrderCountService {
 	/*
 	* 订单数
 	* */
-	public int orderCountByTime(Date startTime,Date endTime,String projectStatus);
+	public int orderCountByTime(Date startTime,Date endTime,String projectStatus,String org,String area);
 	/*
 	* 订单金额
 	* */
-	public Double orderAmountByTime(Date startTime,Date endTime);
+	public Double orderAmountByTime(Date startTime,Date endTime,String area);
 	/*
 	* 订单产品类别数量Top3
 	* */
 	public  List<Map<String,Object>> selectOrderProTop3(Map<String,Object> params);
 
 	public Double selectProfitRate(Date startTime,Date endTime);
+
+
 }

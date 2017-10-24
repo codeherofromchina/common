@@ -144,9 +144,27 @@
     </if>
   </select>
   <!--查询事业部列表-->
-  <select id="selectOrgList" resultType="java.lang.String" >
+  <select id="selectOrgListByExample" resultType="java.lang.String" parameterType="com.erui.report.model.InquiryCountExample" >
     select DISTINCT(organization)
     from inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <!--查询销售大区列表-->
+  <select id="selectAreaListByExample" resultType="java.lang.String" parameterType="com.erui.report.model.InquiryCountExample" >
+    select DISTINCT(inquiry_area)
+    from inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
   </select>
 
   <select id="selectProTop3" resultType="map" parameterType="Object" >
@@ -563,6 +581,17 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
+  </select>
+
+  <select id="selectInqDetailByCategory"  resultType="com.erui.report.model.CateDetailVo" >
+    SELECT
+    SUM(quote_total_price) AS inqCatePrice,
+    COUNT(*) AS inqCateCount,
+    plat_pro_category AS category
+    FROM
+    inquiry_count
+    GROUP BY
+    category
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
     update inquiry_count

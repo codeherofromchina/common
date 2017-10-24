@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCountExample;
 import com.erui.report.model.OrderCountExample;
 import org.slf4j.Logger;
@@ -396,12 +397,20 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	}
 
 	@Override
-	public int orderCountByTime(Date startTime, Date endTime,String proStatus) {
+	public int orderCountByTime(Date startTime, Date endTime,String proStatus,String org,String area) {
         OrderCountExample example= new OrderCountExample();
         OrderCountExample.Criteria criteria = example.createCriteria();
-        criteria.andProjectStartBetween(startTime,endTime);
-        if(proStatus!=null||!proStatus.equals("")){
+        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+            criteria.andProjectStartBetween(startTime,endTime);
+        }
+        if(proStatus!=null&&!proStatus.equals("")){
             criteria.andProjectStatusEqualTo(proStatus);
+        }
+        if(org!=null&&!"".equals(org)){
+            criteria.andProjectStatusEqualTo(org);
+        }
+        if(area!=null&&!"".equals(area)){
+            criteria.andProjectStatusEqualTo(area);
         }
 		int count = readMapper.countByExample(example);
 		return count;
@@ -409,9 +418,15 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	}
 
 	@Override
-	public Double orderAmountByTime(Date startTime, Date endTime) {
+	public Double orderAmountByTime(Date startTime, Date endTime,String area) {
         OrderCountExample example= new OrderCountExample();
-        example.createCriteria().andProjectStartBetween(startTime,endTime);
+        OrderCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+            criteria.andProjectStartBetween(startTime,endTime);
+        }
+        if(area!=null&&!"".equals(area)){
+            criteria.andProjectStatusEqualTo(area);
+        }
         Double amount = readMapper.selectTotalAmountByExample(example);
         return amount;
 	}
@@ -430,4 +445,6 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         Double profitRate = readMapper.selectProfitRateByExample(example);
         return profitRate;
     }
+
+
 }
