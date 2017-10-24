@@ -1,5 +1,6 @@
 package com.erui.report.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -632,6 +633,196 @@ public class OrderEntryCountExample {
 
         public Criteria andEntryCountNotBetween(Integer value1, Integer value2) {
             addCriterion("entry_count not between", value1, value2, "entryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsIsNull() {
+            addCriterion("amounts is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsIsNotNull() {
+            addCriterion("amounts is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsEqualTo(BigDecimal value) {
+            addCriterion("amounts =", value, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsNotEqualTo(BigDecimal value) {
+            addCriterion("amounts <>", value, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsGreaterThan(BigDecimal value) {
+            addCriterion("amounts >", value, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("amounts >=", value, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsLessThan(BigDecimal value) {
+            addCriterion("amounts <", value, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("amounts <=", value, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsIn(List<BigDecimal> values) {
+            addCriterion("amounts in", values, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsNotIn(List<BigDecimal> values) {
+            addCriterion("amounts not in", values, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("amounts between", value1, value2, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountsNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("amounts not between", value1, value2, "amounts");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateIsNull() {
+            addCriterion("storage_date is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateIsNotNull() {
+            addCriterion("storage_date is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateEqualTo(Date value) {
+            addCriterion("storage_date =", value, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateNotEqualTo(Date value) {
+            addCriterion("storage_date <>", value, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateGreaterThan(Date value) {
+            addCriterion("storage_date >", value, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateGreaterThanOrEqualTo(Date value) {
+            addCriterion("storage_date >=", value, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateLessThan(Date value) {
+            addCriterion("storage_date <", value, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateLessThanOrEqualTo(Date value) {
+            addCriterion("storage_date <=", value, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateIn(List<Date> values) {
+            addCriterion("storage_date in", values, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateNotIn(List<Date> values) {
+            addCriterion("storage_date not in", values, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateBetween(Date value1, Date value2) {
+            addCriterion("storage_date between", value1, value2, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andStorageDateNotBetween(Date value1, Date value2) {
+            addCriterion("storage_date not between", value1, value2, "storageDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNull() {
+            addCriterion("remark is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNotNull() {
+            addCriterion("remark is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkEqualTo(String value) {
+            addCriterion("remark =", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotEqualTo(String value) {
+            addCriterion("remark <>", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThan(String value) {
+            addCriterion("remark >", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThanOrEqualTo(String value) {
+            addCriterion("remark >=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThan(String value) {
+            addCriterion("remark <", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThanOrEqualTo(String value) {
+            addCriterion("remark <=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLike(String value) {
+            addCriterion("remark like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotLike(String value) {
+            addCriterion("remark not like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIn(List<String> values) {
+            addCriterion("remark in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotIn(List<String> values) {
+            addCriterion("remark not in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkBetween(String value1, String value2) {
+            addCriterion("remark between", value1, value2, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotBetween(String value1, String value2) {
+            addCriterion("remark not between", value1, value2, "remark");
             return (Criteria) this;
         }
     }

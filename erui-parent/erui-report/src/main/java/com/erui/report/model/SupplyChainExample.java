@@ -365,6 +365,76 @@ public class SupplyChainExample {
             return (Criteria) this;
         }
 
+        public Criteria andItemClassIsNull() {
+            addCriterion("item_class is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassIsNotNull() {
+            addCriterion("item_class is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassEqualTo(String value) {
+            addCriterion("item_class =", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassNotEqualTo(String value) {
+            addCriterion("item_class <>", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassGreaterThan(String value) {
+            addCriterion("item_class >", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassGreaterThanOrEqualTo(String value) {
+            addCriterion("item_class >=", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassLessThan(String value) {
+            addCriterion("item_class <", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassLessThanOrEqualTo(String value) {
+            addCriterion("item_class <=", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassLike(String value) {
+            addCriterion("item_class like", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassNotLike(String value) {
+            addCriterion("item_class not like", value, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassIn(List<String> values) {
+            addCriterion("item_class in", values, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassNotIn(List<String> values) {
+            addCriterion("item_class not in", values, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassBetween(String value1, String value2) {
+            addCriterion("item_class between", value1, value2, "itemClass");
+            return (Criteria) this;
+        }
+
+        public Criteria andItemClassNotBetween(String value1, String value2) {
+            addCriterion("item_class not between", value1, value2, "itemClass");
+            return (Criteria) this;
+        }
+
         public Criteria andPlanSkuNumIsNull() {
             addCriterion("plan_sku_num is null");
             return (Criteria) this;

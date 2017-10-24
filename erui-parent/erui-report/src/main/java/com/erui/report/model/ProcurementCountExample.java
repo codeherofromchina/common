@@ -635,6 +635,76 @@ public class ProcurementCountExample {
             addCriterion("country not between", value1, value2, "country");
             return (Criteria) this;
         }
+
+        public Criteria andOilIsNull() {
+            addCriterion("oil is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilIsNotNull() {
+            addCriterion("oil is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilEqualTo(String value) {
+            addCriterion("oil =", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilNotEqualTo(String value) {
+            addCriterion("oil <>", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilGreaterThan(String value) {
+            addCriterion("oil >", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilGreaterThanOrEqualTo(String value) {
+            addCriterion("oil >=", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilLessThan(String value) {
+            addCriterion("oil <", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilLessThanOrEqualTo(String value) {
+            addCriterion("oil <=", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilLike(String value) {
+            addCriterion("oil like", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilNotLike(String value) {
+            addCriterion("oil not like", value, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilIn(List<String> values) {
+            addCriterion("oil in", values, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilNotIn(List<String> values) {
+            addCriterion("oil not in", values, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilBetween(String value1, String value2) {
+            addCriterion("oil between", value1, value2, "oil");
+            return (Criteria) this;
+        }
+
+        public Criteria andOilNotBetween(String value1, String value2) {
+            addCriterion("oil not between", value1, value2, "oil");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

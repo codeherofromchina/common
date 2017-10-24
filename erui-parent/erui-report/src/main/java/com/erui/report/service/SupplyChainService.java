@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.SuppliyChainCateVo;
+import com.erui.report.model.SuppliyChainItemClassVo;
+import com.erui.report.model.SuppliyChainOrgVo;
+import com.erui.report.model.SupplyChain;
 import com.erui.report.util.ImportDataResponse;
 
 public interface SupplyChainService {
@@ -21,4 +25,32 @@ public interface SupplyChainService {
 	 * @return
 	 */
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
+	/*
+		根据时间查询列表
+	*/
+	List<SupplyChain> queryListByDate(Date startTime,Date endTime);
+	/**
+	 *
+	 * 事业部供应链明细列表
+	 * @return
+	 */
+	List<SuppliyChainOrgVo> selectOrgSuppliyChain();
+	/**
+	 *
+	 * 品类供应链明细列表
+	 * @return
+	 */
+	List<SuppliyChainItemClassVo> selectItemCalssSuppliyChain(Date startTime,Date endTime);
+	/**
+	 *
+	 * 根据品类查询供应链明细
+	 * @return
+	 */
+	SuppliyChainItemClassVo selectSuppliyChainByItemClass(Date startTime,Date endTime,String itemClass);
+	/**
+	 *
+	 * 品类部供应链明细列表
+	 * @return
+	 */
+	List<SuppliyChainCateVo> selectCateSuppliyChain();
 }

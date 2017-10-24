@@ -259,15 +259,9 @@ public class CustomCentreController {
 
             for (int i = 0; i < dateList.size(); i++) {
                 if(i==0){
-                    int inquiryCount=inquiryService.inquiryCountByTime(sTime,dateList.get(i),"",0,0,"","");
-                    inCounts[i]=inquiryCount;
-                    int orCount = orderService.orderCountByTime(sTime, dateList.get(i), "","","");
-                    orCounts[i]=orCount;
+
                 }else {
-                    int inquiryCount=inquiryService.inquiryCountByTime(dateList.get(i-1),dateList.get(i),"",0,0,"","");
-                    inCounts[i]=inquiryCount;
-                    int orCount = orderService.orderCountByTime(dateList.get(i-1), dateList.get(i), "","","");
-                    orCounts[i]=orCount;
+
                 }
 
             }

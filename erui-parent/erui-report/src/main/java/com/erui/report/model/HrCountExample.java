@@ -225,6 +225,76 @@ public class HrCountExample {
             return (Criteria) this;
         }
 
+        public Criteria andBigDepartIsNull() {
+            addCriterion("big_depart is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartIsNotNull() {
+            addCriterion("big_depart is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartEqualTo(String value) {
+            addCriterion("big_depart =", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartNotEqualTo(String value) {
+            addCriterion("big_depart <>", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartGreaterThan(String value) {
+            addCriterion("big_depart >", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartGreaterThanOrEqualTo(String value) {
+            addCriterion("big_depart >=", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartLessThan(String value) {
+            addCriterion("big_depart <", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartLessThanOrEqualTo(String value) {
+            addCriterion("big_depart <=", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartLike(String value) {
+            addCriterion("big_depart like", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartNotLike(String value) {
+            addCriterion("big_depart not like", value, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartIn(List<String> values) {
+            addCriterion("big_depart in", values, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartNotIn(List<String> values) {
+            addCriterion("big_depart not in", values, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartBetween(String value1, String value2) {
+            addCriterion("big_depart between", value1, value2, "bigDepart");
+            return (Criteria) this;
+        }
+
+        public Criteria andBigDepartNotBetween(String value1, String value2) {
+            addCriterion("big_depart not between", value1, value2, "bigDepart");
+            return (Criteria) this;
+        }
+
         public Criteria andDepartmentIsNull() {
             addCriterion("department is null");
             return (Criteria) this;
@@ -412,6 +482,126 @@ public class HrCountExample {
 
         public Criteria andRegularCountNotBetween(Integer value1, Integer value2) {
             addCriterion("regular_count not between", value1, value2, "regularCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountIsNull() {
+            addCriterion("try_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountIsNotNull() {
+            addCriterion("try_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountEqualTo(Integer value) {
+            addCriterion("try_count =", value, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountNotEqualTo(Integer value) {
+            addCriterion("try_count <>", value, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountGreaterThan(Integer value) {
+            addCriterion("try_count >", value, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("try_count >=", value, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountLessThan(Integer value) {
+            addCriterion("try_count <", value, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountLessThanOrEqualTo(Integer value) {
+            addCriterion("try_count <=", value, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountIn(List<Integer> values) {
+            addCriterion("try_count in", values, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountNotIn(List<Integer> values) {
+            addCriterion("try_count not in", values, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountBetween(Integer value1, Integer value2) {
+            addCriterion("try_count between", value1, value2, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryCountNotBetween(Integer value1, Integer value2) {
+            addCriterion("try_count not between", value1, value2, "tryCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountIsNull() {
+            addCriterion("turn_right_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountIsNotNull() {
+            addCriterion("turn_right_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountEqualTo(Integer value) {
+            addCriterion("turn_right_count =", value, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountNotEqualTo(Integer value) {
+            addCriterion("turn_right_count <>", value, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountGreaterThan(Integer value) {
+            addCriterion("turn_right_count >", value, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("turn_right_count >=", value, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountLessThan(Integer value) {
+            addCriterion("turn_right_count <", value, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountLessThanOrEqualTo(Integer value) {
+            addCriterion("turn_right_count <=", value, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountIn(List<Integer> values) {
+            addCriterion("turn_right_count in", values, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountNotIn(List<Integer> values) {
+            addCriterion("turn_right_count not in", values, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountBetween(Integer value1, Integer value2) {
+            addCriterion("turn_right_count between", value1, value2, "turnRightCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTurnRightCountNotBetween(Integer value1, Integer value2) {
+            addCriterion("turn_right_count not between", value1, value2, "turnRightCount");
             return (Criteria) this;
         }
 

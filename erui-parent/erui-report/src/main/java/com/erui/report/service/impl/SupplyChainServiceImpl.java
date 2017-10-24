@@ -5,14 +5,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.SupplyChainMapper;
-import com.erui.report.model.SupplyChain;
-import com.erui.report.model.SupplyChainExample;
 import com.erui.report.service.SupplyChainService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
@@ -123,4 +122,42 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
 		return response;
 	}
+
+	@Override
+	public List<SupplyChain> queryListByDate(Date startTime, Date endTime) {
+        SupplyChainExample example = new SupplyChainExample();
+        SupplyChainExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!startTime.equals("")&&startTime!=null&&!startTime.equals("")){
+            criteria.andCreateAtBetween(startTime,endTime);
+		}
+		return readMapper.selectByExample(example);
+	}
+    //事业部-供应链明细列表
+    @Override
+    public List<SuppliyChainOrgVo> selectOrgSuppliyChain() {
+        List<SuppliyChainOrgVo> list=readMapper.selectOrgSuppliyChain();
+        return list;
+    }
+
+    @Override
+    public List<SuppliyChainItemClassVo> selectItemCalssSuppliyChain(Date startTime,Date endTime) {
+        SupplyChainExample supplyChainExample = new SupplyChainExample();
+        SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
+            criteria.andCreateAtBetween(startTime, endTime);
+        return readMapper.selectItemCalssSuppliyChainByExample(supplyChainExample);
+    }
+
+    @Override
+    public SuppliyChainItemClassVo selectSuppliyChainByItemClass(Date startTime, Date endTime, String itemClass) {
+        SupplyChainExample supplyChainExample = new SupplyChainExample();
+        SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
+        criteria.andCreateAtBetween(startTime, endTime);
+        criteria.andItemClassEqualTo(itemClass);
+        return readMapper.selectSuppliyChainByItemClassByExample(supplyChainExample);
+    }
+
+    @Override
+    public List<SuppliyChainCateVo> selectCateSuppliyChain() {
+        return  readMapper.selectCateSuppliyChain();
+    }
 }

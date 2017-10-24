@@ -24,7 +24,7 @@ public class RequestCredit {
 
     private String tradeTerms;
 
-    private Date  createAt;
+    private Date createAt;
 
     private BigDecimal orderAmount;
 
@@ -122,9 +122,8 @@ public class RequestCredit {
         return createAt;
     }
 
-    public RequestCredit setCreateAt(Date createAt) {
+    public void setCreateAt(Date createAt) {
         this.createAt = createAt;
-        return this;
     }
 
     public BigDecimal getOrderAmount() {
@@ -174,6 +173,4 @@ public class RequestCredit {
     public void setBackDate(Date backDate) {
         this.backDate = backDate;
     }
-
-
 }

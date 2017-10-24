@@ -1,7 +1,7 @@
 package com.erui.report.dao;
 
-import com.erui.report.model.SupplyChain;
-import com.erui.report.model.SupplyChainExample;
+import com.erui.report.model.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -30,4 +30,9 @@ public interface SupplyChainMapper {
     int updateByPrimaryKeySelective(SupplyChain record);
 
     int updateByPrimaryKey(SupplyChain record);
+
+    List<SuppliyChainOrgVo> selectOrgSuppliyChain();
+    List<SuppliyChainItemClassVo> selectItemCalssSuppliyChainByExample(SupplyChainExample example);
+    SuppliyChainItemClassVo  selectSuppliyChainByItemClassByExample(SupplyChainExample example);
+    List<SuppliyChainCateVo> selectCateSuppliyChain();
 }

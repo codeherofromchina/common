@@ -99,6 +99,75 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <select id="selectCateSuppliyChain" resultType="com.erui.report.model.SuppliyChainCateVo"  >
+   SELECT
+	SUM(plan_sku_num) AS planSKU,
+	SUM(finish_sku_num) AS finishSKU,
+	SUM(plan_spu_num) AS planSPU,
+	SUM(finish_spu_num) AS finishSPU,
+	SUM(plan_suppli_num) AS planSuppliy,
+	SUM(finish_suppli_num) AS finishSuppliy,
+	category AS category
+    FROM
+	supply_chain
+    GROUP BY
+	category
+  </select>
+  <select id="selectItemCalssSuppliyChainByExample" resultType="com.erui.report.model.SuppliyChainItemClassVo"  parameterType="com.erui.report.model.SupplyChainExample" >
+    SELECT
+    SUM(plan_sku_num) AS planSKU,
+    SUM(finish_sku_num) AS finishSKU,
+    SUM(plan_spu_num) AS planSPU,
+    SUM(finish_spu_num) AS finishSPU,
+    SUM(plan_suppli_num) AS planSuppliy,
+    SUM(finish_suppli_num) AS finishSuppliy,
+    item_class AS itemClass
+    FROM
+    supply_chain
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY
+    itemClass
+  </select>
+
+  <select id="selectSuppliyChainByItemClassByExample" resultType="com.erui.report.model.SuppliyChainItemClassVo"  parameterType="com.erui.report.model.SupplyChainExample" >
+    SELECT
+    SUM(plan_sku_num) AS planSKU,
+    SUM(finish_sku_num) AS finishSKU,
+    SUM(plan_spu_num) AS planSPU,
+    SUM(finish_spu_num) AS finishSPU,
+    SUM(plan_suppli_num) AS planSuppliy,
+    SUM(finish_suppli_num) AS finishSuppliy,
+    item_class AS itemClass
+    FROM
+    supply_chain
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectOrgSuppliyChain" resultType="com.erui.report.model.SuppliyChainOrgVo"  >
+    SELECT
+    SUM(plan_sku_num) AS planSKU,
+    SUM(finish_sku_num) AS finishSKU,
+    SUM(plan_spu_num) AS planSPU,
+    SUM(finish_spu_num) AS finishSPU,
+    SUM(plan_suppli_num) AS planSuppliy,
+    SUM(finish_suppli_num) AS finishSuppliy,
+    organization AS org
+    FROM
+    supply_chain
+    GROUP BY
+    org
+  </select>
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
