@@ -14,33 +14,29 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.erui.boss.web.report.vo.Student;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.EmployeeService;
 import com.erui.report.service.InquiryCountService;
 
 @Controller
-@RequestMapping("/abc")
+@RequestMapping("/report/abc")
 public class EmployeeController {
 	private final static Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
 	@Autowired
 	private EmployeeService employeeService;
 	@Autowired
-	private Student student;
-	@Autowired
 	private InquiryCountService inquiryCountService;
 
 	@RequestMapping(value = "/name", method = RequestMethod.GET)
 	@ResponseBody
-	public Object name(@RequestParam("empId") Long empId) {
+	public Object name(@RequestParam(name="empId",required=true) Long empId) {
 		logger.info("日志使用");
 
 		Map<String, Object> result = new HashMap<>();
 		String name = employeeService.getName(empId);
 		logger.info("name is {}", name);
 		result.put("name", name);
-		result.put("name2", student.getName());
 		return result;
 	}
 	

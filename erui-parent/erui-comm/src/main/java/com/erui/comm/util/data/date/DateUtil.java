@@ -323,4 +323,31 @@ public class DateUtil {
 	public static String formatDate2String(Date date ,String format) {
 		return new SimpleDateFormat(format).format(date);
 	}
+
+	/**
+		计算现在的前day天的时间
+	 * @return
+	 */
+	//向后退时间
+	public static Date recedeTime(int day){
+		if(day>=0){
+			Date now = new Date();
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(now);
+			cal.add(Calendar.DAY_OF_MONTH,-day);
+			Date time = cal.getTime();
+			if(time!=null){
+				return time;
+			}
+		}
+		Date now = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		cal.add(Calendar.DAY_OF_MONTH,-day);
+		Date time = cal.getTime();
+		if(time!=null){
+			return time;
+		}
+		return time;
+	}
 }

@@ -3,7 +3,6 @@ package com.erui.comm;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -11,12 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.erui.comm.util.data.date.DateUtil;
-
 public class FileUtil {
 	private final static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 	private final static String[] EXCEL_CONTENT_TYPE = new String[] {
-			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream" };
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream" ,"application/vnd.ms-excel"};
 	private final static String[] EXCEL_SUFFIX = new String[] { ".xls", ".xlsx" };
 
 	/**
