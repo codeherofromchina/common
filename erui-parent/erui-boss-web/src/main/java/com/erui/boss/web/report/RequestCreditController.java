@@ -97,6 +97,12 @@ public class RequestCreditController {
         result.put("code",200);
         return result;
     }
+     /**
+      * @Author:SHIGS
+      * @Description 趋势图
+      * @Date:9:25 2017/10/24
+      * @modified By
+      */
     @ResponseBody
     @RequestMapping(value= "tendencyChart",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object tendencyChart(@RequestBody Map<String,Object> map){
@@ -186,6 +192,20 @@ public class RequestCreditController {
         }
         Map<String,Object> result = new HashMap();
         result.put("data",data);
+        result.put("code",200);
+        return result;
+    }
+    @ResponseBody
+    @RequestMapping(value= "queryArea",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
+    public Object queryArea(){
+        List<Map> areaMap = requestCreditService.selectArea();
+        List<String> areaList = new ArrayList<>();
+        for (Map map:areaMap) {
+           String area = map.get("sales_area").toString();
+           areaList.add(area);
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("area",areaList);
         result.put("code",200);
         return result;
     }

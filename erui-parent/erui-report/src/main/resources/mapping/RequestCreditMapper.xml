@@ -98,7 +98,7 @@
   <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
     SELECT sales_area FROM request_credit GROUP BY sales_area
 </select>
-  <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
+  <select id="selectByArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
     SELECT SUM(order_amount) AS oa,SUM(receive_amount) AS ra,SUM(order_amount-receive_amount) AS received  FROM request_credit
   </select>
   <select id="selectRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">

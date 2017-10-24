@@ -856,12 +856,12 @@ public class RequestCreditExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtBetween(String value1, String value2) {
+        public Criteria andCreateAtBetween(Date value1, Date value2) {
             addCriterion("create_at between", value1, value2, "createAt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateAtNotBetween(String value1, String value2) {
+        public Criteria andCreateAtNotBetween(Date value1, Date value2) {
             addCriterion("create_at not between", value1, value2, "createAt");
             return (Criteria) this;
         }
