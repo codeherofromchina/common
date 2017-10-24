@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.erui.report.model.CateDetailVo;
 import com.erui.report.util.ImportDataResponse;
+import com.erui.report.util.NumSummaryVO;
 
 public interface OrderCountService {
 	/**
@@ -30,5 +30,12 @@ public interface OrderCountService {
 
 	public Double selectProfitRate(Date startTime,Date endTime);
 
+	/**
+	 * 获取数据汇总
+	 * @param area
+	 * @param country
+	 * @return
+	 */
+	public NumSummaryVO numSummary(String area,String country);
 
 }

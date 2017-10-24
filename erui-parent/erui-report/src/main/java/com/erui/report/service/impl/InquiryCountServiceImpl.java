@@ -1,23 +1,29 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-
-import com.erui.report.dao.InquiryCountMapper;
-import com.erui.report.model.CateDetailVo;
-import com.erui.report.model.InquiryCount;
-import com.erui.report.model.InquiryCountExample;
-import com.erui.report.service.InquiryCountService;
-import com.erui.report.util.ExcelUploadTypeEnum;
-import com.erui.report.util.ImportDataResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.dao.InquiryCountMapper;
+import com.erui.report.dao.OrderCountMapper;
+import com.erui.report.model.CateDetailVo;
+import com.erui.report.model.InquiryCount;
+import com.erui.report.model.InquiryCountExample;
+import com.erui.report.model.InquiryCountExample.Criteria;
+import com.erui.report.service.InquiryCountService;
+import com.erui.report.util.ExcelUploadTypeEnum;
+import com.erui.report.util.ImportDataResponse;
+import com.erui.report.util.InquiryAreaVO;
+import com.erui.report.util.NumSummaryVO;
 
 /*
 * 客户中心-询单统计  服务实现类
@@ -27,35 +33,33 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 	private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
 
+	// 根据时间统计询单单数
+	@Override
+	public int inquiryCountByTime(Date startTime, Date endTime, String quotedStatus, double leastQuoteTime,
+			double maxQuoteTime, String org, String area) {
+		InquiryCountExample inquiryExample = new InquiryCountExample();
+		InquiryCountExample.Criteria criteria = inquiryExample.createCriteria();
+		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+			criteria.andRollinTimeBetween(startTime, endTime);
+		}
 
-//    根据时间统计询单单数
-    @Override
-    public int inquiryCountByTime(Date startTime, Date endTime,String quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area) {
-        InquiryCountExample inquiryExample = new InquiryCountExample();
-        InquiryCountExample.Criteria criteria = inquiryExample.createCriteria();
-        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
-            criteria.andRollinTimeBetween(startTime,endTime);
-        }
-
-        if(quotedStatus!=null&&!"".equals(quotedStatus)){
-            criteria.andQuotedStatusEqualTo(quotedStatus);
-        }
-        if(leastQuoteTime>0 && maxQuoteTime>0){
-            BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
-            BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
-            criteria.andQuoteNeedTimeBetween(ldecimal,mdecimal);
-        }
-        if(org!=null&&!"".equals(org)){
-            criteria.andOrganizationEqualTo(org);
-        }
-        if(area!=null&&!"".equals(area)){
-            criteria.andInquiryAreaEqualTo(area);
-        }
-        int count = readMapper.countByExample(inquiryExample);
-        return count;
-    }
-
-
+		if (quotedStatus != null && !"".equals(quotedStatus)) {
+			criteria.andQuotedStatusEqualTo(quotedStatus);
+		}
+		if (leastQuoteTime > 0 && maxQuoteTime > 0) {
+			BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
+			BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
+			criteria.andQuoteNeedTimeBetween(ldecimal, mdecimal);
+		}
+		if (org != null && !"".equals(org)) {
+			criteria.andOrganizationEqualTo(org);
+		}
+		if (area != null && !"".equals(area)) {
+			criteria.andInquiryAreaEqualTo(area);
+		}
+		int count = readMapper.countByExample(inquiryExample);
+		return count;
+	}
 
 	@Override
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
@@ -168,7 +172,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 					continue;
 				}
 			}
-
 
 			if (strArr[32] != null) {
 				try {
@@ -291,46 +294,110 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		return proCount;
 	}
 
+	// 查询产品Top3
+	@Override
+	public List<Map<String, Object>> selectProTop3(Map<String, Object> params) {
+		List<Map<String, Object>> list = readMapper.selectProTop3(params);
+		return list;
+	}
 
-	//查询产品Top3
-    @Override
-    public List<Map<String,Object>> selectProTop3(Map<String,Object>params) {
-        List<Map<String,Object>> list = readMapper.selectProTop3(params);
-        return list;
-    }
-    //查询品类明细
-    @Override
-    public List<CateDetailVo> selectInqDetailByCategory() {
-        return readMapper.selectInqDetailByCategory();
-    }
+	// 查询品类明细
+	@Override
+	public List<CateDetailVo> selectInqDetailByCategory() {
+		return readMapper.selectInqDetailByCategory();
+	}
 
-    //查询事业部列表
-    @Override
-    public List<String> selectOrgList() {
-        InquiryCountExample example = new InquiryCountExample();
-        return readMapper.selectOrgListByExample(example);
-    }
-    //销售大区列表
-    @Override
-    public List<String> selectAreaList() {
-        InquiryCountExample example = new InquiryCountExample();
-        return readMapper.selectAreaListByExample(example);
-    }
-
-
-
-    // //     根据时间统计询单金额
-	public Double inquiryAmountByTime(Date startTime, Date endTime,String area) {
+	// 查询事业部列表
+	@Override
+	public List<String> selectOrgList() {
 		InquiryCountExample example = new InquiryCountExample();
-        InquiryCountExample.Criteria criteria = example.createCriteria();
-        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
-            criteria.andRollinTimeBetween(startTime,endTime);
-        }
-        if(area!=null&&!"".equals(area)){
-            criteria.andInquiryAreaEqualTo(area);
-        }
+		return readMapper.selectOrgListByExample(example);
+	}
+
+	// 销售大区列表
+	@Override
+	public List<String> selectAreaList() {
+		InquiryCountExample example = new InquiryCountExample();
+		return readMapper.selectAreaListByExample(example);
+	}
+
+	/**
+	 * 查询所有询单中的所有大区和城市列表（大区1 <-> n城市）
+	 * 
+	 * @return
+	 */
+	@Override
+	public List<InquiryAreaVO> selectAllAreaAndCountryList() {
+		List<InquiryAreaVO> result = new ArrayList<>();
+		// 查询所有询单的大区和国家信息 {'area':'大区名称','country':'城市名称'}
+		List<Map<String, String>> areaAndCountryList = readMapper.selectAllAreaAndCountryList();
+
+		// 查询所有订单的大区和国家信息 {'area':'大区名称','country':'城市名称'}
+		OrderCountMapper orderCountMapper = readerSession.getMapper(OrderCountMapper.class);
+		List<Map<String, String>> orderAreaAndCountryList = orderCountMapper.selectAllAreaAndCountryList();
+
+		// 数据转换
+		coverAreaAndCountryData(result, areaAndCountryList);
+		coverAreaAndCountryData(result, orderAreaAndCountryList);
+
+		return result;
+	}
+
+	/**
+	 * 将数据库数据转换为业务vo对象并添加到list中
+	 * 
+	 * @param list
+	 * @param areaAndCountryList
+	 */
+	private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList) {
+		if (areaAndCountryList != null && areaAndCountryList.size() > 0) {
+
+			Map<String, InquiryAreaVO> map = list.parallelStream()
+					.collect(Collectors.toMap(InquiryAreaVO::getAreaName, vo -> vo));
+
+			areaAndCountryList.stream().forEach(data -> {
+				String area = data.get("area");
+				InquiryAreaVO vo = null;
+				if (map.containsKey(area)) {
+					vo = map.get(area);
+				} else {
+					vo = new InquiryAreaVO();
+					vo.setAreaName(area);
+					list.add(vo);
+					map.put(area, vo);
+				}
+				vo.pushCountry(data.get("country"));
+			});
+		}
+	}
+
+	// // 根据时间统计询单金额
+	public Double inquiryAmountByTime(Date startTime, Date endTime, String area) {
+		InquiryCountExample example = new InquiryCountExample();
+		InquiryCountExample.Criteria criteria = example.createCriteria();
+		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+			criteria.andRollinTimeBetween(startTime, endTime);
+		}
+		if (area != null && !"".equals(area)) {
+			criteria.andInquiryAreaEqualTo(area);
+		}
 		Double amount = readMapper.selectTotalAmountByExample(example);
 		return amount;
+	}
+
+	@Override
+	public NumSummaryVO numSummary(String area, String country) {
+		InquiryCountExample example = new InquiryCountExample();
+		Criteria criteria = example.createCriteria();
+		if (StringUtils.isNoneBlank(area)) {
+    		criteria = criteria.andInquiryAreaEqualTo(area);
+    	}
+    	if (StringUtils.isNoneBlank(country)) {
+    		criteria.andInquiryUnitEqualTo(country);
+    	}
+		NumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
+
+		return vo;
 	}
 
 }

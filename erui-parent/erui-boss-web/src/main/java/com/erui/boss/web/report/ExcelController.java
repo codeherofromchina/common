@@ -39,6 +39,11 @@ import com.erui.report.service.SupplyChainService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
+/**
+ * 报表excel导入控制层
+ * @author wangxiaodan
+ *
+ */
 @Controller
 @RequestMapping("/report/excel")
 public class ExcelController {
@@ -192,16 +197,22 @@ public class ExcelController {
 			ExcelReader excelReader = new ExcelReader();
 			try {
 				List<String[]> excelContent = excelReader.readExcel(file);
+				if (!typeEnum.verifyTitleData(excelContent.get(0))) {
+					result.put("success", false);
+					result.put("desc", "Excel头验证失败");
+					return result;
+				}
 				ImportDataResponse importDataResponse = importData(typeEnum,
 						excelContent.subList(1, excelContent.size()), true);
 
 				result.put("success", true);
 				result.put("response", importDataResponse);
-				
+
 				try {
 					// 删除数据导入成功的文件
 					FileUtils.forceDelete(file);
-				}catch(IOException ex){}
+				} catch (IOException ex) {
+				}
 			} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
 				logger.error("excel文件读取内容失败[fileName:{},error:{}]", fileName, e.getMessage());
 				result.put("success", false);

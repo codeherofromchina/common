@@ -1,20 +1,28 @@
 package com.erui.boss.web.report;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.CateDetailVo;
-import com.erui.report.model.InquiryCount;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.OrderCountService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.erui.report.util.InquiryAreaVO;
+import com.erui.report.util.NumSummaryVO;
 
 /**
  * 客户中心
@@ -376,16 +384,6 @@ public class CustomCentreController {
     }
 
 
-    @ResponseBody
-    @RequestMapping(value = "/areaDetail")
-    public Object areaDetail(){
-        HashMap<String, Object> result = new HashMap<>();//结果集
-        result.put("ss",5);
-        result.put("ss",65);
-        return null;
-    }
-
-
     //品类明细
     @ResponseBody
     @RequestMapping("/catesDetail")
@@ -404,5 +402,53 @@ public class CustomCentreController {
     }
 
 
+	/**
+	 * 获取区域明细中的所有大区和大区中的所有国家列表
+	 * 
+	 * @return
+	 */
+	@RequestMapping("/areaList")
+	@ResponseBody
+	public Object areaList() {
+		Map<String, Object> result = new HashMap<>();
 
+		result.put("success", true);
+		result.put("desc", "");
+
+		List<InquiryAreaVO> arayList = inquiryService.selectAllAreaAndCountryList();
+		result.put("data", arayList);
+
+		return result;
+	}
+    
+
+	/**
+	 * 客户中心的订单和询单数据明细
+	 * @param area		大区
+	 * @param country	城市
+	 * @return
+	 */
+	@RequestMapping("/areaDetail")
+	@ResponseBody
+	public Object areaDetail(@RequestParam(name = "area", required = false) String areaName,
+			@RequestParam(name = "country", required = false) String countryName) {
+		Map<String, Object> result = new HashMap<String, Object>();
+
+		NumSummaryVO orderNumSummary = orderService.numSummary(areaName, countryName);
+		NumSummaryVO inquiryNumSummary = inquiryService.numSummary(areaName, countryName);
+
+		result.put("success", true);
+		result.put("desc", "");
+		Map<String, Object> data = new HashMap<String, Object>();
+
+		String[] xTitleArr = new String[] { "询单数量", "油气数量", "非油气数量", "", "订单数量", "油气数量", "非油气数量", };
+		Integer[] yValueArr = new Integer[] { inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
+				inquiryNumSummary.getNonoil(), 0, orderNumSummary.getTotal(), orderNumSummary.getOil(),
+				orderNumSummary.getNonoil() };
+		data.put("x", xTitleArr);
+		data.put("y", yValueArr);
+		result.put("data", data);
+
+		return result;
+	}
 }
