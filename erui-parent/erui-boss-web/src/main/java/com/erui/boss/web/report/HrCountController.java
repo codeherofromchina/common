@@ -187,10 +187,11 @@ public class HrCountController {
     public Object departmentDetail(){
         List<Map> bigList = hrCountService.selectBigDepartCount();
         List<Map> departList = hrCountService.selectDepartmentCount();
-        Map<String,Map<String,Object>> departMap2 = null;
-        List<Map> bigDepartList = new ArrayList<>();
+        
+        Map<String,Map<String,Object>> departMap2 = new HashMap<>();
+        List<Map> result = new ArrayList<>();
+        
         for (Map mapBig:bigList) {
-            departMap2 = new HashMap<>();
             BigDecimal planCount = new BigDecimal(mapBig.get("s1").toString());
             BigDecimal regularCount  = new BigDecimal(mapBig.get("s2").toString());
             BigDecimal tryCount = new BigDecimal(mapBig.get("s3").toString());
@@ -215,10 +216,11 @@ public class HrCountController {
             departMap.put("addRate",addRate);
             departMap.put("leaveRate",leaveRate);
             departMap.put("foreignRate",foreignRate);
-           // departMap.put("departName",mapBig.get("big_depart"));
+            departMap.put("departName",mapBig.get("big_depart"));
             departMap2.put(mapBig.get("big_depart").toString(),departMap);
-            bigDepartList.add(departMap2);
+            result.add(departMap);
         }
+        
         for (Map mapDepart:departList) {
             BigDecimal planCount = new BigDecimal(mapDepart.get("s1").toString());
             BigDecimal regularCount  = new BigDecimal(mapDepart.get("s2").toString());
@@ -228,8 +230,7 @@ public class HrCountController {
             BigDecimal dimissionCount = new BigDecimal(mapDepart.get("s8").toString());
             BigDecimal turnJobin  = new BigDecimal(mapDepart.get("s9").toString());
             BigDecimal turnJobout = new BigDecimal(mapDepart.get("s10").toString());
-            mapDepart.get("big_depart").toString();
-            Map bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
+            Map<String,Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
             //满编率
             double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
             //试用占比
@@ -250,9 +251,10 @@ public class HrCountController {
             Object obj = bigDepartment.get("children");
             if (obj == null) {
                 obj = new ArrayList<Map<String,Double>>();
+                bigDepartment.put("children", obj);
             }
             ((List)obj).add(departMap);
         }
-        return bigDepartList;
+        return result;
     }
 }
