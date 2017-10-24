@@ -56,13 +56,13 @@ public class GeneralController {
         member.put("add",addMemberChain);
         member.put("chainRate",chainMemberRate);
         //当期询单数
-        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0);
+        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0,"","");
         //当期询单数环比chain
-        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0);
+        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0,"","");
 
         int chainInquiryAdd = inquiryCount-chainInquiryCount;
         //当期询单金额
-        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, new Date());
+        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, new Date(),"");
         //环比
         double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd,chainInquiryCount);
         Map<String,Object> inquiry = new HashMap<String,Object>();
@@ -72,13 +72,13 @@ public class GeneralController {
         inquiry.put("chainRate",chainInquiryRate);
 
         //当期询单数
-        int orderCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0);
+        int orderCount = inquiryService.inquiryCountByTime(startTime, new Date(),"",0,0,"","");
         //当期询单数环比chain
-        int chainOrderCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0);
+        int chainOrderCount = inquiryService.inquiryCountByTime(chainDate, startTime,"",0,0,"","");
 
         int chainOrderAdd = orderCount-chainOrderCount;
         //当期询单金额
-        double orderAmount = inquiryService.inquiryAmountByTime(startTime, new Date());
+        double orderAmount = inquiryService.inquiryAmountByTime(startTime, new Date(),"");
         //环比
         double chainOrderRate = RateUtil.intChainRate(chainOrderAdd,chainOrderCount);
         Map<String,Object> order= new HashMap<String,Object>();
