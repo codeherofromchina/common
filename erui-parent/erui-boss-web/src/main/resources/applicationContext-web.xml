@@ -9,8 +9,5 @@
 	</context:component-scan>
 	<context:property-placeholder
 		ignore-unresolvable="true" location="classpath:application.properties" />
-
-	<bean id="testStud" class="com.erui.boss.web.report.vo.Student">
-		<property name="name" value="${web.driver}"></property>
-	</bean>
+	
 </beans>

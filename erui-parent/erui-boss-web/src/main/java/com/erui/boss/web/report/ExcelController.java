@@ -151,7 +151,7 @@ public class ExcelController {
 				return result;
 			}
 
-			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), false);
+			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), true);
 
 			result.put("success", true);
 			result.put("tmpFileName", saveFile.getName());
@@ -203,7 +203,7 @@ public class ExcelController {
 					return result;
 				}
 				ImportDataResponse importDataResponse = importData(typeEnum,
-						excelContent.subList(1, excelContent.size()), true);
+						excelContent.subList(1, excelContent.size()), false);
 
 				result.put("success", true);
 				result.put("response", importDataResponse);
