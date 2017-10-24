@@ -166,6 +166,13 @@
       order by ${orderByClause}
     </if>
   </select>
+  
+  <!--查询所有销售大区和国家列表列表-->
+  <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
+    select inquiry_area as area,inquiry_unit as country
+    from inquiry_count 
+    group by inquiry_area,inquiry_unit
+  </select>
 
   <select id="selectProTop3" resultType="map" parameterType="Object" >
   SELECT  SUM(pro_count) as proCount ,pro_category as proCategory FROM inquiry_count
@@ -209,6 +216,21 @@
     from inquiry_count
     where id = #{id,jdbcType=BIGINT}
   </select>
+  
+  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.NumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
+    select
+	    count(1) as total,sum(case is_oil_gas when '油气' then 1 else 0 end) as oil,
+	    sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil
+    from inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from inquiry_count
     where id = #{id,jdbcType=BIGINT}

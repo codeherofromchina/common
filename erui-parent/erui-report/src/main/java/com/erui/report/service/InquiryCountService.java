@@ -1,11 +1,13 @@
 package com.erui.report.service;
 
-import com.erui.report.model.CateDetailVo;
-import com.erui.report.util.ImportDataResponse;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import com.erui.report.model.CateDetailVo;
+import com.erui.report.util.ImportDataResponse;
+import com.erui.report.util.InquiryAreaVO;
+import com.erui.report.util.NumSummaryVO;
 
 /*
 * 询单统计
@@ -52,5 +54,20 @@ public interface InquiryCountService {
    * 查询销售大区列表
    * */
 	public  List<String>   selectAreaList();
+	
+	
+	/**
+     * 查询所有询单中的所有大区和城市列表（
+     * @return
+     */
+    public List<InquiryAreaVO> selectAllAreaAndCountryList() ;
+
+	/**
+	 * 获取询单数据汇总
+	 * @param area
+	 * @param country
+	 * @return
+	 */
+	public NumSummaryVO numSummary(String area,String country);
 
 }

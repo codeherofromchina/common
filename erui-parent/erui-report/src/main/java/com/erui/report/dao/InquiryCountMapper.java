@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.erui.report.model.InquiryCount;
 import com.erui.report.model.InquiryCountExample;
+import com.erui.report.util.NumSummaryVO;
 
 public interface InquiryCountMapper {
     int countByExample(InquiryCountExample example);
@@ -44,4 +45,17 @@ public interface InquiryCountMapper {
     List<String>  selectOrgListByExample(InquiryCountExample example);
     //查询事业部列表
     List<String>  selectAreaListByExample(InquiryCountExample example);
+    
+    /**
+     * 查询询单的所有大区和城市列表
+     * @return	Map<String,String> -> {'area':'大区名称','country':'城市名称'}
+     */
+    List<Map<String,String>>  selectAllAreaAndCountryList();
+
+    /**
+     * 查询询单的数量汇总数据
+     * @param example
+     * @return
+     */
+	NumSummaryVO selectNumSummaryByExample(InquiryCountExample example);
 }

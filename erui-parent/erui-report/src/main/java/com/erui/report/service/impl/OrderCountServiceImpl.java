@@ -5,10 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-
-
-import com.erui.report.model.OrderCountExample;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,10 +13,12 @@ import org.springframework.stereotype.Service;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.OrderCount;
-
+import com.erui.report.model.OrderCountExample;
+import com.erui.report.model.OrderCountExample.Criteria;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
+import com.erui.report.util.NumSummaryVO;
 
 @Service
 public class OrderCountServiceImpl extends BaseService<OrderCountMapper> implements OrderCountService {
@@ -455,5 +454,24 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         return profitRate;
     }
 
+    
+    /**
+     * 获取数据汇总
+     */
+    @Override
+    public NumSummaryVO numSummary(String area, String country) {
+    	OrderCountExample example= new OrderCountExample();
+    	Criteria criteria = example.createCriteria();
+    	if (StringUtils.isNoneBlank(area)) {
+    		criteria = criteria.andOrderAreaEqualTo(area);
+    	}
+    	if (StringUtils.isNoneBlank(country)) {
+    		criteria.andExeCompanyEqualTo(country);
+    	}
+    	
+    	NumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
+    	
+    	return vo;
+    }
 
 }
