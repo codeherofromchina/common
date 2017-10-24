@@ -4,10 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.erui.report.model.SuppliyChainCateVo;
-import com.erui.report.model.SuppliyChainItemClassVo;
-import com.erui.report.model.SuppliyChainOrgVo;
-import com.erui.report.model.SupplyChain;
+import com.erui.report.model.*;
 import com.erui.report.util.ImportDataResponse;
 
 public interface SupplyChainService {
@@ -53,4 +50,14 @@ public interface SupplyChainService {
 	 * @return
 	 */
 	List<SuppliyChainCateVo> selectCateSuppliyChain();
+	/**
+	 *
+	 * 供应链趋势图
+	 * @param days
+	 * @param type
+	 * @return
+	 */
+	SupplyTrendVo supplyTrend(int days,int type);
+
+
 }

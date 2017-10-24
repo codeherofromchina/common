@@ -5,12 +5,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.comm.RateUtil;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.SupplyChainMapper;
 import com.erui.report.service.SupplyChainService;
 import com.erui.report.util.ExcelUploadTypeEnum;
@@ -159,5 +160,42 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     @Override
     public List<SuppliyChainCateVo> selectCateSuppliyChain() {
         return  readMapper.selectCateSuppliyChain();
+    }
+
+    //供应链趋势图
+    @Override
+    public SupplyTrendVo supplyTrend(int days, int type) {
+        SupplyChainExample example = new SupplyChainExample();
+        SupplyChainExample.Criteria criteria = example.createCriteria();
+        if(days>0){
+            criteria.andCreateAtBetween(DateUtil.recedeTime(days),new Date());
+        }
+        List<SupplyChain>  list=readMapper.selectByExample(example);
+        String[] datetime = new String[list.size()];
+        Integer[] suppliyFinishCount = null;
+        Integer[] SPUFinishCount =null;
+        Integer[] SKUFinishCount = null;
+        if(type==0){
+            suppliyFinishCount = new Integer[list.size()];
+        }else if(type==1){
+            SPUFinishCount = new Integer[list.size()];
+        }else if(type==2){
+            SKUFinishCount= new Integer[list.size()];
+        }
+        if(list!=null&&list.size()>0){
+            for (int i = 0; i < list.size(); i++) {
+                datetime[i]=DateUtil.formatDate2String(list.get(i).getCreateAt(),"M月d日");
+                if(type==0){
+                    suppliyFinishCount[i]=list.get(i).getFinishSuppliNum();
+                }else if(type==1){
+                    SPUFinishCount[i]=list.get(i).getFinishSpuNum();
+                }else if(type==2){
+                    SKUFinishCount[i]=list.get(i).getFinishSkuNum();
+                }
+        }
+        }
+        SupplyTrendVo trend = new SupplyTrendVo(datetime,suppliyFinishCount,SPUFinishCount,SKUFinishCount);
+
+        return trend;
     }
 }

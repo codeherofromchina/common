@@ -277,7 +277,7 @@ public class CustomCentreController {
 
     //事业部明细
     @ResponseBody
-    @RequestMapping("/busUnitDetail")
+    @RequestMapping(value = "/busUnitDetail",method = RequestMethod.POST)
     public Object busUnitDetail(){
         HashMap<String, Object> result = new HashMap<>();//结果集
         HashMap<String, Object> data = new HashMap<>();//数据集
