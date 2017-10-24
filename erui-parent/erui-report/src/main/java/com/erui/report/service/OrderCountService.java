@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.erui.report.util.ImportDataResponse;
-import com.erui.report.util.NumSummaryVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 
 public interface OrderCountService {
 	/**
@@ -36,6 +36,6 @@ public interface OrderCountService {
 	 * @param country
 	 * @return
 	 */
-	public NumSummaryVO numSummary(String area,String country);
+	public CustomerNumSummaryVO numSummary(String area,String country);
 
 }

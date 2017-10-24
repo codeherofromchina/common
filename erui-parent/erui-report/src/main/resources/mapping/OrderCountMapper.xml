@@ -215,7 +215,7 @@
   </select>
   
   <!-- 查询订单中的数量汇总数据 -->
-  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.NumSummaryVO" parameterType="com.erui.report.model.OrderCountExample" >
+  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
 		count(1) as total,sum(case is_oil_gas when '油气' then 1 else 0 end) as oil
 		,sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil

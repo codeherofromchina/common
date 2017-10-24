@@ -76,9 +76,8 @@
     id, create_at, department, plan_count, regular_count, china_count, foreign_count, 
     new_count, group_transfer_in, group_transfer_out, dimission_count
   </sql>
-  <select id="findAll" resultMap="BaseResultMap">
-    SELECT  <include refid="Base_Column_List" /> FROM  hr_count
-
+  <select id="selectBigDepart" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
+    SELECT big_depart FROM `hr_count` GROUP BY big_depart;
   </select>
   <select id="selectHrCountByPart" resultType="java.util.Map" parameterType="com.erui.report.model.HrCountExample">
     SELECT SUM(plan_count)AS s1,SUM(regular_count)AS s2,SUM(try_count)AS s3,SUM(turn_right_count)AS s4,SUM(china_count)AS s5,SUM(foreign_count)AS s6 ,SUM(new_count)AS s7,SUM(dimission_count)AS s8 ,
@@ -90,6 +89,17 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+  </select>
+
+  <select id="selectBigDepartCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
+   SELECT SUM(plan_count)AS s1,SUM(regular_count)AS s2,SUM(try_count)AS s3,SUM(turn_right_count)AS s4,SUM(china_count)AS s5,SUM(foreign_count)AS s6 ,SUM(new_count)AS s7,SUM(dimission_count)AS s8 ,
+    SUM(group_transfer_in)AS s9 ,SUM(group_transfer_out)AS s10
+    FROM `hr_count` GROUP BY big_depart
+  </select>
+  <select id="selectDepartmentCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
+    SELECT SUM(plan_count)AS s1,SUM(regular_count)AS s2,SUM(try_count)AS s3,SUM(turn_right_count)AS s4,SUM(china_count)AS s5,SUM(foreign_count)AS s6 ,SUM(new_count)AS s7,SUM(dimission_count)AS s8 ,
+    SUM(group_transfer_in)AS s9 ,SUM(group_transfer_out)AS s10
+    FROM `hr_count` GROUP BY department,big_depart
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.HrCountExample" >
     select

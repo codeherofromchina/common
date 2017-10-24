@@ -209,4 +209,60 @@ public class RequestCreditController {
         result.put("code",200);
         return result;
     }
+    @ResponseBody
+    @RequestMapping(value= "queryCoutry",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
+    public Object queryCoutry(@RequestBody Map<String,Object> map){
+        List<Map> areaMap = requestCreditService.selectCountry(map.get("area").toString());
+        List<String> countryList = new ArrayList<>();
+        for (Map map2:areaMap) {
+            String country = map2.get("sales_country").toString();
+            countryList.add(country);
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("country",countryList);
+        result.put("code",200);
+        return result;
+    }
+    @ResponseBody
+    @RequestMapping(value= "areaDetail",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
+    public Object areaDetail(@RequestBody Map<String,Object> map){
+        Date nextTime = DateUtil.recedeTime(-30);
+        //总量
+        Map mapTotal = requestCreditService.selectRequestTotal(null,null);
+        //应收金额
+        BigDecimal totalOrderAmount= new  BigDecimal(mapTotal.get("sdT").toString());
+        //已收金额
+        BigDecimal totalReceiveAmount = new BigDecimal(mapTotal.get("sded").toString());
+        //应收未收
+        BigDecimal totalNotreceiveAmount = new BigDecimal(mapTotal.get("sd").toString());
+        //根据区域
+        Map mapCount = requestCreditService.selectByAreaOrCountry(map.get("area").toString(),map.get("country").toString());
+        //应收金额
+        BigDecimal acOrderAmount= new  BigDecimal( mapCount.get("oa").toString());
+        //已收金额
+        BigDecimal acReceiveAmount = new BigDecimal( mapCount.get("received").toString());
+        //应收未收
+        BigDecimal acNotreceiveAmount = new BigDecimal( mapCount.get("ra").toString());
+        //下月
+        Map mapNext = requestCreditService.selectRequestTotal(new Date(),nextTime);
+        //应收金额
+        BigDecimal nextOrderAmount= new  BigDecimal(mapNext.get("sdT").toString());
+        List<String> conList = new ArrayList<>();
+        List<Double> amountList = new ArrayList<>();
+        conList.add("应收金额-占比"+RateUtil.doubleChainRate(acOrderAmount.doubleValue(),totalOrderAmount.doubleValue())*100+"%");
+        conList.add("已收金额-占比"+RateUtil.doubleChainRate(acReceiveAmount.doubleValue(),totalReceiveAmount.doubleValue())*100+"%");
+        conList.add("应收未收-占比"+RateUtil.doubleChainRate(acNotreceiveAmount.doubleValue(),totalNotreceiveAmount.doubleValue())*100+"%");
+        conList.add("下月应收-占比"+RateUtil.doubleChainRate(nextOrderAmount.doubleValue(),totalOrderAmount.doubleValue())*100+"%");
+        amountList.add(acOrderAmount.doubleValue());
+        amountList.add(acReceiveAmount.doubleValue());
+        amountList.add(acNotreceiveAmount.doubleValue());
+        amountList.add(nextOrderAmount.doubleValue());
+        Map<String,Object> data = new HashMap();
+        data.put("xAxis",conList);
+        data.put("yAxis",amountList);
+        Map<String,Object> result = new HashMap<>();
+        result.put("data",data);
+        result.put("code",200);
+       return result;
+    }
 }

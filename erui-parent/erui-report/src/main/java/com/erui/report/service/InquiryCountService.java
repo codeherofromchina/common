@@ -7,7 +7,8 @@ import java.util.Map;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
-import com.erui.report.util.NumSummaryVO;
+import com.erui.report.util.CustomerCategoryNumVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 
 /*
 * 询单统计
@@ -68,6 +69,14 @@ public interface InquiryCountService {
 	 * @param country
 	 * @return
 	 */
-	public NumSummaryVO numSummary(String area,String country);
+	public CustomerNumSummaryVO numSummary(String area,String country);
+
+	/**
+	 * 询订单分类 TOP N
+	 * @param topN
+	 * @param platCategory	指定分类
+	 * @return
+	 */
+	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN,String ...platCategory);
 
 }

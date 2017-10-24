@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.erui.report.model.OrderCount;
 import com.erui.report.model.OrderCountExample;
-import com.erui.report.util.NumSummaryVO;
+import com.erui.report.util.CustomerNumSummaryVO;
 
 public interface OrderCountMapper {
     int countByExample(OrderCountExample example);
@@ -49,6 +49,6 @@ public interface OrderCountMapper {
 	 * @param example
 	 * @return {total:'总订单数量',oil:'油气订单数量',nonoil:'非油气订单数量'}
 	 */
-	NumSummaryVO selectNumSummaryByExample(OrderCountExample example);
+	CustomerNumSummaryVO selectNumSummaryByExample(OrderCountExample example);
 
 }

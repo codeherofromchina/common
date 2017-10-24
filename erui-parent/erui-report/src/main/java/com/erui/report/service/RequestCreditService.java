@@ -37,11 +37,25 @@ public interface RequestCreditService {
 	List<Map> selectRequestNext(Date startDate,Date endDate);
 	 /**
 	  * @Author:SHIGS
-	  * @Description
+	  * @Description 查询所有地区
 	  * @Date:22:41 2017/10/23
 	  * @modified By
 	  */
 	List<Map> selectArea();
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询所有国家
+	  * @Date:13:46 2017/10/24
+	  * @modified By
+	  */
+	List<Map> selectCountry(String area);
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:13:56 2017/10/24
+	  * @modified By
+	  */
+	Map selectByAreaOrCountry(String area,String country);
 	/**
 	 * 导入应收账款的数据到数据库
 	 * @param datas

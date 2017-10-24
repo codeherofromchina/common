@@ -6,15 +6,13 @@ import com.erui.report.model.HrCount;
 import com.erui.report.service.HrCountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lirb on 2017/10/19.
@@ -34,15 +32,13 @@ public class HrCountController {
       */
     @RequestMapping(value = "hrGeneral",method = RequestMethod.POST)
     @ResponseBody
-    public Object capacity(int days){
+    public Object hrGeneral(int days){
         //当前时期
         Date startTime = DateUtil.recedeTime(days);
         //环比时段
         Date chainDate = DateUtil.recedeTime(days*2);
         //当前时段
         Map CurHrCountMap = hrCountService.selectHrCountByPart(startTime,new Date());
-        //环比时段
-        Map chainHrCountMap = hrCountService.selectHrCountByPart(chainDate,startTime);
         BigDecimal planCount = new BigDecimal(CurHrCountMap.get("s1").toString());
         BigDecimal regularCount  = new BigDecimal(CurHrCountMap.get("s2").toString());
         BigDecimal tryCount = new BigDecimal(CurHrCountMap.get("s3").toString());
@@ -53,26 +49,8 @@ public class HrCountController {
         BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
         BigDecimal turnJobin  = new BigDecimal(CurHrCountMap.get("s9").toString());
         BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
-    /*      "planCount":10,
-            "staffFullCount":2,
-            "staffFullRate":"0.1%",
-            "staffFullChainRate":"0.1%",
-            "turnRightCount":10,
-            "tryCount":2,
-            "tryRate":"0.1%",
-            "tryChainRate":"0.1%",
-            "newCount":10,
-            "dimissionCount":2,
-            "newAdd":"0.1%",
-            "newChainRate":"0.1%",
-            "groupTransferIn":8,
-            "groupTransferOut":10,
-            "leaveRate":"0.1%",
-            "groupTransferChainRate":"0.1%",
-            "chinaCount":200,
-            "foreignCount":10,
-            "foreignRate":"0.1%",
-            "foreignChainRate":"0.1%"*/
+        //环比时段
+        Map chainHrCountMap = hrCountService.selectHrCountByPart(chainDate,startTime);
         //环比人数
         BigDecimal chainRegularCount  = new BigDecimal(chainHrCountMap.get("s2").toString());
         BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
@@ -127,9 +105,154 @@ public class HrCountController {
         data.put("tryCount",tryCount);
         data.put("dimissionCount",dimissionCount);
         Map<String,Object> result = new HashMap<>();
-
         result.put("code",200);
         result.put("data",data);
         return result;
+    }
+    @ResponseBody
+    @RequestMapping(value= "queryDepart",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
+    public Object queryArea(){
+        List<Map> orgMap = hrCountService.selectBigDepart();
+        List<String> departList = new ArrayList<>();
+        for (Map map:orgMap) {
+            String area = map.get("big_depart").toString();
+            departList.add(area);
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("depart",departList);
+        result.put("code",200);
+        return result;
+    }
+     /**
+      * @Author:SHIGS
+      * @Description 数据比较
+      * @Date:21:29 2017/10/24
+      * @modified By
+      */
+    @RequestMapping(value = "dataCompare",method = RequestMethod.POST)
+    @ResponseBody
+    public Object dataCompare(@RequestBody Map<String,Object> map){
+        int days = (int)map.get("days");
+        //当前时期
+        Date startTime = DateUtil.recedeTime(days);
+        //当前时段
+        Map curHrCountMap = hrCountService.selectHrCountByDepart(map.get("depart").toString(),startTime,new Date());
+        BigDecimal planCount = new BigDecimal(curHrCountMap.get("s1").toString());
+        BigDecimal regularCount  = new BigDecimal(curHrCountMap.get("s2").toString());
+        BigDecimal tryCount = new BigDecimal(curHrCountMap.get("s3").toString());
+        BigDecimal turnRightCount = new BigDecimal(curHrCountMap.get("s4").toString());
+        BigDecimal chinaCount  = new BigDecimal(curHrCountMap.get("s5").toString());
+        BigDecimal foreignCount  = new BigDecimal(curHrCountMap.get("s6").toString());
+        BigDecimal newCount  = new BigDecimal(curHrCountMap.get("s7").toString());
+        BigDecimal dimissionCount = new BigDecimal(curHrCountMap.get("s8").toString());
+        BigDecimal turnJobin  = new BigDecimal(curHrCountMap.get("s9").toString());
+        BigDecimal turnJobout = new BigDecimal(curHrCountMap.get("s10").toString());
+        //满编率
+        double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
+        //试用占比
+        double tryRate = RateUtil.intChainRate(tryCount.intValue(),regularCount.intValue());
+        //增长率
+        double addRate = RateUtil.intChainRate(newCount.intValue(),regularCount.intValue()) - RateUtil.intChainRate(dimissionCount.intValue(),regularCount.intValue());
+        //转岗流失率
+        double leaveRate = RateUtil.intChainRate(turnJobout.intValue(),regularCount.intValue()) - RateUtil.intChainRate(turnJobin.intValue(),regularCount.intValue());
+        //外籍占比
+        double foreignRate = RateUtil.intChainRate(foreignCount.intValue(),regularCount.intValue());
+        List<Integer> yList = new ArrayList<>();
+        yList.add(planCount.intValue());
+        yList.add(regularCount.intValue());
+        yList.add(turnRightCount.intValue());
+        yList.add(tryCount.intValue());
+        yList.add(newCount.intValue());
+        yList.add(dimissionCount.intValue());
+        yList.add(turnJobin.intValue());
+        yList.add(turnJobout.intValue());
+        yList.add(chinaCount.intValue());
+        yList.add(foreignCount.intValue());
+        String [] xArray = {"计划编制","到岗编制","转正","试用","新进","离职","转岗(进)","转岗(出)","中方","外籍"};
+        Map<String,Object> data = new HashMap<>();
+        data.put("xAxis",xArray);
+        data.put("yAxis",yList);
+        data.put("staffFullRate",staffFullRate);
+        data.put("tryRate",tryRate);
+        data.put("addRate",addRate);
+        data.put("leaveRate",leaveRate);
+        data.put("foreignRate",foreignRate);
+        Map<String,Object> result = new HashMap<>();
+        result.put("data",data);
+        result.put("code",200);
+        return result;
+    }
+    @RequestMapping(value = "departmentDetail",method = RequestMethod.POST)
+    @ResponseBody
+    public Object departmentDetail(){
+        List<Map> bigList = hrCountService.selectBigDepart();
+        List<Map> departList = hrCountService.selectDepartmentCount();
+        Map<String,Map<String,Object>> departMap2 = new HashMap<>();
+        List<Map> bigDepartList = new ArrayList<>();
+        for (Map mapBig:bigList) {
+            BigDecimal planCount = new BigDecimal(mapBig.get("s1").toString());
+            BigDecimal regularCount  = new BigDecimal(mapBig.get("s2").toString());
+            BigDecimal tryCount = new BigDecimal(mapBig.get("s3").toString());
+            BigDecimal foreignCount  = new BigDecimal(mapBig.get("s6").toString());
+            BigDecimal newCount  = new BigDecimal(mapBig.get("s7").toString());
+            BigDecimal dimissionCount = new BigDecimal(mapBig.get("s8").toString());
+            BigDecimal turnJobin  = new BigDecimal(mapBig.get("s9").toString());
+            BigDecimal turnJobout = new BigDecimal(mapBig.get("s10").toString());
+            //满编率
+            double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
+            //试用占比
+            double tryRate = RateUtil.intChainRate(tryCount.intValue(),regularCount.intValue());
+            //增长率
+            double addRate = RateUtil.intChainRate(newCount.intValue(),regularCount.intValue()) - RateUtil.intChainRate(dimissionCount.intValue(),regularCount.intValue());
+            //转岗流失率
+            double leaveRate = RateUtil.intChainRate(turnJobout.intValue(),regularCount.intValue()) - RateUtil.intChainRate(turnJobin.intValue(),regularCount.intValue());
+            //外籍占比
+            double foreignRate = RateUtil.intChainRate(foreignCount.intValue(),regularCount.intValue());
+            Map<String,Object> departMap = new HashMap<>();
+            departMap.put("staffFullRate",staffFullRate);
+            departMap.put("tryRate",tryRate);
+            departMap.put("addRate",addRate);
+            departMap.put("leaveRate",leaveRate);
+            departMap.put("foreignRate",foreignRate);
+            departMap.put("departName",mapBig.get("big_depart").toString());
+            departMap2.put(mapBig.get("big_depart").toString(),departMap);
+            bigDepartList.add(departMap);
+        }
+        for (Map mapDepart:departList) {
+            BigDecimal planCount = new BigDecimal(mapDepart.get("s1").toString());
+            BigDecimal regularCount  = new BigDecimal(mapDepart.get("s2").toString());
+            BigDecimal tryCount = new BigDecimal(mapDepart.get("s3").toString());
+            BigDecimal foreignCount  = new BigDecimal(mapDepart.get("s6").toString());
+            BigDecimal newCount  = new BigDecimal(mapDepart.get("s7").toString());
+            BigDecimal dimissionCount = new BigDecimal(mapDepart.get("s8").toString());
+            BigDecimal turnJobin  = new BigDecimal(mapDepart.get("s9").toString());
+            BigDecimal turnJobout = new BigDecimal(mapDepart.get("s10").toString());
+            mapDepart.get("big_depart").toString();
+            Map bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
+            //满编率
+            double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
+            //试用占比
+            double tryRate = RateUtil.intChainRate(tryCount.intValue(),regularCount.intValue());
+            //增长率
+            double addRate = RateUtil.intChainRate(newCount.intValue(),regularCount.intValue()) - RateUtil.intChainRate(dimissionCount.intValue(),regularCount.intValue());
+            //转岗流失率
+            double leaveRate = RateUtil.intChainRate(turnJobout.intValue(),regularCount.intValue()) - RateUtil.intChainRate(turnJobin.intValue(),regularCount.intValue());
+            //外籍占比
+            double foreignRate = RateUtil.intChainRate(foreignCount.intValue(),regularCount.intValue());
+            Map<String,Object> departMap = new HashMap<>();
+            departMap.put("staffFullRate",staffFullRate);
+            departMap.put("tryRate",tryRate);
+            departMap.put("addRate",addRate);
+            departMap.put("leaveRate",leaveRate);
+            departMap.put("foreignRate",foreignRate);
+            departMap.put("departmentName", mapDepart.get("department").toString());
+
+            Object obj = bigDepartment.get("children");
+            if (obj == null) {
+                obj = new ArrayList<Map<String,Double>>();
+            }
+            ((List)obj).add(departMap);
+        }
+        return bigDepartList;
     }
 }
