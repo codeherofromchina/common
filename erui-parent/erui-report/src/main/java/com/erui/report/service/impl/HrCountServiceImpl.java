@@ -78,7 +78,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	}
 	@Override
 	public List<Map> selectBigDepartCount() {
-		return this.readMapper.selectBigDepart();
+		return this.readMapper.selectBigDepartCount();
 	}
 	@Override
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {

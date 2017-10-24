@@ -185,11 +185,12 @@ public class HrCountController {
     @RequestMapping(value = "departmentDetail",method = RequestMethod.POST)
     @ResponseBody
     public Object departmentDetail(){
-        List<Map> bigList = hrCountService.selectBigDepart();
+        List<Map> bigList = hrCountService.selectBigDepartCount();
         List<Map> departList = hrCountService.selectDepartmentCount();
-        Map<String,Map<String,Object>> departMap2 = new HashMap<>();
+        Map<String,Map<String,Object>> departMap2 = null;
         List<Map> bigDepartList = new ArrayList<>();
         for (Map mapBig:bigList) {
+            departMap2 = new HashMap<>();
             BigDecimal planCount = new BigDecimal(mapBig.get("s1").toString());
             BigDecimal regularCount  = new BigDecimal(mapBig.get("s2").toString());
             BigDecimal tryCount = new BigDecimal(mapBig.get("s3").toString());
@@ -214,9 +215,9 @@ public class HrCountController {
             departMap.put("addRate",addRate);
             departMap.put("leaveRate",leaveRate);
             departMap.put("foreignRate",foreignRate);
-            departMap.put("departName",mapBig.get("big_depart").toString());
+           // departMap.put("departName",mapBig.get("big_depart"));
             departMap2.put(mapBig.get("big_depart").toString(),departMap);
-            bigDepartList.add(departMap);
+            bigDepartList.add(departMap2);
         }
         for (Map mapDepart:departList) {
             BigDecimal planCount = new BigDecimal(mapDepart.get("s1").toString());
@@ -246,7 +247,6 @@ public class HrCountController {
             departMap.put("leaveRate",leaveRate);
             departMap.put("foreignRate",foreignRate);
             departMap.put("departmentName", mapDepart.get("department").toString());
-
             Object obj = bigDepartment.get("children");
             if (obj == null) {
                 obj = new ArrayList<Map<String,Double>>();
