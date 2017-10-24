@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 public interface RequestCreditMapper {
+    Map selectByAreaOrCountry(RequestCreditExample example);
+    List<Map> selectCountry(RequestCreditExample example);
     List<Map> selectArea();
     Map selectTotal();
     Map selectRequestTotal(RequestCreditExample example);

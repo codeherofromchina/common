@@ -25,23 +25,61 @@ import com.erui.report.util.ImportDataResponse;
 public class HrCountServiceImpl extends BaseService<HrCountMapper> implements HrCountService {
 	private final static Logger logger = LoggerFactory.getLogger(HrCountServiceImpl.class);
 
-	/*
-	 * 人力资源数据列表
-	 *
-	 */
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:18:02 2017/10/24
+	  * @modified By
+	  */
 	@Override
 	public List<HrCount> findAll() {
 		return this.readMapper.selectByExample(null);
 
 	}
-
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:18:02 2017/10/24
+	  * @modified By
+	  */
 	@Override
 	public Map<String, Object> selectHrCountByPart(Date startTime, Date endDate) {
 		HrCountExample hrCountExample = new HrCountExample();
 		hrCountExample.createCriteria().andCreateAtBetween(startTime, endDate);
 		return this.readMapper.selectHrCountByPart(hrCountExample);
 	}
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询部门
+	  * @Date:18:02 2017/10/24
+	  * @modified By
+	  */
+	@Override
+	public List<Map> selectBigDepart() {
+		return this.readMapper.selectBigDepart();
+	}
 
+	@Override
+	public Map selectHrCountByDepart(String depart,Date startTime,Date endDate) {
+		HrCountExample hrCountExample = null;
+		if (!depart.equals("") || depart!=null){
+			hrCountExample = new HrCountExample();
+			hrCountExample.createCriteria().andCreateAtBetween(startTime,endDate);
+			return this.readMapper.selectHrCountByPart(hrCountExample);
+		} else {
+			hrCountExample = new HrCountExample();
+			hrCountExample.createCriteria().andBigDepartEqualTo(depart).andCreateAtBetween(startTime,endDate);
+			return this.readMapper.selectHrCountByPart(hrCountExample);
+		}
+	}
+	@Override
+	public List<Map> selectDepartmentCount() {
+		return this.readMapper.selectDepartmentCount();
+	}
+	@Override
+	public List<Map> selectBigDepartCount() {
+		return this.readMapper.selectBigDepart();
+	}
 	@Override
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 		ImportDataResponse response = new ImportDataResponse();

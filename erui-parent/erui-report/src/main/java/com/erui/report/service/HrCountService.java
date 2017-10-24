@@ -22,7 +22,34 @@ public interface HrCountService {
       * @modified By
       */
 	public Map<String,Object> selectHrCountByPart(Date startTime, Date endDate);
-    
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询组织结构模块
+	  * @Date:17:51 2017/10/24
+	  * @modified By
+	  */
+	 List<Map> selectBigDepart();
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:18:04 2017/10/24
+	  * @modified By
+	  */
+	Map selectHrCountByDepart(String depart,Date startTime, Date endDate);
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询组织部门数量
+	  * @Date:21:25 2017/10/24
+	  * @modified By
+	  */
+	List<Map> selectDepartmentCount();
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询组织机构（大部门）数量
+	  * @Date:21:25 2017/10/24
+	  * @modified By
+	  */
+	List<Map> selectBigDepartCount();
     /**
 	 * 导入人力资源数据
 	 * @param datas

@@ -33,9 +33,13 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  */
 	@Override
 	public Map selectRequestTotal(Date startDate, Date endDate) {
-		RequestCreditExample requestCreditExample = new RequestCreditExample();
-		requestCreditExample.createCriteria().andCreateAtBetween(startDate,endDate);
-		return this.readMapper.selectRequestTotal(requestCreditExample);
+		RequestCreditExample requestCreditExample = null;
+		if (startDate != null && endDate != null){
+			requestCreditExample = new RequestCreditExample();
+			requestCreditExample.createCriteria().andBackDateBetween(startDate,endDate);
+			return this.readMapper.selectRequestTotal(requestCreditExample);
+		}
+		return this.readMapper.selectRequestTotal(null);
 	}
 	 /**
 	  * @Author:SHIGS
@@ -57,8 +61,12 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  */
 	@Override
 	public List<Map> selectRequestNext(Date startDate, Date endDate) {
-		RequestCreditExample requestCreditExample = new RequestCreditExample();
-		requestCreditExample.createCriteria().andBackDateBetween(startDate,endDate);
+		RequestCreditExample requestCreditExample = null;
+		if (!startDate.equals("") && !endDate.equals("")){
+			requestCreditExample = new RequestCreditExample();
+			requestCreditExample.createCriteria().andBackDateBetween(startDate,endDate);
+			return this.readMapper.selectRequestTrend(requestCreditExample);
+		}
 		return this.readMapper.selectRequestTrend(requestCreditExample);
 	}
 	 /**
@@ -71,7 +79,26 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	public List<Map> selectArea() {
 		return this.readMapper.selectArea();
 	}
-
+	@Override
+	public List<Map> selectCountry(String area) {
+		RequestCreditExample requestCreditExample = new RequestCreditExample();
+		requestCreditExample.createCriteria().andSalesAreaEqualTo(area);
+		return this.readMapper.selectCountry(requestCreditExample);
+	}
+	@Override
+	public Map selectByAreaOrCountry(String area,String country) {
+		RequestCreditExample requestCreditExample = null;
+		if (country.equals("") || country == null){
+			requestCreditExample  = new RequestCreditExample();
+			requestCreditExample.createCriteria().andSalesAreaEqualTo(area);
+			return this.readMapper.selectByAreaOrCountry(requestCreditExample);
+		}else if (!area.equals("") && !country.equals("")){
+			requestCreditExample  = new RequestCreditExample();
+			requestCreditExample.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country);
+			return this.readMapper.selectByAreaOrCountry(requestCreditExample);
+		}
+		return this.readMapper.selectByAreaOrCountry(requestCreditExample);
+	}
 	@Override
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 		ImportDataResponse response = new ImportDataResponse();
