@@ -177,7 +177,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			areaList.add(area);
 		}
 		Map<String,Object> result = new HashMap<>();
-		result.put("country",areaList);
+		result.put("area",areaList);
 		return result;
 	}
 	@Override
