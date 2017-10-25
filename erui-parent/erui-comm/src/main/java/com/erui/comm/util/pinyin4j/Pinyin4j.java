@@ -73,7 +73,7 @@ public class Pinyin4j {
 	 * @throws
 	 * @return
 	 */
-	private static String convertChineseToPinyin(String chinese) {
+	public static String convertChineseToPinyin(String chinese) {
 		StringBuffer pinyin = new StringBuffer();
 
 		HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();

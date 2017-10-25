@@ -413,7 +413,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		if (topN != null) {
 			condition01.put("limit", topN);
 		}
-		Date before7Day = com.erui.comm.DateUtil.recedeTime(7);
+		Date before7Day = DateUtil.recedeTime(7);
 		InquiryCountExample example01 = new InquiryCountExample();
 		Criteria criteria01 = example01.createCriteria().andRollinTimeGreaterThan(before7Day);
 		OrderCountExample example02 = new OrderCountExample();

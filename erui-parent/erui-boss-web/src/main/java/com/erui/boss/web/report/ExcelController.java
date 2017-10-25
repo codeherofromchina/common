@@ -1,12 +1,15 @@
 package com.erui.boss.web.report;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.erui.comm.ExcelReader;
 import com.erui.comm.FileUtil;
+import com.erui.comm.util.pinyin4j.Pinyin4j;
 import com.erui.report.service.CategoryQualityService;
 import com.erui.report.service.CreditExtensionService;
 import com.erui.report.service.HrCountService;
@@ -41,6 +45,7 @@ import com.erui.report.util.ImportDataResponse;
 
 /**
  * 报表excel导入控制层
+ * 
  * @author wangxiaodan
  *
  */
@@ -74,6 +79,44 @@ public class ExcelController {
 	private RequestCreditService requestCreditService;
 	@Autowired
 	private SupplyChainService supplyChainService;
+
+	/**
+	 * 下载模板
+	 * 
+	 * @param response
+	 * @param type
+	 *            模板类型，参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/downtemp")
+	public Object downPhotoByStudentId(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(name = "type", required = true) Integer type) throws IOException {
+		Map<String, Object> result = new HashMap<>();
+		// 判断上传的业务文件类型
+		ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
+		if (typeEnum == null) {
+			result.put("success", false);
+			result.put("desc", "模板文件类型错误");
+			return result;
+		}
+
+		// 获取模板文件内容
+		String tempPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
+		byte[] data = FileUtils.readFileToByteArray(new File(tempPath, typeEnum.getTable() + EXCEL_SUFFIX));
+
+		// 输出到客户端
+		response.reset();
+		response.setHeader("Content-Disposition",
+				"attachment; filename=\"" + Pinyin4j.convertChineseToPinyin(typeEnum.getTable()) + EXCEL_SUFFIX + "\"");
+		response.addHeader("Content-Length", "" + data.length);
+		response.setContentType("application/octet-stream;charset=UTF-8");
+		OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
+		outputStream.write(data);
+		outputStream.flush();
+		outputStream.close();
+
+		return null;
+	}
 
 	/**
 	 * 导入excel数据
@@ -115,7 +158,7 @@ public class ExcelController {
 		}
 
 		// 经过上面初步判断后，保存文件到本地
-		String realPath = request.getSession().getServletContext().getRealPath(EXCEL_REAL_PATH);
+		String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
 		File saveFile = null;
 		try {
 			saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
@@ -151,7 +194,7 @@ public class ExcelController {
 				return result;
 			}
 
-			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), false);
+			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), true);
 
 			result.put("success", true);
 			result.put("tmpFileName", saveFile.getName());
@@ -191,7 +234,7 @@ public class ExcelController {
 			return result;
 		}
 
-		String realPath = request.getSession().getServletContext().getRealPath(EXCEL_REAL_PATH);
+		String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
 		File file = new File(realPath, fileName);
 		if (file.exists() && file.isFile()) {
 			ExcelReader excelReader = new ExcelReader();
@@ -203,7 +246,7 @@ public class ExcelController {
 					return result;
 				}
 				ImportDataResponse importDataResponse = importData(typeEnum,
-						excelContent.subList(1, excelContent.size()), true);
+						excelContent.subList(1, excelContent.size()), false);
 
 				result.put("success", true);
 				result.put("response", importDataResponse);
@@ -296,6 +339,9 @@ public class ExcelController {
 		return response;
 	}
 
-	private final static String EXCEL_REAL_PATH = "/WEB-INF/excel";
-
+	private final static String EXCEL_DATA_PATH = "/WEB-INF/excel";
+	private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
+	private final static String EXCEL_SUFFIX = ".xlsx";
+	
+	
 }

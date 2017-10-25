@@ -38,4 +38,6 @@ public interface OrderCountService {
 	 */
 	public CustomerNumSummaryVO numSummary(String area,String country);
 
+
+
 }

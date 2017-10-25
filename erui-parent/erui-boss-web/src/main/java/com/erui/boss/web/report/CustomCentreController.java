@@ -61,18 +61,18 @@ public class CustomCentreController {
         int chain=count-chainCount;
         double chainRate = RateUtil.intChainRate(chain, chainCount);//环比
         inquiryMap.put("count",count);
-        inquiryMap.put("amount",amount);
+        inquiryMap.put("amount",RateUtil.doubleChainRate(amount,10000)+"万$");
         inquiryMap.put("chainAdd",chain);
-        inquiryMap.put("chainRate",count);
+        inquiryMap.put("chainRate",chainRate);
 
 
         //当前产品总数量
         int proCount = inquiryService.selectProCountByIsOil(startTime, new Date(),"");
         int oilCount = inquiryService.selectProCountByIsOil(startTime, new Date(),"油气");
         int notOilCount = inquiryService.selectProCountByIsOil(startTime, new Date(),"非油气");
-        //同期产品总数量
+        //环比时段产品总数量
         int chainOilCount = inquiryService.selectProCountByIsOil(chainDate, startTime,"油气");
-        int chainNotOilCount = inquiryService.selectProCountByIsOil(chainDate, startTime,"非油气");
+        // int chainNotOilCount = inquiryService.selectProCountByIsOil(chainDate, startTime,"非油气");
         proIsOilMap.put("oil",oilCount);
         proIsOilMap.put("notOil",notOilCount);
         proIsOilMap.put("oiProportionl",RateUtil.intChainRate(oilCount,oilCount+notOilCount));
@@ -127,7 +127,7 @@ public class CustomCentreController {
         }
         Map<String,Object> orderMap=new HashMap<String,Object>();//询单统计信息
         orderMap.put("count",count);
-        orderMap.put("amount",amount);
+        orderMap.put("amount",RateUtil.doubleChainRate(amount,10000)+"万$");
         orderMap.put("chainAdd",count-chainCount);
         orderMap.put("chainRate",chainRate);
 
@@ -418,6 +418,9 @@ public class CustomCentreController {
 
 	/**
 	 * 客户中心的订单和询单数据明细
+	 * @param areaName		大区
+	 * @param countryName	城市
+	 * @return
 	 */
 	@RequestMapping("/areaDetail")
 	@ResponseBody
@@ -439,7 +442,6 @@ public class CustomCentreController {
 		data.put("x", xTitleArr);
 		data.put("y", yValueArr);
 		result.put("data", data);
-
 		return result;
 	}
 }

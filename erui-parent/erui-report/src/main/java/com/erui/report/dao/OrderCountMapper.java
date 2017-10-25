@@ -3,6 +3,7 @@ package com.erui.report.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.CateDetailVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.erui.report.model.OrderCount;
@@ -37,6 +38,8 @@ public interface OrderCountMapper {
     int updateByPrimaryKeySelective(OrderCount record);
 
     int updateByPrimaryKey(OrderCount record);
+
+
 
     /**
      * 查询订单的所有大区和国家列表
