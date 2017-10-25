@@ -19,7 +19,7 @@ import java.util.*;
  */
 
 @Controller
-@RequestMapping("/hrCount")
+@RequestMapping("/report/hrCount")
 public class HrCountController {
 
     @Autowired

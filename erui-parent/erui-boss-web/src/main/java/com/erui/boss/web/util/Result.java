@@ -8,6 +8,10 @@ public class Result<T> {
 	private String msg;
 	private T data;
 
+	public Result() {
+		this(ResultStatusEnum.SUCCESS);
+	}
+	
 	public Result(ResultStatusEnum resultStatus) {
 		this.code = resultStatus.getCode();
 		this.msg = resultStatus.getMsg();
@@ -18,9 +22,10 @@ public class Result<T> {
 		this.data = data;
 	}
 
-	public void setStatus(ResultStatusEnum resultStatus) {
+	public Result<T> setStatus(ResultStatusEnum resultStatus) {
 		this.code = resultStatus.getCode();
 		this.msg = resultStatus.getMsg();
+		return this;
 	}
 
 	public int getCode() {
@@ -35,8 +40,9 @@ public class Result<T> {
 		return data;
 	}
 
-	public void setData(T data) {
+	public Result<T> setData(T data) {
 		this.data = data;
+		return this;
 	}
 
 	@Override

@@ -1,20 +1,19 @@
 package com.erui.boss.web.report;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by lirb on 2017/10/19.
  */
 
 @Controller
-@RequestMapping("/receivable")
+@RequestMapping("/report/receivable")
 public class ReceivableController {
 
     @ResponseBody

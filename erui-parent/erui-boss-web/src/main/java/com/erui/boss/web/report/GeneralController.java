@@ -34,7 +34,7 @@ import com.erui.report.util.CustomerCategoryNumVO;
  */
 
 @Controller
-@RequestMapping("general")
+@RequestMapping("/report/general")
 public class GeneralController {
 	@Autowired
 	private MemberService memberService;

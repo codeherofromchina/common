@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ExcelReader;
 import com.erui.comm.FileUtil;
 import com.erui.comm.util.pinyin4j.Pinyin4j;
@@ -91,13 +93,10 @@ public class ExcelController {
 	@RequestMapping(value = "/downtemp")
 	public Object downPhotoByStudentId(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name = "type", required = true) Integer type) throws IOException {
-		Map<String, Object> result = new HashMap<>();
 		// 判断上传的业务文件类型
 		ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
 		if (typeEnum == null) {
-			result.put("success", false);
-			result.put("desc", "模板文件类型错误");
-			return result;
+			return new Result<Object>(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
 		}
 
 		// 获取模板文件内容
@@ -134,7 +133,6 @@ public class ExcelController {
 			@RequestParam(value = "file", required = true) MultipartFile file,
 			@RequestParam(value = "type", required = true) Integer type) {
 
-		Map<String, Object> result = new HashMap<>();
 		String contentType = file.getContentType();
 		String name = file.getName();
 		String originalFilename = file.getOriginalFilename();
@@ -144,17 +142,13 @@ public class ExcelController {
 
 		// 判断文件类型
 		if (!(FileUtil.isExcelContentType(contentType) && FileUtil.isExcelSuffixFile(originalFilename))) {
-			result.put("success", false);
-			result.put("desc", "文件类型错误");
-			return result;
+			return new Result<Object>(ResultStatusEnum.EXCEL_CONTENTYPE_ERROR);
 		}
 
 		// 判断上传的业务文件类型
 		ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
 		if (typeEnum == null) {
-			result.put("success", false);
-			result.put("desc", "业务文件类型错误");
-			return result;
+			return new Result<Object>(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
 		}
 
 		// 经过上面初步判断后，保存文件到本地
@@ -163,10 +157,8 @@ public class ExcelController {
 		try {
 			saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
 		} catch (IOException e1) {
-			e1.printStackTrace();
-			result.put("success", false);
-			result.put("desc", "服务器临时保存文件错误");
-			return result;
+			logger.debug("异常:" + e1.getMessage(), e1);
+			return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
 		}
 		// 删除之前无用的文件
 		int delFileNum = FileUtil.delBefore2HourFiles(realPath);
@@ -179,34 +171,29 @@ public class ExcelController {
 			// 判断数据和标题的正确性
 			int dataRowSize = excelContent.size();
 			if (dataRowSize < 1) {
-				result.put("success", false);
-				result.put("desc", "Excel内容为空");
-				return result;
+				return new Result<Object>(ResultStatusEnum.EXCEL_CONTENT_EMPTY);
 			}
 			if (!typeEnum.verifyTitleData(excelContent.get(0))) {
-				result.put("success", false);
-				result.put("desc", "Excel头验证失败");
-				return result;
+				return new Result<Object>(ResultStatusEnum.EXCEL_HEAD_VERIFY_FAIL);
 			}
 			if (dataRowSize == 1) {
-				result.put("success", false);
-				result.put("desc", "Excel数据为空");
-				return result;
+				return new Result<Object>(ResultStatusEnum.EXCEL_CONTENT_EMPTY);
 			}
 
 			ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), true);
 
-			result.put("success", true);
-			result.put("tmpFileName", saveFile.getName());
-			result.put("type", typeEnum.getType());
-			result.put("response", importDataResponse);
+			// 整理结果集并返回
+			Result<Object> result = new Result<Object>();
+			Map<String, Object> data = new HashMap<>();
+			data.put("tmpFileName", saveFile.getName());
+			data.put("type", typeEnum.getType());
+			data.put("response", importDataResponse);
+			result.setData(data);
+			return result;
 		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
-			logger.error("excel文件读取内容失败[fileName:{},error:{}]", originalFilename, e.getMessage());
-			result.put("success", false);
-			result.put("desc", "Excel读取失败");
+			logger.debug("异常:" + e.getMessage(), e);
+			return new Result<Object>(ResultStatusEnum.EXCEL_OPERATOR_FAIL);
 		}
-
-		return result;
 	}
 
 	/**
@@ -224,14 +211,12 @@ public class ExcelController {
 	public Object updateExcel(HttpServletRequest request,
 			@RequestParam(value = "fileName", required = true) String fileName,
 			@RequestParam(value = "type", required = true) Integer type) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Result<Object> result = new Result<Object>();
 
 		// 判断上传的业务文件类型
 		ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
 		if (typeEnum == null) {
-			result.put("success", false);
-			result.put("desc", "业务文件类型错误");
-			return result;
+			return result.setStatus(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
 		}
 
 		String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
@@ -241,29 +226,25 @@ public class ExcelController {
 			try {
 				List<String[]> excelContent = excelReader.readExcel(file);
 				if (!typeEnum.verifyTitleData(excelContent.get(0))) {
-					result.put("success", false);
-					result.put("desc", "Excel头验证失败");
-					return result;
+					return result.setStatus(ResultStatusEnum.EXCEL_HEAD_VERIFY_FAIL);
 				}
 				ImportDataResponse importDataResponse = importData(typeEnum,
 						excelContent.subList(1, excelContent.size()), false);
 
-				result.put("success", true);
-				result.put("response", importDataResponse);
+				result.setData(importDataResponse);
 
 				try {
 					// 删除数据导入成功的文件
 					FileUtils.forceDelete(file);
 				} catch (IOException ex) {
+					logger.debug("异常:" + ex.getMessage(), ex);
 				}
 			} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
-				logger.error("excel文件读取内容失败[fileName:{},error:{}]", fileName, e.getMessage());
-				result.put("success", false);
-				result.put("desc", "Excel读取失败");
+				logger.debug("异常:" + e.getMessage(), e);
+				return result.setStatus(ResultStatusEnum.EXCEL_OPERATOR_FAIL);
 			}
 		} else {
-			result.put("success", false);
-			result.put("desc", "临时文件不存在，数据导入错误");
+			return result.setStatus(ResultStatusEnum.EXCEL_FILE_NOT_EXIST);
 		}
 
 		return result;
@@ -342,6 +323,5 @@ public class ExcelController {
 	private final static String EXCEL_DATA_PATH = "/WEB-INF/excel";
 	private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
 	private final static String EXCEL_SUFFIX = ".xlsx";
-	
-	
+
 }

@@ -29,7 +29,7 @@ import com.erui.report.util.CustomerNumSummaryVO;
  * Created by lirb on 2017/10/20.
  */
 @Controller
-@RequestMapping("/report_customCentre")
+@RequestMapping("/report/customCentre")
 public class CustomCentreController {
     @Autowired
     private InquiryCountService inquiryService;

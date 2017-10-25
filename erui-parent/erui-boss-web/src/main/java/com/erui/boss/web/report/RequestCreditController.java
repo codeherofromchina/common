@@ -19,7 +19,7 @@ import java.util.*;
  * @modified By
  */
 @Controller
-@RequestMapping("receivable")
+@RequestMapping("/report/receivable")
 public class RequestCreditController {
     @Autowired
     private RequestCreditService requestCreditService;

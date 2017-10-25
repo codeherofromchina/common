@@ -13,6 +13,9 @@ public class SuppliyChainItemClassVo {
     private int      planSuppliy;
     private int      finishSuppliy;
     private String   itemClass;
+    private double supplierChainRate = 0;
+    private double skuChainRate = 0;
+    private double spuChainRate = 0;
 
 
     public SuppliyChainItemClassVo(int planSKU, int finishSKU, int planSPU, int finishSPU, int planSuppliy, int finishSuppliy, String itemClass) {
@@ -90,8 +93,29 @@ public class SuppliyChainItemClassVo {
     public void setItemClass(String itemClass) {
         this.itemClass = itemClass;
     }
+    
+    
+    
 
-    @Override
+    public double getSupplierChainRate() {
+		return supplierChainRate;
+	}
+	public void setSupplierChainRate(double supplierChainRate) {
+		this.supplierChainRate = supplierChainRate;
+	}
+	public double getSkuChainRate() {
+		return skuChainRate;
+	}
+	public void setSkuChainRate(double skuChainRate) {
+		this.skuChainRate = skuChainRate;
+	}
+	public double getSpuChainRate() {
+		return spuChainRate;
+	}
+	public void setSpuChainRate(double spuChainRate) {
+		this.spuChainRate = spuChainRate;
+	}
+	@Override
     public String toString() {
         return "SuppliyChainOrgVo{" +
                 "planSKU=" + planSKU +
