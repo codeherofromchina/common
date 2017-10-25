@@ -41,14 +41,14 @@ public interface RequestCreditService {
 	  * @Date:22:41 2017/10/23
 	  * @modified By
 	  */
-	List<Map> selectArea();
+	 Map selectArea();
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询所有国家
 	  * @Date:13:46 2017/10/24
 	  * @modified By
 	  */
-	List<Map> selectCountry(String area);
+	 Map selectCountry(String area);
 	 /**
 	  * @Author:SHIGS
 	  * @Description

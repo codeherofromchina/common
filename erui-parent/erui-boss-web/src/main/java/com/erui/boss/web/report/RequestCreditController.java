@@ -1,5 +1,6 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.Result;
 import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.service.RequestCreditService;
@@ -36,16 +37,7 @@ public class RequestCreditController {
     @RequestMapping(value= "totalReceive",method = RequestMethod.POST)
     public Object totalReceive(){
         Map mapMount =requestCreditService.selectTotal();
-        BigDecimal receiveAmount = new  BigDecimal(mapMount.get("sd").toString());
-        BigDecimal orderAmount = new BigDecimal(mapMount.get("ed").toString());
-        Double received = orderAmount.doubleValue() - receiveAmount.doubleValue();
-        Map<String,Object> result = new HashMap<>();
-        Map<String,Object> data = new HashMap<>();
-        data.put("notReceive", RateUtil.doubleChainRate(receiveAmount.doubleValue(),10000)+"万$");
-        data.put("received", RateUtil.doubleChainRate(received,10000)+"万$");
-        data.put("totalReceive", RateUtil.doubleChainRate(orderAmount.doubleValue(),10000)+"万$");
-        result.put("data",data);
-        result.put("code",200);
+        Result<Map<String,Object>> result = new Result<>(mapMount);
         return result;
     }
     @ResponseBody
@@ -74,19 +66,19 @@ public class RequestCreditController {
         Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue();
         //应收账款
         Map<String,Object> receivable = new HashMap<>();
-        receivable.put("receive",df.format(orderAmount));
+        receivable.put("receive",df.format(orderAmount)+"万$");
         receivable.put("chainAdd",df.format(orederAmountAdd)+"万$");
         receivable.put("chainRate",RateUtil.doubleChainRate(orederAmountAdd,chainOrderAmount.doubleValue()));
         Double NotReceiveAmountAdd =  notreceiveAmount.doubleValue() - chainNotreceiveAmount.doubleValue() ;
         //应收未收
         Map<String,Object> notReceive = new HashMap<>();
-        notReceive.put("receive",df.format(notreceiveAmount));
+        notReceive.put("receive",df.format(notreceiveAmount)+"万$");
         notReceive.put("chainAdd",df.format(NotReceiveAmountAdd)+"万$");
         notReceive.put("chainRate",RateUtil.doubleChainRate(NotReceiveAmountAdd,chainNotreceiveAmount.doubleValue()));
         Double ReceiveAmountAdd = receiveAmount.doubleValue() - chainReceiveAmount.doubleValue();
         //应收已收
         Map<String,Object> received = new HashMap<>();
-        received.put("receive",df.format(receiveAmount));
+        received.put("receive",df.format(receiveAmount)+"万$");
         received.put("chainAdd",df.format(ReceiveAmountAdd)+"万$");
         received.put("chainRate",RateUtil.doubleChainRate(ReceiveAmountAdd,chainReceiveAmount.doubleValue()));
 
@@ -143,7 +135,7 @@ public class RequestCreditController {
                 nextList.add(0.0);
             }
         }
-        //下月应收，已收，未收
+        //应收，已收，未收
         for (Map map2:requestMap) {
             linkData = new HashMap<>();
             sqlDate = new HashMap<>();
@@ -200,29 +192,15 @@ public class RequestCreditController {
     @ResponseBody
     @RequestMapping(value= "queryArea",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object queryArea(){
-        List<Map> areaMap = requestCreditService.selectArea();
-        List<String> areaList = new ArrayList<>();
-        for (Map map:areaMap) {
-           String area = map.get("sales_area").toString();
-           areaList.add(area);
-        }
-        Map<String,Object> result = new HashMap<>();
-        result.put("area",areaList);
-        result.put("code",200);
+        Map<String,Object> areaMap = requestCreditService.selectArea();
+        Result<Map<String,Object>> result = new Result<>(areaMap);
         return result;
     }
     @ResponseBody
     @RequestMapping(value= "queryCoutry",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object queryCoutry(@RequestBody Map<String,Object> map){
-        List<Map> areaMap = requestCreditService.selectCountry(map.get("area").toString());
-        List<String> countryList = new ArrayList<>();
-        for (Map map2:areaMap) {
-            String country = map2.get("sales_country").toString();
-            countryList.add(country);
-        }
-        Map<String,Object> result = new HashMap<>();
-        result.put("country",countryList);
-        result.put("code",200);
+        Map<String,Object> areaCountry = requestCreditService.selectCountry(map.get("area").toString());
+        Result<Map<String,Object>> result = new Result<>(areaCountry);
         return result;
     }
     @ResponseBody

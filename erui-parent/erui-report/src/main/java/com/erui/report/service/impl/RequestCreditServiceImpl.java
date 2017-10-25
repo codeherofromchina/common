@@ -1,10 +1,9 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.RequestCreditExample;
 import org.slf4j.Logger;
@@ -23,7 +22,15 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 	@Override
 	public Map selectTotal() {
-		return this.readMapper.selectTotal();
+		Map<String,Object> mapMount=readMapper.selectTotal();
+		BigDecimal receiveAmount = new  BigDecimal(mapMount.get("sd").toString());
+		BigDecimal orderAmount = new BigDecimal(mapMount.get("ed").toString());
+		Double received = orderAmount.doubleValue() - receiveAmount.doubleValue();
+		Map<String,Object> data = new HashMap<>();
+		data.put("notReceive", RateUtil.doubleChainRate(receiveAmount.doubleValue(),10000)+"万$");
+		data.put("received", RateUtil.doubleChainRate(received,10000)+"万$");
+		data.put("totalReceive", RateUtil.doubleChainRate(orderAmount.doubleValue(),10000)+"万$");
+		return data;
 	}
 	 /**
 	  * @Author:SHIGS
@@ -76,14 +83,30 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public List<Map> selectArea() {
-		return this.readMapper.selectArea();
+	public Map selectArea() {
+		List<Map> areaMap = readMapper.selectArea();
+		List<String> areaList = new ArrayList<>();
+		for (Map map:areaMap) {
+			String area = map.get("sales_area").toString();
+			areaList.add(area);
+		}
+		Map<String,Object> result = new HashMap<>();
+		result.put("country",areaList);
+		return result;
 	}
 	@Override
-	public List<Map> selectCountry(String area) {
+	public Map selectCountry(String area) {
 		RequestCreditExample requestCreditExample = new RequestCreditExample();
 		requestCreditExample.createCriteria().andSalesAreaEqualTo(area);
-		return this.readMapper.selectCountry(requestCreditExample);
+		List<Map> areaCountry = readMapper.selectCountry(requestCreditExample);
+		List<String> countryList = new ArrayList<>();
+		for (Map map2:areaCountry) {
+			String country = map2.get("sales_country").toString();
+			countryList.add(country);
+		}
+		Map<String,Object> result = new HashMap<>();
+		result.put("country",countryList);
+		return result;
 	}
 	@Override
 	public Map selectByAreaOrCountry(String area,String country) {
