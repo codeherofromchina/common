@@ -61,7 +61,7 @@ public class CustomCentreController {
         int chain=count-chainCount;
         double chainRate = RateUtil.intChainRate(chain, chainCount);//环比
         inquiryMap.put("count",count);
-        inquiryMap.put("amount",amount);
+        inquiryMap.put("amount",RateUtil.doubleChainRate(amount,10000)+"万$");
         inquiryMap.put("chainAdd",chain);
         inquiryMap.put("chainRate",chainRate);
 
@@ -127,7 +127,7 @@ public class CustomCentreController {
         }
         Map<String,Object> orderMap=new HashMap<String,Object>();//询单统计信息
         orderMap.put("count",count);
-        orderMap.put("amount",amount);
+        orderMap.put("amount",RateUtil.doubleChainRate(amount,10000)+"万$");
         orderMap.put("chainAdd",count-chainCount);
         orderMap.put("chainRate",chainRate);
 
@@ -418,8 +418,8 @@ public class CustomCentreController {
 
 	/**
 	 * 客户中心的订单和询单数据明细
-	 * @param area		大区
-	 * @param country	城市
+	 * @param areaName		大区
+	 * @param countryName	城市
 	 * @return
 	 */
 	@RequestMapping("/areaDetail")
