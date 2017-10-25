@@ -1,20 +1,13 @@
 package com.erui.boss.web.report;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import com.erui.boss.web.util.Result;
 import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
@@ -204,6 +197,14 @@ public class SupplyChainController {
         return  result;
     }
 
+    //品类部列表
+    @ResponseBody
+    @RequestMapping("/categoryList")
+    public Object categoryDetail(){
+
+        List<String> categoryList=supplyChainService.selectCategoryList();
+        return new Result<List<String>>().setData(categoryList);
+    }
 
     // 品类明细
     @ResponseBody

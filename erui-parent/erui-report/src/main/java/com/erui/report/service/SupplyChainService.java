@@ -58,6 +58,12 @@ public interface SupplyChainService {
 	 * @return
 	 */
 	SupplyTrendVo supplyTrend(int days,int type);
+	/**
+	 *
+	 * 品类部列表
+	 * @return
+	 */
+	List<String>  selectCategoryList();
 
 
 }
