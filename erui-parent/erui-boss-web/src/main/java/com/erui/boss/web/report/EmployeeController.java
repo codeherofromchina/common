@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,6 @@ public class EmployeeController {
 		result.put("to", totalPrice);
 		return result;
 	}
-
 	@RequestMapping(value = "/updateName", method = RequestMethod.GET)
 	@ResponseBody
 	public Object updateName(@RequestParam(value = "empId", required = true) Long empId,
