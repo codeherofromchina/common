@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.erui.report.model.CateDetailVo;
+import com.erui.report.model.InquiryCount;
 import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
 import com.erui.report.util.CustomerCategoryNumVO;
@@ -55,6 +56,10 @@ public interface InquiryCountService {
    * 查询销售大区列表
    * */
 	public  List<String>   selectAreaList();
+	/*
+   * 根据时间查询询单列表
+   * */
+	List<InquiryCount> selectListByTime(Date startTime, Date endTime);
 	
 	
 	/**

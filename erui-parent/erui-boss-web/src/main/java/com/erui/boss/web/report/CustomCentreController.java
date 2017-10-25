@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.erui.boss.web.util.Result;
+import com.erui.report.model.InquiryCount;
+import com.erui.report.model.OrderCount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -244,37 +246,8 @@ public class CustomCentreController {
         Map<String,Object> data=new HashMap<String,Object>();
 
         int days = (int) reqMap.get("days");
-        //封装日期,X轴
-        if(days<=30){
-            String[] dates=new String[days];
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年M月d日");
-            ArrayList<Date> dateList = new ArrayList<>();
-            for (int i = 0; i < dates.length; i++) {
-                Date datetime = DateUtil.recedeTime(days - (i+1) );
-                dateList.add(datetime);
-                String date = dateFormat.format(datetime);
-                dates[i]=date;
-            }
-            //封装查询订单和询单数据
-            Date sTime = DateUtil.recedeTime(days);
-            Integer[] inCounts=new Integer[dateList.size()];//询单数数组
-            Integer[] orCounts=new Integer[dateList.size()];//订单数数组
-
-            for (int i = 0; i < dateList.size(); i++) {
-                if(i==0){
-
-                }else {
-
-                }
-
-            }
-            data.put("dates",dates);
-            data.put("inquiry",inCounts);
-            data.put("order",orCounts);
-        }
-
-        result.put("code",200);
-        result.put("data",data);
+       List<InquiryCount> inqList=inquiryService.selectListByTime(DateUtil.recedeTime(days),new Date());
+        List<OrderCount> ordList=orderService.selectListByTime(DateUtil.recedeTime(days),new Date());
         return  result;
     }
 

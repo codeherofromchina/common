@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.erui.report.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +18,7 @@ import org.springframework.stereotype.Service;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.InquiryCountMapper;
 import com.erui.report.dao.OrderCountMapper;
-import com.erui.report.model.CateDetailVo;
-import com.erui.report.model.InquiryCount;
-import com.erui.report.model.InquiryCountExample;
 import com.erui.report.model.InquiryCountExample.Criteria;
-import com.erui.report.model.OrderCountExample;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.util.CustomerCategoryNumVO;
 import com.erui.report.util.CustomerNumSummaryVO;
@@ -326,8 +323,18 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		InquiryCountExample example = new InquiryCountExample();
 		return readMapper.selectAreaListByExample(example);
 	}
+    // 根据时间查询询单列表
+    @Override
+    public List<InquiryCount> selectListByTime(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+            criteria.andRollinTimeBetween(startTime,endTime);
+        }
+        return readMapper.selectByExample(example);
+    }
 
-	/**
+    /**
 	 * 查询所有询单中的所有大区和城市列表（大区1 <-> n城市）
 	 * 
 	 * @return
@@ -470,4 +477,5 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         criteria.andRollinTimeBetween(startTime,new Date());
         return  readMapper.selectNumSummaryByExample(example);
     }
+
 }

@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.CateDetailVo;
+import com.erui.report.model.OrderCount;
 import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.CustomerNumSummaryVO;
 
@@ -29,6 +31,10 @@ public interface OrderCountService {
 	public  List<Map<String,Object>> selectOrderProTop3(Map<String,Object> params);
 
 	public Double selectProfitRate(Date startTime,Date endTime);
+	/*
+     * 根据时间查询订单列表
+     * */
+	List<OrderCount> selectListByTime(Date startTime, Date endTime);
 
 	/**
 	 * 获取数据汇总
@@ -37,6 +43,8 @@ public interface OrderCountService {
 	 * @return
 	 */
 	public CustomerNumSummaryVO numSummary(String area,String country);
+	//订单品类明细
+	List<CateDetailVo> selecOrdDetailByCategory();
 
 
 

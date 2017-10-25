@@ -39,7 +39,7 @@ public interface OrderCountMapper {
 
     int updateByPrimaryKey(OrderCount record);
 
-
+    List<CateDetailVo> selecOrdDetailByCategory();
 
     /**
      * 查询订单的所有大区和国家列表

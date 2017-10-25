@@ -454,9 +454,19 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         Double profitRate = readMapper.selectProfitRateByExample(example);
         return profitRate;
     }
+	//订单列表
+	@Override
+	public List<OrderCount> selectListByTime(Date startTime, Date endTime) {
+		OrderCountExample example= new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+            criteria.andProjectStartBetween(startTime, endTime);
+        }
+        return readMapper.selectByExample(example);
+	}
 
-    
-    /**
+
+	/**
      * 获取数据汇总
      */
     @Override
@@ -474,6 +484,14 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     	
     	return vo;
     }
+
+	/**
+	 * 订单品类明细
+	 */
+	@Override
+	public List<CateDetailVo> selecOrdDetailByCategory() {
+		return readMapper.selecOrdDetailByCategory();
+	}
 
 
 }

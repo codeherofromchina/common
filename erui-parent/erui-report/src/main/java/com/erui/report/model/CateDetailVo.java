@@ -7,19 +7,44 @@ package com.erui.report.model;
 public class CateDetailVo {
     private String category;
     private Integer inqCateCount;
+    private Double inqProportion;
     private Double inqCatePrice;
-    private Double ordCatePrice;
+    private Double inqAmountProportion;
     private Integer ordCateCount;
+    private Double ordProportion;
+    private Double ordCatePrice;
+    private Double ordAmountProportion;
 
-    public CateDetailVo() {
+    public Double getInqProportion() {
+        return inqProportion;
     }
 
-    public CateDetailVo(String category,Integer inqCateCount,Double inqCatePrice, Double ordCatePrice,Integer ordCateCount) {
-        this.category = category;
-        this.inqCateCount=inqCateCount;
-        this.inqCatePrice=inqCatePrice;
-        this.ordCateCount=ordCateCount;
-        this.ordCatePrice=ordCatePrice;
+    public void setInqProportion(Double inqProportion) {
+        this.inqProportion = inqProportion;
+    }
+
+    public Double getInqAmountProportion() {
+        return inqAmountProportion;
+    }
+
+    public void setInqAmountProportion(Double inqAmountProportion) {
+        this.inqAmountProportion = inqAmountProportion;
+    }
+
+    public Double getOrdProportion() {
+        return ordProportion;
+    }
+
+    public void setOrdProportion(Double ordProportion) {
+        this.ordProportion = ordProportion;
+    }
+
+    public Double getOrdAmountProportion() {
+        return ordAmountProportion;
+    }
+
+    public void setOrdAmountProportion(Double ordAmountProportion) {
+        this.ordAmountProportion = ordAmountProportion;
     }
 
     public String getCategory() {
@@ -46,14 +71,6 @@ public class CateDetailVo {
         this.inqCatePrice = inqCatePrice;
     }
 
-    public Double getOrdCatePrice() {
-        return ordCatePrice;
-    }
-
-    public void setOrdCatePrice(Double ordCatePrice) {
-        this.ordCatePrice = ordCatePrice;
-    }
-
     public Integer getOrdCateCount() {
         return ordCateCount;
     }
@@ -62,14 +79,11 @@ public class CateDetailVo {
         this.ordCateCount = ordCateCount;
     }
 
-    @Override
-    public String toString() {
-        return "CateDetailVo{" +
-                "category='" + category + '\'' +
-                ", inqCateCount=" + inqCateCount +
-                ", inqCatePrice=" + inqCatePrice +
-                ", ordCatePrice=" + ordCatePrice +
-                ", ordCateCount=" + ordCateCount +
-                '}';
+    public Double getOrdCatePrice() {
+        return ordCatePrice;
+    }
+
+    public void setOrdCatePrice(Double ordCatePrice) {
+        this.ordCatePrice = ordCatePrice;
     }
 }

@@ -181,10 +181,19 @@
       order by ${orderByClause}
     </if>
   </select>
-
+  <select id="selecOrdDetailByCategory"  resultType="com.erui.report.model.CateDetailVo" >
+    SELECT
+    SUM(project_account) AS ordCatePrice,
+    COUNT(*) AS ordCateCount,
+    plat_pro_category AS category
+    FROM
+    order_count
+    GROUP BY
+    category
+  </select>
   <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
     SELECT
-    SUM(order_count) AS orderCount,
+    IFNULL(SUM(IFNULL(order_count,0.0)),0.0) AS orderCount,
     pro_category
     FROM
     order_count
