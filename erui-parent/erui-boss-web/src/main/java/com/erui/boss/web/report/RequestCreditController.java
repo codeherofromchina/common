@@ -67,19 +67,19 @@ public class RequestCreditController {
         //应收账款
         Map<String,Object> receivable = new HashMap<>();
         receivable.put("receive",df.format(orderAmount)+"万$");
-        receivable.put("chainAdd",df.format(orederAmountAdd)+"万$");
+        receivable.put("chainAdd",df.format(orederAmountAdd/10000)+"万$");
         receivable.put("chainRate",RateUtil.doubleChainRate(orederAmountAdd,chainOrderAmount.doubleValue()));
         Double NotReceiveAmountAdd =  notreceiveAmount.doubleValue() - chainNotreceiveAmount.doubleValue() ;
         //应收未收
         Map<String,Object> notReceive = new HashMap<>();
         notReceive.put("receive",df.format(notreceiveAmount)+"万$");
-        notReceive.put("chainAdd",df.format(NotReceiveAmountAdd)+"万$");
+        notReceive.put("chainAdd",df.format(NotReceiveAmountAdd/10000)+"万$");
         notReceive.put("chainRate",RateUtil.doubleChainRate(NotReceiveAmountAdd,chainNotreceiveAmount.doubleValue()));
         Double ReceiveAmountAdd = receiveAmount.doubleValue() - chainReceiveAmount.doubleValue();
         //应收已收
         Map<String,Object> received = new HashMap<>();
         received.put("receive",df.format(receiveAmount)+"万$");
-        received.put("chainAdd",df.format(ReceiveAmountAdd)+"万$");
+        received.put("chainAdd",df.format(ReceiveAmountAdd/10000)+"万$");
         received.put("chainRate",RateUtil.doubleChainRate(ReceiveAmountAdd,chainReceiveAmount.doubleValue()));
 
         Map<String,Object> result = new HashMap<>();
@@ -102,91 +102,8 @@ public class RequestCreditController {
     public Object tendencyChart(@RequestBody Map<String,Object> map){
         //当前时期
         int days = (int)map.get("days");
-        Date startTime = DateUtil.recedeTime(days);
-        Date nextTime = DateUtil.recedeTime(-30);
-        List<Map> requestMap = requestCreditService.selectRequestTrend(startTime,new Date());
-        List<Map> nextMap = requestCreditService.selectRequestNext(new Date(),nextTime);
-        List<Double> receivableList = new ArrayList<>();
-        List<Double> notReceiveList = new ArrayList<>();
-        List<Double> receivedList = new ArrayList<>();
-        List<Double> nextList = new ArrayList<>();
-        List<String> dateList = new ArrayList<>();
-        List<String> nextDate = new ArrayList<>();
-        Map<String,Map<String,Double>> sqlDate = null;
-        Map<String,Double> linkData = null;
-        //遍历下月应收
-        for (Map map3:nextMap) {
-            sqlDate = new HashMap<>();
-            linkData = new HashMap<>();
-            BigDecimal nextReceivable = new BigDecimal(map3.get("order_amount").toString());
-            Date date2 = (Date) map3.get("back_date");
-            String dateString = DateUtil.format("MM月dd日",date2);
-            linkData.put("nextReceivable",nextReceivable.doubleValue());
-            sqlDate.put(dateString,linkData);
-        }
-        for (int i = 0; i < 31; i++){
-            Date datetime = DateUtil.recedeTime(-i);
-            String date = DateUtil.format("MM月dd日",datetime);
-            if (sqlDate.containsKey(date)){
-                nextDate .add(date);
-                nextList.add(sqlDate.get(date).get("nextReceivable"));
-            }else {
-                nextDate.add(date);
-                nextList.add(0.0);
-            }
-        }
-        //应收，已收，未收
-        for (Map map2:requestMap) {
-            linkData = new HashMap<>();
-            sqlDate = new HashMap<>();
-            BigDecimal receivable = new BigDecimal(map2.get("order_amount").toString());
-            BigDecimal notReceive = new BigDecimal(map2.get("receive_amount").toString());
-            BigDecimal received = new BigDecimal(map2.get("received").toString());
-            Date date2 = (Date) map2.get("create_at");
-            String dateString = DateUtil.format("MM月dd日",date2);
-            linkData.put("receivable",receivable.doubleValue());
-            linkData.put("notReceive",notReceive.doubleValue());
-            linkData.put("received",received.doubleValue());
-            sqlDate.put(dateString,linkData);
-        }
-        for (int i = 0; i < days; i++) {
-            Date datetime = DateUtil.recedeTime(days - (i+1) );
-            String date = DateUtil.format("MM月dd日",datetime);
-            if (sqlDate.containsKey(date)){
-                dateList.add(date);
-                receivableList.add(sqlDate.get(date).get("receivable"));
-                notReceiveList.add(sqlDate.get(date).get("notReceive"));
-                receivedList.add(sqlDate.get(date).get("received"));
-            }else {
-                dateList.add(date);
-                receivableList.add(0.0);
-                notReceiveList.add(0.0);
-                receivedList.add(0.0);
-            }
-        }
-        String [] s = {"应收账款","应收未收","应收已收","下月应收"};
-        Map<String,Object> data = new HashMap();
-        if (map.get("receiveName").equals("receivable")){
-            data.put("legend",s[0]);
-            data.put("xAxis",dateList);
-            data.put("yAxis",receivableList);
-
-        }else if (map.get("receiveName").equals("notReceive")){
-            data.put("legend",s[1]);
-            data.put("xAxis",dateList);
-            data.put("yAxis",notReceiveList);
-        }else if(map.get("receiveName").equals("received")){
-            data.put("legend",s[2]);
-            data.put("xAxis",dateList);
-            data.put("yAxis",receivedList);
-        }else {
-            data.put("legend",s[3]);
-            data.put("xAxis",nextDate);
-            data.put("yAxis",nextList);
-        }
-        Map<String,Object> result = new HashMap();
-        result.put("data",data);
-        result.put("code",200);
+        Map<String,Object> dataMap = requestCreditService.selectRequestTrend(days,map.get("receiveName").toString());
+        Result<Map<String,Object>> result = new Result<>(dataMap);
         return result;
     }
     @ResponseBody

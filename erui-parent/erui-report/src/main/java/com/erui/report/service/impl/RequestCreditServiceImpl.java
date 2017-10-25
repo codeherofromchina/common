@@ -55,10 +55,96 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public List<Map> selectRequestTrend(Date startDate, Date endDate) {
+	public Map selectRequestTrend(int days,String receiveName) {
+		Date startDate = DateUtil.recedeTime(days);
+		Date nextTime =  DateUtil.recedeTime(-30);
+		List<Map> nextMap = null;
+		if (!startDate.equals("") ){
+			RequestCreditExample nextCreditExample = new RequestCreditExample();
+			nextCreditExample.createCriteria().andBackDateBetween(new Date(),nextTime);
+			nextMap = readMapper.selectRequestTrend(nextCreditExample);
+		}
+		List<Double> receivableList = new ArrayList<>();
+		List<Double> notReceiveList = new ArrayList<>();
+		List<Double> receivedList = new ArrayList<>();
+		List<Double> nextList = new ArrayList<>();
+		List<String> dateList = new ArrayList<>();
+		List<String> nextDate = new ArrayList<>();
+		Map<String,Map<String,Double>> sqlDate = new HashMap<>();
+		Map<String,Map<String,Double>> sqlDate02 = new HashMap<>();
+		Map<String,Double> linkData = null;
+		//遍历下月应收
+		for (Map map3:nextMap) {
+			linkData = new HashMap<>();
+			BigDecimal nextReceivable = new BigDecimal(map3.get("order_amount").toString());
+			Date date2 = (Date) map3.get("back_date");
+			String dateString = com.erui.comm.DateUtil.format("MM月dd日",date2);
+			linkData.put("nextReceivable",nextReceivable.doubleValue());
+			sqlDate.put(dateString,linkData);
+		}
+		for (int i = 0; i < 31; i++){
+			Date datetime = com.erui.comm.DateUtil.recedeTime(-i);
+			String date = com.erui.comm.DateUtil.format("MM月dd日",datetime);
+			if (sqlDate.containsKey(date)){
+				nextDate .add(date);
+				nextList.add(sqlDate.get(date).get("nextReceivable"));
+			}else {
+				nextDate.add(date);
+				nextList.add(0.0);
+			}
+		}
 		RequestCreditExample requestCreditExample = new RequestCreditExample();
-		requestCreditExample.createCriteria().andCreateAtBetween(startDate,endDate);
-		return this.readMapper.selectRequestTrend(requestCreditExample);
+		requestCreditExample.createCriteria().andCreateAtBetween(startDate,new Date());
+		List<Map> requestMap = readMapper.selectRequestTrend(requestCreditExample);
+		//应收，已收，未收
+		for (Map map2:requestMap) {
+			linkData = new HashMap<>();
+			BigDecimal receivable = new BigDecimal(map2.get("order_amount").toString());
+			BigDecimal notReceive = new BigDecimal(map2.get("receive_amount").toString());
+			BigDecimal received = new BigDecimal(map2.get("received").toString());
+			Date date2 = (Date) map2.get("create_at");
+			String dateString = com.erui.comm.DateUtil.format("MM月dd日",date2);
+			linkData.put("receivable",receivable.doubleValue());
+			linkData.put("notReceive",notReceive.doubleValue());
+			linkData.put("received",received.doubleValue());
+			sqlDate02.put(dateString,linkData);
+		}
+		for (int i = 0; i < days; i++) {
+			Date datetime = com.erui.comm.DateUtil.recedeTime(days - (i+1) );
+			String date = com.erui.comm.DateUtil.format("MM月dd日",datetime);
+			if (sqlDate02.containsKey(date)){
+				dateList.add(date);
+				receivableList.add(sqlDate02.get(date).get("receivable"));
+				notReceiveList.add(sqlDate02.get(date).get("notReceive"));
+				receivedList.add(sqlDate02.get(date).get("received"));
+			}else {
+				dateList.add(date);
+				receivableList.add(0.0);
+				notReceiveList.add(0.0);
+				receivedList.add(0.0);
+			}
+		}
+		String [] s = {"应收账款","应收未收","应收已收","下月应收"};
+		Map<String,Object> data = new HashMap();
+		if (receiveName.equals("receivable")){
+			data.put("legend",s[0]);
+			data.put("xAxis",dateList);
+			data.put("yAxis",receivableList);
+
+		}else if (receiveName.equals("notReceive")){
+			data.put("legend",s[1]);
+			data.put("xAxis",dateList);
+			data.put("yAxis",notReceiveList);
+		}else if(receiveName.equals("received")){
+			data.put("legend",s[2]);
+			data.put("xAxis",dateList);
+			data.put("yAxis",receivedList);
+		}else {
+			data.put("legend",s[3]);
+			data.put("xAxis",nextDate);
+			data.put("yAxis",nextList);
+		}
+		return data;
 	}
 	 /**
 	  * @Author:SHIGS

@@ -27,7 +27,7 @@ public interface RequestCreditService {
 	  * @Date:20:20 2017/10/23
 	  * @modified By
 	  */
-	List<Map> selectRequestTrend(Date startDate,Date endDate);
+	 Map selectRequestTrend(int days,String receiveName);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 下月应收
