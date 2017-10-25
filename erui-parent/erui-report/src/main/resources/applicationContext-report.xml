@@ -28,6 +28,8 @@
 		<property name="maxWait" value="${report.master.maxWait}"></property>
 	</bean>
 
+
+
 	<bean id="slaveDataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		  destroy-method="close">
 		<property name="driverClassName" value="${report.slave.driver}" />

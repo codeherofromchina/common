@@ -101,7 +101,6 @@ public class GeneralController {
 		if (chainOrderCount > 0) {
 			chainOrderRate = RateUtil.intChainRate(orderCount - chainOrderCount, chainOrderCount);
 		}
-
 		Map<String, Object> order = new HashMap<>();
 		order.put("count", orderCount);
 		order.put("amount", RateUtil.doubleChainRate(inquiryAmount, 10000) + "万$");
@@ -112,43 +111,6 @@ public class GeneralController {
 		data.put("member", member);
 		data.put("inquiry", inquiry);
 		data.put("order", order);
-		result.put("data", data);
-		result.put("code", 200);
-		return result;
-	}
-
-	/**
-	 * @Author:SHIGS
-	 * @Description 会员级别
-	 * @Date:20:21 2017/10/20
-	 * @modified By
-	 */
-	@ResponseBody
-	@RequestMapping(value = "member", method = RequestMethod.POST)
-	public Object singleMemberCount() {
-		Map member = memberService.selectMemberByTime();
-		// 黄金会员 高级会员 一般会员
-		BigDecimal goldMember = new BigDecimal(member.get("s5").toString());
-		BigDecimal seniorMember = new BigDecimal(member.get("s3").toString());
-		BigDecimal generalMember = new BigDecimal(member.get("s1").toString());
-		int totalMember = goldMember.intValue() + seniorMember.intValue() + generalMember.intValue();
-		double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(), totalMember);
-		double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(), totalMember);
-		double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(), totalMember);
-		Map<String, Object> result = new HashMap<>();
-		Map<String, Object> gold = new HashMap<>();
-		Map<String, Object> senior = new HashMap<>();
-		Map<String, Object> general = new HashMap<>();
-		Map<String, Object> data = new HashMap<>();
-		gold.put("count", goldMember);
-		gold.put("rebuyRate", goldMemberRate);
-		senior.put("count", seniorMember);
-		senior.put("rebuyRate", seniorMemberRate);
-		general.put("count", generalMember);
-		general.put("rebuyRate", generalMemberRate);
-		data.put("goldMember", gold);
-		data.put("seniorMember", senior);
-		data.put("generalMember", general);
 		result.put("data", data);
 		result.put("code", 200);
 		return result;
@@ -208,7 +170,42 @@ public class GeneralController {
 		result.put("data", data);
 		return result;
 	}
-
+     /**
+      * @Author:SHIGS
+      * @Description 会员级别
+      * @Date:20:21 2017/10/20
+      * @modified By
+      */
+    @ResponseBody
+    @RequestMapping(value = "member",method = RequestMethod.POST)
+    public Object singleMemberCount(){
+        Map member =  memberService.selectMemberByTime();
+        //黄金会员 高级会员 一般会员
+        BigDecimal goldMember  = new BigDecimal(member.get("s5").toString());
+        BigDecimal seniorMember  = new BigDecimal(member.get("s3").toString());
+        BigDecimal generalMember  = new BigDecimal(member.get("s1").toString());
+        int totalMember = goldMember.intValue() + seniorMember.intValue() + generalMember.intValue();
+        double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(),totalMember);
+        double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(),totalMember);
+        double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(),totalMember);
+        Map<String,Object> result = new HashMap<>();
+        Map<String,Object> gold = new HashMap<>();
+        Map<String,Object> senior = new HashMap<>();
+        Map<String,Object> general = new HashMap<>();
+        Map<String,Object> data = new HashMap<>();
+        gold.put("count",goldMember);
+        gold.put("rebuyRate",goldMemberRate);
+        senior.put("count",seniorMember);
+        senior.put("rebuyRate",seniorMemberRate);
+        general.put("count",generalMember);
+        general.put("rebuyRate",generalMemberRate);
+        data.put("goldMember",gold);
+        data.put("seniorMember",senior);
+        data.put("generalMember",general);
+        result.put("data",data);
+        result.put("code",200);
+        return result;
+    }
 	/**
 	 * @Author:SHIGS
 	 * @Description 询订单趋势图
@@ -250,7 +247,6 @@ public class GeneralController {
 					int orCount = orderService.orderCountByTime(dateList.get(i - 1), dateList.get(i), "", "", "");
 					orderCounts[i] = orCount;
 				}
-
 			}
 			data.put("xAxis", dates);
 			data.put("inquiry", inCounts);
@@ -329,22 +325,17 @@ public class GeneralController {
 		result.put("code", 200);
 		return result;
 	}
-
-	/**
-	 * 询订单分类 TOP N
-	 * 
-	 * @param category
-	 * @return
-	 */
-	@RequestMapping("/inquiryOrderCategoryTopNum")
-	@ResponseBody
+    /**
+     * 询订单分类 TOP N
+     * @param category
+     * @return
+     */
+    @RequestMapping("/inquiryOrderCategoryTopNum")
+    @ResponseBody
 	public Object inquiryOrderCategoryTopNum(@RequestParam(value = "topN", required = false) Integer topN,
 			@RequestParam(value = "category", required = false) String category) {
-
 		List<CustomerCategoryNumVO> list = inquiryService.inquiryOrderCategoryTopNum(topN);
-
 		Result<List<CustomerCategoryNumVO>> result = new Result<List<CustomerCategoryNumVO>>(list);
-
 		return result;
 	}
 }
