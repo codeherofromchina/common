@@ -91,6 +91,7 @@ public class ExcelController {
 	 * @throws IOException
 	 */
 	@RequestMapping(value = "/downtemp")
+	@ResponseBody
 	public Object downPhotoByStudentId(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name = "type", required = true) Integer type) throws IOException {
 		// 判断上传的业务文件类型

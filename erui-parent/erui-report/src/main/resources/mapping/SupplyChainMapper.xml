@@ -85,6 +85,7 @@
       order by ${orderByClause}
     </if>
   </select>
+
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.SupplyChainExample" >
     select
     <if test="distinct" >
@@ -98,6 +99,10 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+  </select>
+<!--品类部列表-->
+  <select id="selectCategoryList" resultType="java.lang.String" >
+SELECT DISTINCT(category) FROM supply_chain
   </select>
 
   <select id="selectCateSuppliyChain" resultType="com.erui.report.model.SuppliyChainCateVo"  >

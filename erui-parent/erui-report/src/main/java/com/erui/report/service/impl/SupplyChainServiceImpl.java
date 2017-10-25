@@ -212,4 +212,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
         return trend;
     }
+
+    @Override
+    public List<String> selectCategoryList() {
+        return readMapper.selectCategoryList();
+    }
 }

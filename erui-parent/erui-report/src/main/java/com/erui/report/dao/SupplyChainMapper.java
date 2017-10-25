@@ -35,4 +35,6 @@ public interface SupplyChainMapper {
     List<SuppliyChainItemClassVo> selectItemCalssSuppliyChainByExample(SupplyChainExample example);
     SuppliyChainItemClassVo  selectSuppliyChainByItemClassByExample(SupplyChainExample example);
     List<SuppliyChainCateVo> selectCateSuppliyChain();
+    //品类部列表
+    List<String> selectCategoryList();
 }
