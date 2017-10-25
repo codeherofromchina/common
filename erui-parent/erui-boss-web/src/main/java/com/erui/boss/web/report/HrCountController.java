@@ -34,7 +34,7 @@ public class HrCountController {
       */
     @RequestMapping(value = "hrGeneral",method = RequestMethod.POST)
     @ResponseBody
-    public Object hrGeneral(Map<String,Object> map){
+    public Object hrGeneral(@RequestBody Map<String,Object> map){
         Map<String,Object> data = hrCountService.selectHrCountByPart((int)map.get("days"));
         Result<Map<String,Object>> result = new Result<>(data);
         return result;
@@ -48,8 +48,8 @@ public class HrCountController {
     @ResponseBody
     @RequestMapping(value= "queryDepart",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object queryArea(){
-        List<String> list = hrCountService.selectBigDepart();
-        Result<List<String>> result = new Result<>(list);
+        Map mapBigDepart = hrCountService.selectBigDepart();
+        Result<Map> result = new Result<>(mapBigDepart);
         return result;
     }
      /**

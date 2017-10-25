@@ -83,7 +83,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
     /**
 	  * @Author:SHIGS
-	  * @Description
+	  * @Description 人力-总览
 	  * @Date:18:02 2017/10/24
 	  * @modified By
 	  */
@@ -173,14 +173,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	  * @modified By
 	  */
 	@Override
-	public List<String> selectBigDepart() {
+	public Map selectBigDepart() {
 	    List<Map> orgMap = readMapper.selectBigDepart();
         List<String> departList = new ArrayList<>();
         for (Map map:orgMap) {
             String area = map.get("big_depart").toString();
             departList.add(area);
         }
-		return departList;
+        Map<String,List<String>> mapData = new HashMap<>();
+        mapData.put("depart",departList);
+		return mapData;
 	}
 
 	@Override

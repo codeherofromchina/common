@@ -31,7 +31,7 @@ public interface HrCountService {
 	  * @Date:17:51 2017/10/24
 	  * @modified By
 	  */
-	 List<String> selectBigDepart();
+	 Map selectBigDepart();
 	 /**
 	  * @Author:SHIGS
 	  * @Description
