@@ -9,7 +9,7 @@ import com.erui.report.util.ImportDataResponse;
 public interface RequestCreditService {
 	 /**
 	  * @Author:SHIGS
-	  * @Description
+	  * @Description 应收账款累计
 	  * @Date:17:03 2017/10/23
 	  * @modified By
 	  */

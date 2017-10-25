@@ -36,7 +36,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		RequestCreditExample requestCreditExample = null;
 		if (startDate != null && endDate != null){
 			requestCreditExample = new RequestCreditExample();
-			requestCreditExample.createCriteria().andBackDateBetween(startDate,endDate);
+			requestCreditExample.createCriteria().andCreateAtBetween(startDate,endDate);
 			return this.readMapper.selectRequestTotal(requestCreditExample);
 		}
 		return this.readMapper.selectRequestTotal(null);

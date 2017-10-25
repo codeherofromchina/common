@@ -26,7 +26,7 @@ public class RequestCreditController {
 
      /**
       * @Author:SHIGS
-      * @Description 应收累计
+      * @Description 应收账款
       * @Date:17:26 2017/10/23
       * @modified By
       */
