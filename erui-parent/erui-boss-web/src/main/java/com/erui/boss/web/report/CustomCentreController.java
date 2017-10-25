@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.erui.boss.web.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -384,17 +385,45 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping("/catesDetail")
     public Object catesDetail(){
-        HashMap<String, Object> result = new HashMap<>();//结果集
-        HashMap<String, Object> data = new HashMap<>();//结果集
-        List<CateDetailVo> list=inquiryService.selectInqDetailByCategory();
         int inqTotalCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", "");
-        int ordTotalCount = orderService.orderCountByTime(null, null, "", "", "");
         Double inqTotalAmount = inquiryService.inquiryAmountByTime(null, null, "");
+        int ordTotalCount = orderService.orderCountByTime(null, null, "", "", "");
         Double ordTotalAmount = orderService.orderAmountByTime(null, null, "");
-
-
-        result.put("data",data);
-        return  result;
+        List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory();
+        List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory();
+        final  Map<String, CateDetailVo> ordMap;
+        if(inqList!=null&&ordList!=null){
+             ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
+        }else{
+            ordMap=new HashMap<String, CateDetailVo>();
+        }
+        if(inqList!=null){
+            for (CateDetailVo inqDetailVo:inqList) {
+                String category = inqDetailVo.getCategory();
+                CateDetailVo catevo = ordMap.get(category);
+                if(catevo!=null){
+                    if(catevo.getOrdCateCount()>0){
+                        inqDetailVo.setOrdCateCount(catevo.getOrdCateCount());
+                    }
+                    if(ordTotalCount>0){
+                        inqDetailVo.setOrdProportion(RateUtil.intChainRate(catevo.getOrdCateCount(),ordTotalCount));
+                    }
+                    if(catevo.getOrdCatePrice()>0){
+                        inqDetailVo.setOrdCatePrice(catevo.getOrdCatePrice());
+                    }
+                    if(ordTotalAmount>0){
+                        inqDetailVo.setOrdAmountProportion(RateUtil.doubleChainRate(catevo.getOrdCatePrice(),ordTotalAmount));
+                    }
+                }
+                if(inqTotalCount>0){
+                    inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(),inqTotalCount));
+                }
+                if(inqTotalAmount>0){
+                    inqDetailVo.setInqAmountProportion(RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(),inqTotalAmount));
+                }
+            }
+        }
+        return  new Result<Object>().setData(inqList);
     }
 
 
