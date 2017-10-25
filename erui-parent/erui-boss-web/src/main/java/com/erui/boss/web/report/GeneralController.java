@@ -125,49 +125,8 @@ public class GeneralController {
 	@RequestMapping(value = "capacity", method = RequestMethod.POST, produces = { "application/json;charset=utf-8" })
 	@ResponseBody
 	public Object capacity(@RequestBody Map<String, Object> days) {
-		// 当前时期
-		Date startTime = DateUtil.recedeTime((int) days.get("days"));
-		// 环比时段
-		Date chainDate = DateUtil.recedeTime((int) days.get("days") * 2);
-		// 当前时段
-		Map CurHrCountMap = hrCountService.selectHrCountByPart(startTime, new Date());
-		// 环比时段
-		Map chainHrCountMap = hrCountService.selectHrCountByPart(chainDate, startTime);
-		BigDecimal planCount = new BigDecimal(CurHrCountMap.get("s1").toString());
-		BigDecimal regularCount = new BigDecimal(CurHrCountMap.get("s2").toString());
-		BigDecimal tryCount = new BigDecimal(CurHrCountMap.get("s3").toString());
-		BigDecimal turnRightCount = new BigDecimal(CurHrCountMap.get("s4").toString());
-		BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
-		BigDecimal turnJobin = new BigDecimal(CurHrCountMap.get("s9").toString());
-		BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
-		// 环比人数
-		BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
-		BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
-		// 环比增加人数
-		int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
-		int chainTurnAdd = chainTurnRightCount.intValue() - turnRightCount.intValue();
-		// 环比
-		double staffFullChainRate = RateUtil.intChainRate(chainFullAdd, chainRegularCount.intValue());
-		double turnRightChainRate = RateUtil.intChainRate(chainTurnAdd, chainTurnRightCount.intValue());
-		// 满编率
-		double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
-		// 转正率
-		double turnRightRate = RateUtil.intChainRate(turnRightCount.intValue(), tryCount.intValue());
-		Map<String, Object> data = new HashMap<>();
-		data.put("staffFullRate", staffFullRate);
-		data.put("staffFullChainRate", staffFullChainRate);
-		data.put("turnRightRate", turnRightRate);
-		data.put("turnRightChainRate", turnRightChainRate);
-		data.put("onDuty", regularCount);
-		data.put("plan", planCount);
-		data.put("turnJobin", turnJobin.intValue());
-		data.put("turnJobout", turnJobout);
-		data.put("try", tryCount);
-		data.put("turnRight", turnRightCount);
-		data.put("leave", dimissionCount);
-		Map<String, Object> result = new HashMap<>();
-		result.put("code", 200);
-		result.put("data", data);
+		Map<String,Object> data = hrCountService.selectHrCount((int) days.get("days"));
+		Result<Map<String,Object>> result = new Result<>(data);
 		return result;
 	}
      /**
