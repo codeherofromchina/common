@@ -6,7 +6,7 @@ import java.util.Map;
 import com.mongodb.util.JSON;
 
 public enum ResultStatusEnum {
-	SUCCESS(0, "成功"), 
+	SUCCESS(200, "成功"),
 	FAIL(1, "失败"), 
 	SERVER_ERROR(2, "服务器端异常"), 
 	MISS_PARAM_ERROR(3, "缺少必要参数"), 

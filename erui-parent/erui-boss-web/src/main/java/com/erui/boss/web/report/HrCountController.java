@@ -1,5 +1,6 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.Result;
 import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.HrCount;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -54,11 +56,11 @@ public class HrCountController {
         //环比人数
         BigDecimal chainRegularCount  = new BigDecimal(chainHrCountMap.get("s2").toString());
         BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
-        BigDecimal chainTryCount = new BigDecimal(chainHrCountMap.get("s3").toString());
+        //BigDecimal chainTryCount = new BigDecimal(chainHrCountMap.get("s3").toString());
         BigDecimal chainNewCount = new BigDecimal(chainHrCountMap.get("s7").toString());
-        BigDecimal chainDimissionCount = new BigDecimal(chainHrCountMap.get("s8").toString());
+        //BigDecimal chainDimissionCount = new BigDecimal(chainHrCountMap.get("s8").toString());
         BigDecimal chainTurnJobin = new BigDecimal(chainHrCountMap.get("s9").toString());
-        BigDecimal chainTurnJobout = new BigDecimal(chainHrCountMap.get("s10").toString());
+        //BigDecimal chainTurnJobout = new BigDecimal(chainHrCountMap.get("s10").toString());
         BigDecimal chainForeignCount = new BigDecimal(chainHrCountMap.get("s6").toString());
         //满编率
         double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
@@ -185,76 +187,8 @@ public class HrCountController {
     @RequestMapping(value = "departmentDetail",method = RequestMethod.POST)
     @ResponseBody
     public Object departmentDetail(){
-        List<Map> bigList = hrCountService.selectBigDepartCount();
         List<Map> departList = hrCountService.selectDepartmentCount();
-        
-        Map<String,Map<String,Object>> departMap2 = new HashMap<>();
-        List<Map> result = new ArrayList<>();
-        
-        for (Map mapBig:bigList) {
-            BigDecimal planCount = new BigDecimal(mapBig.get("s1").toString());
-            BigDecimal regularCount  = new BigDecimal(mapBig.get("s2").toString());
-            BigDecimal tryCount = new BigDecimal(mapBig.get("s3").toString());
-            BigDecimal foreignCount  = new BigDecimal(mapBig.get("s6").toString());
-            BigDecimal newCount  = new BigDecimal(mapBig.get("s7").toString());
-            BigDecimal dimissionCount = new BigDecimal(mapBig.get("s8").toString());
-            BigDecimal turnJobin  = new BigDecimal(mapBig.get("s9").toString());
-            BigDecimal turnJobout = new BigDecimal(mapBig.get("s10").toString());
-            //满编率
-            double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
-            //试用占比
-            double tryRate = RateUtil.intChainRate(tryCount.intValue(),regularCount.intValue());
-            //增长率
-            double addRate = RateUtil.intChainRate(newCount.intValue(),regularCount.intValue()) - RateUtil.intChainRate(dimissionCount.intValue(),regularCount.intValue());
-            //转岗流失率
-            double leaveRate = RateUtil.intChainRate(turnJobout.intValue(),regularCount.intValue()) - RateUtil.intChainRate(turnJobin.intValue(),regularCount.intValue());
-            //外籍占比
-            double foreignRate = RateUtil.intChainRate(foreignCount.intValue(),regularCount.intValue());
-            Map<String,Object> departMap = new HashMap<>();
-            departMap.put("staffFullRate",staffFullRate);
-            departMap.put("tryRate",tryRate);
-            departMap.put("addRate",addRate);
-            departMap.put("leaveRate",leaveRate);
-            departMap.put("foreignRate",foreignRate);
-            departMap.put("departName",mapBig.get("big_depart"));
-            departMap2.put(mapBig.get("big_depart").toString(),departMap);
-            result.add(departMap);
-        }
-        
-        for (Map mapDepart:departList) {
-            BigDecimal planCount = new BigDecimal(mapDepart.get("s1").toString());
-            BigDecimal regularCount  = new BigDecimal(mapDepart.get("s2").toString());
-            BigDecimal tryCount = new BigDecimal(mapDepart.get("s3").toString());
-            BigDecimal foreignCount  = new BigDecimal(mapDepart.get("s6").toString());
-            BigDecimal newCount  = new BigDecimal(mapDepart.get("s7").toString());
-            BigDecimal dimissionCount = new BigDecimal(mapDepart.get("s8").toString());
-            BigDecimal turnJobin  = new BigDecimal(mapDepart.get("s9").toString());
-            BigDecimal turnJobout = new BigDecimal(mapDepart.get("s10").toString());
-            Map<String,Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
-            //满编率
-            double staffFullRate = RateUtil.intChainRate(regularCount.intValue(),planCount.intValue());
-            //试用占比
-            double tryRate = RateUtil.intChainRate(tryCount.intValue(),regularCount.intValue());
-            //增长率
-            double addRate = RateUtil.intChainRate(newCount.intValue(),regularCount.intValue()) - RateUtil.intChainRate(dimissionCount.intValue(),regularCount.intValue());
-            //转岗流失率
-            double leaveRate = RateUtil.intChainRate(turnJobout.intValue(),regularCount.intValue()) - RateUtil.intChainRate(turnJobin.intValue(),regularCount.intValue());
-            //外籍占比
-            double foreignRate = RateUtil.intChainRate(foreignCount.intValue(),regularCount.intValue());
-            Map<String,Object> departMap = new HashMap<>();
-            departMap.put("staffFullRate",staffFullRate);
-            departMap.put("tryRate",tryRate);
-            departMap.put("addRate",addRate);
-            departMap.put("leaveRate",leaveRate);
-            departMap.put("foreignRate",foreignRate);
-            departMap.put("departmentName", mapDepart.get("department").toString());
-            Object obj = bigDepartment.get("children");
-            if (obj == null) {
-                obj = new ArrayList<Map<String,Double>>();
-                bigDepartment.put("children", obj);
-            }
-            ((List)obj).add(departMap);
-        }
+        Result<List<Map>> result = new Result<List<Map>>(departList);
         return result;
     }
 }

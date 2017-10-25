@@ -43,13 +43,6 @@ public interface HrCountService {
 	  * @modified By
 	  */
 	List<Map> selectDepartmentCount();
-	 /**
-	  * @Author:SHIGS
-	  * @Description 查询组织机构（大部门）数量
-	  * @Date:21:25 2017/10/24
-	  * @modified By
-	  */
-	List<Map> selectBigDepartCount();
     /**
 	 * 导入人力资源数据
 	 * @param datas

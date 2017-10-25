@@ -1,9 +1,8 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormat;
+import java.util.*;
 
 import com.erui.report.model.HrCountExample;
 import org.slf4j.Logger;
@@ -24,6 +23,7 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class HrCountServiceImpl extends BaseService<HrCountMapper> implements HrCountService {
 	private final static Logger logger = LoggerFactory.getLogger(HrCountServiceImpl.class);
+	private static final DecimalFormat df=new DecimalFormat("0.00");
 
 	 /**
 	  * @Author:SHIGS
@@ -72,13 +72,66 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 			return this.readMapper.selectHrCountByPart(hrCountExample);
 		}
 	}
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:11:31 2017/10/25
+	  * @modified By
+	  */
 	@Override
 	public List<Map> selectDepartmentCount() {
-		return this.readMapper.selectDepartmentCount();
-	}
-	@Override
-	public List<Map> selectBigDepartCount() {
-		return this.readMapper.selectBigDepartCount();
+		List<Map> bigList = readMapper.selectBigDepartCount();
+		List<Map> departList = readMapper.selectDepartmentCount();
+		Map<String,Map<String,Object>> departMap2 = new HashMap<>();
+		List<Map> result = new ArrayList<>();
+		for (Map mapBig:bigList) {
+			//满编率
+			double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")));
+			//试用占比
+			double tryRate = Double.parseDouble(df.format(mapBig.get("tryRate"))) ;
+			//增长率
+			double addRate = Double.parseDouble(df.format(mapBig.get("addRate")));
+			//转岗流失率
+			double leaveRate = Double.parseDouble(df.format(mapBig.get("leaveRate")));
+			//外籍占比
+			double foreignRate = Double.parseDouble(df.format(mapBig.get("foreignRate")));
+			Map<String,Object> departMap = new HashMap<>();
+			departMap.put("staffFullRate",staffFullRate);
+			departMap.put("tryRate",tryRate);
+			departMap.put("addRate",addRate);
+			departMap.put("leaveRate",leaveRate);
+			departMap.put("foreignRate",foreignRate);
+			departMap.put("departName",mapBig.get("big_depart"));
+			departMap2.put(mapBig.get("big_depart").toString(),departMap);
+			result.add(departMap);
+		}
+		for (Map mapDepart:departList) {
+			Map<String,Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
+			//满编率
+			double staffFullRate = Double.parseDouble(df.format(mapDepart.get("staffFullRate")));
+			//试用占比
+			double tryRate = Double.parseDouble(df.format(mapDepart.get("tryRate"))) ;
+			//增长率
+			double addRate = Double.parseDouble(df.format(mapDepart.get("addRate")));
+			//转岗流失率
+			double leaveRate = Double.parseDouble(df.format(mapDepart.get("leaveRate")));
+			//外籍占比
+			double foreignRate = Double.parseDouble(df.format(mapDepart.get("foreignRate")));
+			Map<String,Object> departMap = new HashMap<>();
+			departMap.put("staffFullRate",staffFullRate);
+			departMap.put("tryRate",tryRate);
+			departMap.put("addRate",addRate);
+			departMap.put("leaveRate",leaveRate);
+			departMap.put("foreignRate",foreignRate);
+			departMap.put("departmentName", mapDepart.get("department").toString());
+			Object obj = bigDepartment.get("children");
+			if (obj == null) {
+				obj = new ArrayList<Map<String,Double>>();
+				bigDepartment.put("children", obj);
+			}
+			((List)obj).add(departMap);
+		}
+		return result;
 	}
 	@Override
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
