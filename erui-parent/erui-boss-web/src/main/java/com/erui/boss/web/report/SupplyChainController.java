@@ -1,25 +1,36 @@
 package com.erui.boss.web.report;
 
-import com.erui.comm.DateUtil;
-import com.erui.comm.RateUtil;
-import com.erui.report.model.*;
-import com.erui.report.service.SupplyChainService;
-import org.apache.commons.collections.map.HashedMap;
-import org.aspectj.apache.bcel.generic.NEW;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import com.erui.boss.web.util.Result;
+import com.erui.comm.DateUtil;
+import com.erui.comm.RateUtil;
+import com.erui.report.model.SuppliyChainCateVo;
+import com.erui.report.model.SuppliyChainItemClassVo;
+import com.erui.report.model.SuppliyChainOrgVo;
+import com.erui.report.model.SupplyChain;
+import com.erui.report.model.SupplyTrendVo;
+import com.erui.report.service.SupplyChainService;
+
 
 /**
- * Created by lirb on 2017/10/24.
- * 报表系统-供应链
+ * Created by lirb on 2017/10/24. 报表系统-供应链
  */
 @Controller
-@RequestMapping("/report-supplyChain")
+@RequestMapping("/report/supplyChain")
 public class SupplyChainController {
 
 
@@ -192,42 +203,52 @@ public class SupplyChainController {
         result.put("data",data);
         return  result;
     }
-    //品类明细
+
+
+    // 品类明细
     @ResponseBody
     @RequestMapping("/catesDetail")
-    public Object catesDetail(){
-
-        HashMap<String, Object> result = new HashMap<>();
-        HashMap<String, Object> data = new HashMap<>();
+    public Object catesDetail() {
         Date startTime = DateUtil.recedeTime(7);
         Date chainTime = DateUtil.recedeTime(14);
-        List<SuppliyChainItemClassVo> list=this.supplyChainService.selectItemCalssSuppliyChain(startTime,new Date());
-        if(list!=null&&list.size()>0) {
-            for (SuppliyChainItemClassVo itemClassVo : list) {
+        List<SuppliyChainItemClassVo> list = this.supplyChainService.selectItemCalssSuppliyChain(startTime, new Date());
+        List<SuppliyChainItemClassVo> weekAgolist = supplyChainService.selectItemCalssSuppliyChain(chainTime,
+                startTime);
+        final Map<String, SuppliyChainItemClassVo> helpMap;
+        if (weekAgolist != null && list != null) {
+            helpMap = weekAgolist.parallelStream()
+                    .collect(Collectors.toMap(SuppliyChainItemClassVo::getItemClass, vo -> vo));
+        } else {
+            helpMap = new HashMap<>();
+        }
 
-                Map<String, Object> category = new HashMap<>();
-                category.put("plainSPU",itemClassVo.getPlanSPU());
-                category.put("finishSPU",itemClassVo.getFinishSPU());
-                category.put("plainSKU",itemClassVo.getPlanSKU());
-                category.put("finishSKU",itemClassVo.getFinishSKU());
-                category.put("plainSupplier",itemClassVo.getPlanSuppliy());
-                category.put("finishSupplier",itemClassVo.getFinishSuppliy());
-                SuppliyChainItemClassVo itemClassSuppli=supplyChainService.selectSuppliyChainByItemClass(startTime,new Date(), itemClassVo.getItemClass());
-                if(itemClassSuppli!=null&&itemClassSuppli.getFinishSPU()>0){
-                    category.put("SPUChainRate",RateUtil.intChainRate(itemClassVo.getFinishSPU()-itemClassSuppli.getFinishSPU(),itemClassSuppli.getFinishSPU()));
+        if (list != null) {
+            // 生成环比百分数
+            for (SuppliyChainItemClassVo itemClassVo : list) {
+                String itemClass = itemClassVo.getItemClass();
+                SuppliyChainItemClassVo suppliyChainItemClassVo = helpMap.get(itemClass);
+                if (suppliyChainItemClassVo != null) {
+                    if (suppliyChainItemClassVo.getFinishSPU() > 0) {
+                        itemClassVo.setSpuChainRate(RateUtil.intChainRate(
+                                itemClassVo.getFinishSPU() - suppliyChainItemClassVo.getFinishSPU(),
+                                suppliyChainItemClassVo.getFinishSPU()));
+                    }
+                    if (suppliyChainItemClassVo != null && suppliyChainItemClassVo.getFinishSKU() > 0) {
+                        itemClassVo.setSkuChainRate(RateUtil.intChainRate(
+                                itemClassVo.getFinishSKU() - suppliyChainItemClassVo.getFinishSKU(),
+                                suppliyChainItemClassVo.getFinishSKU()));
+                    }
+                    if (suppliyChainItemClassVo != null && suppliyChainItemClassVo.getFinishSuppliy() > 0) {
+                        itemClassVo.setSupplierChainRate(RateUtil.intChainRate(
+                                itemClassVo.getFinishSuppliy() - suppliyChainItemClassVo.getFinishSuppliy(),
+                                suppliyChainItemClassVo.getFinishSuppliy()));
+                    }
                 }
-                if(itemClassSuppli!=null&&itemClassSuppli.getFinishSKU()>0){
-                    category.put("SKUChainRate",RateUtil.intChainRate(itemClassVo.getFinishSKU()-itemClassSuppli.getFinishSKU(),itemClassSuppli.getFinishSKU()));
-                }
-                if(itemClassSuppli!=null&&itemClassSuppli.getFinishSuppliy()>0){
-                    category.put("supplierChainRate",RateUtil.intChainRate(itemClassVo.getFinishSuppliy()-itemClassSuppli.getFinishSuppliy(),itemClassSuppli.getFinishSuppliy()));
-                }
-                data.put(itemClassVo.getItemClass(),category);
             }
         }
-        result.put("code",200);
-        result.put("data",data);
-        return  result;
+
+        return new Result<Object>().setData(list);
     }
+
 
 }
