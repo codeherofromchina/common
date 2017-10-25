@@ -12,6 +12,7 @@ public enum ResultStatusEnum {
 	MISS_PARAM_ERROR(3, "缺少必要参数"), 
 	PARAM_TYPE_ERROR(4,"参数类型错误"),
 	REQUEST_METHOD_NOT_SUPPORT(5,"不支持的请求方法"),
+	MEDIA_TYPE_NOT_SUPPORT(6,"不支持的MediaType"),
 //-----------excel----------
 	EXCEL_TYPE_NOT_SUPPORT(10,"不支持的Excel模板文件类型"),
 	EXCEL_CONTENTYPE_ERROR(11,"错误的Excel文件类型"),
