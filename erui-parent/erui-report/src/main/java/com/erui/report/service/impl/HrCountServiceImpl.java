@@ -24,7 +24,7 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class HrCountServiceImpl extends BaseService<HrCountMapper> implements HrCountService {
 	private final static Logger logger = LoggerFactory.getLogger(HrCountServiceImpl.class);
-	private static final DecimalFormat df=new DecimalFormat("0.00");
+	private static final DecimalFormat df = new DecimalFormat("0.00");
      /**
       * @Author:SHIGS
       * @Description

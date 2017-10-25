@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -23,6 +24,7 @@ import java.util.*;
 public class RequestCreditController {
     @Autowired
     private RequestCreditService requestCreditService;
+    private static final DecimalFormat df = new DecimalFormat("0.00");
 
      /**
       * @Author:SHIGS
@@ -69,23 +71,23 @@ public class RequestCreditController {
         BigDecimal chainReceiveAmount = new BigDecimal(mapChainMount.get("sded").toString());
         //环比应收未收
         BigDecimal chainNotreceiveAmount = new BigDecimal(mapChainMount.get("sd").toString());
-        Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue()  ;
+        Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue();
         //应收账款
         Map<String,Object> receivable = new HashMap<>();
-        receivable.put("receive",orderAmount);
-        receivable.put("chainAdd",orederAmountAdd+"万$");
+        receivable.put("receive",df.format(orderAmount));
+        receivable.put("chainAdd",df.format(orederAmountAdd)+"万$");
         receivable.put("chainRate",RateUtil.doubleChainRate(orederAmountAdd,chainOrderAmount.doubleValue()));
         Double NotReceiveAmountAdd =  notreceiveAmount.doubleValue() - chainNotreceiveAmount.doubleValue() ;
         //应收未收
         Map<String,Object> notReceive = new HashMap<>();
-        notReceive.put("receive",notreceiveAmount);
-        notReceive.put("chainAdd",NotReceiveAmountAdd);
+        notReceive.put("receive",df.format(notreceiveAmount));
+        notReceive.put("chainAdd",df.format(NotReceiveAmountAdd)+"万$");
         notReceive.put("chainRate",RateUtil.doubleChainRate(NotReceiveAmountAdd,chainNotreceiveAmount.doubleValue()));
         Double ReceiveAmountAdd = receiveAmount.doubleValue() - chainReceiveAmount.doubleValue();
         //应收已收
         Map<String,Object> received = new HashMap<>();
-        received.put("receive",receiveAmount);
-        received.put("chainAdd",ReceiveAmountAdd+"万$");
+        received.put("receive",df.format(receiveAmount));
+        received.put("chainAdd",df.format(ReceiveAmountAdd)+"万$");
         received.put("chainRate",RateUtil.doubleChainRate(ReceiveAmountAdd,chainReceiveAmount.doubleValue()));
 
         Map<String,Object> result = new HashMap<>();
