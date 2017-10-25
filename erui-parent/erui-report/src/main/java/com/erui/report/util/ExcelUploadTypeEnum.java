@@ -72,6 +72,14 @@ public enum ExcelUploadTypeEnum {
 		return null;
 	}
 	
+	public static void main(String[] args) {
+		ExcelUploadTypeEnum[] values = ExcelUploadTypeEnum.values();
+		for (ExcelUploadTypeEnum v:values) {
+			System.out.print(v.getType() + ":" + v.getTable() +",");
+		}
+		
+	}
+	
 	/**
 	 * 简单验证单行数据
 	 * @param data
