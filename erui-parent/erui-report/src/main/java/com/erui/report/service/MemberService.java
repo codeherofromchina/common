@@ -12,7 +12,7 @@ public interface MemberService {
 	/**
 	 * 导入运营数据
 	 * @param datas
-	 * @param flag	true:只检测数据  false:插入正式库
+	 * @param testOnly	true:只检测数据  false:插入正式库
 	 * @return
 	 */
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;

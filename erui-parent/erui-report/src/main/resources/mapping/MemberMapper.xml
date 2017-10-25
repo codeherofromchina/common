@@ -74,8 +74,8 @@
     senior_member_rebuy, gold_member_count, gold_member_rebuy
   </sql>
  <select id="selectByTime" resultType="int" parameterType="com.erui.report.model.MemberExample">
-    SELECT SUM(general_member_count+senior_member_count+gold_member_count) FROM `member`
-   <if test="_parameter != null" >
+   SELECT IFNULL( SUM( IFNULL(general_member_count,0) + IFNULL(senior_member_count,0)+IFNULL(gold_member_count,0)),0) FROM `member`
+     <if test="_parameter != null" >
      <include refid="Example_Where_Clause" />
    </if>
    <if test="orderByClause != null" >
