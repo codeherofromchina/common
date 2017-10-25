@@ -1,9 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
@@ -171,30 +169,46 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             criteria.andCreateAtBetween(DateUtil.recedeTime(days),new Date());
         }
         List<SupplyChain>  list=readMapper.selectByExample(example);
+
         String[] datetime = new String[list.size()];
-        Integer[] suppliyFinishCount = null;
-        Integer[] SPUFinishCount =null;
-        Integer[] SKUFinishCount = null;
-        if(type==0){
-            suppliyFinishCount = new Integer[list.size()];
-        }else if(type==1){
-            SPUFinishCount = new Integer[list.size()];
-        }else if(type==2){
-            SKUFinishCount= new Integer[list.size()];
-        }
+        String[] DateTime =new String[days];
+        Integer[] suppliyFinishCount=new Integer[days];
+        Integer[] SPUFinishCount=new Integer[days];
+        Integer[] SKUFinishCount=new Integer[days];
+
         if(list!=null&&list.size()>0){
+
+
+            Map<String, Map<String,Integer>> dateMap = new HashMap<>();
+            Map<String, Integer> datamap=null;
             for (int i = 0; i < list.size(); i++) {
-                datetime[i]=DateUtil.formatDate2String(list.get(i).getCreateAt(),"M月d日");
-                if(type==0){
-                    suppliyFinishCount[i]=list.get(i).getFinishSuppliNum();
-                }else if(type==1){
-                    SPUFinishCount[i]=list.get(i).getFinishSpuNum();
-                }else if(type==2){
-                    SKUFinishCount[i]=list.get(i).getFinishSkuNum();
+                String date2=DateUtil.formatDate2String(list.get(i).getCreateAt(),"M月d日");
+                datamap = new HashMap<>();
+                datamap.put("sku",list.get(i).getFinishSkuNum());
+                datamap.put("spu",list.get(i).getFinishSpuNum());
+                datamap.put("suppliy",list.get(i).getFinishSuppliNum());
+                dateMap.put(date2,datamap);
+
+        }
+            for (int i = 0; i <days ; i++) {
+                Date date = com.erui.comm.DateUtil.recedeTime(days - (i+1) );
+                String datet2 = com.erui.comm.DateUtil.format("MM月dd日",date);
+                if (dateMap.containsKey(datet2)){
+                    DateTime[i]=(datet2);
+                    SPUFinishCount[i]=(dateMap.get(datet2).get("spu"));
+                    SKUFinishCount[i]=(dateMap.get(datet2).get("sku"));
+                    suppliyFinishCount[i]=(dateMap.get(datet2).get("suppliy"));
+                }else{
+                    DateTime[i]=(datet2);
+                    SPUFinishCount[i]=(0);
+                    SKUFinishCount[i]=(0);
+                    suppliyFinishCount[i]=(0);
                 }
+            }
+
+
         }
-        }
-        SupplyTrendVo trend = new SupplyTrendVo(datetime,suppliyFinishCount,SPUFinishCount,SKUFinishCount);
+        SupplyTrendVo trend = new SupplyTrendVo(DateTime,suppliyFinishCount,SPUFinishCount,SKUFinishCount);
 
         return trend;
     }

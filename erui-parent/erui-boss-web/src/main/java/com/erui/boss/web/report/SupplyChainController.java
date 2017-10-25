@@ -4,11 +4,13 @@ import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.*;
 import com.erui.report.service.SupplyChainService;
+import org.apache.commons.collections.map.HashedMap;
 import org.aspectj.apache.bcel.generic.NEW;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -25,8 +27,8 @@ public class SupplyChainController {
     private SupplyChainService supplyChainService;
 
     @ResponseBody
-    @RequestMapping(value = "/supplyGeneral",method = RequestMethod.POST,produces = "application/json;charset=utf8")
-    public Object supplyGeneral(@RequestBody(required = true) Map<String, Object> reqMap){
+    @RequestMapping(value = "/supplyGeneral",method = RequestMethod.POST)
+    public Object supplyGeneral(@RequestParam(name = "days",required = true) int days){
 
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = new HashMap<>();
@@ -37,7 +39,6 @@ public class SupplyChainController {
         int finishSKU=0;
         int planSPU=0;
         int planSKU=0;
-        int days = (int) reqMap.get("days");
         Date startTime = DateUtil.recedeTime(days);
           List<SupplyChain> list = supplyChainService.queryListByDate(startTime, new Date());
         if(list!=null&&list.size()>0){
@@ -91,10 +92,30 @@ public class SupplyChainController {
     public Object supplyTrend(@RequestParam(name="days",required = true)int days,@RequestParam(name="type",required = true)Integer type){
 
         Map<String, Object> result = new HashMap<>();
+        Map<String, Object> dataMap = new HashMap<>();
+        String[] legend=new String[1];
        SupplyTrendVo data=  this.supplyChainService.supplyTrend(days,type);
         if(data!=null){
+
+            if(type==0){
+                legend[0]="供应商完成量";
+                dataMap.put("legend",legend);
+                dataMap.put("xAxis",data.getDatetime());
+                dataMap.put("yAxis",data.getSuppliyFinishCount());
+            }else  if(type==1){
+                legend[0]="SPU完成量";
+                dataMap.put("legend",legend);
+                dataMap.put("xAxis",data.getDatetime());
+                dataMap.put("yAxis",data.getSPUFinishCount());
+            }else  if(type==2){
+                legend[0]="SKU完成量";
+                dataMap.put("legend",legend);
+                dataMap.put("xAxis",data.getDatetime());
+                dataMap.put("yAxis",data.getSKUFinishCount());
+            }
+
             result.put("code",200);
-            result.put("data",data);
+            result.put("data",dataMap);
         }
         return result;
     }
@@ -204,9 +225,6 @@ public class SupplyChainController {
                 data.put(itemClassVo.getItemClass(),category);
             }
         }
-
-
-
         result.put("code",200);
         result.put("data",data);
         return  result;

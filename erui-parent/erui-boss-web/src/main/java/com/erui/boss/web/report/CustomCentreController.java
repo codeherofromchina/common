@@ -418,9 +418,6 @@ public class CustomCentreController {
 
 	/**
 	 * 客户中心的订单和询单数据明细
-	 * @param area		大区
-	 * @param country	城市
-	 * @return
 	 */
 	@RequestMapping("/areaDetail")
 	@ResponseBody
