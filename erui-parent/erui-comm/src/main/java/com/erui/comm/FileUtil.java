@@ -89,8 +89,8 @@ public class FileUtil {
 		if (file.exists() && file.isDirectory()) {
 			File[] files = file.listFiles();
 			for (File f : files) {
-				long lastModified = f.lastModified();
-				if (lastModified + _2HOUR < System.currentTimeMillis()) {
+				long currentTimeMillis = System.currentTimeMillis();
+				if (FileUtils.isFileOlder(f, currentTimeMillis - _2HOUR)) {
 					try {
 						FileUtils.forceDelete(f);
 					} catch (IOException e) {

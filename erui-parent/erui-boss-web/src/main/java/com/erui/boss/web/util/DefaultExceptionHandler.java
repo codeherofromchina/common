@@ -11,7 +11,9 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -31,7 +33,11 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver,Ordered
 			if (ex instanceof MissingServletRequestParameterException) {
 				// 缺少参数
 				response.getWriter().write(ResultStatusEnum.MISS_PARAM_ERROR.toString());
-			} else {
+			} else if (ex instanceof MethodArgumentTypeMismatchException) {
+				response.getWriter().write(ResultStatusEnum.PARAM_TYPE_ERROR.toString());
+			} else if (ex instanceof HttpRequestMethodNotSupportedException) {
+				response.getWriter().write(ResultStatusEnum.REQUEST_METHOD_NOT_SUPPORT.toString());
+			}else {
 				// 其他错误
 				response.getWriter().write(ResultStatusEnum.SERVER_ERROR.toString());
 			}
