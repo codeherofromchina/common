@@ -63,16 +63,16 @@ public class CustomCentreController {
         inquiryMap.put("count",count);
         inquiryMap.put("amount",amount);
         inquiryMap.put("chainAdd",chain);
-        inquiryMap.put("chainRate",count);
+        inquiryMap.put("chainRate",chainRate);
 
 
         //当前产品总数量
         int proCount = inquiryService.selectProCountByIsOil(startTime, new Date(),"");
         int oilCount = inquiryService.selectProCountByIsOil(startTime, new Date(),"油气");
         int notOilCount = inquiryService.selectProCountByIsOil(startTime, new Date(),"非油气");
-        //同期产品总数量
+        //环比时段产品总数量
         int chainOilCount = inquiryService.selectProCountByIsOil(chainDate, startTime,"油气");
-        int chainNotOilCount = inquiryService.selectProCountByIsOil(chainDate, startTime,"非油气");
+        // int chainNotOilCount = inquiryService.selectProCountByIsOil(chainDate, startTime,"非油气");
         proIsOilMap.put("oil",oilCount);
         proIsOilMap.put("notOil",notOilCount);
         proIsOilMap.put("oiProportionl",RateUtil.intChainRate(oilCount,oilCount+notOilCount));
@@ -442,7 +442,6 @@ public class CustomCentreController {
 		data.put("x", xTitleArr);
 		data.put("y", yValueArr);
 		result.put("data", data);
-
 		return result;
 	}
 }
