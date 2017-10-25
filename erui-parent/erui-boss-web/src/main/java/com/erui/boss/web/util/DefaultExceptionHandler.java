@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -30,14 +32,16 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver,Ordered
 		response.setCharacterEncoding("UTF-8"); // 避免乱码
 		response.setHeader("Cache-Control", "no-cache, must-revalidate");
 		try {
-			if (ex instanceof MissingServletRequestParameterException) {
+			if (ex instanceof MissingServletRequestParameterException || ex instanceof HttpMessageNotReadableException) {
 				// 缺少参数
 				response.getWriter().write(ResultStatusEnum.MISS_PARAM_ERROR.toString());
 			} else if (ex instanceof MethodArgumentTypeMismatchException) {
 				response.getWriter().write(ResultStatusEnum.PARAM_TYPE_ERROR.toString());
-			} else if (ex instanceof HttpRequestMethodNotSupportedException) {
+			} else if (ex instanceof HttpMediaTypeNotSupportedException) {
+				response.getWriter().write(ResultStatusEnum.MEDIA_TYPE_NOT_SUPPORT.toString());
+			}else if (ex instanceof HttpRequestMethodNotSupportedException) {
 				response.getWriter().write(ResultStatusEnum.REQUEST_METHOD_NOT_SUPPORT.toString());
-			}else {
+			} else {
 				// 其他错误
 				response.getWriter().write(ResultStatusEnum.SERVER_ERROR.toString());
 			}
