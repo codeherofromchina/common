@@ -37,7 +37,7 @@ public interface InquiryCountMapper {
     //查询总金额
     Double selectTotalAmountByExample(InquiryCountExample example);
     //查询油气类产品数量
-    int     selectProCountByIsOil(InquiryCountExample example);
+    int     selectProCountByIsOilByExample(InquiryCountExample example);
     //查询产品Top3
     List<Map<String,Object>> selectProTop3(Map<String,Object>params);
     //品类明细

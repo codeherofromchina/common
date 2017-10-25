@@ -79,4 +79,6 @@ public interface InquiryCountService {
 	 */
 	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN,String ...platCategory);
 
+	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
+
 }
