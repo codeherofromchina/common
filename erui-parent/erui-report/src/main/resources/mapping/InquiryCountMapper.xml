@@ -237,7 +237,7 @@
   </select>
 
   <select id="selectProTop3" resultType="map" parameterType="Object" >
-  SELECT  SUM(pro_count) as proCount ,pro_category as proCategory FROM inquiry_count
+  SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCount ,pro_category as proCategory FROM inquiry_count
   WHERE
     <if test="startTime != null" >
       1=1 and rollin_time >= #{startTime}
@@ -245,13 +245,13 @@
     <if test="endTime != null " >
        and rollin_time &lt;= #{endTime}
     </if>
-    group by pro_category ORDER BY proCount LIMIT 0,3;
+    group by pro_category ORDER BY proCount DESC LIMIT 0,3;
 
 
   </select>
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
     select
-    	sum(quote_Total_Price) as totalPrice
+    IFNULL(sum(IFNULL(quote_Total_Price,0.00)),0.00) as totalPrice
     from inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -261,9 +261,9 @@
     </if>
   </select>
 
-  <select id="selectProCountByIsOil" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+  <select id="selectProCountByIsOilByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
     select
-    SUM(pro_count)
+    IFNULL(SUM(IFNULL(pro_count,0)),0) AS count
     from inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />

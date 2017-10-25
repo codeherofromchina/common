@@ -290,11 +290,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	public int selectProCountByIsOil(Date startTime, Date endTime, String isOil) {
 		InquiryCountExample example = new InquiryCountExample();
 		InquiryCountExample.Criteria criteria = example.createCriteria();
-		criteria.andRollinTimeBetween(startTime, endTime);
+		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+			criteria.andRollinTimeBetween(startTime, endTime);
+		}
 		if (isOil != null && !isOil.equals("")) {
 			criteria.andIsOilGasEqualTo(isOil);
 		}
-		int proCount = readMapper.selectProCountByIsOil(example);
+		int proCount = readMapper.selectProCountByIsOilByExample(example);
 		return proCount;
 	}
 
@@ -460,4 +462,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		
 		return result;
 	}
+
+	@Override
+	public CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime) {
+		InquiryCountExample example = new InquiryCountExample();
+		Criteria criteria = example.createCriteria();
+        criteria.andRollinTimeBetween(startTime,new Date());
+        return  readMapper.selectNumSummaryByExample(example);
+    }
 }
