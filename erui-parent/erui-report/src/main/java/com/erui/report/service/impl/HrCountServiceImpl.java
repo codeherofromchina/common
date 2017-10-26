@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.erui.comm.RateUtil;
 import com.erui.report.model.HrCountExample;
+import org.aspectj.apache.bcel.generic.IF_ACMPEQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class HrCountServiceImpl extends BaseService<HrCountMapper> implements HrCountService {
 	private final static Logger logger = LoggerFactory.getLogger(HrCountServiceImpl.class);
-	private static final DecimalFormat df = new DecimalFormat("0.00");
+	private DecimalFormat df = new DecimalFormat("0.00");
 
 	/**
 	 * @Author:SHIGS
@@ -195,17 +196,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	@Override
 	public Map<String,Object> selectHrCountByDepart(String depart,int days) {
         //当前时期
-        Date startTime = com.erui.comm.DateUtil.recedeTime(days);
-		HrCountExample hrCountExample = null;
+        Date startTime = DateUtil.recedeTime(days);
 		Map curHrCountMap = null;
 		if (!depart.equals("") || depart != null) {
-			hrCountExample = new HrCountExample();
+			HrCountExample hrCountExample  = new HrCountExample();
 			hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
 			curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
 		} else {
-			hrCountExample = new HrCountExample();
-			hrCountExample.createCriteria().andBigDepartEqualTo(depart).andCreateAtBetween(startTime, new Date());
-			curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+			HrCountExample hrCountExample02 = new HrCountExample();
+			hrCountExample02.createCriteria().andBigDepartEqualTo(depart).andCreateAtBetween(startTime, new Date());
+			curHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
 		}
 		// 当前时段
 		BigDecimal planCount = new BigDecimal(curHrCountMap.get("s1").toString());
@@ -269,15 +269,15 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		List<Map> result = new ArrayList<>();
 		for (Map mapBig : bigList) {
 			// 满编率
-			double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")));
+			double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")).toString());
 			// 试用占比
-			double tryRate = Double.parseDouble(df.format(mapBig.get("tryRate")));
+			double tryRate = Double.parseDouble(df.format(mapBig.get("tryRate")).toString());
 			// 增长率
-			double addRate = Double.parseDouble(df.format(mapBig.get("addRate")));
+			double addRate = Double.parseDouble(df.format(mapBig.get("addRate")).toString());
 			// 转岗流失率
-			double leaveRate = Double.parseDouble(df.format(mapBig.get("leaveRate")));
+			double leaveRate = Double.parseDouble(df.format(mapBig.get("leaveRate")).toString());
 			// 外籍占比
-			double foreignRate = Double.parseDouble(df.format(mapBig.get("foreignRate")));
+			double foreignRate = Double.parseDouble(df.format(mapBig.get("foreignRate")).toString());
 			Map<String, Object> departMap = new HashMap<>();
 			departMap.put("staffFullRate", staffFullRate);
 			departMap.put("tryRate", tryRate);
@@ -291,15 +291,15 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		for (Map mapDepart : departList) {
 			Map<String, Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
 			// 满编率
-			double staffFullRate = Double.parseDouble(df.format(mapDepart.get("staffFullRate")));
+			double staffFullRate = Double.parseDouble(df.format(mapDepart.get("staffFullRate")).toString());
 			// 试用占比
-			double tryRate = Double.parseDouble(df.format(mapDepart.get("tryRate")));
+			double tryRate = Double.parseDouble(df.format(mapDepart.get("tryRate")).toString());
 			// 增长率
-			double addRate = Double.parseDouble(df.format(mapDepart.get("addRate")));
+			double addRate = Double.parseDouble(df.format(mapDepart.get("addRate")).toString());
 			// 转岗流失率
-			double leaveRate = Double.parseDouble(df.format(mapDepart.get("leaveRate")));
+			double leaveRate = Double.parseDouble(df.format(mapDepart.get("leaveRate")).toString());
 			// 外籍占比
-			double foreignRate = Double.parseDouble(df.format(mapDepart.get("foreignRate")));
+			double foreignRate = Double.parseDouble(df.format(mapDepart.get("foreignRate")).toString());
 			Map<String, Object> departMap = new HashMap<>();
 			departMap.put("staffFullRate", staffFullRate);
 			departMap.put("tryRate", tryRate);
