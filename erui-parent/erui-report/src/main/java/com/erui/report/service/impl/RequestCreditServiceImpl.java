@@ -21,7 +21,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
 
 	@Override
-	public Map selectTotal() {
+	public Map<String,Object> selectTotal() {
 		Map<String,Object> mapMount=readMapper.selectTotal();
 		BigDecimal receiveAmount = new  BigDecimal(mapMount.get("sd").toString());
 		BigDecimal orderAmount = new BigDecimal(mapMount.get("ed").toString());
@@ -39,7 +39,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public Map selectRequestTotal(Date startDate, Date endDate) {
+	public Map<String,Object> selectRequestTotal(Date startDate, Date endDate) {
 		RequestCreditExample requestCreditExample = null;
 		if (startDate != null && endDate != null){
 			requestCreditExample = new RequestCreditExample();
@@ -55,7 +55,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public Map selectRequestTrend(int days,String receiveName) {
+	public Map<String,Object> selectRequestTrend(int days,String receiveName) {
 		Date startDate = DateUtil.recedeTime(days);
 		Date nextTime =  DateUtil.recedeTime(-30);
 		List<Map> nextMap = null;
@@ -169,7 +169,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public Map selectArea() {
+	public Map<String,Object> selectArea() {
 		List<Map> areaMap = readMapper.selectArea();
 		List<String> areaList = new ArrayList<>();
 		for (Map map:areaMap) {
@@ -181,7 +181,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		return result;
 	}
 	@Override
-	public Map selectCountry(String area) {
+	public Map<String,Object> selectCountry(String area) {
 		RequestCreditExample requestCreditExample = new RequestCreditExample();
 		requestCreditExample.createCriteria().andSalesAreaEqualTo(area);
 		List<Map> areaCountry = readMapper.selectCountry(requestCreditExample);
@@ -195,7 +195,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		return result;
 	}
 	@Override
-	public Map selectByAreaOrCountry(String area,String country) {
+	public Map<String,Object> selectByAreaOrCountry(String area,String country) {
 		RequestCreditExample requestCreditExample = null;
 		if (country.equals("") || country == null){
 			requestCreditExample  = new RequestCreditExample();

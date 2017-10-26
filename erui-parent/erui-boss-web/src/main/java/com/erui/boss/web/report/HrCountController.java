@@ -7,6 +7,7 @@ import com.erui.report.model.HrCount;
 import com.erui.report.service.HrCountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,8 +35,13 @@ public class HrCountController {
       */
     @RequestMapping(value = "hrGeneral",method = RequestMethod.POST)
     @ResponseBody
-    public Object hrGeneral(@RequestBody Map<String,Object> map){
-        Map<String,Object> data = hrCountService.selectHrCountByPart((int)map.get("days"));
+    public Object hrGeneral(@RequestBody Map<String,Object> map) throws Exception {
+        if (!map.containsKey("days")) {
+            throw new MissingServletRequestParameterException("days","String");
+        }
+        //当前时期
+        int days = Integer.parseInt(map.get("days").toString());
+        Map<String,Object> data = hrCountService.selectHrCountByPart(days);
         Result<Map<String,Object>> result = new Result<>(data);
         return result;
     }
@@ -48,7 +54,7 @@ public class HrCountController {
     @ResponseBody
     @RequestMapping(value= "queryDepart",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object queryArea(){
-        Map mapBigDepart = hrCountService.selectBigDepart();
+        Map<String, List<String>> mapBigDepart = hrCountService.selectBigDepart();
         Result<Map> result = new Result<>(mapBigDepart);
         return result;
     }
@@ -60,8 +66,13 @@ public class HrCountController {
       */
     @RequestMapping(value = "dataCompare",method = RequestMethod.POST)
     @ResponseBody
-    public Object dataCompare(@RequestBody Map<String,Object> map){
-        Map<String,Object> mapData = hrCountService.selectHrCountByDepart(map.get("depart").toString(),(int)map.get("days"));
+    public Object dataCompare(@RequestBody Map<String,Object> map) throws Exception {
+        if (!map.containsKey("days") || !map.containsKey("depart")) {
+            throw new MissingServletRequestParameterException("days","String");
+        }
+        //当前时期
+        int days = Integer.parseInt(map.get("days").toString());
+        Map<String,Object> mapData = hrCountService.selectHrCountByDepart(map.get("depart").toString(),days);
         Result<Map<String,Object>> result = new Result<>(mapData);
         return result;
     }

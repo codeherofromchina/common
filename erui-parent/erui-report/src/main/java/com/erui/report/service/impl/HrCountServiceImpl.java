@@ -173,7 +173,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	  * @modified By
 	  */
 	@Override
-	public Map selectBigDepart() {
+	public Map<String,List<String>> selectBigDepart() {
 	    List<Map> orgMap = readMapper.selectBigDepart();
         List<String> departList = new ArrayList<>();
         for (Map map:orgMap) {
@@ -186,7 +186,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	}
 
 	@Override
-	public Map selectHrCountByDepart(String depart,int days) {
+	public Map<String,Object> selectHrCountByDepart(String depart,int days) {
         //当前时期
         Date startTime = com.erui.comm.DateUtil.recedeTime(days);
 		HrCountExample hrCountExample = null;
