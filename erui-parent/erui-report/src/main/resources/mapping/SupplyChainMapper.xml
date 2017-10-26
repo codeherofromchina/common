@@ -106,7 +106,7 @@
     SELECT DISTINCT(category) FROM supply_chain
   </select>
   <!--事业部列表-->
-  <select id="selectCategoryList" resultType="java.lang.String" >
+  <select id="selectOrgList" resultType="java.lang.String" >
     SELECT DISTINCT(organization) FROM supply_chain
   </select>
 
