@@ -796,6 +796,76 @@ public class OrderCountExample {
             return (Criteria) this;
         }
 
+        public Criteria andEnglishNameIsNull() {
+            addCriterion("english_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameIsNotNull() {
+            addCriterion("english_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameEqualTo(String value) {
+            addCriterion("english_name =", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameNotEqualTo(String value) {
+            addCriterion("english_name <>", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameGreaterThan(String value) {
+            addCriterion("english_name >", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameGreaterThanOrEqualTo(String value) {
+            addCriterion("english_name >=", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameLessThan(String value) {
+            addCriterion("english_name <", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameLessThanOrEqualTo(String value) {
+            addCriterion("english_name <=", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameLike(String value) {
+            addCriterion("english_name like", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameNotLike(String value) {
+            addCriterion("english_name not like", value, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameIn(List<String> values) {
+            addCriterion("english_name in", values, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameNotIn(List<String> values) {
+            addCriterion("english_name not in", values, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameBetween(String value1, String value2) {
+            addCriterion("english_name between", value1, value2, "englishName");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnglishNameNotBetween(String value1, String value2) {
+            addCriterion("english_name not between", value1, value2, "englishName");
+            return (Criteria) this;
+        }
+
         public Criteria andSpecificationIsNull() {
             addCriterion("specification is null");
             return (Criteria) this;
@@ -1216,52 +1286,62 @@ public class OrderCountExample {
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumEqualTo(Integer value) {
+        public Criteria andSaleNumEqualTo(String value) {
             addCriterion("sale_num =", value, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumNotEqualTo(Integer value) {
+        public Criteria andSaleNumNotEqualTo(String value) {
             addCriterion("sale_num <>", value, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumGreaterThan(Integer value) {
+        public Criteria andSaleNumGreaterThan(String value) {
             addCriterion("sale_num >", value, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumGreaterThanOrEqualTo(Integer value) {
+        public Criteria andSaleNumGreaterThanOrEqualTo(String value) {
             addCriterion("sale_num >=", value, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumLessThan(Integer value) {
+        public Criteria andSaleNumLessThan(String value) {
             addCriterion("sale_num <", value, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumLessThanOrEqualTo(Integer value) {
+        public Criteria andSaleNumLessThanOrEqualTo(String value) {
             addCriterion("sale_num <=", value, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumIn(List<Integer> values) {
+        public Criteria andSaleNumLike(String value) {
+            addCriterion("sale_num like", value, "saleNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andSaleNumNotLike(String value) {
+            addCriterion("sale_num not like", value, "saleNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andSaleNumIn(List<String> values) {
             addCriterion("sale_num in", values, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumNotIn(List<Integer> values) {
+        public Criteria andSaleNumNotIn(List<String> values) {
             addCriterion("sale_num not in", values, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumBetween(Integer value1, Integer value2) {
+        public Criteria andSaleNumBetween(String value1, String value2) {
             addCriterion("sale_num between", value1, value2, "saleNum");
             return (Criteria) this;
         }
 
-        public Criteria andSaleNumNotBetween(Integer value1, Integer value2) {
+        public Criteria andSaleNumNotBetween(String value1, String value2) {
             addCriterion("sale_num not between", value1, value2, "saleNum");
             return (Criteria) this;
         }
@@ -1276,52 +1356,62 @@ public class OrderCountExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumEqualTo(Integer value) {
+        public Criteria andOrderNumEqualTo(String value) {
             addCriterion("order_num =", value, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumNotEqualTo(Integer value) {
+        public Criteria andOrderNumNotEqualTo(String value) {
             addCriterion("order_num <>", value, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumGreaterThan(Integer value) {
+        public Criteria andOrderNumGreaterThan(String value) {
             addCriterion("order_num >", value, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumGreaterThanOrEqualTo(Integer value) {
+        public Criteria andOrderNumGreaterThanOrEqualTo(String value) {
             addCriterion("order_num >=", value, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumLessThan(Integer value) {
+        public Criteria andOrderNumLessThan(String value) {
             addCriterion("order_num <", value, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumLessThanOrEqualTo(Integer value) {
+        public Criteria andOrderNumLessThanOrEqualTo(String value) {
             addCriterion("order_num <=", value, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumIn(List<Integer> values) {
+        public Criteria andOrderNumLike(String value) {
+            addCriterion("order_num like", value, "orderNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderNumNotLike(String value) {
+            addCriterion("order_num not like", value, "orderNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderNumIn(List<String> values) {
             addCriterion("order_num in", values, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumNotIn(List<Integer> values) {
+        public Criteria andOrderNumNotIn(List<String> values) {
             addCriterion("order_num not in", values, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumBetween(Integer value1, Integer value2) {
+        public Criteria andOrderNumBetween(String value1, String value2) {
             addCriterion("order_num between", value1, value2, "orderNum");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNumNotBetween(Integer value1, Integer value2) {
+        public Criteria andOrderNumNotBetween(String value1, String value2) {
             addCriterion("order_num not between", value1, value2, "orderNum");
             return (Criteria) this;
         }
@@ -3636,52 +3726,52 @@ public class OrderCountExample {
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountEqualTo(Long value) {
+        public Criteria andLogisticsForwardAmountEqualTo(BigDecimal value) {
             addCriterion("logistics_forward_amount =", value, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountNotEqualTo(Long value) {
+        public Criteria andLogisticsForwardAmountNotEqualTo(BigDecimal value) {
             addCriterion("logistics_forward_amount <>", value, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountGreaterThan(Long value) {
+        public Criteria andLogisticsForwardAmountGreaterThan(BigDecimal value) {
             addCriterion("logistics_forward_amount >", value, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountGreaterThanOrEqualTo(Long value) {
+        public Criteria andLogisticsForwardAmountGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("logistics_forward_amount >=", value, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountLessThan(Long value) {
+        public Criteria andLogisticsForwardAmountLessThan(BigDecimal value) {
             addCriterion("logistics_forward_amount <", value, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountLessThanOrEqualTo(Long value) {
+        public Criteria andLogisticsForwardAmountLessThanOrEqualTo(BigDecimal value) {
             addCriterion("logistics_forward_amount <=", value, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountIn(List<Long> values) {
+        public Criteria andLogisticsForwardAmountIn(List<BigDecimal> values) {
             addCriterion("logistics_forward_amount in", values, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountNotIn(List<Long> values) {
+        public Criteria andLogisticsForwardAmountNotIn(List<BigDecimal> values) {
             addCriterion("logistics_forward_amount not in", values, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountBetween(Long value1, Long value2) {
+        public Criteria andLogisticsForwardAmountBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("logistics_forward_amount between", value1, value2, "logisticsForwardAmount");
             return (Criteria) this;
         }
 
-        public Criteria andLogisticsForwardAmountNotBetween(Long value1, Long value2) {
+        public Criteria andLogisticsForwardAmountNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("logistics_forward_amount not between", value1, value2, "logisticsForwardAmount");
             return (Criteria) this;
         }

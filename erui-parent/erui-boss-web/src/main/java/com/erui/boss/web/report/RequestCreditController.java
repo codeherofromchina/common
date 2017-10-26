@@ -1,15 +1,20 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.DefaultExceptionHandler;
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.service.RequestCreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -26,7 +31,6 @@ public class RequestCreditController {
     @Autowired
     private RequestCreditService requestCreditService;
     private static final DecimalFormat df = new DecimalFormat("0.00");
-
      /**
       * @Author:SHIGS
       * @Description 应收账款
@@ -42,11 +46,16 @@ public class RequestCreditController {
     }
     @ResponseBody
     @RequestMapping(value= "receiveDetail",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
-    public Object totalReceive(@RequestBody Map<String,Object> days){
+    public Object totalReceive(@RequestBody Map<String,Object> map) throws Exception {
+        if (!map.containsKey("days")) {
+            throw new MissingServletRequestParameterException("days","String");
+        }
         //当前时期
-        Date startTime = DateUtil.recedeTime((int)days.get("days"));
+        int days = Integer.parseInt(map.get("days").toString());
+        //当前时期
+        Date startTime = DateUtil.recedeTime(days);
         //环比时段
-        Date chainDate = DateUtil.recedeTime((int)days.get("days")*2);
+        Date chainDate = DateUtil.recedeTime(days*2);
         //当前时段
         Map mapMount =requestCreditService.selectRequestTotal(startTime,new Date());
         //环比
@@ -66,19 +75,19 @@ public class RequestCreditController {
         Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue();
         //应收账款
         Map<String,Object> receivable = new HashMap<>();
-        receivable.put("receive",df.format(orderAmount)+"万$");
+        receivable.put("receive",df.format(orderAmount.doubleValue()/10000)+"万$");
         receivable.put("chainAdd",df.format(orederAmountAdd/10000)+"万$");
         receivable.put("chainRate",RateUtil.doubleChainRate(orederAmountAdd,chainOrderAmount.doubleValue()));
         Double NotReceiveAmountAdd =  notreceiveAmount.doubleValue() - chainNotreceiveAmount.doubleValue() ;
         //应收未收
         Map<String,Object> notReceive = new HashMap<>();
-        notReceive.put("receive",df.format(notreceiveAmount)+"万$");
+        notReceive.put("receive",df.format(notreceiveAmount.doubleValue()/10000)+"万$");
         notReceive.put("chainAdd",df.format(NotReceiveAmountAdd/10000)+"万$");
         notReceive.put("chainRate",RateUtil.doubleChainRate(NotReceiveAmountAdd,chainNotreceiveAmount.doubleValue()));
         Double ReceiveAmountAdd = receiveAmount.doubleValue() - chainReceiveAmount.doubleValue();
         //应收已收
         Map<String,Object> received = new HashMap<>();
-        received.put("receive",df.format(receiveAmount)+"万$");
+        received.put("receive",df.format(receiveAmount.doubleValue()/10000)+"万$");
         received.put("chainAdd",df.format(ReceiveAmountAdd/10000)+"万$");
         received.put("chainRate",RateUtil.doubleChainRate(ReceiveAmountAdd,chainReceiveAmount.doubleValue()));
 
@@ -99,9 +108,12 @@ public class RequestCreditController {
       */
     @ResponseBody
     @RequestMapping(value= "tendencyChart",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
-    public Object tendencyChart(@RequestBody Map<String,Object> map){
+    public Object tendencyChart(@RequestBody Map<String,Object> map) throws Exception {
+        if (!map.containsKey("days")||!map.containsKey("receiveName")) {
+            throw new MissingServletRequestParameterException("days || receiveName","String");
+        }
         //当前时期
-        int days = (int)map.get("days");
+        int days = Integer.parseInt(map.get("days").toString());
         Map<String,Object> dataMap = requestCreditService.selectRequestTrend(days,map.get("receiveName").toString());
         Result<Map<String,Object>> result = new Result<>(dataMap);
         return result;

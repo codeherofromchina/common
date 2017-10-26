@@ -13,21 +13,21 @@ public interface RequestCreditService {
 	  * @Date:17:03 2017/10/23
 	  * @modified By
 	  */
-	Map selectTotal();
+	Map<String,Object> selectTotal();
 	 /**
 	  * @Author:SHIGS
 	  * @Description------ 应收账款
 	  * @Date:18:57 2017/10/23
 	  * @modified By
 	  */
-	Map selectRequestTotal(Date startDate,Date endDate);
+	Map<String,Object> selectRequestTotal(Date startDate,Date endDate);
 	 /**
 	  * @Author:SHIGS --- 趋势图
 	  * @Description
 	  * @Date:20:20 2017/10/23
 	  * @modified By
 	  */
-	 Map selectRequestTrend(int days,String receiveName);
+	 Map<String,Object> selectRequestTrend(int days,String receiveName);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 下月应收
@@ -41,25 +41,25 @@ public interface RequestCreditService {
 	  * @Date:22:41 2017/10/23
 	  * @modified By
 	  */
-	 Map selectArea();
+	 Map<String,Object> selectArea();
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询所有国家
 	  * @Date:13:46 2017/10/24
 	  * @modified By
 	  */
-	 Map selectCountry(String area);
+	 Map<String,Object> selectCountry(String area);
 	 /**
 	  * @Author:SHIGS
 	  * @Description
 	  * @Date:13:56 2017/10/24
 	  * @modified By
 	  */
-	Map selectByAreaOrCountry(String area,String country);
+	Map<String,Object> selectByAreaOrCountry(String area,String country);
 	/**
 	 * 导入应收账款的数据到数据库
 	 * @param datas
-	 * @param flag	true:只检测数据  false:插入正式库
+	 * @param  testOnly	true:只检测数据  false:插入正式库
 	 * @return
 	 */
 	ImportDataResponse importData(List<String[]> datas, boolean testOnly);

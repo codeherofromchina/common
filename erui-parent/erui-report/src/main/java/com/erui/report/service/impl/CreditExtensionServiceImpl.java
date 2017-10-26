@@ -60,7 +60,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "限额生效日期格式错误");
 				continue;
 			}
-			// TODO 字符串变量
+			
 			if (strArr[7] != null && !"无期使用".equals(strArr[7])) {
 				try {
 					ce.setExpiryDate(DateUtil.parseString2Date(strArr[7], "yyyy/M/d", "yyyy/M/d HH:mm:ss",

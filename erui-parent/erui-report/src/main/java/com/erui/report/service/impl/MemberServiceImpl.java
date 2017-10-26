@@ -30,7 +30,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 		Member member = null;
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MEMBER, response, index + 1)){
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MEMBER, response, index + 1)) {
 				continue;
 			}
 			member = new Member();
@@ -44,53 +44,65 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				continue;
 			}
 
-			try {
-				member.setGeneralMemberCount(new BigDecimal(strArr[1]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "普通会员数量不是数字");
-				continue;
+			if (strArr[1] != null) {
+				try {
+					member.setGeneralMemberCount(new BigDecimal(strArr[1]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "普通会员数量不是数字");
+					continue;
+				}
 			}
-			try {
-				member.setGeneralMemberRebuy(new BigDecimal(strArr[2]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "普通会员二次购买数量不是数字");
-				continue;
+			if (strArr[2] != null) {
+				try {
+					member.setGeneralMemberRebuy(new BigDecimal(strArr[2]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "普通会员二次购买数量不是数字");
+					continue;
+				}
 			}
-			try {
-				member.setSeniorMemberCount(new BigDecimal(strArr[3]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "高级会员数量不是数字");
-				continue;
+			if (strArr[3] != null) {
+				try {
+					member.setSeniorMemberCount(new BigDecimal(strArr[3]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "高级会员数量不是数字");
+					continue;
+				}
 			}
-			try {
-				member.setSeniorMemberRebuy(new BigDecimal(strArr[4]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "高级会员二次购买数量不是数字");
-				continue;
+			if (strArr[4] != null) {
+				try {
+					member.setSeniorMemberRebuy(new BigDecimal(strArr[4]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "高级会员二次购买数量不是数字");
+					continue;
+				}
 			}
-			try {
-				member.setGoldMemberCount(new BigDecimal(strArr[5]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "黄金会员数量不是数字");
-				continue;
+			if (strArr[5] != null) {
+				try {
+					member.setGoldMemberCount(new BigDecimal(strArr[5]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "黄金会员数量不是数字");
+					continue;
+				}
 			}
-			try {
-				member.setGoldMemberRebuy(new BigDecimal(strArr[6]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "黄金会员二次购买数量不是数字");
-				continue;
+			if (strArr[6] != null) {
+				try {
+					member.setGoldMemberRebuy(new BigDecimal(strArr[6]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "黄金会员二次购买数量不是数字");
+					continue;
+				}
 			}
 
 			try {
@@ -118,7 +130,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 	}
 
 	@Override
-	public Map selectMemberByTime() {
+	public Map<String,Object> selectMemberByTime() {
 		Map member = readMapper.selectMemberByTime();
 		return member;
 	}

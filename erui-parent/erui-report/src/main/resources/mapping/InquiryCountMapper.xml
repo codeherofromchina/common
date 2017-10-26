@@ -55,7 +55,6 @@
     <result column="lose_order_category" property="loseOrderCategory" jdbcType="VARCHAR" />
     <result column="lose_order_cause" property="loseOrderCause" jdbcType="VARCHAR" />
   </resultMap>
-
   <sql id="Example_Where_Clause" >
     <where >
       <foreach collection="oredCriteria" item="criteria" separator="or" >
@@ -188,9 +187,6 @@
     quoted_status, remark, quote_overtime_category, quote_overtime_cause, is_success_order, 
     lose_order_category, lose_order_cause
   </sql>
-
-
-
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     <if test="distinct" >

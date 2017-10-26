@@ -6,6 +6,7 @@
     <result column="create_at" property="createAt" jdbcType="TIMESTAMP" />
     <result column="organization" property="organization" jdbcType="VARCHAR" />
     <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="item_class" property="itemClass" jdbcType="VARCHAR" />
     <result column="plan_sku_num" property="planSkuNum" jdbcType="INTEGER" />
     <result column="finish_sku_num" property="finishSkuNum" jdbcType="INTEGER" />
     <result column="plan_spu_num" property="planSpuNum" jdbcType="INTEGER" />
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, create_at, organization, category, plan_sku_num, finish_sku_num, plan_spu_num, 
-    finish_spu_num, plan_suppli_num, finish_suppli_num
+    id, create_at, organization, category, item_class, plan_sku_num, finish_sku_num, 
+    plan_spu_num, finish_spu_num, plan_suppli_num, finish_suppli_num
   </sql>
   <select id="selectFinishByDate" resultType="java.util.Map" parameterType="com.erui.report.model.SupplyChainExample">
     SELECT finish_spu_num,finish_sku_num ,finish_suppli_num ,create_at
@@ -195,13 +196,13 @@
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.SupplyChain" >
     insert into supply_chain (id, create_at, organization, 
-      category, plan_sku_num, finish_sku_num, 
-      plan_spu_num, finish_spu_num, plan_suppli_num, 
-      finish_suppli_num)
+      category, item_class, plan_sku_num, 
+      finish_sku_num, plan_spu_num, finish_spu_num, 
+      plan_suppli_num, finish_suppli_num)
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{organization,jdbcType=VARCHAR}, 
-      #{category,jdbcType=VARCHAR}, #{planSkuNum,jdbcType=INTEGER}, #{finishSkuNum,jdbcType=INTEGER}, 
-      #{planSpuNum,jdbcType=INTEGER}, #{finishSpuNum,jdbcType=INTEGER}, #{planSuppliNum,jdbcType=INTEGER}, 
-      #{finishSuppliNum,jdbcType=INTEGER})
+      #{category,jdbcType=VARCHAR}, #{itemClass,jdbcType=VARCHAR}, #{planSkuNum,jdbcType=INTEGER}, 
+      #{finishSkuNum,jdbcType=INTEGER}, #{planSpuNum,jdbcType=INTEGER}, #{finishSpuNum,jdbcType=INTEGER}, 
+      #{planSuppliNum,jdbcType=INTEGER}, #{finishSuppliNum,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.SupplyChain" >
     insert into supply_chain
@@ -217,6 +218,9 @@
       </if>
       <if test="category != null" >
         category,
+      </if>
+      <if test="itemClass != null" >
+        item_class,
       </if>
       <if test="planSkuNum != null" >
         plan_sku_num,
@@ -249,6 +253,9 @@
       </if>
       <if test="category != null" >
         #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="itemClass != null" >
+        #{itemClass,jdbcType=VARCHAR},
       </if>
       <if test="planSkuNum != null" >
         #{planSkuNum,jdbcType=INTEGER},
@@ -291,6 +298,9 @@
       <if test="record.category != null" >
         category = #{record.category,jdbcType=VARCHAR},
       </if>
+      <if test="record.itemClass != null" >
+        item_class = #{record.itemClass,jdbcType=VARCHAR},
+      </if>
       <if test="record.planSkuNum != null" >
         plan_sku_num = #{record.planSkuNum,jdbcType=INTEGER},
       </if>
@@ -320,6 +330,7 @@
       create_at = #{record.createAt,jdbcType=TIMESTAMP},
       organization = #{record.organization,jdbcType=VARCHAR},
       category = #{record.category,jdbcType=VARCHAR},
+      item_class = #{record.itemClass,jdbcType=VARCHAR},
       plan_sku_num = #{record.planSkuNum,jdbcType=INTEGER},
       finish_sku_num = #{record.finishSkuNum,jdbcType=INTEGER},
       plan_spu_num = #{record.planSpuNum,jdbcType=INTEGER},
@@ -341,6 +352,9 @@
       </if>
       <if test="category != null" >
         category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="itemClass != null" >
+        item_class = #{itemClass,jdbcType=VARCHAR},
       </if>
       <if test="planSkuNum != null" >
         plan_sku_num = #{planSkuNum,jdbcType=INTEGER},
@@ -368,6 +382,7 @@
     set create_at = #{createAt,jdbcType=TIMESTAMP},
       organization = #{organization,jdbcType=VARCHAR},
       category = #{category,jdbcType=VARCHAR},
+      item_class = #{itemClass,jdbcType=VARCHAR},
       plan_sku_num = #{planSkuNum,jdbcType=INTEGER},
       finish_sku_num = #{finishSkuNum,jdbcType=INTEGER},
       plan_spu_num = #{planSpuNum,jdbcType=INTEGER},

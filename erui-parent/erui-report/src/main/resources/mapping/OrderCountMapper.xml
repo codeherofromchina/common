@@ -12,14 +12,15 @@
     <result column="order_area" property="orderArea" jdbcType="VARCHAR" />
     <result column="cust_description" property="custDescription" jdbcType="VARCHAR" />
     <result column="pro_name" property="proName" jdbcType="VARCHAR" />
+    <result column="english_name" property="englishName" jdbcType="VARCHAR" />
     <result column="specification" property="specification" jdbcType="VARCHAR" />
     <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
     <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
     <result column="pro_category" property="proCategory" jdbcType="VARCHAR" />
     <result column="order_count" property="orderCount" jdbcType="INTEGER" />
     <result column="order_unit" property="orderUnit" jdbcType="VARCHAR" />
-    <result column="sale_num" property="saleNum" jdbcType="INTEGER" />
-    <result column="order_num" property="orderNum" jdbcType="INTEGER" />
+    <result column="sale_num" property="saleNum" jdbcType="VARCHAR" />
+    <result column="order_num" property="orderNum" jdbcType="VARCHAR" />
     <result column="project_account" property="projectAccount" jdbcType="DECIMAL" />
     <result column="pre_profit" property="preProfit" jdbcType="VARCHAR" />
     <result column="back_form" property="backForm" jdbcType="VARCHAR" />
@@ -128,9 +129,9 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_serial_num, pro_notice_num, execute_num, po_num, organization, exe_company, 
-    order_area, cust_description, pro_name, specification, is_oil_gas, plat_pro_category, 
-    pro_category, order_count, order_unit, sale_num, order_num, project_account, pre_profit, 
-    back_form, back_date, back_amount, credit_extension, project_start, exe_promise_date, 
+    order_area, cust_description, pro_name, english_name, specification, is_oil_gas, 
+    plat_pro_category, pro_category, order_count, order_unit, sale_num, order_num, project_account, 
+    pre_profit, back_form, back_date, back_amount, credit_extension, project_start, exe_promise_date, 
     exe_promise_update_date, require_purchase_get_date, market_manager, business_manager, 
     purchase_manager, supplier, purchase_contract_nu, pre_quotes_account, purchase_account_cny, 
     purchase_account_usd, purchase_contract_date, purchase_contract_delivery_date, purchase_payment_mode, 
@@ -252,19 +253,19 @@
     insert into order_count (id, order_serial_num, pro_notice_num, 
       execute_num, po_num, organization, 
       exe_company, order_area, cust_description, 
-      pro_name, specification, is_oil_gas, 
-      plat_pro_category, pro_category, order_count, 
-      order_unit, sale_num, order_num, 
-      project_account, pre_profit, back_form, 
-      back_date, back_amount, credit_extension, 
-      project_start, exe_promise_date, exe_promise_update_date, 
-      require_purchase_get_date, market_manager, 
-      business_manager, purchase_manager, supplier, 
-      purchase_contract_nu, pre_quotes_account, purchase_account_cny, 
-      purchase_account_usd, purchase_contract_date, 
-      purchase_contract_delivery_date, purchase_payment_mode, 
-      to_factory_payment_date, purchase_get_date, 
-      inspection_date, inspection_finash_date, 
+      pro_name, english_name, specification, 
+      is_oil_gas, plat_pro_category, pro_category, 
+      order_count, order_unit, sale_num, 
+      order_num, project_account, pre_profit, 
+      back_form, back_date, back_amount, 
+      credit_extension, project_start, exe_promise_date, 
+      exe_promise_update_date, require_purchase_get_date, 
+      market_manager, business_manager, purchase_manager, 
+      supplier, purchase_contract_nu, pre_quotes_account, 
+      purchase_account_cny, purchase_account_usd, 
+      purchase_contract_date, purchase_contract_delivery_date, 
+      purchase_payment_mode, to_factory_payment_date, 
+      purchase_get_date, inspection_date, inspection_finash_date, 
       to_storage_date, booking_date, market_request_date, 
       forward_manager, package_date, storage_out_date, 
       ackage_notice_date, ship_air_date, arrive_date, 
@@ -276,19 +277,19 @@
     values (#{id,jdbcType=BIGINT}, #{orderSerialNum,jdbcType=VARCHAR}, #{proNoticeNum,jdbcType=VARCHAR}, 
       #{executeNum,jdbcType=VARCHAR}, #{poNum,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, 
       #{exeCompany,jdbcType=VARCHAR}, #{orderArea,jdbcType=VARCHAR}, #{custDescription,jdbcType=VARCHAR}, 
-      #{proName,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR}, 
-      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{orderCount,jdbcType=INTEGER}, 
-      #{orderUnit,jdbcType=VARCHAR}, #{saleNum,jdbcType=INTEGER}, #{orderNum,jdbcType=INTEGER}, 
-      #{projectAccount,jdbcType=DECIMAL}, #{preProfit,jdbcType=VARCHAR}, #{backForm,jdbcType=VARCHAR}, 
-      #{backDate,jdbcType=TIMESTAMP}, #{backAmount,jdbcType=DECIMAL}, #{creditExtension,jdbcType=VARCHAR}, 
-      #{projectStart,jdbcType=TIMESTAMP}, #{exePromiseDate,jdbcType=TIMESTAMP}, #{exePromiseUpdateDate,jdbcType=TIMESTAMP}, 
-      #{requirePurchaseGetDate,jdbcType=TIMESTAMP}, #{marketManager,jdbcType=VARCHAR}, 
-      #{businessManager,jdbcType=VARCHAR}, #{purchaseManager,jdbcType=VARCHAR}, #{supplier,jdbcType=VARCHAR}, 
-      #{purchaseContractNu,jdbcType=VARCHAR}, #{preQuotesAccount,jdbcType=VARCHAR}, #{purchaseAccountCny,jdbcType=VARCHAR}, 
-      #{purchaseAccountUsd,jdbcType=VARCHAR}, #{purchaseContractDate,jdbcType=TIMESTAMP}, 
-      #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP}, #{purchasePaymentMode,jdbcType=VARCHAR}, 
-      #{toFactoryPaymentDate,jdbcType=TIMESTAMP}, #{purchaseGetDate,jdbcType=TIMESTAMP}, 
-      #{inspectionDate,jdbcType=TIMESTAMP}, #{inspectionFinashDate,jdbcType=TIMESTAMP}, 
+      #{proName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, 
+      #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, 
+      #{orderCount,jdbcType=INTEGER}, #{orderUnit,jdbcType=VARCHAR}, #{saleNum,jdbcType=VARCHAR}, 
+      #{orderNum,jdbcType=VARCHAR}, #{projectAccount,jdbcType=DECIMAL}, #{preProfit,jdbcType=VARCHAR}, 
+      #{backForm,jdbcType=VARCHAR}, #{backDate,jdbcType=TIMESTAMP}, #{backAmount,jdbcType=DECIMAL}, 
+      #{creditExtension,jdbcType=VARCHAR}, #{projectStart,jdbcType=TIMESTAMP}, #{exePromiseDate,jdbcType=TIMESTAMP}, 
+      #{exePromiseUpdateDate,jdbcType=TIMESTAMP}, #{requirePurchaseGetDate,jdbcType=TIMESTAMP}, 
+      #{marketManager,jdbcType=VARCHAR}, #{businessManager,jdbcType=VARCHAR}, #{purchaseManager,jdbcType=VARCHAR}, 
+      #{supplier,jdbcType=VARCHAR}, #{purchaseContractNu,jdbcType=VARCHAR}, #{preQuotesAccount,jdbcType=VARCHAR}, 
+      #{purchaseAccountCny,jdbcType=VARCHAR}, #{purchaseAccountUsd,jdbcType=VARCHAR}, 
+      #{purchaseContractDate,jdbcType=TIMESTAMP}, #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP}, 
+      #{purchasePaymentMode,jdbcType=VARCHAR}, #{toFactoryPaymentDate,jdbcType=TIMESTAMP}, 
+      #{purchaseGetDate,jdbcType=TIMESTAMP}, #{inspectionDate,jdbcType=TIMESTAMP}, #{inspectionFinashDate,jdbcType=TIMESTAMP}, 
       #{toStorageDate,jdbcType=TIMESTAMP}, #{bookingDate,jdbcType=TIMESTAMP}, #{marketRequestDate,jdbcType=TIMESTAMP}, 
       #{forwardManager,jdbcType=VARCHAR}, #{packageDate,jdbcType=TIMESTAMP}, #{storageOutDate,jdbcType=TIMESTAMP}, 
       #{ackageNoticeDate,jdbcType=TIMESTAMP}, #{shipAirDate,jdbcType=TIMESTAMP}, #{arriveDate,jdbcType=TIMESTAMP}, 
@@ -330,6 +331,9 @@
       </if>
       <if test="proName != null" >
         pro_name,
+      </if>
+      <if test="englishName != null" >
+        english_name,
       </if>
       <if test="specification != null" >
         specification,
@@ -528,6 +532,9 @@
       <if test="proName != null" >
         #{proName,jdbcType=VARCHAR},
       </if>
+      <if test="englishName != null" >
+        #{englishName,jdbcType=VARCHAR},
+      </if>
       <if test="specification != null" >
         #{specification,jdbcType=VARCHAR},
       </if>
@@ -547,10 +554,10 @@
         #{orderUnit,jdbcType=VARCHAR},
       </if>
       <if test="saleNum != null" >
-        #{saleNum,jdbcType=INTEGER},
+        #{saleNum,jdbcType=VARCHAR},
       </if>
       <if test="orderNum != null" >
-        #{orderNum,jdbcType=INTEGER},
+        #{orderNum,jdbcType=VARCHAR},
       </if>
       <if test="projectAccount != null" >
         #{projectAccount,jdbcType=DECIMAL},
@@ -735,6 +742,9 @@
       <if test="record.proName != null" >
         pro_name = #{record.proName,jdbcType=VARCHAR},
       </if>
+      <if test="record.englishName != null" >
+        english_name = #{record.englishName,jdbcType=VARCHAR},
+      </if>
       <if test="record.specification != null" >
         specification = #{record.specification,jdbcType=VARCHAR},
       </if>
@@ -754,10 +764,10 @@
         order_unit = #{record.orderUnit,jdbcType=VARCHAR},
       </if>
       <if test="record.saleNum != null" >
-        sale_num = #{record.saleNum,jdbcType=INTEGER},
+        sale_num = #{record.saleNum,jdbcType=VARCHAR},
       </if>
       <if test="record.orderNum != null" >
-        order_num = #{record.orderNum,jdbcType=INTEGER},
+        order_num = #{record.orderNum,jdbcType=VARCHAR},
       </if>
       <if test="record.projectAccount != null" >
         project_account = #{record.projectAccount,jdbcType=DECIMAL},
@@ -917,14 +927,15 @@
       order_area = #{record.orderArea,jdbcType=VARCHAR},
       cust_description = #{record.custDescription,jdbcType=VARCHAR},
       pro_name = #{record.proName,jdbcType=VARCHAR},
+      english_name = #{record.englishName,jdbcType=VARCHAR},
       specification = #{record.specification,jdbcType=VARCHAR},
       is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
       plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
       pro_category = #{record.proCategory,jdbcType=VARCHAR},
       order_count = #{record.orderCount,jdbcType=INTEGER},
       order_unit = #{record.orderUnit,jdbcType=VARCHAR},
-      sale_num = #{record.saleNum,jdbcType=INTEGER},
-      order_num = #{record.orderNum,jdbcType=INTEGER},
+      sale_num = #{record.saleNum,jdbcType=VARCHAR},
+      order_num = #{record.orderNum,jdbcType=VARCHAR},
       project_account = #{record.projectAccount,jdbcType=DECIMAL},
       pre_profit = #{record.preProfit,jdbcType=VARCHAR},
       back_form = #{record.backForm,jdbcType=VARCHAR},
@@ -1006,6 +1017,9 @@
       <if test="proName != null" >
         pro_name = #{proName,jdbcType=VARCHAR},
       </if>
+      <if test="englishName != null" >
+        english_name = #{englishName,jdbcType=VARCHAR},
+      </if>
       <if test="specification != null" >
         specification = #{specification,jdbcType=VARCHAR},
       </if>
@@ -1025,10 +1039,10 @@
         order_unit = #{orderUnit,jdbcType=VARCHAR},
       </if>
       <if test="saleNum != null" >
-        sale_num = #{saleNum,jdbcType=INTEGER},
+        sale_num = #{saleNum,jdbcType=VARCHAR},
       </if>
       <if test="orderNum != null" >
-        order_num = #{orderNum,jdbcType=INTEGER},
+        order_num = #{orderNum,jdbcType=VARCHAR},
       </if>
       <if test="projectAccount != null" >
         project_account = #{projectAccount,jdbcType=DECIMAL},
@@ -1185,14 +1199,15 @@
       order_area = #{orderArea,jdbcType=VARCHAR},
       cust_description = #{custDescription,jdbcType=VARCHAR},
       pro_name = #{proName,jdbcType=VARCHAR},
+      english_name = #{englishName,jdbcType=VARCHAR},
       specification = #{specification,jdbcType=VARCHAR},
       is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
       plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
       pro_category = #{proCategory,jdbcType=VARCHAR},
       order_count = #{orderCount,jdbcType=INTEGER},
       order_unit = #{orderUnit,jdbcType=VARCHAR},
-      sale_num = #{saleNum,jdbcType=INTEGER},
-      order_num = #{orderNum,jdbcType=INTEGER},
+      sale_num = #{saleNum,jdbcType=VARCHAR},
+      order_num = #{orderNum,jdbcType=VARCHAR},
       project_account = #{projectAccount,jdbcType=DECIMAL},
       pre_profit = #{preProfit,jdbcType=VARCHAR},
       back_form = #{backForm,jdbcType=VARCHAR},

@@ -49,7 +49,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 			oc.setCustDescription(strArr[7]);
 
 			oc.setProName(strArr[8]);
-			// TODO 缺少品名外文strArr[9]
+			oc.setEnglishName(strArr[9]);
 			oc.setSpecification(strArr[10]);
 			oc.setIsOilGas(strArr[11]);
 			oc.setPlatProCategory(strArr[12]);
@@ -65,11 +65,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				}
 			}
 			oc.setOrderUnit(strArr[15]);
-
-			// TODO 应该string 类型
-			// oc.setSaleNum(Integer.parseInt(strArr[16]));
-			// TODO 应该string 类型
-			// oc.setOrderNum(Integer.parseInt(strArr[17]));
+			// 订货号
+			oc.setSaleNum(strArr[16]);
+			//订单号
+			oc.setOrderNum(strArr[17]);
 
 			if (strArr[18] != null) {
 				try {
@@ -338,7 +337,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 			}
 			if (strArr[54] != null) {
 				try {
-					oc.setLogisticsForwardAmount(new BigDecimal(strArr[54]).longValue());
+					oc.setLogisticsForwardAmount(new BigDecimal(strArr[54]));
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();

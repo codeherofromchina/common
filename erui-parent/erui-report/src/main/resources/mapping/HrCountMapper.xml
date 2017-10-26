@@ -4,9 +4,12 @@
   <resultMap id="BaseResultMap" type="com.erui.report.model.HrCount" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="create_at" property="createAt" jdbcType="TIMESTAMP" />
+    <result column="big_depart" property="bigDepart" jdbcType="VARCHAR" />
     <result column="department" property="department" jdbcType="VARCHAR" />
     <result column="plan_count" property="planCount" jdbcType="INTEGER" />
     <result column="regular_count" property="regularCount" jdbcType="INTEGER" />
+    <result column="try_count" property="tryCount" jdbcType="INTEGER" />
+    <result column="turn_right_count" property="turnRightCount" jdbcType="INTEGER" />
     <result column="china_count" property="chinaCount" jdbcType="INTEGER" />
     <result column="foreign_count" property="foreignCount" jdbcType="INTEGER" />
     <result column="new_count" property="newCount" jdbcType="INTEGER" />
@@ -73,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, create_at, department, plan_count, regular_count, china_count, foreign_count, 
-    new_count, group_transfer_in, group_transfer_out, dimission_count
+    id, create_at, big_depart, department, plan_count, regular_count, try_count, turn_right_count, 
+    china_count, foreign_count, new_count, group_transfer_in, group_transfer_out, dimission_count
   </sql>
   <select id="selectBigDepart" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
     SELECT big_depart FROM `hr_count` GROUP BY big_depart;
@@ -132,12 +135,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.HrCount" >
-    insert into hr_count (id, create_at, department, 
-      plan_count, regular_count, china_count, 
+    insert into hr_count (id, create_at, big_depart, 
+      department, plan_count, regular_count, 
+      try_count, turn_right_count, china_count, 
       foreign_count, new_count, group_transfer_in, 
       group_transfer_out, dimission_count)
-    values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{department,jdbcType=VARCHAR}, 
-      #{planCount,jdbcType=INTEGER}, #{regularCount,jdbcType=INTEGER}, #{chinaCount,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{bigDepart,jdbcType=VARCHAR}, 
+      #{department,jdbcType=VARCHAR}, #{planCount,jdbcType=INTEGER}, #{regularCount,jdbcType=INTEGER}, 
+      #{tryCount,jdbcType=INTEGER}, #{turnRightCount,jdbcType=INTEGER}, #{chinaCount,jdbcType=INTEGER}, 
       #{foreignCount,jdbcType=INTEGER}, #{newCount,jdbcType=INTEGER}, #{groupTransferIn,jdbcType=INTEGER}, 
       #{groupTransferOut,jdbcType=INTEGER}, #{dimissionCount,jdbcType=INTEGER})
   </insert>
@@ -150,6 +155,9 @@
       <if test="createAt != null" >
         create_at,
       </if>
+      <if test="bigDepart != null" >
+        big_depart,
+      </if>
       <if test="department != null" >
         department,
       </if>
@@ -158,6 +166,12 @@
       </if>
       <if test="regularCount != null" >
         regular_count,
+      </if>
+      <if test="tryCount != null" >
+        try_count,
+      </if>
+      <if test="turnRightCount != null" >
+        turn_right_count,
       </if>
       <if test="chinaCount != null" >
         china_count,
@@ -185,6 +199,9 @@
       <if test="createAt != null" >
         #{createAt,jdbcType=TIMESTAMP},
       </if>
+      <if test="bigDepart != null" >
+        #{bigDepart,jdbcType=VARCHAR},
+      </if>
       <if test="department != null" >
         #{department,jdbcType=VARCHAR},
       </if>
@@ -193,6 +210,12 @@
       </if>
       <if test="regularCount != null" >
         #{regularCount,jdbcType=INTEGER},
+      </if>
+      <if test="tryCount != null" >
+        #{tryCount,jdbcType=INTEGER},
+      </if>
+      <if test="turnRightCount != null" >
+        #{turnRightCount,jdbcType=INTEGER},
       </if>
       <if test="chinaCount != null" >
         #{chinaCount,jdbcType=INTEGER},
@@ -229,6 +252,9 @@
       <if test="record.createAt != null" >
         create_at = #{record.createAt,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.bigDepart != null" >
+        big_depart = #{record.bigDepart,jdbcType=VARCHAR},
+      </if>
       <if test="record.department != null" >
         department = #{record.department,jdbcType=VARCHAR},
       </if>
@@ -237,6 +263,12 @@
       </if>
       <if test="record.regularCount != null" >
         regular_count = #{record.regularCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.tryCount != null" >
+        try_count = #{record.tryCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.turnRightCount != null" >
+        turn_right_count = #{record.turnRightCount,jdbcType=INTEGER},
       </if>
       <if test="record.chinaCount != null" >
         china_count = #{record.chinaCount,jdbcType=INTEGER},
@@ -265,9 +297,12 @@
     update hr_count
     set id = #{record.id,jdbcType=INTEGER},
       create_at = #{record.createAt,jdbcType=TIMESTAMP},
+      big_depart = #{record.bigDepart,jdbcType=VARCHAR},
       department = #{record.department,jdbcType=VARCHAR},
       plan_count = #{record.planCount,jdbcType=INTEGER},
       regular_count = #{record.regularCount,jdbcType=INTEGER},
+      try_count = #{record.tryCount,jdbcType=INTEGER},
+      turn_right_count = #{record.turnRightCount,jdbcType=INTEGER},
       china_count = #{record.chinaCount,jdbcType=INTEGER},
       foreign_count = #{record.foreignCount,jdbcType=INTEGER},
       new_count = #{record.newCount,jdbcType=INTEGER},
@@ -284,6 +319,9 @@
       <if test="createAt != null" >
         create_at = #{createAt,jdbcType=TIMESTAMP},
       </if>
+      <if test="bigDepart != null" >
+        big_depart = #{bigDepart,jdbcType=VARCHAR},
+      </if>
       <if test="department != null" >
         department = #{department,jdbcType=VARCHAR},
       </if>
@@ -292,6 +330,12 @@
       </if>
       <if test="regularCount != null" >
         regular_count = #{regularCount,jdbcType=INTEGER},
+      </if>
+      <if test="tryCount != null" >
+        try_count = #{tryCount,jdbcType=INTEGER},
+      </if>
+      <if test="turnRightCount != null" >
+        turn_right_count = #{turnRightCount,jdbcType=INTEGER},
       </if>
       <if test="chinaCount != null" >
         china_count = #{chinaCount,jdbcType=INTEGER},
@@ -317,9 +361,12 @@
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.HrCount" >
     update hr_count
     set create_at = #{createAt,jdbcType=TIMESTAMP},
+      big_depart = #{bigDepart,jdbcType=VARCHAR},
       department = #{department,jdbcType=VARCHAR},
       plan_count = #{planCount,jdbcType=INTEGER},
       regular_count = #{regularCount,jdbcType=INTEGER},
+      try_count = #{tryCount,jdbcType=INTEGER},
+      turn_right_count = #{turnRightCount,jdbcType=INTEGER},
       china_count = #{chinaCount,jdbcType=INTEGER},
       foreign_count = #{foreignCount,jdbcType=INTEGER},
       new_count = #{newCount,jdbcType=INTEGER},
