@@ -102,7 +102,11 @@
   </select>
 <!--品类部列表-->
   <select id="selectCategoryList" resultType="java.lang.String" >
-SELECT DISTINCT(category) FROM supply_chain
+    SELECT DISTINCT(category) FROM supply_chain
+  </select>
+  <!--事业部列表-->
+  <select id="selectCategoryList" resultType="java.lang.String" >
+    SELECT DISTINCT(organization) FROM supply_chain
   </select>
 
   <select id="selectCateSuppliyChain" resultType="com.erui.report.model.SuppliyChainCateVo"  >

@@ -170,17 +170,14 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         }
         List<SupplyChain>  list=readMapper.selectByExample(example);
 
-        String[] datetime = new String[list.size()];
         String[] DateTime =new String[days];
         Integer[] suppliyFinishCount=new Integer[days];
         Integer[] SPUFinishCount=new Integer[days];
         Integer[] SKUFinishCount=new Integer[days];
 
         if(list!=null&&list.size()>0){
-
-
             Map<String, Map<String,Integer>> dateMap = new HashMap<>();
-            Map<String, Integer> datamap=null;
+            Map<String, Integer> datamap;
             for (int i = 0; i < list.size(); i++) {
                 String date2=DateUtil.formatDate2String(list.get(i).getCreateAt(),"M月d日");
                 datamap = new HashMap<>();
@@ -216,5 +213,10 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     @Override
     public List<String> selectCategoryList() {
         return readMapper.selectCategoryList();
+    }
+
+    @Override
+    public List<String> selectOrgList() {
+        return readMapper.selectOrgList();
     }
 }

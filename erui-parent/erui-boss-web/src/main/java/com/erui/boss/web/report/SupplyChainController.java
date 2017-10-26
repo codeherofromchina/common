@@ -43,7 +43,13 @@ public class SupplyChainController {
         int finishSKU=0;
         int planSPU=0;
         int planSKU=0;
-        Date startTime = DateUtil.recedeTime(days);
+        Date startTime;
+        if(days>0){
+            startTime= DateUtil.recedeTime(days);
+        }else {
+            startTime=null;
+        }
+
           List<SupplyChain> list = supplyChainService.queryListByDate(startTime, new Date());
         if(list!=null&&list.size()>0){
             for (SupplyChain supply:list) {
@@ -200,10 +206,19 @@ public class SupplyChainController {
     //品类部列表
     @ResponseBody
     @RequestMapping("/categoryList")
-    public Object categoryDetail(){
+    public Object categoryList(){
 
         List<String> categoryList=supplyChainService.selectCategoryList();
         return new Result<List<String>>().setData(categoryList);
+    }
+
+    //事业部列表
+    @ResponseBody
+    @RequestMapping("/orgList")
+    public Object orgList(){
+
+        List<String> orgList=supplyChainService.selectOrgList();
+        return new Result<List<String>>().setData(orgList);
     }
 
     // 品类明细

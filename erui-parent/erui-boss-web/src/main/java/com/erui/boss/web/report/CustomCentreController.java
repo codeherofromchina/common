@@ -1,6 +1,7 @@
 package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.erui.boss.web.util.Result;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.model.OrderCount;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.service.InquiryCountService;
@@ -236,19 +237,6 @@ public class CustomCentreController {
         result.put("code",200);
         result.put("data",quoteTimeMap);
         return result;
-    }
-
-    //询订单趋势图
-    @ResponseBody
-    @RequestMapping(value = "/tendencyChart",method =RequestMethod.POST,produces = "application/json;charset=utf8")
-    public Object tendencyChart(@RequestBody(required = true)Map<String, Object> reqMap){
-        Map<String,Object> result=new HashMap<String,Object>();
-        Map<String,Object> data=new HashMap<String,Object>();
-
-        int days = (int) reqMap.get("days");
-       List<InquiryCount> inqList=inquiryService.selectListByTime(DateUtil.recedeTime(days),new Date());
-        List<OrderCount> ordList=orderService.selectListByTime(DateUtil.recedeTime(days),new Date());
-        return  result;
     }
 
     //事业部明细

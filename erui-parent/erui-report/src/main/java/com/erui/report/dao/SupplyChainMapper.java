@@ -37,4 +37,6 @@ public interface SupplyChainMapper {
     List<SuppliyChainCateVo> selectCateSuppliyChain();
     //品类部列表
     List<String> selectCategoryList();
+    //事业部列表
+    List<String> selectOrgList();
 }
