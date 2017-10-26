@@ -10,6 +10,9 @@
     <result column="suppli_name" property="suppliName" jdbcType="VARCHAR" />
     <result column="buyer" property="buyer" jdbcType="VARCHAR" />
     <result column="entry_count" property="entryCount" jdbcType="INTEGER" />
+    <result column="amounts" property="amounts" jdbcType="DECIMAL" />
+    <result column="storage_date" property="storageDate" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -70,7 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, create_at, entry_num, contract_num, execute_num, suppli_name, buyer, entry_count
+    id, create_at, entry_num, contract_num, execute_num, suppli_name, buyer, entry_count, 
+    amounts, storage_date, remark
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.OrderEntryCountExample" >
     select
@@ -105,10 +109,12 @@
   <insert id="insert" parameterType="com.erui.report.model.OrderEntryCount" >
     insert into order_entry_count (id, create_at, entry_num, 
       contract_num, execute_num, suppli_name, 
-      buyer, entry_count)
+      buyer, entry_count, amounts, 
+      storage_date, remark)
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{entryNum,jdbcType=VARCHAR}, 
       #{contractNum,jdbcType=VARCHAR}, #{executeNum,jdbcType=VARCHAR}, #{suppliName,jdbcType=VARCHAR}, 
-      #{buyer,jdbcType=VARCHAR}, #{entryCount,jdbcType=INTEGER})
+      #{buyer,jdbcType=VARCHAR}, #{entryCount,jdbcType=INTEGER}, #{amounts,jdbcType=DECIMAL}, 
+      #{storageDate,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.OrderEntryCount" >
     insert into order_entry_count
@@ -137,6 +143,15 @@
       <if test="entryCount != null" >
         entry_count,
       </if>
+      <if test="amounts != null" >
+        amounts,
+      </if>
+      <if test="storageDate != null" >
+        storage_date,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -162,6 +177,15 @@
       </if>
       <if test="entryCount != null" >
         #{entryCount,jdbcType=INTEGER},
+      </if>
+      <if test="amounts != null" >
+        #{amounts,jdbcType=DECIMAL},
+      </if>
+      <if test="storageDate != null" >
+        #{storageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +222,15 @@
       <if test="record.entryCount != null" >
         entry_count = #{record.entryCount,jdbcType=INTEGER},
       </if>
+      <if test="record.amounts != null" >
+        amounts = #{record.amounts,jdbcType=DECIMAL},
+      </if>
+      <if test="record.storageDate != null" >
+        storage_date = #{record.storageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +245,10 @@
       execute_num = #{record.executeNum,jdbcType=VARCHAR},
       suppli_name = #{record.suppliName,jdbcType=VARCHAR},
       buyer = #{record.buyer,jdbcType=VARCHAR},
-      entry_count = #{record.entryCount,jdbcType=INTEGER}
+      entry_count = #{record.entryCount,jdbcType=INTEGER},
+      amounts = #{record.amounts,jdbcType=DECIMAL},
+      storage_date = #{record.storageDate,jdbcType=TIMESTAMP},
+      remark = #{record.remark,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +277,15 @@
       <if test="entryCount != null" >
         entry_count = #{entryCount,jdbcType=INTEGER},
       </if>
+      <if test="amounts != null" >
+        amounts = #{amounts,jdbcType=DECIMAL},
+      </if>
+      <if test="storageDate != null" >
+        storage_date = #{storageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -252,7 +297,10 @@
       execute_num = #{executeNum,jdbcType=VARCHAR},
       suppli_name = #{suppliName,jdbcType=VARCHAR},
       buyer = #{buyer,jdbcType=VARCHAR},
-      entry_count = #{entryCount,jdbcType=INTEGER}
+      entry_count = #{entryCount,jdbcType=INTEGER},
+      amounts = #{amounts,jdbcType=DECIMAL},
+      storage_date = #{storageDate,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

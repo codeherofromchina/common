@@ -12,7 +12,7 @@
     <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
     <result column="export_pro_name" property="exportProName" jdbcType="VARCHAR" />
     <result column="trade_terms" property="tradeTerms" jdbcType="VARCHAR" />
-    <result column="create_at" property="createAt" jdbcType="VARCHAR" />
+    <result column="create_at" property="createAt" jdbcType="TIMESTAMP" />
     <result column="order_amount" property="orderAmount" jdbcType="DECIMAL" />
     <result column="credit_currency" property="creditCurrency" jdbcType="VARCHAR" />
     <result column="receive_amount" property="receiveAmount" jdbcType="DECIMAL" />
@@ -168,7 +168,7 @@
     values (#{id,jdbcType=BIGINT}, #{creditSerialNum,jdbcType=VARCHAR}, #{orderNum,jdbcType=VARCHAR}, 
       #{salesMainCompany,jdbcType=VARCHAR}, #{salesArea,jdbcType=VARCHAR}, #{salesCountry,jdbcType=VARCHAR}, 
       #{organization,jdbcType=VARCHAR}, #{customerCode,jdbcType=VARCHAR}, #{exportProName,jdbcType=VARCHAR}, 
-      #{tradeTerms,jdbcType=VARCHAR}, #{createAt,jdbcType=VARCHAR}, #{orderAmount,jdbcType=DECIMAL}, 
+      #{tradeTerms,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP}, #{orderAmount,jdbcType=DECIMAL}, 
       #{creditCurrency,jdbcType=VARCHAR}, #{receiveAmount,jdbcType=DECIMAL}, #{warnStatus,jdbcType=CHAR}, 
       #{backResponsePerson,jdbcType=VARCHAR}, #{backDate,jdbcType=TIMESTAMP})
   </insert>
@@ -259,7 +259,7 @@
         #{tradeTerms,jdbcType=VARCHAR},
       </if>
       <if test="createAt != null" >
-        #{createAt,jdbcType=VARCHAR},
+        #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="orderAmount != null" >
         #{orderAmount,jdbcType=DECIMAL},
@@ -321,7 +321,7 @@
         trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
       </if>
       <if test="record.createAt != null" >
-        create_at = #{record.createAt,jdbcType=VARCHAR},
+        create_at = #{record.createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="record.orderAmount != null" >
         order_amount = #{record.orderAmount,jdbcType=DECIMAL},
@@ -358,7 +358,7 @@
       customer_code = #{record.customerCode,jdbcType=VARCHAR},
       export_pro_name = #{record.exportProName,jdbcType=VARCHAR},
       trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
-      create_at = #{record.createAt,jdbcType=VARCHAR},
+      create_at = #{record.createAt,jdbcType=TIMESTAMP},
       order_amount = #{record.orderAmount,jdbcType=DECIMAL},
       credit_currency = #{record.creditCurrency,jdbcType=VARCHAR},
       receive_amount = #{record.receiveAmount,jdbcType=DECIMAL},
@@ -400,7 +400,7 @@
         trade_terms = #{tradeTerms,jdbcType=VARCHAR},
       </if>
       <if test="createAt != null" >
-        create_at = #{createAt,jdbcType=VARCHAR},
+        create_at = #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="orderAmount != null" >
         order_amount = #{orderAmount,jdbcType=DECIMAL},
@@ -434,7 +434,7 @@
       customer_code = #{customerCode,jdbcType=VARCHAR},
       export_pro_name = #{exportProName,jdbcType=VARCHAR},
       trade_terms = #{tradeTerms,jdbcType=VARCHAR},
-      create_at = #{createAt,jdbcType=VARCHAR},
+      create_at = #{createAt,jdbcType=TIMESTAMP},
       order_amount = #{orderAmount,jdbcType=DECIMAL},
       credit_currency = #{creditCurrency,jdbcType=VARCHAR},
       receive_amount = #{receiveAmount,jdbcType=DECIMAL},

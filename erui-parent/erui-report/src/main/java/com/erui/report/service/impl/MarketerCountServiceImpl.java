@@ -42,54 +42,65 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 			mc.setArea(strArr[1]);
 			mc.setCountry(strArr[2]);
 			mc.setMarketer(strArr[3]);
-
-			try {
-				mc.setInquiryCount(new BigDecimal(strArr[4]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "询单数量不是数字");
-				continue;
+			if (strArr[9] != null) {
+				try {
+					mc.setInquiryCount(new BigDecimal(strArr[4]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "询单数量不是数字");
+					continue;
+				}
 			}
-			try {
-				mc.setQuoteCount(new BigDecimal(strArr[5]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "报价数量不是数字");
-				continue;
+			if (strArr[9] != null) {
+				try {
+					mc.setQuoteCount(new BigDecimal(strArr[5]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "报价数量不是数字");
+					continue;
+				}
 			}
-			try {
-				mc.setBargainCount(new BigDecimal(strArr[6]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "成单数量不是数字");
-				continue;
+			if (strArr[9] != null) {
+				try {
+					mc.setBargainCount(new BigDecimal(strArr[6]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "成单数量不是数字");
+					continue;
+				}
 			}
-			try {
-				mc.setBargainAmount(new BigDecimal(strArr[7]));
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "成单金额不是数字");
-				continue;
+			if (strArr[9] != null) {
+				try {
+					mc.setBargainAmount(new BigDecimal(strArr[7]));
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "成单金额不是数字");
+					continue;
+				}
 			}
-			try {
-				mc.setInquiryAmount(new BigDecimal(strArr[8]));
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "询单金额不是数字");
-				continue;
+			if (strArr[9] != null) {
+				try {
+					mc.setInquiryAmount(new BigDecimal(strArr[8]));
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "询单金额不是数字");
+					continue;
+				}
 			}
-			try {
-				mc.setNewMemberCount(new BigDecimal(strArr[9]).intValue());
-			} catch (NumberFormatException e) {
-				logger.error(e.getMessage());
-				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "新增会员不是数字");
-				continue;
+			if (strArr[9] != null) {
+				try {
+					mc.setNewMemberCount(new BigDecimal(strArr[9]).intValue());
+				} catch (NumberFormatException e) {
+					logger.error(e.getMessage());
+					response.incrFail();
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "新增会员不是数字");
+					continue;
+				}
 			}
 
 			try {

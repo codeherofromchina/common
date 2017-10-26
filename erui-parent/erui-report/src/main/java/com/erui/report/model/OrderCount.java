@@ -24,6 +24,8 @@ public class OrderCount {
 
     private String proName;
 
+    private String englishName;
+
     private String specification;
 
     private String isOilGas;
@@ -36,9 +38,9 @@ public class OrderCount {
 
     private String orderUnit;
 
-    private Integer saleNum;
+    private String saleNum;
 
-    private Integer orderNum;
+    private String orderNum;
 
     private BigDecimal projectAccount;
 
@@ -112,7 +114,7 @@ public class OrderCount {
 
     private BigDecimal preLogisticsAmount;
 
-    private Long logisticsForwardAmount;
+    private BigDecimal logisticsForwardAmount;
 
     private Date finishDate;
 
@@ -214,6 +216,14 @@ public class OrderCount {
         this.proName = proName == null ? null : proName.trim();
     }
 
+    public String getEnglishName() {
+        return englishName;
+    }
+
+    public void setEnglishName(String englishName) {
+        this.englishName = englishName == null ? null : englishName.trim();
+    }
+
     public String getSpecification() {
         return specification;
     }
@@ -262,20 +272,20 @@ public class OrderCount {
         this.orderUnit = orderUnit == null ? null : orderUnit.trim();
     }
 
-    public Integer getSaleNum() {
+    public String getSaleNum() {
         return saleNum;
     }
 
-    public void setSaleNum(Integer saleNum) {
-        this.saleNum = saleNum;
+    public void setSaleNum(String saleNum) {
+        this.saleNum = saleNum == null ? null : saleNum.trim();
     }
 
-    public Integer getOrderNum() {
+    public String getOrderNum() {
         return orderNum;
     }
 
-    public void setOrderNum(Integer orderNum) {
-        this.orderNum = orderNum;
+    public void setOrderNum(String orderNum) {
+        this.orderNum = orderNum == null ? null : orderNum.trim();
     }
 
     public BigDecimal getProjectAccount() {
@@ -566,11 +576,11 @@ public class OrderCount {
         this.preLogisticsAmount = preLogisticsAmount;
     }
 
-    public Long getLogisticsForwardAmount() {
+    public BigDecimal getLogisticsForwardAmount() {
         return logisticsForwardAmount;
     }
 
-    public void setLogisticsForwardAmount(Long logisticsForwardAmount) {
+    public void setLogisticsForwardAmount(BigDecimal logisticsForwardAmount) {
         this.logisticsForwardAmount = logisticsForwardAmount;
     }
 

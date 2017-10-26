@@ -10,6 +10,7 @@
     <result column="category" property="category" jdbcType="VARCHAR" />
     <result column="area" property="area" jdbcType="VARCHAR" />
     <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="oil" property="oil" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, assign_time, plan_num, execute_num, ammount, category, area, country
+    id, assign_time, plan_num, execute_num, ammount, category, area, country, oil
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.ProcurementCountExample" >
     select
@@ -105,10 +106,10 @@
   <insert id="insert" parameterType="com.erui.report.model.ProcurementCount" >
     insert into procurement_count (id, assign_time, plan_num, 
       execute_num, ammount, category, 
-      area, country)
+      area, country, oil)
     values (#{id,jdbcType=INTEGER}, #{assignTime,jdbcType=TIMESTAMP}, #{planNum,jdbcType=VARCHAR}, 
       #{executeNum,jdbcType=VARCHAR}, #{ammount,jdbcType=DECIMAL}, #{category,jdbcType=VARCHAR}, 
-      #{area,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR})
+      #{area,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{oil,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.ProcurementCount" >
     insert into procurement_count
@@ -137,6 +138,9 @@
       <if test="country != null" >
         country,
       </if>
+      <if test="oil != null" >
+        oil,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -162,6 +166,9 @@
       </if>
       <if test="country != null" >
         #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="oil != null" >
+        #{oil,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +205,9 @@
       <if test="record.country != null" >
         country = #{record.country,jdbcType=VARCHAR},
       </if>
+      <if test="record.oil != null" >
+        oil = #{record.oil,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +222,8 @@
       ammount = #{record.ammount,jdbcType=DECIMAL},
       category = #{record.category,jdbcType=VARCHAR},
       area = #{record.area,jdbcType=VARCHAR},
-      country = #{record.country,jdbcType=VARCHAR}
+      country = #{record.country,jdbcType=VARCHAR},
+      oil = #{record.oil,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +252,9 @@
       <if test="country != null" >
         country = #{country,jdbcType=VARCHAR},
       </if>
+      <if test="oil != null" >
+        oil = #{oil,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -252,7 +266,8 @@
       ammount = #{ammount,jdbcType=DECIMAL},
       category = #{category,jdbcType=VARCHAR},
       area = #{area,jdbcType=VARCHAR},
-      country = #{country,jdbcType=VARCHAR}
+      country = #{country,jdbcType=VARCHAR},
+      oil = #{oil,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

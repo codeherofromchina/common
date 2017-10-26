@@ -3,16 +3,16 @@
 <mapper namespace="com.erui.report.dao.CategoryQualityMapper" >
   <resultMap id="BaseResultMap" type="com.erui.report.model.CategoryQuality" >
     <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="quality_control_date" property="qualityControlDate" jdbcType="TIMESTAMP" />
+    <result column="quality_control_date" property="qualityControlDate" jdbcType="VARCHAR" />
     <result column="inspection_total" property="inspectionTotal" jdbcType="INTEGER" />
     <result column="pro_infactory_check_pass_count" property="proInfactoryCheckPassCount" jdbcType="INTEGER" />
-    <result column="pro_infactory_check_pass_rate" property="proInfactoryCheckPassRate" jdbcType="VARCHAR" />
+    <result column="pro_infactory_check_pass_rate" property="proInfactoryCheckPassRate" jdbcType="DECIMAL" />
     <result column="pro_outfactory_total" property="proOutfactoryTotal" jdbcType="INTEGER" />
     <result column="pro_outfactory_check_count" property="proOutfactoryCheckCount" jdbcType="INTEGER" />
-    <result column="pro_outfactory_check_rate" property="proOutfactoryCheckRate" jdbcType="VARCHAR" />
+    <result column="pro_outfactory_check_rate" property="proOutfactoryCheckRate" jdbcType="DECIMAL" />
     <result column="assignments_total" property="assignmentsTotal" jdbcType="INTEGER" />
     <result column="products_qualified_count" property="productsQualifiedCount" jdbcType="INTEGER" />
-    <result column="products_assignments_qualified_rate" property="productsAssignmentsQualifiedRate" jdbcType="VARCHAR" />
+    <result column="products_assignments_qualified_rate" property="productsAssignmentsQualifiedRate" jdbcType="DECIMAL" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -114,11 +114,11 @@
       pro_outfactory_check_rate, assignments_total, 
       products_qualified_count, products_assignments_qualified_rate
       )
-    values (#{id,jdbcType=BIGINT}, #{qualityControlDate,jdbcType=TIMESTAMP}, #{inspectionTotal,jdbcType=INTEGER}, 
-      #{proInfactoryCheckPassCount,jdbcType=INTEGER}, #{proInfactoryCheckPassRate,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{qualityControlDate,jdbcType=VARCHAR}, #{inspectionTotal,jdbcType=INTEGER}, 
+      #{proInfactoryCheckPassCount,jdbcType=INTEGER}, #{proInfactoryCheckPassRate,jdbcType=DECIMAL}, 
       #{proOutfactoryTotal,jdbcType=INTEGER}, #{proOutfactoryCheckCount,jdbcType=INTEGER}, 
-      #{proOutfactoryCheckRate,jdbcType=VARCHAR}, #{assignmentsTotal,jdbcType=INTEGER}, 
-      #{productsQualifiedCount,jdbcType=INTEGER}, #{productsAssignmentsQualifiedRate,jdbcType=VARCHAR}
+      #{proOutfactoryCheckRate,jdbcType=DECIMAL}, #{assignmentsTotal,jdbcType=INTEGER}, 
+      #{productsQualifiedCount,jdbcType=INTEGER}, #{productsAssignmentsQualifiedRate,jdbcType=DECIMAL}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.CategoryQuality" >
@@ -163,7 +163,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="qualityControlDate != null" >
-        #{qualityControlDate,jdbcType=TIMESTAMP},
+        #{qualityControlDate,jdbcType=VARCHAR},
       </if>
       <if test="inspectionTotal != null" >
         #{inspectionTotal,jdbcType=INTEGER},
@@ -172,7 +172,7 @@
         #{proInfactoryCheckPassCount,jdbcType=INTEGER},
       </if>
       <if test="proInfactoryCheckPassRate != null" >
-        #{proInfactoryCheckPassRate,jdbcType=VARCHAR},
+        #{proInfactoryCheckPassRate,jdbcType=DECIMAL},
       </if>
       <if test="proOutfactoryTotal != null" >
         #{proOutfactoryTotal,jdbcType=INTEGER},
@@ -181,7 +181,7 @@
         #{proOutfactoryCheckCount,jdbcType=INTEGER},
       </if>
       <if test="proOutfactoryCheckRate != null" >
-        #{proOutfactoryCheckRate,jdbcType=VARCHAR},
+        #{proOutfactoryCheckRate,jdbcType=DECIMAL},
       </if>
       <if test="assignmentsTotal != null" >
         #{assignmentsTotal,jdbcType=INTEGER},
@@ -190,7 +190,7 @@
         #{productsQualifiedCount,jdbcType=INTEGER},
       </if>
       <if test="productsAssignmentsQualifiedRate != null" >
-        #{productsAssignmentsQualifiedRate,jdbcType=VARCHAR},
+        #{productsAssignmentsQualifiedRate,jdbcType=DECIMAL},
       </if>
     </trim>
   </insert>
@@ -207,7 +207,7 @@
         id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.qualityControlDate != null" >
-        quality_control_date = #{record.qualityControlDate,jdbcType=TIMESTAMP},
+        quality_control_date = #{record.qualityControlDate,jdbcType=VARCHAR},
       </if>
       <if test="record.inspectionTotal != null" >
         inspection_total = #{record.inspectionTotal,jdbcType=INTEGER},
@@ -216,7 +216,7 @@
         pro_infactory_check_pass_count = #{record.proInfactoryCheckPassCount,jdbcType=INTEGER},
       </if>
       <if test="record.proInfactoryCheckPassRate != null" >
-        pro_infactory_check_pass_rate = #{record.proInfactoryCheckPassRate,jdbcType=VARCHAR},
+        pro_infactory_check_pass_rate = #{record.proInfactoryCheckPassRate,jdbcType=DECIMAL},
       </if>
       <if test="record.proOutfactoryTotal != null" >
         pro_outfactory_total = #{record.proOutfactoryTotal,jdbcType=INTEGER},
@@ -225,7 +225,7 @@
         pro_outfactory_check_count = #{record.proOutfactoryCheckCount,jdbcType=INTEGER},
       </if>
       <if test="record.proOutfactoryCheckRate != null" >
-        pro_outfactory_check_rate = #{record.proOutfactoryCheckRate,jdbcType=VARCHAR},
+        pro_outfactory_check_rate = #{record.proOutfactoryCheckRate,jdbcType=DECIMAL},
       </if>
       <if test="record.assignmentsTotal != null" >
         assignments_total = #{record.assignmentsTotal,jdbcType=INTEGER},
@@ -234,7 +234,7 @@
         products_qualified_count = #{record.productsQualifiedCount,jdbcType=INTEGER},
       </if>
       <if test="record.productsAssignmentsQualifiedRate != null" >
-        products_assignments_qualified_rate = #{record.productsAssignmentsQualifiedRate,jdbcType=VARCHAR},
+        products_assignments_qualified_rate = #{record.productsAssignmentsQualifiedRate,jdbcType=DECIMAL},
       </if>
     </set>
     <if test="_parameter != null" >
@@ -244,16 +244,16 @@
   <update id="updateByExample" parameterType="map" >
     update category_quality
     set id = #{record.id,jdbcType=BIGINT},
-      quality_control_date = #{record.qualityControlDate,jdbcType=TIMESTAMP},
+      quality_control_date = #{record.qualityControlDate,jdbcType=VARCHAR},
       inspection_total = #{record.inspectionTotal,jdbcType=INTEGER},
       pro_infactory_check_pass_count = #{record.proInfactoryCheckPassCount,jdbcType=INTEGER},
-      pro_infactory_check_pass_rate = #{record.proInfactoryCheckPassRate,jdbcType=VARCHAR},
+      pro_infactory_check_pass_rate = #{record.proInfactoryCheckPassRate,jdbcType=DECIMAL},
       pro_outfactory_total = #{record.proOutfactoryTotal,jdbcType=INTEGER},
       pro_outfactory_check_count = #{record.proOutfactoryCheckCount,jdbcType=INTEGER},
-      pro_outfactory_check_rate = #{record.proOutfactoryCheckRate,jdbcType=VARCHAR},
+      pro_outfactory_check_rate = #{record.proOutfactoryCheckRate,jdbcType=DECIMAL},
       assignments_total = #{record.assignmentsTotal,jdbcType=INTEGER},
       products_qualified_count = #{record.productsQualifiedCount,jdbcType=INTEGER},
-      products_assignments_qualified_rate = #{record.productsAssignmentsQualifiedRate,jdbcType=VARCHAR}
+      products_assignments_qualified_rate = #{record.productsAssignmentsQualifiedRate,jdbcType=DECIMAL}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -262,7 +262,7 @@
     update category_quality
     <set >
       <if test="qualityControlDate != null" >
-        quality_control_date = #{qualityControlDate,jdbcType=TIMESTAMP},
+        quality_control_date = #{qualityControlDate,jdbcType=VARCHAR},
       </if>
       <if test="inspectionTotal != null" >
         inspection_total = #{inspectionTotal,jdbcType=INTEGER},
@@ -271,7 +271,7 @@
         pro_infactory_check_pass_count = #{proInfactoryCheckPassCount,jdbcType=INTEGER},
       </if>
       <if test="proInfactoryCheckPassRate != null" >
-        pro_infactory_check_pass_rate = #{proInfactoryCheckPassRate,jdbcType=VARCHAR},
+        pro_infactory_check_pass_rate = #{proInfactoryCheckPassRate,jdbcType=DECIMAL},
       </if>
       <if test="proOutfactoryTotal != null" >
         pro_outfactory_total = #{proOutfactoryTotal,jdbcType=INTEGER},
@@ -280,7 +280,7 @@
         pro_outfactory_check_count = #{proOutfactoryCheckCount,jdbcType=INTEGER},
       </if>
       <if test="proOutfactoryCheckRate != null" >
-        pro_outfactory_check_rate = #{proOutfactoryCheckRate,jdbcType=VARCHAR},
+        pro_outfactory_check_rate = #{proOutfactoryCheckRate,jdbcType=DECIMAL},
       </if>
       <if test="assignmentsTotal != null" >
         assignments_total = #{assignmentsTotal,jdbcType=INTEGER},
@@ -289,23 +289,23 @@
         products_qualified_count = #{productsQualifiedCount,jdbcType=INTEGER},
       </if>
       <if test="productsAssignmentsQualifiedRate != null" >
-        products_assignments_qualified_rate = #{productsAssignmentsQualifiedRate,jdbcType=VARCHAR},
+        products_assignments_qualified_rate = #{productsAssignmentsQualifiedRate,jdbcType=DECIMAL},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.CategoryQuality" >
     update category_quality
-    set quality_control_date = #{qualityControlDate,jdbcType=TIMESTAMP},
+    set quality_control_date = #{qualityControlDate,jdbcType=VARCHAR},
       inspection_total = #{inspectionTotal,jdbcType=INTEGER},
       pro_infactory_check_pass_count = #{proInfactoryCheckPassCount,jdbcType=INTEGER},
-      pro_infactory_check_pass_rate = #{proInfactoryCheckPassRate,jdbcType=VARCHAR},
+      pro_infactory_check_pass_rate = #{proInfactoryCheckPassRate,jdbcType=DECIMAL},
       pro_outfactory_total = #{proOutfactoryTotal,jdbcType=INTEGER},
       pro_outfactory_check_count = #{proOutfactoryCheckCount,jdbcType=INTEGER},
-      pro_outfactory_check_rate = #{proOutfactoryCheckRate,jdbcType=VARCHAR},
+      pro_outfactory_check_rate = #{proOutfactoryCheckRate,jdbcType=DECIMAL},
       assignments_total = #{assignmentsTotal,jdbcType=INTEGER},
       products_qualified_count = #{productsQualifiedCount,jdbcType=INTEGER},
-      products_assignments_qualified_rate = #{productsAssignmentsQualifiedRate,jdbcType=VARCHAR}
+      products_assignments_qualified_rate = #{productsAssignmentsQualifiedRate,jdbcType=DECIMAL}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

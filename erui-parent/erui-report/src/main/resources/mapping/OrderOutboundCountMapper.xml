@@ -5,11 +5,13 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="create_at" property="createAt" jdbcType="TIMESTAMP" />
     <result column="outbound_num" property="outboundNum" jdbcType="VARCHAR" />
-    <result column="dispatch_num" property="dispatchNum" jdbcType="VARCHAR" />
     <result column="contract_num" property="contractNum" jdbcType="VARCHAR" />
+    <result column="destination" property="destination" jdbcType="VARCHAR" />
     <result column="execute_num" property="executeNum" jdbcType="VARCHAR" />
     <result column="pack_count" property="packCount" jdbcType="INTEGER" />
-    <result column="destination" property="destination" jdbcType="VARCHAR" />
+    <result column="outbound_date" property="outboundDate" jdbcType="DATE" />
+    <result column="amounts" property="amounts" jdbcType="DECIMAL" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -70,8 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, create_at, outbound_num, dispatch_num, contract_num, execute_num, pack_count, 
-    destination
+    id, create_at, outbound_num, contract_num, destination, execute_num, pack_count, 
+    outbound_date, amounts, remark
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.OrderOutboundCountExample" >
     select
@@ -105,11 +107,13 @@
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.OrderOutboundCount" >
     insert into order_outbound_count (id, create_at, outbound_num, 
-      dispatch_num, contract_num, execute_num, 
-      pack_count, destination)
+      contract_num, destination, execute_num, 
+      pack_count, outbound_date, amounts, 
+      remark)
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{outboundNum,jdbcType=VARCHAR}, 
-      #{dispatchNum,jdbcType=VARCHAR}, #{contractNum,jdbcType=VARCHAR}, #{executeNum,jdbcType=VARCHAR}, 
-      #{packCount,jdbcType=INTEGER}, #{destination,jdbcType=VARCHAR})
+      #{contractNum,jdbcType=VARCHAR}, #{destination,jdbcType=VARCHAR}, #{executeNum,jdbcType=VARCHAR}, 
+      #{packCount,jdbcType=INTEGER}, #{outboundDate,jdbcType=DATE}, #{amounts,jdbcType=DECIMAL}, 
+      #{remark,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.OrderOutboundCount" >
     insert into order_outbound_count
@@ -123,11 +127,11 @@
       <if test="outboundNum != null" >
         outbound_num,
       </if>
-      <if test="dispatchNum != null" >
-        dispatch_num,
-      </if>
       <if test="contractNum != null" >
         contract_num,
+      </if>
+      <if test="destination != null" >
+        destination,
       </if>
       <if test="executeNum != null" >
         execute_num,
@@ -135,8 +139,14 @@
       <if test="packCount != null" >
         pack_count,
       </if>
-      <if test="destination != null" >
-        destination,
+      <if test="outboundDate != null" >
+        outbound_date,
+      </if>
+      <if test="amounts != null" >
+        amounts,
+      </if>
+      <if test="remark != null" >
+        remark,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -149,11 +159,11 @@
       <if test="outboundNum != null" >
         #{outboundNum,jdbcType=VARCHAR},
       </if>
-      <if test="dispatchNum != null" >
-        #{dispatchNum,jdbcType=VARCHAR},
-      </if>
       <if test="contractNum != null" >
         #{contractNum,jdbcType=VARCHAR},
+      </if>
+      <if test="destination != null" >
+        #{destination,jdbcType=VARCHAR},
       </if>
       <if test="executeNum != null" >
         #{executeNum,jdbcType=VARCHAR},
@@ -161,8 +171,14 @@
       <if test="packCount != null" >
         #{packCount,jdbcType=INTEGER},
       </if>
-      <if test="destination != null" >
-        #{destination,jdbcType=VARCHAR},
+      <if test="outboundDate != null" >
+        #{outboundDate,jdbcType=DATE},
+      </if>
+      <if test="amounts != null" >
+        #{amounts,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -184,11 +200,11 @@
       <if test="record.outboundNum != null" >
         outbound_num = #{record.outboundNum,jdbcType=VARCHAR},
       </if>
-      <if test="record.dispatchNum != null" >
-        dispatch_num = #{record.dispatchNum,jdbcType=VARCHAR},
-      </if>
       <if test="record.contractNum != null" >
         contract_num = #{record.contractNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.destination != null" >
+        destination = #{record.destination,jdbcType=VARCHAR},
       </if>
       <if test="record.executeNum != null" >
         execute_num = #{record.executeNum,jdbcType=VARCHAR},
@@ -196,8 +212,14 @@
       <if test="record.packCount != null" >
         pack_count = #{record.packCount,jdbcType=INTEGER},
       </if>
-      <if test="record.destination != null" >
-        destination = #{record.destination,jdbcType=VARCHAR},
+      <if test="record.outboundDate != null" >
+        outbound_date = #{record.outboundDate,jdbcType=DATE},
+      </if>
+      <if test="record.amounts != null" >
+        amounts = #{record.amounts,jdbcType=DECIMAL},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null" >
@@ -209,11 +231,13 @@
     set id = #{record.id,jdbcType=INTEGER},
       create_at = #{record.createAt,jdbcType=TIMESTAMP},
       outbound_num = #{record.outboundNum,jdbcType=VARCHAR},
-      dispatch_num = #{record.dispatchNum,jdbcType=VARCHAR},
       contract_num = #{record.contractNum,jdbcType=VARCHAR},
+      destination = #{record.destination,jdbcType=VARCHAR},
       execute_num = #{record.executeNum,jdbcType=VARCHAR},
       pack_count = #{record.packCount,jdbcType=INTEGER},
-      destination = #{record.destination,jdbcType=VARCHAR}
+      outbound_date = #{record.outboundDate,jdbcType=DATE},
+      amounts = #{record.amounts,jdbcType=DECIMAL},
+      remark = #{record.remark,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,11 +251,11 @@
       <if test="outboundNum != null" >
         outbound_num = #{outboundNum,jdbcType=VARCHAR},
       </if>
-      <if test="dispatchNum != null" >
-        dispatch_num = #{dispatchNum,jdbcType=VARCHAR},
-      </if>
       <if test="contractNum != null" >
         contract_num = #{contractNum,jdbcType=VARCHAR},
+      </if>
+      <if test="destination != null" >
+        destination = #{destination,jdbcType=VARCHAR},
       </if>
       <if test="executeNum != null" >
         execute_num = #{executeNum,jdbcType=VARCHAR},
@@ -239,8 +263,14 @@
       <if test="packCount != null" >
         pack_count = #{packCount,jdbcType=INTEGER},
       </if>
-      <if test="destination != null" >
-        destination = #{destination,jdbcType=VARCHAR},
+      <if test="outboundDate != null" >
+        outbound_date = #{outboundDate,jdbcType=DATE},
+      </if>
+      <if test="amounts != null" >
+        amounts = #{amounts,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -249,11 +279,13 @@
     update order_outbound_count
     set create_at = #{createAt,jdbcType=TIMESTAMP},
       outbound_num = #{outboundNum,jdbcType=VARCHAR},
-      dispatch_num = #{dispatchNum,jdbcType=VARCHAR},
       contract_num = #{contractNum,jdbcType=VARCHAR},
+      destination = #{destination,jdbcType=VARCHAR},
       execute_num = #{executeNum,jdbcType=VARCHAR},
       pack_count = #{packCount,jdbcType=INTEGER},
-      destination = #{destination,jdbcType=VARCHAR}
+      outbound_date = #{outboundDate,jdbcType=DATE},
+      amounts = #{amounts,jdbcType=DECIMAL},
+      remark = #{remark,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

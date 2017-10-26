@@ -230,7 +230,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			rc.setTradeTerms(strArr[8]);
 			try {
 				rc.setCreateAt(
-						DateUtil.parseString2Date(strArr[9], "yyyy/M/d","yyyy/M/d hh:mm:ss",DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+						DateUtil.parseString2Date(strArr[9], DateUtil.SHORT_FORMAT_STR , "yyyy/M/d","yyyy/M/d hh:mm:ss",DateUtil.FULL_FORMAT_STR));
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
@@ -259,7 +259,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 			try {
 				rc.setBackDate(
-						DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+						DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR,"yyyy/M/d","yyyy/M/d hh:mm:ss",DateUtil.FULL_FORMAT_STR));
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();

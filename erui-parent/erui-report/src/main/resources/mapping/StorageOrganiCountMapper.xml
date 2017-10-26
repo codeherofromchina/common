@@ -7,6 +7,7 @@
     <result column="organi_name" property="organiName" jdbcType="VARCHAR" />
     <result column="tray_num" property="trayNum" jdbcType="INTEGER" />
     <result column="product_num" property="productNum" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -67,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, create_at, organi_name, tray_num, product_num
+    id, create_at, organi_name, tray_num, product_num, remark
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.StorageOrganiCountExample" >
     select
@@ -101,9 +102,11 @@
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.StorageOrganiCount" >
     insert into storage_organi_count (id, create_at, organi_name, 
-      tray_num, product_num)
+      tray_num, product_num, remark
+      )
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{organiName,jdbcType=VARCHAR}, 
-      #{trayNum,jdbcType=INTEGER}, #{productNum,jdbcType=INTEGER})
+      #{trayNum,jdbcType=INTEGER}, #{productNum,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.StorageOrganiCount" >
     insert into storage_organi_count
@@ -123,6 +126,9 @@
       <if test="productNum != null" >
         product_num,
       </if>
+      <if test="remark != null" >
+        remark,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -139,6 +145,9 @@
       </if>
       <if test="productNum != null" >
         #{productNum,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -166,6 +175,9 @@
       <if test="record.productNum != null" >
         product_num = #{record.productNum,jdbcType=INTEGER},
       </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -177,7 +189,8 @@
       create_at = #{record.createAt,jdbcType=TIMESTAMP},
       organi_name = #{record.organiName,jdbcType=VARCHAR},
       tray_num = #{record.trayNum,jdbcType=INTEGER},
-      product_num = #{record.productNum,jdbcType=INTEGER}
+      product_num = #{record.productNum,jdbcType=INTEGER},
+      remark = #{record.remark,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -197,6 +210,9 @@
       <if test="productNum != null" >
         product_num = #{productNum,jdbcType=INTEGER},
       </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -205,7 +221,8 @@
     set create_at = #{createAt,jdbcType=TIMESTAMP},
       organi_name = #{organiName,jdbcType=VARCHAR},
       tray_num = #{trayNum,jdbcType=INTEGER},
-      product_num = #{productNum,jdbcType=INTEGER}
+      product_num = #{productNum,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
