@@ -422,7 +422,6 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 		return count;
 
 	}
-
 	@Override
 	public Double orderAmountByTime(Date startTime, Date endTime,String area) {
         OrderCountExample example= new OrderCountExample();
