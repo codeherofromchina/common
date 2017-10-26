@@ -388,6 +388,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(oc);
 					response.incrSuccess();
 				}

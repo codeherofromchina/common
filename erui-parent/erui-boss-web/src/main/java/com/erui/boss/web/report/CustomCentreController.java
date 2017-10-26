@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,8 +45,14 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping(value = "/inquiryPandect",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public Object inquiryPandect(@RequestBody(required = true) Map<String, Object> reqMap ){
-        Map<String,Object> result=new HashMap<String,Object>();
-        int days = (int) reqMap.get("days");
+        Result<Object> result = new Result<>();
+        if (!reqMap.containsKey("days")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            result.setData("参数输入有误");
+            return result;
+        }
+        //当前时期
+        int days = Integer.parseInt(reqMap.get("days").toString());
         Date startTime = DateUtil.recedeTime(days);
         Date chainDate = DateUtil.recedeTime(days*2);//环比起始时间
         Map<String,Object> Datas=new HashMap<String,Object>();//询单统计信息
@@ -100,7 +108,7 @@ public class CustomCentreController {
         Datas.put("inquiry",inquiryMap);
         Datas.put("isOil",proIsOilMap);
         Datas.put("proTop3",proTop3Map);
-        return new Result<Object>().setData(Datas);
+        return result.setData(Datas);
     }
 
     /*
@@ -108,9 +116,15 @@ public class CustomCentreController {
   * */
     @ResponseBody
     @RequestMapping(value = "/orderPandect",method =RequestMethod.POST,produces = "application/json;charset=utf8")
-    public Object orderPandect(@RequestBody(required = true) Map<String, Object> reqMap ){
-        Map<String,Object> result=new HashMap<String,Object>();
-        int days = (int) reqMap.get("days");
+    public Object orderPandect(@RequestBody(required = true) Map<String, Object> reqMap ) {
+        Result<Object> result = new Result<>();
+        if (!reqMap.containsKey("days")) {
+          result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+          result.setData("参数输入有误");
+            return result;
+        }
+        //当前时期
+        int days = Integer.parseInt(reqMap.get("days").toString());
         Date startTime = DateUtil.recedeTime(days);
         Date chainDate = DateUtil.recedeTime(days*2);//环比起始时间
         Map<String,Object> Datas=new HashMap<String,Object>();//订单统计信息
@@ -168,8 +182,7 @@ public class CustomCentreController {
         Datas.put("sucessOrderMap",sucessOrderMap);
         Datas.put("top3",proTop3Map);
 
-        result.put("code",200);
-        result.put("data",Datas);
+       result.setData(Datas);
         return result;
     }
 
@@ -206,9 +219,14 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping(value = "/inquiryTimeDistrbute",method =RequestMethod.POST,produces = "application/json;charset=utf8")
     public Object inquiryTimeDistrbute(@RequestBody(required = true)Map<String, Object> reqMap ){
-
-        Map<String,Object> result=new HashMap<String,Object>();
-        int days = (int) reqMap.get("days");
+        Result<Object> result = new Result<>();
+        if (!reqMap.containsKey("days")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            result.setData("参数输入有误");
+            return result;
+        }
+        //当前时期
+        int days = Integer.parseInt(reqMap.get("days").toString());
         Date startTime = DateUtil.recedeTime(days);
         int totalCount = inquiryService.inquiryCountByTime(null, null, "",0,0,"","");
         int count1=inquiryService.inquiryCountByTime(startTime, new Date(), "",1,4,"","");
@@ -229,8 +247,8 @@ public class CustomCentreController {
             quoteTimeMap.put("sixteenCountRate",RateUtil.intChainRate(count4,totalCount));
             quoteTimeMap.put("twentyFourCountRate",RateUtil.intChainRate(count5,totalCount));
         }
-        result.put("code",200);
-        result.put("data",quoteTimeMap);
+        result.setStatus( ResultStatusEnum.SUCCESS);
+        result.setData(quoteTimeMap);
         return result;
     }
 

@@ -91,6 +91,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(ce);
 					response.incrSuccess();
 				}

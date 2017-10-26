@@ -269,6 +269,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(ic);
 					response.incrSuccess();
 				}

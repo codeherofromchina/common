@@ -1,6 +1,5 @@
 package com.erui.boss.web.report;
 
-import javafx.beans.binding.ObjectExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -144,9 +143,6 @@ public class SupplyChainController {
                 break;
             }
         }
-        HashMap<String, Object> planSPU = new HashMap<>();
-        HashMap<String, Object> planSKU = new HashMap<>();
-        HashMap<String, Object> planSuppliy= new HashMap<>();
         if(suppliOrgVo!=null) {
             Map<String, Object> data = returnDetailData(suppliOrgVo);
             result.put("code",200);
@@ -154,7 +150,7 @@ public class SupplyChainController {
         }
         return  result;
     }
-    //返回品类部和事业部明细数据封装
+    //事业部明细封装
     public Map<String,Object> returnDetailData(SuppliyChainOrgVo suppliOrgVo){
         Map<String, Object> planSPU = new HashMap<>();
         Map<String, Object> planSKU = new HashMap<>();
@@ -165,7 +161,7 @@ public class SupplyChainController {
         planSKU.put("noFinishSKU", suppliOrgVo.getPlanSKU() - suppliOrgVo.getFinishSKU());
         planSuppliy.put("finishedSuppliy", suppliOrgVo.getFinishSuppliy());
         planSuppliy.put("noFinishSuppliy", suppliOrgVo.getPlanSuppliy() - suppliOrgVo.getFinishSuppliy());
-        Map<String, Object> data=new HashMap<String,Object>();
+        Map<String, Object> data=new HashMap<>();
         data.put("planSPU",planSPU);
         data.put("planSKU",planSKU);
         data.put("planSuppliy",planSuppliy);

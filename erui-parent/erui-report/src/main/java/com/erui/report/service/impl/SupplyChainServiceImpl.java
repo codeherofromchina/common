@@ -160,6 +160,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(sc);
 					response.incrSuccess();
 				}

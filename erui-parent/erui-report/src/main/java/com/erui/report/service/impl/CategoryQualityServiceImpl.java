@@ -124,6 +124,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 			
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(cq);
 					response.incrSuccess();
 				}
