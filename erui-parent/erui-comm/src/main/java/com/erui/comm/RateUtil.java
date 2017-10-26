@@ -18,7 +18,12 @@ public class RateUtil {
      */
     public static double intChainRate(int element, int denominator){
         DecimalFormat df=new DecimalFormat("0.00");
-        return Double.parseDouble(df.format(((double) element)/((double) denominator)));
+        if (denominator > 0){
+         return Double.parseDouble(df.format(((double) element)/((double) denominator)));
+        }if (element == 0 || denominator == 0 ){
+            return 0;
+        }
+        return 1;
     }
      /**
       * @Author:SHIGS
@@ -28,6 +33,11 @@ public class RateUtil {
       */
     public static double doubleChainRate(double element, double denominator){
         DecimalFormat df=new DecimalFormat("0.00");
+        if (denominator > 0){
         return Double.parseDouble(df.format((element)/( denominator)));
+        }if (element == 0 || denominator == 0 ){
+            return 0;
+        }
+        return 1;
     }
 }

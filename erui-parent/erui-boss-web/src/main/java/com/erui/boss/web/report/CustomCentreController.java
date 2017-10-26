@@ -1,9 +1,6 @@
 package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +9,6 @@ import java.util.stream.Collectors;
 
 import com.erui.boss.web.util.Result;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.report.model.InquiryCount;
-import com.erui.report.model.OrderCount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;

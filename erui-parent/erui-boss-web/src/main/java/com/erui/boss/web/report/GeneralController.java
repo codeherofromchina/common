@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -109,7 +110,7 @@ public class GeneralController {
 		}
 		Map<String, Object> order = new HashMap<>();
 		order.put("count", orderCount);
-		order.put("amount", RateUtil.doubleChainRate(inquiryAmount, 10000) + "万$");
+		order.put("amount", RateUtil.doubleChainRate(orderAmount, 10000) + "万$");
 		order.put("chainAdd", chainOrderAdd);
 		order.put("chainRate", chainOrderRate);
 		Map<String, Object> data = new HashMap<>();
@@ -149,31 +150,8 @@ public class GeneralController {
     @ResponseBody
     @RequestMapping(value = "member",method = RequestMethod.POST)
     public Object singleMemberCount(){
-        Map member =  memberService.selectMemberByTime();
-        //黄金会员 高级会员 一般会员
-        BigDecimal goldMember  = new BigDecimal(member.get("s5").toString());
-        BigDecimal seniorMember  = new BigDecimal(member.get("s3").toString());
-        BigDecimal generalMember  = new BigDecimal(member.get("s1").toString());
-        int totalMember = goldMember.intValue() + seniorMember.intValue() + generalMember.intValue();
-        double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(),totalMember);
-        double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(),totalMember);
-        double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(),totalMember);
-        Map<String,Object> result = new HashMap<>();
-        Map<String,Object> gold = new HashMap<>();
-        Map<String,Object> senior = new HashMap<>();
-        Map<String,Object> general = new HashMap<>();
-        Map<String,Object> data = new HashMap<>();
-        gold.put("count",goldMember);
-        gold.put("rebuyRate",goldMemberRate);
-        senior.put("count",seniorMember);
-        senior.put("rebuyRate",seniorMemberRate);
-        general.put("count",generalMember);
-        general.put("rebuyRate",generalMemberRate);
-        data.put("goldMember",gold);
-        data.put("seniorMember",senior);
-        data.put("generalMember",general);
-        result.put("data",data);
-        result.put("code",200);
+        Map<String,Object> member =  memberService.selectMemberByTime();
+		Result<Map<String,Object>> result = new Result<>(member);
         return result;
     }
 	/**
@@ -240,66 +218,13 @@ public class GeneralController {
 	@RequestMapping(value = "supplyTrend", method = RequestMethod.POST, produces = { "application/json;charset=utf-8" })
 	@ResponseBody
 	public Object inquiryOrderTrend(@RequestBody Map<String, Object> map) throws Exception {
-		if (!map.containsKey("days")) {
+		if (!map.containsKey("days") || !map.containsKey("type")) {
 			throw new MissingServletRequestParameterException("days","String");
 		}
 		//当前时期
 		int days = Integer.parseInt(map.get("days").toString());
-		Date startTime = DateUtil.recedeTime(days);
-		List<Map> supplyMap = supplyChainService.selectFinishByDate(startTime, new Date());
-
-		List<Integer> spuList = new ArrayList<>();
-		List<Integer> skuList = new ArrayList<>();
-		List<Integer> supplierList = new ArrayList<>();
-		List<String> dateList = new ArrayList<>();
-		Map<String, Map<String, Integer>> sqlDate = new HashMap<>();
-		Map<String, Integer> lintData = null;
-		for (Map map2 : supplyMap) {
-			lintData = new HashMap<>();
-			BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
-			BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
-			BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
-			Date date2 = (Date) map2.get("create_at");
-			String dateString = DateUtil.format("MM月dd日", date2);
-			lintData.put("spu", spu.intValue());
-			lintData.put("sku", sku.intValue());
-			lintData.put("supplier", supplier.intValue());
-			sqlDate.put(dateString, lintData);
-		}
-		for (int i = 0; i < days; i++) {
-			Date datetime = DateUtil.recedeTime(days - (i + 1));
-			String date = DateUtil.format("MM月dd日", datetime);
-			if (sqlDate.containsKey(date)) {
-				dateList.add(date);
-				spuList.add(sqlDate.get(date).get("spu"));
-				skuList.add(sqlDate.get(date).get("sku"));
-				supplierList.add(sqlDate.get(date).get("supplier"));
-			} else {
-				dateList.add(date);
-				spuList.add(0);
-				skuList.add(0);
-				supplierList.add(0);
-			}
-		}
-		String[] s = { "SPU完成量", "SKU完成量", "供应商完成量" };
-		Map<String, Object> data = new HashMap<>();
-		if (map.get("type").equals("spu")) {
-			data.put("legend", s[0]);
-			data.put("xAxis", dateList);
-			data.put("yAxis", spuList);
-
-		} else if (map.get("type").equals("sku")) {
-			data.put("legend", s[1]);
-			data.put("xAxis", dateList);
-			data.put("yAxis", skuList);
-		} else {
-			data.put("legend", s[2]);
-			data.put("xAxis", dateList);
-			data.put("yAxis", supplierList);
-		}
-		Map<String, Object> result = new HashMap<>();
-		result.put("data", data);
-		result.put("code", 200);
+		Map<String,Object> supplyMap = supplyChainService.selectFinishByDate(days,map.get("type").toString());
+		Result<Map<String,Object>> result = new Result<>(supplyMap);
 		return result;
 	}
     /**
