@@ -76,6 +76,7 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(ooc);
 					response.incrSuccess();
 				}

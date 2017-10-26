@@ -454,6 +454,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(hc);
 					response.incrSuccess();
 				}

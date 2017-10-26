@@ -59,6 +59,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 			pc.setOil(strArr[7]);
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(pc);
 					response.incrSuccess();
 				}

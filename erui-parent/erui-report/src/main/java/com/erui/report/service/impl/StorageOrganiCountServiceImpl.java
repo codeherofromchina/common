@@ -63,6 +63,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(soc);
 					response.incrSuccess();
 				}

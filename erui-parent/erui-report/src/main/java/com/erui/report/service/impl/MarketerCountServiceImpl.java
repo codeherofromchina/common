@@ -105,6 +105,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(mc);
 					response.incrSuccess();
 				}

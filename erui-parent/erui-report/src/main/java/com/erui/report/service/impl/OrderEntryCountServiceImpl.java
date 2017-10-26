@@ -77,6 +77,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(oec);
 					response.incrSuccess();
 				}

@@ -269,6 +269,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(rc);
 					response.incrSuccess();
 				}

@@ -109,6 +109,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
 			try {
 				if (!testOnly) {
+					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(member);
 					response.incrSuccess();
 				}
