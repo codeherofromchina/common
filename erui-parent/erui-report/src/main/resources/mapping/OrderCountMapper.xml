@@ -159,7 +159,7 @@
 
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
-    SUM(project_account)
+    IFNULL(SUM(IFNULL(project_account,0.0)),0.0)
     FROM
     order_count
     <if test="_parameter != null" >
@@ -172,7 +172,7 @@
 
   <select id="selectProfitRateByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
-    SUM(pre_profit*project_account)/SUM(project_account)
+    SUM(pre_profit*project_account)/SUM(IFNULL(project_account,1))
     FROM
     order_count
     <if test="_parameter != null" >
@@ -184,7 +184,7 @@
   </select>
   <select id="selecOrdDetailByCategory"  resultType="com.erui.report.model.CateDetailVo" >
     SELECT
-    SUM(project_account) AS ordCatePrice,
+    IFNULL(SUM(IFNULL(project_account,0.0)),0.0) AS ordCatePrice,
     COUNT(*) AS ordCateCount,
     plat_pro_category AS category
     FROM
