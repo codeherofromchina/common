@@ -1,5 +1,6 @@
 package com.erui.boss.web.report;
 
+import javafx.beans.binding.ObjectExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -135,9 +136,6 @@ public class SupplyChainController {
     @RequestMapping("/organizationDetail")
     public Object organizationDetail(@RequestParam(name = "org",required = true) String org){
         HashMap<String, Object> result = new HashMap<>();
-        HashMap<String, Object> data = new HashMap<>();
-
-
         List<SuppliyChainOrgVo> list=this.supplyChainService.selectOrgSuppliyChain();
         SuppliyChainOrgVo suppliOrgVo=null;
         for (SuppliyChainOrgVo orgVo:list) {
@@ -150,20 +148,28 @@ public class SupplyChainController {
         HashMap<String, Object> planSKU = new HashMap<>();
         HashMap<String, Object> planSuppliy= new HashMap<>();
         if(suppliOrgVo!=null) {
-            planSPU.put("planSPU", suppliOrgVo.getPlanSPU());
-            planSPU.put("noFinishSPU", suppliOrgVo.getPlanSPU() - suppliOrgVo.getFinishSPU());
-            planSKU.put("planSKU", suppliOrgVo.getPlanSKU());
-            planSKU.put("noFinishSKU", suppliOrgVo.getPlanSKU() - suppliOrgVo.getFinishSKU());
-            planSuppliy.put("planSuppliy", suppliOrgVo.getPlanSuppliy());
-            planSuppliy.put("noFinishSuppliy", suppliOrgVo.getPlanSuppliy() - suppliOrgVo.getFinishSuppliy());
+            Map<String, Object> data = returnDetailData(suppliOrgVo);
+            result.put("code",200);
+            result.put("data",data);
         }
+        return  result;
+    }
+    //返回品类部和事业部明细数据封装
+    public Map<String,Object> returnDetailData(SuppliyChainOrgVo suppliOrgVo){
+        Map<String, Object> planSPU = new HashMap<>();
+        Map<String, Object> planSKU = new HashMap<>();
+        Map<String, Object> planSuppliy= new HashMap<>();
+        planSPU.put("finishedSPU", suppliOrgVo.getFinishSPU());
+        planSPU.put("noFinishSPU", suppliOrgVo.getPlanSPU() - suppliOrgVo.getFinishSPU());
+        planSKU.put("finishedSKU", suppliOrgVo.getFinishSKU());
+        planSKU.put("noFinishSKU", suppliOrgVo.getPlanSKU() - suppliOrgVo.getFinishSKU());
+        planSuppliy.put("finishedSuppliy", suppliOrgVo.getFinishSuppliy());
+        planSuppliy.put("noFinishSuppliy", suppliOrgVo.getPlanSuppliy() - suppliOrgVo.getFinishSuppliy());
+        Map<String, Object> data=new HashMap<String,Object>();
         data.put("planSPU",planSPU);
         data.put("planSKU",planSKU);
         data.put("planSuppliy",planSuppliy);
-
-        result.put("code",200);
-        result.put("data",data);
-        return  result;
+        return  data;
     }
 
     //品类部明细
@@ -187,11 +193,11 @@ public class SupplyChainController {
         HashMap<String, Object> planSKU = new HashMap<>();
         HashMap<String, Object> planSuppliy= new HashMap<>();
         if(suppliCateVo!=null) {
-            planSPU.put("planSPU", suppliCateVo.getPlanSPU());
+            planSPU.put("finishedSPU", suppliCateVo.getFinishSPU());
             planSPU.put("noFinishSPU", suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU());
-            planSKU.put("planSKU", suppliCateVo.getPlanSKU());
+            planSKU.put("finishedSKU", suppliCateVo.getFinishSKU());
             planSKU.put("noFinishSKU", suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU());
-            planSuppliy.put("planSuppliy", suppliCateVo.getPlanSuppliy());
+            planSuppliy.put("finishedSuppliy", suppliCateVo.getFinishSuppliy());
             planSuppliy.put("noFinishSuppliy", suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy());
         }
         data.put("planSPU",planSPU);
