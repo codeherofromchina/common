@@ -31,14 +31,14 @@ public interface HrCountService {
 	  * @Date:17:51 2017/10/24
 	  * @modified By
 	  */
-	 Map selectBigDepart();
+	 Map<String,List<String>> selectBigDepart();
 	 /**
 	  * @Author:SHIGS
 	  * @Description
 	  * @Date:18:04 2017/10/24
 	  * @modified By
 	  */
-	Map selectHrCountByDepart(String depart,int days);
+	Map <String,Object>selectHrCountByDepart(String depart,int days);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询组织部门数量

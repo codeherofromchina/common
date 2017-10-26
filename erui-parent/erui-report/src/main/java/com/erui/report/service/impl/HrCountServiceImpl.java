@@ -193,9 +193,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	}
 
 	@Override
-	public Map selectHrCountByDepart(String depart, int days) {
-		// 当前时期
-		Date startTime = com.erui.comm.DateUtil.recedeTime(days);
+	public Map<String,Object> selectHrCountByDepart(String depart,int days) {
+        //当前时期
+        Date startTime = com.erui.comm.DateUtil.recedeTime(days);
 		HrCountExample hrCountExample = null;
 		Map curHrCountMap = null;
 		if (!depart.equals("") || depart != null) {

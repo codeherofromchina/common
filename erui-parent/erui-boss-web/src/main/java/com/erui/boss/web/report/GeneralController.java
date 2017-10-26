@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -57,11 +58,16 @@ public class GeneralController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "general", method = RequestMethod.POST, produces = { "application/json;charset=utf-8" })
-	public Object memberCount(@RequestBody Map<String, Object> days) {
+	public Object memberCount(@RequestBody Map<String, Object> map) throws Exception {
+		if (!map.containsKey("days")) {
+			throw new MissingServletRequestParameterException("days","String");
+		}
+		//当前时期
+		int days = Integer.parseInt(map.get("days").toString());
 		// 当前时期
-		Date startTime = DateUtil.recedeTime((int) days.get("days"));
+		Date startTime = DateUtil.recedeTime(days);
 		// 环比时段
-		Date chainDate = DateUtil.recedeTime((int) days.get("days") * 2);
+		Date chainDate = DateUtil.recedeTime( days * 2);
 		int curMemberCount = memberService.selectByTime(startTime, new Date());
 		// 环比时段数量
 		int chainMemberCount = memberService.selectByTime(chainDate, startTime);
@@ -124,8 +130,13 @@ public class GeneralController {
 	 */
 	@RequestMapping(value = "capacity", method = RequestMethod.POST, produces = { "application/json;charset=utf-8" })
 	@ResponseBody
-	public Object capacity(@RequestBody Map<String, Object> days) {
-		Map<String,Object> data = hrCountService.selectHrCount((int) days.get("days"));
+	public Object capacity(@RequestBody Map<String, Object> map) throws MissingServletRequestParameterException {
+		if (!map.containsKey("days")) {
+			throw new MissingServletRequestParameterException("days","String");
+		}
+		//当前时期
+		int days = Integer.parseInt(map.get("days").toString());
+		Map<String,Object> data = hrCountService.selectHrCount(days);
 		Result<Map<String,Object>> result = new Result<>(data);
 		return result;
 	}
@@ -174,10 +185,14 @@ public class GeneralController {
 	// 询单/订单趋势
 	@ResponseBody
 	@RequestMapping(value = "/inquiryOrderTrend", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-	public Object tendencyChart(@RequestBody(required = true) Map<String, Object> reqMap) {
+	public Object tendencyChart(@RequestBody(required = true) Map<String, Object> reqMap) throws Exception {
+		if (!reqMap.containsKey("days")) {
+			throw new MissingServletRequestParameterException("days","String");
+		}
+		//当前时期
+		int days = Integer.parseInt(reqMap.get("days").toString());
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> data = new HashMap<>();
-		int days = (int) reqMap.get("days");
 		// 封装日期,X轴
 		if (days <= 30) {
 			String[] dates = new String[days];
@@ -224,9 +239,12 @@ public class GeneralController {
 	 */
 	@RequestMapping(value = "supplyTrend", method = RequestMethod.POST, produces = { "application/json;charset=utf-8" })
 	@ResponseBody
-	public Object inquiryOrderTrend(@RequestBody Map<String, Object> map) {
-		// 当前时期
-		int days = (int) map.get("days");
+	public Object inquiryOrderTrend(@RequestBody Map<String, Object> map) throws Exception {
+		if (!map.containsKey("days")) {
+			throw new MissingServletRequestParameterException("days","String");
+		}
+		//当前时期
+		int days = Integer.parseInt(map.get("days").toString());
 		Date startTime = DateUtil.recedeTime(days);
 		List<Map> supplyMap = supplyChainService.selectFinishByDate(startTime, new Date());
 

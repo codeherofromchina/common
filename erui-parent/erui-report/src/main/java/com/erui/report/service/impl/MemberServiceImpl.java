@@ -130,7 +130,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 	}
 
 	@Override
-	public Map selectMemberByTime() {
+	public Map<String,Object> selectMemberByTime() {
 		Map member = readMapper.selectMemberByTime();
 		return member;
 	}
