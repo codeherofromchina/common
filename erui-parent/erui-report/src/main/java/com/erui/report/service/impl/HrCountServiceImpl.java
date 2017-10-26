@@ -306,12 +306,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 			departMap.put("addRate", addRate);
 			departMap.put("leaveRate", leaveRate);
 			departMap.put("foreignRate", foreignRate);
-	/*		if (mapDepart.get("department").toString() == null){
-				if (mapDepart.get("big_depart").toString() == null){
-					departMap.put("big_depart","没有部门");
-				}
-				departMap.put("departmentName",mapDepart.get("big_depart").toString());
-			}*/
 			departMap.put("departmentName", mapDepart.get("department").toString());
 			Object obj = bigDepartment.get("children");
 			if (obj == null) {
