@@ -14,7 +14,7 @@ public interface SupplyChainService {
 	  * @Date:15:58 2017/10/21
 	  * @modified By
 	  */
-	List<Map> selectFinishByDate(Date startDate, Date endDate);
+	 Map<String, Object> selectFinishByDate(int days,String type);
 	/**
 	 * 导入供应链数据到数据库
 	 * @param datas

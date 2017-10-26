@@ -26,10 +26,62 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 	 * @modified By
 	 */
 	@Override
-	public List<Map> selectFinishByDate(Date startDate, Date endDate) {
+	public Map<String, Object> selectFinishByDate(int days,String type) {
+		Date startDate = com.erui.comm.DateUtil.recedeTime(days);
 		SupplyChainExample supplyChainExample = new SupplyChainExample();
-		supplyChainExample.createCriteria().andCreateAtBetween(startDate, endDate);
-		return this.readMapper.selectFinishByDate(supplyChainExample);
+		supplyChainExample.createCriteria().andCreateAtBetween(startDate,new Date());
+		List<Map> supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
+
+		List<Integer> spuList = new ArrayList<>();
+		List<Integer> skuList = new ArrayList<>();
+		List<Integer> supplierList = new ArrayList<>();
+		List<String> dateList = new ArrayList<>();
+		Map<String, Map<String, Integer>> sqlDate = new HashMap<>();
+		Map<String, Integer> lintData = null;
+		for (Map map2 : supplyMap) {
+			lintData = new HashMap<>();
+			BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
+			BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
+			BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
+			Date date2 = (Date) map2.get("create_at");
+			String dateString = com.erui.comm.DateUtil.format("MM月dd日", date2);
+			lintData.put("spu", spu.intValue());
+			lintData.put("sku", sku.intValue());
+			lintData.put("supplier", supplier.intValue());
+			sqlDate.put(dateString, lintData);
+		}
+		for (int i = 0; i < days; i++) {
+			Date datetime = DateUtil.recedeTime(days - (i + 1));
+			String date = com.erui.comm.DateUtil.format("MM月dd日", datetime);
+			if (sqlDate.containsKey(date)) {
+				dateList.add(date);
+				spuList.add(sqlDate.get(date).get("spu"));
+				skuList.add(sqlDate.get(date).get("sku"));
+				supplierList.add(sqlDate.get(date).get("supplier"));
+			} else {
+				dateList.add(date);
+				spuList.add(0);
+				skuList.add(0);
+				supplierList.add(0);
+			}
+		}
+		String[] s = { "SPU完成量", "SKU完成量", "供应商完成量" };
+		Map<String, Object> data = new HashMap<>();
+		if (type.equals("spu")) {
+			data.put("legend", s[0]);
+			data.put("xAxis", dateList);
+			data.put("yAxis", spuList);
+
+		} else if (type.equals("sku")) {
+			data.put("legend", s[1]);
+			data.put("xAxis", dateList);
+			data.put("yAxis", skuList);
+		} else {
+			data.put("legend", s[2]);
+			data.put("xAxis", dateList);
+			data.put("yAxis", supplierList);
+		}
+		return data;
 	}
 
 	@Override
