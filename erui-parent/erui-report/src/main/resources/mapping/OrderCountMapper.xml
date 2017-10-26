@@ -707,6 +707,9 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
   </select>
 
   <update id="updateByExampleSelective" parameterType="map" >

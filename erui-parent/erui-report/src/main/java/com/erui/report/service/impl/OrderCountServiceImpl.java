@@ -413,10 +413,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             criteria.andProjectStatusEqualTo(proStatus);
         }
         if(org!=null&&!"".equals(org)){
-            criteria.andProjectStatusEqualTo(org);
+           criteria.andOrganizationEqualTo(org);
         }
         if(area!=null&&!"".equals(area)){
-            criteria.andProjectStatusEqualTo(area);
+           criteria.andOrderAreaEqualTo(area);
         }
 
 		int count = readMapper.countByExample(example);
