@@ -158,10 +158,10 @@ public class RequestCreditController {
         BigDecimal nextOrderAmount= new  BigDecimal(mapNext.get("sdT").toString());
         List<String> conList = new ArrayList<>();
         List<Double> amountList = new ArrayList<>();
-        conList.add("应收金额-占比"+RateUtil.doubleChainRate(acOrderAmount.doubleValue(),totalOrderAmount.doubleValue())*100+"%");
-        conList.add("已收金额-占比"+RateUtil.doubleChainRate(acReceiveAmount.doubleValue(),totalReceiveAmount.doubleValue())*100+"%");
-        conList.add("应收未收-占比"+RateUtil.doubleChainRate(acNotreceiveAmount.doubleValue(),totalNotreceiveAmount.doubleValue())*100+"%");
-        conList.add("下月应收-占比"+RateUtil.doubleChainRate(nextOrderAmount.doubleValue(),totalOrderAmount.doubleValue())*100+"%");
+        conList.add("应收金额-占比"+df.format((acOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
+        conList.add("已收金额-占比"+df.format((acReceiveAmount.doubleValue()/totalReceiveAmount.doubleValue())*100)+"%");
+        conList.add("应收未收-占比"+df.format((acNotreceiveAmount.doubleValue()/totalNotreceiveAmount.doubleValue())*100)+"%");
+        conList.add("下月应收-占比"+df.format((nextOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
         amountList.add(acOrderAmount.doubleValue());
         amountList.add(acReceiveAmount.doubleValue());
         amountList.add(acNotreceiveAmount.doubleValue());

@@ -95,10 +95,10 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		// 转正率
 		double turnRightRate = RateUtil.intChainRate(turnRightCount.intValue(), tryCount.intValue());
 		Map<String, Object> data = new HashMap<>();
-		data.put("staffFullRate", staffFullRate);
-		data.put("staffFullChainRate", staffFullChainRate);
-		data.put("turnRightRate", turnRightRate);
-		data.put("turnRightChainRate", turnRightChainRate);
+		data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
+		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
+		data.put("turnRightRate", Double.parseDouble(df.format(turnRightRate)));
+		data.put("turnRightChainRate", Double.parseDouble(df.format(turnRightChainRate)));
 		data.put("onDuty", regularCount);
 		data.put("plan", planCount);
 		data.put("turnJobin", turnJobin.intValue());
@@ -210,16 +210,15 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		data.put("foreignCount", foreignCount);
 		data.put("chinaCount", chinaCount);
 		data.put("dimissionCount", dimissionCount);
-		data.put("newAdd", addRate);
-		data.put("leaveRate", leaveRate);
-		data.put("foreignRate", foreignRate);
-		data.put("foreignChainRate", foreignChainRate);
-		data.put("groupTransferChainRate", groupTransferChainRate);
-		data.put("newChainRate", chainAddRate);
-		data.put("staffFullRate", staffFullRate);
-		data.put("staffFullChainRate", staffFullChainRate);
-		data.put("tryRate", tryRate);
-		data.put("turnRightChainRate", tryChainRate);
+		data.put("newAdd", Double.parseDouble(df.format(addRate)));
+		data.put("foreignRate", Double.parseDouble(df.format(foreignRate)));
+		data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
+		data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
+		data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
+		data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
+		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
+		data.put("tryRate", Double.parseDouble(df.format(tryRate)));
+		data.put("turnRightChainRate", Double.parseDouble(df.format(tryChainRate)));
 		data.put("staffFullCount", regularCount);
 		data.put("planCount", planCount);
 		data.put("groupTransferIn", turnJobin.intValue());
@@ -351,12 +350,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		Map<String, Map<String, Object>> departMap2 = new HashMap<>();
 		List<Map> result = new ArrayList<>();
 		for (Map mapBig : bigList) {
-			if (mapBig.get("department") == "" || mapBig.get("department") == ""){
-				if (mapBig.get("big_depart") == "" || mapBig.get("big_depart") == null){
-					mapBig.put("big_depart","不存在大部门");
+				if ("".equals(mapBig.get("big_depart")) || mapBig.get("big_depart") == null){
+					mapBig.put("big_depart","未知部门");
 				}
-					mapBig.put("department","");
-			}
 			// 满编率
 			double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")).toString());
 			// 试用占比
@@ -377,14 +373,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 			departMap2.put(mapBig.get("big_depart").toString(), departMap);
 			result.add(departMap);
 		}
-		for (Map mapDepart : departList) {
-			if (mapDepart.get("department") == "" || mapDepart.get("department") == null){
-				if (mapDepart.get("big_depart") == "" || mapDepart.get("big_depart") == null){
-					mapDepart.put("big_depart","不存在大部门");
-				}
-					mapDepart.put("department","");
-
-			}
+			for (Map mapDepart : departList) {
 			Map<String, Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
 			// 满编率
 			double staffFullRate = Double.parseDouble(df.format(mapDepart.get("staffFullRate")).toString());
@@ -397,6 +386,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 			// 外籍占比
 			double foreignRate = Double.parseDouble(df.format(mapDepart.get("foreignRate")).toString());
 			Map<String, Object> departMap = new HashMap<>();
+			if ("".equals(mapDepart.get("department")) || mapDepart.get("department") == null){
+				continue;
+			}
 			departMap.put("staffFullRate", staffFullRate);
 			departMap.put("tryRate", tryRate);
 			departMap.put("addRate", addRate);
