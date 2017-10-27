@@ -102,12 +102,18 @@ public class ExcelController {
 
 		// 获取模板文件内容
 		String tempPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
-		byte[] data = FileUtils.readFileToByteArray(new File(tempPath, typeEnum.getTable() + EXCEL_SUFFIX));
+		String suffix = EXCEL_SUFFIX;
+		File file = new File(tempPath, typeEnum.getTable() + suffix);
+		if (!file.exists()) {
+			suffix = EXCEL_SUFFIX02;
+			file = new File(tempPath, typeEnum.getTable() + suffix);
+		} 
+		byte[] data = FileUtils.readFileToByteArray(file);
 
 		// 输出到客户端
 		response.reset();
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + Pinyin4j.convertChineseToPinyin(typeEnum.getTable()) + EXCEL_SUFFIX + "\"");
+				"attachment; filename=\"" + Pinyin4j.convertChineseToPinyin(typeEnum.getTable()) + suffix + "\"");
 		response.addHeader("Content-Length", "" + data.length);
 		response.setContentType("application/octet-stream;charset=UTF-8");
 		OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
@@ -324,5 +330,6 @@ public class ExcelController {
 	private final static String EXCEL_DATA_PATH = "/WEB-INF/excel";
 	private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
 	private final static String EXCEL_SUFFIX = ".xlsx";
+	private final static String EXCEL_SUFFIX02 = ".xls";
 
 }

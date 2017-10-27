@@ -711,7 +711,11 @@
       order by ${orderByClause}
     </if>
   </select>
-
+  <select id="selectProCountByExample"  resultType="java.lang.Integer" >
+    select  IFNULL(SUM(IFNULL(order_count,0.0)),0.0) AS orderCount
+     from
+      order_count
+  </select>
   <update id="updateByExampleSelective" parameterType="map" >
     update order_count
     <set >

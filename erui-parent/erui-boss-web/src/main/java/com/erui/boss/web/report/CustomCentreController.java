@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -147,8 +148,10 @@ public class CustomCentreController {
         orderMap.put("chainRate",chainRate);
 
         //利润率
-        Double profitRate = orderService.selectProfitRate(startTime, new Date());
-        Double chainProfitRate = orderService.selectProfitRate(chainDate, startTime);
+        Double profit = orderService.selectProfitRate(startTime, new Date());
+        Double chainProfit = orderService.selectProfitRate(chainDate, startTime);
+        double profitRate = RateUtil.doubleChainRate(profit, 1);
+        double chainProfitRate = RateUtil.doubleChainRate(chainProfit, 1);
         Map<String,Object> profitMap=new HashMap<String,Object>();
         profitMap.put("profitRate",profitRate);
         profitMap.put("chainRate",chainProfitRate);
@@ -171,11 +174,23 @@ public class CustomCentreController {
         Map<String,Object> params=new HashMap<String,Object>();
         params.put("startTime",startTime);
         params.put("endTime",new Date());
+        int proTotalCount=orderService.selectProCountByExample();
         List<Map<String, Object>> list = orderService.selectOrderProTop3(params);
         Map<String,Object> proTop3Map=new HashMap<String,Object>();
-        for (int i = 0; i <list.size() ; i++) {
-            proTop3Map.put("top"+(i+1),list.get(i));
+        double topProportion=0.0;
+        if(list!=null&&list.size()>0){
+            for (int i = 0; i <list.size() ; i++) {
+                Map<String, Object> top3 = list.get(i);
+                BigDecimal s = new BigDecimal(top3.get("orderCount").toString());
+                int top3Count = s.intValue();
+                if(proTotalCount>0){
+                    topProportion= RateUtil.intChainRate(top3Count, proTotalCount);
                 }
+                top3.put("topProportion",topProportion);
+                proTop3Map.put("top"+(i+1),top3);
+            }
+        }
+
         //组装数据
         Datas.put("order",orderMap);
         Datas.put("profitRate",profitMap);
@@ -291,7 +306,7 @@ public class CustomCentreController {
     @ResponseBody
     @RequestMapping("/areaDetailContrast")
     public Object areaDetailContrast(){
-        HashMap<String, Object> result = new HashMap<>();//结果集
+        Result<Object> result = new Result<>();
         //询单
         List<String> areaList = inquiryService.selectAreaList();
         String[] areaInqCounts=new String[areaList.size()+1];//询单数量区域列表
@@ -331,16 +346,16 @@ public class CustomCentreController {
         }
 
         HashMap<String, Object> data = new HashMap<>();//结果集
-        HashMap<String, Object> inqCount = new HashMap<>();//结果集
+        HashMap<String, Object> inqCount = new HashMap<>();
         inqCount.put("marketArea",areaInqCounts);
         inqCount.put("inqCounts",inqCounts);
-        HashMap<String, Object> inqAmount= new HashMap<>();//结果集
+        HashMap<String, Object> inqAmount= new HashMap<>();
         inqAmount.put("marketArea",areaInqAmounts);
         inqAmount.put("inqAmount",inqAmounts);
-        HashMap<String, Object> ordCount = new HashMap<>();//结果集
+        HashMap<String, Object> ordCount = new HashMap<>();
         ordCount.put("marketArea",areaOrdCounts);
         ordCount.put("ordCounts",OrdCounts);
-        HashMap<String, Object> orderAmount = new HashMap<>();//结果集
+        HashMap<String, Object> orderAmount = new HashMap<>();
         orderAmount.put("marketArea",areaOrdAmounts);
         orderAmount.put("ordAmount",OrdAmounts);
         data.put("inqCount",inqCount);
@@ -349,8 +364,8 @@ public class CustomCentreController {
         data.put("orderAmount",orderAmount);
 
 
-        result.put("code",200);
-        result.put("data",data);
+        result.setData(data);
+        result.setStatus(ResultStatusEnum.SUCCESS);
         return result;
     }
 
@@ -408,15 +423,21 @@ public class CustomCentreController {
 	 */
 	@RequestMapping("/areaList")
 	@ResponseBody
-	public Object areaList() {
-		Map<String, Object> result = new HashMap<>();
-
-		result.put("success", true);
-		result.put("desc", "");
+	public Object areaList(String areaName) {
+		Result<Object> result = new Result<>();
 
 		List<InquiryAreaVO> arayList = inquiryService.selectAllAreaAndCountryList();
-		result.put("data", arayList);
-
+		if (StringUtils.isNotBlank(areaName)) {
+            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(areaName)).collect(Collectors.toList());
+            if (ll.size() > 0) {
+                result.setData( ll.get(0).getCountries());
+            } else {
+                return result.setStatus(ResultStatusEnum.AREA_NOT_EXIST);
+            }
+        } else {
+            List<String> areaList = arayList.parallelStream().map(InquiryAreaVO::getAreaName).collect(Collectors.toList());
+            result.setData(areaList);
+        }
 		return result;
 	}
     

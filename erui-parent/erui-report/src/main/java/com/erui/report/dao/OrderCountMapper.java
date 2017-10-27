@@ -53,5 +53,7 @@ public interface OrderCountMapper {
 	 * @return {total:'总订单数量',oil:'油气订单数量',nonoil:'非油气订单数量'}
 	 */
 	CustomerNumSummaryVO selectNumSummaryByExample(OrderCountExample example);
+    //产品数量
+    int selectProCountByExample();
 
 }

@@ -46,6 +46,6 @@ public interface OrderCountService {
 	//订单品类明细
 	List<CateDetailVo> selecOrdDetailByCategory();
 
-
+	int  selectProCountByExample();
 
 }
