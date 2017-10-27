@@ -355,7 +355,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				if (mapBig.get("big_depart") == "" || mapBig.get("big_depart") == null){
 					mapBig.put("big_depart","不存在大部门");
 				}
-					mapBig.put("department","不存在部门");
+					mapBig.put("department","");
 			}
 			// 满编率
 			double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")).toString());
@@ -382,7 +382,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				if (mapDepart.get("big_depart") == "" || mapDepart.get("big_depart") == null){
 					mapDepart.put("big_depart","不存在大部门");
 				}
-					mapDepart.put("department","不存在部门");
+					mapDepart.put("department","");
 
 			}
 			Map<String, Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
