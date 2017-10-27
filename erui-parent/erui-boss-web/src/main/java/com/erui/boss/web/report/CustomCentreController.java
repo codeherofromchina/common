@@ -68,9 +68,16 @@ public class CustomCentreController {
         //当期询单数环比chain
         int chainCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0,0,"","");
         int chain=count-chainCount;
-        double chainRate = RateUtil.intChainRate(count-chainCount, chainCount);//环比
+        double chainRate = 0.0;
+        double amount2=0.0;
+        if(chainRate>0){
+            chainRate=  RateUtil.intChainRate(count-chainCount, chainCount);//环比
+        }
+        if(chainRate>0){
+            amount2=  RateUtil.doubleChainRateTwo(amount,10000);//环比
+        }
         inquiryMap.put("count",count);
-        inquiryMap.put("amount",RateUtil.doubleChainRateTwo(amount,10000)+"万$");
+        inquiryMap.put("amount",amount2+"万$");
         inquiryMap.put("chainAdd",chain);
         inquiryMap.put("chainRate",chainRate);
 
@@ -79,8 +86,6 @@ public class CustomCentreController {
         CustomerNumSummaryVO custSummaryVO=inquiryService.selectNumSummaryByExample(startTime,new Date());
         CustomerNumSummaryVO custSummaryVO2=inquiryService.selectNumSummaryByExample(chainDate,startTime);
         if(custSummaryVO!=null&&custSummaryVO.getTotal()>0){
-            Integer nonoil = custSummaryVO.getNonoil();
-
             proIsOilMap.put("oil",custSummaryVO.getOil());
             proIsOilMap.put("notOil",custSummaryVO.getNonoil());
             proIsOilMap.put("oiProportionl",RateUtil.intChainRate(custSummaryVO.getOil(),custSummaryVO.getTotal()));
@@ -89,10 +94,9 @@ public class CustomCentreController {
             }else {
                 proIsOilMap.put("chainRate",0.00);
             }
-
         }
         //top3统计
-        Map<String,Object> params=new HashMap<String,Object>();
+        Map<String,Object> params=new HashMap<>();
         params.put("startTime",DateUtil.recedeTime(days));
         params.put("endTime",new Date());
         List<Map<String,Object>> list = inquiryService.selectProTop3(params);
@@ -101,7 +105,11 @@ public class CustomCentreController {
                 Map<String, Object> top3 = list.get(i);
                 BigDecimal s = new BigDecimal(top3.get("proCount").toString());
                 int top3Count = s.intValue();
-                top3.put("proProportionl",RateUtil.intChainRate(top3Count,custSummaryVO.getTotal()));
+                int totalC=0;
+                if(custSummaryVO.getTotal()>0){
+                    totalC=custSummaryVO.getTotal();
+                }
+                top3.put("proProportionl",RateUtil.intChainRate(top3Count,totalC));
                 proTop3Map.put("top"+(i+1),top3);
             }
         }
