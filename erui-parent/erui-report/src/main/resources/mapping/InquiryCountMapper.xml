@@ -247,7 +247,7 @@
   </select>
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
     select
-    IFNULL(sum(IFNULL(quote_Total_Price,0.00)),0.00) as totalPrice
+    IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) as totalPrice
     from inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />

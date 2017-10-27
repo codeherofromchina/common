@@ -95,14 +95,14 @@
   </select>
 
   <select id="selectBigDepartCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
-   SELECT IFNULL(SUM(regular_count/plan_count),0)AS staffFullRate,IFNULL(SUM(try_count/regular_count),0)AS tryRate ,IFNULL(SUM(new_count/regular_count-dimission_count/regular_count),0)AS addRate,
-        IFNULL(SUM(group_transfer_out/regular_count - group_transfer_in/regular_count),0)AS leaveRate,IFNULL(SUM(foreign_count/regular_count),0)AS foreignRate,big_depart
+   SELECT IFNULL((SUM(regular_count)/SUM(plan_count)),0) AS staffFullRate,IFNULL((SUM(try_count)/SUM(regular_count)),0)AS tryRate ,IFNULL(SUM(new_count)/SUM(regular_count)-SUM(dimission_count)/SUM(regular_count),0)AS addRate,
+        IFNULL(SUM(group_transfer_out)/SUM(regular_count) - SUM(group_transfer_in)/SUM(regular_count),0)AS leaveRate,IFNULL(SUM(foreign_count)/SUM(regular_count),0)AS foreignRate,big_depart
     FROM `hr_count` GROUP BY big_depart
   </select>
   <select id="selectDepartmentCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
-    SELECT IFNULL(SUM(regular_count/plan_count),0)AS staffFullRate,IFNULL(SUM(try_count/regular_count),0)AS tryRate ,IFNULL(SUM(new_count/regular_count-dimission_count/regular_count),0)AS addRate,
-        IFNULL(SUM(group_transfer_out/regular_count - group_transfer_in/regular_count),0)AS leaveRate,IFNULL(SUM(foreign_count/regular_count),0)AS foreignRate,department,big_depart
-      FROM `hr_count` GROUP BY department,big_depart
+   SELECT IFNULL((SUM(regular_count)/SUM(plan_count)),0) AS staffFullRate,IFNULL((SUM(try_count)/SUM(regular_count)),0)AS tryRate ,IFNULL(SUM(new_count)/SUM(regular_count)-SUM(dimission_count)/SUM(regular_count),0)AS addRate,
+        IFNULL(SUM(group_transfer_out)/SUM(regular_count) - SUM(group_transfer_in)/SUM(regular_count),0)AS leaveRate,IFNULL(SUM(foreign_count)/SUM(regular_count),0)AS foreignRate,big_depart
+    FROM `hr_count` GROUP BY department,big_depart
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.HrCountExample" >
     select
