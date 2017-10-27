@@ -492,5 +492,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 		return readMapper.selecOrdDetailByCategory();
 	}
 
+    @Override
+    public int selectProCountByExample() {
+        return readMapper.selectProCountByExample();
+    }
+
 
 }
