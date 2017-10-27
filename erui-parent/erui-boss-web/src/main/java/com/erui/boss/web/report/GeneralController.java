@@ -1,6 +1,7 @@
 package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class GeneralController {
 	private HrCountService hrCountService;
 	@Autowired
 	private SupplyChainService supplyChainService;
-
+	private static DecimalFormat df = new DecimalFormat("0.00");
 	/**
 	 * @Author:SHIGS
 	 * @Description
@@ -92,7 +93,7 @@ public class GeneralController {
 		double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd, chainInquiryCount);
 		Map<String, Object> inquiry = new HashMap<>();
 		inquiry.put("count", inquiryCount);
-		inquiry.put("amount", RateUtil.doubleChainRate(inquiryAmount, 10000) + "万$");
+		inquiry.put("amount", df.format(inquiryAmount/10000)+"万$");
 		inquiry.put("chainAdd", chainInquiryAdd);
 		inquiry.put("chainRate", chainInquiryRate);
 
@@ -110,7 +111,7 @@ public class GeneralController {
 		}
 		Map<String, Object> order = new HashMap<>();
 		order.put("count", orderCount);
-		order.put("amount", RateUtil.doubleChainRate(orderAmount, 10000) + "万$");
+		order.put("amount", df.format(orderAmount/10000)+"万$");
 		order.put("chainAdd", chainOrderAdd);
 		order.put("chainRate", chainOrderRate);
 		Map<String, Object> data = new HashMap<>();

@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import com.erui.comm.RateUtil;
@@ -19,17 +20,18 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> implements RequestCreditService {
 	private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
-
+	private static final DecimalFormat df = new DecimalFormat("0.00");
 	@Override
 	public Map<String,Object> selectTotal() {
 		Map<String,Object> mapMount=readMapper.selectTotal();
 		BigDecimal receiveAmount = new  BigDecimal(mapMount.get("sd").toString());
 		BigDecimal orderAmount = new BigDecimal(mapMount.get("ed").toString());
 		Double received = orderAmount.doubleValue() - receiveAmount.doubleValue();
+		String s = df.format(2);
 		Map<String,Object> data = new HashMap<>();
-		data.put("notReceive", RateUtil.doubleChainRate(receiveAmount.doubleValue(),10000)+"万$");
-		data.put("received", RateUtil.doubleChainRate(received,10000)+"万$");
-		data.put("totalReceive", RateUtil.doubleChainRate(orderAmount.doubleValue(),10000)+"万$");
+		data.put("notReceive", df.format(receiveAmount.doubleValue()/10000)+"万$");
+		data.put("received", df.format(received/10000)+"万$");
+		data.put("totalReceive", df.format(orderAmount.doubleValue()/10000)+"万$");
 		return data;
 	}
 	 /**
@@ -90,7 +92,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 				nextList.add(sqlDate.get(date).get("nextReceivable"));
 			}else {
 				nextDate.add(date);
-				nextList.add(0.0);
+				nextList.add(0.00);
 			}
 		}
 		RequestCreditExample requestCreditExample = new RequestCreditExample();
@@ -119,9 +121,9 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 				receivedList.add(sqlDate02.get(date).get("received"));
 			}else {
 				dateList.add(date);
-				receivableList.add(0.0);
-				notReceiveList.add(0.0);
-				receivedList.add(0.0);
+				receivableList.add(0.00);
+				notReceiveList.add(0.00);
+				receivedList.add(0.00);
 			}
 		}
 		String [] s = {"应收账款","应收未收","应收已收","下月应收"};
@@ -180,6 +182,12 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		result.put("area",areaList);
 		return result;
 	}
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询国家
+	  * @Date:17:15 2017/10/27
+	  * @modified By
+	  */
 	@Override
 	public Map<String,Object> selectCountry(String area) {
 		RequestCreditExample requestCreditExample = new RequestCreditExample();
@@ -194,6 +202,12 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		result.put("country",countryList);
 		return result;
 	}
+	 /**
+	  * @Author:SHIGS
+	  * @Description 区域明细
+	  * @Date:17:15 2017/10/27
+	  * @modified By
+	  */
 	@Override
 	public Map<String,Object> selectByAreaOrCountry(String area,String country) {
 		RequestCreditExample requestCreditExample = null;
