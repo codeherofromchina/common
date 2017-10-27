@@ -65,15 +65,11 @@ public class CustomCentreController {
         int chainCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0,0,"","");
         int chain=count-chainCount;
         double chainRate = 0.0;
-        double amount2=0.0;
-        if(chainRate>0){
+        if(chainCount>0){
             chainRate=  RateUtil.intChainRate(count-chainCount, chainCount);//环比
         }
-        if(chainRate>0){
-            amount2=  RateUtil.doubleChainRateTwo(amount,10000);//环比
-        }
         inquiryMap.put("count",count);
-        inquiryMap.put("amount",amount2+"万$");
+        inquiryMap.put("amount",RateUtil.doubleChainRateTwo(amount,10000)+"万$");
         inquiryMap.put("chainAdd",chain);
         inquiryMap.put("chainRate",chainRate);
 
@@ -85,7 +81,7 @@ public class CustomCentreController {
             proIsOilMap.put("oil",custSummaryVO.getOil());
             proIsOilMap.put("notOil",custSummaryVO.getNonoil());
             proIsOilMap.put("oiProportionl",RateUtil.intChainRate(custSummaryVO.getOil(),custSummaryVO.getTotal()));
-            if(custSummaryVO2.getOil()>=1){
+            if(custSummaryVO2.getOil()>0){
                 proIsOilMap.put("chainRate",RateUtil.intChainRate(custSummaryVO.getOil()-custSummaryVO2.getOil(),custSummaryVO2.getOil()));
             }else {
                 proIsOilMap.put("chainRate",0.00);

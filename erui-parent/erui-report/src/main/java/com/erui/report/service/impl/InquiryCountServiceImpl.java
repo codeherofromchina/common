@@ -475,7 +475,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	public CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime) {
 		InquiryCountExample example = new InquiryCountExample();
 		Criteria criteria = example.createCriteria();
-        criteria.andRollinTimeBetween(startTime,new Date());
+        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+            criteria.andRollinTimeBetween(startTime, endTime);
+        }
         return  readMapper.selectNumSummaryByExample(example);
     }
 
