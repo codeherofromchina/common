@@ -325,29 +325,19 @@ public class DateUtil {
 	}
 
 	/**
-		计算现在的前day天的时间
+		计算现在的前day天开始时间
 	 * @return
 	 */
-	//向后退时间
 	public static Date recedeTime(int day){
-		if(day>=0){
+
 			Date now = new Date();
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(now);
 			cal.add(Calendar.DAY_OF_MONTH,-day);
 			Date time = cal.getTime();
 			if(time!=null){
-				return time;
+                time = getOperationTime(time, 0, 0, 0);
 			}
-		}
-		Date now = new Date();
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(now);
-		cal.add(Calendar.DAY_OF_MONTH,-day);
-		Date time = cal.getTime();
-		if(time!=null){
-			return time;
-		}
-		return time;
+        return time;
 	}
 }

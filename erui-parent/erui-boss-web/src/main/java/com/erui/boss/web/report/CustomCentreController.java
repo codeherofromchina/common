@@ -70,7 +70,7 @@ public class CustomCentreController {
         int chain=count-chainCount;
         double chainRate = RateUtil.intChainRate(count-chainCount, chainCount);//环比
         inquiryMap.put("count",count);
-        inquiryMap.put("amount",RateUtil.doubleChainRate(amount,10000)+"万$");
+        inquiryMap.put("amount",RateUtil.doubleChainRateTwo(amount,10000)+"万$");
         inquiryMap.put("chainAdd",chain);
         inquiryMap.put("chainRate",chainRate);
 
@@ -143,7 +143,7 @@ public class CustomCentreController {
         }
         Map<String,Object> orderMap=new HashMap<String,Object>();//询单统计信息
         orderMap.put("count",count);
-        orderMap.put("amount",RateUtil.doubleChainRate(amount,10000)+"万$");
+        orderMap.put("amount",RateUtil.doubleChainRateTwo(amount,10000)+"万$");
         orderMap.put("chainAdd",count-chainCount);
         orderMap.put("chainRate",chainRate);
 
@@ -200,7 +200,7 @@ public class CustomCentreController {
        result.setData(Datas);
         return result;
     }
-
+//询单详细分析
     @ResponseBody
     @RequestMapping(value = "/inquiryDetail")
     public Object inquiryDetail(){
@@ -215,7 +215,7 @@ public class CustomCentreController {
         if(totalCount>0){
             quotedInquiryRate=RateUtil.intChainRate(quotedCount,totalCount);
             quotingInquiryRate=RateUtil.intChainRate(quotingCount,totalCount);
-            noQuoteInquiryRate=RateUtil.intChainRate(noQuoteCount,totalCount);
+            noQuoteInquiryRate=RateUtil.doubleChainRate(1.00 - (quotedInquiryRate + quotingInquiryRate),1);
         }
         HashMap<String, Object> inquiryDetailMap = new HashMap<>();
         inquiryDetailMap.put("quotedCount",quotedCount);
