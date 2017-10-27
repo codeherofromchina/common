@@ -309,7 +309,9 @@ public class CustomCentreController {
 	public Object areaDetailContrast() {
 		Result<Object> result = new Result<>();
 		// 询单
-		List<String> areaList = inquiryService.selectAreaList();
+		//List<String> areaList = inquiryService.selectAreaList();
+        List<InquiryAreaVO> areaList = inquiryService.selectAllAreaAndCountryList();
+
 		String[] areaInqCounts = new String[areaList.size() + 1];// 询单数量区域列表
 		String[] areaInqAmounts = new String[areaList.size() + 1];// 询单金额区域列表
 		Integer[] inqCounts = new Integer[areaList.size() + 1];// 询单数量列表
@@ -332,14 +334,14 @@ public class CustomCentreController {
 		OrdCounts[0] = orderTotalCount;
 		OrdAmounts[0] = orderTotalAmount;
 		for (int i = 0; i < areaList.size(); i++) {
-			areaInqCounts[i + 1] = areaList.get(i);
-			areaInqAmounts[i + 1] = areaList.get(i);
-			areaOrdCounts[i + 1] = areaList.get(i);
-			areaOrdAmounts[i + 1] = areaList.get(i);
-			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i));
-			Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i));
-			int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i));
-			Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i));
+			areaInqCounts[i + 1] = areaList.get(i).getAreaName();
+			areaInqAmounts[i + 1] = areaList.get(i).getAreaName();
+			areaOrdCounts[i + 1] = areaList.get(i).getAreaName();
+			areaOrdAmounts[i + 1] = areaList.get(i).getAreaName();
+			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i).getAreaName());
+			Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i).getAreaName());
+			int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i).getAreaName());
+			Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i).getAreaName());
 			inqCounts[i + 1] = inqCount;
 			inqAmounts[i + 1] = inqAmount;
 			OrdCounts[i + 1] = ordCount;
