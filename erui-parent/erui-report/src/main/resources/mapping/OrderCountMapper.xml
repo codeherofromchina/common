@@ -227,10 +227,14 @@
   <!-- 查询订单中的数量汇总数据 -->
   <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
-		count(1) as total,sum(case is_oil_gas when '油气' then 1 else 0 end) as oil
-		,sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil
+		count(1) as total,
+        sum(case is_oil_gas when '油气' then 1 else 0 end) as oil
+		,sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil,
+        sum(project_account) as amount,
+        sum(case is_oil_gas when '油气' then ifnull(project_account,0) else 0 end) as oilAmount,
+        sum(case is_oil_gas when '非油气' then ifnull(project_account,0) else 0 end) as noNoilAmount
     FROM
-    order_count
+    order_count;
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
