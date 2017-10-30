@@ -87,7 +87,7 @@
     SELECT SUM(receive_amount) sd,SUM(order_amount) ed FROM `request_credit`;
   </select>
   <select id="selectRequestTotal" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
-    SELECT SUM(IFNULL(receive_amount,0)) sd,SUM(IFNULL(order_amount,0)) sdT,IFNULL(SUM(order_amount-receive_amount),0) sded FROM `request_credit`
+    SELECT IFNULL(SUM(IFNULL(receive_amount,0)),0) sd,IFNULL(SUM(IFNULL(order_amount,0)),0) sdT,IFNULL(SUM(order_amount-receive_amount),0) sded FROM `request_credit`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
