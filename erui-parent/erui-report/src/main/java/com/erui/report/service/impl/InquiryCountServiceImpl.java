@@ -394,7 +394,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	// // 根据时间统计询单金额
 	public Double inquiryAmountByTime(Date startTime, Date endTime, String area) {
 		InquiryCountExample example = new InquiryCountExample();
-		InquiryCountExample.Criteria criteria = example.createCriteria();
+		Criteria criteria = example.createCriteria();
 		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
 			criteria.andRollinTimeBetween(startTime, endTime);
 		}
