@@ -51,7 +51,7 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "包装件数字段不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, "包装件数字段不是数字");
 				continue;
 			}
 
@@ -69,7 +69,7 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "金额字段不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, "金额字段不是数字");
 				continue;
 			}
 			ooc.setRemark(strArr[8]);
@@ -78,12 +78,13 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(ooc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 
 		}
 		response.setDone(true);

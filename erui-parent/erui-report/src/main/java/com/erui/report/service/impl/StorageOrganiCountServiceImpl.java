@@ -65,12 +65,13 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(soc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 
 		}
 		response.setDone(true);

@@ -79,12 +79,13 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(oec);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 
 		}
 		response.setDone(true);

@@ -107,12 +107,13 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(mc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 
 		}
 		response.setDone(true);

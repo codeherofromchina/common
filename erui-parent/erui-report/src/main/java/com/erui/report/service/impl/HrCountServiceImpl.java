@@ -543,12 +543,13 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(hc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 
 		}
 		response.setDone(true);

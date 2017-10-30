@@ -390,12 +390,13 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(oc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 		}
 		response.setDone(true);
 
