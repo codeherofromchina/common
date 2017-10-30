@@ -273,7 +273,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 			try {
 				rc.setBackDate(
-						DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR,"yyyy/M/d","yyyy/M/d hh:mm:ss",DateUtil.FULL_FORMAT_STR));
+						DateUtil.parseString2Date(strArr[15], DateUtil.FULL_FORMAT_STR,"yyyy/M/d","yyyy/M/d hh:mm:ss",DateUtil.SHORT_FORMAT_STR));
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
@@ -285,12 +285,13 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(rc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 
 		}
 		response.setDone(true);

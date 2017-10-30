@@ -61,12 +61,13 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 				if (!testOnly) {
 					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(pc);
-					response.incrSuccess();
 				}
 			} catch (Exception e) {
 				response.incrFail();
 				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), index + 1, e.getMessage());
+				continue;
 			}
+			response.incrSuccess();
 		}
 		response.setDone(true);
 

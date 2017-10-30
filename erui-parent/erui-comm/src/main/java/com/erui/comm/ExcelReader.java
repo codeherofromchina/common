@@ -142,5 +142,16 @@ public class ExcelReader {
 		}
 		return StringUtils.trimToNull(cellvalue);
 	}
+	
+	
+	public static void main(String[] args) throws EncryptedDocumentException, InvalidFormatException, IOException {
+		File file = new File("/Users/wangxiaodan/YingShouZhangKuan(3).xls");
+		ExcelReader reader = new ExcelReader();
+		List<String[]> readExcel = reader.readExcel(file);
+		readExcel.stream().forEach(arr -> {
+			System.out.println(StringUtils.join(arr,","));
+		});
+		
+	}
 
 }
