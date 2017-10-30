@@ -36,7 +36,7 @@ public interface InquiryCountService {
 	/*
 	* 根据油气类别查询产品数量
 	* */
-	public int selectProCountByIsOil(Date startTime,Date endTime,String isOil);
+	public int selectProCountByExample(Date startTime,Date endTime,String isOil,String proCategory);
 
 
 	/*

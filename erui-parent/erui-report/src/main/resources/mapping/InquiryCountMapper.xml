@@ -257,7 +257,7 @@
     </if>
   </select>
 
-  <select id="selectProCountByIsOilByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+  <select id="selectProCountByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     IFNULL(SUM(IFNULL(pro_count,0)),0) AS count
     from inquiry_count

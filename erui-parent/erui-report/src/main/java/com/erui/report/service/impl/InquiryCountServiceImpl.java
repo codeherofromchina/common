@@ -285,16 +285,19 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 	// 根据时间和产品类别查询产品数量
 	@Override
-	public int selectProCountByIsOil(Date startTime, Date endTime, String isOil) {
+	public int selectProCountByExample(Date startTime, Date endTime, String isOil,String proCategory) {
 		InquiryCountExample example = new InquiryCountExample();
 		InquiryCountExample.Criteria criteria = example.createCriteria();
 		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
 			criteria.andRollinTimeBetween(startTime, endTime);
 		}
 		if (isOil != null && !isOil.equals("")) {
-			criteria.andIsOilGasEqualTo(isOil);
-		}
-		int proCount = readMapper.selectProCountByIsOilByExample(example);
+            criteria.andIsOilGasEqualTo(isOil);
+        }
+        if (proCategory != null && !proCategory.equals("")) {
+            criteria.andProCategoryEqualTo(proCategory);
+        }
+		int proCount = readMapper.selectProCountByExample(example);
 		return proCount;
 	}
 

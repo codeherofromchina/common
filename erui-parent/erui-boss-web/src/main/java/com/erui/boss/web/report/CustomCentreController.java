@@ -97,15 +97,18 @@ public class CustomCentreController {
                 Map<String, Object> top3 = list.get(i);
                 BigDecimal s = new BigDecimal(top3.get("proCount").toString());
                 int top3Count = s.intValue();
+                String proCategory = top3.get("proCategory").toString();
                 int totalC=0;
-                if(custSummaryVO.getTotal()>0){
-                    totalC=custSummaryVO.getTotal();
+                if(StringUtils.isNoneBlank(proCategory)){
+                    int proTotal = inquiryService.selectProCountByExample(startTime, new Date(), "", "");
+                    if(proTotal>0){
+                        totalC=proTotal;
+                    }
                 }
                 top3.put("proProportionl",RateUtil.intChainRate(top3Count,totalC));
                 proTop3Map.put("top"+(i+1),top3);
             }
         }
-
         Datas.put("inquiry",inquiryMap);
         Datas.put("isOil",proIsOilMap);
         Datas.put("proTop3",proTop3Map);
