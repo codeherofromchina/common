@@ -35,4 +35,6 @@ public interface RequestCreditMapper {
     int updateByPrimaryKeySelective(RequestCredit record);
 
     int updateByPrimaryKey(RequestCredit record);
+    
+    void truncateTable();
 }

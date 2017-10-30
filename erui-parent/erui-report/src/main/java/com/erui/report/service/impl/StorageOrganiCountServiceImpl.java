@@ -25,6 +25,9 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		StorageOrganiCount soc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT, response, index + 1)) {
@@ -63,7 +66,6 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(soc);
 				}
 			} catch (Exception e) {

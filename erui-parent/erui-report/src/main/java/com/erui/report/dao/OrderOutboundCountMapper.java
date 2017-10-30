@@ -27,4 +27,6 @@ public interface OrderOutboundCountMapper {
     int updateByPrimaryKeySelective(OrderOutboundCount record);
 
     int updateByPrimaryKey(OrderOutboundCount record);
+    
+    void truncateTable();
 }

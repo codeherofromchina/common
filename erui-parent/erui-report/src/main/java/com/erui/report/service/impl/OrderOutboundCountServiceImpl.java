@@ -25,6 +25,9 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		OrderOutboundCount ooc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT, response, index + 1)) {
@@ -76,7 +79,6 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(ooc);
 				}
 			} catch (Exception e) {

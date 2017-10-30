@@ -23,6 +23,9 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		CategoryQuality cq = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CATEGORY_QUALITY, response, index + 1)){
@@ -124,7 +127,6 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 			
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(cq);
 				}
 			} catch (Exception e) {

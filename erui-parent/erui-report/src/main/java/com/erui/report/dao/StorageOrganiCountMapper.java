@@ -27,4 +27,6 @@ public interface StorageOrganiCountMapper {
     int updateByPrimaryKeySelective(StorageOrganiCount record);
 
     int updateByPrimaryKey(StorageOrganiCount record);
+    
+    void truncateTable();
 }

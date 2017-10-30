@@ -27,4 +27,6 @@ public interface CreditExtensionMapper {
     int updateByPrimaryKeySelective(CreditExtension record);
 
     int updateByPrimaryKey(CreditExtension record);
+    
+    void truncateTable();
 }

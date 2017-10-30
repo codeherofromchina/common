@@ -30,6 +30,9 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		Member member = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MEMBER, response, index + 1)) {
@@ -109,7 +112,6 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(member);
 				}
 			} catch (Exception e) {

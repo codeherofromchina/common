@@ -167,9 +167,9 @@ public class ExcelController {
 			logger.debug("异常:" + e1.getMessage(), e1);
 			return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
 		}
-		// 删除之前无用的文件
-		int delFileNum = FileUtil.delBefore2HourFiles(realPath);
-		logger.info("删除无用excel文件数量：{}", delFileNum);
+		// 删除之前无用的文件 保存数据
+		//int delFileNum = FileUtil.delBefore2HourFiles(realPath);
+		//logger.info("删除无用excel文件数量：{}", delFileNum);
 
 		ExcelReader excelReader = new ExcelReader();
 		try {
@@ -219,7 +219,8 @@ public class ExcelController {
 			@RequestParam(value = "fileName", required = true) String fileName,
 			@RequestParam(value = "type", required = true) Integer type) {
 		Result<Object> result = new Result<Object>();
-
+		
+		
 		// 判断上传的业务文件类型
 		ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
 		if (typeEnum == null) {
@@ -229,6 +230,9 @@ public class ExcelController {
 		String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
 		File file = new File(realPath, fileName);
 		if (file.exists() && file.isFile()) {
+			logger.info(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName,type));
+			System.out.println(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName,type));
+			
 			ExcelReader excelReader = new ExcelReader();
 			try {
 				List<String[]> excelContent = excelReader.readExcel(file);

@@ -66,4 +66,6 @@ public interface InquiryCountMapper {
 	 * @return
 	 */
 	List<CustomerCategoryNumVO> selectinquiryOrderCategoryNumByCondition(Map<String,Object> condition);
+	
+	void truncateTable();
 }

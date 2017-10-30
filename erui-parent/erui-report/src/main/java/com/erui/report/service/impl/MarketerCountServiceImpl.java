@@ -24,6 +24,9 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		MarketerCount mc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MARKETER_COUNT, response, index + 1)) {
@@ -105,7 +108,6 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(mc);
 				}
 			} catch (Exception e) {

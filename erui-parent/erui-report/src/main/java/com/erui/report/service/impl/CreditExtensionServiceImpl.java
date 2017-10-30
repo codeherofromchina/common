@@ -24,6 +24,9 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		CreditExtension ce = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CREDIT_EXTENSION, response, index + 1)){
@@ -91,7 +94,6 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(ce);
 				}
 			} catch (Exception e) {

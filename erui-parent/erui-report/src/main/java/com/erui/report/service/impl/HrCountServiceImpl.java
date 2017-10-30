@@ -415,6 +415,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		int size = datas.size();
 		HrCount hc = null;
 		String preBigDept = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.HR_COUNT, response, index + 1)) {
@@ -546,7 +549,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(hc);
 				}
 			} catch (Exception e) {

@@ -28,6 +28,9 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		ProcurementCount pc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.PROCUREMENT_COUNT, response, index + 1)) {
@@ -59,7 +62,6 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 			pc.setOil(strArr[7]);
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(pc);
 				}
 			} catch (Exception e) {
