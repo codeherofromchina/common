@@ -31,6 +31,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		OrderCount oc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_COUNT, response, index + 1)) {
@@ -388,7 +391,6 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(oc);
 				}
 			} catch (Exception e) {

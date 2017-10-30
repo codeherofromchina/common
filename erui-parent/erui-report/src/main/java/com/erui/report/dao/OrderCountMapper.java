@@ -55,5 +55,7 @@ public interface OrderCountMapper {
 	CustomerNumSummaryVO selectNumSummaryByExample(OrderCountExample example);
     //产品数量
     int selectProCountByExample();
+    
+    void truncateTable();
 
 }

@@ -376,4 +376,7 @@
       dimission_count = #{dimissionCount,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+    <update id="truncateTable" >
+    truncate table hr_count
+  </update>
 </mapper>

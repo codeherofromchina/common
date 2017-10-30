@@ -227,6 +227,9 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		RequestCredit rc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.REQUEST_CREDIT, response, index + 1)) {
@@ -283,7 +286,6 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(rc);
 				}
 			} catch (Exception e) {

@@ -27,4 +27,6 @@ public interface OrderEntryCountMapper {
     int updateByPrimaryKeySelective(OrderEntryCount record);
 
     int updateByPrimaryKey(OrderEntryCount record);
+    
+    void truncateTable();
 }

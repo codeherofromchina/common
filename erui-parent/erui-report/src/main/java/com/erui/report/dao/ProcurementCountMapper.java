@@ -27,4 +27,6 @@ public interface ProcurementCountMapper {
     int updateByPrimaryKeySelective(ProcurementCount record);
 
     int updateByPrimaryKey(ProcurementCount record);
+    
+    void truncateTable();
 }

@@ -33,4 +33,6 @@ public interface HrCountMapper {
     int updateByPrimaryKeySelective(HrCount record);
 
     int updateByPrimaryKey(HrCount record);
+    
+    void truncateTable();
 }

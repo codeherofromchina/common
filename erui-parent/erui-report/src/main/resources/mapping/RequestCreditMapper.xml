@@ -443,4 +443,7 @@
       back_date = #{backDate,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+    <update id="truncateTable" >
+    truncate table truncateTable
+  </update>
 </mapper>

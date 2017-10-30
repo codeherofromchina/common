@@ -27,4 +27,6 @@ public interface CategoryQualityMapper {
     int updateByPrimaryKeySelective(CategoryQuality record);
 
     int updateByPrimaryKey(CategoryQuality record);
+    
+    void truncateTable();
 }

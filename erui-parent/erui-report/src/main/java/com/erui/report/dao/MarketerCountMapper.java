@@ -27,4 +27,6 @@ public interface MarketerCountMapper {
     int updateByPrimaryKeySelective(MarketerCount record);
 
     int updateByPrimaryKey(MarketerCount record);
+    
+    void truncateTable();
 }

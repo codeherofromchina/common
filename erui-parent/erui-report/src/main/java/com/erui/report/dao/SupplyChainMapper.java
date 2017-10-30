@@ -39,4 +39,6 @@ public interface SupplyChainMapper {
     List<String> selectCategoryList();
     //事业部列表
     List<String> selectOrgList();
+    
+    void truncateTable();
 }

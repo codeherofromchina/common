@@ -89,6 +89,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 		ImportDataResponse response = new ImportDataResponse();
 		int size = datas.size();
 		SupplyChain sc = null;
+		if (!testOnly) {
+			writeMapper.truncateTable();
+		}
 		for (int index = 0; index < size; index++) {
 			String[] strArr = datas.get(index);
 			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.SUPPLY_CHAIN, response, index + 1)) {
@@ -160,7 +163,6 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
 			try {
 				if (!testOnly) {
-					writeMapper.deleteByExample(null);
 					writeMapper.insertSelective(sc);
 				}
 			} catch (Exception e) {

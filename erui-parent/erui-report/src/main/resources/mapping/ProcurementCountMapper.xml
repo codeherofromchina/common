@@ -270,4 +270,7 @@
       oil = #{oil,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+    <update id="truncateTable" >
+    truncate table procurement_count
+  </update>
 </mapper>
