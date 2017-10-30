@@ -263,12 +263,17 @@ public class CustomCentreController {
 		quoteTimeMap.put("twentyFourCount", count5);
 		quoteTimeMap.put("otherCount", otherCount);
 		if (totalCount > 0) {
-			quoteTimeMap.put("oneCountRate", RateUtil.intChainRate(count1, totalCount));
-			quoteTimeMap.put("fourCountRate", RateUtil.intChainRate(count2, totalCount));
-			quoteTimeMap.put("eightCountRate", RateUtil.intChainRate(count3, totalCount));
-			quoteTimeMap.put("sixteenCountRate", RateUtil.intChainRate(count4, totalCount));
-			quoteTimeMap.put("twentyFourCountRate", RateUtil.intChainRate(count5, totalCount));
-			quoteTimeMap.put("otherCountRate", RateUtil.intChainRate(otherCount, totalCount));
+            double oneCountRate = RateUtil.intChainRate(count1, totalCount);
+            double fourCountRate = RateUtil.intChainRate(count2, totalCount);
+            double eightCountRate = RateUtil.intChainRate(count3, totalCount);
+            double sixteenCountRate = RateUtil.intChainRate(count4, totalCount);
+            double twentyFourCountRate = RateUtil.intChainRate(count5, totalCount);
+            quoteTimeMap.put("oneCountRate",oneCountRate );
+			quoteTimeMap.put("fourCountRate",fourCountRate);
+			quoteTimeMap.put("eightCountRate",eightCountRate);
+			quoteTimeMap.put("sixteenCountRate",sixteenCountRate );
+			quoteTimeMap.put("twentyFourCountRate",twentyFourCountRate );
+			quoteTimeMap.put("otherCountRate",1-(oneCountRate+fourCountRate+eightCountRate+sixteenCountRate+twentyFourCountRate));
 		}
 		result.setStatus(ResultStatusEnum.SUCCESS);
 		result.setData(quoteTimeMap);
@@ -295,7 +300,7 @@ public class CustomCentreController {
 			ordCounts[i] = ordCount;
 			double successRate = 0.0;
 			if (ordCount != 0) {
-				successRate = RateUtil.intChainRate(successOrdCount, ordCount);
+				successRate = RateUtil.intChainRateTwo(successOrdCount, ordCount);
 			}
 			successOrdCounts[i] = successRate;
 			orgs[i] = orgList.get(i);
@@ -412,7 +417,12 @@ public class CustomCentreController {
 						inqDetailVo.setOrdAmountProportion(
 								RateUtil.doubleChainRate(catevo.getOrdCatePrice(), ordTotalAmount));
 					}
-				}
+				}else{
+                    inqDetailVo.setOrdCateCount(0);
+                    inqDetailVo.setOrdProportion(0.00);
+                    inqDetailVo.setOrdCatePrice(0.00);
+                    inqDetailVo.setOrdAmountProportion(0.00);
+                }
 				if (inqTotalCount > 0) {
 					inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
 				}
