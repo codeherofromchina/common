@@ -258,8 +258,17 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 				}
 			}
 
-		}
-		SupplyTrendVo trend = new SupplyTrendVo(DateTime, suppliyFinishCount, SPUFinishCount, SKUFinishCount);
+        }else {
+            for (int i = 0; i <days ; i++) {
+                Date date = DateUtil.recedeTime(days - (i + 1));
+                String datet2 = com.erui.comm.DateUtil.format("MM月dd日", date);
+                DateTime[i]=datet2;
+                suppliyFinishCount[i]=0;
+                SPUFinishCount[i]=0;
+                SKUFinishCount[i]=0;
+            }
+        }
+        SupplyTrendVo trend = new SupplyTrendVo(DateTime,suppliyFinishCount,SPUFinishCount,SKUFinishCount);
 
 		return trend;
 	}

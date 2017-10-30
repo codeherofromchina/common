@@ -97,9 +97,13 @@ public class CustomCentreController {
                 Map<String, Object> top3 = list.get(i);
                 BigDecimal s = new BigDecimal(top3.get("proCount").toString());
                 int top3Count = s.intValue();
+                String proCategory = top3.get("proCategory").toString();
                 int totalC=0;
-                if(custSummaryVO.getTotal()>0){
-                    totalC=custSummaryVO.getTotal();
+                if(StringUtils.isNoneBlank(proCategory)){
+                    int proTotal = inquiryService.selectProCountByExample(startTime, new Date(), "", "");
+                    if(proTotal>0){
+                        totalC=proTotal;
+                    }
                 }
                 top3.put("proProportionl",RateUtil.intChainRate(top3Count,totalC));
                 proTop3Map.put("top"+(i+1),top3);
@@ -244,24 +248,27 @@ public class CustomCentreController {
 		// 当前时期
 		int days = Integer.parseInt(reqMap.get("days").toString());
 		Date startTime = DateUtil.recedeTime(days);
-		int totalCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", "");
+		int totalCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
 		int count1 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 1, 4, "", "");
 		int count2 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 4, 8, "", "");
 		int count3 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 8, 16, "", "");
 		int count4 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 16, 24, "", "");
 		int count5 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 24, 48, "", "");
+		int otherCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 48, 1000, "", "");
 		HashMap<String, Object> quoteTimeMap = new HashMap<>();
 		quoteTimeMap.put("oneCount", count1);
 		quoteTimeMap.put("fourCount", count2);
 		quoteTimeMap.put("eightCount", count3);
 		quoteTimeMap.put("sixteenCount", count4);
 		quoteTimeMap.put("twentyFourCount", count5);
+		quoteTimeMap.put("otherCount", otherCount);
 		if (totalCount > 0) {
 			quoteTimeMap.put("oneCountRate", RateUtil.intChainRate(count1, totalCount));
 			quoteTimeMap.put("fourCountRate", RateUtil.intChainRate(count2, totalCount));
 			quoteTimeMap.put("eightCountRate", RateUtil.intChainRate(count3, totalCount));
 			quoteTimeMap.put("sixteenCountRate", RateUtil.intChainRate(count4, totalCount));
 			quoteTimeMap.put("twentyFourCountRate", RateUtil.intChainRate(count5, totalCount));
+			quoteTimeMap.put("otherCountRate", RateUtil.intChainRate(otherCount, totalCount));
 		}
 		result.setStatus(ResultStatusEnum.SUCCESS);
 		result.setData(quoteTimeMap);

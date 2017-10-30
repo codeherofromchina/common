@@ -39,7 +39,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	public int inquiryCountByTime(Date startTime, Date endTime, String quotedStatus, double leastQuoteTime,
 			double maxQuoteTime, String org, String area) {
 		InquiryCountExample inquiryExample = new InquiryCountExample();
-		InquiryCountExample.Criteria criteria = inquiryExample.createCriteria();
+		Criteria criteria = inquiryExample.createCriteria();
 		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
 			criteria.andRollinTimeBetween(startTime, endTime);
 		}
@@ -47,10 +47,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		if (quotedStatus != null && !"".equals(quotedStatus)) {
 			criteria.andQuotedStatusEqualTo(quotedStatus);
 		}
-		if (leastQuoteTime > 0 && maxQuoteTime > 0) {
-			BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
-			BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
-			criteria.andQuoteNeedTimeBetween(ldecimal, mdecimal);
+		if (leastQuoteTime< maxQuoteTime) {
+            BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
+            BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
+            criteria.andQuoteNeedTimeBetween(ldecimal,mdecimal);
 		}
 		if (org != null && !"".equals(org)) {
 			criteria.andOrganizationEqualTo(org);
@@ -286,16 +286,19 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 	// 根据时间和产品类别查询产品数量
 	@Override
-	public int selectProCountByIsOil(Date startTime, Date endTime, String isOil) {
+	public int selectProCountByExample(Date startTime, Date endTime, String isOil,String proCategory) {
 		InquiryCountExample example = new InquiryCountExample();
 		InquiryCountExample.Criteria criteria = example.createCriteria();
 		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
 			criteria.andRollinTimeBetween(startTime, endTime);
 		}
 		if (isOil != null && !isOil.equals("")) {
-			criteria.andIsOilGasEqualTo(isOil);
-		}
-		int proCount = readMapper.selectProCountByIsOilByExample(example);
+            criteria.andIsOilGasEqualTo(isOil);
+        }
+        if (proCategory != null && !proCategory.equals("")) {
+            criteria.andProCategoryEqualTo(proCategory);
+        }
+		int proCount = readMapper.selectProCountByExample(example);
 		return proCount;
 	}
 

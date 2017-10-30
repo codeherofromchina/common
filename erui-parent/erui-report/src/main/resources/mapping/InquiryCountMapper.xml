@@ -257,7 +257,7 @@
     </if>
   </select>
 
-  <select id="selectProCountByIsOilByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+  <select id="selectProCountByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     IFNULL(SUM(IFNULL(pro_count,0)),0) AS count
     from inquiry_count
@@ -682,9 +682,12 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.erui.report.model.InquiryCountExample" resultType="java.lang.Integer" >
-    select count(*) from inquiry_count
+    SELECT count(*) FROM inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
     </if>
   </select>
 
