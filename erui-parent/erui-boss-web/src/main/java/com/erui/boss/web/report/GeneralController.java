@@ -115,12 +115,10 @@ public class GeneralController {
 		order.put("chainAdd", chainOrderAdd);
 		order.put("chainRate", chainOrderRate);
 		Map<String, Object> data = new HashMap<>();
-		Map<String, Object> result = new HashMap<>();
 		data.put("member", member);
 		data.put("inquiry", inquiry);
 		data.put("order", order);
-		result.put("data", data);
-		result.put("code", 200);
+		Result<Map<String,Object>> result = new Result<>(data);
 		return result;
 	}
 
@@ -170,7 +168,6 @@ public class GeneralController {
 		}
 		//当前时期
 		int days = Integer.parseInt(reqMap.get("days").toString());
-		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> data = new HashMap<>();
 		// 封装日期,X轴
 		if (days <= 30) {
@@ -205,8 +202,7 @@ public class GeneralController {
 			data.put("inquiry", inCounts);
 			data.put("yAxis", orderCounts);
 		}
-		result.put("code", 200);
-		result.put("data", data);
+		Result<Map<String,Object>> result = new Result<>(data);
 		return result;
 	}
 

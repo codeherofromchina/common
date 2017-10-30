@@ -61,9 +61,9 @@ public class SupplyChainController {
                 planSPU+=supply.getPlanSpuNum();
             }
         }
-        double supplierFinishRate=0.0;
-        double spuFinishRate=0.0;
-        double skuFinishRate=0.0;
+        double supplierFinishRate=0.00;
+        double spuFinishRate=0.00;
+        double skuFinishRate=0.00;
         if(planSupplyCount>0){
             supplierFinishRate= RateUtil.intChainRate(finishSupplyCount,planSupplyCount);
         }

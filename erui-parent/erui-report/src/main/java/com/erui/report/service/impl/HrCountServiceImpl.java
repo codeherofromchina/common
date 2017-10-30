@@ -25,7 +25,7 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class HrCountServiceImpl extends BaseService<HrCountMapper> implements HrCountService {
 	private final static Logger logger = LoggerFactory.getLogger(HrCountServiceImpl.class);
-	private DecimalFormat df = new DecimalFormat("0.00");
+	private DecimalFormat df = new DecimalFormat("0.0000");
 	/**
 	 * @Author:SHIGS
 	 * @Description
@@ -88,8 +88,8 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
 		int chainTurnAdd = chainTurnRightCount.intValue() - turnRightCount.intValue();
 		// 环比
-		double staffFullChainRate = RateUtil.intChainRate(chainFullAdd, chainRegularCount.intValue());
-		double turnRightChainRate = RateUtil.intChainRate(chainTurnAdd, chainTurnRightCount.intValue());
+		double staffFullChainRate = RateUtil.doubleChainRate(chainFullAdd, chainRegularCount.intValue());
+		double turnRightChainRate = RateUtil.doubleChainRate(chainTurnAdd, chainTurnRightCount.intValue());
 		// 满编率
 		double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
 		// 转正率
@@ -205,24 +205,24 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		double groupTransferChainRate = RateUtil.intChainRate(chainTurnJobinAdd, chainTurnJobin.intValue());
 		double foreignChainRate = RateUtil.intChainRate(chainForeignCount.intValue(), chainForeignCountAdd);
 		Map<String, Object> data = new HashMap<>();
-		data.put("turnRightCount", turnRightCount);
 		data.put("newCount", newCount);
 		data.put("foreignCount", foreignCount);
 		data.put("chinaCount", chinaCount);
-		data.put("dimissionCount", dimissionCount);
+		data.put("leaveRate", leaveRate);
 		data.put("newAdd", Double.parseDouble(df.format(addRate)));
 		data.put("foreignRate", Double.parseDouble(df.format(foreignRate)));
 		data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
+		data.put("groupTransferIn", turnJobin.intValue());
+		data.put("groupTransferOut", turnJobout);
 		data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
 		data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
 		data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
 		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
 		data.put("tryRate", Double.parseDouble(df.format(tryRate)));
+		data.put("turnRightCount", turnRightCount);
 		data.put("turnRightChainRate", Double.parseDouble(df.format(tryChainRate)));
 		data.put("staffFullCount", regularCount);
 		data.put("planCount", planCount);
-		data.put("groupTransferIn", turnJobin.intValue());
-		data.put("groupTransferOut", turnJobout);
 		data.put("tryCount", tryCount);
 		data.put("dimissionCount", dimissionCount);
 		return data;
@@ -246,7 +246,12 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		mapData.put("depart", departList);
 		return mapData;
 	}
-
+     /**
+      * @Author:SHIGS
+      * @Description 数据对比
+      * @Date:11:53 2017/10/30
+      * @modified By
+      */
 	@Override
 	public Map<String,Object> selectHrCountByDepart(String depart,int days) {
         //当前时期
@@ -339,7 +344,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
 	/**
 	 * @Author:SHIGS
-	 * @Description
+	 * @Description 部门明细
 	 * @Date:11:31 2017/10/25
 	 * @modified By
 	 */
