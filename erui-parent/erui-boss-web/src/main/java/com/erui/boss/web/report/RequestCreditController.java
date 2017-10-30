@@ -58,8 +58,20 @@ public class RequestCreditController {
         Date chainDate = DateUtil.recedeTime(days*2);
         //当前时段
         Map mapMount =requestCreditService.selectRequestTotal(startTime,new Date());
+        if(mapMount == null){
+            mapMount = new HashMap();
+            mapMount.put("sdT",0);
+            mapMount.put("sded",0);
+            mapMount.put("sd",0);
+        }
         //环比
         Map mapChainMount = requestCreditService.selectRequestTotal(chainDate,startTime);
+        if (mapChainMount == null){
+            mapChainMount = new HashMap();
+            mapChainMount.put("sdT",0);
+            mapChainMount.put("sded",0);
+            mapChainMount.put("sd",0);
+        }
         //应收金额
         BigDecimal orderAmount= new  BigDecimal(mapMount.get("sdT").toString());
         //已收金额
@@ -138,6 +150,12 @@ public class RequestCreditController {
         Date nextTime = DateUtil.recedeTime(-30);
         //总量
         Map mapTotal = requestCreditService.selectRequestTotal(null,null);
+        if(mapTotal == null){
+            mapTotal = new HashMap();
+            mapTotal.put("sdT",0);
+            mapTotal.put("sded",0);
+            mapTotal.put("sd",0);
+        }
         //应收金额
         BigDecimal totalOrderAmount= new  BigDecimal(mapTotal.get("sdT").toString());
         //已收金额
@@ -146,6 +164,12 @@ public class RequestCreditController {
         BigDecimal totalNotreceiveAmount = new BigDecimal(mapTotal.get("sd").toString());
         //根据区域
         Map mapCount = requestCreditService.selectByAreaOrCountry(map.get("area").toString(),map.get("country").toString());
+        if (mapCount == null){
+            mapTotal = new HashMap();
+            mapTotal.put("oa",0);
+            mapTotal.put("received",0);
+            mapTotal.put("ra",0);
+        }
         //应收金额
         BigDecimal acOrderAmount= new  BigDecimal( mapCount.get("oa").toString());
         //已收金额

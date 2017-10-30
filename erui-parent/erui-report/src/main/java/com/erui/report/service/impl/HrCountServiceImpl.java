@@ -251,8 +251,8 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	public Map<String,Object> selectHrCountByDepart(String depart,int days) {
         //当前时期
         Date startTime = DateUtil.recedeTime(days);
-		Map curHrCountMap = null;
-		if (!depart.equals("") || depart != null) {
+		Map curHrCountMap = new HashMap();
+		if ("".equals(depart) || depart == null) {
 			HrCountExample hrCountExample  = new HrCountExample();
 			hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
 			curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
@@ -351,7 +351,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		List<Map> result = new ArrayList<>();
 		for (Map mapBig : bigList) {
 				if ("".equals(mapBig.get("big_depart")) || mapBig.get("big_depart") == null){
-					mapBig.put("big_depart","未知部门");
+					continue;
 				}
 			// 满编率
 			double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")).toString());

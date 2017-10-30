@@ -83,8 +83,9 @@
     SELECT big_depart FROM `hr_count` GROUP BY big_depart;
   </select>
   <select id="selectHrCountByPart" resultType="java.util.Map" parameterType="com.erui.report.model.HrCountExample">
-    SELECT IFNULL(SUM(plan_count),0)AS s1,SUM(regular_count)AS s2,SUM(try_count)AS s3,SUM(turn_right_count)AS s4,SUM(china_count)AS s5,SUM(foreign_count)AS s6 ,SUM(new_count)AS s7,SUM(dimission_count)AS s8 ,
-    SUM(group_transfer_in)AS s9 ,SUM(group_transfer_out)AS s10
+    SELECT IFNULL(SUM(plan_count),0)AS s1,IFNULL(SUM(regular_count),0)AS s2,IFNULL(SUM(try_count),0)AS s3,IFNULL(SUM(turn_right_count),0)AS s4,
+    IFNULL(SUM(china_count),0)AS s5,IFNULL(SUM(foreign_count),0)AS s6 ,IFNULL(SUM(new_count),0)AS s7,IFNULL(SUM(dimission_count),0)AS s8 ,
+    IFNULL(SUM(group_transfer_in),0)AS s9 ,IFNULL(SUM(group_transfer_out),0)AS s10
     FROM `hr_count`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
