@@ -8,6 +8,8 @@ public class RateUtil {
     public static void main(String args[]){
         System.out.println(intChainRate(5,8));
         System.out.println(doubleChainRate(344.55,888.8));
+        double v = intChainRate(1, 1);
+        System.out.println(v);
     }
      
     /**

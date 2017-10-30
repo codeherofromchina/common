@@ -1,13 +1,11 @@
 package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.RateUtil;
@@ -67,7 +64,10 @@ public class CustomCentreController {
         //当期询单数环比chain
         int chainCount = inquiryService.inquiryCountByTime(chainDate, startTime,null,0,0,"","");
         int chain=count-chainCount;
-        double chainRate = RateUtil.intChainRate(count-chainCount, chainCount);//环比
+        double chainRate = 0.0;
+        if(chainCount>0){
+            chainRate=  RateUtil.intChainRate(count-chainCount, chainCount);//环比
+        }
         inquiryMap.put("count",count);
         inquiryMap.put("amount",RateUtil.doubleChainRateTwo(amount,10000)+"万$");
         inquiryMap.put("chainAdd",chain);
@@ -78,19 +78,17 @@ public class CustomCentreController {
         CustomerNumSummaryVO custSummaryVO=inquiryService.selectNumSummaryByExample(startTime,new Date());
         CustomerNumSummaryVO custSummaryVO2=inquiryService.selectNumSummaryByExample(chainDate,startTime);
         if(custSummaryVO!=null&&custSummaryVO.getTotal()>0){
-
             proIsOilMap.put("oil",custSummaryVO.getOil());
             proIsOilMap.put("notOil",custSummaryVO.getNonoil());
             proIsOilMap.put("oiProportionl",RateUtil.intChainRate(custSummaryVO.getOil(),custSummaryVO.getTotal()));
-            if(custSummaryVO2.getOil()>=1){
+            if(custSummaryVO2.getOil()>0){
                 proIsOilMap.put("chainRate",RateUtil.intChainRate(custSummaryVO.getOil()-custSummaryVO2.getOil(),custSummaryVO2.getOil()));
             }else {
                 proIsOilMap.put("chainRate",0.00);
             }
-
         }
         //top3统计
-        Map<String,Object> params=new HashMap<String,Object>();
+        Map<String,Object> params=new HashMap<>();
         params.put("startTime",DateUtil.recedeTime(days));
         params.put("endTime",new Date());
         List<Map<String,Object>> list = inquiryService.selectProTop3(params);
@@ -99,7 +97,11 @@ public class CustomCentreController {
                 Map<String, Object> top3 = list.get(i);
                 BigDecimal s = new BigDecimal(top3.get("proCount").toString());
                 int top3Count = s.intValue();
-                top3.put("proProportionl",RateUtil.intChainRate(top3Count,custSummaryVO.getTotal()));
+                int totalC=0;
+                if(custSummaryVO.getTotal()>0){
+                    totalC=custSummaryVO.getTotal();
+                }
+                top3.put("proProportionl",RateUtil.intChainRate(top3Count,totalC));
                 proTop3Map.put("top"+(i+1),top3);
             }
         }
@@ -307,7 +309,9 @@ public class CustomCentreController {
 	public Object areaDetailContrast() {
 		Result<Object> result = new Result<>();
 		// 询单
-		List<String> areaList = inquiryService.selectAreaList();
+		//List<String> areaList = inquiryService.selectAreaList();
+        List<InquiryAreaVO> areaList = inquiryService.selectAllAreaAndCountryList();
+
 		String[] areaInqCounts = new String[areaList.size() + 1];// 询单数量区域列表
 		String[] areaInqAmounts = new String[areaList.size() + 1];// 询单金额区域列表
 		Integer[] inqCounts = new Integer[areaList.size() + 1];// 询单数量列表
@@ -330,14 +334,14 @@ public class CustomCentreController {
 		OrdCounts[0] = orderTotalCount;
 		OrdAmounts[0] = orderTotalAmount;
 		for (int i = 0; i < areaList.size(); i++) {
-			areaInqCounts[i + 1] = areaList.get(i);
-			areaInqAmounts[i + 1] = areaList.get(i);
-			areaOrdCounts[i + 1] = areaList.get(i);
-			areaOrdAmounts[i + 1] = areaList.get(i);
-			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i));
-			Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i));
-			int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i));
-			Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i));
+			areaInqCounts[i + 1] = areaList.get(i).getAreaName();
+			areaInqAmounts[i + 1] = areaList.get(i).getAreaName();
+			areaOrdCounts[i + 1] = areaList.get(i).getAreaName();
+			areaOrdAmounts[i + 1] = areaList.get(i).getAreaName();
+			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i).getAreaName());
+			Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i).getAreaName());
+			int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i).getAreaName());
+			Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i).getAreaName());
 			inqCounts[i + 1] = inqCount;
 			inqAmounts[i + 1] = inqAmount;
 			OrdCounts[i + 1] = ordCount;

@@ -283,7 +283,7 @@
         sum(ifnull(quotation_price,0)) as amount,
         sum(case is_oil_gas when '油气' then ifnull(quotation_price,0) else 0 end) as oilAmount,
 	    sum(case is_oil_gas when '非油气' then ifnull(quotation_price,0) else 0 end) as noNoilAmount
-    from inquiry_count;
+    from inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
