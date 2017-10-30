@@ -114,7 +114,7 @@ public class RequestCreditController {
     }
      /**
       * @Author:SHIGS
-      * @Description 趋势图
+      * @Description 应收账款趋势图
       * @Date:9:25 2017/10/24
       * @modified By
       */
@@ -130,6 +130,12 @@ public class RequestCreditController {
         Result<Map<String,Object>> result = new Result<>(dataMap);
         return result;
     }
+     /**
+      * @Author:SHIGS
+      * @Description 查询销售区域
+      * @Date:19:39 2017/10/30
+      * @modified By
+      */
     @ResponseBody
     @RequestMapping(value= "queryArea",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object queryArea(){
@@ -137,16 +143,28 @@ public class RequestCreditController {
         Result<Map<String,Object>> result = new Result<>(areaMap);
         return result;
     }
+     /**
+      * @Author:SHIGS
+      * @Description 根据销售区域查询国家
+      * @Date:19:40 2017/10/30
+      * @modified By
+      */
     @ResponseBody
     @RequestMapping(value= "queryCoutry",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
-    public Object queryCoutry(@RequestBody Map<String,Object> map){
+    public Object queryCoutry(@RequestBody Map<String,Object> map) throws Exception {
+        if (!map.containsKey("area")) {
+            throw new MissingServletRequestParameterException("area","String");
+        }
         Map<String,Object> areaCountry = requestCreditService.selectCountry(map.get("area").toString());
         Result<Map<String,Object>> result = new Result<>(areaCountry);
         return result;
     }
     @ResponseBody
     @RequestMapping(value= "areaDetail",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
-    public Object areaDetail(@RequestBody Map<String,Object> map){
+    public Object areaDetail(@RequestBody Map<String,Object> map) throws Exception {
+        if (!map.containsKey("area")||!map.containsKey("country")) {
+            throw new MissingServletRequestParameterException("area || country","String");
+        }
         Date nextTime = DateUtil.recedeTime(-30);
         //总量
         Map mapTotal = requestCreditService.selectRequestTotal(null,null);
