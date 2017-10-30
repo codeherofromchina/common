@@ -104,7 +104,7 @@ public class GeneralController {
 		// 当期询单金额
 		double orderAmount = orderService.orderAmountByTime(startTime, new Date(), "");
 		// 环比增加单数
-		int chainOrderAdd = chainOrderCount - orderCount;
+		int chainOrderAdd = orderCount -  chainOrderCount;
 		double chainOrderRate = 0.00;
 		if (chainOrderCount > 0) {
 			chainOrderRate = RateUtil.intChainRate(orderCount - chainOrderCount, chainOrderCount);
