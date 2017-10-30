@@ -155,12 +155,24 @@ public class SupplyChainController {
         Map<String, Object> planSPU = new HashMap<>();
         Map<String, Object> planSKU = new HashMap<>();
         Map<String, Object> planSuppliy= new HashMap<>();
+        int noFinishSPU = suppliOrgVo.getPlanSPU() - suppliOrgVo.getFinishSPU();
+        int noFinishSKU = suppliOrgVo.getPlanSKU() - suppliOrgVo.getFinishSKU();
+        int noFinishSuppliy = suppliOrgVo.getPlanSuppliy() - suppliOrgVo.getFinishSuppliy();
+        if(noFinishSPU<0){
+            noFinishSPU=0;
+        }
+        if(noFinishSKU<0){
+            noFinishSKU=0;
+        }
+        if(noFinishSuppliy<0){
+            noFinishSuppliy=0;
+        }
         planSPU.put("finishedSPU", suppliOrgVo.getFinishSPU());
-        planSPU.put("noFinishSPU", suppliOrgVo.getPlanSPU() - suppliOrgVo.getFinishSPU());
+        planSPU.put("noFinishSPU",noFinishSPU );
         planSKU.put("finishedSKU", suppliOrgVo.getFinishSKU());
-        planSKU.put("noFinishSKU", suppliOrgVo.getPlanSKU() - suppliOrgVo.getFinishSKU());
+        planSKU.put("noFinishSKU",noFinishSKU);
         planSuppliy.put("finishedSuppliy", suppliOrgVo.getFinishSuppliy());
-        planSuppliy.put("noFinishSuppliy", suppliOrgVo.getPlanSuppliy() - suppliOrgVo.getFinishSuppliy());
+        planSuppliy.put("noFinishSuppliy", noFinishSuppliy);
         Map<String, Object> data=new HashMap<>();
         data.put("planSPU",planSPU);
         data.put("planSKU",planSKU);
@@ -176,7 +188,6 @@ public class SupplyChainController {
         HashMap<String, Object> result = new HashMap<>();
         HashMap<String, Object> data = new HashMap<>();
 
-
         List<SuppliyChainCateVo> list=this.supplyChainService.selectCateSuppliyChain();
         SuppliyChainCateVo suppliCateVo=null;
         for (SuppliyChainCateVo cateVo:list) {
@@ -189,12 +200,24 @@ public class SupplyChainController {
         HashMap<String, Object> planSKU = new HashMap<>();
         HashMap<String, Object> planSuppliy= new HashMap<>();
         if(suppliCateVo!=null) {
+            int noFinishSPU = suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU();
+            int noFinishSKU = suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU();
+            int noFinishSuppliy = suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy();
+            if(noFinishSPU<0){
+                noFinishSPU=0;
+            }
+            if(noFinishSKU<0){
+                noFinishSKU=0;
+            }
+            if(noFinishSuppliy<0){
+                noFinishSuppliy=0;
+            }
             planSPU.put("finishedSPU", suppliCateVo.getFinishSPU());
-            planSPU.put("noFinishSPU", suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU());
+            planSPU.put("noFinishSPU", noFinishSPU);
             planSKU.put("finishedSKU", suppliCateVo.getFinishSKU());
-            planSKU.put("noFinishSKU", suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU());
+            planSKU.put("noFinishSKU", noFinishSKU);
             planSuppliy.put("finishedSuppliy", suppliCateVo.getFinishSuppliy());
-            planSuppliy.put("noFinishSuppliy", suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy());
+            planSuppliy.put("noFinishSuppliy",noFinishSuppliy);
         }
         data.put("planSPU",planSPU);
         data.put("planSKU",planSKU);

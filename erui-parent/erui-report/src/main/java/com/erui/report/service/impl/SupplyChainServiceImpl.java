@@ -239,9 +239,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 datamap.put("suppliy",list.get(i).getFinishSuppliNum());
                 dateMap.put(date2,datamap);
 
-        }
+            }
             for (int i = 0; i <days ; i++) {
-                Date date = com.erui.comm.DateUtil.recedeTime(days - (i+1) );
+                Date date =DateUtil.recedeTime(days - (i+1) );
                 String datet2 = com.erui.comm.DateUtil.format("MM月dd日",date);
                 if (dateMap.containsKey(datet2)){
                     DateTime[i]=(datet2);
@@ -257,6 +257,15 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             }
 
 
+        }else {
+            for (int i = 0; i <days ; i++) {
+                Date date = DateUtil.recedeTime(days - (i + 1));
+                String datet2 = com.erui.comm.DateUtil.format("MM月dd日", date);
+                DateTime[i]=datet2;
+                suppliyFinishCount[i]=0;
+                SPUFinishCount[i]=0;
+                SKUFinishCount[i]=0;
+            }
         }
         SupplyTrendVo trend = new SupplyTrendVo(DateTime,suppliyFinishCount,SPUFinishCount,SKUFinishCount);
 
