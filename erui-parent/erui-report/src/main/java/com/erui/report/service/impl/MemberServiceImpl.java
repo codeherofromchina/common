@@ -177,7 +177,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 		}
 		double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(),regoldMember.intValue());
 		double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(),reseniorMember.intValue());
-		double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(),regeneralMember.intValue());
+		double generalMemberRate = RateUtil.intChainRate(generalMember.intValue(),regeneralMember.intValue());
 		Map<String,Object> gold = new HashMap<>();
 		Map<String,Object> senior = new HashMap<>();
 		Map<String,Object> general = new HashMap<>();
