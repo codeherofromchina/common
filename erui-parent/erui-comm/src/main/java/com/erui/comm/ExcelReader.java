@@ -140,7 +140,7 @@ public class ExcelReader {
 				cellvalue = null;
 			}
 		}
-		return cellvalue == null?null:cellvalue.replaceAll("\\s", "");
+		return StringUtils.trimToNull(cellvalue);
 	}
 	
 	public static void main(String[] args) {
