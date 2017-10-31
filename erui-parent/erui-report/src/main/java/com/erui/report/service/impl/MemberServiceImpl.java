@@ -11,6 +11,7 @@ import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -192,5 +193,13 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 		data.put("seniorMember",senior);
 		data.put("generalMember",general);
 		return data;
+	}
+	
+	
+	public static void main(String[] args) throws ParseException {
+		Date date = DateUtil.parseString2Date("2017/9/09", "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+				DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR);
+		
+		System.out.println(DateUtil.formatDateToString(date, DateUtil.FULL_FORMAT_STR));
 	}
 }

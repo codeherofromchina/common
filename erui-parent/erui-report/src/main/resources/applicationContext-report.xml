@@ -26,6 +26,8 @@
 		<property name="minIdle" value="${report.master.minIdle}"></property>
 		<!-- 获取连接最大等待时间 -->
 		<property name="maxWait" value="${report.master.maxWait}"></property>
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="SELECT 1" />
 	</bean>
 
 
@@ -46,6 +48,8 @@
 		<property name="minIdle" value="${report.slave.minIdle}"></property>
 		<!-- 获取连接最大等待时间 -->
 		<property name="maxWait" value="${report.slave.maxWait}"></property>
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="SELECT 1" />
 	</bean>
 
 	<bean id="masterSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
