@@ -84,8 +84,13 @@ public class CustomCentreController {
             if(custSummaryVO2.getOil()>0){
                 proIsOilMap.put("chainRate",RateUtil.intChainRate(custSummaryVO.getOil()-custSummaryVO2.getOil(),custSummaryVO2.getOil()));
             }else {
-                proIsOilMap.put("chainRate",0.00);
+                proIsOilMap.put("chainRate",0);
             }
+        }else{
+            proIsOilMap.put("oil",0);
+            proIsOilMap.put("notOil",0);
+            proIsOilMap.put("oiProportionl",0.00);
+            proIsOilMap.put("chainRate",0.00);
         }
         //top3统计
         Map<String,Object> params=new HashMap<>();
@@ -153,9 +158,16 @@ public class CustomCentreController {
 
 		// 利润率
 		Double profit = orderService.selectProfitRate(startTime, new Date());
-		Double chainProfit = orderService.selectProfitRate(chainDate, startTime);
-		double profitRate = RateUtil.doubleChainRate(profit, 1);
-		double chainProfitRate = RateUtil.doubleChainRate(chainProfit, 1);
+        Double chainProfit = orderService.selectProfitRate(chainDate, startTime);
+        double profitRate=0.00;
+        double chainProfitRate =0.00;
+		if(profit!=null){
+            profitRate= RateUtil.doubleChainRate(profit, 1);
+        }
+		if(chainProfit!=null){
+            chainProfitRate=RateUtil.doubleChainRate(chainProfit, 1);
+        }
+
 		Map<String, Object> profitMap = new HashMap<String, Object>();
 		profitMap.put("profitRate", profitRate);
 		profitMap.put("chainRate", chainProfitRate);
@@ -295,12 +307,13 @@ public class CustomCentreController {
 		for (int i = 0; i < orgList.size(); i++) {
 			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, orgList.get(i), "");
 			int ordCount = orderService.orderCountByTime(null, null, "", orgList.get(i), "");
-			int successOrdCount = orderService.orderCountByTime(null, null, "正常完成", orgList.get(i), "");
+            int successInqCount = inquiryService.inquiryCountByTime(null, null, "已报价", 0, 0, orgList.get(i), "");
+            int successOrdCount = orderService.orderCountByTime(null, null, "正常完成", orgList.get(i), "");
 			inqCounts[i] = inqCount;
 			ordCounts[i] = ordCount;
 			double successRate = 0.0;
-			if (ordCount != 0) {
-				successRate = RateUtil.intChainRateTwo(successOrdCount, ordCount);
+			if (successInqCount >0) {
+				successRate = RateUtil.intChainRateTwo(successOrdCount, successInqCount);
 			}
 			successOrdCounts[i] = successRate;
 			orgs[i] = orgList.get(i);
