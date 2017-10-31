@@ -491,11 +491,12 @@ public class CustomCentreController {
 	 *            城市
 	 * @return
 	 */
-	@RequestMapping("/areaDetail")
+	@RequestMapping(value = "/areaDetail",method=RequestMethod.POST,produces="application/json;charset=utf-8")
 	@ResponseBody
-	public Object areaDetail(@RequestParam(name = "area", required = false) String areaName,
-			@RequestParam(name = "country", required = false) String countryName) {
-
+	public Object areaDetail(@RequestBody Map<String,String> map) {
+		String areaName = map.get("area");
+		String countryName = map.get("country");
+		
 		CustomerNumSummaryVO orderNumSummary = orderService.numSummary(areaName, countryName);
 		CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(areaName, countryName);
 
