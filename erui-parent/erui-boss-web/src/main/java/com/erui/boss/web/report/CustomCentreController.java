@@ -491,7 +491,7 @@ public class CustomCentreController {
 	 *            城市
 	 * @return
 	 */
-	@RequestMapping(name = "/areaDetail",method=RequestMethod.POST,produces="application/json;charset=utf-8")
+	@RequestMapping(value = "/areaDetail",method=RequestMethod.POST,produces="application/json;charset=utf-8")
 	@ResponseBody
 	public Object areaDetail(@RequestBody Map<String,String> map) {
 		String areaName = map.get("area");
