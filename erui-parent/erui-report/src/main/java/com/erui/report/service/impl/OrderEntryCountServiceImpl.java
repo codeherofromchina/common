@@ -29,8 +29,9 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_ENTRY_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_ENTRY_COUNT, response, cellIndex)) {
 				continue;
 			}
 			oec = new OrderEntryCount();
@@ -41,7 +42,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), index + 1, "时间字段格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "时间字段格式错误");
 				continue;
 			}
 			oec.setEntryNum(strArr[1]);
@@ -54,7 +55,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), index + 1, "数量字段不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "数量字段不是数字");
 				continue;
 			}
 			try {
@@ -62,7 +63,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), index + 1, "金额字段不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "金额字段不是数字");
 				continue;
 			}
 			try {
@@ -71,7 +72,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), index + 1, "入库时间格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "入库时间格式错误");
 				continue;
 			}
 			oec.setBuyer(strArr[7]);
@@ -84,7 +85,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

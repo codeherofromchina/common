@@ -5,7 +5,10 @@ import java.util.*;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -93,8 +96,10 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.SUPPLY_CHAIN, response, index + 1)) {
+			
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.SUPPLY_CHAIN, response, cellIndex)) {
 				continue;
 			}
 			sc = new SupplyChain();
@@ -105,7 +110,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "日期字段格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "日期字段格式错误");
 				continue;
 			}
 			sc.setOrganization(strArr[1]);
@@ -117,7 +122,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "计划SKU字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "计划SKU字段非数字");
 				continue;
 			}
 			try {
@@ -125,7 +130,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "SKU实际完成字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "SKU实际完成字段非数字");
 				continue;
 			}
 			try {
@@ -133,7 +138,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "计划SPU字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "计划SPU字段非数字");
 				continue;
 			}
 			try {
@@ -141,7 +146,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "SPU实际完成字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "SPU实际完成字段非数字");
 				continue;
 			}
 			try {
@@ -149,7 +154,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "计划供应商数量非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "计划供应商数量非数字");
 				continue;
 			}
 			try {
@@ -157,7 +162,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, "供应商数量实际开发字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "供应商数量实际开发字段非数字");
 				continue;
 			}
 
@@ -167,7 +172,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

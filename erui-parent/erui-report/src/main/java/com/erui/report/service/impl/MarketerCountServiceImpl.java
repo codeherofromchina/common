@@ -28,8 +28,9 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MARKETER_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MARKETER_COUNT, response, cellIndex)) {
 				continue;
 			}
 			mc = new MarketerCount();
@@ -39,7 +40,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "时间字段格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "时间字段格式错误");
 				continue;
 			}
 			mc.setArea(strArr[1]);
@@ -51,7 +52,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "询单数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "询单数量不是数字");
 					continue;
 				}
 			}
@@ -61,7 +62,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "报价数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "报价数量不是数字");
 					continue;
 				}
 			}
@@ -71,7 +72,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "成单数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "成单数量不是数字");
 					continue;
 				}
 			}
@@ -81,7 +82,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "成单金额不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "成单金额不是数字");
 					continue;
 				}
 			}
@@ -91,7 +92,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "询单金额不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "询单金额不是数字");
 					continue;
 				}
 			}
@@ -101,7 +102,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, "新增会员不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, "新增会员不是数字");
 					continue;
 				}
 			}
@@ -112,7 +113,7 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

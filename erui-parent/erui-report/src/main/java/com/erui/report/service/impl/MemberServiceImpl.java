@@ -34,8 +34,9 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MEMBER, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.MEMBER, response, cellIndex)) {
 				continue;
 			}
 			member = new Member();
@@ -45,7 +46,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "日期字段格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "日期字段格式错误");
 				continue;
 			}
 
@@ -55,7 +56,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "普通会员数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "普通会员数量不是数字");
 					continue;
 				}
 			}
@@ -65,7 +66,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "普通会员二次购买数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "普通会员二次购买数量不是数字");
 					continue;
 				}
 			}
@@ -75,7 +76,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "高级会员数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "高级会员数量不是数字");
 					continue;
 				}
 			}
@@ -85,7 +86,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "高级会员二次购买数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "高级会员二次购买数量不是数字");
 					continue;
 				}
 			}
@@ -95,7 +96,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "黄金会员数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "黄金会员数量不是数字");
 					continue;
 				}
 			}
@@ -105,7 +106,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, "黄金会员二次购买数量不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, "黄金会员二次购买数量不是数字");
 					continue;
 				}
 			}
@@ -116,7 +117,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();
