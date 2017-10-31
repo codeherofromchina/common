@@ -21,13 +21,18 @@ import com.erui.report.util.ImportDataResponse;
 public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> implements RequestCreditService {
 	private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
 	private static final DecimalFormat df = new DecimalFormat("0.00");
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询
+	  * @Date:10:45 2017/10/31
+	  * @modified By
+	  */
 	@Override
 	public Map<String,Object> selectTotal() {
 		Map<String,Object> mapMount=readMapper.selectTotal();
 		BigDecimal receiveAmount = new  BigDecimal(mapMount.get("sd").toString());
 		BigDecimal orderAmount = new BigDecimal(mapMount.get("ed").toString());
 		Double received = orderAmount.doubleValue() - receiveAmount.doubleValue();
-		String s = df.format(2);
 		Map<String,Object> data = new HashMap<>();
 		data.put("notReceive", df.format(receiveAmount.doubleValue()/10000)+"万$");
 		data.put("received", df.format(received/10000)+"万$");
@@ -41,7 +46,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public Map<String,Object> selectRequestTotal(Date startDate, Date endDate) {
+	public Map<String,Object> selectRequestTotal(Date startDate,Date endDate) {
 		RequestCreditExample requestCreditExample = null;
 		if (startDate != null && endDate != null){
 			requestCreditExample = new RequestCreditExample();
@@ -155,14 +160,20 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public List<Map> selectRequestNext(Date startDate, Date endDate) {
+	public Map<String,Object> selectRequestNext(Date startDate, Date endDate,String area,String country) {
 		RequestCreditExample requestCreditExample = null;
-		if (!startDate.equals("") && !endDate.equals("")){
-			requestCreditExample = new RequestCreditExample();
-			requestCreditExample.createCriteria().andBackDateBetween(startDate,endDate);
-			return this.readMapper.selectRequestTrend(requestCreditExample);
+		if (!"".equals(startDate) && !"".equals(endDate)){
+		if ("".equals(country) || country == null){
+			RequestCreditExample requestByCountry = new RequestCreditExample();
+			requestByCountry.createCriteria().andSalesAreaEqualTo(area).andBackDateBetween(startDate,endDate);
+			return this.readMapper.selectRequestTotal(requestByCountry);
+		}else if (!"".equals(area) && !"".equals(country)){
+			RequestCreditExample requestByAreaAndCountry = new RequestCreditExample();
+			requestByAreaAndCountry.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country).andBackDateBetween(startDate,endDate);
+			return this.readMapper.selectRequestTotal(requestByAreaAndCountry);
 		}
-		return this.readMapper.selectRequestTrend(requestCreditExample);
+		}
+		return this.readMapper.selectRequestTotal(requestCreditExample);
 	}
 	 /**
 	  * @Author:SHIGS

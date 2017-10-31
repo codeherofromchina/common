@@ -34,7 +34,7 @@ public interface RequestCreditService {
 	  * @Date:21:10 2017/10/23
 	  * @modified By
 	  */
-	List<Map> selectRequestNext(Date startDate,Date endDate);
+	Map<String,Object> selectRequestNext(Date startDate,Date endDate,String area,String country);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询所有地区

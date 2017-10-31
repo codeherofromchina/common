@@ -170,7 +170,6 @@ public class GeneralController {
 		int days = Integer.parseInt(reqMap.get("days").toString());
 		Map<String, Object> data = new HashMap<>();
 		// 封装日期,X轴
-		if (days <= 30) {
 			String[] dates = new String[days];
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 			ArrayList<Date> dateList = new ArrayList<>();
@@ -201,7 +200,6 @@ public class GeneralController {
 			data.put("xAxis", dates);
 			data.put("inquiry", inCounts);
 			data.put("yAxis", orderCounts);
-		}
 		Result<Map<String,Object>> result = new Result<>(data);
 		return result;
 	}

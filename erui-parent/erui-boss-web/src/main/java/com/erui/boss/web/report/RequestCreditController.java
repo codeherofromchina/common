@@ -33,7 +33,7 @@ public class RequestCreditController {
     private static final DecimalFormat df = new DecimalFormat("0.00");
      /**
       * @Author:SHIGS
-      * @Description 应收账款
+      * @Description 1.应收账款累计数据图
       * @Date:17:26 2017/10/23
       * @modified By
       */
@@ -44,6 +44,12 @@ public class RequestCreditController {
         Result<Map<String,Object>> result = new Result<>(mapMount);
         return result;
     }
+    /**
+     * @Author:SHIGS
+     * @Description 2.应收账款图
+     * @Date:14:40 2017/10/31
+     * @modified By
+     */
     @ResponseBody
     @RequestMapping(value= "receiveDetail",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object totalReceive(@RequestBody Map<String,Object> map) throws Exception {
@@ -64,6 +70,30 @@ public class RequestCreditController {
             mapMount.put("sded",0);
             mapMount.put("sd",0);
         }
+        //应收金额
+        BigDecimal orderAmount = null;
+        if(!mapMount.containsKey("sdT")){
+            mapMount.put("sdT",0);
+            orderAmount = new  BigDecimal(mapMount.get("sdT").toString());
+        }else {
+            orderAmount = new  BigDecimal(mapMount.get("sdT").toString());
+        }
+        //已收金额
+        BigDecimal receiveAmount = null;
+        if(!mapMount.containsKey("sded")){
+            mapMount.put("sded",0);
+            receiveAmount = new  BigDecimal(mapMount.get("sded").toString());
+        }else {
+            receiveAmount = new  BigDecimal(mapMount.get("sded").toString());
+        }
+        //应收未收
+        BigDecimal notreceiveAmount = null;
+        if(!mapMount.containsKey("sd")){
+            mapMount.put("sd",0);
+            notreceiveAmount = new  BigDecimal(mapMount.get("sd").toString());
+        }else {
+            notreceiveAmount = new  BigDecimal(mapMount.get("sd").toString());
+        }
         //环比
         Map mapChainMount = requestCreditService.selectRequestTotal(chainDate,startTime);
         if (mapChainMount == null){
@@ -72,18 +102,30 @@ public class RequestCreditController {
             mapChainMount.put("sded",0);
             mapChainMount.put("sd",0);
         }
-        //应收金额
-        BigDecimal orderAmount= new  BigDecimal(mapMount.get("sdT").toString());
-        //已收金额
-        BigDecimal receiveAmount = new BigDecimal(mapMount.get("sded").toString());
-        //应收未收
-        BigDecimal notreceiveAmount = new BigDecimal(mapMount.get("sd").toString());
         //环比应收金额
-        BigDecimal chainOrderAmount= new  BigDecimal(mapChainMount.get("sdT").toString());
+        BigDecimal chainOrderAmount = null;
+        if(!mapChainMount.containsKey("sdT")){
+            mapChainMount.put("sdT",0);
+            chainOrderAmount = new  BigDecimal(mapChainMount.get("sdT").toString());
+        }else {
+            chainOrderAmount = new  BigDecimal(mapChainMount.get("sdT").toString());
+        }
         //环比已收金额
-        BigDecimal chainReceiveAmount = new BigDecimal(mapChainMount.get("sded").toString());
-        //环比应收未收
-        BigDecimal chainNotreceiveAmount = new BigDecimal(mapChainMount.get("sd").toString());
+        BigDecimal chainReceiveAmount = null;
+        if(!mapChainMount.containsKey("sded")){
+            mapChainMount.put("sded",0);
+            chainReceiveAmount = new  BigDecimal(mapChainMount.get("sded").toString());
+        }else {
+            chainReceiveAmount = new  BigDecimal(mapChainMount.get("sded").toString());
+        }
+        //应收未收
+        BigDecimal chainNotreceiveAmount = null;
+        if(!mapChainMount.containsKey("sd")){
+            mapChainMount.put("sd",0);
+            chainNotreceiveAmount = new  BigDecimal(mapChainMount.get("sd").toString());
+        }else {
+            chainNotreceiveAmount = new  BigDecimal(mapChainMount.get("sd").toString());
+        }
         Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue();
         //应收账款
         Map<String,Object> receivable = new HashMap<>();
@@ -114,7 +156,7 @@ public class RequestCreditController {
     }
      /**
       * @Author:SHIGS
-      * @Description 应收账款趋势图
+      * @Description 3.应收账款趋势图
       * @Date:9:25 2017/10/24
       * @modified By
       */
@@ -159,6 +201,12 @@ public class RequestCreditController {
         Result<Map<String,Object>> result = new Result<>(areaCountry);
         return result;
     }
+     /**
+      * @Author:SHIGS
+      * @Description 4.区域明细图
+      * @Date:14:41 2017/10/31
+      * @modified By
+      */
     @ResponseBody
     @RequestMapping(value= "areaDetail",method = RequestMethod.POST,produces={"application/json;charset=utf-8"})
     public Object areaDetail(@RequestBody Map<String,Object> map) throws Exception {
@@ -166,7 +214,7 @@ public class RequestCreditController {
             throw new MissingServletRequestParameterException("area || country","String");
         }
         Date nextTime = DateUtil.recedeTime(-30);
-        //总量
+        //应收,已收应收,未收总量
         Map mapTotal = requestCreditService.selectRequestTotal(null,null);
         if(mapTotal == null){
             mapTotal = new HashMap();
@@ -175,12 +223,30 @@ public class RequestCreditController {
             mapTotal.put("sd",0);
         }
         //应收金额
-        BigDecimal totalOrderAmount= new  BigDecimal(mapTotal.get("sdT").toString());
+        BigDecimal totalOrderAmount = null;
+        if(!mapTotal.containsKey("sdT")){
+            mapTotal.put("sdT",0);
+            totalOrderAmount = new  BigDecimal(mapTotal.get("sdT").toString());
+        }else {
+            totalOrderAmount = new  BigDecimal(mapTotal.get("sdT").toString());
+        }
         //已收金额
-        BigDecimal totalReceiveAmount = new BigDecimal(mapTotal.get("sded").toString());
+        BigDecimal totalReceiveAmount = null;
+        if(!mapTotal.containsKey("sded")){
+            mapTotal.put("sded",0);
+            totalReceiveAmount = new  BigDecimal(mapTotal.get("sded").toString());
+        }else {
+            totalReceiveAmount = new  BigDecimal(mapTotal.get("sded").toString());
+        }
         //应收未收
-        BigDecimal totalNotreceiveAmount = new BigDecimal(mapTotal.get("sd").toString());
-        //根据区域
+        BigDecimal totalNotreceiveAmount = null;
+        if(!mapTotal.containsKey("sd")){
+            mapTotal.put("sd",0);
+            totalNotreceiveAmount = new  BigDecimal(mapTotal.get("sd").toString());
+        }else {
+            totalNotreceiveAmount = new  BigDecimal(mapTotal.get("sd").toString());
+        }
+        //根据区域或者国家
         Map mapCount = requestCreditService.selectByAreaOrCountry(map.get("area").toString(),map.get("country").toString());
         if (mapCount == null){
             mapTotal = new HashMap();
@@ -189,15 +255,40 @@ public class RequestCreditController {
             mapTotal.put("ra",0);
         }
         //应收金额
-        BigDecimal acOrderAmount= new  BigDecimal( mapCount.get("oa").toString());
+        BigDecimal acOrderAmount =  null;
+        if (!mapCount.containsKey("oa")){
+            mapCount.put("oa",0);
+            acOrderAmount = new  BigDecimal( mapCount.get("oa").toString());
+        }else {
+            acOrderAmount = new  BigDecimal( mapCount.get("oa").toString());
+        }
         //已收金额
-        BigDecimal acReceiveAmount = new BigDecimal( mapCount.get("received").toString());
-        //应收未收
-        BigDecimal acNotreceiveAmount = new BigDecimal( mapCount.get("ra").toString());
-        //下月
-        Map mapNext = requestCreditService.selectRequestTotal(new Date(),nextTime);
-        //应收金额
-        BigDecimal nextOrderAmount= new  BigDecimal(mapNext.get("sdT").toString());
+        BigDecimal acReceiveAmount =  null;
+        if (!mapCount.containsKey("received")){
+            mapCount.put("oa",0);
+            acReceiveAmount = new  BigDecimal( mapCount.get("received").toString());
+        }else {
+            acReceiveAmount = new  BigDecimal( mapCount.get("received").toString());
+        }
+        BigDecimal acNotreceiveAmount = null;
+        if (!mapCount.containsKey("ra")){
+            mapCount.put("ra",0);
+            acNotreceiveAmount = new  BigDecimal( mapCount.get("ra").toString());
+        }else {
+            acNotreceiveAmount = new  BigDecimal( mapCount.get("ra").toString());
+        }
+        //下月应收
+        Map mapNext = requestCreditService.selectRequestNext(new Date(),nextTime,map.get("area").toString(),map.get("country").toString());
+        if (mapNext == null){
+            mapNext.put("sdT",0);
+        }
+        BigDecimal nextOrderAmount = null;
+        if (!mapNext.containsKey("sdT")){
+            mapNext.put("sdT",0);
+            nextOrderAmount = new  BigDecimal(mapNext.get("sdT").toString());
+        }else {
+            nextOrderAmount = new  BigDecimal(mapNext.get("sdT").toString());
+        }
         List<String> conList = new ArrayList<>();
         List<Double> amountList = new ArrayList<>();
         conList.add("应收金额-占比"+df.format((acOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");

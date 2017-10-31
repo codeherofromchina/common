@@ -139,6 +139,12 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 	public Map<String,Object> selectMemberByTime() {
 		Map<String,Object> member = readMapper.selectMemberByTime();
 		//黄金会员 高级会员 一般会员
+		if(!member.containsKey("s1") || !member.containsKey("s3") || !member.containsKey("s5")){
+			member = new HashMap<>();
+			member.put("s1",0);
+			member.put("s3",0);
+			member.put("s5",0);
+		}
 		BigDecimal goldMember  = new BigDecimal(member.get("s5").toString());
 		BigDecimal seniorMember  = new BigDecimal(member.get("s3").toString());
 		BigDecimal generalMember  = new BigDecimal(member.get("s1").toString());

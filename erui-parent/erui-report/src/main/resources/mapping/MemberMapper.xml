@@ -84,7 +84,7 @@
   </select>
 
   <select id="selectMemberByTime" resultType="java.util.Map">
-        SELECT SUM(general_member_count)AS s1,SUM(general_member_rebuy)AS s2,SUM(senior_member_count)AS s3,SUM(senior_member_rebuy)AS s4,SUM(gold_member_count)AS s5,SUM(gold_member_rebuy)AS s6
+        SELECT SUM(IFNULL(general_member_count,0))AS s1,SUM(IFNULL(general_member_rebuy,0))AS s2,SUM(IFNULL(senior_member_count,0))AS s3,SUM(IFNULL(senior_member_rebuy,0))AS s4,SUM(gold_member_count)AS s5,SUM(IFNULL(gold_member_rebuy,0))AS s6
         FROM `member`
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.MemberExample" >
