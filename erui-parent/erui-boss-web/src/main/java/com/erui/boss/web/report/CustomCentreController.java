@@ -154,8 +154,14 @@ public class CustomCentreController {
 		// 利润率
 		Double profit = orderService.selectProfitRate(startTime, new Date());
 		Double chainProfit = orderService.selectProfitRate(chainDate, startTime);
-		double profitRate = RateUtil.doubleChainRate(profit, 1);
-		double chainProfitRate = RateUtil.doubleChainRate(chainProfit, 1);
+		double profitRate = 0;
+		double chainProfitRate = 0;
+		if (profit != null) {
+			profitRate = RateUtil.doubleChainRate(profit, 1);
+		}
+		if (chainProfit != null) {
+			chainProfitRate = RateUtil.doubleChainRate(chainProfit, 1);
+		}
 		Map<String, Object> profitMap = new HashMap<String, Object>();
 		profitMap.put("profitRate", profitRate);
 		profitMap.put("chainRate", chainProfitRate);
