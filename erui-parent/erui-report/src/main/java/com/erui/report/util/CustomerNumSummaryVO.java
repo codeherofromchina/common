@@ -50,6 +50,9 @@ public class CustomerNumSummaryVO {
 	}
 
 	public BigDecimal getAmount() {
+		if (amount == null) {
+			return BigDecimal.ZERO;
+		}
 		return amount;
 	}
 
@@ -58,6 +61,9 @@ public class CustomerNumSummaryVO {
 	}
 
 	public BigDecimal getOilAmount() {
+		if (oilAmount == null) {
+			return BigDecimal.ZERO;
+		}
 		return oilAmount;
 	}
 
@@ -66,6 +72,9 @@ public class CustomerNumSummaryVO {
 	}
 
 	public BigDecimal getNoNoilAmount() {
+		if (noNoilAmount == null) {
+			return BigDecimal.ZERO;
+		}
 		return noNoilAmount;
 	}
 
