@@ -28,8 +28,9 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CREDIT_EXTENSION, response, index + 1)){
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CREDIT_EXTENSION, response, cellIndex)){
 				continue;
 			}
 			ce = new CreditExtension();
@@ -39,7 +40,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "时间字段格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, "时间字段格式错误");
 				continue;
 			}
 			ce.setCreditArea(strArr[1]);
@@ -51,7 +52,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "批复信用额度不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, "批复信用额度不是数字");
 				continue;
 			}
 			try {
@@ -60,7 +61,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "限额生效日期格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, "限额生效日期格式错误");
 				continue;
 			}
 			
@@ -71,7 +72,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "限额失效日期格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, "限额失效日期格式错误");
 					continue;
 				}
 			}
@@ -80,7 +81,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "已用额度不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, "已用额度不是数字");
 				continue;
 			}
 			try {
@@ -88,7 +89,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, "可用额度不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, "可用额度不是数字");
 				continue;
 			}
 
@@ -98,7 +99,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

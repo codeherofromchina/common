@@ -32,8 +32,9 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.PROCUREMENT_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.PROCUREMENT_COUNT, response, cellIndex)) {
 				continue;
 			}
 			pc = new ProcurementCount();
@@ -43,7 +44,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), index + 1, "采购下达时间格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), cellIndex, "采购下达时间格式错误");
 				continue;
 			}
 			pc.setPlanNum(strArr[1]);
@@ -53,7 +54,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), index + 1, "金额字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), cellIndex, "金额字段非数字");
 				continue;
 			}
 			pc.setCategory(strArr[4]);
@@ -66,7 +67,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

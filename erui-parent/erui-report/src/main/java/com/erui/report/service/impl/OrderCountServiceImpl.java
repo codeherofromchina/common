@@ -35,8 +35,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_COUNT, response, cellIndex)) {
 				continue;
 			}
 			oc = new OrderCount();
@@ -63,7 +64,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "数量字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "数量字段非数字");
 					continue;
 				}
 			}
@@ -79,7 +80,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "项目金额（美元）非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "项目金额（美元）非数字");
 					continue;
 				}
 			}
@@ -93,7 +94,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "回款时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "回款时间格式错误");
 					continue;
 				}
 			}
@@ -103,7 +104,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "回款金额非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "回款金额非数字");
 					continue;
 				}
 			}
@@ -115,7 +116,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "项目开始时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "项目开始时间格式错误");
 					continue;
 				}
 			}
@@ -126,7 +127,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "执行单约定交付时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "执行单约定交付时间格式错误");
 					continue;
 				}
 			}
@@ -137,7 +138,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "变更后日期时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "变更后日期时间格式错误");
 					continue;
 				}
 			}
@@ -148,7 +149,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "要求采购到货时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "要求采购到货时间格式错误");
 					continue;
 				}
 			}
@@ -168,7 +169,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "采购签合同日期格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "采购签合同日期格式错误");
 					continue;
 				}
 			}
@@ -179,7 +180,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "采购合同规定交货期格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "采购合同规定交货期格式错误");
 					continue;
 				}
 			}
@@ -192,7 +193,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "给工厂付款时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "给工厂付款时间格式错误");
 					continue;
 				}
 			}
@@ -204,7 +205,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "采购到货日期格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "采购到货日期格式错误");
 					continue;
 				}
 			}
@@ -215,7 +216,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "报检时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "报检时间格式错误");
 					continue;
 				}
 			}
@@ -226,7 +227,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "检验完成时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "检验完成时间格式错误");
 					continue;
 				}
 			}
@@ -238,7 +239,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "入库时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "入库时间格式错误");
 					continue;
 				}
 			}
@@ -250,7 +251,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "下发订舱时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "下发订舱时间格式错误");
 					continue;
 				}
 			}
@@ -261,7 +262,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "市场要求时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "市场要求时间格式错误");
 					continue;
 				}
 			}
@@ -274,7 +275,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "包装完成时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "包装完成时间格式错误");
 					continue;
 				}
 			}
@@ -286,7 +287,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "货物离开仓库日期格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "货物离开仓库日期格式错误");
 					continue;
 				}
 			}
@@ -297,7 +298,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "箱单通知时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "箱单通知时间格式错误");
 					continue;
 				}
 			}
@@ -309,7 +310,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "船期或航班时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "船期或航班时间格式错误");
 					continue;
 				}
 			}
@@ -321,7 +322,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "到达日时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "到达日时间格式错误");
 					continue;
 				}
 			}
@@ -334,7 +335,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "前期物流报价非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "前期物流报价非数字");
 					continue;
 				}
 			}
@@ -344,7 +345,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "物流发运金额非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "物流发运金额非数字");
 					continue;
 				}
 
@@ -356,7 +357,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "实际完成时间格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "实际完成时间格式错误");
 					continue;
 				}
 			}
@@ -368,7 +369,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "采购延期时间非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "采购延期时间非数字");
 					continue;
 				}
 			}
@@ -378,7 +379,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, "物流延期时间非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "物流延期时间非数字");
 					continue;
 				}
 			}
@@ -395,7 +396,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

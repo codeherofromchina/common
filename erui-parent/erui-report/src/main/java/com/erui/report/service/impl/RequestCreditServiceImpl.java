@@ -231,8 +231,9 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.REQUEST_CREDIT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.REQUEST_CREDIT, response, cellIndex)) {
 				continue;
 			}
 			rc = new RequestCredit();
@@ -251,7 +252,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "创建日期日期格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), cellIndex, "创建日期日期格式错误");
 				continue;
 			}
 			try {
@@ -259,7 +260,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "订单金额字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), cellIndex, "订单金额字段非数字");
 				continue;
 			}
 			rc.setCreditCurrency(strArr[11]);
@@ -268,7 +269,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "应收账款余额字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), cellIndex, "应收账款余额字段非数字");
 				continue;
 			}
 			rc.setWarnStatus(strArr[13]);
@@ -280,7 +281,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, "下次回款日期格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), cellIndex, "下次回款日期格式错误");
 				continue;
 			}
 
@@ -290,7 +291,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

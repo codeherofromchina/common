@@ -419,8 +419,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.HR_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.HR_COUNT, response, cellIndex)) {
 				continue;
 			}
 			hc = new HrCount();
@@ -431,7 +432,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "日期字段格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "日期字段格式错误");
 					continue;
 				}
 			}
@@ -448,7 +449,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "计划人数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "计划人数不是数字");
 					continue;
 				}
 			}
@@ -459,7 +460,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "在编人数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "在编人数不是数字");
 					continue;
 				}
 			}
@@ -470,7 +471,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "试用期人数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "试用期人数不是数字");
 					continue;
 				}
 			}
@@ -481,7 +482,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "转正人数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "转正人数不是数字");
 					continue;
 				}
 			}
@@ -492,7 +493,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "中方字段不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "中方字段不是数字");
 					continue;
 				}
 			}
@@ -502,7 +503,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "外籍字段不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "外籍字段不是数字");
 					continue;
 				}
 			}
@@ -512,7 +513,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "新进字段不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "新进字段不是数字");
 					continue;
 				}
 			}
@@ -522,7 +523,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "集团转岗（进）字段不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "集团转岗（进）字段不是数字");
 					continue;
 				}
 			}
@@ -532,7 +533,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "集团转岗（出）字段不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "集团转岗（出）字段不是数字");
 					continue;
 				}
 			}
@@ -542,7 +543,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, "离职字段不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, "离职字段不是数字");
 					continue;
 				}
 			}
@@ -553,7 +554,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

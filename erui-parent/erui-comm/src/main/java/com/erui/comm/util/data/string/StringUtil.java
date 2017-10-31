@@ -11,6 +11,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 
 /**
  * <div style="color:green;font-weight: bolder;">
@@ -575,4 +578,17 @@ public class StringUtil {
 		return Arrays.asList(_str);
 	}
     
+	
+	public static boolean isAllBlank(final CharSequence... css) {
+		if (ArrayUtils.isEmpty(css)) {
+			return true;
+		}
+		for (final CharSequence cs : css) {
+			if (StringUtils.isNotBlank(cs)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 }
