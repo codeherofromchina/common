@@ -29,8 +29,9 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT, response, cellIndex)) {
 				continue;
 			}
 			soc = new StorageOrganiCount();
@@ -40,7 +41,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), index + 1, "时间字段格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), cellIndex, "时间字段格式错误");
 				continue;
 			}
 			soc.setOrganiName(strArr[1]);
@@ -49,7 +50,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), index + 1, "托盘数量不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), cellIndex, "托盘数量不是数字");
 				continue;
 			}
 
@@ -58,7 +59,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 			} catch (NumberFormatException e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), index + 1, "产品数量不是数字");
+				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), cellIndex, "产品数量不是数字");
 				continue;
 			}
 
@@ -70,7 +71,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

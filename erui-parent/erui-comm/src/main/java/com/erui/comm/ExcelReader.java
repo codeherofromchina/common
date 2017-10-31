@@ -140,11 +140,21 @@ public class ExcelReader {
 				cellvalue = null;
 			}
 		}
-		return StringUtils.trimToNull(cellvalue);
+		return cellvalue == null?null:cellvalue.replaceAll("\\s", "");
 	}
 	
+	public static void main(String[] args) {
+		String str = "项目开始　 ";
+		System.out.println(str.length() + str);
+		System.out.println(str.trim().length());
+//		str = StringUtils.trimToNull(str);
+		str = "  项目  \r\n开始       ".replaceAll("\\s", "");
+		System.out.println(str.length() + str);
+		
+		System.out.println("项目开始".length());
+	}
 	
-	public static void main(String[] args) throws EncryptedDocumentException, InvalidFormatException, IOException {
+	public static void main1(String[] args) throws EncryptedDocumentException, InvalidFormatException, IOException {
 		File file = new File("/Users/wangxiaodan/YingShouZhangKuan(3).xls");
 		ExcelReader reader = new ExcelReader();
 		List<String[]> readExcel = reader.readExcel(file);

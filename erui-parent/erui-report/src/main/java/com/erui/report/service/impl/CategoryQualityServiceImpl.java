@@ -27,8 +27,9 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CATEGORY_QUALITY, response, index + 1)){
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.CATEGORY_QUALITY, response, cellIndex)){
 				continue;
 			}
 			
@@ -40,7 +41,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "报检总数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "报检总数不是数字");
 					continue;
 				}
 			}
@@ -50,7 +51,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "产品入厂首检合格数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品入厂首检合格数不是数字");
 					continue;
 				}
 			}
@@ -60,7 +61,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "产品入厂首检合格率不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品入厂首检合格率不是数字");
 					continue;
 				}
 			}
@@ -70,7 +71,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "产品出厂总数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品出厂总数不是数字");
 					continue;
 				}
 			}
@@ -80,7 +81,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "出厂检验合格数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "出厂检验合格数不是数字");
 					continue;
 				}
 			}
@@ -90,7 +91,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "产品出厂检验合格率不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品出厂检验合格率不是数字");
 					continue;
 				}
 			}
@@ -100,7 +101,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "外派监造总数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "外派监造总数不是数字");
 					continue;
 				}
 			}
@@ -110,7 +111,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "监造产品出厂合格数不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "监造产品出厂合格数不是数字");
 					continue;
 				}
 			}
@@ -120,7 +121,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				} catch (NumberFormatException e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), index + 1, "产品外派监造合格率不是数字");
+					response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品外派监造合格率不是数字");
 					continue;
 				}
 			}
@@ -131,7 +132,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

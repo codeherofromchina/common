@@ -72,8 +72,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			writeMapper.truncateTable();
 		}
 		for (int index = 0; index < size; index++) {
+			int cellIndex = index + 2;
 			String[] strArr = datas.get(index);
-			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.INQUIRY_COUNT, response, index + 1)) {
+			if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.INQUIRY_COUNT, response, cellIndex)) {
 				continue;
 			}
 			ic = new InquiryCount();
@@ -93,7 +94,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "数量字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "数量字段非数字");
 				continue;
 			}
 			ic.setProUnit(strArr[12]);
@@ -108,7 +109,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "转入日期格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "转入日期格式错误");
 				continue;
 			}
 			try {
@@ -123,7 +124,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "澄清完成日期格式错误");
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "澄清完成日期格式错误");
 				continue;
 			}
 			if (strArr[21] != null) {
@@ -133,7 +134,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "报出日期格式错误");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "报出日期格式错误");
 					continue;
 				}
 			}
@@ -143,7 +144,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "报价用时字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "报价用时字段非数字");
 					continue;
 				}
 			}
@@ -161,7 +162,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "厂家单价字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "厂家单价字段非数字");
 					continue;
 				}
 			}
@@ -172,7 +173,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "厂家总价字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "厂家总价字段非数字");
 					continue;
 				}
 			}
@@ -183,7 +184,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "利润率字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "利润率字段非数字");
 					continue;
 				}
 			}
@@ -194,7 +195,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "报价单价字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "报价单价字段非数字");
 					continue;
 				}
 			}
@@ -205,7 +206,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "报价总价字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "报价总价字段非数字");
 					continue;
 				}
 			}
@@ -215,7 +216,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "报价总金额字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "报价总金额字段非数字");
 					continue;
 				}
 			}
@@ -225,7 +226,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "单重字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "单重字段非数字");
 					continue;
 				}
 			}
@@ -235,7 +236,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					response.incrFail();
-					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "总重字段非数字");
+					response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "总重字段非数字");
 					continue;
 				}
 			}
@@ -248,7 +249,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "交货期字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "交货期字段非数字");
 				continue;
 			}
 			try {
@@ -256,7 +257,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, "有效期字段非数字");
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
 				continue;
 			}
 
@@ -276,7 +277,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 				}
 			} catch (Exception e) {
 				response.incrFail();
-				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), index + 1, e.getMessage());
+				response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, e.getMessage());
 				continue;
 			}
 			response.incrSuccess();

@@ -2,6 +2,8 @@ package com.erui.report.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.erui.comm.util.data.string.StringUtil;
+
 public enum ExcelUploadTypeEnum {
 	CATEGORY_QUALITY(1, "品控",new String[]{"时间","报检总数（件）","产品入厂首检合格数（件）","产品入厂首检合格率","产品出厂总数（件）","出厂检验合格数（件）","产品出厂检验合格率","外派监造总数（件）","监造产品出厂合格数（件）","产品外派监造合格率"}), 
 	CREDIT_EXTENSION(2, "授信数据",new String[]{"时间","区域","国家","信报代码","客户名称","批复信用额度（USD）","限额生效日期","限额失效日期","已用额度（USD）","可用额度（USD）"}), 
@@ -89,14 +91,14 @@ public enum ExcelUploadTypeEnum {
 	 * @return	true:存在错误  false:数据正常
 	 */
 	public static boolean verifyData(String[] data,ExcelUploadTypeEnum excelType,ImportDataResponse response,int lineNum) {
-		if (data == null) {
+		if (StringUtil.isAllBlank(data)){
 			response.incrFail();
 			response.pushFailItem(excelType.getTable(), lineNum, "整行数据为空");
 			return true;
 		}
 		if (data.length < excelType.column) {
 			response.incrFail();
-			response.pushFailItem(excelType.getTable(), lineNum, "数据字段不完整");
+			response.pushFailItem(excelType.getTable(), lineNum, "行数据单元格数据不足");
 			return true;
 		}
 		
