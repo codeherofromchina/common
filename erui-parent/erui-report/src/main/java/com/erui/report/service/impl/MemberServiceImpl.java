@@ -139,20 +139,45 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 	@Override
 	public Map<String,Object> selectMemberByTime() {
 		Map<String,Object> member = readMapper.selectMemberByTime();
-		//黄金会员 高级会员 一般会员
-		if(!member.containsKey("s1") || !member.containsKey("s3") || !member.containsKey("s5")){
+		if (member == null){
 			member = new HashMap<>();
+			member.put("s1",0);
+			member.put("s2",0);
+			member.put("s3",0);
+			member.put("s4",0);
+			member.put("s5",0);
+			member.put("s6",0);
+		}
+		//黄金会员 高级会员 一般会员
+		BigDecimal goldMember = null;
+		BigDecimal seniorMember = null;
+		BigDecimal generalMember = null;
+		if(!member.containsKey("s1") || !member.containsKey("s3") || !member.containsKey("s5")){
 			member.put("s1",0);
 			member.put("s3",0);
 			member.put("s5",0);
+		}else {
+			goldMember = new BigDecimal(member.get("s5").toString());
+			seniorMember = new BigDecimal(member.get("s3").toString());
+			generalMember = new BigDecimal(member.get("s1").toString());
 		}
-		BigDecimal goldMember  = new BigDecimal(member.get("s5").toString());
-		BigDecimal seniorMember  = new BigDecimal(member.get("s3").toString());
-		BigDecimal generalMember  = new BigDecimal(member.get("s1").toString());
-		int totalMember = goldMember.intValue() + seniorMember.intValue() + generalMember.intValue();
-		double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(),totalMember);
-		double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(),totalMember);
-		double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(),totalMember);;
+		//黄金会员 高级会员 一般会员 复购率
+		BigDecimal regoldMember = null;
+		BigDecimal reseniorMember = null;
+		BigDecimal regeneralMember = null;
+		if (!member.containsKey("s2") || !member.containsKey("s4") || !member.containsKey("s6")){
+			member = new HashMap<>();
+			member.put("s2",0);
+			member.put("s4",0);
+			member.put("s6",0);
+		}else {
+			regoldMember = new BigDecimal(member.get("s6").toString());
+			reseniorMember = new BigDecimal(member.get("s4").toString());
+			regeneralMember = new BigDecimal(member.get("s2").toString());
+		}
+		double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(),regoldMember.intValue());
+		double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(),reseniorMember.intValue());
+		double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(),regeneralMember.intValue());
 		Map<String,Object> gold = new HashMap<>();
 		Map<String,Object> senior = new HashMap<>();
 		Map<String,Object> general = new HashMap<>();
@@ -166,6 +191,6 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 		data.put("goldMember",gold);
 		data.put("seniorMember",senior);
 		data.put("generalMember",general);
-		return member;
+		return data;
 	}
 }

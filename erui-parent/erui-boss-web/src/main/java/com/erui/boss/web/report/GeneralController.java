@@ -206,7 +206,7 @@ public class GeneralController {
 
 	/**
 	 * @Author:SHIGS
-	 * @Description
+	 * @Description 6.趋势图
 	 * @Date:17:48 2017/10/21
 	 * @modified By
 	 */
