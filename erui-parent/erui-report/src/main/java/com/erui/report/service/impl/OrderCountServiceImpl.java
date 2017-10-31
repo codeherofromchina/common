@@ -429,12 +429,12 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	@Override
 	public Double orderAmountByTime(Date startTime, Date endTime,String area) {
         OrderCountExample example= new OrderCountExample();
-        OrderCountExample.Criteria criteria = example.createCriteria();
+        Criteria criteria = example.createCriteria();
         if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
             criteria.andProjectStartBetween(startTime,endTime);
         }
         if(area!=null&&!"".equals(area)){
-            criteria.andProjectStatusEqualTo(area);
+            criteria.andOrderAreaEqualTo(area);
         }
         Double amount = readMapper.selectTotalAmountByExample(example);
         return amount;
@@ -476,7 +476,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     	OrderCountExample example= new OrderCountExample();
     	Criteria criteria = example.createCriteria();
     	if (StringUtils.isNoneBlank(area)) {
-    		criteria = criteria.andOrderAreaEqualTo(area);
+    		criteria.andOrderAreaEqualTo(area);
     	}
     	if (StringUtils.isNoneBlank(country)) {
     		criteria.andExeCompanyEqualTo(country);

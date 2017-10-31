@@ -158,7 +158,6 @@ public class CustomCentreController {
 
 		// 利润率
 		Double profit = orderService.selectProfitRate(startTime, new Date());
-
         Double chainProfit = orderService.selectProfitRate(chainDate, startTime);
         double profitRate=0.00;
         double chainProfitRate =0.00;
@@ -286,7 +285,14 @@ public class CustomCentreController {
 			quoteTimeMap.put("sixteenCountRate",sixteenCountRate );
 			quoteTimeMap.put("twentyFourCountRate",twentyFourCountRate );
 			quoteTimeMap.put("otherCountRate",1-(oneCountRate+fourCountRate+eightCountRate+sixteenCountRate+twentyFourCountRate));
-		}
+		}else{
+            quoteTimeMap.put("oneCountRate",0.00 );
+            quoteTimeMap.put("fourCountRate",0.00);
+            quoteTimeMap.put("eightCountRate",0.00);
+            quoteTimeMap.put("sixteenCountRate",0.00 );
+            quoteTimeMap.put("twentyFourCountRate",0.00 );
+            quoteTimeMap.put("otherCountRate",0.00);
+        }
 		result.setStatus(ResultStatusEnum.SUCCESS);
 		result.setData(quoteTimeMap);
 		return result;
@@ -335,8 +341,9 @@ public class CustomCentreController {
 		Result<Object> result = new Result<>();
 		// 询单
 		//List<String> areaList = inquiryService.selectAreaList();
-        List<InquiryAreaVO> areaList = inquiryService.selectAllAreaAndCountryList();
-
+        List<InquiryAreaVO> areaList1 = inquiryService.selectAllAreaAndCountryList();
+        List<String> areaList = areaList1.parallelStream().map(InquiryAreaVO::getAreaName)
+                .collect(Collectors.toList());
 		String[] areaInqCounts = new String[areaList.size() + 1];// 询单数量区域列表
 		String[] areaInqAmounts = new String[areaList.size() + 1];// 询单金额区域列表
 		Integer[] inqCounts = new Integer[areaList.size() + 1];// 询单数量列表
@@ -359,14 +366,14 @@ public class CustomCentreController {
 		OrdCounts[0] = orderTotalCount;
 		OrdAmounts[0] = orderTotalAmount;
 		for (int i = 0; i < areaList.size(); i++) {
-			areaInqCounts[i + 1] = areaList.get(i).getAreaName();
-			areaInqAmounts[i + 1] = areaList.get(i).getAreaName();
-			areaOrdCounts[i + 1] = areaList.get(i).getAreaName();
-			areaOrdAmounts[i + 1] = areaList.get(i).getAreaName();
-			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i).getAreaName());
-			Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i).getAreaName());
-			int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i).getAreaName());
-			Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i).getAreaName());
+			areaInqCounts[i + 1] = areaList.get(i);
+			areaInqAmounts[i + 1] = areaList.get(i);
+			areaOrdCounts[i + 1] = areaList.get(i);
+			areaOrdAmounts[i + 1] = areaList.get(i);
+			int inqCount = inquiryService.inquiryCountByTime(null, null, "", 0, 0, "", areaList.get(i));
+			Double inqAmount = inquiryService.inquiryAmountByTime(null, null, areaList.get(i));
+			int ordCount = orderService.orderCountByTime(null, null, "", "", areaList.get(i));
+			Double ordAmount = orderService.orderAmountByTime(null, null, areaList.get(i));
 			inqCounts[i + 1] = inqCount;
 			inqAmounts[i + 1] = inqAmount;
 			OrdCounts[i + 1] = ordCount;
