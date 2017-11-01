@@ -2,10 +2,7 @@ package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +54,7 @@ public class CustomCentreController {
         Map<String,Object> inquiryMap=new HashMap<String,Object>();//询单统计信息
         Map<String,Object> proIsOilMap=new HashMap<String,Object>();//油气产品分析
         Map<String,Object> proTop3Map=new HashMap<String,Object>();//产品分类Top3
+        List<Map<String,Object>> listTop3 = new ArrayList<>();
 
         //当期询单数
         int count = inquiryService.inquiryCountByTime(startTime, new Date(),null,0,0,"","");
@@ -98,13 +96,32 @@ public class CustomCentreController {
         params.put("startTime",DateUtil.recedeTime(days));
         params.put("endTime",new Date());
         List<Map<String,Object>> list = inquiryService.selectProTop3(params);
+        Map<String,Object> top3TotalMap = inquiryService.selectProTop3Total();
+        BigDecimal top3Total= null;
+        if (!top3TotalMap.containsKey("proCountTotal")){
+            top3TotalMap.put("proCountTotal",0);
+        }else {
+            top3Total  = new BigDecimal(top3TotalMap.get("proCountTotal").toString());
+        }
+
         if(list!=null&&list.size()>0){
             for(int i=0;i<list.size();i++){
                 Map<String, Object> top3 = list.get(i);
-                BigDecimal s = new BigDecimal(top3.get("proCount").toString());
+                if (top3 == null){
+                    top3 = new HashMap<>();
+                }
+                BigDecimal s = null;
+                String proCategory = null;
+                if (!top3.containsKey("proCategory")){
+                    continue;
+                }
+                if (!top3.containsKey("proCount")){
+                    top3.put("proCount",0);
+                }else {
+                    s =new BigDecimal(top3.get("proCount").toString());
+                }
                 int top3Count = s.intValue();
-                String proCategory = top3.get("proCategory").toString();
-                int totalC=0;
+                int totalC=top3Total.intValue();
                 if(StringUtils.isNoneBlank(proCategory)){
                     int proTotal = inquiryService.selectProCountByExample(startTime, new Date(), "", "");
                     if(proTotal>0){
@@ -112,13 +129,14 @@ public class CustomCentreController {
                     }
                 }
                 top3.put("proProportionl",RateUtil.intChainRate(top3Count,totalC));
-                proTop3Map.put("top"+(i+1),top3);
+               // proTop3Map.put("top"+(i+1),top3);
+                listTop3.add(top3);
             }
         }
 
         Datas.put("inquiry",inquiryMap);
         Datas.put("isOil",proIsOilMap);
-        Datas.put("proTop3",proTop3Map);
+        Datas.put("proTop3",listTop3);
         return result.setData(Datas);
     }
 

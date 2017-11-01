@@ -43,7 +43,14 @@ public interface InquiryCountService {
 	* 查询产品Top3
 	* */
 	public List<Map<String,Object>> selectProTop3(Map<String,Object>params);
-
+	
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询产品Top3总数
+	  * @Date:2:02 2017/11/2
+	  * @modified By
+	  */
+	Map<String,Object> selectProTop3Total();
 
 	public List<CateDetailVo> selectInqDetailByCategory();
 

@@ -40,6 +40,13 @@ public interface InquiryCountMapper {
     int     selectProCountByExample(InquiryCountExample example);
     //查询产品Top3
     List<Map<String,Object>> selectProTop3(Map<String,Object>params);
+     /**
+      * @Author:SHIGS
+      * @Description 查询产品Top3
+      * @Date:2:02 2017/11/2
+      * @modified By
+      */
+    Map<String,Object> selectProTop3Total();
     //品类明细
     List<CateDetailVo> selectInqDetailByCategory();
     //查询事业部列表

@@ -311,6 +311,16 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		List<Map<String, Object>> list = readMapper.selectProTop3(params);
 		return list;
 	}
+	 /**
+	  * @Author:SHIGS
+	  * @Description 查询产品Top3
+	  * @Date:2:03 2017/11/2
+	  * @modified By
+	  */
+	@Override
+	public Map<String, Object> selectProTop3Total() {
+		return this.readMapper.selectProTop3Total();
+	}
 
 	// 查询品类明细
 	@Override
