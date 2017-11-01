@@ -100,9 +100,22 @@ public class CustomCentreController {
         if(list!=null&&list.size()>0){
             for(int i=0;i<list.size();i++){
                 Map<String, Object> top3 = list.get(i);
-                BigDecimal s = new BigDecimal(top3.get("proCount").toString());
+                if(top3 == null){
+					top3 = new HashMap<>();
+				}
+                BigDecimal s = null;
+                if (!top3.containsKey("proCount")){
+                	top3.put("proCount",0);
+				}else {
+					s = new BigDecimal(top3.get("proCount").toString());
+				}
                 int top3Count = s.intValue();
-                String proCategory = top3.get("proCategory").toString();
+                String proCategory = null;
+				if (!top3.containsKey("proCategory")){
+					continue;
+				}else {
+					proCategory = top3.get("proCategory").toString();
+				}
                 int totalC=0;
                 if(StringUtils.isNoneBlank(proCategory)){
                     int proTotal = inquiryService.selectProCountByExample(startTime, new Date(), "", "");
@@ -485,10 +498,10 @@ public class CustomCentreController {
 	/**
 	 * 客户中心的订单和询单数据明细
 	 * 
-	 * @param areaName
+	 * @param  map
 	 *            大区
-	 * @param countryName
-	 *            城市
+	 * @param
+	 *
 	 * @return
 	 */
 	@RequestMapping(value = "/areaDetail",method=RequestMethod.POST,produces="application/json;charset=utf-8")
