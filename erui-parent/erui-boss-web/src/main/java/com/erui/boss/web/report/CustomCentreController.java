@@ -1,6 +1,7 @@
 package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ public class CustomCentreController {
     private InquiryCountService inquiryService;
     @Autowired
     private OrderCountService orderService;
-
+    private static DecimalFormat df = new DecimalFormat("0.00");
 
     /*
     * 询单总览
@@ -69,7 +70,7 @@ public class CustomCentreController {
             chainRate=  RateUtil.intChainRate(count-chainCount, chainCount);//环比
         }
         inquiryMap.put("count",count);
-        inquiryMap.put("amount",RateUtil.doubleChainRateTwo(amount,10000)+"万$");
+        inquiryMap.put("amount",df.format(amount/10000)+"万$");
         inquiryMap.put("chainAdd",chain);
         inquiryMap.put("chainRate",chainRate);
 
@@ -100,22 +101,9 @@ public class CustomCentreController {
         if(list!=null&&list.size()>0){
             for(int i=0;i<list.size();i++){
                 Map<String, Object> top3 = list.get(i);
-                if(top3 == null){
-					top3 = new HashMap<>();
-				}
-                BigDecimal s = null;
-                if (!top3.containsKey("proCount")){
-                	top3.put("proCount",0);
-				}else {
-					s = new BigDecimal(top3.get("proCount").toString());
-				}
+                BigDecimal s = new BigDecimal(top3.get("proCount").toString());
                 int top3Count = s.intValue();
-                String proCategory = null;
-				if (!top3.containsKey("proCategory")){
-					continue;
-				}else {
-					proCategory = top3.get("proCategory").toString();
-				}
+                String proCategory = top3.get("proCategory").toString();
                 int totalC=0;
                 if(StringUtils.isNoneBlank(proCategory)){
                     int proTotal = inquiryService.selectProCountByExample(startTime, new Date(), "", "");
@@ -165,7 +153,7 @@ public class CustomCentreController {
 		}
 		Map<String, Object> orderMap = new HashMap<String, Object>();// 询单统计信息
 		orderMap.put("count", count);
-		orderMap.put("amount", RateUtil.doubleChainRate(amount, 10000) + "万$");
+		orderMap.put("amount", df.format(amount/10000) + "万$");
 		orderMap.put("chainAdd", count - chainCount);
 		orderMap.put("chainRate", chainRate);
 
@@ -498,17 +486,17 @@ public class CustomCentreController {
 	/**
 	 * 客户中心的订单和询单数据明细
 	 * 
-	 * @param  map
+	 * @param map
 	 *            大区
-	 * @param
 	 *
+	 *            城市
 	 * @return
 	 */
-	@RequestMapping(value = "/areaDetail",method=RequestMethod.POST,produces="application/json;charset=utf-8")
+	@RequestMapping(value = "/areaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
 	@ResponseBody
-	public Object areaDetail(@RequestBody Map<String,String> map) {
-		String areaName = map.get("area");
-		String countryName = map.get("country");
+	public Object areaDetail(@RequestBody Map<String,Object> map) {
+		String areaName = (String) map.get("area");
+		String countryName = (String) map.get("country");
 		
 		CustomerNumSummaryVO orderNumSummary = orderService.numSummary(areaName, countryName);
 		CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(areaName, countryName);
