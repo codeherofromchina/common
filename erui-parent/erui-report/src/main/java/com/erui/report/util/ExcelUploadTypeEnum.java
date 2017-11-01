@@ -53,6 +53,7 @@ public enum ExcelUploadTypeEnum {
 		if (title != null && title.length >= len) {
 			for (int i=0;i<len;i++) {
 				if (!StringUtils.equals(this.title[i], title[i])) {
+					System.out.println(this.title[i] + "   " + title[i]);
 					return false;
 				}
 			}
