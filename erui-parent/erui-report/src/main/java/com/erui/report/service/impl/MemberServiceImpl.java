@@ -11,6 +11,7 @@ import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -175,9 +176,9 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 			reseniorMember = new BigDecimal(member.get("s4").toString());
 			regeneralMember = new BigDecimal(member.get("s2").toString());
 		}
-		double goldMemberRate = RateUtil.intChainRate(goldMember.intValue(),regoldMember.intValue());
-		double seniorMemberRate = RateUtil.intChainRate(seniorMember.intValue(),reseniorMember.intValue());
-		double generalMemberRate = RateUtil.intChainRate(seniorMember.intValue(),regeneralMember.intValue());
+		double goldMemberRate = RateUtil.intChainRate(regoldMember.intValue(),goldMember.intValue());
+		double seniorMemberRate = RateUtil.intChainRate(reseniorMember.intValue(),seniorMember.intValue());
+		double generalMemberRate = RateUtil.intChainRate(regeneralMember.intValue(),generalMember.intValue());
 		Map<String,Object> gold = new HashMap<>();
 		Map<String,Object> senior = new HashMap<>();
 		Map<String,Object> general = new HashMap<>();
@@ -192,5 +193,13 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 		data.put("seniorMember",senior);
 		data.put("generalMember",general);
 		return data;
+	}
+	
+	
+	public static void main(String[] args) throws ParseException {
+		Date date = DateUtil.parseString2Date("2017/9/09", "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+				DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR);
+		
+		System.out.println(DateUtil.formatDateToString(date, DateUtil.FULL_FORMAT_STR));
 	}
 }
