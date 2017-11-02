@@ -231,7 +231,9 @@
     from inquiry_count 
     group by inquiry_area,inquiry_unit
   </select>
-
+  <select id="selectProTop3Total" resultType="java.util.Map" parameterType="Object" >
+    SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCountTotal FROM inquiry_count
+  </select>
   <select id="selectProTop3" resultType="map" parameterType="Object" >
   SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCount ,pro_category as proCategory FROM inquiry_count
   WHERE

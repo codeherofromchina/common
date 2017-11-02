@@ -252,13 +252,12 @@ public class SupplyChainController {
     public Object catesDetail() {
         Date startTime = DateUtil.recedeTime(7);
         Date chainTime = DateUtil.recedeTime(14);
-        List<SuppliyChainItemClassVo> list = this.supplyChainService.selectItemCalssSuppliyChain(startTime, new Date());
+        List<SuppliyChainItemClassVo> list = supplyChainService.selectItemCalssSuppliyChain(startTime, new Date());
         List<SuppliyChainItemClassVo> weekAgolist = supplyChainService.selectItemCalssSuppliyChain(chainTime,
                 startTime);
         final Map<String, SuppliyChainItemClassVo> helpMap;
         if (weekAgolist != null && list != null) {
-            helpMap = weekAgolist.parallelStream()
-                    .collect(Collectors.toMap(SuppliyChainItemClassVo::getItemClass, vo -> vo));
+            helpMap = weekAgolist.parallelStream().collect(Collectors.toMap(SuppliyChainItemClassVo::getItemClass, vo -> vo));
         } else {
             helpMap = new HashMap<>();
         }
