@@ -116,10 +116,10 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	 * @modified By
 	 */
 	@Override
-	public Map<String, Object> selectHrCountByPart(int days) {
-		Date startTime = com.erui.comm.DateUtil.recedeTime(days);
+	public Map<String, Object> selectHrCountByPart() {
+//		Date startTime = DateUtil.recedeTime(days);
 		// 环比时段
-		Date chainDate = com.erui.comm.DateUtil.recedeTime(days * 2);
+//		Date chainDate = DateUtil.recedeTime(days * 2);
 		// 当前时期
 		HrCountExample hrCountExample = new HrCountExample();
 //		hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
@@ -149,6 +149,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
 		BigDecimal turnJobin = new BigDecimal(CurHrCountMap.get("s9").toString());
 		BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
+/*
 		HrCountExample chainHrCountExample = new HrCountExample();
 		chainHrCountExample.createCriteria().andCreateAtBetween(chainDate, startTime);
 		// 环比时段
@@ -179,6 +180,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 			// BigDecimal chainTurnJobout = new
 			// BigDecimal(chainHrCountMap.get("s10").toString());
 			BigDecimal chainForeignCount = new BigDecimal(chainHrCountMap.get("s6").toString());
+*/
 
 		// 满编率
 		double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
@@ -192,7 +194,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 				- RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
 		// 外籍占比
 		double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
-		// 环比增加人数
+	/*	// 环比增加人数
 		int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
 		int chainTurnAdd = turnRightCount.intValue() - chainTurnRightCount.intValue();
 		int chainAdd = newCount.intValue() - chainNewCount.intValue();
@@ -203,7 +205,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		double tryChainRate = RateUtil.intChainRate(chainTurnAdd, chainTurnRightCount.intValue());
 		double chainAddRate = RateUtil.intChainRate(chainAdd, chainNewCount.intValue());
 		double groupTransferChainRate = RateUtil.intChainRate(chainTurnJobinAdd, chainTurnJobin.intValue());
-		double foreignChainRate = RateUtil.intChainRate(chainForeignCount.intValue(), chainForeignCountAdd);
+		double foreignChainRate = RateUtil.intChainRate(chainForeignCount.intValue(), chainForeignCountAdd);*/
 		Map<String, Object> data = new HashMap<>();
 		data.put("newCount", newCount);
 		data.put("foreignCount", foreignCount);
@@ -211,16 +213,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		data.put("leaveRate", leaveRate);
 		data.put("newAdd", Double.parseDouble(df.format(addRate)));
 		data.put("foreignRate", Double.parseDouble(df.format(foreignRate)));
-		data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
+//		data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
 		data.put("groupTransferIn", turnJobin.intValue());
 		data.put("groupTransferOut", turnJobout);
-		data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
-		data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
+//		data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
+//		data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
 		data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
-		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
+//		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
 		data.put("tryRate", Double.parseDouble(df.format(tryRate)));
 		data.put("turnRightCount", turnRightCount);
-		data.put("turnRightChainRate", Double.parseDouble(df.format(tryChainRate)));
+//		data.put("turnRightChainRate", Double.parseDouble(df.format(tryChainRate)));
 		data.put("staffFullCount", regularCount);
 		data.put("planCount", planCount);
 		data.put("tryCount", tryCount);

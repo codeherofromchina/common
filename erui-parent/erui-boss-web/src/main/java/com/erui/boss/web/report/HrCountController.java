@@ -35,13 +35,13 @@ public class HrCountController {
       */
     @RequestMapping(value = "hrGeneral",method = RequestMethod.POST)
     @ResponseBody
-    public Object hrGeneral(@RequestBody Map<String,Object> map) throws Exception {
-        if (!map.containsKey("days")) {
+    public Object hrGeneral(){
+     /*   if (!map.containsKey("days")) {
             throw new MissingServletRequestParameterException("days","String");
         }
         //当前时期
-        int days = Integer.parseInt(map.get("days").toString());
-        Map<String,Object> data = hrCountService.selectHrCountByPart(days);
+        int days = Integer.parseInt(map.get("days").toString());*/
+        Map<String,Object> data = hrCountService.selectHrCountByPart();
         Result<Map<String,Object>> result = new Result<>(data);
         return result;
     }

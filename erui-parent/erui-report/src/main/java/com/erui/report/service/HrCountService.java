@@ -24,7 +24,7 @@ public interface HrCountService {
       * @Date:0:03 2017/10/21
       * @modified By
       */
-	Map<String,Object> selectHrCountByPart(int days);
+	Map<String,Object> selectHrCountByPart();
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询组织结构模块
