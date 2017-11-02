@@ -122,7 +122,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		Date chainDate = com.erui.comm.DateUtil.recedeTime(days * 2);
 		// 当前时期
 		HrCountExample hrCountExample = new HrCountExample();
-		hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
+//		hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
 		// 当前时段
 		Map<String,Object> CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
 		if (CurHrCountMap == null){
