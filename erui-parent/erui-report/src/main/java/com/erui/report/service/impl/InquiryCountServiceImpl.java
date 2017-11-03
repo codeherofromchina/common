@@ -40,6 +40,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 			double maxQuoteTime, String org, String area) {
 		InquiryCountExample inquiryExample = new InquiryCountExample();
 		Criteria criteria = inquiryExample.createCriteria();
+
+		BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
+		BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
 		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
 			criteria.andRollinTimeBetween(startTime, endTime);
 		}
@@ -47,10 +50,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		if (quotedStatus != null && !"".equals(quotedStatus)) {
 			criteria.andQuotedStatusEqualTo(quotedStatus);
 		}
-		if (leastQuoteTime< maxQuoteTime) {
-            BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
-            BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
+		if (leastQuoteTime>0&&leastQuoteTime<48) {
+
             criteria.andQuoteNeedTimeBetween(ldecimal,mdecimal);
+		}else if(leastQuoteTime>=48){
+			criteria.andQuoteNeedTimeGreaterThan(ldecimal);
 		}
 		if (org != null && !"".equals(org)) {
 			criteria.andOrganizationEqualTo(org);
@@ -299,7 +303,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             criteria.andIsOilGasEqualTo(isOil);
         }
         if (proCategory != null && !proCategory.equals("")) {
-            criteria.andProCategoryEqualTo(proCategory);
+            criteria.andPlatProCategoryEqualTo(proCategory);
         }
 		int proCount = readMapper.selectProCountByExample(example);
 		return proCount;
@@ -318,8 +322,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	  * @modified By
 	  */
 	@Override
-	public Map<String, Object> selectProTop3Total() {
-		return this.readMapper.selectProTop3Total();
+	public Map<String, Object> selectProTop3Total(Date startTime,Date endTime) {
+		InquiryCountExample example = new InquiryCountExample();
+		Criteria criteria = example.createCriteria();
+		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+			criteria.andRollinTimeBetween(startTime, endTime);
+		}
+		return this.readMapper.selectProTop3TotalByExample(example);
 	}
 
 	// 查询品类明细

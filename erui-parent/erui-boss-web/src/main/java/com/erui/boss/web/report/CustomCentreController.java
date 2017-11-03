@@ -52,7 +52,6 @@ public class CustomCentreController {
         Map<String,Object> Datas=new HashMap<String,Object>();//询单统计信息
         Map<String,Object> inquiryMap=new HashMap<String,Object>();//询单统计信息
         Map<String,Object> proIsOilMap=new HashMap<String,Object>();//油气产品分析
-        Map<String,Object> proTop3Map=new HashMap<String,Object>();//产品分类Top3
         List<Map<String,Object>> listTop3 = new ArrayList<>();
 
         //当期询单数
@@ -95,7 +94,7 @@ public class CustomCentreController {
         params.put("startTime",DateUtil.recedeTime(days));
         params.put("endTime",new Date());
         List<Map<String,Object>> list = inquiryService.selectProTop3(params);
-        Map<String,Object> top3TotalMap = inquiryService.selectProTop3Total();
+        Map<String,Object> top3TotalMap = inquiryService.selectProTop3Total(startTime,new Date());
         BigDecimal top3Total= null;
         if (!top3TotalMap.containsKey("proCountTotal")){
             top3TotalMap.put("proCountTotal",0);

@@ -50,7 +50,7 @@ public interface InquiryCountService {
 	  * @Date:2:02 2017/11/2
 	  * @modified By
 	  */
-	Map<String,Object> selectProTop3Total();
+	Map<String,Object> selectProTop3Total(Date startTime,Date endTime);
 
 	public List<CateDetailVo> selectInqDetailByCategory();
 

@@ -231,12 +231,18 @@
     from inquiry_count 
     group by inquiry_area,inquiry_unit
   </select>
-  <select id="selectProTop3Total" resultType="java.util.Map" parameterType="Object" >
+  <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCountTotal FROM inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
   </select>
   <select id="selectProTop3" resultType="map" parameterType="Object" >
   SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCount ,pro_category as proCategory FROM inquiry_count
-  WHERE
+    WHERE
     <if test="startTime != null" >
       1=1 and rollin_time >= #{startTime}
     </if>
