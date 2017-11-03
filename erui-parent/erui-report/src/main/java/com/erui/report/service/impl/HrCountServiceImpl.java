@@ -93,7 +93,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 		// 满编率
 		double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
 		// 转正率
-		double turnRightRate = RateUtil.intChainRate(turnRightCount.intValue(), tryCount.intValue());
+		double turnRightRate = RateUtil.intChainRate(turnRightCount.intValue(), regularCount.intValue());
 		Map<String, Object> data = new HashMap<>();
 		data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
 		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
