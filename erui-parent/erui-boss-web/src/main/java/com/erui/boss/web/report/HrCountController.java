@@ -35,7 +35,9 @@ public class HrCountController {
       */
     @RequestMapping(value = "hrGeneral",method = RequestMethod.POST)
     @ResponseBody
-    public Object hrGeneral(){
+    public Object hrGeneral()
+
+    {
      /*   if (!map.containsKey("days")) {
             throw new MissingServletRequestParameterException("days","String");
         }
