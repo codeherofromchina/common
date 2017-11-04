@@ -50,11 +50,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		if (quotedStatus != null && !"".equals(quotedStatus)) {
 			criteria.andQuotedStatusEqualTo(quotedStatus);
 		}
-		if (leastQuoteTime>0&&leastQuoteTime<48) {
-
-            criteria.andQuoteNeedTimeBetween(ldecimal,mdecimal);
+		if (maxQuoteTime==4) {
+            criteria.andQuoteNeedTimeLessThan(mdecimal);
 		}else if(leastQuoteTime>=48){
 			criteria.andQuoteNeedTimeGreaterThan(ldecimal);
+		}else{
+			criteria.andQuoteNeedTimeGreaterThanOrEqualTo(ldecimal);
+			criteria.andQuoteNeedTimeLessThan(mdecimal);
 		}
 		if (org != null && !"".equals(org)) {
 			criteria.andOrganizationEqualTo(org);

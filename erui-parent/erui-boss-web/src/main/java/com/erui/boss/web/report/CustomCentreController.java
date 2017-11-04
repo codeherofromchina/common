@@ -278,7 +278,7 @@ public class CustomCentreController {
 		int days = Integer.parseInt(reqMap.get("days").toString());
 		Date startTime = DateUtil.recedeTime(days);
 		int totalCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
-		int count1 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 1, 4, "", "");
+		int count1 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 4, "", "");
 		int count2 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 4, 8, "", "");
 		int count3 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 8, 16, "", "");
 		int count4 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 16, 24, "", "");
