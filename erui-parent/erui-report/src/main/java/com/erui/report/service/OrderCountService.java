@@ -42,9 +42,9 @@ public interface OrderCountService {
 	 * @param country
 	 * @return
 	 */
-	public CustomerNumSummaryVO numSummary(String area,String country);
+	public CustomerNumSummaryVO numSummary(Date startTime, Date endTime,String area,String country);
 	//订单品类明细
-	List<CateDetailVo> selecOrdDetailByCategory();
+	List<CateDetailVo> selecOrdDetailByCategory(Date startTime, Date endTime);
 
 	int  selectProCountByExample();
 

@@ -50,9 +50,9 @@ public interface InquiryCountService {
 	  * @Date:2:02 2017/11/2
 	  * @modified By
 	  */
-	Map<String,Object> selectProTop3Total();
+	Map<String,Object> selectProTop3Total(Date startTime,Date endTime);
 
-	public List<CateDetailVo> selectInqDetailByCategory();
+    List<CateDetailVo> selectInqDetailByCategory(Date startTime,Date endTime);
 
 
 	/*
@@ -81,7 +81,7 @@ public interface InquiryCountService {
 	 * @param country
 	 * @return
 	 */
-	public CustomerNumSummaryVO numSummary(String area,String country);
+	public CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
 
 	/**
 	 * 询订单分类 TOP N

@@ -31,7 +31,7 @@ public interface SupplyChainService {
 	 * 事业部供应链明细列表
 	 * @return
 	 */
-	List<SuppliyChainOrgVo> selectOrgSuppliyChain();
+	List<SuppliyChainOrgVo> selectOrgSuppliyChain(Date startTime,Date endTime);
 	/**
 	 *
 	 * 品类供应链明细列表
@@ -49,7 +49,7 @@ public interface SupplyChainService {
 	 * 品类部供应链明细列表
 	 * @return
 	 */
-	List<SuppliyChainCateVo> selectCateSuppliyChain();
+	List<SuppliyChainCateVo> selectCateSuppliyChain(Date startTime,Date endTime);
 	/**
 	 *
 	 * 供应链趋势图

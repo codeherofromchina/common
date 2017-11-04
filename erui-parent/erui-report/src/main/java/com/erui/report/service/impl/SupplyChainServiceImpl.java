@@ -195,8 +195,13 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
 	// 事业部-供应链明细列表
 	@Override
-	public List<SuppliyChainOrgVo> selectOrgSuppliyChain() {
-		List<SuppliyChainOrgVo> list = readMapper.selectOrgSuppliyChain();
+	public List<SuppliyChainOrgVo> selectOrgSuppliyChain(Date startTime, Date endTime) {
+		SupplyChainExample example = new SupplyChainExample();
+		SupplyChainExample.Criteria criteria = example.createCriteria();
+		if (startTime != null && !startTime.equals("") && startTime != null && !startTime.equals("")) {
+			criteria.andCreateAtBetween(startTime, endTime);
+		}
+		List<SuppliyChainOrgVo> list = readMapper.selectOrgSuppliyChainByExample(example);
 		return list;
 	}
 
@@ -218,8 +223,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 	}
 
 	@Override
-	public List<SuppliyChainCateVo> selectCateSuppliyChain() {
-		return readMapper.selectCateSuppliyChain();
+	public List<SuppliyChainCateVo> selectCateSuppliyChain(Date startTime, Date endTime) {
+		SupplyChainExample supplyChainExample = new SupplyChainExample();
+		SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
+		criteria.andCreateAtBetween(startTime, endTime);
+		return readMapper.selectCateSuppliyChainByExample(supplyChainExample);
 	}
 
 	// 供应链趋势图

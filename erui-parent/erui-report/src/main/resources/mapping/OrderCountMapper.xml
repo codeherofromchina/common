@@ -182,13 +182,19 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selecOrdDetailByCategory"  resultType="com.erui.report.model.CateDetailVo" >
+  <select id="selecOrdDetailByCategoryByExample"  resultType="com.erui.report.model.CateDetailVo" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
     SUM(project_account) AS ordCatePrice,
     COUNT(*) AS ordCateCount,
     plat_pro_category AS category
     FROM
     order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
     GROUP BY
     category
   </select>

@@ -213,9 +213,10 @@ public class RequestCreditController {
         if (!map.containsKey("area")||!map.containsKey("country")) {
             throw new MissingServletRequestParameterException("area || country","String");
         }
+        Date startTime = DateUtil.recedeTime(7);
         Date nextTime = DateUtil.recedeTime(-30);
         //应收,已收应收,未收总量
-        Map mapTotal = requestCreditService.selectRequestTotal(null,null);
+        Map mapTotal = requestCreditService.selectRequestTotal(startTime,new Date());
         if(mapTotal == null){
             mapTotal = new HashMap();
             mapTotal.put("sdT",0);
@@ -247,7 +248,7 @@ public class RequestCreditController {
             totalNotreceiveAmount = new  BigDecimal(mapTotal.get("sd").toString());
         }
         //根据区域或者国家
-        Map mapCount = requestCreditService.selectByAreaOrCountry(map.get("area").toString(),map.get("country").toString());
+        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime,new Date(),map.get("area").toString(),map.get("country").toString());
         if (mapCount == null){
             mapTotal = new HashMap();
             mapTotal.put("oa",0);

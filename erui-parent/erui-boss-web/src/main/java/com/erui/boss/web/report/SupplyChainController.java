@@ -1,5 +1,6 @@
 package com.erui.boss.web.report;
 
+import com.erui.comm.util.data.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.*;
 import java.util.stream.Collectors;
 import com.erui.boss.web.util.Result;
-import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.SuppliyChainCateVo;
 import com.erui.report.model.SuppliyChainItemClassVo;
@@ -135,7 +135,8 @@ public class SupplyChainController {
     @RequestMapping("/organizationDetail")
     public Object organizationDetail(@RequestParam(name = "org",required = true) String org){
         HashMap<String, Object> result = new HashMap<>();
-        List<SuppliyChainOrgVo> list=this.supplyChainService.selectOrgSuppliyChain();
+        Date startTime = DateUtil.recedeTime(7);
+        List<SuppliyChainOrgVo> list=this.supplyChainService.selectOrgSuppliyChain(startTime,new Date());
         SuppliyChainOrgVo suppliOrgVo=null;
         for (SuppliyChainOrgVo orgVo:list) {
             if(org.equals(orgVo.getOrg())){
@@ -187,8 +188,8 @@ public class SupplyChainController {
 
         HashMap<String, Object> result = new HashMap<>();
         HashMap<String, Object> data = new HashMap<>();
-
-        List<SuppliyChainCateVo> list=this.supplyChainService.selectCateSuppliyChain();
+        Date startTime = DateUtil.recedeTime(7);
+        List<SuppliyChainCateVo> list=this.supplyChainService.selectCateSuppliyChain(startTime,new Date());
         SuppliyChainCateVo suppliCateVo=null;
         for (SuppliyChainCateVo cateVo:list) {
             if(category.equals(cateVo.getCategory())){

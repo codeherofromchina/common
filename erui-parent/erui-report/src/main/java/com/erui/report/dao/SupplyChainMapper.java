@@ -31,10 +31,10 @@ public interface SupplyChainMapper {
 
     int updateByPrimaryKey(SupplyChain record);
 
-    List<SuppliyChainOrgVo> selectOrgSuppliyChain();
+    List<SuppliyChainOrgVo> selectOrgSuppliyChainByExample(SupplyChainExample example);
     List<SuppliyChainItemClassVo> selectItemCalssSuppliyChainByExample(SupplyChainExample example);
     SuppliyChainItemClassVo  selectSuppliyChainByItemClassByExample(SupplyChainExample example);
-    List<SuppliyChainCateVo> selectCateSuppliyChain();
+    List<SuppliyChainCateVo> selectCateSuppliyChainByExample(SupplyChainExample example);
     //品类部列表
     List<String> selectCategoryList();
     //事业部列表

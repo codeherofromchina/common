@@ -473,9 +473,12 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
      * 获取数据汇总
      */
     @Override
-    public CustomerNumSummaryVO numSummary(String area, String country) {
+    public CustomerNumSummaryVO numSummary(Date startTime, Date endTime,String area, String country) {
     	OrderCountExample example= new OrderCountExample();
     	Criteria criteria = example.createCriteria();
+		if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+			criteria.andProjectStartBetween(startTime, endTime);
+		}
     	if (StringUtils.isNoneBlank(area)) {
     		criteria.andOrderAreaEqualTo(area);
     	}
@@ -492,8 +495,13 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 	 * 订单品类明细
 	 */
 	@Override
-	public List<CateDetailVo> selecOrdDetailByCategory() {
-		return readMapper.selecOrdDetailByCategory();
+	public List<CateDetailVo> selecOrdDetailByCategory(Date startTime, Date endTime) {
+		OrderCountExample example= new OrderCountExample();
+		Criteria criteria = example.createCriteria();
+		if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+			criteria.andProjectStartBetween(startTime, endTime);
+		}
+		return readMapper.selecOrdDetailByCategoryByExample(example);
 	}
 
     @Override

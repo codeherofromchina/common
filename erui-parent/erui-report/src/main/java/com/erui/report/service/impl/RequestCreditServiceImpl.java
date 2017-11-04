@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.RequestCreditExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,18 +221,19 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 	  * @modified By
 	  */
 	@Override
-	public Map<String,Object> selectByAreaOrCountry(String area,String country) {
-		RequestCreditExample requestCreditExample = null;
-		if (country.equals("") || country == null){
-			requestCreditExample  = new RequestCreditExample();
-			requestCreditExample.createCriteria().andSalesAreaEqualTo(area);
-			return this.readMapper.selectByAreaOrCountry(requestCreditExample);
-		}else if (!area.equals("") && !country.equals("")){
-			requestCreditExample  = new RequestCreditExample();
-			requestCreditExample.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country);
-			return this.readMapper.selectByAreaOrCountry(requestCreditExample);
-		}
-		return this.readMapper.selectByAreaOrCountry(requestCreditExample);
+	public Map<String,Object> selectByAreaOrCountry(Date startDate,Date endDate,String area,String country) {
+        RequestCreditExample e = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = e.createCriteria();
+        if(startDate!=null&&!"".equals(startDate)&&endDate!=null&&!"".equals(endDate)){
+            criteria.andCreateAtBetween(startDate,endDate);
+        }
+        if(StringUtil.isNotBlank(area)){
+            criteria.andSalesAreaEqualTo(area);
+        }
+        if(StringUtil.isNotBlank(country)){
+            criteria.andSalesCountryEqualTo(country);
+        }
+        return this.readMapper.selectByAreaOrCountry(e);
 	}
 	@Override
 	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
