@@ -699,13 +699,19 @@
     </if>
   </select>
 
-  <select id="selectInqDetailByCategory"  resultType="com.erui.report.model.CateDetailVo" >
+  <select id="selectInqDetailByCategoryByExample"  resultType="com.erui.report.model.CateDetailVo"  parameterType="com.erui.report.model.InquiryCountExample">
     SELECT
     IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) AS inqCatePrice,
     COUNT(*) AS inqCateCount,
     plat_pro_category AS category
     FROM
     inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
     GROUP BY
     category
   </select>

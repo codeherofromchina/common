@@ -41,7 +41,8 @@ public class HrCountController {
         }
         //当前时期
         int days = Integer.parseInt(map.get("days").toString());*/
-        Map<String,Object> data = hrCountService.selectHrCountByPart();
+        Date startTime = DateUtil.recedeTime(7);
+        Map<String,Object> data = hrCountService.selectHrCountByPart(startTime,new Date());
         Result<Map<String,Object>> result = new Result<>(data);
         return result;
     }
@@ -85,7 +86,8 @@ public class HrCountController {
     @RequestMapping(value = "departmentDetail",method = RequestMethod.POST)
     @ResponseBody
     public Object departmentDetail(){
-        List<Map> departList = hrCountService.selectDepartmentCount();
+        Date startTime = DateUtil.recedeTime(7);
+        List<Map> departList = hrCountService.selectDepartmentCount(startTime,new Date());
         Result<List<Map>> result = new Result<List<Map>>(departList);
         return result;
     }

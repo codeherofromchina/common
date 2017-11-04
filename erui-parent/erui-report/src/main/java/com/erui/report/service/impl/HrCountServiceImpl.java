@@ -116,13 +116,13 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	 * @modified By
 	 */
 	@Override
-	public Map<String, Object> selectHrCountByPart() {
+	public Map<String, Object> selectHrCountByPart(Date startTime, Date endTime) {
 //		Date startTime = DateUtil.recedeTime(days);
 		// 环比时段
 //		Date chainDate = DateUtil.recedeTime(days * 2);
 		// 当前时期
 		HrCountExample hrCountExample = new HrCountExample();
-//		hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
+	hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
 		// 当前时段
 		Map<String,Object> CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
 		if (CurHrCountMap == null){
@@ -351,9 +351,14 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	 * @modified By
 	 */
 	@Override
-	public List<Map> selectDepartmentCount() {
-		List<Map> bigList = readMapper.selectBigDepartCount();
-		List<Map> departList = readMapper.selectDepartmentCount();
+	public List<Map> selectDepartmentCount(Date startTime, Date endTime) {
+        HrCountExample example = new HrCountExample();
+        HrCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null&&!startTime.equals("")&&endTime!=null&&!endTime.equals("")){
+            criteria.andCreateAtBetween(startTime,endTime);
+        }
+        List<Map> bigList = readMapper.selectBigDepartCountByExample(example);
+		List<Map> departList = readMapper.selectDepartmentCountByExample(example);
 		Map<String, Map<String, Object>> departMap2 = new HashMap<>();
 		List<Map> result = new ArrayList<>();
 		for (Map mapBig : bigList) {

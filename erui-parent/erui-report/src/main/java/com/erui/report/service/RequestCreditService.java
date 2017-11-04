@@ -55,7 +55,7 @@ public interface RequestCreditService {
 	  * @Date:13:56 2017/10/24
 	  * @modified By
 	  */
-	Map<String,Object> selectByAreaOrCountry(String area,String country);
+	Map<String,Object> selectByAreaOrCountry(Date startDate,Date endDate,String area,String country);
 	/**
 	 * 导入应收账款的数据到数据库
 	 * @param datas

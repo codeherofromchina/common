@@ -24,7 +24,7 @@ public interface HrCountService {
       * @Date:0:03 2017/10/21
       * @modified By
       */
-	Map<String,Object> selectHrCountByPart();
+	Map<String,Object> selectHrCountByPart(Date startTime, Date endTime);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询组织结构模块
@@ -45,7 +45,7 @@ public interface HrCountService {
 	  * @Date:21:25 2017/10/24
 	  * @modified By
 	  */
-	List<Map> selectDepartmentCount();
+	List<Map> selectDepartmentCount(Date startTime, Date endTime);
     /**
 	 * 导入人力资源数据
 	 * @param datas

@@ -95,15 +95,29 @@
     </if>
   </select>
 
-  <select id="selectBigDepartCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
+  <select id="selectBigDepartCountByExample" resultType="java.util.Map" parameterType="com.erui.report.model.HrCountExample">
    SELECT IFNULL((SUM(regular_count)/SUM(plan_count)),0) AS staffFullRate,IFNULL((SUM(try_count)/SUM(regular_count)),0)AS tryRate ,IFNULL(SUM(new_count)/SUM(regular_count)-SUM(dimission_count)/SUM(regular_count),0)AS addRate,
         IFNULL(SUM(group_transfer_out)/SUM(regular_count) - SUM(group_transfer_in)/SUM(regular_count),0)AS leaveRate,IFNULL(SUM(foreign_count)/SUM(regular_count),0)AS foreignRate,big_depart
-    FROM `hr_count` GROUP BY big_depart
+    FROM `hr_count`
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+     GROUP BY big_depart
   </select>
-  <select id="selectDepartmentCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
+  <select id="selectDepartmentCount" resultType="java.util.Map" parameterType="com.erui.report.model.HrCountExample">
    SELECT IFNULL((SUM(regular_count)/SUM(plan_count)),0) AS staffFullRate,IFNULL((SUM(try_count)/SUM(regular_count)),0)AS tryRate ,IFNULL(SUM(new_count)/SUM(regular_count)-SUM(dimission_count)/SUM(regular_count),0)AS addRate,
         IFNULL(SUM(group_transfer_out)/SUM(regular_count) - SUM(group_transfer_in)/SUM(regular_count),0)AS leaveRate,IFNULL(SUM(foreign_count)/SUM(regular_count),0)AS foreignRate,big_depart,department
-    FROM `hr_count` GROUP BY department,big_depart
+    FROM `hr_count`
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY department,big_depart
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.HrCountExample" >
     select

@@ -8,8 +8,8 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 public interface HrCountMapper {
-    List<Map> selectDepartmentCount();
-    List<Map> selectBigDepartCount();
+    List<Map> selectDepartmentCountByExample(HrCountExample example);
+    List<Map> selectBigDepartCountByExample(HrCountExample example);
     List<Map> selectBigDepart();
     Map selectHrCountByPart(HrCountExample hrCountExample);
     int countByExample(HrCountExample example);

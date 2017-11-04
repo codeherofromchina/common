@@ -333,8 +333,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 	// 查询品类明细
 	@Override
-	public List<CateDetailVo> selectInqDetailByCategory() {
-		return readMapper.selectInqDetailByCategory();
+	public List<CateDetailVo> selectInqDetailByCategory(Date startTime,Date endTime) {
+		InquiryCountExample example = new InquiryCountExample();
+		Criteria criteria = example.createCriteria();
+		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+			criteria.andRollinTimeBetween(startTime, endTime);
+		}
+		return readMapper.selectInqDetailByCategoryByExample(example);
 	}
 
 	// 查询事业部列表
@@ -426,9 +431,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 	}
 
 	@Override
-	public CustomerNumSummaryVO numSummary(String area, String country) {
+	public CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area, String country) {
 		InquiryCountExample example = new InquiryCountExample();
 		Criteria criteria = example.createCriteria();
+		if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+			criteria.andRollinTimeBetween(startTime, endTime);
+		}
 		if (StringUtils.isNoneBlank(area)) {
     		criteria = criteria.andInquiryAreaEqualTo(area);
     	}

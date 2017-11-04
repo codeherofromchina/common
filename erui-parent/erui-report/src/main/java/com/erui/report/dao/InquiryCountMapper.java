@@ -48,7 +48,7 @@ public interface InquiryCountMapper {
       */
     Map<String,Object> selectProTop3TotalByExample(InquiryCountExample example);
     //品类明细
-    List<CateDetailVo> selectInqDetailByCategory();
+    List<CateDetailVo> selectInqDetailByCategoryByExample(InquiryCountExample example);
     //查询事业部列表
     List<String>  selectOrgListByExample(InquiryCountExample example);
     //查询事业部列表
