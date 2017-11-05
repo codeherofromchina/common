@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.erui.report.util.CustomerCategoryNumVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -280,34 +282,29 @@ public class CustomCentreController {
 		int totalCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
 		int count1 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 4, "", "");
 		int count2 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 4, 8, "", "");
-		int count3 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 8, 16, "", "");
-		int count4 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 16, 24, "", "");
+		int count3 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 8, 24, "", "");
 		int count5 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 24, 48, "", "");
 		int otherCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 48, 1000, "", "");
 		HashMap<String, Object> quoteTimeMap = new HashMap<>();
 		quoteTimeMap.put("oneCount", count1);
 		quoteTimeMap.put("fourCount", count2);
 		quoteTimeMap.put("eightCount", count3);
-		quoteTimeMap.put("sixteenCount", count4);
 		quoteTimeMap.put("twentyFourCount", count5);
 		quoteTimeMap.put("otherCount", otherCount);
 		if (totalCount > 0) {
             double oneCountRate = RateUtil.intChainRate(count1, totalCount);
             double fourCountRate = RateUtil.intChainRate(count2, totalCount);
             double eightCountRate = RateUtil.intChainRate(count3, totalCount);
-            double sixteenCountRate = RateUtil.intChainRate(count4, totalCount);
             double twentyFourCountRate = RateUtil.intChainRate(count5, totalCount);
             quoteTimeMap.put("oneCountRate",oneCountRate );
 			quoteTimeMap.put("fourCountRate",fourCountRate);
 			quoteTimeMap.put("eightCountRate",eightCountRate);
-			quoteTimeMap.put("sixteenCountRate",sixteenCountRate );
 			quoteTimeMap.put("twentyFourCountRate",twentyFourCountRate );
-			quoteTimeMap.put("otherCountRate",1-(oneCountRate+fourCountRate+eightCountRate+sixteenCountRate+twentyFourCountRate));
+			quoteTimeMap.put("otherCountRate",1-(oneCountRate+fourCountRate+eightCountRate+twentyFourCountRate));
 		}else{
             quoteTimeMap.put("oneCountRate",0.00 );
             quoteTimeMap.put("fourCountRate",0.00);
             quoteTimeMap.put("eightCountRate",0.00);
-            quoteTimeMap.put("sixteenCountRate",0.00 );
             quoteTimeMap.put("twentyFourCountRate",0.00 );
             quoteTimeMap.put("otherCountRate",0.00);
         }
@@ -473,6 +470,7 @@ public class CustomCentreController {
 				}
 			}
 		}
+		inqList.sort((vo1,vo2)->vo2.getInqCateCount().compareTo(vo1.getInqCateCount()));
 		return new Result<Object>().setData(inqList);
 	}
 

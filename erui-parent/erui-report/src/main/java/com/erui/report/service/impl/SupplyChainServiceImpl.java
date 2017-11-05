@@ -42,16 +42,27 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 		Map<String, Map<String, Integer>> sqlDate = new HashMap<>();
 		Map<String, Integer> lintData = null;
 		for (Map map2 : supplyMap) {
-			lintData = new HashMap<>();
+
 			BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
 			BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
 			BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
 			Date date2 = (Date) map2.get("create_at");
 			String dateString = com.erui.comm.DateUtil.format("MM月dd日", date2);
-			lintData.put("spu", spu.intValue());
-			lintData.put("sku", sku.intValue());
-			lintData.put("supplier", supplier.intValue());
-			sqlDate.put(dateString, lintData);
+			if(sqlDate.containsKey(dateString)){
+                Map<String, Integer> map = sqlDate.get(dateString);
+                Integer spu2 = map.get("spu");
+                Integer sku2= map.get("sku");
+                Integer supplier2 = map.get("supplier");
+                map.put("spu",spu.intValue()+spu2);
+                map.put("sku",sku.intValue()+sku2);
+                map.put("supplier",supplier.intValue()+supplier2);
+            }else{
+                lintData = new HashMap<>();
+                lintData.put("spu", spu.intValue());
+                lintData.put("sku", sku.intValue());
+                lintData.put("supplier", supplier.intValue());
+                sqlDate.put(dateString, lintData);
+            }
 		}
 		for (int i = 0; i < days; i++) {
 			Date datetime = DateUtil.recedeTime(days - (i + 1));
