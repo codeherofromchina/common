@@ -250,11 +250,22 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			Map<String, Integer> datamap;
 			for (int i = 0; i < list.size(); i++) {
 				String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "M月d日");
-				datamap = new HashMap<>();
-				datamap.put("sku", list.get(i).getFinishSkuNum());
-				datamap.put("spu", list.get(i).getFinishSpuNum());
-				datamap.put("suppliy", list.get(i).getFinishSuppliNum());
-				dateMap.put(date2, datamap);
+				if(dateMap.containsKey(date2)){
+                    Map<String, Integer> map = dateMap.get(date2);
+                    Integer sku = map.get("sku");
+                    Integer spu = map.get("spu");
+                    Integer suppliy = map.get("suppliy");
+                    map.put("sku",sku+list.get(i).getFinishSkuNum());
+                    map.put("spu",spu+list.get(i).getFinishSpuNum());
+                    map.put("suppliy",suppliy+sku+list.get(i).getFinishSuppliNum());
+
+                }else{
+                    datamap = new HashMap<>();
+                    datamap.put("sku", list.get(i).getFinishSkuNum());
+                    datamap.put("spu", list.get(i).getFinishSpuNum());
+                    datamap.put("suppliy", list.get(i).getFinishSuppliNum());
+                    dateMap.put(date2, datamap);
+                }
 
 			}
 			for (int i = 0; i < days; i++) {
