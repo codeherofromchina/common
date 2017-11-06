@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import com.erui.report.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -477,7 +476,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		// 求出上个星期的值，以获取环比
 		if (result != null && result.size() > 0) {
 			Map<String,Object> condition02 = new HashMap<>();
-			Date before14Day = com.erui.comm.DateUtil.recedeTime(14);
+			Date before14Day = DateUtil.recedeTime(14);
 			List<String> categoryList = result.parallelStream().map(CustomerCategoryNumVO::getCategory).collect(Collectors.toList());
 			example01 = new InquiryCountExample();
 			example01.createCriteria().andRollinTimeBetween(before14Day, before7Day).andPlatProCategoryIn(categoryList);

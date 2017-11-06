@@ -3,8 +3,6 @@ package com.erui.report.service.impl;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-
-import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.RequestCreditExample;
@@ -86,7 +84,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
 			BigDecimal nextReceivable = new BigDecimal(map3.get("order_amount").toString());
 			Date date2 = (Date) map3.get("back_date");
-			String dateString = com.erui.comm.DateUtil.format("MM月dd日",date2);
+			String dateString = DateUtil.format("MM月dd日",date2);
 			if(sqlDate.containsKey(dateString)){
                 Map<String, Double> map = sqlDate.get(dateString);
                 Double next1 = map.get("nextReceivable");
@@ -99,8 +97,8 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             }
 		}
 		for (int i = 0; i < 31; i++){
-			Date datetime = com.erui.comm.DateUtil.recedeTime(-i);
-			String date = com.erui.comm.DateUtil.format("MM月dd日",datetime);
+			Date datetime = DateUtil.recedeTime(-i);
+			String date = DateUtil.format("MM月dd日",datetime);
 			if (sqlDate.containsKey(date)){
 				nextDate .add(date);
 				nextList.add(sqlDate.get(date).get("nextReceivable"));
@@ -119,7 +117,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 			BigDecimal notReceive = new BigDecimal(map2.get("receive_amount").toString());
 			BigDecimal received = new BigDecimal(map2.get("received").toString());
 			Date date2 = (Date) map2.get("create_at");
-			String dateString = com.erui.comm.DateUtil.format("MM月dd日",date2);
+			String dateString = DateUtil.format("MM月dd日",date2);
 			if(sqlDate02.containsKey(dateString)){
                 Map<String, Double> m = sqlDate02.get(dateString);
                 Double received1 = m.get("received");
@@ -138,8 +136,8 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             }
 		}
 		for (int i = 0; i < days; i++) {
-			Date datetime = com.erui.comm.DateUtil.recedeTime(days - (i+1) );
-			String date = com.erui.comm.DateUtil.format("MM月dd日",datetime);
+			Date datetime = DateUtil.recedeTime(days - (i+1) );
+			String date = DateUtil.format("MM月dd日",datetime);
 			if (sqlDate02.containsKey(date)){
 				dateList.add(date);
 				receivableList.add(sqlDate02.get(date).get("receivable"));

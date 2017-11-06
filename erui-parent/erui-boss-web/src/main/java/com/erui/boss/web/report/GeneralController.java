@@ -1,6 +1,5 @@
 package com.erui.boss.web.report;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.erui.report.model.Member;
+import com.erui.comm.util.data.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.erui.boss.web.util.Result;
-import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.service.HrCountService;
 import com.erui.report.service.InquiryCountService;

@@ -1,10 +1,8 @@
 package com.erui.boss.web.report;
 
-import com.erui.boss.web.util.DefaultExceptionHandler;
 import com.erui.boss.web.util.Result;
-import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.comm.DateUtil;
 import com.erui.comm.RateUtil;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.RequestCreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;

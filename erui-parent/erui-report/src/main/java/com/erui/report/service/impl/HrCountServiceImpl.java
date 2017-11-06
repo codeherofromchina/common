@@ -35,9 +35,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 	@Override
 	public Map<String, Object> selectHrCount(int days) {
 		// 当前时期
-		Date startTime = com.erui.comm.DateUtil.recedeTime(days);
+		Date startTime = DateUtil.recedeTime(days);
 		// 环比时段
-		Date chainDate = com.erui.comm.DateUtil.recedeTime(days * 2);
+		Date chainDate = DateUtil.recedeTime(days * 2);
 		// 当前时期
 		HrCountExample hrCountExample = new HrCountExample();
 		hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());

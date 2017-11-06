@@ -30,7 +30,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 	 */
 	@Override
 	public Map<String, Object> selectFinishByDate(int days, String type) {
-		Date startDate = com.erui.comm.DateUtil.recedeTime(days);
+		Date startDate = DateUtil.recedeTime(days);
 		SupplyChainExample supplyChainExample = new SupplyChainExample();
 		supplyChainExample.createCriteria().andCreateAtBetween(startDate, new Date());
 		List<Map> supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
@@ -47,7 +47,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
 			BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
 			Date date2 = (Date) map2.get("create_at");
-			String dateString = com.erui.comm.DateUtil.format("MM月dd日", date2);
+			String dateString = DateUtil.format("MM月dd日", date2);
 			if(sqlDate.containsKey(dateString)){
                 Map<String, Integer> map = sqlDate.get(dateString);
                 Integer spu2 = map.get("spu");
@@ -66,7 +66,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 		}
 		for (int i = 0; i < days; i++) {
 			Date datetime = DateUtil.recedeTime(days - (i + 1));
-			String date = com.erui.comm.DateUtil.format("MM月dd日", datetime);
+			String date = DateUtil.format("MM月dd日", datetime);
 			if (sqlDate.containsKey(date)) {
 				dateList.add(date);
 				spuList.add(sqlDate.get(date).get("spu"));
@@ -280,8 +280,8 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
 			}
 			for (int i = 0; i < days; i++) {
-				Date date = com.erui.comm.DateUtil.recedeTime(days - (i + 1));
-				String datet2 = com.erui.comm.DateUtil.format("MM月dd日", date);
+				Date date = DateUtil.recedeTime(days - (i + 1));
+				String datet2 = DateUtil.format("MM月dd日", date);
 				if (dateMap.containsKey(datet2)) {
 					DateTime[i] = (datet2);
 					SPUFinishCount[i] = (dateMap.get(datet2).get("spu"));
@@ -298,7 +298,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         }else {
             for (int i = 0; i <days ; i++) {
                 Date date = DateUtil.recedeTime(days - (i + 1));
-                String datet2 = com.erui.comm.DateUtil.format("MM月dd日", date);
+                String datet2 = DateUtil.format("MM月dd日", date);
                 DateTime[i]=datet2;
                 suppliyFinishCount[i]=0;
                 SPUFinishCount[i]=0;

@@ -340,4 +340,17 @@ public class DateUtil {
 			}
         return time;
 	}
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:29 2017/11/6
+	  * @modified By
+	  */
+	public static String format(String format,Date date) {
+		if (date != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat(format);
+			return sdf.format(date);
+		}
+		return null;
+	}
 }
