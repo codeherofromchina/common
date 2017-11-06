@@ -65,7 +65,7 @@ public class CustomCentreController {
         int chain=count-chainCount;
         double chainRate = 0.0;
         if(chainCount>0){
-            chainRate=  RateUtil.intChainRate(count-chainCount, chainCount);//环比
+            chainRate=  RateUtil.intChainRate(chain, chainCount);//环比
         }
         inquiryMap.put("count",count);
         inquiryMap.put("amount",df.format(amount/10000)+"万$");
