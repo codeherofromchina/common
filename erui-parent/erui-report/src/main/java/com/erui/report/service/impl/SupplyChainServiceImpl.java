@@ -42,16 +42,27 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 		Map<String, Map<String, Integer>> sqlDate = new HashMap<>();
 		Map<String, Integer> lintData = null;
 		for (Map map2 : supplyMap) {
-			lintData = new HashMap<>();
+
 			BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
 			BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
 			BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
 			Date date2 = (Date) map2.get("create_at");
 			String dateString = com.erui.comm.DateUtil.format("MM月dd日", date2);
-			lintData.put("spu", spu.intValue());
-			lintData.put("sku", sku.intValue());
-			lintData.put("supplier", supplier.intValue());
-			sqlDate.put(dateString, lintData);
+			if(sqlDate.containsKey(dateString)){
+                Map<String, Integer> map = sqlDate.get(dateString);
+                Integer spu2 = map.get("spu");
+                Integer sku2= map.get("sku");
+                Integer supplier2 = map.get("supplier");
+                map.put("spu",spu.intValue()+spu2);
+                map.put("sku",sku.intValue()+sku2);
+                map.put("supplier",supplier.intValue()+supplier2);
+            }else{
+                lintData = new HashMap<>();
+                lintData.put("spu", spu.intValue());
+                lintData.put("sku", sku.intValue());
+                lintData.put("supplier", supplier.intValue());
+                sqlDate.put(dateString, lintData);
+            }
 		}
 		for (int i = 0; i < days; i++) {
 			Date datetime = DateUtil.recedeTime(days - (i + 1));
@@ -250,11 +261,22 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 			Map<String, Integer> datamap;
 			for (int i = 0; i < list.size(); i++) {
 				String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "M月d日");
-				datamap = new HashMap<>();
-				datamap.put("sku", list.get(i).getFinishSkuNum());
-				datamap.put("spu", list.get(i).getFinishSpuNum());
-				datamap.put("suppliy", list.get(i).getFinishSuppliNum());
-				dateMap.put(date2, datamap);
+				if(dateMap.containsKey(date2)){
+                    Map<String, Integer> map = dateMap.get(date2);
+                    Integer sku = map.get("sku");
+                    Integer spu = map.get("spu");
+                    Integer suppliy = map.get("suppliy");
+                    map.put("sku",sku+list.get(i).getFinishSkuNum());
+                    map.put("spu",spu+list.get(i).getFinishSpuNum());
+                    map.put("suppliy",suppliy+sku+list.get(i).getFinishSuppliNum());
+
+                }else{
+                    datamap = new HashMap<>();
+                    datamap.put("sku", list.get(i).getFinishSkuNum());
+                    datamap.put("spu", list.get(i).getFinishSpuNum());
+                    datamap.put("suppliy", list.get(i).getFinishSuppliNum());
+                    dateMap.put(date2, datamap);
+                }
 
 			}
 			for (int i = 0; i < days; i++) {

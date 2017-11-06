@@ -83,12 +83,20 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		Map<String,Double> linkData = null;
 		//遍历下月应收
 		for (Map map3:nextMap) {
-			linkData = new HashMap<>();
+
 			BigDecimal nextReceivable = new BigDecimal(map3.get("order_amount").toString());
 			Date date2 = (Date) map3.get("back_date");
 			String dateString = com.erui.comm.DateUtil.format("MM月dd日",date2);
-			linkData.put("nextReceivable",nextReceivable.doubleValue());
-			sqlDate.put(dateString,linkData);
+			if(sqlDate.containsKey(dateString)){
+                Map<String, Double> map = sqlDate.get(dateString);
+                Double next1 = map.get("nextReceivable");
+                map.put("nextReceivable",next1+nextReceivable.doubleValue());
+                sqlDate.put(dateString,map);
+            }else{
+                linkData = new HashMap<>();
+                linkData.put("nextReceivable",nextReceivable.doubleValue());
+                sqlDate.put(dateString,linkData);
+            }
 		}
 		for (int i = 0; i < 31; i++){
 			Date datetime = com.erui.comm.DateUtil.recedeTime(-i);
@@ -106,16 +114,28 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 		List<Map> requestMap = readMapper.selectRequestTrend(requestCreditExample);
 		//应收，已收，未收
 		for (Map map2:requestMap) {
-			linkData = new HashMap<>();
+
 			BigDecimal receivable = new BigDecimal(map2.get("order_amount").toString());
 			BigDecimal notReceive = new BigDecimal(map2.get("receive_amount").toString());
 			BigDecimal received = new BigDecimal(map2.get("received").toString());
 			Date date2 = (Date) map2.get("create_at");
 			String dateString = com.erui.comm.DateUtil.format("MM月dd日",date2);
-			linkData.put("receivable",receivable.doubleValue());
-			linkData.put("notReceive",notReceive.doubleValue());
-			linkData.put("received",received.doubleValue());
-			sqlDate02.put(dateString,linkData);
+			if(sqlDate02.containsKey(dateString)){
+                Map<String, Double> m = sqlDate02.get(dateString);
+                Double received1 = m.get("received");
+                Double notReceive1 = m.get("notReceive");
+                Double received2= m.get("received");
+                m.put("receivable",received1+receivable.doubleValue());
+                m.put("notReceive",notReceive1+notReceive.doubleValue());
+                m.put("received",received2+received.doubleValue());
+                sqlDate02.put(dateString,m);
+            }else{
+                linkData = new HashMap<>();
+                linkData.put("receivable",receivable.doubleValue());
+                linkData.put("notReceive",notReceive.doubleValue());
+                linkData.put("received",received.doubleValue());
+                sqlDate02.put(dateString,linkData);
+            }
 		}
 		for (int i = 0; i < days; i++) {
 			Date datetime = com.erui.comm.DateUtil.recedeTime(days - (i+1) );

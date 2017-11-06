@@ -53,8 +53,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 		if (maxQuoteTime==4) {
             criteria.andQuoteNeedTimeLessThan(mdecimal);
 		}else if(leastQuoteTime>=48){
-			criteria.andQuoteNeedTimeGreaterThan(ldecimal);
-		}else{
+			criteria.andQuoteNeedTimeGreaterThanOrEqualTo(ldecimal);
+		}else if(leastQuoteTime>=4&&maxQuoteTime<=48){
 			criteria.andQuoteNeedTimeGreaterThanOrEqualTo(ldecimal);
 			criteria.andQuoteNeedTimeLessThan(mdecimal);
 		}

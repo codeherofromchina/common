@@ -247,8 +247,13 @@ public class RequestCreditController {
         }else {
             totalNotreceiveAmount = new  BigDecimal(mapTotal.get("sd").toString());
         }
+        String country = "";
+        Object obj=map.get("country");
+        if(obj!=null){
+            country =obj.toString();
+        }
         //根据区域或者国家
-        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime,new Date(),map.get("area").toString(),map.get("country").toString());
+        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime,new Date(),map.get("area").toString(),country);
         if (mapCount == null){
             mapTotal = new HashMap();
             mapTotal.put("oa",0);
@@ -279,7 +284,7 @@ public class RequestCreditController {
             acNotreceiveAmount = new  BigDecimal( mapCount.get("ra").toString());
         }
         //下月应收
-        Map mapNext = requestCreditService.selectRequestNext(new Date(),nextTime,map.get("area").toString(),map.get("country").toString());
+        Map mapNext = requestCreditService.selectRequestNext(new Date(),nextTime,map.get("area").toString(),country);
         if (mapNext == null){
             mapNext.put("sdT",0);
         }

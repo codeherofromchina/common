@@ -110,7 +110,7 @@
     SELECT DISTINCT(organization) FROM supply_chain
   </select>
 
-  <select id="selectCateSuppliyChain" resultType="com.erui.report.model.SuppliyChainCateVo" parameterType="com.erui.report.model.SupplyChainExample"  >
+  <select id="selectCateSuppliyChainByExample" resultType="com.erui.report.model.SuppliyChainCateVo" parameterType="com.erui.report.model.SupplyChainExample"  >
    SELECT
 	SUM(plan_sku_num) AS planSKU,
 	SUM(finish_sku_num) AS finishSKU,
