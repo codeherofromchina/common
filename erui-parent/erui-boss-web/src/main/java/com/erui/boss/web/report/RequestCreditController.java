@@ -209,7 +209,7 @@ public class RequestCreditController {
         if (!map.containsKey("area")||!map.containsKey("country")) {
             throw new MissingServletRequestParameterException("area || country","String");
         }
-        Date startTime = DateUtil.recedeTime(7);
+        Date startTime = DateUtil.recedeTime(1);
         Date nextTime = DateUtil.recedeTime(-30);
         //应收,已收应收,未收总量
         Map mapTotal = requestCreditService.selectRequestTotal(startTime,new Date());
@@ -251,10 +251,10 @@ public class RequestCreditController {
         //根据区域或者国家
         Map mapCount = requestCreditService.selectByAreaOrCountry(startTime,new Date(),map.get("area").toString(),country);
         if (mapCount == null){
-            mapTotal = new HashMap();
-            mapTotal.put("oa",0);
-            mapTotal.put("received",0);
-            mapTotal.put("ra",0);
+            mapCount = new HashMap();
+            mapCount.put("oa",0);
+            mapCount.put("received",0);
+            mapCount.put("ra",0);
         }
         //应收金额
         BigDecimal acOrderAmount =  null;
@@ -293,10 +293,26 @@ public class RequestCreditController {
         }
         List<String> conList = new ArrayList<>();
         List<Double> amountList = new ArrayList<>();
-        conList.add("应收金额-占比"+df.format((acOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
-        conList.add("已收金额-占比"+df.format((acReceiveAmount.doubleValue()/totalReceiveAmount.doubleValue())*100)+"%");
-        conList.add("应收未收-占比"+df.format((acNotreceiveAmount.doubleValue()/totalNotreceiveAmount.doubleValue())*100)+"%");
-        conList.add("下月应收-占比"+df.format((nextOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
+        if(totalOrderAmount.doubleValue() == 0){
+            conList.add("应收金额-占比"+100+"%");
+        } else {
+            conList.add("应收金额-占比"+df.format((acOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
+        }
+        if (totalReceiveAmount.doubleValue() == 0){
+            conList.add("已收金额-占比"+100+"%");
+        }else {
+            conList.add("已收金额-占比"+df.format((acReceiveAmount.doubleValue()/totalReceiveAmount.doubleValue())*100)+"%");
+        }
+        if (totalNotreceiveAmount.doubleValue() == 0){
+            conList.add("应收未收-占比"+100+"%");
+        }else {
+            conList.add("应收未收-占比"+df.format((acNotreceiveAmount.doubleValue()/totalNotreceiveAmount.doubleValue())*100)+"%");
+        }
+        if(totalOrderAmount.doubleValue() == 0){
+            conList.add("下月应收-占比"+100+"%");
+        } else {
+            conList.add("下月应收-占比"+df.format((nextOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
+        }
         amountList.add(acOrderAmount.doubleValue());
         amountList.add(acReceiveAmount.doubleValue());
         amountList.add(acNotreceiveAmount.doubleValue());
