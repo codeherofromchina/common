@@ -294,22 +294,22 @@ public class RequestCreditController {
         List<String> conList = new ArrayList<>();
         List<Double> amountList = new ArrayList<>();
         if(totalOrderAmount.doubleValue() == 0){
-            conList.add("应收金额-占比"+100+"%");
+            conList.add("应收金额-占比 0.00%");
         } else {
             conList.add("应收金额-占比"+df.format((acOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
         }
         if (totalReceiveAmount.doubleValue() == 0){
-            conList.add("已收金额-占比"+100+"%");
+            conList.add("已收金额-占比 0.00%");
         }else {
             conList.add("已收金额-占比"+df.format((acReceiveAmount.doubleValue()/totalReceiveAmount.doubleValue())*100)+"%");
         }
         if (totalNotreceiveAmount.doubleValue() == 0){
-            conList.add("应收未收-占比"+100+"%");
+            conList.add("应收未收-占比 0.00%");
         }else {
             conList.add("应收未收-占比"+df.format((acNotreceiveAmount.doubleValue()/totalNotreceiveAmount.doubleValue())*100)+"%");
         }
         if(totalOrderAmount.doubleValue() == 0){
-            conList.add("下月应收-占比"+100+"%");
+            conList.add("下月应收-占比 0.00%");
         } else {
             conList.add("下月应收-占比"+df.format((nextOrderAmount.doubleValue()/totalOrderAmount.doubleValue())*100)+"%");
         }
