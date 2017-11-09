@@ -12,7 +12,7 @@ public interface RequestCreditMapper {
     List<Map> selectCountry(RequestCreditExample example);
     List<Map> selectArea();
     Map selectTotal();
-    Map selectRequestTotal(RequestCreditExample example);
+    Map<String,Object> selectRequestTotal(RequestCreditExample example);
     List<Map> selectRequestTrend(RequestCreditExample example);
     int countByExample(RequestCreditExample example);
 
