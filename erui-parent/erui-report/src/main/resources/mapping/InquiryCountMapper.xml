@@ -304,13 +304,13 @@
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
     select t.plat_pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from 
 		(
-			select plat_pro_category,count(1) as xdCount,0 as ddCount from order_count 
+			select plat_pro_category,0 as xdCount,count(1) as ddCount from order_count
 			<if test="orderCountExample != null" >
       			<include refid="orderCount_alias_Example_Where_Clause" />
     		</if>
     		group by plat_pro_category
 			union all 
-			select plat_pro_category,0 as xdCount,count(1) as ddCount from inquiry_count 
+			select plat_pro_category,count(1) as xdCount,0 as ddCount from inquiry_count
 			<if test="inquiryCountExample != null" >
       			<include refid="inquiry_alias_Example_Where_Clause" />
     		</if>

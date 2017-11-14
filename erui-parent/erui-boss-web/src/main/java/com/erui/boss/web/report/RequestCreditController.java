@@ -70,27 +70,18 @@ public class RequestCreditController {
             mapMount.put("sd", 0);
         }
         //应收金额
-        BigDecimal orderAmount = null;
-        if (!mapMount.containsKey("sdT")) {
-            mapMount.put("sdT", 0);
-            orderAmount = new BigDecimal(mapMount.get("sdT").toString());
-        } else {
+        BigDecimal orderAmount = BigDecimal.ZERO;
+        if (mapMount.containsKey("sdT")) {
             orderAmount = new BigDecimal(mapMount.get("sdT").toString());
         }
         //已收金额
-        BigDecimal receiveAmount = null;
-        if (!mapMount.containsKey("sded")) {
-            mapMount.put("sded", 0);
-            receiveAmount = new BigDecimal(mapMount.get("sded").toString());
-        } else {
+        BigDecimal receiveAmount = BigDecimal.ZERO;
+        if (mapMount.containsKey("sded")) {
             receiveAmount = new BigDecimal(mapMount.get("sded").toString());
         }
         //应收未收
-        BigDecimal notreceiveAmount = null;
-        if (!mapMount.containsKey("sd")) {
-            mapMount.put("sd", 0);
-            notreceiveAmount = new BigDecimal(mapMount.get("sd").toString());
-        } else {
+        BigDecimal notreceiveAmount = BigDecimal.ZERO;
+        if (mapMount.containsKey("sd")) {
             notreceiveAmount = new BigDecimal(mapMount.get("sd").toString());
         }
         //环比
@@ -102,27 +93,18 @@ public class RequestCreditController {
             mapChainMount.put("sd", 0);
         }
         //环比应收金额
-        BigDecimal chainOrderAmount = null;
-        if (!mapChainMount.containsKey("sdT")) {
-            mapChainMount.put("sdT", 0);
-            chainOrderAmount = new BigDecimal(mapChainMount.get("sdT").toString());
-        } else {
+        BigDecimal chainOrderAmount = BigDecimal.ZERO;
+        if (mapChainMount.containsKey("sdT")) {
             chainOrderAmount = new BigDecimal(mapChainMount.get("sdT").toString());
         }
         //环比已收金额
-        BigDecimal chainReceiveAmount = null;
-        if (!mapChainMount.containsKey("sded")) {
-            mapChainMount.put("sded", 0);
-            chainReceiveAmount = new BigDecimal(mapChainMount.get("sded").toString());
-        } else {
+        BigDecimal chainReceiveAmount = BigDecimal.ZERO;
+        if (mapChainMount.containsKey("sded")) {
             chainReceiveAmount = new BigDecimal(mapChainMount.get("sded").toString());
         }
         //应收未收
-        BigDecimal chainNotreceiveAmount = null;
-        if (!mapChainMount.containsKey("sd")) {
-            mapChainMount.put("sd", 0);
-            chainNotreceiveAmount = new BigDecimal(mapChainMount.get("sd").toString());
-        } else {
+        BigDecimal chainNotreceiveAmount = BigDecimal.ZERO;
+        if (mapChainMount.containsKey("sd")) {
             chainNotreceiveAmount = new BigDecimal(mapChainMount.get("sd").toString());
         }
         Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue();

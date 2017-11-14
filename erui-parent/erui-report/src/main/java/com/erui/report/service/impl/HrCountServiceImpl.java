@@ -34,29 +34,26 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      * @modified By
      */
     @Override
-    public Map<String, Object> selectHrCount(int days) {
-        // 当前时期
-        Date startTime = DateUtil.recedeTime(days);
-        // 环比时段
-        Date chainDate = DateUtil.recedeTime(days * 2);
+    public Map<String, Object> selectHrCount(Date startTime, Date endTime) {
         // 当前时期
         HrCountExample hrCountExample = new HrCountExample();
-        hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
         // 当前时段
-        Map CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        Map CurHrCountMap = null;
+        if (startTime != null && endTime != null) {
+            hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
+            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        } else {
+            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        }
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
             CurHrCountMap.put("s1", 0);
             CurHrCountMap.put("s2", 0);
             CurHrCountMap.put("s3", 0);
             CurHrCountMap.put("s4", 0);
-            CurHrCountMap.put("s5", 0);
-            CurHrCountMap.put("s6", 0);
-            CurHrCountMap.put("s7", 0);
             CurHrCountMap.put("s8", 0);
             CurHrCountMap.put("s9", 0);
             CurHrCountMap.put("s10", 0);
-
         }
         BigDecimal planCount = new BigDecimal(CurHrCountMap.get("s1").toString());
         BigDecimal regularCount = new BigDecimal(CurHrCountMap.get("s2").toString());
@@ -65,41 +62,13 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
         BigDecimal turnJobin = new BigDecimal(CurHrCountMap.get("s9").toString());
         BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
-        // 环比时段
-        HrCountExample chainHrCountExample = new HrCountExample();
-        chainHrCountExample.createCriteria().andCreateAtBetween(chainDate, startTime);
-        Map chainHrCountMap = readMapper.selectHrCountByPart(chainHrCountExample);
-        if (chainHrCountMap == null) {
-            chainHrCountMap = new HashMap<>();
-            chainHrCountMap.put("s1", 0);
-            chainHrCountMap.put("s2", 0);
-            chainHrCountMap.put("s3", 0);
-            chainHrCountMap.put("s4", 0);
-            chainHrCountMap.put("s5", 0);
-            chainHrCountMap.put("s6", 0);
-            chainHrCountMap.put("s7", 0);
-            chainHrCountMap.put("s8", 0);
-            chainHrCountMap.put("s9", 0);
-            chainHrCountMap.put("s10", 0);
-        }
-        // 环比人数
-        BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
-        BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
-        // 环比增加人数
-        int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
-        int chainTurnAdd = chainTurnRightCount.intValue() - turnRightCount.intValue();
-        // 环比
-        double staffFullChainRate = RateUtil.doubleChainRate(chainFullAdd, chainRegularCount.intValue());
-        double turnRightChainRate = RateUtil.doubleChainRate(chainTurnAdd, chainTurnRightCount.intValue());
+        Map<String, Object> data = new HashMap<>();
         // 满编率
         double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
         // 转正率
         double turnRightRate = RateUtil.intChainRate(turnRightCount.intValue(), regularCount.intValue());
-        Map<String, Object> data = new HashMap<>();
         data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
-        data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
         data.put("turnRightRate", Double.parseDouble(df.format(turnRightRate)));
-        data.put("turnRightChainRate", Double.parseDouble(df.format(turnRightChainRate)));
         data.put("onDuty", regularCount);
         data.put("plan", planCount);
         data.put("turnJobin", turnJobin.intValue());
@@ -107,6 +76,31 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         data.put("try", tryCount);
         data.put("turnRight", turnRightCount);
         data.put("leave", dimissionCount);
+        if (startTime != null && endTime != null && DateUtil.getDayBetween(startTime, endTime) > 0) {
+            int days = DateUtil.getDayBetween(startTime, endTime);
+            //环比开始
+            Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
+            // 环比时段
+            HrCountExample chainHrCountExample = new HrCountExample();
+            chainHrCountExample.createCriteria().andCreateAtBetween(chainEnd, startTime);
+            Map chainHrCountMap = readMapper.selectHrCountByPart(chainHrCountExample);
+            if (chainHrCountMap == null) {
+                chainHrCountMap = new HashMap<>();
+                chainHrCountMap.put("s2", 0);
+                chainHrCountMap.put("s4", 0);
+            }
+            // 环比人数
+            BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
+            BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
+            // 环比增加人数
+            int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
+            int chainTurnAdd = chainTurnRightCount.intValue() - turnRightCount.intValue();
+            // 环比
+            double staffFullChainRate = RateUtil.doubleChainRate(chainFullAdd, chainRegularCount.intValue());
+            double turnRightChainRate = RateUtil.doubleChainRate(chainTurnAdd, chainTurnRightCount.intValue());
+            data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
+            data.put("turnRightChainRate", Double.parseDouble(df.format(turnRightChainRate)));
+        }
         return data;
     }
 
@@ -196,7 +190,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         // 外籍占比
         double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
     /*	// 环比增加人数
-		int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
+        int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
 		int chainTurnAdd = turnRightCount.intValue() - chainTurnRightCount.intValue();
 		int chainAdd = newCount.intValue() - chainNewCount.intValue();
 		int chainTurnJobinAdd = turnJobin.intValue() - chainTurnJobin.intValue();
