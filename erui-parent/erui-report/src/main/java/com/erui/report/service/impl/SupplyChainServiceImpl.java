@@ -100,7 +100,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"planSkuNum", "finishSkuNum", "planSpuNum",
+                        "finishSpuNum", "planSuppliNum", "finishSuppliNum"});
         int size = datas.size();
         SupplyChain sc = null;
         if (!testOnly) {
@@ -186,6 +188,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            response.sumData(sc);
             response.incrSuccess();
 
         }

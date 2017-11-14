@@ -2,6 +2,9 @@ package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import com.erui.comm.RateUtil;
@@ -9,6 +12,7 @@ import com.erui.report.model.HrCountExample;
 import org.aspectj.apache.bcel.generic.IF_ACMPEQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.erui.comm.util.data.date.DateUtil;
@@ -196,7 +200,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         // 外籍占比
         double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
     /*	// 环比增加人数
-		int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
+        int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
 		int chainTurnAdd = turnRightCount.intValue() - chainTurnRightCount.intValue();
 		int chainAdd = newCount.intValue() - chainNewCount.intValue();
 		int chainTurnJobinAdd = turnJobin.intValue() - chainTurnJobin.intValue();
@@ -421,7 +425,11 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"planCount", "regularCount", "tryCount", "turnRightCount",
+                        "chinaCount", "foreignCount",
+                        "newCount", "groupTransferIn",
+                        "groupTransferOut", "dimissionCount"});
         int size = datas.size();
         HrCount hc = null;
         String preBigDept = null;
@@ -429,7 +437,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             writeMapper.truncateTable();
         }
         for (int index = 0; index < size; index++) {
-            int cellIndex = index + 2;
+            int cellIndex = index + 2; // 数据从第二行开始
             String[] strArr = datas.get(index);
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.HR_COUNT, response, cellIndex)) {
                 continue;
@@ -567,6 +575,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
                 response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            if (true) {
+                response.sumData(hc);
+            }
             response.incrSuccess();
 
         }
@@ -575,4 +586,24 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         return response;
     }
 
+
+    public static void main(String[] args) {
+        LocalDate localDate = LocalDate.now();
+
+        DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+        System.out.println(dayOfWeek);
+        System.out.println(dayOfWeek.getValue());
+        int value = dayOfWeek.getValue();
+        if (value <= 5) {
+            localDate = localDate.minusDays(value + 2);
+        } else {
+            localDate = localDate.minusDays(value - 5);
+        }
+        System.out.println(localDate);
+
+        localDate = localDate.minusDays(7);
+        System.out.println(localDate);
+
+
+    }
 }

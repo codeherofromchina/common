@@ -28,7 +28,8 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"generalMemberCount","seniorMemberCount","goldMemberCount"});
         int size = datas.size();
         Member member = null;
         if (!testOnly) {
@@ -121,9 +122,10 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
                 response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            response.sumData(member);
             response.incrSuccess();
-
         }
+
         response.setDone(true);
 
         return response;
