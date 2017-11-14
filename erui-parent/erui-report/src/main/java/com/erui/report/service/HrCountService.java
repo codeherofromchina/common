@@ -17,7 +17,7 @@ public interface HrCountService {
      * @Date:16:16 2017/10/25
      * @modified By
      */
-    Map<String,Object> selectHrCount(int days);
+    Map<String,Object> selectHrCount(Date startTime, Date endTime);
      /**
       * @Author:SHIGS
       * @Description

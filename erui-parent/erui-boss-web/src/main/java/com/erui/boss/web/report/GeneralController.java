@@ -2,11 +2,7 @@ package com.erui.boss.web.report;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.erui.comm.util.data.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,59 +56,65 @@ public class GeneralController {
     @ResponseBody
     @RequestMapping(value = "general", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object memberCount(@RequestBody Map<String, Object> map) throws Exception {
-        if (!map.containsKey("days")) {
-            throw new MissingServletRequestParameterException("days", "String");
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
         }
-        //当前时期
-        int days = Integer.parseInt(map.get("days").toString());
-        // 当前时期
-        Date startTime = DateUtil.recedeTime(days);
-        // 环比时段
-        Date chainDate = DateUtil.recedeTime(days * 2);
-        int curMemberCount = memberService.selectByTime(startTime, new Date());
-        // 环比时段数量
-        int chainMemberCount = memberService.selectByTime(chainDate, startTime);
-        // 增加
-        int addMemberChain = curMemberCount - chainMemberCount;
-        // 环比
-        double chainMemberRate = RateUtil.intChainRate(addMemberChain, chainMemberCount);
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        int curMemberCount = memberService.selectByTime(startTime,endTime);
         Map<String, Object> member = new HashMap<String, Object>();
         member.put("count", curMemberCount);
-        member.put("add", addMemberChain);
-        member.put("chainRate", chainMemberRate);
         // 当期询单数
-        int inquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
-        // 当期询单数环比chain
-        int chainInquiryCount = inquiryService.inquiryCountByTime(chainDate, startTime, "", 0, 0, "", "");
-
-        int chainInquiryAdd = inquiryCount - chainInquiryCount;
+        int inquiryCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
         // 当期询单金额
-        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, new Date(), "");
-        // 环比
-        double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd, chainInquiryCount);
+        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
         Map<String, Object> inquiry = new HashMap<>();
         inquiry.put("count", inquiryCount);
         inquiry.put("amount", df.format(inquiryAmount / 10000) + "万$");
-        inquiry.put("chainAdd", chainInquiryAdd);
-        inquiry.put("chainRate", chainInquiryRate);
-
         // 当期订单数
-        int orderCount = orderService.orderCountByTime(startTime, new Date(), "", "", "");
-        // 环比订单数量
-        int chainOrderCount = orderService.orderCountByTime(chainDate, startTime, "", "", "");
-        // 当期询单金额
-        double orderAmount = orderService.orderAmountByTime(startTime, new Date(), "");
-        // 环比增加单数
-        int chainOrderAdd = orderCount - chainOrderCount;
-        double chainOrderRate = 0.00;
-        if (chainOrderCount > 0) {
-            chainOrderRate = RateUtil.intChainRate(orderCount - chainOrderCount, chainOrderCount);
-        }
+        int orderCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
+        // 当期订单金额
+        double orderAmount = orderService.orderAmountByTime(startTime, endTime, "");
         Map<String, Object> order = new HashMap<>();
         order.put("count", orderCount);
         order.put("amount", df.format(orderAmount / 10000) + "万$");
-        order.put("chainAdd", chainOrderAdd);
-        order.put("chainRate", chainOrderRate);
+        //判断是否存在环比并求环比
+        if (startTime != null && endTime != null && DateUtil.getDayBetween(startTime, endTime) > 0) {
+            int days = DateUtil.getDayBetween(startTime, endTime);
+            //环比开始
+            Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
+            // 环比时段数量
+            int chainMemberCount = memberService.selectByTime(chainEnd, startTime);
+            // 增加
+            int addMemberChain = curMemberCount - chainMemberCount;
+            // 环比
+            double chainMemberRate = RateUtil.intChainRate(addMemberChain, chainMemberCount);
+            member.put("add", addMemberChain);
+            member.put("chainRate", chainMemberRate);
+            // 当期询单数环比chain
+            int chainInquiryCount = inquiryService.inquiryCountByTime(chainEnd, startTime, "", 0, 0, "", "");
+            int chainInquiryAdd = inquiryCount - chainInquiryCount;
+            // 环比
+            double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd, chainInquiryCount);
+            inquiry.put("chainAdd", chainInquiryAdd);
+            inquiry.put("chainRate", chainInquiryRate);
+            // 环比订单数量
+            int chainOrderCount = orderService.orderCountByTime(chainEnd, startTime, "", "", "");
+            // 环比增加单数
+            int chainOrderAdd = orderCount - chainOrderCount;
+            double chainOrderRate = 0.00;
+            if (chainOrderCount > 0) {
+                chainOrderRate = RateUtil.intChainRate(orderCount - chainOrderCount, chainOrderCount);
+            }
+            order.put("chainAdd", chainOrderAdd);
+            order.put("chainRate", chainOrderRate);
+        }
         Map<String, Object> data = new HashMap<>();
         data.put("member", member);
         data.put("inquiry", inquiry);
@@ -129,13 +131,19 @@ public class GeneralController {
      */
     @RequestMapping(value = "capacity", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Object capacity(@RequestBody Map<String, Object> map) throws MissingServletRequestParameterException {
-        if (!map.containsKey("days")) {
-            throw new MissingServletRequestParameterException("days", "String");
+    public Object capacity(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
         }
-        //当前时期
-        int days = Integer.parseInt(map.get("days").toString());
-        Map<String, Object> data = hrCountService.selectHrCount(days);
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        Map<String, Object> data = hrCountService.selectHrCount(startTime,endTime);
         Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
@@ -146,14 +154,14 @@ public class GeneralController {
      * @Date:20:21 2017/10/20
      * @modified By
      */
-    @ResponseBody
+  /*  @ResponseBody
     @RequestMapping(value = "member", method = RequestMethod.POST)
     public Object singleMemberCount() {
         Map<String, Object> member = memberService.selectMemberByTime();
         Result<Map<String, Object>> result = new Result<>(member);
         return result;
     }
-
+*/
     /**
      * @Author:SHIGS
      * @Description 询订单趋势图
@@ -226,15 +234,27 @@ public class GeneralController {
 
     /**
      * 询订单分类 TOP N
-     *
-     * @param category
      * @return
      */
     @RequestMapping("/inquiryOrderCategoryTopNum")
     @ResponseBody
-    public Object inquiryOrderCategoryTopNum(@RequestParam(value = "topN", required = false) Integer topN,
-                                             @RequestParam(value = "category", required = false) String category) {
-        List<CustomerCategoryNumVO> list = inquiryService.inquiryOrderCategoryTopNum(topN);
+    public Object inquiryOrderCategoryTopNum(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("topN")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        Integer topN  = Integer.parseInt(map.get("topN").toString());
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        List<CustomerCategoryNumVO> list = inquiryService.inquiryOrderCategoryTopNum(topN,startTime,endTime);
         Result<List<CustomerCategoryNumVO>> result = new Result<List<CustomerCategoryNumVO>>(list);
         return result;
     }

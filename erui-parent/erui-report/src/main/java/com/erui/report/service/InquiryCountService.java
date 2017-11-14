@@ -89,7 +89,7 @@ public interface InquiryCountService {
 	 * @param platCategory	指定分类
 	 * @return
 	 */
-	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN,String ...platCategory);
+	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
 
 	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
 

@@ -498,18 +498,21 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 
     @Override
-    public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, String... platCategory) {
+    public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory) {
 
         // 求出排名本星期
         Map<String, Object> condition01 = new HashMap<>();
         if (topN != null) {
             condition01.put("limit", topN);
         }
-        Date before7Day = DateUtil.recedeTime(7);
         InquiryCountExample example01 = new InquiryCountExample();
-        Criteria criteria01 = example01.createCriteria().andRollinTimeGreaterThan(before7Day);
+
+        if (startTime == null && endTime == null) {
+            return readMapper.selectinquiryOrderCategoryNumByCondition(condition01);
+        }
+        Criteria criteria01 = example01.createCriteria().andRollinTimeBetween(startTime, endTime);
         OrderCountExample example02 = new OrderCountExample();
-        com.erui.report.model.OrderCountExample.Criteria criteria02 = example02.createCriteria().andProjectStartGreaterThan(before7Day);
+        com.erui.report.model.OrderCountExample.Criteria criteria02 = example02.createCriteria().andProjectStartBetween(startTime, endTime);
         if (platCategory != null && platCategory.length > 0) {
             List<String> asList = Arrays.asList(platCategory);
             criteria01.andPlatProCategoryIn(asList);
@@ -520,18 +523,19 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         condition01.put("orderCountExample", example02);
         List<CustomerCategoryNumVO> result = readMapper.selectinquiryOrderCategoryNumByCondition(condition01);
 
-        // 求出上个星期的值，以获取环比
+        // 求出上个时段的值，以获取环比
         if (result != null && result.size() > 0) {
             Map<String, Object> condition02 = new HashMap<>();
-            Date before14Day = DateUtil.recedeTime(14);
+            int days = DateUtil.getDayBetween(startTime, endTime);
+            //环比开始
+            Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
             List<String> categoryList = result.parallelStream().map(CustomerCategoryNumVO::getCategory).collect(Collectors.toList());
             example01 = new InquiryCountExample();
-            example01.createCriteria().andRollinTimeBetween(before14Day, before7Day).andPlatProCategoryIn(categoryList);
+            example01.createCriteria().andRollinTimeBetween(chainEnd, startTime).andPlatProCategoryIn(categoryList);
             example02 = new OrderCountExample();
-            example02.createCriteria().andProjectStartBetween(before14Day, before7Day).andPlatProCategoryIn(categoryList);
+            example02.createCriteria().andProjectStartBetween(chainEnd, startTime).andPlatProCategoryIn(categoryList);
             condition02.put("inquiryCountExample", example01);
             condition02.put("orderCountExample", example02);
-
             List<CustomerCategoryNumVO> beforeCategory = readMapper.selectinquiryOrderCategoryNumByCondition(condition02);
             final Map<String, CustomerCategoryNumVO> tmpMap;
             if (beforeCategory != null && beforeCategory.size() > 0) {
