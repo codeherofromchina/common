@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.RequestCreditExample;
@@ -264,12 +265,16 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
-        ImportDataResponse response = new ImportDataResponse();
+        // 应收账款金额 - orderAmount、 应收未收金额 - receiveAmount
+        ImportDataResponse response = new ImportDataResponse(new String[]{"orderAmount","receiveAmount"});
         int size = datas.size();
         RequestCredit rc = null;
         if (!testOnly) {
             writeMapper.truncateTable();
         }
+        // 定义下月应收金额
+        BigDecimal nextMouthReceiveAmount = BigDecimal.ZERO;
+        // 遍历数据
         for (int index = 0; index < size; index++) {
             int cellIndex = index + 2;
             String[] strArr = datas.get(index);
@@ -334,9 +339,21 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 response.pushFailItem(ExcelUploadTypeEnum.REQUEST_CREDIT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            // 在上周范围内的数据做统计
+            if (NewDateUtil.inSaturdayWeek(rc.getCreateAt())) {
+                response.sumData(rc);
+            }
+            // 下自然月应收金额
+            if (NewDateUtil.inNextMonth(rc.getBackDate()) && rc.getReceiveAmount() != null) {
+                nextMouthReceiveAmount = nextMouthReceiveAmount.add(rc.getReceiveAmount());
+            }
             response.incrSuccess();
 
         }
+        // 计算应收已收金额，放置到键 hasReceivedAmount 中
+        Map<String,BigDecimal> map = response.getSumMap();
+        map.put("hasReceivedAmount",map.get("orderAmount").subtract(map.get("receiveAmount")));
+        map.put("nextMouthReceiveAmount",nextMouthReceiveAmount);
         response.setDone(true);
 
         return response;

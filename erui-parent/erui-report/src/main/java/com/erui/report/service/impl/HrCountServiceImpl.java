@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.HrCountExample;
 import org.aspectj.apache.bcel.generic.IF_ACMPEQ;
@@ -569,7 +570,8 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
                 response.pushFailItem(ExcelUploadTypeEnum.HR_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
-            if (true) {
+            // 在上周范围内则统计
+            if (NewDateUtil.inSaturdayWeek(hc.getCreateAt())) {
                 response.sumData(hc);
             }
             response.incrSuccess();

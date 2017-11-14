@@ -1,5 +1,6 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.MemberMapper;
@@ -122,7 +123,9 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
                 response.pushFailItem(ExcelUploadTypeEnum.MEMBER.getTable(), cellIndex, e.getMessage());
                 continue;
             }
-            response.sumData(member);
+            if (NewDateUtil.inSaturdayWeek(member.getInputDate())) {
+                response.sumData(member);
+            }
             response.incrSuccess();
         }
 

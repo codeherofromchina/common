@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.report.model.*;
 import com.sun.tools.internal.xjc.reader.dtd.bindinfo.BIElement;
 import org.apache.commons.lang3.StringUtils;
@@ -299,8 +300,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
-            // 根据日期判断是否需要统计TODO
-            if (true) {
+            // 根据日期判断是否需要统计
+            if (NewDateUtil.inSaturdayWeek(ic.getRollinTime())) {
                 sumDataMap.put("totalNum", sumDataMap.get("totalNum").add(BigDecimal.ONE)); // 询单总数量
                 BigDecimal quoteTotalPrice = ic.getQuoteTotalPrice();
                 if (quoteTotalPrice != null) {

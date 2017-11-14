@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.report.model.CateDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -401,8 +402,8 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
-            // 日期在统计范围内则统计 TODO
-            if (true) {
+            // 项目开始日期在统计范围内则统计
+            if (NewDateUtil.inSaturdayWeek(oc.getProjectStart())) {
                 orderCount++;
                 response.sumData(oc);
             }

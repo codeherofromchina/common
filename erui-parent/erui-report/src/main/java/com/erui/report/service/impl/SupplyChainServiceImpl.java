@@ -3,6 +3,7 @@ package com.erui.report.service.impl;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
@@ -109,7 +110,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             writeMapper.truncateTable();
         }
         for (int index = 0; index < size; index++) {
-            int cellIndex = index + 2;
+            int cellIndex = index + 2; // 数据从第二行开始
             String[] strArr = datas.get(index);
 
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.SUPPLY_CHAIN, response, cellIndex)) {
@@ -188,7 +189,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, e.getMessage());
                 continue;
             }
-            response.sumData(sc);
+            if (NewDateUtil.inSaturdayWeek(sc.getCreateAt())) {
+                response.sumData(sc);
+            }
             response.incrSuccess();
 
         }

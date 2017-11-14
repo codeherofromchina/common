@@ -203,7 +203,7 @@ public class ExcelController {
      * 导入excel数据
      *
      * @param request
-     * @param file    具体文件
+     * @param fileName    具体文件
      * @param type    参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
      * @return
      */
