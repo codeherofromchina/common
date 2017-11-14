@@ -21,6 +21,26 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> implements SupplyChainService {
     private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:53 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:53 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
 
     /**
      * @Author:SHIGS
@@ -29,12 +49,21 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
      * @modified By
      */
     @Override
-    public Map<String, Object> selectFinishByDate(int days, String type) {
-        Date startDate = DateUtil.recedeTime(days);
+    public Map<String, Object> selectFinishByDate(Date startTime, Date endTime, String type) {
+        int days = 0;
         SupplyChainExample supplyChainExample = new SupplyChainExample();
-        supplyChainExample.createCriteria().andCreateAtBetween(startDate, new Date());
-        List<Map> supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
-
+        supplyChainExample.setOrderByClause("create_at asc");
+        List<Map> supplyMap = null;
+        if (startTime != null && "".equals(startTime) && endTime != null && "".equals(endTime)) {
+            days = DateUtil.getDayBetween(startTime, endTime);
+            supplyChainExample.createCriteria().andCreateAtBetween(startTime, endTime);
+            supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
+        } else {
+            supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
+            startTime = (Date) supplyMap.get(0).get("create_at");
+            endTime = (Date) supplyMap.get(supplyMap.size() - 1).get("create_at");
+            days = DateUtil.getDayBetween(startTime, endTime);
+        }
         List<Integer> spuList = new ArrayList<>();
         List<Integer> skuList = new ArrayList<>();
         List<Integer> supplierList = new ArrayList<>();
@@ -42,7 +71,6 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         Map<String, Map<String, Integer>> sqlDate = new HashMap<>();
         Map<String, Integer> lintData = null;
         for (Map map2 : supplyMap) {
-
             BigDecimal spu = new BigDecimal(map2.get("finish_spu_num").toString());
             BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
             BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
@@ -65,7 +93,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             }
         }
         for (int i = 0; i < days; i++) {
-            Date datetime = DateUtil.recedeTime(days - (i + 1));
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             String date = DateUtil.format("MM月dd日", datetime);
             if (sqlDate.containsKey(date)) {
                 dateList.add(date);

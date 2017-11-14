@@ -2,12 +2,15 @@ package com.erui.report.dao;
 
 import com.erui.report.model.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
 public interface SupplyChainMapper {
+    Date selectStart();
+    Date selectEnd();
     List<Map> selectFinishByDate(SupplyChainExample supplyChainExample);
     int countByExample(SupplyChainExample example);
 

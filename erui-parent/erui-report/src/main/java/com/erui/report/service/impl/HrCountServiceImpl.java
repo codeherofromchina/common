@@ -27,6 +27,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
     private final static Logger logger = LoggerFactory.getLogger(HrCountServiceImpl.class);
     private DecimalFormat df = new DecimalFormat("0.0000");
 
+    @Override
+    public Date selectStart() {
+        return readMapper.selectStart();
+    }
+
+    @Override
+    public Date selectEnd() {
+        return readMapper.selectEnd();
+    }
+
     /**
      * @Author:SHIGS
      * @Description

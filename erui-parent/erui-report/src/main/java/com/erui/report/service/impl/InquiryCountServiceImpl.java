@@ -33,6 +33,26 @@ import com.erui.report.util.InquiryAreaVO;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:58 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:58 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
 
     // 根据时间统计询单单数
     @Override

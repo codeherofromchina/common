@@ -67,7 +67,7 @@ public class GeneralController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        int curMemberCount = memberService.selectByTime(startTime,endTime);
+        int curMemberCount = memberService.selectByTime(startTime, endTime);
         Map<String, Object> member = new HashMap<String, Object>();
         member.put("count", curMemberCount);
         // 当期询单数
@@ -143,7 +143,7 @@ public class GeneralController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        Map<String, Object> data = hrCountService.selectHrCount(startTime,endTime);
+        Map<String, Object> data = hrCountService.selectHrCount(startTime, endTime);
         Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
@@ -162,6 +162,7 @@ public class GeneralController {
         return result;
     }
 */
+
     /**
      * @Author:SHIGS
      * @Description 询订单趋势图
@@ -222,18 +223,28 @@ public class GeneralController {
     @RequestMapping(value = "supplyTrend", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public Object inquiryOrderTrend(@RequestBody Map<String, Object> map) throws Exception {
-        if (!map.containsKey("days") || !map.containsKey("type")) {
+        if (!map.containsKey("type")) {
             throw new MissingServletRequestParameterException("days", "String");
         }
-        //当前时期
-        int days = Integer.parseInt(map.get("days").toString());
-        Map<String, Object> supplyMap = supplyChainService.selectFinishByDate(days, map.get("type").toString());
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        Map<String, Object> supplyMap = supplyChainService.selectFinishByDate(startTime, endTime, map.get("type").toString());
         Result<Map<String, Object>> result = new Result<>(supplyMap);
         return result;
     }
 
     /**
      * 询订单分类 TOP N
+     *
      * @return
      */
     @RequestMapping("/inquiryOrderCategoryTopNum")
@@ -248,13 +259,13 @@ public class GeneralController {
         if (!map.containsKey("endTime")) {
             throw new MissingServletRequestParameterException("endTime", "String");
         }
-        Integer topN  = Integer.parseInt(map.get("topN").toString());
+        Integer topN = Integer.parseInt(map.get("topN").toString());
         //开始时间
         Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        List<CustomerCategoryNumVO> list = inquiryService.inquiryOrderCategoryTopNum(topN,startTime,endTime);
+        List<CustomerCategoryNumVO> list = inquiryService.inquiryOrderCategoryTopNum(topN, startTime, endTime);
         Result<List<CustomerCategoryNumVO>> result = new Result<List<CustomerCategoryNumVO>>(list);
         return result;
     }

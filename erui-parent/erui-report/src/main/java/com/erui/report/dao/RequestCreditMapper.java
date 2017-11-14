@@ -2,12 +2,18 @@ package com.erui.report.dao;
 
 import com.erui.report.model.RequestCredit;
 import com.erui.report.model.RequestCreditExample;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
 public interface RequestCreditMapper {
+    Date selectStart();
+
+    Date selectEnd();
+
     Map selectByAreaOrCountry(RequestCreditExample example);
     List<Map> selectCountry(RequestCreditExample example);
     List<Map> selectArea();

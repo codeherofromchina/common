@@ -21,6 +21,26 @@ import com.erui.report.util.ImportDataResponse;
 public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> implements RequestCreditService {
     private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
     private static final DecimalFormat df = new DecimalFormat("0.00");
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:17:11 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:17:11 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
 
     /**
      * @Author:SHIGS

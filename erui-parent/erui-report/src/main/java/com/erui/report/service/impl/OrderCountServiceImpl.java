@@ -24,7 +24,26 @@ import com.erui.report.util.CustomerNumSummaryVO;
 @Service
 public class OrderCountServiceImpl extends BaseService<OrderCountMapper> implements OrderCountService {
     private final static Logger logger = LoggerFactory.getLogger(OrderCountServiceImpl.class);
-
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:17:06 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:17:06 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
