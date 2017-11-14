@@ -65,6 +65,12 @@ public class NewDateUtil {
         return false;
     }
 
+    /**
+     * 给定日期是否在下个自然月内
+     *
+     * @param date
+     * @return
+     */
     public static boolean inNextMonth(Date date) {
         if (date != null) {
             Instant instant = date.toInstant();
@@ -90,10 +96,60 @@ public class NewDateUtil {
         return false;
     }
 
+    /**
+     * 获取环比(上环比或者下环比)日期
+     * 例如：给定 2017-12-03 、2017-12-05  -> 2017-12-07
+     * 例如：给定 2017-12-05 、2017-12-03  -> 2017-12-01
+     * 例如：给定 2017-12-01 、2017-12-02  -> 2017-12-03
+     * 例如：给定 2017-12-02 、2017-12-01  -> 2017-11-31
+     * 例如：给定 2017-12-01 、2017-12-01  -> 2017-12-01
+     * 例如：给定 2017-12-02 、null  -> null
+     * 例如：给定 null 、2017-12-01  -> null
+     * 例如：给定 null 、null  -> null
+     *
+     * @return date
+     */
+    public static Date getBeforeRateDate(Date startDate, Date endDate) {
+        if (startDate != null && endDate != null) {
+            ZoneId zoneId = ZoneId.systemDefault();
+            LocalDateTime startDateTime = startDate.toInstant().atZone(zoneId).toLocalDateTime();
+            LocalDateTime endDateTime = endDate.toInstant().atZone(zoneId).toLocalDateTime();
+
+            Duration duration = Duration.between(startDateTime, endDateTime);
+            long days = duration.toDays();
+            LocalDateTime result = endDateTime.plusDays(days);
+            return Date.from(result.atZone(zoneId).toInstant());
+        }
+
+        return null;
+    }
+
+
+    /**
+     * 在现有的时间上增加n天
+     *
+     * @param date
+     * @param days
+     * @return
+     */
+    public static Date plusDays(Date date, int days) {
+        if (date != null) {
+            Instant instant = date.toInstant();
+            ZoneId zoneId = ZoneId.systemDefault();
+            LocalDateTime dateTime = instant.atZone(zoneId).toLocalDateTime();
+            dateTime = dateTime.plusDays(days);
+            return Date.from(dateTime.atZone(zoneId).toInstant());
+        }
+        return null;
+    }
+
 
     public static void main(String[] args) throws ParseException {
-        boolean in = inSaturdayWeek(new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-10"));
-        System.out.println(in);
+        LocalTime localTime = LocalTime.of(12, 24, 32);
+        LocalTime localTime2 = LocalTime.of(11, 22, 0);
+
+        Duration dration = Duration.between(localTime2, localTime);
+        System.out.println(dration.toMinutes());
 
     }
 }

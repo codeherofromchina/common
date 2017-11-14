@@ -13,6 +13,7 @@ import com.erui.comm.util.data.string.StringUtils;
 public class DateUtil {
     public static final String FULL_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
     public static final String SHORT_FORMAT_STR = "yyyy-MM-dd";
+    public static final String SHORT_SLASH_FORMAT_STR = "yyyy/MM/dd";
 
     /**
      * <summary>
@@ -92,6 +93,24 @@ public class DateUtil {
             return parseStringToDate(dateStr, null);
         }
         throw new ParseException(org.apache.commons.lang3.StringUtils.join(formats, " ") + "中没有符合的转换格式", 1);
+    }
+
+
+    public static Date parseString2DateNoException(String dateStr, String... formats) {
+        try {
+            if (formats != null && formats.length > 0) {
+                for (String format : formats) {
+                    try {
+                        return parseStringToDate(dateStr, format);
+                    } catch (ParseException ex) {
+                    }
+                }
+            } else {
+                return parseStringToDate(dateStr, null);
+            }
+        } catch (Exception ex) {
+        }
+        return null;
     }
 
     /**
