@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.report.model.*;
+import com.sun.tools.internal.xjc.reader.dtd.bindinfo.BIElement;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
+import org.springframework.util.NumberUtils;
 
 /*
 * 客户中心-询单统计  服务实现类
@@ -97,8 +100,19 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (!testOnly) {
             writeMapper.truncateTable();
         }
+        // 用于计算询单导入时的统计数据
+        Map<String, BigDecimal> sumDataMap = new HashMap<>();
+        sumDataMap.put("totalNum", BigDecimal.ZERO); // 询单总数量
+        sumDataMap.put("totalAmount", BigDecimal.ZERO);// 询单总金额
+        sumDataMap.put("oilGasNum", BigDecimal.ZERO);// 油气数量
+        sumDataMap.put("nonOilGasNum", BigDecimal.ZERO);// 非油气数量
+        sumDataMap.put("nonQuoteNum", BigDecimal.ZERO);// 未报价询单数
+        sumDataMap.put("quoteingNum", BigDecimal.ZERO);// 报价中询单数
+        sumDataMap.put("quotedNum", BigDecimal.ZERO);// 已报价询单数
+        sumDataMap.put("cancelNum", BigDecimal.ZERO);// 取消询单数
+
         for (int index = 0; index < size; index++) {
-            int cellIndex = index + 2;
+            int cellIndex = index + 2; // excel的数据行从第二行开始
             String[] strArr = datas.get(index);
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.INQUIRY_COUNT, response, cellIndex)) {
                 continue;
@@ -306,8 +320,39 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            // 根据日期判断是否需要统计
+            if (NewDateUtil.inSaturdayWeek(ic.getRollinTime())) {
+                sumDataMap.put("totalNum", sumDataMap.get("totalNum").add(BigDecimal.ONE)); // 询单总数量
+                BigDecimal quoteTotalPrice = ic.getQuoteTotalPrice();
+                if (quoteTotalPrice != null) {
+                    sumDataMap.put("totalAmount", sumDataMap.get("totalAmount").add(quoteTotalPrice));// 询单总金额
+                }
+                switch (ic.getIsOilGas()) {
+                    case "油气":
+                        sumDataMap.put("oilGasNum", sumDataMap.get("oilGasNum").add(BigDecimal.ONE));// 油气数量
+                        break;
+                    default:
+                        sumDataMap.put("nonOilGasNum", sumDataMap.get("nonOilGasNum").add(BigDecimal.ONE));// 非油气数量
+                }
+
+                switch (ic.getQuotedStatus()) {
+                    case "已报价":
+                        sumDataMap.put("quotedNum", sumDataMap.get("quotedNum").add(BigDecimal.ONE));// 已报价询单数
+                        break;
+                    case "报价中":
+                        sumDataMap.put("quoteingNum", sumDataMap.get("quoteingNum").add(BigDecimal.ONE));// 报价中询单数
+                        break;
+                    default:
+                        sumDataMap.put("nonQuoteNum", sumDataMap.get("nonQuoteNum").add(BigDecimal.ONE));// 未报价询单数
+                }
+
+                if (!StringUtils.contains(ic.getIsSuccessOrder(), "成单")) {
+                    sumDataMap.put("cancelNum", sumDataMap.get("cancelNum").add(BigDecimal.ONE));// 取消询单数
+                }
+            }
             response.incrSuccess();
         }
+        response.setSumMap(sumDataMap);
         response.setDone(true);
 
         return response;

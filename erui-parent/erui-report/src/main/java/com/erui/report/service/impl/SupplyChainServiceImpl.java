@@ -3,6 +3,7 @@ package com.erui.report.service.impl;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
@@ -128,14 +129,16 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"planSkuNum", "finishSkuNum", "planSpuNum",
+                        "finishSpuNum", "planSuppliNum", "finishSuppliNum"});
         int size = datas.size();
         SupplyChain sc = null;
         if (!testOnly) {
             writeMapper.truncateTable();
         }
         for (int index = 0; index < size; index++) {
-            int cellIndex = index + 2;
+            int cellIndex = index + 2; // 数据从第二行开始
             String[] strArr = datas.get(index);
 
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.SUPPLY_CHAIN, response, cellIndex)) {
@@ -213,6 +216,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, e.getMessage());
                 continue;
+            }
+            if (NewDateUtil.inSaturdayWeek(sc.getCreateAt())) {
+                response.sumData(sc);
             }
             response.incrSuccess();
 

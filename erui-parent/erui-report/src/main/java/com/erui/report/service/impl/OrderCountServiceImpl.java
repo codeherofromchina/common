@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.report.model.CateDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -47,14 +48,16 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
         int size = datas.size();
         OrderCount oc = null;
         if (!testOnly) {
             writeMapper.truncateTable();
         }
+        // 订单总数量
+        int orderCount = 0;
         for (int index = 0; index < size; index++) {
-            int cellIndex = index + 2;
+            int cellIndex = index + 2; // 数据从第二行开始
             String[] strArr = datas.get(index);
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_COUNT, response, cellIndex)) {
                 continue;
@@ -418,8 +421,14 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            // 项目开始日期在统计范围内则统计
+            if (NewDateUtil.inSaturdayWeek(oc.getProjectStart())) {
+                orderCount++;
+                response.sumData(oc);
+            }
             response.incrSuccess();
         }
+        response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
 
         return response;
