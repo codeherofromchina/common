@@ -220,39 +220,11 @@ public class ExcelController {
         if (typeEnum == null) {
             return result.setStatus(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
         }
-
-<<<<<<< HEAD
-	/**
-	 * 导入excel数据
-	 *
-	 * @param request
-	 * @param file
-	 *            具体文件
-	 * @param type
-	 *            参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
-	 * @return
-	 */
-	@RequestMapping(value = "/import", method = RequestMethod.POST)
-	@ResponseBody
-	public Object updateExcel(HttpServletRequest request,
-			@RequestParam(value = "fileName", required = true) String fileName,
-			@RequestParam(value = "type", required = true) Integer type) {
-		Result<Object> result = new Result<Object>();
-		
-		
-		// 判断上传的业务文件类型
-		ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
-		if (typeEnum == null) {
-			return result.setStatus(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
-		}
-=======
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
         File file = new File(realPath, fileName);
         if (file.exists() && file.isFile()) {
             logger.info(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName, type));
             System.out.println(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName, type));
->>>>>>> ba75f28a594174751db4f27c6579f1de9fe8c01a
-
             ExcelReader excelReader = new ExcelReader();
             try {
                 List<String[]> excelContent = excelReader.readExcel(file);

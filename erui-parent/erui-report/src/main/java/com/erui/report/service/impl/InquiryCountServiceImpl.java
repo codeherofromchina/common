@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.report.model.*;
-import com.sun.tools.internal.xjc.reader.dtd.bindinfo.BIElement;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
