@@ -277,7 +277,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
     // 供应链趋势图
     @Override
-    public SupplyTrendVo supplyTrend(Date startTime,Date endTime, int type) {
+    public SupplyTrendVo supplyTrend(Date startTime,Date endTime, String type) {
         int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();

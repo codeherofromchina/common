@@ -72,7 +72,7 @@ public interface SupplyChainService {
 	 * @param type
 	 * @return
 	 */
-	SupplyTrendVo supplyTrend(Date startTime,Date endTime,int type);
+	SupplyTrendVo supplyTrend(Date startTime,Date endTime,String type);
 	/**
 	 *
 	 * 品类部列表
