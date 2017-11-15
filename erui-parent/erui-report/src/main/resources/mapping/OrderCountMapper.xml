@@ -205,17 +205,18 @@
   </select>
   <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
     SELECT
-    IFNULL(SUM(IFNULL(order_count,0.0)),0.0) AS orderCount,
+    COUNT(1) AS orderCount,
     pro_category
     FROM
     order_count
-    WHERE
-    <if test="startTime != null" >
-      1=1 and project_start >= #{startTime}
-    </if>
-    <if test="endTime != null " >
-      and project_start &lt;= #{endTime}
-    </if>
+    <where>
+      <if test="startTime != null" >
+         and project_start >= #{startTime}
+      </if>
+      <if test="endTime != null " >
+        and project_start &lt;= #{endTime}
+      </if>
+    </where>
     group by pro_category  ORDER BY orderCount DESC LIMIT 0,3;
 
   </select>
@@ -252,6 +253,17 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+  </select>
+
+
+  <!-- 按条件统计事业部的订单数量和金额 -->
+  <select id="findCountAndAmountByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT organization,count(1) as totalNum,sum(IFNULL(project_account,0)) as totalAmount
+    FROM erui_report.order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    group by organization
   </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
