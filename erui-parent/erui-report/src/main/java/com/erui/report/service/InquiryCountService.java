@@ -15,6 +15,20 @@ import com.erui.report.util.CustomerNumSummaryVO;
 * 询单统计
 * */
 public interface InquiryCountService {
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:57 2017/11/14
+	  * @modified By
+	  */
+	Date selectStart();
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:57 2017/11/14
+	  * @modified By
+	  */
+	Date selectEnd();
 
     /*
     * 查询询单单数
@@ -89,7 +103,7 @@ public interface InquiryCountService {
 	 * @param platCategory	指定分类
 	 * @return
 	 */
-	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN,String ...platCategory);
+	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
 
 	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
 

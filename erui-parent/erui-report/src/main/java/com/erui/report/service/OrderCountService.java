@@ -10,6 +10,20 @@ import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.CustomerNumSummaryVO;
 
 public interface OrderCountService {
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:17:05 2017/11/14
+	  * @modified By
+	  */
+	Date selectStart();
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:17:05 2017/11/14
+	  * @modified By
+	  */
+	Date selectEnd();
 	/**
 	 * 导入客户中心-订单数据
 	 * @param datas
