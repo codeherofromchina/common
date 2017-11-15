@@ -167,7 +167,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             }
         }
         for (int i = 0; i < days ; i++) {
-            Date datetime = DateUtil.recedeTime(days - i );
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             String date = DateUtil.format("MM月dd日", datetime);
             if (sqlDate02.containsKey(date)) {
                 dateList.add(date);
@@ -223,7 +223,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 requestByAreaAndCountry.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country).andBackDateBetween(startDate, endDate);
                 return this.readMapper.selectRequestTotal(requestByAreaAndCountry);
             }
-        }else {
+        } else {
             RequestCreditExample Requestcriteria = new RequestCreditExample();
             Requestcriteria.createCriteria().andBackDateBetween(startDate, endDate);
             return this.readMapper.selectRequestTotal(Requestcriteria);
