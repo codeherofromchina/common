@@ -22,22 +22,24 @@ import com.erui.report.util.ImportDataResponse;
 public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> implements RequestCreditService {
     private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
     private static final DecimalFormat df = new DecimalFormat("0.00");
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:17:11 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:17:11 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectStart() {
         return this.readMapper.selectStart();
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:17:11 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:17:11 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectEnd() {
         return this.readMapper.selectEnd();
@@ -86,11 +88,11 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
      * @modified By
      */
     @Override
-    public Map<String, Object> selectRequestTrend(int days, String receiveName) {
-        Date startDate = DateUtil.recedeTime(days);
+    public Map<String, Object> selectRequestTrend(Date startTime, Date endTime, String receiveName) {
         Date nextTime = DateUtil.recedeTime(-30);
+        int days = DateUtil.getDayBetween(startTime, endTime);
         List<Map> nextMap = null;
-        if (!startDate.equals("")) {
+        if (!startTime.equals("")) {
             RequestCreditExample nextCreditExample = new RequestCreditExample();
             nextCreditExample.createCriteria().andBackDateBetween(new Date(), nextTime);
             nextMap = readMapper.selectRequestTrend(nextCreditExample);
@@ -106,7 +108,6 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Map<String, Double> linkData = null;
         //遍历下月应收
         for (Map map3 : nextMap) {
-
             BigDecimal nextReceivable = new BigDecimal(map3.get("order_amount").toString());
             Date date2 = (Date) map3.get("back_date");
             String dateString = DateUtil.format("MM月dd日", date2);
@@ -133,8 +134,13 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             }
         }
         RequestCreditExample requestCreditExample = new RequestCreditExample();
-        requestCreditExample.createCriteria().andCreateAtBetween(startDate, new Date());
-        List<Map> requestMap = readMapper.selectRequestTrend(requestCreditExample);
+        List<Map> requestMap = null;
+        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+            requestCreditExample.createCriteria().andCreateAtBetween(startTime, endTime);
+            requestMap = readMapper.selectRequestTrend(requestCreditExample);
+        } else {
+            requestMap = readMapper.selectRequestTrend(requestCreditExample);
+        }
         //应收，已收，未收
         for (Map map2 : requestMap) {
 
@@ -160,8 +166,8 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 sqlDate02.put(dateString, linkData);
             }
         }
-        for (int i = 0; i < days; i++) {
-            Date datetime = DateUtil.recedeTime(days - (i + 1));
+        for (int i = 0; i < days ; i++) {
+            Date datetime = DateUtil.recedeTime(days - i );
             String date = DateUtil.format("MM月dd日", datetime);
             if (sqlDate02.containsKey(date)) {
                 dateList.add(date);
@@ -207,16 +213,20 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     @Override
     public Map<String, Object> selectRequestNext(Date startDate, Date endDate, String area, String country) {
         RequestCreditExample requestCreditExample = null;
-        if (!"".equals(startDate) && !"".equals(endDate)) {
+        if (!"".equals(startDate) && !"".equals(endDate) && !"".equals(area)) {
             if ("".equals(country) || country == null) {
                 RequestCreditExample requestByCountry = new RequestCreditExample();
                 requestByCountry.createCriteria().andSalesAreaEqualTo(area).andBackDateBetween(startDate, endDate);
                 return this.readMapper.selectRequestTotal(requestByCountry);
-            } else if (!"".equals(area) && !"".equals(country)) {
+            } else if (!"".equals(area) && area != null && !"".equals(country) && country != null) {
                 RequestCreditExample requestByAreaAndCountry = new RequestCreditExample();
                 requestByAreaAndCountry.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country).andBackDateBetween(startDate, endDate);
                 return this.readMapper.selectRequestTotal(requestByAreaAndCountry);
             }
+        }else {
+            RequestCreditExample Requestcriteria = new RequestCreditExample();
+            Requestcriteria.createCriteria().andBackDateBetween(startDate, endDate);
+            return this.readMapper.selectRequestTotal(Requestcriteria);
         }
         return this.readMapper.selectRequestTotal(requestCreditExample);
     }
@@ -286,7 +296,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         // 应收账款金额 - orderAmount、 应收未收金额 - receiveAmount
-        ImportDataResponse response = new ImportDataResponse(new String[]{"orderAmount","receiveAmount"});
+        ImportDataResponse response = new ImportDataResponse(new String[]{"orderAmount", "receiveAmount"});
         int size = datas.size();
         RequestCredit rc = null;
         if (!testOnly) {
@@ -371,9 +381,9 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
         }
         // 计算应收已收金额，放置到键 hasReceivedAmount 中
-        Map<String,BigDecimal> map = response.getSumMap();
-        map.put("hasReceivedAmount",map.get("orderAmount").subtract(map.get("receiveAmount")));
-        map.put("nextMouthReceiveAmount",nextMouthReceiveAmount);
+        Map<String, BigDecimal> map = response.getSumMap();
+        map.put("hasReceivedAmount", map.get("orderAmount").subtract(map.get("receiveAmount")));
+        map.put("nextMouthReceiveAmount", nextMouthReceiveAmount);
         response.setDone(true);
 
         return response;

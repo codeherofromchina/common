@@ -49,13 +49,13 @@ public class TotalTimeController {
         Date supplyEndTime = supplyChainService.selectEnd();
         Date totalStartTime = DateUtil.minTime(hrStartTime, inquiryStartTime, orderStartTime, requestStartTime, supplyStartTime);
         Date totalEndTime = DateUtil.maxTime(hrEndTime, inquiryEndTime, orderEndTime, requestEndTime, supplyEndTime);
+        Date customStartTime = DateUtil.minTime(inquiryStartTime,orderStartTime);
+        Date customEndTime = DateUtil.maxTime(inquiryEndTime,inquiryEndTime);
         Map<String, Object> data = new HashMap<>();
         data.put("hrStartTime", DateUtil.formatDate2String(hrStartTime,"yyyy/MM/dd"));
         data.put("hrEndTime", DateUtil.formatDate2String(hrEndTime,"yyyy/MM/dd"));
-        data.put("inquiryStartTime", DateUtil.formatDate2String(inquiryStartTime,"yyyy/MM/dd"));
-        data.put("inquiryEndTime", DateUtil.formatDate2String(inquiryEndTime,"yyyy/MM/dd"));
-        data.put("orderStartTime", DateUtil.formatDate2String(orderStartTime,"yyyy/MM/dd"));
-        data.put("orderEndTime", DateUtil.formatDate2String(orderEndTime,"yyyy/MM/dd"));
+        data.put("customStartTime", DateUtil.formatDate2String(customStartTime,"yyyy/MM/dd"));
+        data.put("customEndTime", DateUtil.formatDate2String(customEndTime,"yyyy/MM/dd"));
         data.put("requestStartTime", DateUtil.formatDate2String(requestStartTime,"yyyy/MM/dd"));
         data.put("requestEndTime", DateUtil.formatDate2String(requestEndTime,"yyyy/MM/dd"));
         data.put("supplyStartTime", DateUtil.formatDate2String(supplyStartTime,"yyyy/MM/dd"));
