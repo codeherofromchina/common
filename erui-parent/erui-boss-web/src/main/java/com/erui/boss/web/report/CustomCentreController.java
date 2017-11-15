@@ -5,8 +5,11 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.report.util.CustomerCategoryNumVO;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,109 +38,73 @@ public class CustomCentreController {
     private OrderCountService orderService;
     private static DecimalFormat df = new DecimalFormat("0.00");
 
+
     /*
     * 询单总览
     * */
     @ResponseBody
     @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object inquiryPandect(@RequestBody(required = true) Map<String, Object> reqMap) {
-        Result<Object> result = new Result<>();
-        if (!reqMap.containsKey("days")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            result.setData("参数输入有误");
-            return result;
+    public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //当前时期
-        int days = Integer.parseInt(reqMap.get("days").toString());
-        Date startTime = DateUtil.recedeTime(days);
-        Date chainDate = DateUtil.recedeTime(days * 2);//环比起始时间
-        Map<String, Object> Datas = new HashMap<String, Object>();//询单统计信息
-        Map<String, Object> inquiryMap = new HashMap<String, Object>();//询单统计信息
-        Map<String, Object> proIsOilMap = new HashMap<String, Object>();//油气产品分析
-        List<Map<String, Object>> listTop3 = new ArrayList<>();
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+        // 获取需要环比的开始时间
+        Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
 
-        //当期询单数
-        int count = inquiryService.inquiryCountByTime(startTime, new Date(), null, 0, 0, "", "");
-        //当期询单金额
-        double amount = inquiryService.inquiryAmountByTime(startTime, new Date(), "");
-        //当期询单数环比chain
-        int chainCount = inquiryService.inquiryCountByTime(chainDate, startTime, null, 0, 0, "", "");
-        int chain = count - chainCount;
-        double chainRate = 0.0;
+        //当期询单数量和金额
+        int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
+        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "");
+        // 上期询单数量
+        int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, null, 0, 0, "", "");
+        Integer chain = count - chainCount;
+        Double chainRate = null;
         if (chainCount > 0) {
             chainRate = RateUtil.intChainRate(chain, chainCount);//环比
         }
+        // 询单数据修改
+        Map<String, Object> inquiryMap = new HashMap<String, Object>();//询单统计信息
         inquiryMap.put("count", count);
         inquiryMap.put("amount", df.format(amount / 10000) + "万$");
         inquiryMap.put("chainAdd", chain);
         inquiryMap.put("chainRate", chainRate);
 
-
         //油气产品统计
-        CustomerNumSummaryVO custSummaryVO = inquiryService.selectNumSummaryByExample(startTime, new Date());
-        CustomerNumSummaryVO custSummaryVO2 = inquiryService.selectNumSummaryByExample(chainDate, startTime);
+        CustomerNumSummaryVO custSummaryVO = inquiryService.selectNumSummaryByExample(startDate, endDate);
+        CustomerNumSummaryVO custSummaryVO2 = inquiryService.selectNumSummaryByExample(rateStartDate, startDate);
+        Map<String, Object> proIsOilMap = new HashMap<String, Object>();//油气产品分析
         if (custSummaryVO != null && custSummaryVO.getTotal() > 0) {
             proIsOilMap.put("oil", custSummaryVO.getOil());
             proIsOilMap.put("notOil", custSummaryVO.getNonoil());
             proIsOilMap.put("oiProportionl", RateUtil.intChainRate(custSummaryVO.getOil(), custSummaryVO.getTotal()));
-            if (custSummaryVO2.getOil() > 0) {
-                proIsOilMap.put("chainRate", RateUtil.intChainRate(custSummaryVO.getOil() - custSummaryVO2.getOil(), custSummaryVO2.getOil()));
-            } else {
-                proIsOilMap.put("chainRate", 0);
-            }
+            proIsOilMap.put("chainRate", RateUtil.intChainRate(custSummaryVO.getOil() - custSummaryVO2.getOil(), custSummaryVO2.getOil()));
         } else {
             proIsOilMap.put("oil", 0);
             proIsOilMap.put("notOil", 0);
             proIsOilMap.put("oiProportionl", 0.00);
             proIsOilMap.put("chainRate", 0.00);
         }
-        //top3统计
-        Map<String, Object> params = new HashMap<>();
-        params.put("startTime", DateUtil.recedeTime(days));
-        params.put("endTime", new Date());
-        List<Map<String, Object>> list = inquiryService.selectProTop3(params);
-        Map<String, Object> top3TotalMap = inquiryService.selectProTop3Total(startTime, new Date());
-        BigDecimal top3Total = null;
-        if (!top3TotalMap.containsKey("proCountTotal")) {
-            top3TotalMap.put("proCountTotal", 0);
-        } else {
-            top3Total = new BigDecimal(top3TotalMap.get("proCountTotal").toString());
-        }
 
-        if (list != null && list.size() > 0) {
-            for (int i = 0; i < list.size(); i++) {
-                Map<String, Object> top3 = list.get(i);
-                if (top3 == null) {
-                    top3 = new HashMap<>();
-                }
-                BigDecimal s = null;
-                String proCategory = null;
-                if (!top3.containsKey("proCategory")) {
-                    continue;
-                }
-                if (!top3.containsKey("proCount")) {
-                    top3.put("proCount", 0);
-                } else {
-                    s = new BigDecimal(top3.get("proCount").toString());
-                }
-                int top3Count = s.intValue();
-                int totalC = top3Total.intValue();
-                if (StringUtils.isNoneBlank(proCategory)) {
-                    int proTotal = inquiryService.selectProCountByExample(startTime, new Date(), "", "");
-                    if (proTotal > 0) {
-                        totalC = proTotal;
-                    }
-                }
-                top3.put("proProportionl", RateUtil.intChainRate(top3Count, totalC));
-                // proTop3Map.put("top"+(i+1),top3);
-                listTop3.add(top3);
-            }
-        }
+        // 询单Top 3 产品分类
+        Map<String, Object> map = new HashMap<>();
+        map.put("startTime", startDate);
+        map.put("endTime", endDate);
+        List<Map<String, Object>> listTop3 = inquiryService.selectProTop3(map);
 
-        Datas.put("inquiry", inquiryMap);
-        Datas.put("isOil", proIsOilMap);
-        Datas.put("proTop3", listTop3);
-        return result.setData(Datas);
+        listTop3.parallelStream().forEach(m -> {
+            BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
+            m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
+        });
+
+
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("inquiry", inquiryMap);
+        datas.put("isOil", proIsOilMap);
+        datas.put("proTop3", listTop3);
+        return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
     }
 
 
@@ -146,40 +113,37 @@ public class CustomCentreController {
      */
     @ResponseBody
     @RequestMapping(value = "/orderPandect", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object orderPandect(@RequestBody(required = true) Map<String, Object> reqMap) {
-        Result<Object> result = new Result<>();
-        if (!reqMap.containsKey("days")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            result.setData("参数输入有误");
-            return result;
+    public Object orderPandect(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        // 当前时期
-        int days = Integer.parseInt(reqMap.get("days").toString());
-        Date startTime = DateUtil.recedeTime(days);
-        Date chainDate = DateUtil.recedeTime(days * 2);// 环比起始时间
-        Map<String, Object> Datas = new HashMap<String, Object>();// 订单统计信息
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+        // 获取需要环比的开始时间
+        Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
 
-        // 当期订单数
-        int count = orderService.orderCountByTime(startTime, new Date(), "", "", "");
-        // 当期询单金额
-        double amount = orderService.orderAmountByTime(startTime, new Date(), "");
-        // 上期订单数
-        int chainCount = orderService.orderCountByTime(chainDate, startTime, "", "", "");
-        double chainRate = 0.00;
+        // 当期订单数量和金额
+        int count = orderService.orderCountByTime(startDate, endDate, "", "", "");
+        double amount = orderService.orderAmountByTime(startDate, endDate, "");
+        // 上期订单数量
+        int chainCount = orderService.orderCountByTime(rateStartDate, startDate, "", "", "");
+        Double chainRate = null;
         if (chainCount > 0) {
             chainRate = RateUtil.intChainRate(count - chainCount, chainCount);
         }
-        Map<String, Object> orderMap = new HashMap<String, Object>();// 询单统计信息
+        Map<String, Object> orderMap = new HashMap<String, Object>();// 订单统计信息
         orderMap.put("count", count);
         orderMap.put("amount", df.format(amount / 10000) + "万$");
         orderMap.put("chainAdd", count - chainCount);
         orderMap.put("chainRate", chainRate);
 
         // 利润率
-        Double profit = orderService.selectProfitRate(startTime, new Date());
-        Double chainProfit = orderService.selectProfitRate(chainDate, startTime);
+        Double profit = orderService.selectProfitRate(startDate, endDate);
+        Double chainProfit = orderService.selectProfitRate(rateStartDate, startDate);
         double profitRate = 0.00;
-        double chainProfitRate = 0.00;
+        Double chainProfitRate = null;
         if (profit != null) {
             profitRate = RateUtil.doubleChainRate(profit, 1);
         }
@@ -189,12 +153,13 @@ public class CustomCentreController {
         Map<String, Object> profitMap = new HashMap<String, Object>();
         profitMap.put("profitRate", profitRate);
         profitMap.put("chainRate", chainProfitRate);
+
         // 成单率
         double successOrderRate = 0.00;
         double successOrderChian = 0.00;// 环比
-        int successOrderCount = orderService.orderCountByTime(startTime, new Date(), "正常完成", "", "");
-        int successInquiryCount = inquiryService.inquiryCountByTime(startTime, new Date(), "已报价", 0, 0, "", "");
-        int successOrderChianCount = orderService.orderCountByTime(chainDate, startTime, "正常完成", "", "");
+        int successOrderCount = orderService.orderCountByTime(startDate, endDate, "正常完成", "", "");
+        int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate, "已报价", 0, 0, "", "");
+        int successOrderChianCount = orderService.orderCountByTime(rateStartDate, startDate, "正常完成", "", "");
         if (successInquiryCount > 0) {
             successOrderRate = RateUtil.intChainRate(successOrderCount, successInquiryCount);
         }
@@ -205,149 +170,193 @@ public class CustomCentreController {
         Map<String, Object> sucessOrderMap = new HashMap<String, Object>();
         sucessOrderMap.put("successOrderRate", successOrderRate);
         sucessOrderMap.put("successOrderChian", successOrderChian);
+
         // top3
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("startTime", startTime);
-        params.put("endTime", new Date());
-        int proTotalCount = orderService.selectProCountByExample();
-        List<Map<String, Object>> list = orderService.selectOrderProTop3(params);
-        Map<String, Object> proTop3Map = new HashMap<String, Object>();
-        double topProportion = 0.0;
-        if (list != null && list.size() > 0) {
-            for (int i = 0; i < list.size(); i++) {
-                Map<String, Object> top3 = list.get(i);
-                BigDecimal s = new BigDecimal(top3.get("orderCount").toString());
-                int top3Count = s.intValue();
-                if (proTotalCount > 0) {
-                    topProportion = RateUtil.intChainRate(top3Count, proTotalCount);
-                }
-                top3.put("topProportion", topProportion);
-                proTop3Map.put("top" + (i + 1), top3);
-            }
-        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("startTime", startDate);
+        map.put("endTime", endDate);
+        List<Map<String, Object>> proTop3 = orderService.selectOrderProTop3(map);
+        proTop3.parallelStream().forEach(m -> {
+            BigDecimal s = new BigDecimal(String.valueOf(m.get("orderCount")));
+            m.put("topProportion", RateUtil.intChainRate(s.intValue(), count));
+        });
 
         // 组装数据
-        Datas.put("order", orderMap);
-        Datas.put("profitRate", profitMap);
-        Datas.put("sucessOrderMap", sucessOrderMap);
-        Datas.put("top3", proTop3Map);
+        Map<String, Object> datas = new HashMap<String, Object>();// 订单统计信息
+        datas.put("order", orderMap);
+        datas.put("profitRate", profitMap);
+        datas.put("sucessOrderMap", sucessOrderMap);
+        datas.put("top3", proTop3);
 
-        result.setData(Datas);
-        return result;
+        return new Result<>().setData(datas);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/inquiryDetail")
-    public Object inquiryDetail() {
-        Map<String, Object> result = new HashMap<String, Object>();
-        Date startTime = DateUtil.recedeTime(7);
-        int quotedCount = inquiryService.inquiryCountByTime(startTime, new Date(), "已报价", 0, 0, "", "");
-        int noQuoteCount = inquiryService.inquiryCountByTime(startTime, new Date(), "未报价", 0, 0, "", "");
-        int quotingCount = inquiryService.inquiryCountByTime(startTime, new Date(), "报价中", 0, 0, "", "");
-        int totalCount = quotedCount + noQuoteCount + quotingCount;
-        double quotedInquiryRate = 0.00;
-        double quotingInquiryRate = 0.00;
-        double noQuoteInquiryRate = 0.00;
+    @RequestMapping(value = "/inquiryDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
+    public Object inquiryDetail(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+
+
+        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate, "已报价", 0, 0, "", "");
+        int noQuoteCount = inquiryService.inquiryCountByTime(startDate, endDate, "未报价", 0, 0, "", "");
+        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate, "报价中", 0, 0, "", "");
+        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate, "询单取消", 0, 0, "", "");
+        int totalCount = quotedCount + noQuoteCount + quotingCount + cancelCount;
+        Double quotedInquiryRate = null;
+        Double quotingInquiryRate = null;
+        Double noQuoteInquiryRate = null;
+        Double cancelInquiryRate = null;
         if (totalCount > 0) {
             quotedInquiryRate = RateUtil.intChainRate(quotedCount, totalCount);
             quotingInquiryRate = RateUtil.intChainRate(quotingCount, totalCount);
             noQuoteInquiryRate = RateUtil.intChainRate(noQuoteCount, totalCount);
+            cancelInquiryRate = RateUtil.intChainRate(cancelCount, totalCount);
         }
         HashMap<String, Object> inquiryDetailMap = new HashMap<>();
         inquiryDetailMap.put("quotedCount", quotedCount);
         inquiryDetailMap.put("noQuoteCount", noQuoteCount);
         inquiryDetailMap.put("quotingCount", quotingCount);
+        inquiryDetailMap.put("cancelCount", cancelCount);
         inquiryDetailMap.put("quotedInquiryRate", quotedInquiryRate);
         inquiryDetailMap.put("quotingInquiryRate", quotingInquiryRate);
         inquiryDetailMap.put("noQuoteInquiryRate", noQuoteInquiryRate);
+        inquiryDetailMap.put("cancelInquiryRate", cancelInquiryRate);
 
-        result.put("code", 200);
-        result.put("data", inquiryDetailMap);
-        return result;
+        return new Result<>(inquiryDetailMap);
     }
 
     // 询单时间分布分析
     @ResponseBody
     @RequestMapping(value = "/inquiryTimeDistrbute", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object inquiryTimeDistrbute(@RequestBody(required = true) Map<String, Object> reqMap) {
-        Result<Object> result = new Result<>();
-        if (!reqMap.containsKey("days")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            result.setData("参数输入有误");
-            return result;
+    public Object inquiryTimeDistrbute(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        // 当前时期
-        int days = Integer.parseInt(reqMap.get("days").toString());
-        Date startTime = DateUtil.recedeTime(days);
-        int totalCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
-        int count1 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 4, "", "");
-        int count2 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 4, 8, "", "");
-        int count3 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 8, 24, "", "");
-        int count5 = inquiryService.inquiryCountByTime(startTime, new Date(), "", 24, 48, "", "");
-        int otherCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 48, 1000, "", "");
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+
+        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate, "", 0, 0, "", "");
+        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, "", 0, 4, "", "");
+        int count2 = inquiryService.inquiryCountByTime(startDate, endDate, "", 4, 8, "", "");
+        int count3 = inquiryService.inquiryCountByTime(startDate, endDate, "", 8, 24, "", "");
+        int count5 = inquiryService.inquiryCountByTime(startDate, endDate, "", 24, 48, "", "");
+        int otherCount = inquiryService.inquiryCountByTime(startDate, endDate, "", 48, 1000, "", "");
         HashMap<String, Object> quoteTimeMap = new HashMap<>();
         quoteTimeMap.put("oneCount", count1);
         quoteTimeMap.put("fourCount", count2);
         quoteTimeMap.put("eightCount", count3);
         quoteTimeMap.put("twentyFourCount", count5);
         quoteTimeMap.put("otherCount", otherCount);
+        Double oneCountRate = null;
+        Double fourCountRate = null;
+        Double eightCountRate = null;
+        Double twentyFourCountRate = null;
+        Double otherCountRate = null;
         if (totalCount > 0) {
-            double oneCountRate = RateUtil.intChainRate(count1, totalCount);
-            double fourCountRate = RateUtil.intChainRate(count2, totalCount);
-            double eightCountRate = RateUtil.intChainRate(count3, totalCount);
-            double twentyFourCountRate = RateUtil.intChainRate(count5, totalCount);
-            quoteTimeMap.put("oneCountRate", oneCountRate);
-            quoteTimeMap.put("fourCountRate", fourCountRate);
-            quoteTimeMap.put("eightCountRate", eightCountRate);
-            quoteTimeMap.put("twentyFourCountRate", twentyFourCountRate);
-            quoteTimeMap.put("otherCountRate", 1 - (oneCountRate + fourCountRate + eightCountRate + twentyFourCountRate));
-        } else {
-            quoteTimeMap.put("oneCountRate", 0.00);
-            quoteTimeMap.put("fourCountRate", 0.00);
-            quoteTimeMap.put("eightCountRate", 0.00);
-            quoteTimeMap.put("twentyFourCountRate", 0.00);
-            quoteTimeMap.put("otherCountRate", 0.00);
+            oneCountRate = RateUtil.intChainRate(count1, totalCount);
+            fourCountRate = RateUtil.intChainRate(count2, totalCount);
+            eightCountRate = RateUtil.intChainRate(count3, totalCount);
+            twentyFourCountRate = RateUtil.intChainRate(count5, totalCount);
+            otherCountRate = RateUtil.intChainRate(otherCount, totalCount);
         }
-        result.setStatus(ResultStatusEnum.SUCCESS);
-        result.setData(quoteTimeMap);
-        return result;
+        quoteTimeMap.put("oneCountRate", oneCountRate);
+        quoteTimeMap.put("fourCountRate", fourCountRate);
+        quoteTimeMap.put("eightCountRate", eightCountRate);
+        quoteTimeMap.put("twentyFourCountRate", twentyFourCountRate);
+        quoteTimeMap.put("otherCountRate", otherCountRate);
+
+        return new Result<>(quoteTimeMap);
     }
+
 
     // 事业部明细
     @ResponseBody
     @RequestMapping(value = "/busUnitDetail", method = RequestMethod.POST)
-    public Object busUnitDetail() {
-        HashMap<String, Object> result = new HashMap<>();// 结果集
-        HashMap<String, Object> data = new HashMap<>();// 数据集
-        Date startTime = DateUtil.recedeTime(7);
-        // 事业部列表
-        List<String> orgList = inquiryService.selectOrgList();
-        String[] orgs = new String[orgList.size()];
-        Integer[] inqCounts = new Integer[orgList.size()];
-        Integer[] ordCounts = new Integer[orgList.size()];
-        Double[] successOrdCounts = new Double[orgList.size()];
-        for (int i = 0; i < orgList.size(); i++) {
-            int inqCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, orgList.get(i), "");
-            int ordCount = orderService.orderCountByTime(startTime, new Date(), "", orgList.get(i), "");
-            int successInqCount = inquiryService.inquiryCountByTime(startTime, new Date(), "已报价", 0, 0, orgList.get(i), "");
-            int successOrdCount = orderService.orderCountByTime(startTime, new Date(), "正常完成", orgList.get(i), "");
-            inqCounts[i] = inqCount;
-            ordCounts[i] = ordCount;
-            double successRate = 0.0;
-            if (successInqCount > 0) {
-                successRate = RateUtil.intChainRateTwo(successOrdCount, successInqCount);
-            }
-            successOrdCounts[i] = successRate;
-            orgs[i] = orgList.get(i);
+    public Object busUnitDetail(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        data.put("busUnit", orgs);
-        data.put("inquiryCount", inqCounts);
-        data.put("orderCount", ordCounts);
-        data.put("seccessOrderCount", successOrdCounts);
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
-        result.put("code", 200);
-        result.put("data", data);
-        return result;
+        ///查询给定时间的事业部询单数量和平均响应时间
+        List<Map<String, Object>> inquiryList = inquiryService.findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(startDate, endDate);
+        // 查询给定时间段的事业部订单数量和金额
+        List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
+
+        // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
+        Set<String> organizations = new HashSet<>();
+        Map<String,Map<String,Object>> inquirySet = new HashedMap();
+        int inquiryCount = 0;
+        Map<String,Map<String,Object>> orderSet = new HashedMap();
+        int orderCount = 0;
+
+        // 事业部询单占比饼图数据组合
+        List<Map<String, Object>> inquiryPie = new ArrayList<>();
+        inquiryList.stream().forEach(m -> {
+            String organization = String.valueOf(m.get("organization"));
+            Map<String, Object> mmm = new HashedMap();
+            mmm.put("name", organization);
+            mmm.put("value", m.get("total"));
+            inquiryPie.add(mmm);
+
+            organizations.add(organization);
+
+            inquirySet.put(organization,m);
+        });
+
+        // 事业部订单占比饼图数据组合
+        List<Map<String, Object>> orderPie = new ArrayList<>();
+        //事业部成单金额占比数据组合
+        List<Map<String, Object>> orderAmountPie = new ArrayList<>();
+
+        orderList.stream().forEach(m -> {
+            String organization = String.valueOf(m.get("organization"));
+            Map<String, Object> map01 = new HashedMap();
+            map01.put("name", organization);
+            map01.put("value", m.get("totalNum"));
+            orderPie.add(map01);
+
+            Map<String, Object> map02 = new HashedMap();
+            map02.put("name", organization);
+            map02.put("value", m.get("totalAmount"));
+            orderAmountPie.add(map02);
+
+            organizations.add(organization);
+
+            inquirySet.put(organization,m);
+        });
+
+
+        // 事业部的询单占比、平均报价时间、订单占比、成单金额表格数据组合
+        /**
+        List<Map<String, Object>> tableData = organizations.parallelStream().map(org -> {
+            Map<String, Object> map = new HashedMap();
+            map.put("name",org);
+            map.put("avgNeedTime",inquirySet.get(org).get("avgNeedTime"));
+            map.put("totalAmount",orderSet.get(org).get("totalAmount"));
+
+            return map;
+        }).collect(Collectors.toList());
+         **/
+
+
+        Map<String, Object> data = new HashedMap();
+        data.put("inquiryPie", inquiryPie);
+        data.put("orderPie", orderPie);
+        data.put("orderAmountPie", orderAmountPie);
+        //data.put("tableData", tableData);
+        return new Result<>(data);
     }
 
     // 区域明细对比

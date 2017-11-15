@@ -360,6 +360,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     @Override
     public List<Map<String, Object>> selectProTop3(Map<String, Object> params) {
         List<Map<String, Object>> list = readMapper.selectProTop3(params);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
         return list;
     }
 
@@ -568,4 +571,29 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return readMapper.selectNumSummaryByExample(example);
     }
 
+
+    /**
+     * 按照转入日期区间统计事业部的询单数量和响应平均时间
+     *
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startDate != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
+        }
+        if (endDate != null) {
+            criteria.andRollinTimeLessThan(endDate);
+        }
+
+        List<Map<String, Object>> result = readMapper.findCountAndAvgNeedTimeByExampleGroupOrigation(example);
+        if (result == null) {
+            result = new ArrayList<>();
+        }
+        return result;
+    }
 }

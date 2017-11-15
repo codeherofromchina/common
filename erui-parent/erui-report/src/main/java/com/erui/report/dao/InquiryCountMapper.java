@@ -75,4 +75,12 @@ public interface InquiryCountMapper {
 	List<CustomerCategoryNumVO> selectinquiryOrderCategoryNumByCondition(Map<String,Object> condition);
 	
 	void truncateTable();
+
+
+    /**
+     * 统计事业部的询单数量和响应平均时间
+     * @param example
+     * @return  {"avgNeedTime":'平均响应时间',"total":'总询单数量',"organization":'事业部'}
+     */
+    List<Map<String,Object>> findCountAndAvgNeedTimeByExampleGroupOrigation(InquiryCountExample example);
 }

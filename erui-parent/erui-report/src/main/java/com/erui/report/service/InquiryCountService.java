@@ -93,4 +93,11 @@ public interface InquiryCountService {
 
 	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
 
+	/**
+	 * 按照转入日期区间统计事业部的询单数量和响应平均时间
+	 * @param startDate
+	 * @param endDate
+	 * @return  {"avgNeedTime":'平均响应时间',"total":'总询单数量',"organization":'事业部'}
+	 */
+	List<Map<String,Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
 }
