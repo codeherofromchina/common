@@ -9,12 +9,26 @@ import com.erui.report.util.ImportDataResponse;
 
 public interface SupplyChainService {
 	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:52 2017/11/14
+	  * @modified By
+	  */
+	Date selectStart();
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:52 2017/11/14
+	  * @modified By
+	  */
+	Date selectEnd();
+	 /**
 	  * @Author:SHIGS 查询spu sku 供应商完成量
 	  * @Description
 	  * @Date:15:58 2017/10/21
 	  * @modified By
 	  */
-	 Map<String, Object> selectFinishByDate(int days,String type);
+	 Map<String, Object> selectFinishByDate(Date startTime,Date endTime,String type);
 	/**
 	 * 导入供应链数据到数据库
 	 * @param datas
@@ -53,11 +67,12 @@ public interface SupplyChainService {
 	/**
 	 *
 	 * 供应链趋势图
-	 * @param days
+	 * @param startTime
+	 * @param endTime
 	 * @param type
 	 * @return
 	 */
-	SupplyTrendVo supplyTrend(int days,int type);
+	SupplyTrendVo supplyTrend(Date startTime,Date endTime,int type);
 	/**
 	 *
 	 * 品类部列表

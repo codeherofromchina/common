@@ -156,7 +156,12 @@
       order by ${orderByClause}
     </if>
   </select>
-
+  <select id="selectStart" resultType="java.util.Date">
+    SELECT project_start FROM order_count ORDER BY project_start ASC LIMIT 1
+  </select>
+  <select id="selectEnd" resultType="java.util.Date">
+    SELECT project_start FROM order_count ORDER BY project_start DESC LIMIT 1
+  </select>
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
     IFNULL(SUM(project_account),0)

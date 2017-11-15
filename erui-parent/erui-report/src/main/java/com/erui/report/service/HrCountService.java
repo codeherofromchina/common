@@ -11,6 +11,20 @@ import java.util.Map;
  * Created by lirb on 2017/10/19.
  */
 public interface HrCountService {
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:20 2017/11/14
+	  * @modified By
+	  */
+	Date selectStart();
+	 /**
+	  * @Author:SHIGS
+	  * @Description
+	  * @Date:16:21 2017/11/14
+	  * @modified By
+	  */
+	Date selectEnd();
     /**
      * @Author:SHIGS
      * @Description general 战斗力

@@ -1,12 +1,10 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,125 +31,196 @@ public class SupplyChainController {
     private SupplyChainService supplyChainService;
 
     @ResponseBody
-    @RequestMapping(value = "/supplyGeneral", method = RequestMethod.POST)
-    public Object supplyGeneral(@RequestParam(name = "days", required = true) int days) {
+    @RequestMapping(value = "/supplyGeneral", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object supplyGeneral(@RequestBody Map<String, Object> map) {
 
-        Map<String, Object> result = new HashMap<>();
+        Result<Object> result = new Result<>();
         Map<String, Object> data = new HashMap<>();
-
-        int finishSupplyCount = 0;
-        int planSupplyCount = 0;
-        int finishSPU = 0;
-        int finishSKU = 0;
-        int planSPU = 0;
-        int planSKU = 0;
-        Date startTime;
-        if (days > 0) {
-            startTime = DateUtil.recedeTime(days);
-        } else {
-            startTime = null;
-        }
-
-        List<SupplyChain> list = supplyChainService.queryListByDate(startTime, new Date());
-        if (list != null && list.size() > 0) {
-            for (SupplyChain supply : list) {
-                finishSupplyCount += supply.getFinishSuppliNum();
-                finishSKU += supply.getFinishSkuNum();
-                finishSPU += supply.getFinishSpuNum();
-                planSupplyCount += supply.getPlanSuppliNum();
-                planSKU += supply.getPlanSkuNum();
-                planSPU += supply.getPlanSpuNum();
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                result.setData("参数输入有误");
+                return result;
             }
-        }
-        double supplierFinishRate = 0.00;
-        double spuFinishRate = 0.00;
-        double skuFinishRate = 0.00;
-        if (planSupplyCount > 0) {
-            supplierFinishRate = RateUtil.intChainRate(finishSupplyCount, planSupplyCount);
-        }
-        if (planSPU > 0) {
-            spuFinishRate = RateUtil.intChainRate(finishSPU, planSPU);
-        }
-        if (planSKU > 0) {
-            skuFinishRate = RateUtil.intChainRate(finishSKU, planSKU);
-        }
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            //环比开始
+            int days = DateUtil.getDayBetween(startTime, endTime);
+            Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
+            int finishSupplyCount = 0;
+            int finishSPU = 0;
+            int finishSKU = 0;
+            int finishSupplyChain=0;
+            int finishSPUChain=0;
+            int finishSKUChain=0;
+            int planSupplyCount = 0;
+            int planSPU = 0;
+            int planSKU = 0;
 
-        Map<String, Object> supplier = new HashMap<>();
-        supplier.put("planCount", planSupplyCount);
-        supplier.put("finishCount", finishSupplyCount);
-        supplier.put("finishRate", supplierFinishRate);
-        Map<String, Object> planSPUCount = new HashMap<>();
-        planSPUCount.put("planCount", planSPU);
-        planSPUCount.put("finishCount", finishSPU);
-        planSPUCount.put("finishRate", spuFinishRate);
-        Map<String, Object> planSKUCount = new HashMap<>();
-        planSKUCount.put("planCount", planSKU);
-        planSKUCount.put("finishCount", finishSKU);
-        planSKUCount.put("finishRate", skuFinishRate);
+            List<SupplyChain> list = supplyChainService.queryListByDate(startTime, endTime);
+            List<SupplyChain> chainList = supplyChainService.queryListByDate(chainEnd, startTime);
+            if (list != null && list.size() > 0) {
+                for (SupplyChain supply : list) {
+                    finishSupplyCount += supply.getFinishSuppliNum();
+                    finishSKU += supply.getFinishSkuNum();
+                    finishSPU += supply.getFinishSpuNum();
+                    planSupplyCount += supply.getPlanSuppliNum();
+                    planSKU += supply.getPlanSkuNum();
+                    planSPU += supply.getPlanSpuNum();
+                }
+            }
+            if (list != null && list.size() > 0) {
+                for (SupplyChain supplyChain : chainList) {
+                    finishSupplyChain+=supplyChain.getFinishSuppliNum();
+                    finishSPUChain+=supplyChain.getFinishSpuNum();
+                    finishSKUChain+=supplyChain.getFinishSkuNum();
+                }
+            }
+
+            double supplierFinishRate = 0.00;
+            double spuFinishRate = 0.00;
+            double skuFinishRate = 0.00;
+            double supplierChainRate = 0.00;
+            double spuChainRate = 0.00;
+            double skuChainRate = 0.00;
+            if (planSupplyCount > 0) {
+                supplierFinishRate = RateUtil.intChainRate(finishSupplyCount, planSupplyCount);
+            }
+            if (planSPU > 0) {
+                spuFinishRate = RateUtil.intChainRate(finishSPU, planSPU);
+            }
+            if (planSKU > 0) {
+                skuFinishRate = RateUtil.intChainRate(finishSKU, planSKU);
+            }
+            if (finishSupplyChain > 0) {
+                supplierChainRate = RateUtil.intChainRate(finishSupplyCount-finishSupplyChain, finishSupplyChain);
+            }
+            if (finishSPUChain > 0) {
+                spuChainRate = RateUtil.intChainRate(finishSPU-finishSPUChain, finishSPUChain);
+            }
+            if (finishSKUChain > 0) {
+                skuChainRate = RateUtil.intChainRate(finishSKU-finishSKUChain, finishSKUChain);
+            }
+            Map<String, Object> supplier = new HashMap<>();
+            supplier.put("planCount", planSupplyCount);
+            supplier.put("finishCount", finishSupplyCount);
+            supplier.put("finishRate", supplierFinishRate);
+            supplier.put("supplierChainRate", supplierChainRate);
+            Map<String, Object> planSPUCount = new HashMap<>();
+            planSPUCount.put("planCount", planSPU);
+            planSPUCount.put("finishCount", finishSPU);
+            planSPUCount.put("finishRate", spuFinishRate);
+            planSPUCount.put("spuChainRate", spuChainRate);
+            Map<String, Object> planSKUCount = new HashMap<>();
+            planSKUCount.put("planCount", planSKU);
+            planSKUCount.put("finishCount", finishSKU);
+            planSKUCount.put("finishRate", skuFinishRate);
+            planSKUCount.put("skuChainRate", skuChainRate);
 
 
-        data.put("supplier", supplier);
-        data.put("planSPU", planSPUCount);
-        data.put("planSKU", planSKUCount);
-        result.put("code", 200);
-        result.put("data", data);
-        return result;
+            data.put("supplier", supplier);
+            data.put("planSPU", planSPUCount);
+            data.put("planSKU", planSKUCount);
+            result.setStatus(ResultStatusEnum.SUCCESS);
+            result.setData(data);
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  result;
     }
 
     //趋势图
     @ResponseBody
-    @RequestMapping(value = "/supplyTrend", method = RequestMethod.POST)
-    public Object supplyTrend(@RequestParam(name = "days", required = true) int days, @RequestParam(name = "type", required = true) Integer type) {
+    @RequestMapping(value = "/supplyTrend", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object supplyTrend(@RequestBody Map<String, Object> map) {
 
-        Map<String, Object> result = new HashMap<>();
+        Result<Object> result = new Result<>();
         Map<String, Object> dataMap = new HashMap<>();
-        String[] legend = new String[1];
-        SupplyTrendVo data = this.supplyChainService.supplyTrend(days, type);
-        if (data != null) {
-
-            if (type == 0) {
-                legend[0] = "供应商完成量";
-                dataMap.put("legend", legend);
-                dataMap.put("xAxis", data.getDatetime());
-                dataMap.put("yAxis", data.getSuppliyFinishCount());
-            } else if (type == 1) {
-                legend[0] = "SPU完成量";
-                dataMap.put("legend", legend);
-                dataMap.put("xAxis", data.getDatetime());
-                dataMap.put("yAxis", data.getSPUFinishCount());
-            } else if (type == 2) {
-                legend[0] = "SKU完成量";
-                dataMap.put("legend", legend);
-                dataMap.put("xAxis", data.getDatetime());
-                dataMap.put("yAxis", data.getSKUFinishCount());
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime")||!map.containsKey("type")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                result.setData("参数输入有误");
+                return result;
             }
+            int type = (int)map.get("type");
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            String[] legend = new String[1];
+            SupplyTrendVo data = this.supplyChainService.supplyTrend(startTime,endTime,type);
+            if (data != null) {
 
-            result.put("code", 200);
-            result.put("data", dataMap);
+                if (type == 0) {
+                    legend[0] = "供应商完成量";
+                    dataMap.put("legend", legend);
+                    dataMap.put("xAxis", data.getDatetime());
+                    dataMap.put("yAxis", data.getSuppliyFinishCount());
+                } else if (type == 1) {
+                    legend[0] = "SPU完成量";
+                    dataMap.put("legend", legend);
+                    dataMap.put("xAxis", data.getDatetime());
+                    dataMap.put("yAxis", data.getSPUFinishCount());
+                } else if (type == 2) {
+                    legend[0] = "SKU完成量";
+                    dataMap.put("legend", legend);
+                    dataMap.put("xAxis", data.getDatetime());
+                    dataMap.put("yAxis", data.getSKUFinishCount());
+                }
+                result.setStatus(ResultStatusEnum.SUCCESS);
+                result.setData(dataMap);
+            }
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
         }
+        result.setStatus(ResultStatusEnum.FAIL);
         return result;
     }
 
     //事业部明细
     @ResponseBody
-    @RequestMapping("/organizationDetail")
-    public Object organizationDetail(@RequestParam(name = "org", required = true) String org) {
-        HashMap<String, Object> result = new HashMap<>();
-        Date startTime = DateUtil.recedeTime(7);
-        List<SuppliyChainOrgVo> list = this.supplyChainService.selectOrgSuppliyChain(startTime, new Date());
-        SuppliyChainOrgVo suppliOrgVo = null;
-        for (SuppliyChainOrgVo orgVo : list) {
-            if (org.equals(orgVo.getOrg())) {
-                suppliOrgVo = orgVo;
-                break;
+    @RequestMapping(value = "/organizationDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object organizationDetail(@RequestBody Map<String, Object> map) {
+        Result<Object> result = new Result<>();
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("org")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                result.setData("参数输入有误");
+                return result;
             }
+            String org =map.get("org").toString();
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            List<SuppliyChainOrgVo> list = this.supplyChainService.selectOrgSuppliyChain(startTime,endTime);
+            SuppliyChainOrgVo suppliOrgVo = null;
+            for (SuppliyChainOrgVo orgVo : list) {
+                if (org.equals(orgVo.getOrg())) {
+                    suppliOrgVo = orgVo;
+                    break;
+                }
+            }
+            if (suppliOrgVo != null) {
+                Map<String, Object> data = returnDetailData(suppliOrgVo);
+                result.setStatus(ResultStatusEnum.SUCCESS);
+                result.setData(data);
+                return  result;
+            }
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        if (suppliOrgVo != null) {
-            Map<String, Object> data = returnDetailData(suppliOrgVo);
-            result.put("code", 200);
-            result.put("data", data);
-        }
-        return result;
+        return  result;
     }
 
     //事业部明细封装
@@ -186,49 +255,64 @@ public class SupplyChainController {
 
     //品类部明细
     @ResponseBody
-    @RequestMapping("/categoryDetail")
-    public Object categoryDetail(@RequestParam(name = "category", required = true) String category) {
+    @RequestMapping(value = "/categoryDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object categoryDetail(@RequestBody Map<String, Object> map) {
 
-        HashMap<String, Object> result = new HashMap<>();
+        Result<Object> result = new Result<>();
         HashMap<String, Object> data = new HashMap<>();
-        Date startTime = DateUtil.recedeTime(7);
-        List<SuppliyChainCateVo> list = this.supplyChainService.selectCateSuppliyChain(startTime, new Date());
-        SuppliyChainCateVo suppliCateVo = null;
-        for (SuppliyChainCateVo cateVo : list) {
-            if (category.equals(cateVo.getCategory())) {
-                suppliCateVo = cateVo;
-                break;
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("category")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                result.setData("参数输入有误");
+                return result;
             }
-        }
-        HashMap<String, Object> planSPU = new HashMap<>();
-        HashMap<String, Object> planSKU = new HashMap<>();
-        HashMap<String, Object> planSuppliy = new HashMap<>();
-        if (suppliCateVo != null) {
-            int noFinishSPU = suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU();
-            int noFinishSKU = suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU();
-            int noFinishSuppliy = suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy();
-            if (noFinishSPU < 0) {
-                noFinishSPU = 0;
+            String category =map.get("category").toString();
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            List<SuppliyChainCateVo> list = this.supplyChainService.selectCateSuppliyChain(startTime, endTime);
+            SuppliyChainCateVo suppliCateVo = null;
+            for (SuppliyChainCateVo cateVo : list) {
+                if (category.equals(cateVo.getCategory())) {
+                    suppliCateVo = cateVo;
+                    break;
+                }
             }
-            if (noFinishSKU < 0) {
-                noFinishSKU = 0;
+            HashMap<String, Object> planSPU = new HashMap<>();
+            HashMap<String, Object> planSKU = new HashMap<>();
+            HashMap<String, Object> planSuppliy = new HashMap<>();
+            if (suppliCateVo != null) {
+                int noFinishSPU = suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU();
+                int noFinishSKU = suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU();
+                int noFinishSuppliy = suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy();
+                if (noFinishSPU < 0) {
+                    noFinishSPU = 0;
+                }
+                if (noFinishSKU < 0) {
+                    noFinishSKU = 0;
+                }
+                if (noFinishSuppliy < 0) {
+                    noFinishSuppliy = 0;
+                }
+                planSPU.put("finishedSPU", suppliCateVo.getFinishSPU());
+                planSPU.put("noFinishSPU", noFinishSPU);
+                planSKU.put("finishedSKU", suppliCateVo.getFinishSKU());
+                planSKU.put("noFinishSKU", noFinishSKU);
+                planSuppliy.put("finishedSuppliy", suppliCateVo.getFinishSuppliy());
+                planSuppliy.put("noFinishSuppliy", noFinishSuppliy);
             }
-            if (noFinishSuppliy < 0) {
-                noFinishSuppliy = 0;
-            }
-            planSPU.put("finishedSPU", suppliCateVo.getFinishSPU());
-            planSPU.put("noFinishSPU", noFinishSPU);
-            planSKU.put("finishedSKU", suppliCateVo.getFinishSKU());
-            planSKU.put("noFinishSKU", noFinishSKU);
-            planSuppliy.put("finishedSuppliy", suppliCateVo.getFinishSuppliy());
-            planSuppliy.put("noFinishSuppliy", noFinishSuppliy);
-        }
-        data.put("planSPU", planSPU);
-        data.put("planSKU", planSKU);
-        data.put("planSuppliy", planSuppliy);
+            data.put("planSPU", planSPU);
+            data.put("planSKU", planSKU);
+            data.put("planSuppliy", planSuppliy);
 
-        result.put("code", 200);
-        result.put("data", data);
+            result.setStatus(ResultStatusEnum.SUCCESS);
+            result.setData(data);
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return result;
     }
 
@@ -252,46 +336,65 @@ public class SupplyChainController {
 
     // 品类明细
     @ResponseBody
-    @RequestMapping("/catesDetail")
-    public Object catesDetail() {
-        Date startTime = DateUtil.recedeTime(7);
-        Date chainTime = DateUtil.recedeTime(14);
-        List<SuppliyChainItemClassVo> list = supplyChainService.selectItemCalssSuppliyChain(startTime, new Date());
-        List<SuppliyChainItemClassVo> weekAgolist = supplyChainService.selectItemCalssSuppliyChain(chainTime,
-                startTime);
-        final Map<String, SuppliyChainItemClassVo> helpMap;
-        if (weekAgolist != null && list != null) {
-            helpMap = weekAgolist.parallelStream().collect(Collectors.toMap(SuppliyChainItemClassVo::getItemClass, vo -> vo));
-        } else {
-            helpMap = new HashMap<>();
-        }
+    @RequestMapping(value = "/catesDetail",method = RequestMethod.POST,produces ={"application/json;charset=utf-8"})
+    public Object catesDetail(@RequestBody Map<String, Object> map ) {
+        Result<Object> result = new Result<>();
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                result.setData("参数输入有误");
+                return result;
+            }
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            //环比开始
+            int days = DateUtil.getDayBetween(startTime, endTime);
+            Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
+            List<SuppliyChainItemClassVo> list = supplyChainService.selectItemCalssSuppliyChain(startTime, endTime);
+            List<SuppliyChainItemClassVo> weekAgolist = supplyChainService.selectItemCalssSuppliyChain(chainEnd,
+                    startTime);
+            final Map<String, SuppliyChainItemClassVo> helpMap;
+            if (weekAgolist != null && list != null) {
+                helpMap = weekAgolist.parallelStream().collect(Collectors.toMap(SuppliyChainItemClassVo::getItemClass, vo -> vo));
+            } else {
+                helpMap = new HashMap<>();
+            }
 
-        if (list != null) {
-            // 生成环比百分数
-            for (SuppliyChainItemClassVo itemClassVo : list) {
-                String itemClass = itemClassVo.getItemClass();
-                SuppliyChainItemClassVo suppliyChainItemClassVo = helpMap.get(itemClass);
-                if (suppliyChainItemClassVo != null) {
-                    if (suppliyChainItemClassVo.getFinishSPU() > 0) {
-                        itemClassVo.setSpuChainRate(RateUtil.intChainRate(
-                                itemClassVo.getFinishSPU() - suppliyChainItemClassVo.getFinishSPU(),
-                                suppliyChainItemClassVo.getFinishSPU()));
-                    }
-                    if (suppliyChainItemClassVo != null && suppliyChainItemClassVo.getFinishSKU() > 0) {
-                        itemClassVo.setSkuChainRate(RateUtil.intChainRate(
-                                itemClassVo.getFinishSKU() - suppliyChainItemClassVo.getFinishSKU(),
-                                suppliyChainItemClassVo.getFinishSKU()));
-                    }
-                    if (suppliyChainItemClassVo != null && suppliyChainItemClassVo.getFinishSuppliy() > 0) {
-                        itemClassVo.setSupplierChainRate(RateUtil.intChainRate(
-                                itemClassVo.getFinishSuppliy() - suppliyChainItemClassVo.getFinishSuppliy(),
-                                suppliyChainItemClassVo.getFinishSuppliy()));
+            if (list != null) {
+                // 生成环比百分数
+                for (SuppliyChainItemClassVo itemClassVo : list) {
+                    String itemClass = itemClassVo.getItemClass();
+                    SuppliyChainItemClassVo suppliyChainItemClassVo = helpMap.get(itemClass);
+                    if (suppliyChainItemClassVo != null) {
+                        if (suppliyChainItemClassVo.getFinishSPU() > 0) {
+                            itemClassVo.setSpuChainRate(RateUtil.intChainRate(
+                                    itemClassVo.getFinishSPU() - suppliyChainItemClassVo.getFinishSPU(),
+                                    suppliyChainItemClassVo.getFinishSPU()));
+                        }
+                        if (suppliyChainItemClassVo != null && suppliyChainItemClassVo.getFinishSKU() > 0) {
+                            itemClassVo.setSkuChainRate(RateUtil.intChainRate(
+                                    itemClassVo.getFinishSKU() - suppliyChainItemClassVo.getFinishSKU(),
+                                    suppliyChainItemClassVo.getFinishSKU()));
+                        }
+                        if (suppliyChainItemClassVo != null && suppliyChainItemClassVo.getFinishSuppliy() > 0) {
+                            itemClassVo.setSupplierChainRate(RateUtil.intChainRate(
+                                    itemClassVo.getFinishSuppliy() - suppliyChainItemClassVo.getFinishSuppliy(),
+                                    suppliyChainItemClassVo.getFinishSuppliy()));
+                        }
                     }
                 }
             }
+            result.setStatus(ResultStatusEnum.SUCCESS);
+            result.setData(list);
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        return new Result<Object>().setData(list);
+        return  result;
     }
 
 

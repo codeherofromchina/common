@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.report.model.*;
-import com.sun.tools.internal.xjc.reader.dtd.bindinfo.BIElement;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,26 @@ import org.springframework.util.NumberUtils;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:58 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:58 2017/11/14
+      * @modified By
+      */
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
 
     // 根据时间统计询单单数
     @Override

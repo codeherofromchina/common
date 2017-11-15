@@ -395,6 +395,55 @@ public class DateUtil {
 
     /**
      * @Author:SHIGS
+     * @Description
+     * @Date:17:33 2017/11/14
+     * @modified By
+     */
+    public static Date minTime(Date... dates) {
+        if (dates != null && dates.length > 0) {
+            Date result = dates[0];
+            for (int i = 0; i < dates.length; i++) {
+                if (result == null) {
+                    result = dates[i];
+                }
+                if (dates[i] == null) {
+                    continue;
+                }
+                if (result.after(dates[i])) {
+                    result = dates[i];
+                }
+            }
+            return result;
+        }
+        return null;
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:17:46 2017/11/14
+      * @modified By
+      */
+    public static Date maxTime(Date... dates) {
+        if (dates != null && dates.length > 0) {
+            Date result = dates[0];
+            for (int i = 0; i < dates.length; i++) {
+                if (result == null) {
+                    result = dates[i];
+                }
+                if (dates[i] == null) {
+                    continue;
+                }
+                if (result.before(dates[i])) {
+                    result = dates[i];
+                }
+            }
+            return result;
+        }
+        return null;
+    }
+
+    /**
+     * @Author:SHIGS
      * @Description 求某一天的前多少天
      * @Date:14:09 2017/11/13
      * @modified By

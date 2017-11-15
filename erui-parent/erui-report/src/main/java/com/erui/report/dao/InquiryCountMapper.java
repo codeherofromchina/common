@@ -1,5 +1,6 @@
 package com.erui.report.dao;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import com.erui.report.util.CustomerCategoryNumVO;
 import com.erui.report.util.CustomerNumSummaryVO;
 
 public interface InquiryCountMapper {
+    Date selectStart();
+    Date selectEnd();
     int countByExample(InquiryCountExample example);
 
     int deleteByExample(InquiryCountExample example);

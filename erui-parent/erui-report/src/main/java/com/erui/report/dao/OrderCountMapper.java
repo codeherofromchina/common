@@ -1,5 +1,6 @@
 package com.erui.report.dao;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,9 @@ import com.erui.report.model.OrderCountExample;
 import com.erui.report.util.CustomerNumSummaryVO;
 
 public interface OrderCountMapper {
+    Date selectStart();
+
+    Date selectEnd();
     int countByExample(OrderCountExample example);
 
     int deleteByExample(OrderCountExample example);
