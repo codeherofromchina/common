@@ -238,7 +238,7 @@
     group by inquiry_area,inquiry_unit
   </select>
   <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCountTotal FROM inquiry_count
+    SELECT  COUNT(1) as proCountTotal FROM inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -247,18 +247,18 @@
     </if>
   </select>
   <select id="selectProTop3" resultType="map" parameterType="Object" >
-  SELECT  IFNULL(SUM(IFNULL(pro_count,0)),0) as proCount ,pro_category as proCategory FROM inquiry_count
-    WHERE
-    <if test="startTime != null" >
-      1=1 and rollin_time >= #{startTime}
-    </if>
-    <if test="endTime != null " >
-       and rollin_time &lt;= #{endTime}
-    </if>
-    group by pro_category ORDER BY proCount DESC LIMIT 0,3;
-
-
+    SELECT COUNT(1) as proCount ,pro_category as proCategory FROM inquiry_count
+      <where >
+        <if test="startTime != null" >
+          and rollin_time >= #{startTime}
+        </if>
+        <if test="endTime != null " >
+           and rollin_time &lt;= #{endTime}
+        </if>
+      </where>
+      group by pro_category ORDER BY proCount DESC LIMIT 0,3;
   </select>
+
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) as totalPrice
@@ -326,6 +326,16 @@
 	<if test="limit != null">
 		limit #{limit}
 	</if>
+  </select>
+
+
+  <select id="findCountAndAvgNeedTimeByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT organization,count(1) as total,avg(ifnull(quote_need_time,0)) as avgNeedTime
+      FROM erui_report.inquiry_count
+      <if test="_parameter != null" >
+        <include refid="Example_Where_Clause" />
+      </if>
+      group by organization
   </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >

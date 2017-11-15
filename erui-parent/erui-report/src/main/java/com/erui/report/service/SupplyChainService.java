@@ -67,11 +67,12 @@ public interface SupplyChainService {
 	/**
 	 *
 	 * 供应链趋势图
-	 * @param days
+	 * @param startTime
+	 * @param endTime
 	 * @param type
 	 * @return
 	 */
-	SupplyTrendVo supplyTrend(int days,int type);
+	SupplyTrendVo supplyTrend(Date startTime,Date endTime,int type);
 	/**
 	 *
 	 * 品类部列表

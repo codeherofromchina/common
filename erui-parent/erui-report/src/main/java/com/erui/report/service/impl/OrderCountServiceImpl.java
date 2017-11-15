@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -474,6 +475,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     @Override
     public List<Map<String, Object>> selectOrderProTop3(Map<String, Object> params) {
         List<Map<String, Object>> list = readMapper.selectOrderProTop3(params);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
         return list;
     }
 
@@ -539,5 +543,29 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         return readMapper.selectProCountByExample();
     }
 
+    /**
+     * 按照项目开始区间统计事业部的订单数量和金额
+     *
+     * @param startDate
+     * @param endDate
+     * @return {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
+     */
+    @Override
+    public List<Map<String, Object>> findCountAndAmountByRangProjectStartGroupOrigation(Date startDate, Date endDate) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startDate != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startDate);
+        }
+        if (endDate != null) {
+            criteria.andProjectStartLessThan(endDate);
+        }
 
+        List<Map<String, Object>> list = readMapper.findCountAndAmountByExampleGroupOrigation(example);
+
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
 }

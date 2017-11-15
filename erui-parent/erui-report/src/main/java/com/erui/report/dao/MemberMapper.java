@@ -24,7 +24,6 @@ public interface MemberMapper {
     List<Member> selectByExample(MemberExample example);
 
     Member selectByPrimaryKey(Long id);
-
     int updateByExampleSelective(@Param("record") Member record, @Param("example") MemberExample example);
 
     int updateByExample(@Param("record") Member record, @Param("example") MemberExample example);

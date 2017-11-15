@@ -277,11 +277,12 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
     // 供应链趋势图
     @Override
-    public SupplyTrendVo supplyTrend(int days, int type) {
+    public SupplyTrendVo supplyTrend(Date startTime,Date endTime, int type) {
+        int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (days > 0) {
-            criteria.andCreateAtBetween(DateUtil.recedeTime(days), new Date());
+        if (startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)) {
+            criteria.andCreateAtBetween(startTime,endTime);
         }
         List<SupplyChain> list = readMapper.selectByExample(example);
 

@@ -220,13 +220,11 @@ public class ExcelController {
         if (typeEnum == null) {
             return result.setStatus(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
         }
-
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
         File file = new File(realPath, fileName);
         if (file.exists() && file.isFile()) {
             logger.info(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName, type));
             System.out.println(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName, type));
-
             ExcelReader excelReader = new ExcelReader();
             try {
                 List<String[]> excelContent = excelReader.readExcel(file);

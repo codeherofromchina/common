@@ -62,4 +62,12 @@ public interface OrderCountService {
 
 	int  selectProCountByExample();
 
+	/**
+	 * 按照项目开始区间统计事业部的订单数量和金额
+	 *
+	 * @param startDate
+	 * @param endDate
+	 * @return  {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
+	 */
+    List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupOrigation(Date startDate, Date endDate);
 }
