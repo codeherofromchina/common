@@ -511,7 +511,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public List<OrderCount> selectListByTime(Date startTime, Date endTime) {
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+        if (startTime != null && endTime != null ) {
             criteria.andProjectStartBetween(startTime, endTime);
         }
         return readMapper.selectByExample(example);

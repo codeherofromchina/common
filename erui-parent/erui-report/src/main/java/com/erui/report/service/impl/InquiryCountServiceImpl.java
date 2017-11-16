@@ -409,8 +409,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public List<CateDetailVo> selectInqDetailByCategory(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null ){
-           criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
@@ -640,7 +640,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public InqOrdTrendVo inqOrdTrend(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         OrderCountExample ordExample = new OrderCountExample();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+        if (startTime != null && endTime != null) {
             example.createCriteria().andRollinTimeBetween(startTime, endTime);
             ordExample.createCriteria().andProjectStartBetween(startTime, endTime);
         }
@@ -651,8 +651,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<String> dates = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         int days = DateUtil.getDayBetween(startTime, endTime);
-        for (int i = 0; i <days ; i++) {
-            Date datetime = DateUtil.sometimeCalendar(startTime,-i);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             dates.add(dateFormat.format(datetime));
         }
         //封装询订单数据

@@ -6,7 +6,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtils;
 
 
@@ -312,6 +314,8 @@ public class DateUtil {
      * @modified By
      */
     public static int getDayBetween(Date d1, Date d2) {
+        return (int)NewDateUtil.getDuration(d1,d2, TimeUnit.DAYS);
+        /**
         Calendar calendar1 = Calendar.getInstance();
         Calendar calendar2 = Calendar.getInstance();
         calendar1.setTime(d1);
@@ -322,6 +326,7 @@ public class DateUtil {
             calendar1.add(Calendar.DAY_OF_YEAR, 1);
         }
         return days;
+         **/
     }
 
     /**

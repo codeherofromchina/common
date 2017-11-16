@@ -22,22 +22,24 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> implements SupplyChainService {
     private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:53 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:53 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectStart() {
         return this.readMapper.selectStart();
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:53 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:53 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectEnd() {
         return this.readMapper.selectEnd();
@@ -55,7 +57,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         supplyChainExample.setOrderByClause("create_at asc");
         List<Map> supplyMap = null;
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+        if (startTime != null && endTime != null) {
             days = DateUtil.getDayBetween(startTime, endTime);
             supplyChainExample.createCriteria().andCreateAtBetween(startTime, endTime);
             supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
@@ -232,7 +234,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SupplyChain> queryListByDate(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && !startTime.equals("") && startTime != null && !startTime.equals("")) {
+        if (startTime != null && endTime != null) {
             criteria.andCreateAtBetween(startTime, endTime);
         }
         return readMapper.selectByExample(example);
@@ -243,7 +245,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainOrgVo> selectOrgSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && !startTime.equals("") && startTime != null && !startTime.equals("")) {
+        if (startTime != null && endTime != null) {
             criteria.andCreateAtBetween(startTime, endTime);
         }
         List<SuppliyChainOrgVo> list = readMapper.selectOrgSuppliyChainByExample(example);
@@ -254,7 +256,9 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainItemClassVo> selectItemCalssSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null && endTime != null) {
+            criteria.andCreateAtBetween(startTime, endTime);
+        }
         return readMapper.selectItemCalssSuppliyChainByExample(supplyChainExample);
     }
 
@@ -262,8 +266,12 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public SuppliyChainItemClassVo selectSuppliyChainByItemClass(Date startTime, Date endTime, String itemClass) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        criteria.andCreateAtBetween(startTime, endTime);
-        criteria.andItemClassEqualTo(itemClass);
+        if (startTime != null && endTime != null) {
+            criteria.andCreateAtBetween(startTime, endTime);
+        }
+        if (StringUtils.isNotBlank(itemClass)) {
+            criteria.andItemClassEqualTo(itemClass);
+        }
         return readMapper.selectSuppliyChainByItemClassByExample(supplyChainExample);
     }
 
@@ -271,18 +279,20 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainCateVo> selectCateSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null && endTime != null) {
+            criteria.andCreateAtBetween(startTime, endTime);
+        }
         return readMapper.selectCateSuppliyChainByExample(supplyChainExample);
     }
 
     // 供应链趋势图
     @Override
-    public SupplyTrendVo supplyTrend(Date startTime,Date endTime, String type) {
+    public SupplyTrendVo supplyTrend(Date startTime, Date endTime, String type) {
         int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)) {
-            criteria.andCreateAtBetween(startTime,endTime);
+        if (startTime != null && endTime != null ) {
+            criteria.andCreateAtBetween(startTime, endTime);
         }
         List<SupplyChain> list = readMapper.selectByExample(example);
 
