@@ -176,17 +176,20 @@ public class CustomCentreController {
         map.put("startTime", startDate);
         map.put("endTime", endDate);
         List<Map<String, Object>> proTop3 = orderService.selectOrderProTop3(map);
-        proTop3.parallelStream().forEach(m -> {
+        Map<String,Object> top3Container = new HashMap(); /// 定义要返回结果的top容器
+        for (int i=0;i<proTop3.size();i++) {
+            Map<String,Object> m = proTop3.get(i);
             BigDecimal s = new BigDecimal(String.valueOf(m.get("orderCount")));
             m.put("topProportion", RateUtil.intChainRate(s.intValue(), count));
-        });
+            top3Container.put("top" + (i+1), m);
+        }
 
         // 组装数据
         Map<String, Object> datas = new HashMap<>();// 订单统计信息
         datas.put("order", orderMap);
         datas.put("profitRate", profitMap);
         datas.put("sucessOrderMap", sucessOrderMap);
-        datas.put("top3", proTop3);
+        datas.put("top3", top3Container);
 
         return new Result<>().setData(datas);
     }
@@ -384,23 +387,23 @@ public class CustomCentreController {
     // 区域明细对比
     @ResponseBody
     @RequestMapping(value = "/areaDetailContrast", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object areaDetailContrast(@RequestBody Map<String, Object> map) throws ParseException {
-        Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
-        }
+    public Object areaDetailContrast(@RequestBody Map<String, String> map) throws ParseException {
+
+        // 获取参数并转换成时间格式
         //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-        //截止时间
-        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        Date startDate = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
+        }
+        // 结束时间
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
+        Result<Object> result = new Result<>();
         ///查询给定时间的区域询单数量和金额
-        List<Map<String, Object>> inquiryList = inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startTime, endTime);
+        List<Map<String, Object>> inquiryList = inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startDate, endDate);
         // 查询给定时间段的区域订单数量和金额
-        List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupArea(startTime, endTime);
-
+        List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupArea(startDate, endDate);
 
         // 组织询单数据结果集
         int inquirySize = inquiryList.size() + 1; // 全部+总计1

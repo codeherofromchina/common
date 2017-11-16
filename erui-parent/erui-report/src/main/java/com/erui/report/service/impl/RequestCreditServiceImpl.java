@@ -76,9 +76,8 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         if (startDate != null && endDate != null) {
             requestCreditExample = new RequestCreditExample();
             requestCreditExample.createCriteria().andCreateAtBetween(startDate, endDate);
-            return this.readMapper.selectRequestTotal(requestCreditExample);
         }
-        return this.readMapper.selectRequestTotal(null);
+        return this.readMapper.selectRequestTotal(requestCreditExample);
     }
 
     /**
@@ -281,7 +280,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     public Map<String, Object> selectByAreaOrCountry(Date startDate, Date endDate, String area, String country) {
         RequestCreditExample e = new RequestCreditExample();
         RequestCreditExample.Criteria criteria = e.createCriteria();
-        if (startDate != null && !"".equals(startDate) && endDate != null && !"".equals(endDate)) {
+        if (startDate != null  && endDate != null ) {
             criteria.andCreateAtBetween(startDate, endDate);
         }
         if (StringUtil.isNotBlank(area)) {

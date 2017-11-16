@@ -66,6 +66,7 @@ public class GeneralController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
         int curMemberCount = memberService.selectByTime(startTime, endTime);
         Map<String, Object> member = new HashMap<String, Object>();
         member.put("count", curMemberCount);

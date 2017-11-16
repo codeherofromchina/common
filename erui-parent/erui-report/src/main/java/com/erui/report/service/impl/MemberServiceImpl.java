@@ -138,7 +138,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     @Override
     public int selectByTime(Date startTime, Date endDate) {
         MemberExample example = new MemberExample();
-        if (startTime != null && !"".equals(startTime) && endDate != null && !"".equals(endDate)) {
+        if (startTime != null && endDate != null) {
             example.createCriteria().andInputDateBetween(startTime, endDate);
             return this.readMapper.selectByTime(example);
         }
@@ -170,7 +170,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
             seniorMember = new BigDecimal(member.get("s3").toString());
             generalMember = new BigDecimal(member.get("s1").toString());
         }
-        //黄金会员 高级会员 一般会员 复购率
+        //黄金会员、高级会员、一般会员的复购率
         BigDecimal regoldMember = null;
         BigDecimal reseniorMember = null;
         BigDecimal regeneralMember = null;

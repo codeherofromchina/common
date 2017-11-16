@@ -33,22 +33,24 @@ import sun.awt.geom.Crossings;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:58 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:58 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectStart() {
         return this.readMapper.selectStart();
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:58 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:58 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectEnd() {
         return this.readMapper.selectEnd();
@@ -63,8 +65,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
         BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
         BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
 
         if (quotedStatus != null && !"".equals(quotedStatus)) {
@@ -404,8 +409,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public List<CateDetailVo> selectInqDetailByCategory(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return readMapper.selectInqDetailByCategoryByExample(example);
     }
@@ -489,8 +497,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public Double inquiryAmountByTime(Date startTime, Date endTime, String area) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         if (area != null && !"".equals(area)) {
             criteria.andInquiryAreaEqualTo(area);
@@ -582,8 +593,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public CustomerNumSummaryVO selectNumSummaryByExample(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return readMapper.selectNumSummaryByExample(example);
     }
@@ -613,6 +628,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         return result;
     }
+
     /**
      * 询订单趋势图
      *
@@ -624,36 +640,36 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public InqOrdTrendVo inqOrdTrend(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         OrderCountExample ordExample = new OrderCountExample();
-        if(startTime!=null&&!"".equals(startTime)&&endTime!=null&&!"".equals(endTime)){
+        if (startTime != null && endTime != null) {
             example.createCriteria().andRollinTimeBetween(startTime, endTime);
             ordExample.createCriteria().andProjectStartBetween(startTime, endTime);
         }
-        List<Map<String,Object>> inqTrendList=readMapper.inqTrendByTime(example);
+        List<Map<String, Object>> inqTrendList = readMapper.inqTrendByTime(example);
         OrderCountMapper ordReadMapper = readerSession.getMapper(OrderCountMapper.class);
-        List<Map<String,Object>> ordTrendList= ordReadMapper.ordTrendByTime(ordExample);
+        List<Map<String, Object>> ordTrendList = ordReadMapper.ordTrendByTime(ordExample);
         //虚拟一个标准的时间集合
-        List<String> dates=new ArrayList<>();
+        List<String> dates = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         int days = DateUtil.getDayBetween(startTime, endTime);
-        for (int i = 0; i <days ; i++) {
-            Date datetime = DateUtil.sometimeCalendar(startTime,-i);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             dates.add(dateFormat.format(datetime));
         }
         //封装询订单数据
         Map<String, Map<String, Object>> inqTrend = inqTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
         Map<String, Map<String, Object>> ordTrend = ordTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
 
-        List<Integer> inqCounts=new ArrayList<>();
-        List<Integer> ordCounts=new ArrayList<>();
-        for (String date: dates) {
-            if(inqTrend.containsKey(date)){
+        List<Integer> inqCounts = new ArrayList<>();
+        List<Integer> ordCounts = new ArrayList<>();
+        for (String date : dates) {
+            if (inqTrend.containsKey(date)) {
                 inqCounts.add(Integer.parseInt(inqTrend.get(date).get("count").toString()));
-            }else{
+            } else {
                 inqCounts.add(0);
             }
-            if(ordTrend.containsKey(date)){
-                ordCounts.add(Integer.parseInt(ordTrend.get(date).get("count").toString()) );
-            }else{
+            if (ordTrend.containsKey(date)) {
+                ordCounts.add(Integer.parseInt(ordTrend.get(date).get("count").toString()));
+            } else {
                 ordCounts.add(0);
             }
 
@@ -668,6 +684,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     /**
      * 按照转入日期区间统计区域的询单数量和金额
+     *
      * @param startTime
      * @param endTime
      * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}

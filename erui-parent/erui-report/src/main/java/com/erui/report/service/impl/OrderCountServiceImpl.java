@@ -26,26 +26,29 @@ import com.erui.report.util.CustomerNumSummaryVO;
 @Service
 public class OrderCountServiceImpl extends BaseService<OrderCountMapper> implements OrderCountService {
     private final static Logger logger = LoggerFactory.getLogger(OrderCountServiceImpl.class);
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:17:06 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:17:06 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectStart() {
         return this.readMapper.selectStart();
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:17:06 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:17:06 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectEnd() {
         return this.readMapper.selectEnd();
     }
+
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
@@ -439,8 +442,11 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public int orderCountByTime(Date startTime, Date endTime, String proStatus, String org, String area) {
         OrderCountExample example = new OrderCountExample();
         OrderCountExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andProjectStartBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
         }
         if (proStatus != null && !proStatus.equals("")) {
             criteria.andProjectStatusEqualTo(proStatus);
@@ -461,10 +467,13 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public Double orderAmountByTime(Date startTime, Date endTime, String area) {
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andProjectStartBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
         }
-        if (area != null && !"".equals(area)) {
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        if (StringUtils.isNotBlank(area)) {
             criteria.andOrderAreaEqualTo(area);
         }
         Double amount = readMapper.selectTotalAmountByExample(example);
@@ -486,7 +495,13 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     @Override
     public Double selectProfitRate(Date startTime, Date endTime) {
         OrderCountExample example = new OrderCountExample();
-        example.createCriteria().andProjectStartBetween(startTime, endTime);
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
         Double profitRate = readMapper.selectProfitRateByExample(example);
         return profitRate;
     }
@@ -496,7 +511,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public List<OrderCount> selectListByTime(Date startTime, Date endTime) {
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
+        if (startTime != null && endTime != null ) {
             criteria.andProjectStartBetween(startTime, endTime);
         }
         return readMapper.selectByExample(example);
@@ -510,8 +525,11 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public CustomerNumSummaryVO numSummary(Date startTime, Date endTime, String area, String country) {
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andProjectStartBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if ( endTime != null ) {
+            criteria.andProjectStartLessThan(endTime);
         }
         if (StringUtils.isNoneBlank(area)) {
             criteria.andOrderAreaEqualTo(area);
@@ -532,8 +550,11 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public List<CateDetailVo> selecOrdDetailByCategory(Date startTime, Date endTime) {
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andProjectStartBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
         }
         return readMapper.selecOrdDetailByCategoryByExample(example);
     }
