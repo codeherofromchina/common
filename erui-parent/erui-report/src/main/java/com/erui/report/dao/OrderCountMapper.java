@@ -69,4 +69,11 @@ public interface OrderCountMapper {
      * @return {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
      */
     List<Map<String,Object>> findCountAndAmountByExampleGroupOrigation(OrderCountExample example);
+
+    /**
+     * 按条件统计区域的订单数量和金额
+     * @param example
+     * @return {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"area":'区域--String'}
+     */
+    List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupArea(OrderCountExample example);
 }

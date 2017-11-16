@@ -568,4 +568,30 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         }
         return list;
     }
+
+    /**
+     * 按照项目开始区间统计区域的订单数量和金额
+     *
+     * @param startTime
+     * @param endTime
+     * @return {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
+     */
+    @Override
+    public List<Map<String, Object>> findCountAndAmountByRangProjectStartGroupArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+
+        List<Map<String, Object>> list = readMapper.findCountAndAmountByRangProjectStartGroupArea(example);
+
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
 }
