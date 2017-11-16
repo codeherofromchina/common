@@ -291,7 +291,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && endTime != null ) {
+        if (startTime != null && endTime != null) {
             criteria.andCreateAtBetween(startTime, endTime);
         }
         List<SupplyChain> list = readMapper.selectByExample(example);
@@ -305,7 +305,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             Map<String, Map<String, Integer>> dateMap = new HashMap<>();
             Map<String, Integer> datamap;
             for (int i = 0; i < list.size(); i++) {
-                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "M月d日");
+                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "MM月dd日");
                 if (dateMap.containsKey(date2)) {
                     Map<String, Integer> map = dateMap.get(date2);
                     Integer sku = map.get("sku");
@@ -325,7 +325,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
             }
             for (int i = 0; i < days; i++) {
-                Date date = DateUtil.recedeTime(days - (i + 1));
+                Date date = DateUtil.sometimeCalendar(startTime, -i);
                 String datet2 = DateUtil.format("MM月dd日", date);
                 if (dateMap.containsKey(datet2)) {
                     DateTime[i] = (datet2);
@@ -342,7 +342,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
         } else {
             for (int i = 0; i < days; i++) {
-                Date date = DateUtil.recedeTime(days - (i + 1));
+                Date date = DateUtil.sometimeCalendar(startTime, -i);
                 String datet2 = DateUtil.format("MM月dd日", date);
                 DateTime[i] = datet2;
                 suppliyFinishCount[i] = 0;
