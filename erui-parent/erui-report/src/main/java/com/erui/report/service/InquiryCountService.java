@@ -6,10 +6,7 @@ import java.util.Map;
 
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
-import com.erui.report.util.ImportDataResponse;
-import com.erui.report.util.InquiryAreaVO;
-import com.erui.report.util.CustomerCategoryNumVO;
-import com.erui.report.util.CustomerNumSummaryVO;
+import com.erui.report.util.*;
 
 /*
 * 询单统计
@@ -114,4 +111,5 @@ public interface InquiryCountService {
 	 * @return  {"avgNeedTime":'平均响应时间',"total":'总询单数量',"organization":'事业部'}
 	 */
 	List<Map<String,Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
+
 }

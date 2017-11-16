@@ -3,16 +3,19 @@ package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.report.util.CustomerCategoryNumVO;
+import com.erui.report.util.InqOrdTrendVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -289,7 +292,6 @@ public class CustomCentreController {
 
         return new Result<>(quoteTimeMap);
     }
-
 
     // 事业部明细
     @ResponseBody
@@ -571,38 +573,53 @@ public class CustomCentreController {
     @RequestMapping(value = "/areaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
     public Object areaDetail(@RequestBody Map<String, Object> map) {
-        String areaName = (String) map.get("area");
-        String countryName = (String) map.get("country");
-        Date startTime = DateUtil.recedeTime(7);
-        CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, new Date(), areaName, countryName);
-        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, new Date(), areaName, countryName);
+        Result<Object> result = new Result<>();
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area") || !map.containsKey("country")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                return result;
+            }
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            String areaName = (String) map.get("area");
+            String countryName = (String) map.get("country");
+            CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
+            CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime,endTime, areaName, countryName);
 
-        Map<String, Object> numData = new HashMap<String, Object>();
+            Map<String, Object> numData = new HashMap<String, Object>();
 
-        String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
-        Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
-                inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
-                orderNumSummary.getNonoil()};
-        numData.put("x", xTitleArr);
-        numData.put("y", yValueArr);
+            String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
+            Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
+                    inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
+                    orderNumSummary.getNonoil()};
+            numData.put("x", xTitleArr);
+            numData.put("y", yValueArr);
 
-        Map<String, Object> amountData = new HashMap<String, Object>();
+            Map<String, Object> amountData = new HashMap<>();
 
-        String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
-        BigDecimal[] yValueArr02 = new BigDecimal[]{
-                inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
-        amountData.put("x", xTitleArr02);
-        amountData.put("y", yValueArr02);
+            String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
+            BigDecimal[] yValueArr02 = new BigDecimal[]{
+                    inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
+            amountData.put("x", xTitleArr02);
+            amountData.put("y", yValueArr02);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("amount", amountData);
-        data.put("number", numData);
+            Map<String, Object> data = new HashMap<>();
+            data.put("amount", amountData);
+            data.put("number", numData);
 
-        return new Result<>().setData(data);
+            return new Result<>().setData(data);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return  result;
     }
 }
