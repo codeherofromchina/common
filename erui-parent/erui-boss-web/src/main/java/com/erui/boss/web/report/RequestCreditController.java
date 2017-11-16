@@ -192,15 +192,13 @@ public class RequestCreditController {
         nextMonthReceivable.put("chainRate",RateUtil.doubleChainRate(chainMonthOrderAmountAdd, nextMonthOrderAmount.doubleValue()));
         nextMonthReceivable.put("startTime",DateUtil.formatDate2String(nextMonthStartTime,DateUtil.SHORT_SLASH_FORMAT_STR));
         nextMonthReceivable.put("endTime",DateUtil.formatDate2String(nextMonthEndTime,DateUtil.SHORT_SLASH_FORMAT_STR));
-        Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = new HashMap<>();
         data.put("receive", receivable);
         data.put("received", received);
         data.put("notReceive", notReceive);
         data.put("nextWeekReceivable", nextWeekReceivable);
         data.put("nextMonthReceivable", nextMonthReceivable);
-        result.put("data", data);
-        result.put("code", 200);
+        Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
 
