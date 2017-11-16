@@ -295,87 +295,87 @@ public class CustomCentreController {
 
         // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
         Set<String> organizations = new HashSet<>();
-        Map<String, Map<String, Object>> inquiryMap = new HashedMap();
         Integer inquiryCount = 0;
-        Map<String, Map<String, Object>> orderMap = new HashedMap();
         Integer orderCount = 0;
-        BigDecimal bg = null;
+        // 将列表转换为以事业部名称为键的map
+        Map<String, Map<String, Object>> inquiryMap = new HashedMap();
+        Map<String, Map<String, Object>> orderMap = new HashedMap();
 
-
-        // 事业部询单占比饼图数据组合
-        List<Map<String, Object>> inquiryPie = new ArrayList<>();
+        // 询单事业部和总询单数
         inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
             Long total = (Long) m.get("total");
-            Map<String, Object> mmm = new HashedMap();
-            mmm.put("name", organization);
-            mmm.put("value", total);
-            inquiryPie.add(mmm);
-
-
+            inquiryMap.put(organization,m);
             organizations.add(organization);
-
-            inquiryMap.put(organization, m);
             return total.intValue();
         }).reduce(0, (a, b) -> a + b);
 
-        // 事业部订单占比饼图数据组合
-        List<Map<String, Object>> orderPie = new ArrayList<>();
-        //事业部成单金额占比数据组合
-        List<Map<String, Object>> orderAmountPie = new ArrayList<>();
 
         orderCount = orderList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
             Long total = (Long) m.get("totalNum");
-            Map<String, Object> map01 = new HashedMap();
-            map01.put("name", organization);
-            map01.put("value", m.get("totalNum"));
-            orderPie.add(map01);
-
-            Map<String, Object> map02 = new HashedMap();
-            map02.put("name", organization);
-            map02.put("value", m.get("totalAmount"));
-            orderAmountPie.add(map02);
-
+            orderMap.put(organization,m);
             organizations.add(organization);
-
-            orderMap.put(organization, m);
             return total.intValue();
         }).reduce(0, (a, b) -> a + b);
 
 
+
+        // 事业部列表
+        List<String> busUnitList = new ArrayList<>(organizations);
         // 事业部的询单占比、平均报价时间、订单占比、成单金额表格数据组合
         List<Map<String, Object>> tableData = new ArrayList<>();
-        for (String org : organizations) {
-            Map<String, Object> map = new HashedMap();
+        // 询单数数据列表
+        List<Integer> inquiryCountList = new ArrayList<>();
+        // 订单数数据列表
+        List<Integer> orderCountList = new ArrayList<>();
+        // 事业部成单金额列表
+        List<Double> seccessOrderCountList = new ArrayList<>();
+
+        for (String org : busUnitList) {
             Map<String, Object> iMap = inquiryMap.get(org);
             Map<String, Object> oMap = orderMap.get(org);
-            map.put("name", org);
 
-            if (iMap != null) { // 当前事业部中有此询单信息
-                map.put("avgNeedTime", RateUtil.doubleChainRateTwo(((BigDecimal) iMap.get("avgNeedTime")).doubleValue(), 1));
-                map.put("inquiryNumRate", RateUtil.intChainRate(((Long) iMap.get("total")).intValue(), inquiryCount));
-            } else { // 当前事业部没有此询单信息
-                map.put("avgNeedTime", 0);
-                map.put("inquiryNumRate", 0);
+            double avgNeedTime = 0;
+            int inquiryTotal = 0;
+            double orderTotalAmount = 0;
+            int orderTotal = 0;
+            if (iMap != null) {
+                inquiryTotal = ((Long) iMap.get("total")).intValue();
+                avgNeedTime = RateUtil.doubleChainRateTwo(((BigDecimal) iMap.get("avgNeedTime")).doubleValue(), 1);
             }
-
             if (oMap != null) {
-                map.put("totalAmount", RateUtil.doubleChainRateTwo(((BigDecimal) oMap.get("totalAmount")).doubleValue(), 1));
-                map.put("orderNumRate", RateUtil.intChainRate(((Long) oMap.get("totalNum")).intValue(), orderCount));
-            } else {
-                map.put("totalAmount", 0);
-                map.put("orderNumRate", 0);
+                orderTotalAmount = RateUtil.doubleChainRateTwo(((BigDecimal) oMap.get("totalAmount")).doubleValue(), 1);
+                orderTotal = ((Long) oMap.get("totalNum")).intValue();
             }
 
-            tableData.add(map);
+            // 事业部表格信息
+            Map<String, Object> tableMap = new HashedMap();
+            tableMap.put("name", org);
+            tableMap.put("avgNeedTime", avgNeedTime);
+            tableMap.put("inquiryNumRate", RateUtil.intChainRate(inquiryTotal, inquiryCount));
+            tableMap.put("totalAmount", orderTotalAmount);
+            tableMap.put("orderNumRate", RateUtil.intChainRate(orderTotal, orderCount));
+            tableData.add(tableMap);
+            // 事业部询单数数据
+            inquiryCountList.add(inquiryTotal);
+            // 事业部订单数数据
+            orderCountList.add(orderTotal);
+            /// 事业部订单成单金额数据
+            seccessOrderCountList.add(orderTotalAmount);
         }
 
 
         Map<String, Object> data = new HashedMap();
-        data.put("inquiryPie", inquiryPie);
-        data.put("orderPie", orderPie);
-        data.put("orderAmountPie", orderAmountPie);
+        //// 事业部列表
+        data.put("busUnit", busUnitList);
+        // 询单数数据列表
+        data.put("inquiryCount", inquiryCountList);
+        // 订单数数据列表
+        data.put("orderCount", orderCountList);
+        // 事业部成单金额列表
+        data.put("seccessOrderCount", seccessOrderCountList);
+        // 事业部表格信息
         data.put("tableData", tableData);
         return new Result<>(data);
     }
