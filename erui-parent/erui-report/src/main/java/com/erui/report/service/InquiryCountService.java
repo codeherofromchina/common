@@ -111,5 +111,11 @@ public interface InquiryCountService {
 	 * @return  {"avgNeedTime":'平均响应时间--BigDecimal',"total":'总询单数量--Long',"organization":'事业部--String'}
 	 */
 	List<Map<String,Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
-
+	/**
+	 * 询订单趋势图数据
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	InqOrdTrendVo inqOrdTrend( Date startTime, Date endTime);
 }

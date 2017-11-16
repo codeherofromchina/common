@@ -156,6 +156,18 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <select id="ordTrendByTime" resultType="map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT COUNT(1) AS  count,FROM_DAYS(TO_DAYS(project_start)) AS  datetime
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY TO_DAYS(project_start)
+  </select>
   <select id="selectStart" resultType="java.util.Date">
     SELECT project_start FROM order_count ORDER BY project_start ASC LIMIT 1
   </select>

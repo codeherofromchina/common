@@ -324,7 +324,7 @@ public class CustomCentreController {
         List<Map<String, Object>> inquiryPie = new ArrayList<>();
         inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
-            Long total = (Long)m.get("total");
+            Long total = (Long) m.get("total");
             Map<String, Object> mmm = new HashedMap();
             mmm.put("name", organization);
             mmm.put("value", total);
@@ -344,7 +344,7 @@ public class CustomCentreController {
 
         orderCount = orderList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
-            Long total = (Long)m.get("totalNum");
+            Long total = (Long) m.get("totalNum");
             Map<String, Object> map01 = new HashedMap();
             map01.put("name", organization);
             map01.put("value", m.get("totalNum"));
@@ -364,14 +364,14 @@ public class CustomCentreController {
 
         // 事业部的询单占比、平均报价时间、订单占比、成单金额表格数据组合
         List<Map<String, Object>> tableData = new ArrayList<>();
-        for (String org:organizations) {
+        for (String org : organizations) {
             Map<String, Object> map = new HashedMap();
             Map<String, Object> iMap = inquiryMap.get(org);
             Map<String, Object> oMap = orderMap.get(org);
             map.put("name", org);
 
             if (iMap != null) { // 当前事业部中有此询单信息
-                map.put("avgNeedTime", RateUtil.doubleChainRateTwo(((BigDecimal)iMap.get("avgNeedTime")).doubleValue(), 1));
+                map.put("avgNeedTime", RateUtil.doubleChainRateTwo(((BigDecimal) iMap.get("avgNeedTime")).doubleValue(), 1));
                 map.put("inquiryNumRate", RateUtil.intChainRate(((Long) iMap.get("total")).intValue(), inquiryCount));
             } else { // 当前事业部没有此询单信息
                 map.put("avgNeedTime", 0);
@@ -379,7 +379,7 @@ public class CustomCentreController {
             }
 
             if (oMap != null) {
-                map.put("totalAmount", RateUtil.doubleChainRateTwo(((BigDecimal)oMap.get("totalAmount")).doubleValue(), 1));
+                map.put("totalAmount", RateUtil.doubleChainRateTwo(((BigDecimal) oMap.get("totalAmount")).doubleValue(), 1));
                 map.put("orderNumRate", RateUtil.intChainRate(((Long) oMap.get("totalNum")).intValue(), orderCount));
             } else {
                 map.put("totalAmount", 0);
@@ -398,9 +398,10 @@ public class CustomCentreController {
         return new Result<>(data);
     }
 
+
     // 区域明细对比
     @ResponseBody
-    @RequestMapping(value = "/areaDetailContrast",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "/areaDetailContrast", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object areaDetailContrast(@RequestBody Map<String, Object> map) {
         Result<Object> result = new Result<>();
         try {
@@ -425,7 +426,7 @@ public class CustomCentreController {
             areaInqCounts[0] = "询单总数量";
             areaInqAmounts[0] = "询单总金额";
             int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
-            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime,endTime, "");
+            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
             inqCounts[0] = inqTotalCount;
             inqAmounts[0] = inqTotalAmount;
             // 订单
@@ -436,7 +437,7 @@ public class CustomCentreController {
             areaOrdCounts[0] = "订单总数量";
             areaOrdAmounts[0] = "订单总金额";
             int orderTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
-            Double orderTotalAmount = orderService.orderAmountByTime(startTime,endTime, "");
+            Double orderTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
             OrdCounts[0] = orderTotalCount;
             OrdAmounts[0] = orderTotalAmount;
             for (int i = 0; i < areaList.size(); i++) {
@@ -445,9 +446,9 @@ public class CustomCentreController {
                 areaOrdCounts[i + 1] = areaList.get(i);
                 areaOrdAmounts[i + 1] = areaList.get(i);
                 int inqCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", areaList.get(i));
-                Double inqAmount = inquiryService.inquiryAmountByTime(startTime,endTime, areaList.get(i));
-                int ordCount = orderService.orderCountByTime(startTime,endTime, "", "", areaList.get(i));
-                Double ordAmount = orderService.orderAmountByTime(startTime,endTime, areaList.get(i));
+                Double inqAmount = inquiryService.inquiryAmountByTime(startTime, endTime, areaList.get(i));
+                int ordCount = orderService.orderCountByTime(startTime, endTime, "", "", areaList.get(i));
+                Double ordAmount = orderService.orderAmountByTime(startTime, endTime, areaList.get(i));
                 inqCounts[i + 1] = inqCount;
                 inqAmounts[i + 1] = inqAmount;
                 OrdCounts[i + 1] = ordCount;
@@ -475,15 +476,15 @@ public class CustomCentreController {
             result.setData(data);
             result.setStatus(ResultStatusEnum.SUCCESS);
             return result;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return  result;
+        return result;
     }
 
     // 品类明细
     @ResponseBody
-    @RequestMapping(value = "/catesDetail",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "/catesDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object catesDetail(@RequestBody Map<String, Object> map) {
         Result<Object> result = new Result<>();
         try {
@@ -498,11 +499,11 @@ public class CustomCentreController {
             Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
             int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
-            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime,endTime, "");
+            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
             int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
-            Double ordTotalAmount = orderService.orderAmountByTime(startTime,endTime, "");
-            List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime,endTime);
-            List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime,endTime);
+            Double ordTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
+            List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
+            List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
             final Map<String, CateDetailVo> ordMap;
             if (inqList != null && ordList != null) {
                 ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
@@ -543,19 +544,19 @@ public class CustomCentreController {
                 }
             }
             inqList.sort((vo1, vo2) -> {
-                int count1 = vo2.getInqCateCount()+vo2.getOrdCateCount();
-                        int count2 = vo1.getInqCateCount()+vo1.getOrdCateCount();
+                int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
+                int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
 
-                     return count1 - count2;
+                return count1 - count2;
             });
             result.setStatus(ResultStatusEnum.SUCCESS);
             result.setData(inqList);
-            return  result;
-        }catch (Exception e){
+            return result;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         result.setStatus(ResultStatusEnum.FAIL);
-        return  result;
+        return result;
     }
 
     /**
@@ -610,7 +611,7 @@ public class CustomCentreController {
             String areaName = (String) map.get("area");
             String countryName = (String) map.get("country");
             CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
-            CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime,endTime, areaName, countryName);
+            CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
 
             Map<String, Object> numData = new HashMap<String, Object>();
 
@@ -639,10 +640,10 @@ public class CustomCentreController {
             data.put("number", numData);
 
             return new Result<>().setData(data);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return  result;
+        return result;
     }
 }
