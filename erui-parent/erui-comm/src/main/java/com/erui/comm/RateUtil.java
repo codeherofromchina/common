@@ -18,13 +18,14 @@ public class RateUtil {
      * @Date:15:21 2017/10/20
      * @modified By
      */
-    public static Double intChainRate(int element, int denominator){
+    public static double intChainRate(int element, int denominator){
         DecimalFormat df=new DecimalFormat("0.0000");
         if (denominator > 0){
          return Double.parseDouble(df.format(((double) element)/((double) denominator)));
-        } else {
-            return null;
+        } if (element == 0 || denominator == 0 ){
+            return 0;
         }
+        return 1;
     }
      /**
       * @Author:SHIGS
