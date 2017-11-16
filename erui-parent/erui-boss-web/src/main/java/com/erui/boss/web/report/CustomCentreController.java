@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
@@ -312,32 +313,38 @@ public class CustomCentreController {
 
         // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
         Set<String> organizations = new HashSet<>();
-        Map<String,Map<String,Object>> inquirySet = new HashedMap();
-        int inquiryCount = 0;
-        Map<String,Map<String,Object>> orderSet = new HashedMap();
-        int orderCount = 0;
+        Map<String, Map<String, Object>> inquiryMap = new HashedMap();
+        Integer inquiryCount = 0;
+        Map<String, Map<String, Object>> orderMap = new HashedMap();
+        Integer orderCount = 0;
+        BigDecimal bg = null;
+
 
         // 事业部询单占比饼图数据组合
         List<Map<String, Object>> inquiryPie = new ArrayList<>();
-        inquiryList.stream().forEach(m -> {
+        inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
+            Long total = (Long)m.get("total");
             Map<String, Object> mmm = new HashedMap();
             mmm.put("name", organization);
-            mmm.put("value", m.get("total"));
+            mmm.put("value", total);
             inquiryPie.add(mmm);
+
 
             organizations.add(organization);
 
-            inquirySet.put(organization,m);
-        });
+            inquiryMap.put(organization, m);
+            return total.intValue();
+        }).reduce(0, (a, b) -> a + b);
 
         // 事业部订单占比饼图数据组合
         List<Map<String, Object>> orderPie = new ArrayList<>();
         //事业部成单金额占比数据组合
         List<Map<String, Object>> orderAmountPie = new ArrayList<>();
 
-        orderList.stream().forEach(m -> {
+        orderCount = orderList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
+            Long total = (Long)m.get("totalNum");
             Map<String, Object> map01 = new HashedMap();
             map01.put("name", organization);
             map01.put("value", m.get("totalNum"));
@@ -350,28 +357,44 @@ public class CustomCentreController {
 
             organizations.add(organization);
 
-            inquirySet.put(organization,m);
-        });
+            orderMap.put(organization, m);
+            return total.intValue();
+        }).reduce(0, (a, b) -> a + b);
 
 
         // 事业部的询单占比、平均报价时间、订单占比、成单金额表格数据组合
-        /**
-        List<Map<String, Object>> tableData = organizations.parallelStream().map(org -> {
+        List<Map<String, Object>> tableData = new ArrayList<>();
+        for (String org:organizations) {
             Map<String, Object> map = new HashedMap();
-            map.put("name",org);
-            map.put("avgNeedTime",inquirySet.get(org).get("avgNeedTime"));
-            map.put("totalAmount",orderSet.get(org).get("totalAmount"));
+            Map<String, Object> iMap = inquiryMap.get(org);
+            Map<String, Object> oMap = orderMap.get(org);
+            map.put("name", org);
 
-            return map;
-        }).collect(Collectors.toList());
-         **/
+            if (iMap != null) { // 当前事业部中有此询单信息
+                map.put("avgNeedTime", RateUtil.doubleChainRateTwo(((BigDecimal)iMap.get("avgNeedTime")).doubleValue(), 1));
+                map.put("inquiryNumRate", RateUtil.intChainRate(((Long) iMap.get("total")).intValue(), inquiryCount));
+            } else { // 当前事业部没有此询单信息
+                map.put("avgNeedTime", 0);
+                map.put("inquiryNumRate", 0);
+            }
+
+            if (oMap != null) {
+                map.put("totalAmount", RateUtil.doubleChainRateTwo(((BigDecimal)oMap.get("totalAmount")).doubleValue(), 1));
+                map.put("orderNumRate", RateUtil.intChainRate(((Long) oMap.get("totalNum")).intValue(), orderCount));
+            } else {
+                map.put("totalAmount", 0);
+                map.put("orderNumRate", 0);
+            }
+
+            tableData.add(map);
+        }
 
 
         Map<String, Object> data = new HashedMap();
         data.put("inquiryPie", inquiryPie);
         data.put("orderPie", orderPie);
         data.put("orderAmountPie", orderAmountPie);
-        //data.put("tableData", tableData);
+        data.put("tableData", tableData);
         return new Result<>(data);
     }
 
