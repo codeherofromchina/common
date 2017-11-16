@@ -3,16 +3,20 @@ package com.erui.boss.web.report;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.report.util.CustomerCategoryNumVO;
+import com.erui.report.util.InqOrdTrendVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -290,7 +294,6 @@ public class CustomCentreController {
         return new Result<>(quoteTimeMap);
     }
 
-
     // 事业部明细
     @ResponseBody
     @RequestMapping(value = "/busUnitDetail", method = RequestMethod.POST)
@@ -310,32 +313,38 @@ public class CustomCentreController {
 
         // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
         Set<String> organizations = new HashSet<>();
-        Map<String,Map<String,Object>> inquirySet = new HashedMap();
-        int inquiryCount = 0;
-        Map<String,Map<String,Object>> orderSet = new HashedMap();
-        int orderCount = 0;
+        Map<String, Map<String, Object>> inquiryMap = new HashedMap();
+        Integer inquiryCount = 0;
+        Map<String, Map<String, Object>> orderMap = new HashedMap();
+        Integer orderCount = 0;
+        BigDecimal bg = null;
+
 
         // 事业部询单占比饼图数据组合
         List<Map<String, Object>> inquiryPie = new ArrayList<>();
-        inquiryList.stream().forEach(m -> {
+        inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
+            Long total = (Long)m.get("total");
             Map<String, Object> mmm = new HashedMap();
             mmm.put("name", organization);
-            mmm.put("value", m.get("total"));
+            mmm.put("value", total);
             inquiryPie.add(mmm);
+
 
             organizations.add(organization);
 
-            inquirySet.put(organization,m);
-        });
+            inquiryMap.put(organization, m);
+            return total.intValue();
+        }).reduce(0, (a, b) -> a + b);
 
         // 事业部订单占比饼图数据组合
         List<Map<String, Object>> orderPie = new ArrayList<>();
         //事业部成单金额占比数据组合
         List<Map<String, Object>> orderAmountPie = new ArrayList<>();
 
-        orderList.stream().forEach(m -> {
+        orderCount = orderList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
+            Long total = (Long)m.get("totalNum");
             Map<String, Object> map01 = new HashedMap();
             map01.put("name", organization);
             map01.put("value", m.get("totalNum"));
@@ -348,153 +357,205 @@ public class CustomCentreController {
 
             organizations.add(organization);
 
-            inquirySet.put(organization,m);
-        });
+            orderMap.put(organization, m);
+            return total.intValue();
+        }).reduce(0, (a, b) -> a + b);
 
 
         // 事业部的询单占比、平均报价时间、订单占比、成单金额表格数据组合
-        /**
-        List<Map<String, Object>> tableData = organizations.parallelStream().map(org -> {
+        List<Map<String, Object>> tableData = new ArrayList<>();
+        for (String org:organizations) {
             Map<String, Object> map = new HashedMap();
-            map.put("name",org);
-            map.put("avgNeedTime",inquirySet.get(org).get("avgNeedTime"));
-            map.put("totalAmount",orderSet.get(org).get("totalAmount"));
+            Map<String, Object> iMap = inquiryMap.get(org);
+            Map<String, Object> oMap = orderMap.get(org);
+            map.put("name", org);
 
-            return map;
-        }).collect(Collectors.toList());
-         **/
+            if (iMap != null) { // 当前事业部中有此询单信息
+                map.put("avgNeedTime", RateUtil.doubleChainRateTwo(((BigDecimal)iMap.get("avgNeedTime")).doubleValue(), 1));
+                map.put("inquiryNumRate", RateUtil.intChainRate(((Long) iMap.get("total")).intValue(), inquiryCount));
+            } else { // 当前事业部没有此询单信息
+                map.put("avgNeedTime", 0);
+                map.put("inquiryNumRate", 0);
+            }
+
+            if (oMap != null) {
+                map.put("totalAmount", RateUtil.doubleChainRateTwo(((BigDecimal)oMap.get("totalAmount")).doubleValue(), 1));
+                map.put("orderNumRate", RateUtil.intChainRate(((Long) oMap.get("totalNum")).intValue(), orderCount));
+            } else {
+                map.put("totalAmount", 0);
+                map.put("orderNumRate", 0);
+            }
+
+            tableData.add(map);
+        }
 
 
         Map<String, Object> data = new HashedMap();
         data.put("inquiryPie", inquiryPie);
         data.put("orderPie", orderPie);
         data.put("orderAmountPie", orderAmountPie);
-        //data.put("tableData", tableData);
+        data.put("tableData", tableData);
         return new Result<>(data);
     }
 
     // 区域明细对比
     @ResponseBody
-    @RequestMapping("/areaDetailContrast")
-    public Object areaDetailContrast() {
+    @RequestMapping(value = "/areaDetailContrast",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
+    public Object areaDetailContrast(@RequestBody Map<String, Object> map) {
         Result<Object> result = new Result<>();
-        Date startTime = DateUtil.recedeTime(7);
-        // 询单
-        //List<String> areaList = inquiryService.selectAreaList();
-        List<InquiryAreaVO> areaList1 = inquiryService.selectAllAreaAndCountryList();
-        List<String> areaList = areaList1.parallelStream().map(InquiryAreaVO::getAreaName)
-                .collect(Collectors.toList());
-        String[] areaInqCounts = new String[areaList.size() + 1];// 询单数量区域列表
-        String[] areaInqAmounts = new String[areaList.size() + 1];// 询单金额区域列表
-        Integer[] inqCounts = new Integer[areaList.size() + 1];// 询单数量列表
-        Double[] inqAmounts = new Double[areaList.size() + 1];// 询单金额列表
-        areaInqCounts[0] = "询单总数量";
-        areaInqAmounts[0] = "询单总金额";
-        int inqTotalCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
-        Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, new Date(), "");
-        inqCounts[0] = inqTotalCount;
-        inqAmounts[0] = inqTotalAmount;
-        // 订单
-        String[] areaOrdCounts = new String[areaList.size() + 1];// 订单数量区域列表
-        String[] areaOrdAmounts = new String[areaList.size() + 1];// 订单金额区域列表
-        Integer[] OrdCounts = new Integer[areaList.size() + 1];// 订单数量列表
-        Double[] OrdAmounts = new Double[areaList.size() + 1];// 订单金额列表
-        areaOrdCounts[0] = "订单总数量";
-        areaOrdAmounts[0] = "订单总金额";
-        int orderTotalCount = orderService.orderCountByTime(startTime, new Date(), "", "", "");
-        Double orderTotalAmount = orderService.orderAmountByTime(startTime, new Date(), "");
-        OrdCounts[0] = orderTotalCount;
-        OrdAmounts[0] = orderTotalAmount;
-        for (int i = 0; i < areaList.size(); i++) {
-            areaInqCounts[i + 1] = areaList.get(i);
-            areaInqAmounts[i + 1] = areaList.get(i);
-            areaOrdCounts[i + 1] = areaList.get(i);
-            areaOrdAmounts[i + 1] = areaList.get(i);
-            int inqCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", areaList.get(i));
-            Double inqAmount = inquiryService.inquiryAmountByTime(startTime, new Date(), areaList.get(i));
-            int ordCount = orderService.orderCountByTime(startTime, new Date(), "", "", areaList.get(i));
-            Double ordAmount = orderService.orderAmountByTime(startTime, new Date(), areaList.get(i));
-            inqCounts[i + 1] = inqCount;
-            inqAmounts[i + 1] = inqAmount;
-            OrdCounts[i + 1] = ordCount;
-            OrdAmounts[i + 1] = ordAmount;
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                return result;
+            }
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            // 询单
+            //List<String> areaList = inquiryService.selectAreaList();
+            List<InquiryAreaVO> areaList1 = inquiryService.selectAllAreaAndCountryList();
+            List<String> areaList = areaList1.parallelStream().map(InquiryAreaVO::getAreaName)
+                    .collect(Collectors.toList());
+            String[] areaInqCounts = new String[areaList.size() + 1];// 询单数量区域列表
+            String[] areaInqAmounts = new String[areaList.size() + 1];// 询单金额区域列表
+            Integer[] inqCounts = new Integer[areaList.size() + 1];// 询单数量列表
+            Double[] inqAmounts = new Double[areaList.size() + 1];// 询单金额列表
+            areaInqCounts[0] = "询单总数量";
+            areaInqAmounts[0] = "询单总金额";
+            int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
+            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime,endTime, "");
+            inqCounts[0] = inqTotalCount;
+            inqAmounts[0] = inqTotalAmount;
+            // 订单
+            String[] areaOrdCounts = new String[areaList.size() + 1];// 订单数量区域列表
+            String[] areaOrdAmounts = new String[areaList.size() + 1];// 订单金额区域列表
+            Integer[] OrdCounts = new Integer[areaList.size() + 1];// 订单数量列表
+            Double[] OrdAmounts = new Double[areaList.size() + 1];// 订单金额列表
+            areaOrdCounts[0] = "订单总数量";
+            areaOrdAmounts[0] = "订单总金额";
+            int orderTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
+            Double orderTotalAmount = orderService.orderAmountByTime(startTime,endTime, "");
+            OrdCounts[0] = orderTotalCount;
+            OrdAmounts[0] = orderTotalAmount;
+            for (int i = 0; i < areaList.size(); i++) {
+                areaInqCounts[i + 1] = areaList.get(i);
+                areaInqAmounts[i + 1] = areaList.get(i);
+                areaOrdCounts[i + 1] = areaList.get(i);
+                areaOrdAmounts[i + 1] = areaList.get(i);
+                int inqCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", areaList.get(i));
+                Double inqAmount = inquiryService.inquiryAmountByTime(startTime,endTime, areaList.get(i));
+                int ordCount = orderService.orderCountByTime(startTime,endTime, "", "", areaList.get(i));
+                Double ordAmount = orderService.orderAmountByTime(startTime,endTime, areaList.get(i));
+                inqCounts[i + 1] = inqCount;
+                inqAmounts[i + 1] = inqAmount;
+                OrdCounts[i + 1] = ordCount;
+                OrdAmounts[i + 1] = ordAmount;
+            }
+
+            HashMap<String, Object> data = new HashMap<>();// 结果集
+            HashMap<String, Object> inqCount = new HashMap<>();
+            inqCount.put("marketArea", areaInqCounts);
+            inqCount.put("inqCounts", inqCounts);
+            HashMap<String, Object> inqAmount = new HashMap<>();
+            inqAmount.put("marketArea", areaInqAmounts);
+            inqAmount.put("inqAmount", inqAmounts);
+            HashMap<String, Object> ordCount = new HashMap<>();
+            ordCount.put("marketArea", areaOrdCounts);
+            ordCount.put("ordCounts", OrdCounts);
+            HashMap<String, Object> orderAmount = new HashMap<>();
+            orderAmount.put("marketArea", areaOrdAmounts);
+            orderAmount.put("ordAmount", OrdAmounts);
+            data.put("inqCount", inqCount);
+            data.put("inqAmount", inqAmount);
+            data.put("ordCount", ordCount);
+            data.put("orderAmount", orderAmount);
+
+            result.setData(data);
+            result.setStatus(ResultStatusEnum.SUCCESS);
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        HashMap<String, Object> data = new HashMap<>();// 结果集
-        HashMap<String, Object> inqCount = new HashMap<>();
-        inqCount.put("marketArea", areaInqCounts);
-        inqCount.put("inqCounts", inqCounts);
-        HashMap<String, Object> inqAmount = new HashMap<>();
-        inqAmount.put("marketArea", areaInqAmounts);
-        inqAmount.put("inqAmount", inqAmounts);
-        HashMap<String, Object> ordCount = new HashMap<>();
-        ordCount.put("marketArea", areaOrdCounts);
-        ordCount.put("ordCounts", OrdCounts);
-        HashMap<String, Object> orderAmount = new HashMap<>();
-        orderAmount.put("marketArea", areaOrdAmounts);
-        orderAmount.put("ordAmount", OrdAmounts);
-        data.put("inqCount", inqCount);
-        data.put("inqAmount", inqAmount);
-        data.put("ordCount", ordCount);
-        data.put("orderAmount", orderAmount);
-
-        result.setData(data);
-        result.setStatus(ResultStatusEnum.SUCCESS);
-        return result;
+        return  result;
     }
 
     // 品类明细
     @ResponseBody
-    @RequestMapping("/catesDetail")
-    public Object catesDetail() {
-        Date startTime = DateUtil.recedeTime(7);
-        int inqTotalCount = inquiryService.inquiryCountByTime(startTime, new Date(), "", 0, 0, "", "");
-        Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, new Date(), "");
-        int ordTotalCount = orderService.orderCountByTime(startTime, new Date(), "", "", "");
-        Double ordTotalAmount = orderService.orderAmountByTime(startTime, new Date(), "");
-        List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, new Date());
-        List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, new Date());
-        final Map<String, CateDetailVo> ordMap;
-        if (inqList != null && ordList != null) {
-            ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
-        } else {
-            ordMap = new HashMap<String, CateDetailVo>();
-        }
-        if (inqList != null) {
-            for (CateDetailVo inqDetailVo : inqList) {
-                String category = inqDetailVo.getCategory();
-                CateDetailVo catevo = ordMap.get(category);
-                if (catevo != null) {
-                    if (catevo.getOrdCateCount() > 0) {
-                        inqDetailVo.setOrdCateCount(catevo.getOrdCateCount());
+    @RequestMapping(value = "/catesDetail",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
+    public Object catesDetail(@RequestBody Map<String, Object> map) {
+        Result<Object> result = new Result<>();
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                return result;
+            }
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
+            int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
+            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime,endTime, "");
+            int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
+            Double ordTotalAmount = orderService.orderAmountByTime(startTime,endTime, "");
+            List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime,endTime);
+            List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime,endTime);
+            final Map<String, CateDetailVo> ordMap;
+            if (inqList != null && ordList != null) {
+                ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
+            } else {
+                ordMap = new HashMap<>();
+            }
+            if (inqList != null) {
+                for (CateDetailVo inqDetailVo : inqList) {
+                    String category = inqDetailVo.getCategory();
+                    CateDetailVo catevo = ordMap.get(category);
+                    if (catevo != null) {
+                        if (catevo.getOrdCateCount() > 0) {
+                            inqDetailVo.setOrdCateCount(catevo.getOrdCateCount());
+                        }
+                        if (ordTotalCount > 0) {
+                            inqDetailVo.setOrdProportion(RateUtil.intChainRate(catevo.getOrdCateCount(), ordTotalCount));
+                        }
+                        if (catevo.getOrdCatePrice() > 0) {
+                            inqDetailVo.setOrdCatePrice(catevo.getOrdCatePrice());
+                        }
+                        if (ordTotalAmount > 0) {
+                            inqDetailVo.setOrdAmountProportion(
+                                    RateUtil.doubleChainRate(catevo.getOrdCatePrice(), ordTotalAmount));
+                        }
+                    } else {
+                        inqDetailVo.setOrdCateCount(0);
+                        inqDetailVo.setOrdProportion(0.00);
+                        inqDetailVo.setOrdCatePrice(0.00);
+                        inqDetailVo.setOrdAmountProportion(0.00);
                     }
-                    if (ordTotalCount > 0) {
-                        inqDetailVo.setOrdProportion(RateUtil.intChainRate(catevo.getOrdCateCount(), ordTotalCount));
+                    if (inqTotalCount > 0) {
+                        inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
                     }
-                    if (catevo.getOrdCatePrice() > 0) {
-                        inqDetailVo.setOrdCatePrice(catevo.getOrdCatePrice());
+                    if (inqTotalAmount > 0) {
+                        inqDetailVo.setInqAmountProportion(
+                                RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(), inqTotalAmount));
                     }
-                    if (ordTotalAmount > 0) {
-                        inqDetailVo.setOrdAmountProportion(
-                                RateUtil.doubleChainRate(catevo.getOrdCatePrice(), ordTotalAmount));
-                    }
-                } else {
-                    inqDetailVo.setOrdCateCount(0);
-                    inqDetailVo.setOrdProportion(0.00);
-                    inqDetailVo.setOrdCatePrice(0.00);
-                    inqDetailVo.setOrdAmountProportion(0.00);
-                }
-                if (inqTotalCount > 0) {
-                    inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
-                }
-                if (inqTotalAmount > 0) {
-                    inqDetailVo.setInqAmountProportion(
-                            RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(), inqTotalAmount));
                 }
             }
+            inqList.sort((vo1, vo2) -> {
+                int count1 = vo2.getInqCateCount()+vo2.getOrdCateCount();
+                        int count2 = vo1.getInqCateCount()+vo1.getOrdCateCount();
+
+                     return count1 - count2;
+            });
+            result.setStatus(ResultStatusEnum.SUCCESS);
+            result.setData(inqList);
+            return  result;
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        inqList.sort((vo1, vo2) -> vo2.getInqCateCount().compareTo(vo1.getInqCateCount()));
-        return new Result<Object>().setData(inqList);
+        result.setStatus(ResultStatusEnum.FAIL);
+        return  result;
     }
 
     /**
@@ -535,38 +596,53 @@ public class CustomCentreController {
     @RequestMapping(value = "/areaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
     public Object areaDetail(@RequestBody Map<String, Object> map) {
-        String areaName = (String) map.get("area");
-        String countryName = (String) map.get("country");
-        Date startTime = DateUtil.recedeTime(7);
-        CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, new Date(), areaName, countryName);
-        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, new Date(), areaName, countryName);
+        Result<Object> result = new Result<>();
+        try {
+            if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area") || !map.containsKey("country")) {
+                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+                return result;
+            }
+            //开始时间
+            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+            //截止时间
+            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            String areaName = (String) map.get("area");
+            String countryName = (String) map.get("country");
+            CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
+            CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime,endTime, areaName, countryName);
 
-        Map<String, Object> numData = new HashMap<String, Object>();
+            Map<String, Object> numData = new HashMap<String, Object>();
 
-        String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
-        Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
-                inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
-                orderNumSummary.getNonoil()};
-        numData.put("x", xTitleArr);
-        numData.put("y", yValueArr);
+            String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
+            Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
+                    inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
+                    orderNumSummary.getNonoil()};
+            numData.put("x", xTitleArr);
+            numData.put("y", yValueArr);
 
-        Map<String, Object> amountData = new HashMap<String, Object>();
+            Map<String, Object> amountData = new HashMap<>();
 
-        String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
-        BigDecimal[] yValueArr02 = new BigDecimal[]{
-                inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
-        amountData.put("x", xTitleArr02);
-        amountData.put("y", yValueArr02);
+            String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
+            BigDecimal[] yValueArr02 = new BigDecimal[]{
+                    inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                    orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
+            amountData.put("x", xTitleArr02);
+            amountData.put("y", yValueArr02);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("amount", amountData);
-        data.put("number", numData);
+            Map<String, Object> data = new HashMap<>();
+            data.put("amount", amountData);
+            data.put("number", numData);
 
-        return new Result<>().setData(data);
+            return new Result<>().setData(data);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return  result;
     }
 }

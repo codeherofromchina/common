@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.report.model.*;
+import com.erui.report.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +23,6 @@ import com.erui.report.dao.InquiryCountMapper;
 import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.InquiryCountExample.Criteria;
 import com.erui.report.service.InquiryCountService;
-import com.erui.report.util.CustomerCategoryNumVO;
-import com.erui.report.util.CustomerNumSummaryVO;
-import com.erui.report.util.ExcelUploadTypeEnum;
-import com.erui.report.util.ImportDataResponse;
-import com.erui.report.util.InquiryAreaVO;
 import org.springframework.util.NumberUtils;
 
 /*
@@ -615,4 +612,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         return result;
     }
+
+
 }
