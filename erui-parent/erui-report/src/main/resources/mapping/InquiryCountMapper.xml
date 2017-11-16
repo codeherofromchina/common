@@ -207,6 +207,18 @@
       order by ${orderByClause}
     </if>
   </select>
+  <!--询单趋势图-->
+  <select id="inqTrendByTime" resultType="map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT COUNT(1) as count ,FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
+    FROM inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY TO_DAYS(rollin_time)
+  </select>
   <!--查询事业部列表-->
   <select id="selectOrgListByExample" resultType="java.lang.String" parameterType="com.erui.report.model.InquiryCountExample" >
     select DISTINCT(organization)
@@ -336,6 +348,16 @@
         <include refid="Example_Where_Clause" />
       </if>
       group by organization
+  </select>
+
+
+  <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT inquiry_area as area,count(1) as total,sum(IFNULL(quotation_price,0)) as totalAmount
+    FROM erui_report.inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    group by inquiry_area
   </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
