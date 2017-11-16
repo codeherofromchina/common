@@ -636,12 +636,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         int days = DateUtil.getDayBetween(startTime, endTime);
         for (int i = 0; i <days ; i++) {
-            Date datetime = DateUtil.recedeTime(days - (i + 1));
+            Date datetime = DateUtil.sometimeCalendar(startTime,-i);
             dates.add(dateFormat.format(datetime));
         }
         //封装询订单数据
         Map<String, Map<String, Object>> inqTrend = inqTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
-        Map<String, Map<String, Object>> ordTrend = inqTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
+        Map<String, Map<String, Object>> ordTrend = ordTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
 
         List<Integer> inqCounts=new ArrayList<>();
         List<Integer> ordCounts=new ArrayList<>();
