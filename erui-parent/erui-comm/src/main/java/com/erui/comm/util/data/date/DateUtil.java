@@ -185,7 +185,25 @@ public class DateUtil {
             dayWeek = 7;
         }
         calendar.add(Calendar.DATE, -dayWeek + week);
-        date = calendar.getTime();
+        date = getOperationTime(calendar.getTime(), 23, 59, 59);
+        return date;
+    }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:16:25 2017/11/15
+      * @modified By
+      */
+    public static Date getBeforeWeek(Date date, int week) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int dayWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+        if (dayWeek == 0) {
+            dayWeek = 7;
+        }
+        calendar.add(Calendar.DATE, -dayWeek + week);
+        calendar.add(Calendar.WEEK_OF_MONTH, -1);
+        date = getOperationTime(calendar.getTime(), 0, 0, 0);
         return date;
     }
 
@@ -196,11 +214,32 @@ public class DateUtil {
      * @return
      */
     public static Date getMonthFirstDay(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
-        date = calendar.getTime();
-        return date;
+        if (date != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+            date = getOperationTime(calendar.getTime(), 0, 0, 0);
+            return date;
+        }
+        return null;
+    }
+
+    /**
+     * @Author:SHIGS
+     * @Description 得到下月的第一天
+     * @Date:13:50 2017/11/15
+     * @modified By
+     */
+    public static Date getNextMonthFirstDay(Date date) {
+        if (date != null && !"".equals(date)) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.MONDAY, 1);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+            date = getOperationTime(calendar.getTime(), 0, 0, 0);
+            return date;
+        }
+        return null;
     }
 
     /**
@@ -210,11 +249,32 @@ public class DateUtil {
      * @return
      */
     public static Date getMonthLastDay(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        date = calendar.getTime();
-        return date;
+        if (date != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            date = getOperationTime(calendar.getTime(), 23, 59, 59);
+            return date;
+        }
+        return null;
+    }
+
+    /**
+     * @Author:SHIGS
+     * @Description 得到下月的最后一天
+     * @Date:15:51 2017/11/15
+     * @modified By
+     */
+    public static Date getNextMonthLastDay(Date date) {
+        if (date != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.MONTH, 1);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            date = getOperationTime(calendar.getTime(), 23, 59, 59);
+            return date;
+        }
+        return null;
     }
 
     /**
@@ -288,8 +348,18 @@ public class DateUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(str2Date("1992-12-12"));
-        int daysBetween = getDayBetween(str2Date("1992-6-12"), str2Date("1992-7-12"));
+        //System.out.println(str2Date("1992-12-12"));
+        int daysBetween = getDayBetween(str2Date("2017-11-4"), str2Date("2017-11-10"));
+        Date monthFirstDay = getMonthFirstDay(new Date());
+        Date nextMonthFirstDay = getNextMonthFirstDay(str2Date("1992-12-12"));
+        Date nextMonthLastDay = getNextMonthLastDay(str2Date("1992-12-12"));
+        Date week = getWeek(new Date(), 5);
+        Date beforeWeek = getBeforeWeek(new Date(), 7);
+        System.out.println(beforeWeek);
+        System.out.println("周"+week);
+        System.out.println(monthFirstDay);
+        System.out.println(nextMonthFirstDay);
+        System.out.println(nextMonthLastDay);
         System.out.println(daysBetween);
     }
 
@@ -417,12 +487,13 @@ public class DateUtil {
         }
         return null;
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:17:46 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:17:46 2017/11/14
+     * @modified By
+     */
     public static Date maxTime(Date... dates) {
         if (dates != null && dates.length > 0) {
             Date result = dates[0];

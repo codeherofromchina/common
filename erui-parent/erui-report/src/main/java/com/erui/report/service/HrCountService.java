@@ -52,7 +52,7 @@ public interface HrCountService {
 	  * @Date:18:04 2017/10/24
 	  * @modified By
 	  */
-	Map <String,Object>selectHrCountByDepart(String depart,int days);
+	Map <String,Object>selectHrCountByDepart(Date startTime, Date endTime,String depart);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询组织部门数量

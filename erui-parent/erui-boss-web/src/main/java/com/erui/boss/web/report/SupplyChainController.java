@@ -146,7 +146,7 @@ public class SupplyChainController {
                 result.setData("参数输入有误");
                 return result;
             }
-            int type = (int)map.get("type");
+            String type = map.get("type").toString();
             //开始时间
             Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
             //截止时间
@@ -155,18 +155,17 @@ public class SupplyChainController {
             String[] legend = new String[1];
             SupplyTrendVo data = this.supplyChainService.supplyTrend(startTime,endTime,type);
             if (data != null) {
-
-                if (type == 0) {
+                if (type.equals("supplier")) {
                     legend[0] = "供应商完成量";
                     dataMap.put("legend", legend);
                     dataMap.put("xAxis", data.getDatetime());
                     dataMap.put("yAxis", data.getSuppliyFinishCount());
-                } else if (type == 1) {
+                } else if (type.equals("spu")) {
                     legend[0] = "SPU完成量";
                     dataMap.put("legend", legend);
                     dataMap.put("xAxis", data.getDatetime());
                     dataMap.put("yAxis", data.getSPUFinishCount());
-                } else if (type == 2) {
+                } else if (type.equals("sku")) {
                     legend[0] = "SKU完成量";
                     dataMap.put("legend", legend);
                     dataMap.put("xAxis", data.getDatetime());
@@ -174,6 +173,7 @@ public class SupplyChainController {
                 }
                 result.setStatus(ResultStatusEnum.SUCCESS);
                 result.setData(dataMap);
+                return result;
             }
             result.setStatus(ResultStatusEnum.DATA_NULL);
             return result;

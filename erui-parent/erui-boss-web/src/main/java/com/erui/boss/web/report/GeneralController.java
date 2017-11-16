@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -16,11 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.erui.boss.web.util.Result;
 import com.erui.comm.RateUtil;
-import com.erui.report.service.HrCountService;
-import com.erui.report.service.InquiryCountService;
-import com.erui.report.service.MemberService;
-import com.erui.report.service.OrderCountService;
-import com.erui.report.service.SupplyChainService;
 import com.erui.report.util.CustomerCategoryNumVO;
 
 /**
@@ -45,6 +41,8 @@ public class GeneralController {
     private HrCountService hrCountService;
     @Autowired
     private SupplyChainService supplyChainService;
+    @Autowired
+    private RequestCreditService requestCreditService;
     private static DecimalFormat df = new DecimalFormat("0.00");
 
     /**
@@ -172,12 +170,21 @@ public class GeneralController {
     // 询单/订单趋势
     @ResponseBody
     @RequestMapping(value = "/inquiryOrderTrend", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object tendencyChart(@RequestBody(required = true) Map<String, Object> reqMap) throws Exception {
-        if (!reqMap.containsKey("days")) {
-            throw new MissingServletRequestParameterException("days", "String");
+    public Object tendencyChart(@RequestBody(required = true) Map<String, Object> map) throws Exception {
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
         }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        int days = 0;
+        days = DateUtil.getDayBetween(startTime,endTime);
         //当前时期
-        int days = Integer.parseInt(reqMap.get("days").toString());
         Map<String, Object> data = new HashMap<>();
         // 封装日期,X轴
         String[] dates = new String[days];
@@ -190,7 +197,7 @@ public class GeneralController {
             dates[i] = date;
         }
         // 封装查询订单和询单数据
-        Date sTime = DateUtil.recedeTime(days);
+        Date sTime = DateUtil.sometimeCalendar(startTime,days);
         Integer[] inCounts = new Integer[dateList.size()];// 询单数数组
         Integer[] orderCounts = new Integer[dateList.size()];// 订单数数组
         for (int i = 0; i < dateList.size(); i++) {
@@ -224,7 +231,7 @@ public class GeneralController {
     @ResponseBody
     public Object inquiryOrderTrend(@RequestBody Map<String, Object> map) throws Exception {
         if (!map.containsKey("type")) {
-            throw new MissingServletRequestParameterException("days", "String");
+            throw new MissingServletRequestParameterException("type", "String");
         }
         if (!map.containsKey("startTime")) {
             throw new MissingServletRequestParameterException("startTime", "String");
@@ -251,7 +258,7 @@ public class GeneralController {
     @ResponseBody
     public Object inquiryOrderCategoryTopNum(@RequestBody Map<String, Object> map) throws Exception {
         if (!map.containsKey("topN")) {
-            throw new MissingServletRequestParameterException("startTime", "String");
+            throw new MissingServletRequestParameterException("topN", "String");
         }
         if (!map.containsKey("startTime")) {
             throw new MissingServletRequestParameterException("startTime", "String");
@@ -269,4 +276,32 @@ public class GeneralController {
         Result<List<CustomerCategoryNumVO>> result = new Result<List<CustomerCategoryNumVO>>(list);
         return result;
     }
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:21:42 2017/11/14
+      * @modified By
+      */
+    @ResponseBody
+    @RequestMapping(value = "requestTendencyChart", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object requestTendencyChart(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("receiveName")) {
+            throw new MissingServletRequestParameterException("receiveName", "String");
+        }
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        Map<String, Object> dataMap = requestCreditService.selectRequestTrend(startTime,endTime, map.get("receiveName").toString());
+        Result<Map<String, Object>> result = new Result<>(dataMap);
+        return result;
+    }
+
 }
