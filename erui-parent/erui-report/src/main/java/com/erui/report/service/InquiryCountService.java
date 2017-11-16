@@ -113,6 +113,14 @@ public interface InquiryCountService {
 	List<Map<String,Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
 
 	/**
+	 * 询订单趋势图数据
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	InqOrdTrendVo inqOrdTrend( Date startTime, Date endTime);
+
+	/**
 	 * 按照转入日期区间统计区域的询单数量和金额
 	 * @param startTime
 	 * @param endTime

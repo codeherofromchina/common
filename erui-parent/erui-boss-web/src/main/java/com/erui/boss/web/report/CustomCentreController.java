@@ -1,30 +1,9 @@
 package com.erui.boss.web.report;
 
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import com.erui.comm.NewDateUtil;
-import com.erui.report.util.CustomerCategoryNumVO;
-import com.erui.report.util.InqOrdTrendVo;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.executor.ResultExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.CateDetailVo;
@@ -32,6 +11,7 @@ import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -85,7 +66,7 @@ public class CustomCentreController {
             chainRate = RateUtil.intChainRate(chain, chainCount);//环比
         }
         // 询单数据修改
-        Map<String, Object> inquiryMap = new HashMap<String, Object>();//询单统计信息
+        Map<String, Object> inquiryMap = new HashMap<>();//询单统计信息
         inquiryMap.put("count", count);
         inquiryMap.put("amount", df.format(amount / 10000) + "万$");
         inquiryMap.put("chainAdd", chain);
@@ -94,7 +75,7 @@ public class CustomCentreController {
         //油气产品统计
         CustomerNumSummaryVO custSummaryVO = inquiryService.selectNumSummaryByExample(startDate, endDate);
         CustomerNumSummaryVO custSummaryVO2 = inquiryService.selectNumSummaryByExample(rateStartDate, startDate);
-        Map<String, Object> proIsOilMap = new HashMap<String, Object>();//油气产品分析
+        Map<String, Object> proIsOilMap = new HashMap<>();//油气产品分析
         if (custSummaryVO != null && custSummaryVO.getTotal() > 0) {
             proIsOilMap.put("oil", custSummaryVO.getOil());
             proIsOilMap.put("notOil", custSummaryVO.getNonoil());
@@ -152,7 +133,7 @@ public class CustomCentreController {
         if (chainCount > 0) {
             chainRate = RateUtil.intChainRate(count - chainCount, chainCount);
         }
-        Map<String, Object> orderMap = new HashMap<String, Object>();// 订单统计信息
+        Map<String, Object> orderMap = new HashMap<>();// 订单统计信息
         orderMap.put("count", count);
         orderMap.put("amount", df.format(amount / 10000) + "万$");
         orderMap.put("chainAdd", count - chainCount);
@@ -169,7 +150,7 @@ public class CustomCentreController {
         if (chainProfit != null) {
             chainProfitRate = RateUtil.doubleChainRate(chainProfit, 1);
         }
-        Map<String, Object> profitMap = new HashMap<String, Object>();
+        Map<String, Object> profitMap = new HashMap<>();
         profitMap.put("profitRate", profitRate);
         profitMap.put("chainRate", chainProfitRate);
 
@@ -186,12 +167,12 @@ public class CustomCentreController {
             successOrderChian = RateUtil.intChainRate((successOrderCount - successOrderChianCount),
                     successOrderChianCount);
         }
-        Map<String, Object> sucessOrderMap = new HashMap<String, Object>();
+        Map<String, Object> sucessOrderMap = new HashMap<>();
         sucessOrderMap.put("successOrderRate", successOrderRate);
         sucessOrderMap.put("successOrderChian", successOrderChian);
 
         // top3
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("startTime", startDate);
         map.put("endTime", endDate);
         List<Map<String, Object>> proTop3 = orderService.selectOrderProTop3(map);
@@ -201,7 +182,7 @@ public class CustomCentreController {
         });
 
         // 组装数据
-        Map<String, Object> datas = new HashMap<String, Object>();// 订单统计信息
+        Map<String, Object> datas = new HashMap<>();// 订单统计信息
         datas.put("order", orderMap);
         datas.put("profitRate", profitMap);
         datas.put("sucessOrderMap", sucessOrderMap);
@@ -399,6 +380,7 @@ public class CustomCentreController {
         return new Result<>(data);
     }
 
+
     // 区域明细对比
     @ResponseBody
     @RequestMapping(value = "/areaDetailContrast", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -503,78 +485,74 @@ public class CustomCentreController {
     // 品类明细
     @ResponseBody
     @RequestMapping(value = "/catesDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object catesDetail(@RequestBody Map<String, Object> map) {
+    public Object catesDetail(@RequestBody Map<String, Object> map) throws Exception {
         Result<Object> result = new Result<>();
-        try {
-            if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-                return result;
-            }
-            //开始时间
-            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-            //截止时间
-            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
-            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
-            int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
-            Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
-            int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
-            Double ordTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
-            List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
-            List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
-            final Map<String, CateDetailVo> ordMap;
-            if (inqList != null && ordList != null) {
-                ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
-            } else {
-                ordMap = new HashMap<>();
-            }
-            if (inqList != null) {
-                for (CateDetailVo inqDetailVo : inqList) {
-                    String category = inqDetailVo.getCategory();
-                    CateDetailVo catevo = ordMap.get(category);
-                    if (catevo != null) {
-                        if (catevo.getOrdCateCount() > 0) {
-                            inqDetailVo.setOrdCateCount(catevo.getOrdCateCount());
-                        }
-                        if (ordTotalCount > 0) {
-                            inqDetailVo.setOrdProportion(RateUtil.intChainRate(catevo.getOrdCateCount(), ordTotalCount));
-                        }
-                        if (catevo.getOrdCatePrice() > 0) {
-                            inqDetailVo.setOrdCatePrice(catevo.getOrdCatePrice());
-                        }
-                        if (ordTotalAmount > 0) {
-                            inqDetailVo.setOrdAmountProportion(
-                                    RateUtil.doubleChainRate(catevo.getOrdCatePrice(), ordTotalAmount));
-                        }
-                    } else {
-                        inqDetailVo.setOrdCateCount(0);
-                        inqDetailVo.setOrdProportion(0.00);
-                        inqDetailVo.setOrdCatePrice(0.00);
-                        inqDetailVo.setOrdAmountProportion(0.00);
+        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            return result;
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
+        int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
+        Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
+        int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
+        Double ordTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
+        List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
+        List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
+        final Map<String, CateDetailVo> ordMap;
+        if (inqList != null && ordList != null) {
+            ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
+        } else {
+            ordMap = new HashMap<>();
+        }
+        if (inqList != null) {
+            for (CateDetailVo inqDetailVo : inqList) {
+                String category = inqDetailVo.getCategory();
+                CateDetailVo catevo = ordMap.get(category);
+                if (catevo != null) {
+                    if (catevo.getOrdCateCount() > 0) {
+                        inqDetailVo.setOrdCateCount(catevo.getOrdCateCount());
                     }
-                    if (inqTotalCount > 0) {
-                        inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
+                    if (ordTotalCount > 0) {
+                        inqDetailVo.setOrdProportion(RateUtil.intChainRate(catevo.getOrdCateCount(), ordTotalCount));
                     }
-                    if (inqTotalAmount > 0) {
-                        inqDetailVo.setInqAmountProportion(
-                                RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(), inqTotalAmount));
+                    if (catevo.getOrdCatePrice() > 0) {
+                        inqDetailVo.setOrdCatePrice(catevo.getOrdCatePrice());
                     }
+                    if (ordTotalAmount > 0) {
+                        inqDetailVo.setOrdAmountProportion(
+                                RateUtil.doubleChainRate(catevo.getOrdCatePrice(), ordTotalAmount));
+                    }
+                } else {
+                    inqDetailVo.setOrdCateCount(0);
+                    inqDetailVo.setOrdProportion(0.00);
+                    inqDetailVo.setOrdCatePrice(0.00);
+                    inqDetailVo.setOrdAmountProportion(0.00);
+                }
+                if (inqTotalCount > 0) {
+                    inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
+                }
+                if (inqTotalAmount > 0) {
+                    inqDetailVo.setInqAmountProportion(
+                            RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(), inqTotalAmount));
                 }
             }
-            inqList.sort((vo1, vo2) -> {
-                int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
-                int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
-
-                return count1 - count2;
-            });
-            result.setStatus(ResultStatusEnum.SUCCESS);
-            result.setData(inqList);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        result.setStatus(ResultStatusEnum.FAIL);
+        inqList.sort((vo1, vo2) -> {
+            int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
+            int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
+
+            return count1 - count2;
+        });
+        result.setStatus(ResultStatusEnum.SUCCESS);
+        result.setData(inqList);
         return result;
+
     }
 
     /**
@@ -614,54 +592,49 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/areaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object areaDetail(@RequestBody Map<String, Object> map) {
+    public Object areaDetail(@RequestBody Map<String, Object> map) throws Exception {
         Result<Object> result = new Result<>();
-        try {
-            if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area") || !map.containsKey("country")) {
-                result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-                return result;
-            }
-            //开始时间
-            Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-            //截止时间
-            Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
-            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            String areaName = (String) map.get("area");
-            String countryName = (String) map.get("country");
-            CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
-            CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
 
-            Map<String, Object> numData = new HashMap<String, Object>();
-
-            String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
-            Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
-                    inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
-                    orderNumSummary.getNonoil()};
-            numData.put("x", xTitleArr);
-            numData.put("y", yValueArr);
-
-            Map<String, Object> amountData = new HashMap<>();
-
-            String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
-            BigDecimal[] yValueArr02 = new BigDecimal[]{
-                    inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                    inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                    inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                    orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                    orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                    orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
-            amountData.put("x", xTitleArr02);
-            amountData.put("y", yValueArr02);
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("amount", amountData);
-            data.put("number", numData);
-
-            return new Result<>().setData(data);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area") || !map.containsKey("country")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            return result;
         }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String areaName = (String) map.get("area");
+        String countryName = (String) map.get("country");
+        CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
+        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
 
-        return result;
+        Map<String, Object> numData = new HashMap<String, Object>();
+
+        String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
+        Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
+                inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
+                orderNumSummary.getNonoil()};
+        numData.put("x", xTitleArr);
+        numData.put("y", yValueArr);
+
+        Map<String, Object> amountData = new HashMap<>();
+
+        String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
+        BigDecimal[] yValueArr02 = new BigDecimal[]{
+                inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
+        amountData.put("x", xTitleArr02);
+        amountData.put("y", yValueArr02);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("amount", amountData);
+        data.put("number", numData);
+
+        return new Result<>().setData(data);
     }
 }
