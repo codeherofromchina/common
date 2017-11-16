@@ -246,7 +246,6 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(areaMap);
         return result;
     }
-
     /**
      * @Author:SHIGS
      * @Description 根据销售区域查询国家
