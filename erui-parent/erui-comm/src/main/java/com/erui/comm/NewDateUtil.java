@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class NewDateUtil {
     public static final String FULL_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss.SSS";
@@ -123,7 +124,24 @@ public class NewDateUtil {
 
         return null;
     }
+    public static long getDuration(Date startDate, Date endDate , TimeUnit unit) {
+        if (startDate != null && endDate != null) {
+            ZoneId zoneId = ZoneId.systemDefault();
+            LocalDateTime startDateTime = startDate.toInstant().atZone(zoneId).toLocalDateTime();
+            LocalDateTime endDateTime = endDate.toInstant().atZone(zoneId).toLocalDateTime();
 
+            Duration duration = Duration.between(startDateTime, endDateTime);
+            if (unit == TimeUnit.MINUTES) {
+                return duration.toMinutes();
+            } else if (unit == TimeUnit.HOURS) {
+                return duration.toHours();
+            }
+            return duration.toDays();
+
+        }
+
+        return 0;
+    }
 
     /**
      * 在现有的时间上增加n天
