@@ -277,6 +277,16 @@
     </if>
     group by organization
   </select>
+
+  <!-- 按条件统计区域的订单数量和金额 -->
+  <select id="findCountAndAmountByRangProjectStartGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT order_area as area,count(1) as totalNum,sum(IFNULL(project_account,0)) as totalAmount
+    FROM erui_report.order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    group by order_area
+  </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from order_count

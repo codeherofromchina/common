@@ -666,4 +666,27 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
 
+    /**
+     * 按照转入日期区间统计区域的询单数量和金额
+     * @param startTime
+     * @param endTime
+     * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
+     */
+    @Override
+    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+
+        List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
+        if (result == null) {
+            result = new ArrayList<>();
+        }
+        return result;
+    }
 }

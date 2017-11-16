@@ -70,4 +70,12 @@ public interface OrderCountService {
 	 * @return  {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"organization":'事业部--String'}
 	 */
     List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupOrigation(Date startDate, Date endDate);
+
+	/**
+	 * 按照项目开始区间统计区域的订单数量和金额
+	 * @param startTime
+	 * @param endTime
+	 * @return {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"area":'区域--String'}
+	 */
+    List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupArea(Date startTime, Date endTime);
 }
