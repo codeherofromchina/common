@@ -314,7 +314,8 @@ public class DateUtil {
      * @modified By
      */
     public static int getDayBetween(Date d1, Date d2) {
-        return (int)NewDateUtil.getDuration(d1,d2, TimeUnit.DAYS);
+        return (int)NewDateUtil.getDuration(d1,d2, TimeUnit.DAYS) + 1;
+
         /**
         Calendar calendar1 = Calendar.getInstance();
         Calendar calendar2 = Calendar.getInstance();
@@ -326,7 +327,8 @@ public class DateUtil {
             calendar1.add(Calendar.DAY_OF_YEAR, 1);
         }
         return days;
-         **/
+        **/
+
     }
 
     /**
@@ -354,7 +356,7 @@ public class DateUtil {
 
     public static void main(String[] args) {
         //System.out.println(str2Date("1992-12-12"));
-        int daysBetween = getDayBetween(str2Date("2017-11-4"), str2Date("2017-11-10"));
+        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
         Date monthFirstDay = getMonthFirstDay(new Date());
         Date nextMonthFirstDay = getNextMonthFirstDay(str2Date("1992-12-12"));
         Date nextMonthLastDay = getNextMonthLastDay(str2Date("1992-12-12"));

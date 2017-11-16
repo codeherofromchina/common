@@ -145,7 +145,9 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         return this.readMapper.selectByTime(example);
     }
 
+
     @Override
+    @Deprecated
     public Map<String, Object> selectMemberByTime() {
         Map<String, Object> member = readMapper.selectMemberByTime();
         if (member == null) {

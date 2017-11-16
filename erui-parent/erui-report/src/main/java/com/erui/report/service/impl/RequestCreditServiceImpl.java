@@ -8,6 +8,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.RequestCreditExample;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -91,11 +92,9 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Date nextTime = DateUtil.recedeTime(-30);
         int days = DateUtil.getDayBetween(startTime, endTime);
         List<Map> nextMap = null;
-        if (!startTime.equals("")) {
-            RequestCreditExample nextCreditExample = new RequestCreditExample();
-            nextCreditExample.createCriteria().andBackDateBetween(new Date(), nextTime);
-            nextMap = readMapper.selectRequestTrend(nextCreditExample);
-        }
+        RequestCreditExample nextCreditExample = new RequestCreditExample();
+        nextCreditExample.createCriteria().andBackDateBetween(new Date(), nextTime);
+        nextMap = readMapper.selectRequestTrend(nextCreditExample);
         List<Double> receivableList = new ArrayList<>();
         List<Double> notReceiveList = new ArrayList<>();
         List<Double> receivedList = new ArrayList<>();
@@ -165,7 +164,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 sqlDate02.put(dateString, linkData);
             }
         }
-        for (int i = 0; i < days ; i++) {
+        for (int i = 0; i < days; i++) {
             Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             String date = DateUtil.format("MM月dd日", datetime);
             if (sqlDate02.containsKey(date)) {
@@ -211,22 +210,19 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
      */
     @Override
     public Map<String, Object> selectRequestNext(Date startDate, Date endDate, String area, String country) {
-        RequestCreditExample requestCreditExample = null;
-        if (!"".equals(startDate) && !"".equals(endDate) && !"".equals(area)) {
-            if ("".equals(country) || country == null) {
-                RequestCreditExample requestByCountry = new RequestCreditExample();
-                requestByCountry.createCriteria().andSalesAreaEqualTo(area).andBackDateBetween(startDate, endDate);
-                return this.readMapper.selectRequestTotal(requestByCountry);
-            } else if (!"".equals(area) && area != null && !"".equals(country) && country != null) {
-                RequestCreditExample requestByAreaAndCountry = new RequestCreditExample();
-                requestByAreaAndCountry.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country).andBackDateBetween(startDate, endDate);
-                return this.readMapper.selectRequestTotal(requestByAreaAndCountry);
-            }
-        } else {
-            RequestCreditExample Requestcriteria = new RequestCreditExample();
-            Requestcriteria.createCriteria().andBackDateBetween(startDate, endDate);
-            return this.readMapper.selectRequestTotal(Requestcriteria);
+        RequestCreditExample requestCreditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria1 = requestCreditExample.createCriteria();
+        if (startDate != null && endDate != null) {
+            criteria1.andBackDateBetween(startDate, endDate);
         }
+
+        if (StringUtils.isNotBlank(area)) {
+            criteria1.andSalesAreaEqualTo(area);
+        }
+        if (StringUtils.isNotBlank(country)) {
+            criteria1.andSalesCountryEqualTo(country);
+        }
+
         return this.readMapper.selectRequestTotal(requestCreditExample);
     }
 
@@ -280,7 +276,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     public Map<String, Object> selectByAreaOrCountry(Date startDate, Date endDate, String area, String country) {
         RequestCreditExample e = new RequestCreditExample();
         RequestCreditExample.Criteria criteria = e.createCriteria();
-        if (startDate != null  && endDate != null ) {
+        if (startDate != null && endDate != null) {
             criteria.andCreateAtBetween(startDate, endDate);
         }
         if (StringUtil.isNotBlank(area)) {
