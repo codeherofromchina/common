@@ -127,14 +127,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      */
     @Override
     public Map<String, Object> selectHrCountByPart(Date startTime, Date endTime) {
-//		Date startTime = DateUtil.recedeTime(days);
-        // 环比时段
-//		Date chainDate = DateUtil.recedeTime(days * 2);
         // 当前时期
         HrCountExample hrCountExample = new HrCountExample();
-        hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
         // 当前时段
-        Map<String, Object> CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        Map<String, Object> CurHrCountMap = null;
+        if (startTime != null && endTime != null) {
+            hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
+            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        } else {
+            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        }
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
             CurHrCountMap.put("s1", 0);
@@ -159,39 +161,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
         BigDecimal turnJobin = new BigDecimal(CurHrCountMap.get("s9").toString());
         BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
-/*
-        HrCountExample chainHrCountExample = new HrCountExample();
-		chainHrCountExample.createCriteria().andCreateAtBetween(chainDate, startTime);
-		// 环比时段
-		Map<String,Object> chainHrCountMap = readMapper.selectHrCountByPart(chainHrCountExample);
-		System.out.println(chainHrCountMap);
-		if (chainHrCountMap == null ) {
-			chainHrCountMap = new HashMap<>();
-			chainHrCountMap.put("s1",0);
-			chainHrCountMap.put("s2",0);
-			chainHrCountMap.put("s3",0);
-			chainHrCountMap.put("s4",0);
-			chainHrCountMap.put("s5",0);
-			chainHrCountMap.put("s6",0);
-			chainHrCountMap.put("s7",0);
-			chainHrCountMap.put("s8",0);
-			chainHrCountMap.put("s9",0);
-			chainHrCountMap.put("s10",0);
-		}
-			// 环比人数
-			BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
-			BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
-			// BigDecimal chainTryCount = new
-			// BigDecimal(chainHrCountMap.get("s3").toString());
-			BigDecimal chainNewCount = new BigDecimal(chainHrCountMap.get("s7").toString());
-			// BigDecimal chainDimissionCount = new
-			// BigDecimal(chainHrCountMap.get("s8").toString());
-			BigDecimal chainTurnJobin = new BigDecimal(chainHrCountMap.get("s9").toString());
-			// BigDecimal chainTurnJobout = new
-			// BigDecimal(chainHrCountMap.get("s10").toString());
-			BigDecimal chainForeignCount = new BigDecimal(chainHrCountMap.get("s6").toString());
-*/
-
         // 满编率
         double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
         // 试用占比
@@ -204,39 +173,67 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
                 - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
         // 外籍占比
         double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
-    /*	// 环比增加人数
-        int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
-		int chainTurnAdd = turnRightCount.intValue() - chainTurnRightCount.intValue();
-		int chainAdd = newCount.intValue() - chainNewCount.intValue();
-		int chainTurnJobinAdd = turnJobin.intValue() - chainTurnJobin.intValue();
-		int chainForeignCountAdd = foreignCount.intValue() - chainForeignCount.intValue();
-		// 环比
-		double staffFullChainRate = RateUtil.intChainRate(chainFullAdd, chainRegularCount.intValue());
-		double tryChainRate = RateUtil.intChainRate(chainTurnAdd, chainTurnRightCount.intValue());
-		double chainAddRate = RateUtil.intChainRate(chainAdd, chainNewCount.intValue());
-		double groupTransferChainRate = RateUtil.intChainRate(chainTurnJobinAdd, chainTurnJobin.intValue());
-		double foreignChainRate = RateUtil.intChainRate(chainForeignCount.intValue(), chainForeignCountAdd);*/
         Map<String, Object> data = new HashMap<>();
         data.put("newCount", newCount);
         data.put("foreignCount", foreignCount);
         data.put("chinaCount", chinaCount);
-        data.put("leaveRate", leaveRate);
-        data.put("newAdd", Double.parseDouble(df.format(addRate)));
-        data.put("foreignRate", Double.parseDouble(df.format(foreignRate)));
-//		data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
         data.put("groupTransferIn", turnJobin.intValue());
         data.put("groupTransferOut", turnJobout);
-//		data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
-//		data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
-        data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
-//		data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
-        data.put("tryRate", Double.parseDouble(df.format(tryRate)));
         data.put("turnRightCount", turnRightCount);
-//		data.put("turnRightChainRate", Double.parseDouble(df.format(tryChainRate)));
         data.put("staffFullCount", regularCount);
         data.put("planCount", planCount);
         data.put("tryCount", tryCount);
         data.put("dimissionCount", dimissionCount);
+        data.put("leaveRate", leaveRate);
+        data.put("newAdd", Double.parseDouble(df.format(addRate)));
+        data.put("foreignRate", Double.parseDouble(df.format(foreignRate)));
+        data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
+        data.put("tryRate", Double.parseDouble(df.format(tryRate)));
+        if (startTime != null && endTime != null && DateUtil.getDayBetween(startTime, endTime) > 0) {
+            int days = DateUtil.getDayBetween(startTime, endTime);
+            //环比开始
+            Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
+
+            HrCountExample chainHrCountExample = new HrCountExample();
+            chainHrCountExample.createCriteria().andCreateAtBetween(chainEnd, startTime);
+            // 环比时段
+            Map<String, Object> chainHrCountMap = readMapper.selectHrCountByPart(chainHrCountExample);
+            System.out.println(chainHrCountMap);
+            if (chainHrCountMap == null) {
+                chainHrCountMap = new HashMap<>();
+                chainHrCountMap.put("s2", 0);
+                chainHrCountMap.put("s4", 0);
+                chainHrCountMap.put("s6", 0);
+                chainHrCountMap.put("s7", 0);
+                chainHrCountMap.put("s9", 0);
+            }
+            // 环比人数
+            BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
+            BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
+            // BigDecimal chainTryCount = new BigDecimal(chainHrCountMap.get("s3").toString());
+            BigDecimal chainNewCount = new BigDecimal(chainHrCountMap.get("s7").toString());
+            // BigDecimal chainDimissionCount = new BigDecimal(chainHrCountMap.get("s8").toString());
+            BigDecimal chainTurnJobin = new BigDecimal(chainHrCountMap.get("s9").toString());
+            // BigDecimal chainTurnJobout = new BigDecimal(chainHrCountMap.get("s10").toString());
+            BigDecimal chainForeignCount = new BigDecimal(chainHrCountMap.get("s6").toString());
+            // 环比增加人数
+            int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
+            int chainTurnAdd = turnRightCount.intValue() - chainTurnRightCount.intValue();
+            int chainAdd = newCount.intValue() - chainNewCount.intValue();
+            int chainTurnJobinAdd = turnJobin.intValue() - chainTurnJobin.intValue();
+            int chainForeignCountAdd = foreignCount.intValue() - chainForeignCount.intValue();
+            // 环比
+            double staffFullChainRate = RateUtil.intChainRate(chainFullAdd, chainRegularCount.intValue());
+            double tryChainRate = RateUtil.intChainRate(chainTurnAdd, chainTurnRightCount.intValue());
+            double chainAddRate = RateUtil.intChainRate(chainAdd, chainNewCount.intValue());
+            double groupTransferChainRate = RateUtil.intChainRate(chainTurnJobinAdd, chainTurnJobin.intValue());
+            double foreignChainRate = RateUtil.intChainRate(chainForeignCount.intValue(), chainForeignCountAdd);
+            data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
+            data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
+            data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
+            data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
+            data.put("turnRightChainRate", Double.parseDouble(df.format(tryChainRate)));
+        }
         return data;
     }
 
@@ -266,13 +263,11 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      * @modified By
      */
     @Override
-    public Map<String, Object> selectHrCountByDepart(String depart, int days) {
-        //当前时期
-        Date startTime = DateUtil.recedeTime(days);
-        Map curHrCountMap = new HashMap();
+    public Map<String, Object> selectHrCountByDepart(Date startTime, Date endTime,String depart) {
+        Map curHrCountMap = null;
         if ("".equals(depart) || depart == null) {
             HrCountExample hrCountExample = new HrCountExample();
-            hrCountExample.createCriteria().andCreateAtBetween(startTime, new Date());
+            hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
@@ -290,7 +285,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             }
         } else {
             HrCountExample hrCountExample02 = new HrCountExample();
-            hrCountExample02.createCriteria().andBigDepartEqualTo(depart).andCreateAtBetween(startTime, new Date());
+            hrCountExample02.createCriteria().andBigDepartEqualTo(depart).andCreateAtBetween(startTime, endTime);
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();

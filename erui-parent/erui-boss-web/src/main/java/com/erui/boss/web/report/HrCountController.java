@@ -30,18 +30,21 @@ public class HrCountController {
      * @Date:10:55 2017/10/21
      * @modified By
      */
-    @RequestMapping(value = "hrGeneral", method = RequestMethod.POST)
+    @RequestMapping(value = "hrGeneral", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Object hrGeneral()
-
-    {
-     /*   if (!map.containsKey("days")) {
-            throw new MissingServletRequestParameterException("days","String");
+    public Object hrGeneral(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
         }
-        //当前时期
-        int days = Integer.parseInt(map.get("days").toString());*/
-        Date startTime = DateUtil.recedeTime(7);
-        Map<String, Object> data = hrCountService.selectHrCountByPart(startTime, new Date());
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        Map<String, Object> data = hrCountService.selectHrCountByPart(startTime, endTime);
         Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
@@ -69,12 +72,22 @@ public class HrCountController {
     @RequestMapping(value = "dataCompare", method = RequestMethod.POST)
     @ResponseBody
     public Object dataCompare(@RequestBody Map<String, Object> map) throws Exception {
-        if (!map.containsKey("days") || !map.containsKey("depart")) {
-            throw new MissingServletRequestParameterException("days", "String");
+        if (!map.containsKey("depart")) {
+            throw new MissingServletRequestParameterException("depart", "String");
         }
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         //当前时期
-        int days = Integer.parseInt(map.get("days").toString());
-        Map<String, Object> mapData = hrCountService.selectHrCountByDepart(map.get("depart").toString(), days);
+        Map<String, Object> mapData = hrCountService.selectHrCountByDepart(startTime, endTime, map.get("depart").toString());
         Result<Map<String, Object>> result = new Result<>(mapData);
         return result;
     }
@@ -85,11 +98,21 @@ public class HrCountController {
      * @Date:15:55 2017/10/25
      * @modified By
      */
-    @RequestMapping(value = "departmentDetail", method = RequestMethod.POST)
+    @RequestMapping(value = "departmentDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Object departmentDetail() {
-        Date startTime = DateUtil.recedeTime(7);
-        List<Map> departList = hrCountService.selectDepartmentCount(startTime, new Date());
+    public Object departmentDetail(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        List<Map> departList = hrCountService.selectDepartmentCount(startTime, endTime);
         Result<List<Map>> result = new Result<List<Map>>(departList);
         return result;
     }

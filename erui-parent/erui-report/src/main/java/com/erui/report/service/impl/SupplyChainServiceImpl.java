@@ -55,7 +55,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         supplyChainExample.setOrderByClause("create_at asc");
         List<Map> supplyMap = null;
-        if (startTime != null && "".equals(startTime) && endTime != null && "".equals(endTime)) {
+        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
             days = DateUtil.getDayBetween(startTime, endTime);
             supplyChainExample.createCriteria().andCreateAtBetween(startTime, endTime);
             supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
@@ -277,7 +277,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
 
     // 供应链趋势图
     @Override
-    public SupplyTrendVo supplyTrend(Date startTime,Date endTime, int type) {
+    public SupplyTrendVo supplyTrend(Date startTime,Date endTime, String type) {
         int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
