@@ -67,7 +67,7 @@ public interface OrderCountService {
 	 *
 	 * @param startDate
 	 * @param endDate
-	 * @return  {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
+	 * @return  {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"organization":'事业部--String'}
 	 */
     List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupOrigation(Date startDate, Date endDate);
 }
