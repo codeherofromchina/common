@@ -226,7 +226,7 @@
          and project_start >= #{startTime}
       </if>
       <if test="endTime != null " >
-        and project_start &lt;= #{endTime}
+        and project_start &lt; #{endTime}
       </if>
     </where>
     group by pro_category  ORDER BY orderCount DESC LIMIT 0,3;
