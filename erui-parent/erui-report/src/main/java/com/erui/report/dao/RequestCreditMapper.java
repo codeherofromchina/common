@@ -15,11 +15,19 @@ public interface RequestCreditMapper {
     Date selectEnd();
 
     Map selectByAreaOrCountry(RequestCreditExample example);
+
     List<Map> selectCountry(RequestCreditExample example);
+
     List<Map> selectArea();
+
     Map selectTotal();
-    Map<String,Object> selectRequestTotal(RequestCreditExample example);
+
+    Map<String, Object> selectRequestTotal(RequestCreditExample example);
+
     List<Map> selectRequestTrend(RequestCreditExample example);
+
+    List<Map> selectNextRequestTrend(RequestCreditExample example);
+
     int countByExample(RequestCreditExample example);
 
     int deleteByExample(RequestCreditExample example);
@@ -41,6 +49,6 @@ public interface RequestCreditMapper {
     int updateByPrimaryKeySelective(RequestCredit record);
 
     int updateByPrimaryKey(RequestCredit record);
-    
+
     void truncateTable();
 }

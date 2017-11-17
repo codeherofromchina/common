@@ -97,8 +97,9 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         List<Map> nextMap = null;
         RequestCreditExample nextCreditExample = new RequestCreditExample();
         RequestCreditExample.Criteria criteria = nextCreditExample.createCriteria();
-        criteria.andCreateAtGreaterThanOrEqualTo(new Date()).andBackDateLessThan(nextTime);
-        nextMap = readMapper.selectRequestTrend(nextCreditExample);
+        criteria.andBackDateGreaterThanOrEqualTo(DateUtil.getOperationTime(new Date(),0,0,0));
+        criteria.andBackDateLessThan(nextTime);
+        nextMap = readMapper.selectNextRequestTrend(nextCreditExample);
         List<String> receivableList = new ArrayList<>();
         List<String> notReceiveList = new ArrayList<>();
         List<String> receivedList = new ArrayList<>();

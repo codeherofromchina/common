@@ -101,17 +101,29 @@
       order by ${orderByClause}
     </if>
 </select>
-
   <select id="selectRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
-    SELECT order_amount,receive_amount,(order_amount-receive_amount) AS received,back_date,create_at FROM request_credit
+    SELECT sum(order_amount) AS order_amount,sum(receive_amount) AS receive_amount,sum(order_amount-receive_amount) AS received,
+    FROM_DAYS(TO_DAYS(create_at)) AS create_at
+    FROM request_credit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
+     GROUP BY TO_DAYS(create_at)
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
   </select>
-
+  <select id="selectNextRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT sum(order_amount) AS order_amount,FROM_DAYS(TO_DAYS(back_date)) AS back_date
+    FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+      GROUP BY TO_DAYS(back_date)
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
     SELECT sales_area FROM request_credit GROUP BY sales_area
   </select>
