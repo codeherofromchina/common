@@ -365,8 +365,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public int selectProCountByExample(Date startTime, Date endTime, String isOil, String proCategory) {
         InquiryCountExample example = new InquiryCountExample();
         InquiryCountExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         if (isOil != null && !isOil.equals("")) {
             criteria.andIsOilGasEqualTo(isOil);
@@ -398,8 +401,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public Map<String, Object> selectProTop3Total(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return this.readMapper.selectProTop3TotalByExample(example);
     }
@@ -437,8 +443,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public List<InquiryCount> selectListByTime(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return readMapper.selectByExample(example);
     }
@@ -514,8 +523,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public CustomerNumSummaryVO numSummary(Date startTime, Date endTime, String area, String country) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         if (StringUtils.isNoneBlank(area)) {
             criteria = criteria.andInquiryAreaEqualTo(area);
