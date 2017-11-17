@@ -335,17 +335,15 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         BigDecimal turnJobin = new BigDecimal(curHrCountMap.get("s9").toString());
         BigDecimal turnJobout = new BigDecimal(curHrCountMap.get("s10").toString());
         // 满编率
-        double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
+        double staffFullRate = Double.parseDouble(df.format(curHrCountMap.get("staffFullRate")).toString());
         // 试用占比
-        double tryRate = RateUtil.intChainRate(tryCount.intValue(), regularCount.intValue());
+        double tryRate = Double.parseDouble(df.format(curHrCountMap.get("tryRate")).toString());
         // 增长率
-        double addRate = RateUtil.intChainRate(newCount.intValue(), regularCount.intValue())
-                - RateUtil.intChainRate(dimissionCount.intValue(), regularCount.intValue());
+        double addRate = Double.parseDouble(df.format(curHrCountMap.get("addRate")).toString());
         // 转岗流失率
-        double leaveRate = RateUtil.intChainRate(turnJobout.intValue(), regularCount.intValue())
-                - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
+        double leaveRate = Double.parseDouble(df.format(curHrCountMap.get("leaveRate")).toString());
         // 外籍占比
-        double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
+        double foreignRate = Double.parseDouble(df.format(curHrCountMap.get("foreignRate")).toString());
         List<Integer> seriesList01 = new ArrayList<>();
         List<Integer> seriesList02 = new ArrayList<>();
         seriesList01.add(planCount.intValue());
@@ -379,6 +377,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      */
     @Override
     public List<Map> selectDepartmentCount(Date startTime, Date endTime) {
+        DecimalFormat df = new DecimalFormat("0.00000000");
         HrCountExample example = new HrCountExample();
         HrCountExample.Criteria criteria = example.createCriteria();
         if (startTime != null) {
