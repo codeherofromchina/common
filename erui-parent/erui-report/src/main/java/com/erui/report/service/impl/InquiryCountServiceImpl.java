@@ -160,14 +160,16 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             } catch (Exception e) {
                 logger.error("需用日期:" + strArr[19] + ";" + e.getMessage());
             }
-            try {
-                ic.setClarifyTime(DateUtil.parseString2Date(strArr[20], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
-                        DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "澄清完成日期格式错误");
-                continue;
+            if (strArr[20] != null) {
+                try {
+                    ic.setClarifyTime(DateUtil.parseString2Date(strArr[20], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+                            DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "澄清完成日期格式错误");
+                    continue;
+                }
             }
             if (strArr[21] != null) {
                 try {
@@ -286,21 +288,25 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             ic.setPackagingVolume(strArr[38]);
             ic.setPackagingWay(strArr[39]);
 
-            try {
-                ic.setDeliveryDate(new BigDecimal(strArr[40]).intValue());
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "交货期字段非数字");
-                continue;
+            if (strArr[40] != null) {
+                try {
+                    ic.setDeliveryDate(new BigDecimal(strArr[40]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "交货期字段非数字");
+                    continue;
+                }
             }
-            try {
-                ic.setExpiryDate(new BigDecimal(strArr[41]).intValue());
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
-                continue;
+            if (strArr[41] != null) {
+                try {
+                    ic.setExpiryDate(new BigDecimal(strArr[41]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
+                    continue;
+                }
             }
 
             ic.setStandardTradeItems(strArr[42]);
