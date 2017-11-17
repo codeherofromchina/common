@@ -237,8 +237,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SupplyChain> queryListByDate(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && endTime != null) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null ) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         return readMapper.selectByExample(example);
     }
@@ -248,8 +251,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainOrgVo> selectOrgSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && endTime != null) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null ) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         List<SuppliyChainOrgVo> list = readMapper.selectOrgSuppliyChainByExample(example);
         return list;
@@ -259,8 +265,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainItemClassVo> selectItemCalssSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        if (startTime != null && endTime != null) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null ) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         return readMapper.selectItemCalssSuppliyChainByExample(supplyChainExample);
     }
@@ -269,8 +278,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public SuppliyChainItemClassVo selectSuppliyChainByItemClass(Date startTime, Date endTime, String itemClass) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        if (startTime != null && endTime != null) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null ) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         if (StringUtils.isNotBlank(itemClass)) {
             criteria.andItemClassEqualTo(itemClass);
@@ -282,8 +294,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainCateVo> selectCateSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        if (startTime != null && endTime != null) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null ) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         return readMapper.selectCateSuppliyChainByExample(supplyChainExample);
     }
