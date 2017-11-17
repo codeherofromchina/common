@@ -31,6 +31,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
         ImportDataResponse response = new ImportDataResponse(
                 new String[]{"generalMemberCount","seniorMemberCount","goldMemberCount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         Member member = null;
         if (!testOnly) {

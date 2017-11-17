@@ -134,6 +134,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         ImportDataResponse response = new ImportDataResponse(
                 new String[]{"planSkuNum", "finishSkuNum", "planSpuNum",
                         "finishSpuNum", "planSuppliNum", "finishSuppliNum"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         SupplyChain sc = null;
         if (!testOnly) {

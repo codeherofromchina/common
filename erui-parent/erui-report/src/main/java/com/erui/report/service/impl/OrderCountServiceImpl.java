@@ -53,6 +53,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         OrderCount oc = null;
         if (!testOnly) {
