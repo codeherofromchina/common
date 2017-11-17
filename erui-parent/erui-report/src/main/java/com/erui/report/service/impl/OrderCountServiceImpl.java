@@ -53,6 +53,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         OrderCount oc = null;
         if (!testOnly) {
@@ -512,7 +513,8 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null && endTime != null ) {
-            criteria.andProjectStartBetween(startTime, endTime);
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+            criteria.andProjectStartLessThan(endTime);
         }
         return readMapper.selectByExample(example);
     }

@@ -31,6 +31,8 @@ public class ImportDataResponse {
     private List<FailItem> failItems = null;
     // 和数据
     private Map<String, BigDecimal> sumMap;
+    // 其他信息
+    private String otherMsg;
 
     public ImportDataResponse() {
         this.total = 0;
@@ -65,6 +67,13 @@ public class ImportDataResponse {
         return this.sumMap;
     }
 
+    public String getOtherMsg() {
+        return otherMsg;
+    }
+
+    public void setOtherMsg(String otherMsg) {
+        this.otherMsg = otherMsg;
+    }
 
     public void setSumMap(Map<String, BigDecimal> sumMap) {
         this.sumMap = sumMap;

@@ -1,6 +1,7 @@
 package com.erui.comm;
 
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -67,6 +68,50 @@ public class NewDateUtil {
     }
 
     /**
+     * 获取给定日期的上周日期的连续字符串
+     * @param date
+     * @return 此处不通用，返回的为 yyyy/MM/dd--yyyy/MM/dd的格式不能变
+     */
+    public static String getBeforeSaturdayWeekStr(Date date) {
+        Date[] week = getBeforeSaturdayWeek(date);
+        String formatStr = "yyyy/MM/dd";
+        String format = format(formatStr, week[0]);
+        return String.format("%s--%s",format(formatStr, week[0]),format(formatStr, week[1]));
+    }
+
+    /**
+     * 获取给定日期的上周日期 （定义一周是从周六开始到下周五结束）
+     * @param date 当前给定日期，如果空则为当前日期
+     * @return (上周开始日期，上周结束日期) -- 返回日期只包含年月日数据
+     */
+    public static Date[] getBeforeSaturdayWeek(Date date) {
+        Date[] result = new Date[2];
+
+        LocalDate paramDate = null;
+        ZoneId zoneId = ZoneId.systemDefault();
+        if (date == null) {
+            paramDate = LocalDate.now();
+        } else {
+            Instant instant = date.toInstant();
+            paramDate = instant.atZone(zoneId).toLocalDate();
+        }
+
+        LocalDate localDate = LocalDate.now();
+        DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+        if (dayOfWeek.compareTo(DayOfWeek.FRIDAY) > 0) { // 大于周五，算本周五就可以
+            localDate = localDate.minusDays(dayOfWeek.getValue() - DayOfWeek.FRIDAY.getValue());
+        } else { // 计算上周五
+            localDate = localDate.minusDays(dayOfWeek.getValue() + (DayOfWeek.SUNDAY.getValue() - DayOfWeek.FRIDAY.getValue()));
+        }
+
+        result[1] = Date.from(localDate.atStartOfDay(zoneId).toInstant());
+        localDate = localDate.minusDays(6); // 获取相对于周五的上周六
+        result[0] = Date.from(localDate.atStartOfDay(zoneId).toInstant());
+
+        return result;
+    }
+
+    /**
      * 给定日期是否在下个自然月内
      *
      * @param date
@@ -124,6 +169,14 @@ public class NewDateUtil {
 
         return null;
     }
+
+    /**
+     * 获取给定日期直接的时间差 - 默认天
+     * @param startDate
+     * @param endDate
+     * @param unit
+     * @return
+     */
     public static long getDuration(Date startDate, Date endDate , TimeUnit unit) {
         if (startDate != null && endDate != null) {
             ZoneId zoneId = ZoneId.systemDefault();
@@ -163,11 +216,11 @@ public class NewDateUtil {
 
 
     public static void main(String[] args) throws ParseException {
-        LocalTime localTime = LocalTime.of(12, 24, 32);
-        LocalTime localTime2 = LocalTime.of(11, 22, 0);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date[] beforeSaturdayWeek = getBeforeSaturdayWeek(null);
 
-        Duration dration = Duration.between(localTime2, localTime);
-        System.out.println(dration.toMinutes());
+        System.out.println(dateFormat.format(beforeSaturdayWeek[0]));
+        System.out.println(dateFormat.format(beforeSaturdayWeek[1]));
 
     }
 }

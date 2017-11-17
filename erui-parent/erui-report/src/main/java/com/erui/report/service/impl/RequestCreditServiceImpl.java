@@ -302,6 +302,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         // 应收账款金额 - orderAmount、 应收未收金额 - receiveAmount
         ImportDataResponse response = new ImportDataResponse(new String[]{"orderAmount", "receiveAmount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         RequestCredit rc = null;
         if (!testOnly) {
