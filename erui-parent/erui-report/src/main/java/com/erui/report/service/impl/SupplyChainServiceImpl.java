@@ -56,17 +56,19 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         int days = 0;
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         supplyChainExample.setOrderByClause("create_at asc");
+        SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
         List<Map> supplyMap = null;
-        if (startTime != null && endTime != null) {
-            days = DateUtil.getDayBetween(startTime, endTime);
-            supplyChainExample.createCriteria().andCreateAtBetween(startTime, endTime);
-            supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
-        } else {
-            supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
-            startTime = (Date) supplyMap.get(0).get("create_at");
-            endTime = (Date) supplyMap.get(supplyMap.size() - 1).get("create_at");
-            days = DateUtil.getDayBetween(startTime, endTime);
+        days = DateUtil.getDayBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
+        }
+        supplyMap = this.readMapper.selectFinishByDate(supplyChainExample);
+        //startTime = (Date) supplyMap.get(0).get("create_at");
+        //endTime = (Date) supplyMap.get(supplyMap.size() - 1).get("create_at");
+        days = DateUtil.getDayBetween(startTime, endTime);
         List<Integer> spuList = new ArrayList<>();
         List<Integer> skuList = new ArrayList<>();
         List<Integer> supplierList = new ArrayList<>();
@@ -292,16 +294,17 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && endTime != null) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null){
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         List<SupplyChain> list = readMapper.selectByExample(example);
-
         String[] DateTime = new String[days];
         Integer[] suppliyFinishCount = new Integer[days];
         Integer[] SPUFinishCount = new Integer[days];
         Integer[] SKUFinishCount = new Integer[days];
-
         if (list != null && list.size() > 0) {
             Map<String, Map<String, Integer>> dateMap = new HashMap<>();
             Map<String, Integer> datamap;

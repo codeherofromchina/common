@@ -139,9 +139,12 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     @Override
     public int selectByTime(Date startTime, Date endDate) {
         MemberExample example = new MemberExample();
-        if (startTime != null && endDate != null) {
-            example.createCriteria().andInputDateBetween(startTime, endDate);
-            return this.readMapper.selectByTime(example);
+        MemberExample.Criteria criteria = example.createCriteria();
+        if (startTime != null ) {
+            criteria.andInputDateGreaterThanOrEqualTo(startTime);
+        }
+        if (endDate != null){
+            criteria.andInputDateLessThan(endDate);
         }
         return this.readMapper.selectByTime(example);
     }

@@ -52,14 +52,16 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
     public Map<String, Object> selectHrCount(Date startTime, Date endTime) {
         // 当前时期
         HrCountExample hrCountExample = new HrCountExample();
+        HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         // 当前时段
         Map CurHrCountMap = null;
-        if (startTime != null && endTime != null) {
-            hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
-            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
-        } else {
-            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        if (startTime != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
+        }
+        CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
             CurHrCountMap.put("s1", 0);
@@ -96,9 +98,13 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             //环比开始
             Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
             // 环比时段
-            HrCountExample chainHrCountExample = new HrCountExample();
-            chainHrCountExample.createCriteria().andCreateAtBetween(chainEnd, startTime);
-            Map chainHrCountMap = readMapper.selectHrCountByPart(chainHrCountExample);
+            if (chainEnd != null) {
+                criteria.andCreateAtGreaterThanOrEqualTo(chainEnd);
+            }
+            if (startTime != null) {
+                criteria.andCreateAtLessThan(startTime);
+            }
+            Map<String, Object> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
             if (chainHrCountMap == null) {
                 chainHrCountMap = new HashMap<>();
                 chainHrCountMap.put("s2", 0);
@@ -127,16 +133,24 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      */
     @Override
     public Map<String, Object> selectHrCountByPart(Date startTime, Date endTime) {
+       /* int dayBetween = DateUtil.getDayBetween(startTime, endTime);
+        Date bigStartTime = readerSession.getMapper(HrCountMapper.class).selectStart();
+        Date bigEndTime = readerSession.getMapper(HrCountMapper.class).selectEnd();
+        int bigDayBetween = DateUtil.getDayBetween(bigStartTime, bigEndTime);
+        if (dayBetween > bigDayBetween / 2) {
+        }*/
         // 当前时期
         HrCountExample hrCountExample = new HrCountExample();
+        HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         // 当前时段
-        Map<String, Object> CurHrCountMap = null;
-        if (startTime != null && endTime != null) {
-            hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
-            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
-        } else {
-            CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        Map CurHrCountMap = null;
+        if (startTime != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
+        }
+        CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
             CurHrCountMap.put("s1", 0);
@@ -193,12 +207,14 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             int days = DateUtil.getDayBetween(startTime, endTime);
             //环比开始
             Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
-
-            HrCountExample chainHrCountExample = new HrCountExample();
-            chainHrCountExample.createCriteria().andCreateAtBetween(chainEnd, startTime);
             // 环比时段
-            Map<String, Object> chainHrCountMap = readMapper.selectHrCountByPart(chainHrCountExample);
-            System.out.println(chainHrCountMap);
+            if (chainEnd != null) {
+                criteria.andCreateAtGreaterThanOrEqualTo(chainEnd);
+            }
+            if (startTime != null) {
+                criteria.andCreateAtLessThan(startTime);
+            }
+            Map<String, Object> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
             if (chainHrCountMap == null) {
                 chainHrCountMap = new HashMap<>();
                 chainHrCountMap.put("s2", 0);
@@ -263,11 +279,17 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      * @modified By
      */
     @Override
-    public Map<String, Object> selectHrCountByDepart(Date startTime, Date endTime,String depart) {
+    public Map<String, Object> selectHrCountByDepart(Date startTime, Date endTime, String depart) {
+        HrCountExample hrCountExample = new HrCountExample();
+        HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         Map curHrCountMap = null;
+        if (startTime != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
+        }
         if ("".equals(depart) || depart == null) {
-            HrCountExample hrCountExample = new HrCountExample();
-            hrCountExample.createCriteria().andCreateAtBetween(startTime, endTime);
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
@@ -284,9 +306,8 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
             }
         } else {
-            HrCountExample hrCountExample02 = new HrCountExample();
-            hrCountExample02.createCriteria().andBigDepartEqualTo(depart).andCreateAtBetween(startTime, endTime);
-            curHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
+            criteria.andBigDepartEqualTo(depart);
+            curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
                 curHrCountMap.put("s1", 0);
@@ -360,8 +381,11 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
     public List<Map> selectDepartmentCount(Date startTime, Date endTime) {
         HrCountExample example = new HrCountExample();
         HrCountExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && !startTime.equals("") && endTime != null && !endTime.equals("")) {
-            criteria.andCreateAtBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         List<Map> bigList = readMapper.selectBigDepartCountByExample(example);
         List<Map> departList = readMapper.selectDepartmentCountByExample(example);
