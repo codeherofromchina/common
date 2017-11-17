@@ -533,19 +533,43 @@ public class CustomCentreController {
                     }
                 } else {
                     inqDetailVo.setOrdCateCount(0);
-                    inqDetailVo.setOrdProportion(0.00);
-                    inqDetailVo.setOrdCatePrice(0.00);
-                    inqDetailVo.setOrdAmountProportion(0.00);
+                    inqDetailVo.setOrdProportion(0d);
+                    inqDetailVo.setOrdCatePrice(0d);
+                    inqDetailVo.setOrdAmountProportion(0d);
                 }
                 if (inqTotalCount > 0) {
                     inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
+                }else {
+                    inqDetailVo.setInqProportion(0d);
                 }
                 if (inqTotalAmount > 0) {
                     inqDetailVo.setInqAmountProportion(
                             RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(), inqTotalAmount));
+                }else {
+                    inqDetailVo.setInqAmountProportion(0d);
                 }
             }
         }
+        Map<String, CateDetailVo> inqMap = inqList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
+        ordList.parallelStream().forEach(vo->{
+            if(!inqMap.containsKey(vo.getCategory())){
+                if(ordTotalCount>0){
+                    vo.setOrdProportion(RateUtil.intChainRate(vo.getOrdCateCount(), ordTotalCount));
+                }else {
+                    vo.setOrdProportion(0d);
+                }
+                if(ordTotalAmount>0){
+                    vo.setOrdAmountProportion( RateUtil.doubleChainRate(vo.getOrdCatePrice(), ordTotalAmount));
+                }else {
+                    vo.setOrdAmountProportion(0d);
+                }
+                vo.setInqCateCount(0);
+                vo.setInqProportion(0d);
+                vo.setInqCatePrice(0d);
+                vo.setInqAmountProportion(0d);
+                inqList.add(vo);
+            }
+        });
         inqList.sort((vo1, vo2) -> {
             int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
             int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
