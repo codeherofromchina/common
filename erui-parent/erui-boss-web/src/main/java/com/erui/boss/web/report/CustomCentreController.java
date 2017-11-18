@@ -356,6 +356,7 @@ public class CustomCentreController {
             Map<String, Object> tableMap = new HashedMap();
             tableMap.put("name", org);
             tableMap.put("avgNeedTime", avgNeedTime);
+            tableMap.put("inquiryTotal", inquiryTotal);
             tableMap.put("inquiryNumRate", RateUtil.intChainRate(inquiryTotal, inquiryCount));
             tableMap.put("totalAmount", orderTotalAmount);
             tableMap.put("orderNumRate", RateUtil.intChainRate(orderTotal, orderCount));
@@ -379,6 +380,12 @@ public class CustomCentreController {
         // 事业部成单金额列表
         data.put("seccessOrderCount", seccessOrderCountList);
         // 事业部表格信息
+        tableData.sort(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                return (Integer)o1.get("inquiryTotal") - (Integer)o2.get("inquiryTotal");
+            }
+        });
         data.put("tableData", tableData);
         return new Result<>(data);
     }
@@ -412,7 +419,7 @@ public class CustomCentreController {
         int[] inqCounts = new int[inquirySize];// 询单数量列表
         Double[] inqAmounts = new Double[inquirySize];// 询单金额列表
         int inqTotalCount = 0;
-        double inqTotalAmounts = 0;
+        BigDecimal inqTotalAmounts = BigDecimal.ZERO;
         for (int i = 0; i < inquirySize - 1; i++) {
             Map<String, Object> vo = inquiryList.get(i);
             String area = (String) vo.get("area"); // 大区
@@ -424,12 +431,12 @@ public class CustomCentreController {
             inqAmounts[i + 1] = totalAmount.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
             inqTotalCount += inqCounts[i + 1];
-            inqTotalAmounts += inqAmounts[i + 1];
+            inqTotalAmounts = inqTotalAmounts.add(totalAmount);
         }
         areaInqCounts[0] = "询单总数量";
         areaInqAmounts[0] = "询单总金额";
         inqCounts[0] = inqTotalCount;
-        inqAmounts[0] = inqTotalAmounts;
+        inqAmounts[0] = inqTotalAmounts.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
 
         // 组织订单数据结果集
@@ -439,7 +446,7 @@ public class CustomCentreController {
         int[] ordCounts = new int[orderSize];// 订单数量列表
         Double[] ordAmounts = new Double[orderSize];// 订单金额列表
         int orderTotalCount = 0;
-        double orderTotalAmounts = 0;
+        BigDecimal orderTotalAmounts = BigDecimal.ZERO;
         for (int i = 0; i < orderSize - 1; i++) {
             Map<String, Object> vo = orderList.get(i);
             String area = (String) vo.get("area"); // 大区
@@ -449,15 +456,15 @@ public class CustomCentreController {
             areaOrdAmounts[i + 1] = area;
             ordCounts[i + 1] = total.intValue();
 
-            ordAmounts[i + 1] = totalAmount.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            ordAmounts[i + 1] = totalAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue();
 
             orderTotalCount += ordCounts[i + 1];
-            orderTotalAmounts += ordAmounts[i + 1];
+            orderTotalAmounts = orderTotalAmounts.add(totalAmount);
         }
         areaOrdCounts[0] = "订单总数量";
         areaOrdAmounts[0] = "订单总金额";
         ordCounts[0] = orderTotalCount;
-        ordAmounts[0] = orderTotalAmounts;
+        ordAmounts[0] = orderTotalAmounts.setScale(2, BigDecimal.ROUND_DOWN).doubleValue();
 
         // 将组织数据放入结果数据中
         Map<String, Object> data = new HashedMap();
@@ -501,83 +508,89 @@ public class CustomCentreController {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
-        int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
-        Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
-        int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
-        Double ordTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
+        //int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
+        //Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
+        //int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
+        //Double ordTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
+        int inqTotalCount = 0;
+        int ordTotalCount = 0;
+        BigDecimal inqTotalAmount = BigDecimal.ZERO;
+        BigDecimal ordTotalAmount = BigDecimal.ZERO;
+
         List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
         List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
-        final Map<String, CateDetailVo> ordMap;
-        if (inqList != null && ordList != null) {
-            ordMap = ordList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
-        } else {
-            ordMap = new HashMap<>();
-        }
-        if (inqList != null) {
-            for (CateDetailVo inqDetailVo : inqList) {
-                String category = inqDetailVo.getCategory();
-                CateDetailVo catevo = ordMap.get(category);
-                if (catevo != null) {
-                    if (catevo.getOrdCateCount() > 0) {
-                        inqDetailVo.setOrdCateCount(catevo.getOrdCateCount());
-                    }
-                    if (ordTotalCount > 0) {
-                        inqDetailVo.setOrdProportion(RateUtil.intChainRate(catevo.getOrdCateCount(), ordTotalCount));
-                    }
-                    if (catevo.getOrdCatePrice() > 0) {
-                        inqDetailVo.setOrdCatePrice(catevo.getOrdCatePrice());
-                    }
-                    if (ordTotalAmount > 0) {
-                        inqDetailVo.setOrdAmountProportion(
-                                RateUtil.doubleChainRate(catevo.getOrdCatePrice(), ordTotalAmount));
-                    }
-                } else {
-                    inqDetailVo.setOrdCateCount(0);
-                    inqDetailVo.setOrdProportion(0d);
-                    inqDetailVo.setOrdCatePrice(0d);
-                    inqDetailVo.setOrdAmountProportion(0d);
-                }
-                if (inqTotalCount > 0) {
-                    inqDetailVo.setInqProportion(RateUtil.intChainRate(inqDetailVo.getInqCateCount(), inqTotalCount));
-                }else {
-                    inqDetailVo.setInqProportion(0d);
-                }
-                if (inqTotalAmount > 0) {
-                    inqDetailVo.setInqAmountProportion(
-                            RateUtil.doubleChainRate(inqDetailVo.getInqCatePrice(), inqTotalAmount));
-                }else {
-                    inqDetailVo.setInqAmountProportion(0d);
-                }
+        Map<String, CateDetailVo> ordMap = new HashMap<>();
+        Map<String, CateDetailVo> inqMap = new HashMap<>();
+        final Set<String> category = new HashSet<>();
+
+        if (ordList != null) {
+            for (CateDetailVo vo : ordList) {
+                String category1 = vo.getCategory();
+                category.add(category1);
+                ordMap.put(category1,vo);
+                ordTotalCount += vo.getOrdCateCount();
+                ordTotalAmount = ordTotalAmount.add(new BigDecimal(vo.getOrdCatePrice()));
             }
         }
-        Map<String, CateDetailVo> inqMap = inqList.parallelStream().collect(Collectors.toMap(CateDetailVo::getCategory, vo -> vo));
-        ordList.parallelStream().forEach(vo->{
-            if(!inqMap.containsKey(vo.getCategory())){
-                if(ordTotalCount>0){
-                    vo.setOrdProportion(RateUtil.intChainRate(vo.getOrdCateCount(), ordTotalCount));
-                }else {
-                    vo.setOrdProportion(0d);
-                }
-                if(ordTotalAmount>0){
-                    vo.setOrdAmountProportion( RateUtil.doubleChainRate(vo.getOrdCatePrice(), ordTotalAmount));
-                }else {
-                    vo.setOrdAmountProportion(0d);
-                }
+
+        if (inqList != null) {
+            for (CateDetailVo vo : inqList) {
+                String category1 = vo.getCategory();
+                category.add(category1);
+                inqMap.put(category1,vo);
+                inqTotalCount += vo.getInqCateCount();
+                inqTotalAmount = inqTotalAmount.add(new BigDecimal(vo.getInqCatePrice()));
+            }
+        }
+
+        List<CateDetailVo> data = new ArrayList<>();
+        for (String c:category) {
+            CateDetailVo vo = new CateDetailVo();
+            vo.setCategory(c);
+
+            // 询单数据
+            CateDetailVo inqVo = inqMap.get(c);
+            if (inqVo != null) {
+                int count = inqVo.getInqCateCount();
+                double price = inqVo.getInqCatePrice();
+                vo.setInqCateCount(count);
+                vo.setInqProportion(RateUtil.intChainRate(count, inqTotalCount));
+                vo.setInqCatePrice(new BigDecimal(price).setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+                vo.setInqAmountProportion(RateUtil.doubleChainRate(price, inqTotalAmount.doubleValue()));
+            } else {
                 vo.setInqCateCount(0);
                 vo.setInqProportion(0d);
                 vo.setInqCatePrice(0d);
                 vo.setInqAmountProportion(0d);
-                inqList.add(vo);
             }
-        });
-        inqList.sort((vo1, vo2) -> {
+
+
+            // 订单数据
+            CateDetailVo ordVo = inqMap.get(c);
+            if (ordVo != null) {
+                int count = ordVo.getInqCateCount();
+                double price = ordVo.getInqCatePrice();
+                vo.setOrdCateCount(count);
+                vo.setOrdProportion(RateUtil.intChainRate(count, ordTotalCount));
+                vo.setOrdCatePrice(price);
+                vo.setOrdAmountProportion(RateUtil.doubleChainRate(price, ordTotalAmount.doubleValue()));
+            } else {
+                vo.setOrdCateCount(0);
+                vo.setOrdProportion(0d);
+                vo.setOrdCatePrice(0d);
+                vo.setOrdAmountProportion(0d);
+            }
+            data.add(vo);
+        }
+
+
+        data.sort((vo1, vo2) -> {
             int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
             int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
-
             return count1 - count2;
         });
         result.setStatus(ResultStatusEnum.SUCCESS);
-        result.setData(inqList);
+        result.setData(data);
         return result;
 
     }

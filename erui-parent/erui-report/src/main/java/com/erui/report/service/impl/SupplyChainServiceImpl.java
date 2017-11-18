@@ -271,6 +271,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
+        criteria.andItemClassIsNotNull();
         return readMapper.selectItemCalssSuppliyChainByExample(supplyChainExample);
     }
 

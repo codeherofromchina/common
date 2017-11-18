@@ -370,10 +370,10 @@ public class RequestCreditController {
         } else {
             conList.add("下月应收-占比" + df.format((nextOrderAmount.doubleValue() / totalOrderAmount.doubleValue()) * 100) + "%");
         }
-        amountList.add(acOrderAmount.doubleValue());
-        amountList.add(acReceiveAmount.doubleValue());
-        amountList.add(acNotreceiveAmount.doubleValue());
-        amountList.add(nextOrderAmount.doubleValue());
+        amountList.add(acOrderAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acReceiveAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acNotreceiveAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(nextOrderAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
         Map<String, Object> data = new HashMap();
         data.put("xAxis", conList);
         data.put("yAxis", amountList);

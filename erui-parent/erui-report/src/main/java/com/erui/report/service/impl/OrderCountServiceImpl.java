@@ -558,6 +558,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         if (endTime != null) {
             criteria.andProjectStartLessThan(endTime);
         }
+        criteria.andPlatProCategoryIsNotNull();
         return readMapper.selecOrdDetailByCategoryByExample(example);
     }
 
