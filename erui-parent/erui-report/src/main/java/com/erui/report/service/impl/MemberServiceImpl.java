@@ -30,7 +30,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse(
-                new String[]{"generalMemberCount","seniorMemberCount","goldMemberCount"});
+                new String[]{"generalMemberCount", "seniorMemberCount", "goldMemberCount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         Member member = null;
@@ -129,7 +129,8 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
             }
             response.incrSuccess();
         }
-
+        Map<String, BigDecimal> sumMap = response.getSumMap();
+        sumMap.put("memberCount", sumMap.get("generalMemberCount").add(sumMap.get("seniorMemberCount")).add(sumMap.get("goldMemberCount")));
         response.setDone(true);
 
         return response;
@@ -140,10 +141,10 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public int selectByTime(Date startTime, Date endDate) {
         MemberExample example = new MemberExample();
         MemberExample.Criteria criteria = example.createCriteria();
-        if (startTime != null ) {
+        if (startTime != null) {
             criteria.andInputDateGreaterThanOrEqualTo(startTime);
         }
-        if (endDate != null){
+        if (endDate != null) {
             criteria.andInputDateLessThan(endDate);
         }
         return this.readMapper.selectByTime(example);

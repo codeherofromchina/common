@@ -93,7 +93,9 @@
     SELECT SUM(receive_amount) sd,SUM(order_amount) ed FROM `request_credit`;
   </select>
   <select id="selectRequestTotal" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
-    SELECT IFNULL(SUM(IFNULL(receive_amount,0)),0) sd,IFNULL(SUM(IFNULL(order_amount,0)),0) sdT,IFNULL(SUM(order_amount-receive_amount),0) sded FROM `request_credit`
+    SELECT SUM(IFNULL(abs(receive_amount),0)) sd,
+    SUM(IFNULL(order_amount,0)) sdT,
+    SUM(IFNULL(order_amount,0)-IFNULL(abs(receive_amount),0)) sded FROM `request_credit`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -102,7 +104,7 @@
     </if>
 </select>
   <select id="selectRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
-    SELECT sum(order_amount) AS order_amount,sum(receive_amount) AS receive_amount,sum(order_amount-receive_amount) AS received,
+    SELECT sum(IFNULL(ABS(order_amount),0)) AS order_amount,sum(IFNULL(ABS(receive_amount),0)) AS receive_amount,sum(IFNULL(order_amount,0)-IFNULL(ABS(receive_amount),0)) AS received,
     FROM_DAYS(TO_DAYS(create_at)) AS create_at
     FROM request_credit
     <if test="_parameter != null" >
@@ -114,7 +116,7 @@
     </if>
   </select>
   <select id="selectNextRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
-    SELECT sum(order_amount) AS order_amount,FROM_DAYS(TO_DAYS(back_date)) AS back_date
+    SELECT sum(IFNULL(order_amount,0)) AS order_amount,FROM_DAYS(TO_DAYS(back_date)) AS back_date
     FROM request_credit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -138,7 +140,8 @@
   </select>
 
   <select id="selectByAreaOrCountry" resultType="map" parameterType="com.erui.report.model.RequestCreditExample" >
-    SELECT SUM(order_amount) AS oa,SUM(receive_amount) AS ra,SUM(order_amount-receive_amount) AS received  FROM request_credit
+    SELECT SUM(IFNULL(order_amount,0)) AS oa,SUM(IFNULL(ABS(receive_amount),0)) AS ra,SUM(IFNULL(order_amount,0)-IFNULL(ABS(receive_amount),0)) AS received
+    FROM request_credit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>

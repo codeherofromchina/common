@@ -426,6 +426,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+
             // 项目开始日期在统计范围内则统计
             if (NewDateUtil.inSaturdayWeek(oc.getProjectStart())) {
                 orderCount++;

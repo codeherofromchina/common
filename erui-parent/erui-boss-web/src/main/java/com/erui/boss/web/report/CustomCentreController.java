@@ -564,12 +564,11 @@ public class CustomCentreController {
                 vo.setInqAmountProportion(0d);
             }
 
-
             // 订单数据
-            CateDetailVo ordVo = inqMap.get(c);
+            CateDetailVo ordVo = ordMap.get(c);
             if (ordVo != null) {
-                int count = ordVo.getInqCateCount();
-                double price = ordVo.getInqCatePrice();
+                int count = ordVo.getOrdCateCount();
+                double price = ordVo.getOrdCatePrice();
                 vo.setOrdCateCount(count);
                 vo.setOrdProportion(RateUtil.intChainRate(count, ordTotalCount));
                 vo.setOrdCatePrice(price);
@@ -587,6 +586,7 @@ public class CustomCentreController {
         data.sort((vo1, vo2) -> {
             int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
             int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
+
             return count1 - count2;
         });
         result.setStatus(ResultStatusEnum.SUCCESS);

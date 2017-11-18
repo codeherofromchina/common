@@ -197,13 +197,26 @@ public class SupplyChainController {
                 break;
             }
         }
+        Map<String, Object> data = null;
         if (suppliOrgVo != null) {
-            Map<String, Object> data = returnDetailData(suppliOrgVo);
-            result.setStatus(ResultStatusEnum.SUCCESS);
-            result.setData(data);
-            return result;
+            data = returnDetailData(suppliOrgVo);
+        } else {
+            Map<String, Object> planSPU = new HashMap<>();
+            Map<String, Object> planSKU = new HashMap<>();
+            Map<String, Object> planSuppliy = new HashMap<>();
+            planSPU.put("finishedSPU", 0);
+            planSPU.put("noFinishSPU", 0);
+            planSKU.put("finishedSKU", 0);
+            planSKU.put("noFinishSKU", 0);
+            planSuppliy.put("finishedSuppliy", 0);
+            planSuppliy.put("noFinishSuppliy", 0);
+            data = new HashMap<>();
+            data.put("planSPU", planSPU);
+            data.put("planSKU", planSKU);
+            data.put("planSuppliy", planSuppliy);
         }
-        result.setStatus(ResultStatusEnum.DATA_NULL);
+        result.setStatus(ResultStatusEnum.SUCCESS);
+        result.setData(data);
         return result;
 
     }
@@ -286,6 +299,13 @@ public class SupplyChainController {
             planSKU.put("noFinishSKU", noFinishSKU);
             planSuppliy.put("finishedSuppliy", suppliCateVo.getFinishSuppliy());
             planSuppliy.put("noFinishSuppliy", noFinishSuppliy);
+        } else {
+            planSPU.put("finishedSPU", 0);
+            planSPU.put("noFinishSPU", 0);
+            planSKU.put("finishedSKU", 0);
+            planSKU.put("noFinishSKU", 0);
+            planSuppliy.put("finishedSuppliy", 0);
+            planSuppliy.put("noFinishSuppliy", 0);
         }
         data.put("planSPU", planSPU);
         data.put("planSKU", planSKU);

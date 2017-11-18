@@ -135,10 +135,10 @@ public class RequestCreditController {
         Date curDate = new Date();
         Date nextWeekEndTime = DateUtil.getWeek(curDate, 5);
         Date nextWeekStartTime = DateUtil.getBeforeWeek(nextWeekEndTime, 6);
-        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNext(nextWeekStartTime, nextWeekEndTime,"","");
+        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNextNew(nextWeekStartTime, nextWeekEndTime,"","");
         Date chainWeekStartTime = DateUtil.sometimeCalendar(nextWeekStartTime, 7);
         Date chainWeekEndTime = DateUtil.getWeek(nextWeekEndTime, 5);
-        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNext(chainWeekStartTime, chainWeekEndTime,"","");
+        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNextNew(chainWeekStartTime, chainWeekEndTime,"","");
         if (nextWeekMount == null) {
             nextWeekMount = new HashMap();
             nextWeekMount.put("sdT", 0);
@@ -165,10 +165,10 @@ public class RequestCreditController {
         //下月应收
         Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
-        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNext(nextMonthStartTime, nextMonthEndTime,"","");
+        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNextNew(nextMonthStartTime, nextMonthEndTime,"","");
         Date chainMonthFirstDay = DateUtil.getMonthFirstDay(curDate);
         Date chainMonthLastDay = DateUtil.getMonthLastDay(curDate);
-        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNext(chainMonthFirstDay, chainMonthLastDay,"","");
+        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNextNew(chainMonthFirstDay, chainMonthLastDay,"","");
         if (nextMonthMount == null) {
             nextMonthMount = new HashMap();
             nextMonthMount.put("sdT", 0);
@@ -340,8 +340,9 @@ public class RequestCreditController {
             acNotreceiveAmount = new BigDecimal(mapCount.get("ra").toString());
         }
         //下月应收
-        Map mapNext = requestCreditService.selectRequestNext(new Date(), nextTime, map.get("area").toString(), country);
+        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextTime, map.get("area").toString(), country);
         if (mapNext == null) {
+            mapNext = new HashMap();
             mapNext.put("sdT", 0);
         }
         BigDecimal nextOrderAmount = BigDecimal.ZERO;

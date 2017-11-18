@@ -67,6 +67,7 @@ public class NewDateUtil {
         return false;
     }
 
+
     /**
      * 获取给定日期的上周日期的连续字符串
      * @param date
@@ -217,10 +218,9 @@ public class NewDateUtil {
 
     public static void main(String[] args) throws ParseException {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date[] beforeSaturdayWeek = getBeforeSaturdayWeek(null);
 
-        System.out.println(dateFormat.format(beforeSaturdayWeek[0]));
-        System.out.println(dateFormat.format(beforeSaturdayWeek[1]));
+        boolean b = inSaturdayWeek(dateFormat.parse("2017-11-13"));
+        System.out.println(b);
 
     }
 }

@@ -453,6 +453,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
                         "chinaCount", "foreignCount",
                         "newCount", "groupTransferIn",
                         "groupTransferOut", "dimissionCount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         HrCount hc = null;
         String preBigDept = null;

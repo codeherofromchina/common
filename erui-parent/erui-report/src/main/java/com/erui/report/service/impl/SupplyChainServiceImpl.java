@@ -80,7 +80,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             BigDecimal sku = new BigDecimal(map2.get("finish_sku_num").toString());
             BigDecimal supplier = new BigDecimal(map2.get("finish_suppli_num").toString());
             Date date2 = (Date) map2.get("create_at");
-            String dateString = DateUtil.format("MM月dd日", date2);
+            String dateString = DateUtil.format("yyyy年MM月dd日", date2);
             if (sqlDate.containsKey(dateString)) {
                 Map<String, Integer> map = sqlDate.get(dateString);
                 Integer spu2 = map.get("spu");
@@ -99,14 +99,15 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         }
         for (int i = 0; i < days; i++) {
             Date datetime = DateUtil.sometimeCalendar(startTime, -i);
-            String date = DateUtil.format("MM月dd日", datetime);
+            String date = DateUtil.format("yyyy年MM月dd日", datetime);
+            String date02 = DateUtil.format("MM月dd日", datetime);
             if (sqlDate.containsKey(date)) {
-                dateList.add(date);
+                dateList.add(date02);
                 spuList.add(sqlDate.get(date).get("spu"));
                 skuList.add(sqlDate.get(date).get("sku"));
                 supplierList.add(sqlDate.get(date).get("supplier"));
             } else {
-                dateList.add(date);
+                dateList.add(date02);
                 spuList.add(0);
                 skuList.add(0);
                 supplierList.add(0);
@@ -325,7 +326,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             Map<String, Map<String, Integer>> dateMap = new HashMap<>();
             Map<String, Integer> datamap;
             for (int i = 0; i < list.size(); i++) {
-                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "MM月dd日");
+                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "yyyy年MM月dd日");
                 if (dateMap.containsKey(date2)) {
                     Map<String, Integer> map = dateMap.get(date2);
                     Integer sku = map.get("sku");
@@ -346,14 +347,15 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             }
             for (int i = 0; i < days; i++) {
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
-                String datet2 = DateUtil.format("MM月dd日", date);
+                String datet2 = DateUtil.format("yyyy年MM月dd日", date);
+                String datet3 = DateUtil.format("MM月dd日", date);
                 if (dateMap.containsKey(datet2)) {
-                    DateTime[i] = (datet2);
+                    DateTime[i] = (datet3);
                     SPUFinishCount[i] = (dateMap.get(datet2).get("spu"));
                     SKUFinishCount[i] = (dateMap.get(datet2).get("sku"));
                     suppliyFinishCount[i] = (dateMap.get(datet2).get("suppliy"));
                 } else {
-                    DateTime[i] = (datet2);
+                    DateTime[i] = (datet3);
                     SPUFinishCount[i] = (0);
                     SKUFinishCount[i] = (0);
                     suppliyFinishCount[i] = (0);
