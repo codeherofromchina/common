@@ -334,7 +334,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                     Integer suppliy = map.get("suppliy");
                     map.put("sku", sku + list.get(i).getFinishSkuNum());
                     map.put("spu", spu + list.get(i).getFinishSpuNum());
-                    map.put("suppliy", suppliy + sku + list.get(i).getFinishSuppliNum());
+                    map.put("suppliy", suppliy + list.get(i).getFinishSuppliNum());
 
                 } else {
                     datamap = new HashMap<>();
