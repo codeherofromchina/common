@@ -356,13 +356,13 @@ public class SupplyChainController {
         List<SuppliyChainItemClassVo> weekAgolist = supplyChainService.selectItemCalssSuppliyChain(chainEnd,
                 startTime);
         final Map<String, SuppliyChainItemClassVo> helpMap;
-        if (weekAgolist != null && list != null) {
+        if (weekAgolist != null && weekAgolist.size()>0) {
             helpMap = weekAgolist.parallelStream().collect(Collectors.toMap(SuppliyChainItemClassVo::getItemClass, vo -> vo));
         } else {
             helpMap = new HashMap<>();
         }
 
-        if (list != null) {
+        if (list != null&&list.size()>0) {
             // 生成环比百分数
             for (SuppliyChainItemClassVo itemClassVo : list) {
                 String itemClass = itemClassVo.getItemClass();
