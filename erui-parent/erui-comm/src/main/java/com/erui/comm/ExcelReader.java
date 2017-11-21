@@ -102,7 +102,7 @@ public class ExcelReader {
 
 	/**
 	 * 根据HSSFCell类型设置数据
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -150,7 +150,7 @@ public class ExcelReader {
 //		str = StringUtils.trimToNull(str);
 		str = "  项目  \r\n开始       ".replaceAll("\\s", "");
 		System.out.println(str.length() + str);
-		
+
 		System.out.println("项目开始".length());
 	}
 	

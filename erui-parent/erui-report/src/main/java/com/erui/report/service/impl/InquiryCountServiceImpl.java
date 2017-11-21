@@ -72,8 +72,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             criteria.andRollinTimeLessThan(endTime);
         }
 
-        if (quotedStatus != null && !"".equals(quotedStatus)) {
+        if (quotedStatus != null && !"".equals(quotedStatus)&&!"询单正常".equals(quotedStatus)) {
             criteria.andQuotedStatusEqualTo(quotedStatus);
+        }else if("询单正常".equals(quotedStatus)){
+            criteria.andQuotedStatusNotEqualTo("询单取消");
         }
         if (maxQuoteTime == 4) {
             criteria.andQuoteNeedTimeLessThan(mdecimal);
@@ -640,7 +642,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
         }
-
         List<Map<String, Object>> result = readMapper.findCountAndAvgNeedTimeByExampleGroupOrigation(example);
         if (result == null) {
             result = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.erui.boss.web.report;
 
 
+import com.erui.boss.web.util.QuotedStatusEnum;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.NewDateUtil;
@@ -158,7 +159,7 @@ public class CustomCentreController {
         double successOrderRate = 0.00;
         double successOrderChian = 0.00;// 环比
         int successOrderCount = orderService.orderCountByTime(startDate, endDate, "正常完成", "", "");
-        int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate, "已报价", 0, 0, "", "");
+        int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), 0, 0, "", "");
         int successOrderChianCount = orderService.orderCountByTime(rateStartDate, startDate, "正常完成", "", "");
         if (successInquiryCount > 0) {
             successOrderRate = RateUtil.intChainRate(successOrderCount, successInquiryCount);
@@ -206,10 +207,10 @@ public class CustomCentreController {
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
 
-        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate, "已报价", 0, 0, "", "");
-        int noQuoteCount = inquiryService.inquiryCountByTime(startDate, endDate, "未报价", 0, 0, "", "");
-        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate, "报价中", 0, 0, "", "");
-        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate, "询单取消", 0, 0, "", "");
+        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), 0, 0, "", "");
+        int noQuoteCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(), 0, 0, "", "");
+        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus(), 0, 0, "", "");
+        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus(), 0, 0, "", "");
         int totalCount = quotedCount + noQuoteCount + quotingCount + cancelCount;
         Double quotedInquiryRate = null;
         Double quotingInquiryRate = null;
@@ -246,12 +247,12 @@ public class CustomCentreController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
-        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate, "", 0, 0, "", "");
-        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, "", 0, 4, "", "");
-        int count2 = inquiryService.inquiryCountByTime(startDate, endDate, "", 4, 8, "", "");
-        int count3 = inquiryService.inquiryCountByTime(startDate, endDate, "", 8, 24, "", "");
-        int count5 = inquiryService.inquiryCountByTime(startDate, endDate, "", 24, 48, "", "");
-        int otherCount = inquiryService.inquiryCountByTime(startDate, endDate, "", 48, 1000, "", "");
+        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 0, 0, "", "");
+        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 0, 4, "", "");
+        int count2 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 4, 8, "", "");
+        int count3 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 8, 24, "", "");
+        int count5 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 24, 48, "", "");
+        int otherCount =totalCount-(count1+count2+count3+count5);
         HashMap<String, Object> quoteTimeMap = new HashMap<>();
         quoteTimeMap.put("oneCount", count1);
         quoteTimeMap.put("fourCount", count2);

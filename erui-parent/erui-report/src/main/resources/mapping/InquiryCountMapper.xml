@@ -259,7 +259,7 @@
     </if>
   </select>
   <select id="selectProTop3" resultType="map" parameterType="Object" >
-    SELECT COUNT(1) as proCount ,pro_category as proCategory FROM inquiry_count
+    SELECT COUNT(1) as proCount ,plat_pro_category as proCategory FROM inquiry_count
       <where >
         <if test="startTime != null" >
           and rollin_time >= #{startTime}
@@ -268,7 +268,7 @@
            and rollin_time &lt; #{endTime}
         </if>
       </where>
-      group by pro_category ORDER BY proCount DESC LIMIT 0,3;
+      group by plat_pro_category ORDER BY proCount DESC LIMIT 0,3;
   </select>
 
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
