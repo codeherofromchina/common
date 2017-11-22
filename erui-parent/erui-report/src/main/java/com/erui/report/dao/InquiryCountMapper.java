@@ -88,6 +88,14 @@ public interface InquiryCountMapper {
     List<Map<String,Object>> findCountAndAvgNeedTimeByExampleGroupOrigation(InquiryCountExample example);
 
     /**
+     * 询单趋势图
+     * @param example
+     * @return
+     */
+    List<Map<String,Object>> inqTrendByTime(InquiryCountExample example);
+
+
+    /**
      * 统计事业部的询单数量和响应平均时间
      * @param example
      * @return  {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}

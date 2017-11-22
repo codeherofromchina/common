@@ -49,6 +49,14 @@ public interface RequestCreditService {
 	  * @modified By
 	  */
 	Map<String,Object> selectRequestNext(Date startDate,Date endDate,String area,String country);
+
+	/**
+	 * @Author:王晓丹
+	 * @Description 下月应收 -- 新的，旧方法没动
+	 * @Date:21:10 2017/10/23
+	 * @modified By
+	 */
+	public Map<String, Object> selectRequestNextNew(Date startDate, Date endDate, String area, String country);
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询所有地区

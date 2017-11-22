@@ -30,7 +30,8 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse(
-                new String[]{"generalMemberCount","seniorMemberCount","goldMemberCount"});
+                new String[]{"generalMemberCount", "seniorMemberCount", "goldMemberCount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         Member member = null;
         if (!testOnly) {
@@ -128,7 +129,8 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
             }
             response.incrSuccess();
         }
-
+        Map<String, BigDecimal> sumMap = response.getSumMap();
+        sumMap.put("memberCount", sumMap.get("generalMemberCount").add(sumMap.get("seniorMemberCount")).add(sumMap.get("goldMemberCount")));
         response.setDone(true);
 
         return response;
@@ -138,14 +140,19 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     @Override
     public int selectByTime(Date startTime, Date endDate) {
         MemberExample example = new MemberExample();
-        if (startTime != null && !"".equals(startTime) && endDate != null && !"".equals(endDate)) {
-            example.createCriteria().andInputDateBetween(startTime, endDate);
-            return this.readMapper.selectByTime(example);
+        MemberExample.Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andInputDateGreaterThanOrEqualTo(startTime);
+        }
+        if (endDate != null) {
+            criteria.andInputDateLessThan(endDate);
         }
         return this.readMapper.selectByTime(example);
     }
 
+
     @Override
+    @Deprecated
     public Map<String, Object> selectMemberByTime() {
         Map<String, Object> member = readMapper.selectMemberByTime();
         if (member == null) {
@@ -170,7 +177,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
             seniorMember = new BigDecimal(member.get("s3").toString());
             generalMember = new BigDecimal(member.get("s1").toString());
         }
-        //黄金会员 高级会员 一般会员 复购率
+        //黄金会员、高级会员、一般会员的复购率
         BigDecimal regoldMember = null;
         BigDecimal reseniorMember = null;
         BigDecimal regeneralMember = null;

@@ -135,10 +135,10 @@ public class RequestCreditController {
         Date curDate = new Date();
         Date nextWeekEndTime = DateUtil.getWeek(curDate, 5);
         Date nextWeekStartTime = DateUtil.getBeforeWeek(nextWeekEndTime, 6);
-        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNext(nextWeekStartTime, nextWeekEndTime,"","");
+        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNextNew(nextWeekStartTime, nextWeekEndTime,"","");
         Date chainWeekStartTime = DateUtil.sometimeCalendar(nextWeekStartTime, 7);
         Date chainWeekEndTime = DateUtil.getWeek(nextWeekEndTime, 5);
-        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNext(chainWeekStartTime, chainWeekEndTime,"","");
+        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNextNew(chainWeekStartTime, chainWeekEndTime,"","");
         if (nextWeekMount == null) {
             nextWeekMount = new HashMap();
             nextWeekMount.put("sdT", 0);
@@ -165,10 +165,10 @@ public class RequestCreditController {
         //下月应收
         Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
-        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNext(nextMonthStartTime, nextMonthEndTime,"","");
+        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNextNew(nextMonthStartTime, nextMonthEndTime,"","");
         Date chainMonthFirstDay = DateUtil.getMonthFirstDay(curDate);
         Date chainMonthLastDay = DateUtil.getMonthLastDay(curDate);
-        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNext(chainMonthFirstDay, chainMonthLastDay,"","");
+        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNextNew(chainMonthFirstDay, chainMonthLastDay,"","");
         if (nextMonthMount == null) {
             nextMonthMount = new HashMap();
             nextMonthMount.put("sdT", 0);
@@ -192,15 +192,13 @@ public class RequestCreditController {
         nextMonthReceivable.put("chainRate",RateUtil.doubleChainRate(chainMonthOrderAmountAdd, nextMonthOrderAmount.doubleValue()));
         nextMonthReceivable.put("startTime",DateUtil.formatDate2String(nextMonthStartTime,DateUtil.SHORT_SLASH_FORMAT_STR));
         nextMonthReceivable.put("endTime",DateUtil.formatDate2String(nextMonthEndTime,DateUtil.SHORT_SLASH_FORMAT_STR));
-        Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = new HashMap<>();
         data.put("receive", receivable);
         data.put("received", received);
         data.put("notReceive", notReceive);
         data.put("nextWeekReceivable", nextWeekReceivable);
         data.put("nextMonthReceivable", nextMonthReceivable);
-        result.put("data", data);
-        result.put("code", 200);
+        Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
 
@@ -246,7 +244,6 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(areaMap);
         return result;
     }
-
     /**
      * @Author:SHIGS
      * @Description 根据销售区域查询国家
@@ -343,8 +340,9 @@ public class RequestCreditController {
             acNotreceiveAmount = new BigDecimal(mapCount.get("ra").toString());
         }
         //下月应收
-        Map mapNext = requestCreditService.selectRequestNext(new Date(), nextTime, map.get("area").toString(), country);
+        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextTime, map.get("area").toString(), country);
         if (mapNext == null) {
+            mapNext = new HashMap();
             mapNext.put("sdT", 0);
         }
         BigDecimal nextOrderAmount = BigDecimal.ZERO;
@@ -373,10 +371,10 @@ public class RequestCreditController {
         } else {
             conList.add("下月应收-占比" + df.format((nextOrderAmount.doubleValue() / totalOrderAmount.doubleValue()) * 100) + "%");
         }
-        amountList.add(acOrderAmount.doubleValue());
-        amountList.add(acReceiveAmount.doubleValue());
-        amountList.add(acNotreceiveAmount.doubleValue());
-        amountList.add(nextOrderAmount.doubleValue());
+        amountList.add(acOrderAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acReceiveAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acNotreceiveAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(nextOrderAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
         Map<String, Object> data = new HashMap();
         data.put("xAxis", conList);
         data.put("yAxis", amountList);

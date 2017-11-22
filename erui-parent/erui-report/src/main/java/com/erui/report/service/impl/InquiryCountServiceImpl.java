@@ -24,6 +24,7 @@ import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.InquiryCountExample.Criteria;
 import com.erui.report.service.InquiryCountService;
 import org.springframework.util.NumberUtils;
+import sun.awt.geom.Crossings;
 
 /*
 * 客户中心-询单统计  服务实现类
@@ -32,22 +33,24 @@ import org.springframework.util.NumberUtils;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:58 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:58 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectStart() {
         return this.readMapper.selectStart();
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:58 2017/11/14
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:58 2017/11/14
+     * @modified By
+     */
     @Override
     public Date selectEnd() {
         return this.readMapper.selectEnd();
@@ -62,12 +65,17 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
         BigDecimal ldecimal = new BigDecimal(leastQuoteTime);
         BigDecimal mdecimal = new BigDecimal(maxQuoteTime);
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
 
-        if (quotedStatus != null && !"".equals(quotedStatus)) {
+        if (quotedStatus != null && !"".equals(quotedStatus)&&!"询单正常".equals(quotedStatus)) {
             criteria.andQuotedStatusEqualTo(quotedStatus);
+        }else if("询单正常".equals(quotedStatus)){
+            criteria.andQuotedStatusNotEqualTo("询单取消");
         }
         if (maxQuoteTime == 4) {
             criteria.andQuoteNeedTimeLessThan(mdecimal);
@@ -154,14 +162,16 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             } catch (Exception e) {
                 logger.error("需用日期:" + strArr[19] + ";" + e.getMessage());
             }
-            try {
-                ic.setClarifyTime(DateUtil.parseString2Date(strArr[20], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
-                        DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "澄清完成日期格式错误");
-                continue;
+            if (strArr[20] != null) {
+                try {
+                    ic.setClarifyTime(DateUtil.parseString2Date(strArr[20], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+                            DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "澄清完成日期格式错误");
+                    continue;
+                }
             }
             if (strArr[21] != null) {
                 try {
@@ -280,21 +290,25 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             ic.setPackagingVolume(strArr[38]);
             ic.setPackagingWay(strArr[39]);
 
-            try {
-                ic.setDeliveryDate(new BigDecimal(strArr[40]).intValue());
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "交货期字段非数字");
-                continue;
+            if (strArr[40] != null) {
+                try {
+                    ic.setDeliveryDate(new BigDecimal(strArr[40]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "交货期字段非数字");
+                    continue;
+                }
             }
-            try {
-                ic.setExpiryDate(new BigDecimal(strArr[41]).intValue());
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
-                continue;
+            if (strArr[41] != null) {
+                try {
+                    ic.setExpiryDate(new BigDecimal(strArr[41]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
+                    continue;
+                }
             }
 
             ic.setStandardTradeItems(strArr[42]);
@@ -359,8 +373,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public int selectProCountByExample(Date startTime, Date endTime, String isOil, String proCategory) {
         InquiryCountExample example = new InquiryCountExample();
         InquiryCountExample.Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         if (isOil != null && !isOil.equals("")) {
             criteria.andIsOilGasEqualTo(isOil);
@@ -392,8 +409,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public Map<String, Object> selectProTop3Total(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return this.readMapper.selectProTop3TotalByExample(example);
     }
@@ -403,9 +423,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public List<CateDetailVo> selectInqDetailByCategory(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
         }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        criteria.andPlatProCategoryIsNotNull(); // 按照平台品类统计，平台品类不能为空
         return readMapper.selectInqDetailByCategoryByExample(example);
     }
 
@@ -428,8 +452,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public List<InquiryCount> selectListByTime(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return readMapper.selectByExample(example);
     }
@@ -488,8 +515,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public Double inquiryAmountByTime(Date startTime, Date endTime, String area) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         if (area != null && !"".equals(area)) {
             criteria.andInquiryAreaEqualTo(area);
@@ -502,8 +532,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public CustomerNumSummaryVO numSummary(Date startTime, Date endTime, String area, String country) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         if (StringUtils.isNoneBlank(area)) {
             criteria = criteria.andInquiryAreaEqualTo(area);
@@ -581,8 +614,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public CustomerNumSummaryVO selectNumSummaryByExample(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            criteria.andRollinTimeBetween(startTime, endTime);
+
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
         }
         return readMapper.selectNumSummaryByExample(example);
     }
@@ -605,7 +642,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
         }
-
         List<Map<String, Object>> result = readMapper.findCountAndAvgNeedTimeByExampleGroupOrigation(example);
         if (result == null) {
             result = new ArrayList<>();
@@ -613,9 +649,62 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return result;
     }
 
+    /**
+     * 询订单趋势图
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @Override
+    public InqOrdTrendVo inqOrdTrend(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        OrderCountExample ordExample = new OrderCountExample();
+        if (startTime != null && endTime != null) {
+            example.createCriteria().andRollinTimeBetween(startTime, endTime);
+            ordExample.createCriteria().andProjectStartBetween(startTime, endTime);
+        }
+        List<Map<String, Object>> inqTrendList = readMapper.inqTrendByTime(example);
+        OrderCountMapper ordReadMapper = readerSession.getMapper(OrderCountMapper.class);
+        List<Map<String, Object>> ordTrendList = ordReadMapper.ordTrendByTime(ordExample);
+        //虚拟一个标准的时间集合
+        List<String> dates = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
+            dates.add(dateFormat.format(datetime));
+        }
+        //封装询订单数据
+        Map<String, Map<String, Object>> inqTrend = inqTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
+        Map<String, Map<String, Object>> ordTrend = ordTrendList.parallelStream().collect(Collectors.toMap(vo -> vo.get("datetime").toString(), vo -> vo));
+
+        List<Integer> inqCounts = new ArrayList<>();
+        List<Integer> ordCounts = new ArrayList<>();
+        for (String date : dates) {
+            if (inqTrend.containsKey(date)) {
+                inqCounts.add(Integer.parseInt(inqTrend.get(date).get("count").toString()));
+            } else {
+                inqCounts.add(0);
+            }
+            if (ordTrend.containsKey(date)) {
+                ordCounts.add(Integer.parseInt(ordTrend.get(date).get("count").toString()));
+            } else {
+                ordCounts.add(0);
+            }
+
+        }
+        InqOrdTrendVo trendVo = new InqOrdTrendVo();
+        trendVo.setDate(dates);
+        trendVo.setInqCounts(inqCounts);
+        trendVo.setOrdCounts(ordCounts);
+        return trendVo;
+    }
+
 
     /**
      * 按照转入日期区间统计区域的询单数量和金额
+     *
      * @param startTime
      * @param endTime
      * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}

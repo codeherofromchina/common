@@ -207,6 +207,18 @@
       order by ${orderByClause}
     </if>
   </select>
+  <!--询单趋势图-->
+  <select id="inqTrendByTime" resultType="map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT COUNT(1) as count ,FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
+    FROM inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY TO_DAYS(rollin_time)
+  </select>
   <!--查询事业部列表-->
   <select id="selectOrgListByExample" resultType="java.lang.String" parameterType="com.erui.report.model.InquiryCountExample" >
     select DISTINCT(organization)
@@ -247,16 +259,16 @@
     </if>
   </select>
   <select id="selectProTop3" resultType="map" parameterType="Object" >
-    SELECT COUNT(1) as proCount ,pro_category as proCategory FROM inquiry_count
+    SELECT COUNT(1) as proCount ,plat_pro_category as proCategory FROM inquiry_count
       <where >
         <if test="startTime != null" >
           and rollin_time >= #{startTime}
         </if>
         <if test="endTime != null " >
-           and rollin_time &lt;= #{endTime}
+           and rollin_time &lt; #{endTime}
         </if>
       </where>
-      group by pro_category ORDER BY proCount DESC LIMIT 0,3;
+      group by plat_pro_category ORDER BY proCount DESC LIMIT 0,3;
   </select>
 
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >

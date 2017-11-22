@@ -8,6 +8,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.RequestCreditExample;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -72,13 +73,15 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
      */
     @Override
     public Map<String, Object> selectRequestTotal(Date startDate, Date endDate) {
-        RequestCreditExample requestCreditExample = null;
-        if (startDate != null && endDate != null) {
-            requestCreditExample = new RequestCreditExample();
-            requestCreditExample.createCriteria().andCreateAtBetween(startDate, endDate);
-            return this.readMapper.selectRequestTotal(requestCreditExample);
+        RequestCreditExample requestCreditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = requestCreditExample.createCriteria();
+        if (startDate != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startDate);
         }
-        return this.readMapper.selectRequestTotal(null);
+        if (endDate != null) {
+            criteria.andCreateAtLessThan(endDate);
+        }
+        return this.readMapper.selectRequestTotal(requestCreditExample);
     }
 
     /**
@@ -92,15 +95,15 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Date nextTime = DateUtil.recedeTime(-30);
         int days = DateUtil.getDayBetween(startTime, endTime);
         List<Map> nextMap = null;
-        if (!startTime.equals("")) {
-            RequestCreditExample nextCreditExample = new RequestCreditExample();
-            nextCreditExample.createCriteria().andBackDateBetween(new Date(), nextTime);
-            nextMap = readMapper.selectRequestTrend(nextCreditExample);
-        }
-        List<Double> receivableList = new ArrayList<>();
-        List<Double> notReceiveList = new ArrayList<>();
-        List<Double> receivedList = new ArrayList<>();
-        List<Double> nextList = new ArrayList<>();
+        RequestCreditExample nextCreditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = nextCreditExample.createCriteria();
+        criteria.andBackDateGreaterThanOrEqualTo(DateUtil.getOperationTime(new Date(),0,0,0));
+        criteria.andBackDateLessThan(nextTime);
+        nextMap = readMapper.selectNextRequestTrend(nextCreditExample);
+        List<String> receivableList = new ArrayList<>();
+        List<String> notReceiveList = new ArrayList<>();
+        List<String> receivedList = new ArrayList<>();
+        List<String> nextList = new ArrayList<>();
         List<String> dateList = new ArrayList<>();
         List<String> nextDate = new ArrayList<>();
         Map<String, Map<String, Double>> sqlDate = new HashMap<>();
@@ -110,7 +113,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         for (Map map3 : nextMap) {
             BigDecimal nextReceivable = new BigDecimal(map3.get("order_amount").toString());
             Date date2 = (Date) map3.get("back_date");
-            String dateString = DateUtil.format("MM月dd日", date2);
+            String dateString = DateUtil.format("yyyy年MM月dd日", date2);
             if (sqlDate.containsKey(dateString)) {
                 Map<String, Double> map = sqlDate.get(dateString);
                 Double next1 = map.get("nextReceivable");
@@ -125,30 +128,32 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         for (int i = 0; i < 31; i++) {
             Date datetime = DateUtil.recedeTime(-i);
             String date = DateUtil.format("MM月dd日", datetime);
-            if (sqlDate.containsKey(date)) {
+            String date02 = DateUtil.format("yyyy年MM月dd日", datetime);
+            if (sqlDate.containsKey(date02)) {
                 nextDate.add(date);
-                nextList.add(sqlDate.get(date).get("nextReceivable"));
+                nextList.add(df.format(sqlDate.get(date02).get("nextReceivable")));
             } else {
                 nextDate.add(date);
-                nextList.add(0.00);
+                nextList.add("0.00");
             }
         }
         RequestCreditExample requestCreditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria2 = requestCreditExample.createCriteria();
         List<Map> requestMap = null;
-        if (startTime != null && !"".equals(startTime) && endTime != null && !"".equals(endTime)) {
-            requestCreditExample.createCriteria().andCreateAtBetween(startTime, endTime);
-            requestMap = readMapper.selectRequestTrend(requestCreditExample);
-        } else {
-            requestMap = readMapper.selectRequestTrend(requestCreditExample);
+        if (startTime != null) {
+            criteria2.andCreateAtGreaterThanOrEqualTo(startTime);
         }
+        if (endTime != null) {
+            criteria2.andCreateAtLessThan(endTime);
+        }
+        requestMap = readMapper.selectRequestTrend(requestCreditExample);
         //应收，已收，未收
         for (Map map2 : requestMap) {
-
             BigDecimal receivable = new BigDecimal(map2.get("order_amount").toString());
             BigDecimal notReceive = new BigDecimal(map2.get("receive_amount").toString());
             BigDecimal received = new BigDecimal(map2.get("received").toString());
             Date date2 = (Date) map2.get("create_at");
-            String dateString = DateUtil.format("MM月dd日", date2);
+            String dateString = DateUtil.format("yyyy年MM月dd日", date2);
             if (sqlDate02.containsKey(dateString)) {
                 Map<String, Double> m = sqlDate02.get(dateString);
                 Double received1 = m.get("received");
@@ -166,19 +171,20 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 sqlDate02.put(dateString, linkData);
             }
         }
-        for (int i = 0; i < days ; i++) {
+        for (int i = 0; i < days; i++) {
             Date datetime = DateUtil.sometimeCalendar(startTime, -i);
-            String date = DateUtil.format("MM月dd日", datetime);
+            String date = DateUtil.format("yyyy年MM月dd日", datetime);
+            String date02 = DateUtil.format("MM月dd日", datetime);
             if (sqlDate02.containsKey(date)) {
-                dateList.add(date);
-                receivableList.add(sqlDate02.get(date).get("receivable"));
-                notReceiveList.add(sqlDate02.get(date).get("notReceive"));
-                receivedList.add(sqlDate02.get(date).get("received"));
+                dateList.add(date02);
+                receivableList.add(df.format(sqlDate02.get(date).get("receivable")));
+                notReceiveList.add(df.format(sqlDate02.get(date).get("notReceive")));
+                receivedList.add(df.format(sqlDate02.get(date).get("received")));
             } else {
-                dateList.add(date);
-                receivableList.add(0.00);
-                notReceiveList.add(0.00);
-                receivedList.add(0.00);
+                dateList.add(date02);
+                receivableList.add("0.00");
+                notReceiveList.add("0.00");
+                receivedList.add("0.00");
             }
         }
         String[] s = {"应收账款", "应收未收", "应收已收", "下月应收"};
@@ -204,6 +210,34 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         return data;
     }
 
+
+    /**
+     * @Author:SHIGS
+     * @Description 应收账款下月
+     * @Date:9:13 2017/10/24
+     * @modified By
+     */
+    @Override
+    public Map<String, Object> selectRequestNextNew(Date startDate, Date endDate, String area, String country) {
+        RequestCreditExample requestCreditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria1 = requestCreditExample.createCriteria();
+        if (startDate != null) {
+            criteria1.andBackDateGreaterThanOrEqualTo(startDate);
+        }
+        if (endDate != null) {
+            criteria1.andBackDateLessThan(endDate);
+//            criteria1.andCreateAtLessThan(endDate);
+        }
+        if (StringUtils.isNotBlank(area)) {
+            criteria1.andSalesAreaEqualTo(area);
+        }
+        if (StringUtils.isNotBlank(country)) {
+            criteria1.andSalesCountryEqualTo(country);
+        }
+
+        return this.readMapper.selectRequestTotal(requestCreditExample);
+    }
+
     /**
      * @Author:SHIGS
      * @Description 应收账款下月
@@ -212,22 +246,21 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
      */
     @Override
     public Map<String, Object> selectRequestNext(Date startDate, Date endDate, String area, String country) {
-        RequestCreditExample requestCreditExample = null;
-        if (!"".equals(startDate) && !"".equals(endDate) && !"".equals(area)) {
-            if ("".equals(country) || country == null) {
-                RequestCreditExample requestByCountry = new RequestCreditExample();
-                requestByCountry.createCriteria().andSalesAreaEqualTo(area).andBackDateBetween(startDate, endDate);
-                return this.readMapper.selectRequestTotal(requestByCountry);
-            } else if (!"".equals(area) && area != null && !"".equals(country) && country != null) {
-                RequestCreditExample requestByAreaAndCountry = new RequestCreditExample();
-                requestByAreaAndCountry.createCriteria().andSalesAreaEqualTo(area).andSalesCountryEqualTo(country).andBackDateBetween(startDate, endDate);
-                return this.readMapper.selectRequestTotal(requestByAreaAndCountry);
-            }
-        } else {
-            RequestCreditExample Requestcriteria = new RequestCreditExample();
-            Requestcriteria.createCriteria().andBackDateBetween(startDate, endDate);
-            return this.readMapper.selectRequestTotal(Requestcriteria);
+        RequestCreditExample requestCreditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria1 = requestCreditExample.createCriteria();
+        if (startDate != null) {
+            criteria1.andCreateAtGreaterThanOrEqualTo(startDate);
         }
+        if (endDate != null) {
+            criteria1.andCreateAtLessThan(endDate);
+        }
+        if (StringUtils.isNotBlank(area)) {
+            criteria1.andSalesAreaEqualTo(area);
+        }
+        if (StringUtils.isNotBlank(country)) {
+            criteria1.andSalesCountryEqualTo(country);
+        }
+
         return this.readMapper.selectRequestTotal(requestCreditExample);
     }
 
@@ -281,8 +314,11 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     public Map<String, Object> selectByAreaOrCountry(Date startDate, Date endDate, String area, String country) {
         RequestCreditExample e = new RequestCreditExample();
         RequestCreditExample.Criteria criteria = e.createCriteria();
-        if (startDate != null && !"".equals(startDate) && endDate != null && !"".equals(endDate)) {
-            criteria.andCreateAtBetween(startDate, endDate);
+        if (startDate != null) {
+            criteria.andCreateAtGreaterThanOrEqualTo(startDate);
+        }
+        if (endDate != null) {
+            criteria.andCreateAtLessThan(endDate);
         }
         if (StringUtil.isNotBlank(area)) {
             criteria.andSalesAreaEqualTo(area);
@@ -297,6 +333,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         // 应收账款金额 - orderAmount、 应收未收金额 - receiveAmount
         ImportDataResponse response = new ImportDataResponse(new String[]{"orderAmount", "receiveAmount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         RequestCredit rc = null;
         if (!testOnly) {

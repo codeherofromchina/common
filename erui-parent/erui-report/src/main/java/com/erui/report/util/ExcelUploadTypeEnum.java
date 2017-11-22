@@ -102,7 +102,7 @@ public enum ExcelUploadTypeEnum {
 			response.pushFailItem(excelType.getTable(), lineNum, "行数据单元格数据不足");
 			return true;
 		}
-		
+
 		return false;
 	}
 

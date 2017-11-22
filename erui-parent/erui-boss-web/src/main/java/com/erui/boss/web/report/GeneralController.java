@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.*;
+import com.erui.report.util.InqOrdTrendVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -65,6 +66,7 @@ public class GeneralController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
         int curMemberCount = memberService.selectByTime(startTime, endTime);
         Map<String, Object> member = new HashMap<String, Object>();
         member.put("count", curMemberCount);
@@ -182,43 +184,13 @@ public class GeneralController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        int days = 0;
-        days = DateUtil.getDayBetween(startTime,endTime);
-        //当前时期
-        Map<String, Object> data = new HashMap<>();
-        // 封装日期,X轴
-        String[] dates = new String[days];
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        ArrayList<Date> dateList = new ArrayList<>();
-        for (int i = 0; i < dates.length; i++) {
-            Date datetime = DateUtil.recedeTime(days - (i + 1));
-            dateList.add(datetime);
-            String date = dateFormat.format(datetime);
-            dates[i] = date;
-        }
-        // 封装查询订单和询单数据
-        Date sTime = DateUtil.sometimeCalendar(startTime,days);
-        Integer[] inCounts = new Integer[dateList.size()];// 询单数数组
-        Integer[] orderCounts = new Integer[dateList.size()];// 订单数数组
-        for (int i = 0; i < dateList.size(); i++) {
-            if (i == 0) {
-                int inquiryCount = inquiryService.inquiryCountByTime(sTime, dateList.get(i), "", 0, 0, "", "");
-                inCounts[i] = inquiryCount;
-                int orderCount = orderService.orderCountByTime(sTime, dateList.get(i), "", "", "");
-                orderCounts[i] = orderCount;
-            } else {
-                int inquiryCount = inquiryService.inquiryCountByTime(dateList.get(i - 1), dateList.get(i), "", 0, 0,
-                        "", "");
-                inCounts[i] = inquiryCount;
-                int orCount = orderService.orderCountByTime(dateList.get(i - 1), dateList.get(i), "", "", "");
-                orderCounts[i] = orCount;
-            }
-        }
-        data.put("xAxis", dates);
-        data.put("inquiry", inCounts);
-        data.put("yAxis", orderCounts);
-        Result<Map<String, Object>> result = new Result<>(data);
-        return result;
+        InqOrdTrendVo trendVo = inquiryService.inqOrdTrend(startTime, endTime);
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("xAxis", trendVo.getDate());
+        datas.put("inquiry", trendVo.getInqCounts());
+        datas.put("yAxis", trendVo.getOrdCounts());
+        return new Result<>(datas);
+
     }
 
     /**
