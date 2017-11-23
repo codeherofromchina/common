@@ -157,20 +157,13 @@ public class CustomCentreController {
 
         // 成单率
         double successOrderRate = 0.00;
-        double successOrderChian = 0.00;// 环比
-        int successOrderCount = orderService.orderCountByTime(startDate, endDate, "正常完成", "", "");
+        int successOrderCount = orderService.orderCountByTime(startDate, endDate, null, "", "");
         int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), 0, 0, "", "");
-        int successOrderChianCount = orderService.orderCountByTime(rateStartDate, startDate, "正常完成", "", "");
         if (successInquiryCount > 0) {
             successOrderRate = RateUtil.intChainRate(successOrderCount, successInquiryCount);
         }
-        if (successOrderChianCount > 0) {
-            successOrderChian = RateUtil.intChainRate((successOrderCount - successOrderChianCount),
-                    successOrderChianCount);
-        }
         Map<String, Object> sucessOrderMap = new HashMap<>();
         sucessOrderMap.put("successOrderRate", successOrderRate);
-        sucessOrderMap.put("successOrderChian", successOrderChian);
 
         // top3
         Map<String, Object> map = new HashMap<>();
