@@ -1,4 +1,4 @@
-package com.erui.boss.web.util;
+package com.erui.report.util;
 
 /**
  * Created by lirb on 2017/11/21.
@@ -12,7 +12,7 @@ public enum QuotedStatusEnum {
     private int code;
     private String quotedStatus;
 
-    QuotedStatusEnum(Integer code,String quotedStatus){
+    QuotedStatusEnum(Integer code, String quotedStatus){
         this.code=code;
         this.quotedStatus=quotedStatus;
     }

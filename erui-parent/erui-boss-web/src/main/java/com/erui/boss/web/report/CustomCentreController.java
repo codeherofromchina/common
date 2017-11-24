@@ -1,7 +1,6 @@
 package com.erui.boss.web.report;
 
 
-import com.erui.boss.web.util.QuotedStatusEnum;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.NewDateUtil;
@@ -12,6 +11,7 @@ import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
+import com.erui.report.util.QuotedStatusEnum;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
