@@ -6,10 +6,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.model.HrCountExample;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.apache.bcel.generic.IF_ACMPEQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +46,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
     /**
      * @Author:SHIGS
-     * @Description
+     * @Description 总览战斗力
      * @Date:16:17 2017/10/25
      * @modified By
      */
@@ -53,38 +55,42 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         // 当前时期
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
+        // 即时数据
+        HrCountExample hrCountExampleImediate = new HrCountExample();
+        HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         // 当前时段
-        Map CurHrCountMap = null;
+        Map<String, Long> CurHrCountMap = null;
         if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
+            criteriaImediate.andCreateAtLessThan(endTime);
         }
         CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        Map<String, Long> immediateMap = findImmediateNum(hrCountExampleImediate);
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
-            CurHrCountMap.put("s1", 0);
-            CurHrCountMap.put("s2", 0);
-            CurHrCountMap.put("s3", 0);
-            CurHrCountMap.put("s4", 0);
-            CurHrCountMap.put("s8", 0);
-            CurHrCountMap.put("s9", 0);
-            CurHrCountMap.put("s10", 0);
+            CurHrCountMap.put("turnRightCount", 0L);
+            CurHrCountMap.put("dimissionCount", 0L);
+            CurHrCountMap.put("groupTransferIn", 0L);
+            CurHrCountMap.put("groupTransferOut", 0L);
         }
-        BigDecimal planCount = new BigDecimal(CurHrCountMap.get("s1").toString());
-        BigDecimal regularCount = new BigDecimal(CurHrCountMap.get("s2").toString());
-        BigDecimal tryCount = new BigDecimal(CurHrCountMap.get("s3").toString());
-        BigDecimal turnRightCount = new BigDecimal(CurHrCountMap.get("s4").toString());
-        BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
-        BigDecimal turnJobin = new BigDecimal(CurHrCountMap.get("s9").toString());
-        BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
+
+        Number planCount = immediateMap.get("plan_count");
+        Number regularCount = immediateMap.get("regular_count");
+        Number tryCount = immediateMap.get("try_count");
+        Number turnRightCount = immediateMap.get("turn_right_count");
+        Number dimissionCount = CurHrCountMap.get("dimissionCount");
+        Number turnJobin = CurHrCountMap.get("groupTransferIn");
+        Number turnJobout = CurHrCountMap.get("groupTransferOut");
         Map<String, Object> data = new HashMap<>();
         // 满编率
         double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
         // 转正率
         double turnRightRate = RateUtil.intChainRate(turnRightCount.intValue(), regularCount.intValue());
         data.put("staffFullRate", Double.parseDouble(df.format(staffFullRate)));
+        //转正人员占比
         data.put("turnRightRate", Double.parseDouble(df.format(turnRightRate)));
         data.put("onDuty", regularCount);
         data.put("plan", planCount);
@@ -104,15 +110,14 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             if (startTime != null) {
                 criteria.andCreateAtLessThan(startTime);
             }
-            Map<String, Object> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
-            if (chainHrCountMap == null) {
-                chainHrCountMap = new HashMap<>();
-                chainHrCountMap.put("s2", 0);
-                chainHrCountMap.put("s4", 0);
-            }
+            // 即时数据环比
+            HrCountExample hrCountExampleImediate2 = new HrCountExample();
+            HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
+            criteriaImediate2.andCreateAtLessThanOrEqualTo(chainEnd);
+            Map<String, Long> chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
             // 环比人数
-            BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
-            BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
+            Number chainRegularCount = chainHrCountImmediateMap.get("regular_count");
+            Number chainTurnRightCount = chainHrCountImmediateMap.get("turn_right_count");
             // 环比增加人数
             int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
             int chainTurnAdd = chainTurnRightCount.intValue() - turnRightCount.intValue();
@@ -120,6 +125,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             double staffFullChainRate = RateUtil.doubleChainRate(chainFullAdd, chainRegularCount.intValue());
             double turnRightChainRate = RateUtil.doubleChainRate(chainTurnAdd, chainTurnRightCount.intValue());
             data.put("staffFullChainRate", Double.parseDouble(df.format(staffFullChainRate)));
+            //转正人员占比
             data.put("turnRightChainRate", Double.parseDouble(df.format(turnRightChainRate)));
         }
         return data;
@@ -142,67 +148,54 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         // 当前时期
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
+        // 即时数据
+        HrCountExample hrCountExampleImediate = new HrCountExample();
+        HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         // 当前时段
-        Map CurHrCountMap = null;
+        Map<String, Long> CurHrCountMap = null;
         if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
+            criteriaImediate.andCreateAtLessThan(endTime);
         }
         // {"s1":"计划人数","s2":"在编人数","s3":"试用期人数","s4":"转正人数","s5":"中方人数",
         //"s6":"外籍人数","s7":"新进人数","s8":"离职人数","s9":"集团转进","s10":"集团转出",
         // "staffFullRate":"在编/计划--满编率","tryRate":"试用/在编--试用占比","addRate":"(新进/在编-离职/在编) -- 增长率",
         //"leaveRate":"(转刚出/在编-转岗进/在编)--转岗流失","foreignRate":"外籍/在编--外籍占比"}
         CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+        Map<String, Long> immediateMap = findImmediateNum(hrCountExampleImediate);
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
-            CurHrCountMap.put("s1", 0);
-            CurHrCountMap.put("s2", 0);
-            CurHrCountMap.put("s3", 0);
-            CurHrCountMap.put("s4", 0);
-            CurHrCountMap.put("s5", 0);
-            CurHrCountMap.put("s6", 0);
-            CurHrCountMap.put("s7", 0);
-            CurHrCountMap.put("s8", 0);
-            CurHrCountMap.put("s9", 0);
-            CurHrCountMap.put("s10", 0);
-
+            CurHrCountMap.put("turnRightCount", 0L);
+            CurHrCountMap.put("newCount", 0L);
+            CurHrCountMap.put("dimissionCount", 0L);
+            CurHrCountMap.put("groupTransferIn", 0L);
+            CurHrCountMap.put("groupTransferOut", 0L);
         }
-        BigDecimal planCount = new BigDecimal(CurHrCountMap.get("s1").toString());
-        BigDecimal regularCount = new BigDecimal(CurHrCountMap.get("s2").toString());
-        BigDecimal tryCount = new BigDecimal(CurHrCountMap.get("s3").toString());
-        BigDecimal turnRightCount = new BigDecimal(CurHrCountMap.get("s4").toString());
-        BigDecimal chinaCount = new BigDecimal(CurHrCountMap.get("s5").toString());
-        BigDecimal foreignCount = new BigDecimal(CurHrCountMap.get("s6").toString());
-        BigDecimal newCount = new BigDecimal(CurHrCountMap.get("s7").toString());
-        BigDecimal dimissionCount = new BigDecimal(CurHrCountMap.get("s8").toString());
-        BigDecimal turnJobin = new BigDecimal(CurHrCountMap.get("s9").toString());
-        BigDecimal turnJobout = new BigDecimal(CurHrCountMap.get("s10").toString());
-        /**
-            // 满编率
-            double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
-            // 试用占比
-            double tryRate = RateUtil.intChainRate(tryCount.intValue(), regularCount.intValue());
-            // 增长率
-            double addRate = RateUtil.intChainRate(newCount.intValue(), regularCount.intValue())
-                    - RateUtil.intChainRate(dimissionCount.intValue(), regularCount.intValue());
-            // 转岗流失率
-            double leaveRate = RateUtil.intChainRate(turnJobout.intValue(), regularCount.intValue())
-                    - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
-            // 外籍占比
-            double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
-        **/
+        Number planCount = immediateMap.get("plan_count");
+        Number regularCount = immediateMap.get("regular_count");
+        Number tryCount = immediateMap.get("try_count");
+        Number chinaCount = immediateMap.get("china_count");
+        Number foreignCount = immediateMap.get("foreign_count");
+        Number turnRightCount = immediateMap.get("turn_right_count");
+        Number newCount = CurHrCountMap.get("newCount");
+        Number dimissionCount = CurHrCountMap.get("dimissionCount");
+        Number turnJobin = CurHrCountMap.get("groupTransferIn");
+        Number turnJobout = CurHrCountMap.get("groupTransferOut");
         // 满编率
-        BigDecimal staffFullRate = (BigDecimal)CurHrCountMap.get("staffFullRate");
+        double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
         // 试用占比
-        BigDecimal tryRate = (BigDecimal)CurHrCountMap.get("tryRate");
+        double tryRate = RateUtil.intChainRate(tryCount.intValue(), regularCount.intValue());
         // 增长率
-        BigDecimal addRate = (BigDecimal)CurHrCountMap.get("addRate");
+        double addRate = RateUtil.intChainRate(newCount.intValue(), regularCount.intValue())
+                - RateUtil.intChainRate(dimissionCount.intValue(), regularCount.intValue());
         // 转岗流失率
-        BigDecimal leaveRate = (BigDecimal)CurHrCountMap.get("leaveRate");
+        double leaveRate = RateUtil.intChainRate(turnJobout.intValue(), regularCount.intValue())
+                - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
         // 外籍占比
-        BigDecimal foreignRate = (BigDecimal)CurHrCountMap.get("foreignRate");
+        double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
         Map<String, Object> data = new HashMap<>();
         data.put("newCount", newCount);
         data.put("foreignCount", foreignCount);
@@ -214,11 +207,11 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         data.put("planCount", planCount);
         data.put("tryCount", tryCount);
         data.put("dimissionCount", dimissionCount);
-        data.put("leaveRate", leaveRate.setScale(4,BigDecimal.ROUND_DOWN));
-        data.put("newAdd", addRate.setScale(4,BigDecimal.ROUND_DOWN));
-        data.put("foreignRate", foreignRate.setScale(4,BigDecimal.ROUND_DOWN));
-        data.put("staffFullRate", staffFullRate.setScale(4,BigDecimal.ROUND_DOWN));
-        data.put("tryRate", tryRate.setScale(4,BigDecimal.ROUND_DOWN));
+        data.put("leaveRate", leaveRate);
+        data.put("newAdd", addRate);
+        data.put("foreignRate", foreignRate);
+        data.put("staffFullRate", staffFullRate);
+        data.put("tryRate", tryRate);
         if (startTime != null && endTime != null && DateUtil.getDayBetween(startTime, endTime) > 0) {
             HrCountExample hrCountExample02 = new HrCountExample();
             HrCountExample.Criteria criteria02 = hrCountExample02.createCriteria();
@@ -226,26 +219,25 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             //环比开始
             Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
             // 环比时段
-            criteria02.andCreateAtGreaterThanOrEqualTo(chainEnd).andCreateAtLessThan(startTime);
-
-            Map<String, Object> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
+            criteria02.andCreateAtGreaterThan(chainEnd).andCreateAtLessThan(startTime);
+            // 即时数据环比
+            HrCountExample hrCountExampleImediate2 = new HrCountExample();
+            HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
+            criteriaImediate2.andCreateAtLessThanOrEqualTo(chainEnd);
+            Map<String, Long> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
+            Map<String, Long> chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
             if (chainHrCountMap == null) {
                 chainHrCountMap = new HashMap<>();
-                chainHrCountMap.put("s2", 0);
-                chainHrCountMap.put("s4", 0);
-                chainHrCountMap.put("s6", 0);
-                chainHrCountMap.put("s7", 0);
-                chainHrCountMap.put("s9", 0);
+                chainHrCountMap.put("turnRightCount", 0L);
+                chainHrCountMap.put("newCount", 0L);
+                chainHrCountMap.put("groupTransferIn", 0L);
             }
             // 环比人数
-            BigDecimal chainRegularCount = new BigDecimal(chainHrCountMap.get("s2").toString());
-            BigDecimal chainTurnRightCount = new BigDecimal(chainHrCountMap.get("s4").toString());
-            // BigDecimal chainTryCount = new BigDecimal(chainHrCountMap.get("s3").toString());
-            BigDecimal chainNewCount = new BigDecimal(chainHrCountMap.get("s7").toString());
-            // BigDecimal chainDimissionCount = new BigDecimal(chainHrCountMap.get("s8").toString());
-            BigDecimal chainTurnJobin = new BigDecimal(chainHrCountMap.get("s9").toString());
-            // BigDecimal chainTurnJobout = new BigDecimal(chainHrCountMap.get("s10").toString());
-            BigDecimal chainForeignCount = new BigDecimal(chainHrCountMap.get("s6").toString());
+            Number chainRegularCount = chainHrCountImmediateMap.get("regular_count");
+            Number chainTurnRightCount = immediateMap.get("turn_right_count");
+            Number chainNewCount = chainHrCountMap.get("newCount");
+            Number chainTurnJobin = chainHrCountMap.get("groupTransferIn");
+            Number chainForeignCount = chainHrCountImmediateMap.get("foreign_count");
             // 环比增加人数
             int chainFullAdd = regularCount.intValue() - chainRegularCount.intValue();
             int chainTurnAdd = turnRightCount.intValue() - chainTurnRightCount.intValue();
@@ -257,7 +249,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             double tryChainRate = RateUtil.intChainRate(chainTurnAdd, chainTurnRightCount.intValue());
             double chainAddRate = RateUtil.intChainRate(chainAdd, chainNewCount.intValue());
             double groupTransferChainRate = RateUtil.intChainRate(chainTurnJobinAdd, chainTurnJobin.intValue());
-            double foreignChainRate = RateUtil.intChainRate(chainForeignCountAdd,chainForeignCount.intValue());
+            double foreignChainRate = RateUtil.intChainRate(chainForeignCountAdd, chainForeignCount.intValue());
             data.put("foreignChainRate", Double.parseDouble(df.format(foreignChainRate)));
             data.put("groupTransferChainRate", Double.parseDouble(df.format(groupTransferChainRate)));
             data.put("newChainRate", Double.parseDouble(df.format(chainAddRate)));
@@ -270,7 +262,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             data.put("newChainRate", 0);
             data.put("staffFullChainRate", 0);
             data.put("turnRightChainRate", 0);
-
         }
         return data;
     }
@@ -304,68 +295,65 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
     public Map<String, Object> selectHrCountByDepart(Date startTime, Date endTime, String depart) {
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
-        Map curHrCountMap = null;
+        Map<String, Long> curHrCountMap = null;
+        // 即时数据
+        HrCountExample hrCountExampleImediate = new HrCountExample();
+        HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
+        Map<String, Long> immediateMap = null;
         if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
+            criteriaImediate.andCreateAtLessThan(endTime);
         }
         if ("".equals(depart) || depart == null) {
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+            immediateMap = findImmediateNum(hrCountExampleImediate);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
-                curHrCountMap.put("s1", 0);
-                curHrCountMap.put("s2", 0);
-                curHrCountMap.put("s3", 0);
-                curHrCountMap.put("s4", 0);
-                curHrCountMap.put("s5", 0);
-                curHrCountMap.put("s6", 0);
-                curHrCountMap.put("s7", 0);
-                curHrCountMap.put("s8", 0);
-                curHrCountMap.put("s9", 0);
-                curHrCountMap.put("s10", 0);
+                curHrCountMap.put("newCount", 0L);
+                curHrCountMap.put("dimissionCount", 0L);
+                curHrCountMap.put("groupTransferIn", 0L);
+                curHrCountMap.put("groupTransferOut", 0L);
 
             }
         } else {
             criteria.andBigDepartEqualTo(depart);
+            criteriaImediate.andBigDepartEqualTo(depart);
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+            immediateMap = findImmediateNum(hrCountExampleImediate);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
-                curHrCountMap.put("s1", 0);
-                curHrCountMap.put("s2", 0);
-                curHrCountMap.put("s3", 0);
-                curHrCountMap.put("s4", 0);
-                curHrCountMap.put("s5", 0);
-                curHrCountMap.put("s6", 0);
-                curHrCountMap.put("s7", 0);
-                curHrCountMap.put("s8", 0);
-                curHrCountMap.put("s9", 0);
-                curHrCountMap.put("s10", 0);
-
+                curHrCountMap.put("newCount", 0L);
+                curHrCountMap.put("dimissionCount", 0L);
+                curHrCountMap.put("groupTransferIn", 0L);
+                curHrCountMap.put("groupTransferOut", 0L);
             }
         }
         // 当前时段
-        BigDecimal planCount = new BigDecimal(curHrCountMap.get("s1").toString());
-        BigDecimal regularCount = new BigDecimal(curHrCountMap.get("s2").toString());
-        BigDecimal tryCount = new BigDecimal(curHrCountMap.get("s3").toString());
-        BigDecimal turnRightCount = new BigDecimal(curHrCountMap.get("s4").toString());
-        BigDecimal chinaCount = new BigDecimal(curHrCountMap.get("s5").toString());
-        BigDecimal foreignCount = new BigDecimal(curHrCountMap.get("s6").toString());
-        BigDecimal newCount = new BigDecimal(curHrCountMap.get("s7").toString());
-        BigDecimal dimissionCount = new BigDecimal(curHrCountMap.get("s8").toString());
-        BigDecimal turnJobin = new BigDecimal(curHrCountMap.get("s9").toString());
-        BigDecimal turnJobout = new BigDecimal(curHrCountMap.get("s10").toString());
+        Number planCount = immediateMap.get("plan_count");
+        Number regularCount = immediateMap.get("regular_count");
+        Number tryCount = immediateMap.get("try_count");
+        Number chinaCount = immediateMap.get("china_count");
+        Number foreignCount = immediateMap.get("foreign_count");
+        Number turnRightCount = immediateMap.get("turn_right_count");
+        Number newCount = curHrCountMap.get("newCount");
+        Number dimissionCount = curHrCountMap.get("dimissionCount");
+        Number turnJobin = curHrCountMap.get("groupTransferIn");
+        Number turnJobout = curHrCountMap.get("groupTransferOut");
         // 满编率
-        double staffFullRate = Double.parseDouble(df.format(curHrCountMap.get("staffFullRate")).toString());
+        double staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
         // 试用占比
-        double tryRate = Double.parseDouble(df.format(curHrCountMap.get("tryRate")).toString());
+        double tryRate = RateUtil.intChainRate(tryCount.intValue(), regularCount.intValue());
         // 增长率
-        double addRate = Double.parseDouble(df.format(curHrCountMap.get("addRate")).toString());
+        double addRate = RateUtil.intChainRate(newCount.intValue(), regularCount.intValue())
+                - RateUtil.intChainRate(dimissionCount.intValue(), regularCount.intValue());
         // 转岗流失率
-        double leaveRate = Double.parseDouble(df.format(curHrCountMap.get("leaveRate")).toString());
+        double leaveRate = RateUtil.intChainRate(turnJobout.intValue(), regularCount.intValue())
+                - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
         // 外籍占比
-        double foreignRate = Double.parseDouble(df.format(curHrCountMap.get("foreignRate")).toString());
+        double foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
         List<Integer> seriesList01 = new ArrayList<>();
         List<Integer> seriesList02 = new ArrayList<>();
         seriesList01.add(planCount.intValue());
@@ -399,7 +387,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      */
     @Override
     public List<Map> selectDepartmentCount(Date startTime, Date endTime) {
-        DecimalFormat df = new DecimalFormat("0.00000000");
         HrCountExample example = new HrCountExample();
         HrCountExample.Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -408,64 +395,206 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
-        List<Map> bigList = readMapper.selectBigDepartCountByExample(example);
-        List<Map> departList = readMapper.selectDepartmentCountByExample(example);
-        Map<String, Map<String, Object>> departMap2 = new HashMap<>();
+        // 查询累计数据
+        List<Map> bigList = readMapper.selectDepartmentCountByExample(example);
+
+        // 查询即时数据
+        Date lastDate = selectLeastDate();
+        HrCountExample hrCountExampleImediate = new HrCountExample();
+        HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
+        criteriaImediate.andCreateAtEqualTo(lastDate);
+        List<Map> bigImmediteList = findImmediateDepartmentNum(example);
+        Map<String, Map<String, Object>> bigImmediteMap = bigImmediteList.parallelStream().collect(Collectors.toMap(vo -> (String) StringUtils.defaultIfBlank((String)vo.get("department"),""), vo -> vo));
+
+
+        Map<String, Object> bigerPart = new HashMap<>();
+        bigList.stream().forEach(vo -> {
+            String deparment = (String) vo.get("department");
+            if(StringUtils.isBlank(deparment)){
+                deparment = "";
+            }
+            String bigDeparment = (String) vo.get("big_depart");
+            Map<String, Object> immeMap = bigImmediteMap.get(deparment);
+
+            Object bigObj = bigerPart.get(bigDeparment);
+            Map<String, Object> bigMap = null;
+            if (bigObj == null) {
+                bigMap = new HashMap<>();
+            } else {
+                bigMap = (Map<String, Object>) bigObj;
+            }
+            bigerPart.put(bigDeparment, bigMap);
+
+            int regularCount = ((Number) immeMap.get("regular_count")).intValue();
+            int planCount = ((Number) immeMap.get("plan_count")).intValue();
+            int tryCount = ((Number) immeMap.get("try_count")).intValue();
+            int foreignCount = ((Number) immeMap.get("foreign_count")).intValue();
+
+            int newCount = ((Number) vo.get("newCount")).intValue();
+            int dimissionCount = ((Number) vo.get("dimissionCount")).intValue();
+            int groupTransferIn = ((Number) vo.get("groupTransferIn")).intValue();
+            int groupTransferOut = ((Number) vo.get("groupTransferOut")).intValue();
+
+
+            if (StringUtils.isNotBlank(deparment)) {
+                Map<String, Object> children = new HashMap<>();
+                children.put("departmentName", deparment);
+                children.put("staffFullRate", RateUtil.intChainRate(regularCount, planCount));
+                children.put("tryRate", RateUtil.intChainRate(tryCount, regularCount));
+                children.put("addRate", RateUtil.intChainRate(newCount, regularCount));
+                children.put("foreignRate", RateUtil.intChainRate(foreignCount, regularCount));
+
+                Object childrens = bigMap.get("children");
+                List<Object> list = null;
+                if (childrens == null) {
+                    list = new ArrayList<>();
+                    bigMap.put("children", list);
+                } else {
+                    list = (List) childrens;
+                }
+                list.add(children);
+            }
+
+
+            Object count = bigMap.get("count");
+            Map<String, Integer> bigPartNum = null;
+            if (count == null) {
+                bigPartNum = new HashMap<>();
+                bigPartNum.put("regularCount", regularCount);
+                bigPartNum.put("planCount", planCount);
+                bigPartNum.put("tryCount", tryCount);
+                bigPartNum.put("foreignCount", foreignCount);
+                bigPartNum.put("newCount", newCount);
+                bigPartNum.put("dimissionCount", dimissionCount);
+                bigPartNum.put("groupTransferIn", groupTransferIn);
+                bigPartNum.put("groupTransferOut", groupTransferOut);
+            } else {
+                bigPartNum = (Map<String, Integer>) count;
+                bigPartNum.put("regularCount", regularCount + bigPartNum.get("regularCount"));
+                bigPartNum.put("planCount", planCount + bigPartNum.get("planCount"));
+                bigPartNum.put("tryCount", tryCount + bigPartNum.get("tryCount"));
+                bigPartNum.put("foreignCount", foreignCount + bigPartNum.get("foreignCount"));
+                bigPartNum.put("newCount", newCount + bigPartNum.get("newCount"));
+                bigPartNum.put("dimissionCount", dimissionCount + bigPartNum.get("dimissionCount"));
+                bigPartNum.put("groupTransferIn", groupTransferIn + bigPartNum.get("groupTransferIn"));
+                bigPartNum.put("groupTransferOut", groupTransferOut + bigPartNum.get("groupTransferOut"));
+            }
+            bigMap.put("count", bigPartNum);
+        });
+
         List<Map> result = new ArrayList<>();
-        for (Map mapBig : bigList) {
-            if ("".equals(mapBig.get("big_depart")) || mapBig.get("big_depart") == null) {
-                continue;
-            }
-            // 满编率
-            double staffFullRate = Double.parseDouble(df.format(mapBig.get("staffFullRate")).toString());
-            // 试用占比
-            double tryRate = Double.parseDouble(df.format(mapBig.get("tryRate")).toString());
-            // 增长率
-            double addRate = Double.parseDouble(df.format(mapBig.get("addRate")).toString());
-            // 转岗流失率
-            double leaveRate = Double.parseDouble(df.format(mapBig.get("leaveRate")).toString());
-            // 外籍占比
-            double foreignRate = Double.parseDouble(df.format(mapBig.get("foreignRate")).toString());
-            Map<String, Object> departMap = new HashMap<>();
-            departMap.put("staffFullRate", staffFullRate);
-            departMap.put("tryRate", tryRate);
-            departMap.put("addRate", addRate);
-            departMap.put("leaveRate", leaveRate);
-            departMap.put("foreignRate", foreignRate);
-            departMap.put("departName", mapBig.get("big_depart"));
-            departMap2.put(mapBig.get("big_depart").toString(), departMap);
-            result.add(departMap);
+        // 循环大部门
+        for (Map.Entry<String, Object> entry : bigerPart.entrySet()) {
+            String key = entry.getKey();
+            Map<String, Object> bigMap= (Map<String, Object>)entry.getValue();
+            Map<String, Integer> count = (Map<String, Integer>) bigMap.get("count");
+            bigMap.put("staffFullRate", RateUtil.intChainRate(count.get("regularCount"), count.get("planCount")));
+            bigMap.put("tryRate", RateUtil.intChainRate(count.get("tryCount"), count.get("regularCount")));
+            bigMap.put("addRate", RateUtil.intChainRate(count.get("newCount"), count.get("regularCount")));
+            bigMap.put("foreignRate", RateUtil.intChainRate(count.get("foreignCount"), count.get("regularCount")));
+            bigMap.put("departName",key);
+            result.add(bigMap);
         }
-        for (Map mapDepart : departList) {
-            Map<String, Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
-            // 满编率
-            double staffFullRate = Double.parseDouble(df.format(mapDepart.get("staffFullRate")).toString());
-            // 试用占比
-            double tryRate = Double.parseDouble(df.format(mapDepart.get("tryRate")).toString());
-            // 增长率
-            double addRate = Double.parseDouble(df.format(mapDepart.get("addRate")).toString());
-            // 转岗流失率
-            double leaveRate = Double.parseDouble(df.format(mapDepart.get("leaveRate")).toString());
-            // 外籍占比
-            double foreignRate = Double.parseDouble(df.format(mapDepart.get("foreignRate")).toString());
-            Map<String, Object> departMap = new HashMap<>();
-            if ("".equals(mapDepart.get("department")) || mapDepart.get("department") == null) {
-                continue;
-            }
-            departMap.put("staffFullRate", staffFullRate);
-            departMap.put("tryRate", tryRate);
-            departMap.put("addRate", addRate);
-            departMap.put("leaveRate", leaveRate);
-            departMap.put("foreignRate", foreignRate);
-            departMap.put("departmentName", mapDepart.get("department").toString());
-            Object obj = bigDepartment.get("children");
-            if (obj == null) {
-                obj = new ArrayList<Map<String, Double>>();
-                bigDepartment.put("children", obj);
-            }
-            ((List) obj).add(departMap);
-        }
+
+
         return result;
+
+//
+//        List<Map> bigList = readMapper.selectBigDepartCountByExample(example);
+//        List<Map> bigImmediteList = findImmediateBigDepartNum(hrCountExampleImediate);
+//        List<Map> departList = readMapper.selectDepartmentCountByExample(example);
+//        List<Map> departImmediteList = findImmediateDepartmentNum(hrCountExampleImediate);
+//        Map<String, Map<String, Object>> departMap2 = new HashMap<>();
+//        List<Map> result = new ArrayList<>();
+//        double staffFullRate = 0.0;
+//        double tryRate = 0.0;
+//        double addRate = 0.0;
+//        double leaveRate = 0.0;
+//        double foreignRate = 0.0;
+//        for (Map<String, Object> mapBig : bigList) {
+//            if ("".equals(mapBig.get("big_depart")) || mapBig.get("big_depart") == null) {
+//                continue;
+//            }
+//            Number newCount = (Number) mapBig.get("newCount");
+//            Number dimissionCount = (Number) mapBig.get("dimissionCount");
+//            Number turnJobin = (Number) mapBig.get("groupTransferIn");
+//            Number turnJobout = (Number) mapBig.get("groupTransferOut");
+//            for (Map<String, Object> immediateMap : bigImmediteList) {
+//                if ("".equals(immediateMap.get("big_depart")) || immediateMap.get("big_depart") == null) {
+//                    continue;
+//                }
+//                Number planCount = (Number) immediateMap.get("plan_count");
+//                Number regularCount = (Number) immediateMap.get("regular_count");
+//                Number tryCount = (Number) immediateMap.get("try_count");
+//                Number foreignCount = (Number) immediateMap.get("foreign_count");
+//                staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
+//                // 试用占比
+//                tryRate = RateUtil.intChainRate(tryCount.intValue(), regularCount.intValue());
+//                // 增长率
+//                addRate = RateUtil.intChainRate(newCount.intValue(), regularCount.intValue())
+//                        - RateUtil.intChainRate(dimissionCount.intValue(), regularCount.intValue());
+//                // 转岗流失率
+//                leaveRate = RateUtil.intChainRate(turnJobout.intValue(), regularCount.intValue())
+//                        - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
+//                // 外籍占比
+//                foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
+//            }
+//            Map<String, Object> departMap = new HashMap<>();
+//            departMap.put("staffFullRate", staffFullRate);
+//            departMap.put("tryRate", tryRate);
+//            departMap.put("addRate", addRate);
+//            departMap.put("leaveRate", leaveRate);
+//            departMap.put("foreignRate", foreignRate);
+//            departMap.put("departName", mapBig.get("big_depart"));
+//            departMap2.put(mapBig.get("big_depart").toString(), departMap);
+//            result.add(departMap);
+//            // 满编率
+//        }
+//        for (Map mapDepart : departList) {
+//            Number newCount = (Number) mapDepart.get("newCount");
+//            Number dimissionCount = (Number) mapDepart.get("dimissionCount");
+//            Number turnJobin = (Number) mapDepart.get("groupTransferIn");
+//            Number turnJobout = (Number) mapDepart.get("groupTransferOut");
+//            if ("".equals(mapDepart.get("department")) || mapDepart.get("department") == null) {
+//                continue;
+//            }
+//            Map<String, Object> bigDepartment = departMap2.get(mapDepart.get("big_depart").toString());
+//            for (Map<String, Object> immediateMap2 : departImmediteList) {
+//                if ("".equals(immediateMap2.get("department")) || immediateMap2.get("department") == null) {
+//                    continue;
+//                }
+//                Number planCount = (Number) immediateMap2.get("plan_count");
+//                Number regularCount = (Number) immediateMap2.get("regular_count");
+//                Number tryCount = (Number) immediateMap2.get("try_count");
+//                Number foreignCount = (Number) immediateMap2.get("foreign_count");
+//                // 满编率
+//                staffFullRate = RateUtil.intChainRate(regularCount.intValue(), planCount.intValue());
+//                // 试用占比
+//                tryRate = RateUtil.intChainRate(tryCount.intValue(), regularCount.intValue());
+//                // 增长率
+//                addRate = RateUtil.intChainRate(newCount.intValue(), regularCount.intValue())
+//                        - RateUtil.intChainRate(dimissionCount.intValue(), regularCount.intValue());
+//                // 转岗流失率
+//                leaveRate = RateUtil.intChainRate(turnJobout.intValue(), regularCount.intValue())
+//                        - RateUtil.intChainRate(turnJobin.intValue(), regularCount.intValue());
+//                // 外籍占比
+//                foreignRate = RateUtil.intChainRate(foreignCount.intValue(), regularCount.intValue());
+//            }
+//            Map<String, Object> departMap = new HashMap<>();
+//            departMap.put("staffFullRate", staffFullRate);
+//            departMap.put("tryRate", tryRate);
+//            departMap.put("addRate", addRate);
+//            departMap.put("leaveRate", leaveRate);
+//            departMap.put("foreignRate", foreignRate);
+//            departMap.put("departmentName", mapDepart.get("department").toString());
+//            Object obj = bigDepartment.get("children");
+//            if (obj == null) {
+//                obj = new ArrayList<Map<String, Double>>();
+//                bigDepartment.put("children", obj);
+//            }
+//            ((List) obj).add(departMap);
+//        }
+//        return result;
     }
 
     @Override
@@ -652,5 +781,41 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         System.out.println(localDate);
 
 
+    }
+
+    /**
+     * @param example
+     * @return {"plan_count":"计划编制","regular_count":"到岗编制","try_count":"试用期人数","china_count":"中方","foreign_count":"外籍"}
+     * @Author:SHIGS
+     * @Description
+     * @Date:22:14 2017/11/23
+     * @modified By
+     */
+    private Map<String, Long> findImmediateNum(HrCountExample example) {
+        Map<String, Long> map = readMapper.findImmediateNum(example);
+        if (map == null) {
+            map = new HashMap<>();
+            map.put("plan_count", 0L);
+            map.put("regular_count", 0L);
+            map.put("try_count", 0L);
+            map.put("china_count", 0L);
+            map.put("foreign_count", 0L);
+            map.put("turn_right_count", 0L);
+        }
+        return map;
+    }
+
+    private List<Map> findImmediateBigDepartNum(HrCountExample example) {
+        List<Map> map = readMapper.findImmediateBigDepartNum(example);
+        return map;
+    }
+
+    private List<Map> findImmediateDepartmentNum(HrCountExample example) {
+        List<Map> map = readMapper.findImmediateDepartmentNum(example);
+        return map;
+    }
+
+    private Date selectLeastDate() {
+        return readMapper.selectEnd();
     }
 }

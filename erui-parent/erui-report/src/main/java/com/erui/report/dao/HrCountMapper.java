@@ -54,4 +54,11 @@ public interface HrCountMapper {
     int updateByPrimaryKey(HrCount record);
 
     void truncateTable();
+
+
+    Map<String,Long> findImmediateNum(HrCountExample example);
+
+    List<Map> findImmediateDepartmentNum(HrCountExample example);
+
+    List<Map> findImmediateBigDepartNum(HrCountExample example);
 }
