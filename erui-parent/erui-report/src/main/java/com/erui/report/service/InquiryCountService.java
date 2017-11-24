@@ -105,12 +105,12 @@ public interface InquiryCountService {
 	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
 
 	/**
-	 * 按照转入日期区间统计事业部的询单数量和响应平均时间
+	 * 按照转入日期区间统计事业部的询单数量
 	 * @param startDate
 	 * @param endDate
-	 * @return  {"avgNeedTime":'平均响应时间--BigDecimal',"total":'总询单数量--Long',"organization":'事业部--String'}
+	 * @return  {"total":'总询单数量--Long',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
+	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
 
 	/**
 	 * 询订单趋势图数据
@@ -127,4 +127,12 @@ public interface InquiryCountService {
 	 * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
 	 */
     List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime);
+
+	/**
+	 * 按照转入日期区间统计事业部的平均报价时间
+	 * @param startDate
+	 * @param endDate
+	 * @return  {"avgNeedTime":'平均响应时间--BigDecimal',"organization":'事业部--String'}
+	 */
+	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate);
 }

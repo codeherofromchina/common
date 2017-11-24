@@ -259,7 +259,7 @@
     </if>
   </select>
   <select id="selectProTop3" resultType="map" parameterType="Object" >
-    SELECT COUNT(1) as proCount ,plat_pro_category as proCategory FROM inquiry_count
+    SELECT COUNT(1) as proCount ,pro_category as proCategory FROM inquiry_count
       <where >
         <if test="startTime != null" >
           and rollin_time >= #{startTime}
@@ -268,7 +268,7 @@
            and rollin_time &lt; #{endTime}
         </if>
       </where>
-      group by plat_pro_category ORDER BY proCount DESC LIMIT 0,3;
+      group by pro_category HAVING pro_category IS  NOT  NULL  ORDER BY proCount DESC LIMIT 0,3;
   </select>
 
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
@@ -320,37 +320,44 @@
   
   
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
-    select t.plat_pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from 
+    select t.pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from
 		(
-			select plat_pro_category,0 as xdCount,count(1) as ddCount from order_count
+			select selectProTop3,0 as xdCount,count(1) as ddCount from order_count
 			<if test="orderCountExample != null" >
       			<include refid="orderCount_alias_Example_Where_Clause" />
     		</if>
-    		group by plat_pro_category
+    		group by pro_category
 			union all 
-			select plat_pro_category,count(1) as xdCount,0 as ddCount from inquiry_count
+			select pro_category,count(1) as xdCount,0 as ddCount from inquiry_count
 			<if test="inquiryCountExample != null" >
       			<include refid="inquiry_alias_Example_Where_Clause" />
     		</if>
-			group by plat_pro_category
+			group by pro_category
 		) as t
-	group by t.plat_pro_category having t.plat_pro_category is not null order by 4 desc
+	group by t.pro_category having t.pro_category is not null order by 4 desc
 	<if test="limit != null">
 		limit #{limit}
 	</if>
   </select>
 
 
-  <select id="findCountAndAvgNeedTimeByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT organization,count(1) as total,avg(ifnull(quote_need_time,0)) as avgNeedTime
+  <select id="findCountByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT organization,count(1) as total
       FROM erui_report.inquiry_count
       <if test="_parameter != null" >
         <include refid="Example_Where_Clause" />
       </if>
-      group by organization
+      group by organization HAVING  organization IS  NOT NULL
   </select>
 
-
+  <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime
+    FROM erui_report.inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    group by organization HAVING  organization IS  NOT NULL
+  </select>
   <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT inquiry_area as area,count(1) as total,sum(IFNULL(quotation_price,0)) as totalAmount
     FROM erui_report.inquiry_count
@@ -741,7 +748,7 @@
     SELECT
     IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) AS inqCatePrice,
     COUNT(*) AS inqCateCount,
-    plat_pro_category AS category
+    pro_category AS category
     FROM
     inquiry_count
     <if test="_parameter != null" >
@@ -751,7 +758,7 @@
       order by ${orderByClause}
     </if>
     GROUP BY
-    category
+    category HAVING  category IS  NOT  NULL
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
     update inquiry_count
