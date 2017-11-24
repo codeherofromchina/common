@@ -1,7 +1,6 @@
 package com.erui.boss.web.report;
 
 
-import com.erui.boss.web.util.QuotedStatusEnum;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.NewDateUtil;
@@ -12,6 +11,7 @@ import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
+import com.erui.report.util.QuotedStatusEnum;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/report/customCentre")
 public class CustomCentreController {
+
     @Autowired
     private InquiryCountService inquiryService;
     @Autowired
@@ -157,20 +158,13 @@ public class CustomCentreController {
 
         // 成单率
         double successOrderRate = 0.00;
-        double successOrderChian = 0.00;// 环比
-        int successOrderCount = orderService.orderCountByTime(startDate, endDate, "正常完成", "", "");
+        int successOrderCount = orderService.orderCountByTime(startDate, endDate, null, "", "");
         int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), 0, 0, "", "");
-        int successOrderChianCount = orderService.orderCountByTime(rateStartDate, startDate, "正常完成", "", "");
         if (successInquiryCount > 0) {
             successOrderRate = RateUtil.intChainRate(successOrderCount, successInquiryCount);
         }
-        if (successOrderChianCount > 0) {
-            successOrderChian = RateUtil.intChainRate((successOrderCount - successOrderChianCount),
-                    successOrderChianCount);
-        }
         Map<String, Object> sucessOrderMap = new HashMap<>();
         sucessOrderMap.put("successOrderRate", successOrderRate);
-        sucessOrderMap.put("successOrderChian", successOrderChian);
 
         // top3
         Map<String, Object> map = new HashMap<>();
@@ -207,29 +201,27 @@ public class CustomCentreController {
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
 
-        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), 0, 0, "", "");
-        int noQuoteCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(), 0, 0, "", "");
-        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus(), 0, 0, "", "");
-        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus(), 0, 0, "", "");
-        int totalCount = quotedCount + noQuoteCount + quotingCount + cancelCount;
+        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
+                0, 0, "", "");//已完成询单数量
+        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus(),
+                0, 0, "", "");//报价中询单数量
+        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus(),
+                0, 0, "", "");//询单取消数量
+        int totalCount = quotedCount  + quotingCount + cancelCount;
         Double quotedInquiryRate = null;
         Double quotingInquiryRate = null;
-        Double noQuoteInquiryRate = null;
         Double cancelInquiryRate = null;
         if (totalCount > 0) {
             quotedInquiryRate = RateUtil.intChainRate(quotedCount, totalCount);
             quotingInquiryRate = RateUtil.intChainRate(quotingCount, totalCount);
-            noQuoteInquiryRate = RateUtil.intChainRate(noQuoteCount, totalCount);
             cancelInquiryRate = RateUtil.intChainRate(cancelCount, totalCount);
         }
         HashMap<String, Object> inquiryDetailMap = new HashMap<>();
         inquiryDetailMap.put("quotedCount", quotedCount);
-        inquiryDetailMap.put("noQuoteCount", noQuoteCount);
         inquiryDetailMap.put("quotingCount", quotingCount);
         inquiryDetailMap.put("cancelCount", cancelCount);
         inquiryDetailMap.put("quotedInquiryRate", quotedInquiryRate);
         inquiryDetailMap.put("quotingInquiryRate", quotingInquiryRate);
-        inquiryDetailMap.put("noQuoteInquiryRate", noQuoteInquiryRate);
         inquiryDetailMap.put("cancelInquiryRate", cancelInquiryRate);
 
         return new Result<>(inquiryDetailMap);
@@ -247,11 +239,11 @@ public class CustomCentreController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
-        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 0, 0, "", "");
-        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 0, 4, "", "");
-        int count2 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 4, 8, "", "");
-        int count3 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 8, 24, "", "");
-        int count5 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_NORMAL.getQuotedStatus(), 24, 48, "", "");
+        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 0, 0, "", "");
+        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 0, 4, "", "");
+        int count2 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 4, 8, "", "");
+        int count3 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 8, 24, "", "");
+        int count5 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 24, 48, "", "");
         int otherCount =totalCount-(count1+count2+count3+count5);
         HashMap<String, Object> quoteTimeMap = new HashMap<>();
         quoteTimeMap.put("oneCount", count1);
@@ -292,10 +284,12 @@ public class CustomCentreController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
-        ///查询给定时间的事业部询单数量和平均响应时间
-        List<Map<String, Object>> inquiryList = inquiryService.findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(startDate, endDate);
+        ///查询给定时间的事业部询单数量
+        List<Map<String, Object>> inquiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate);
         // 查询给定时间段的事业部订单数量和金额
         List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
+        //查询给定时间段的事业部平均报价时间
+        List<Map<String, Object>> avgNeedTimeList=inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(startDate, endDate);
 
         // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
         Set<String> organizations = new HashSet<>();
@@ -313,6 +307,24 @@ public class CustomCentreController {
             organizations.add(organization);
             return total.intValue();
         }).reduce(0, (a, b) -> a + b);
+        Map<Object, Map<String, Object>> avgMap = avgNeedTimeList.parallelStream().collect(Collectors.toMap(m -> m.get("organization"), m -> m));
+       for(String org:inquiryMap.keySet()){
+           if(!avgMap.containsKey(org)){
+               Map<String, Object> m = inquiryMap.get(org);
+               m.put("avgNeedTime",BigDecimal.valueOf(0d));
+               inquiryMap.put(org,m);
+           }
+       }
+        avgNeedTimeList.parallelStream().forEach(m->{
+            String org =String.valueOf(m.get("organization"));
+            if(inquiryMap.containsKey(org)){
+                Map<String, Object> map = inquiryMap.get(org);
+                BigDecimal avgNeedTime = (BigDecimal) m.get("avgNeedTime");
+                map.put("avgNeedTime",avgNeedTime);
+                inquiryMap.put(org,map);
+            }
+        });
+
 
 
         orderCount = orderList.stream().map(m -> {

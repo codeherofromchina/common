@@ -81,11 +81,11 @@ public interface InquiryCountMapper {
 
 
     /**
-     * 统计事业部的询单数量和响应平均时间
+     * 统计事业部的询单数量
      * @param example
-     * @return  {"avgNeedTime":'平均响应时间',"total":'总询单数量',"organization":'事业部'}
+     * @return  {"total":'总询单数量',"organization":'事业部'}
      */
-    List<Map<String,Object>> findCountAndAvgNeedTimeByExampleGroupOrigation(InquiryCountExample example);
+    List<Map<String,Object>> findCountByExampleGroupOrigation(InquiryCountExample example);
 
     /**
      * 询单趋势图
@@ -101,4 +101,10 @@ public interface InquiryCountMapper {
      * @return  {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
      */
     List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(InquiryCountExample example);
+    /**
+     * 统计事业部的询单数量和响应平均时间
+     * @param example
+     * @return  {"avgNeedTime":'平均响应时间',"organization":'事业部'}
+     */
+    List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(InquiryCountExample example);
 }

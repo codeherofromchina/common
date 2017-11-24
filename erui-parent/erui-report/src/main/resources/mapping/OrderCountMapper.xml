@@ -203,7 +203,7 @@
     SELECT
     SUM(project_account) AS ordCatePrice,
     COUNT(*) AS ordCateCount,
-    plat_pro_category AS category
+    pro_category AS category
     FROM
     order_count
     <if test="_parameter != null" >
@@ -213,7 +213,7 @@
       order by ${orderByClause}
     </if>
     GROUP BY
-    category
+    category HAVING  category IS  NOT  NULL
   </select>
   <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
     SELECT
@@ -229,7 +229,7 @@
         and project_start &lt; #{endTime}
       </if>
     </where>
-    group by pro_category  ORDER BY orderCount DESC LIMIT 0,3;
+    group by pro_category HAVING  pro_category IS  NOT  NULL  ORDER BY orderCount DESC LIMIT 0,3;
 
   </select>
 

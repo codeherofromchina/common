@@ -71,11 +71,16 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-
-        if (quotedStatus != null && !"".equals(quotedStatus)&&!"询单正常".equals(quotedStatus)) {
-            criteria.andQuotedStatusEqualTo(quotedStatus);
-        }else if("询单正常".equals(quotedStatus)){
-            criteria.andQuotedStatusNotEqualTo("询单取消");
+        if(StringUtils.isNoneBlank(quotedStatus)){
+            if(quotedStatus.equals(QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus())){
+                criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),
+                        QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus());
+            }else if(quotedStatus.equals(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus())){
+                criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(),
+                        QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus());
+            }else if(quotedStatus.equals(QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus())){
+                criteria.andQuotedStatusEqualTo(QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus());
+            }
         }
         if (maxQuoteTime == 4) {
             criteria.andQuoteNeedTimeLessThan(mdecimal);
@@ -626,14 +631,14 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
 
     /**
-     * 按照转入日期区间统计事业部的询单数量和响应平均时间
+     * 按照转入日期区间统计事业部的询单数量
      *
      * @param startDate
      * @param endDate
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountAndAvgNeedTimeByRangRollinTimeGroupOrigation(Date startDate, Date endDate) {
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startDate != null) {
@@ -642,7 +647,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
         }
-        List<Map<String, Object>> result = readMapper.findCountAndAvgNeedTimeByExampleGroupOrigation(example);
+        List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
         if (result == null) {
             result = new ArrayList<>();
         }
@@ -721,6 +726,26 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
 
         List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
+        if (result == null) {
+            result = new ArrayList<>();
+        }
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startDate != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
+        }
+        if (endDate != null) {
+            criteria.andRollinTimeLessThan(endDate);
+        }
+        criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
+                QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus());
+
+        List<Map<String, Object>> result = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(example);
         if (result == null) {
             result = new ArrayList<>();
         }
