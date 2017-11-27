@@ -307,7 +307,7 @@ public class CustomCentreController {
             organizations.add(organization);
             return total.intValue();
         }).reduce(0, (a, b) -> a + b);
-        Map<Object, Map<String, Object>> avgMap = avgNeedTimeList.parallelStream().collect(Collectors.toMap(m -> m.get("organization"), m -> m));
+        Map<String, Map<String, Object>> avgMap = avgNeedTimeList.parallelStream().collect(Collectors.toMap(m ->(String) m.get("organization"), m -> m));
        for(String org:inquiryMap.keySet()){
            if(!avgMap.containsKey(org)){
                Map<String, Object> m = inquiryMap.get(org);
