@@ -102,7 +102,7 @@
             order by ${orderByClause}
         </if>
     </select>
-
+   <!-- 查询大部门累计数据
     <select id="selectBigDepartCountByExample" resultType="java.util.Map"
             parameterType="com.erui.report.model.HrCountExample">
         SELECT IFNULL(SUM(new_count),0)AS newCount,IFNULL(SUM(dimission_count),0)AS dimissionCount ,
@@ -116,7 +116,7 @@
             order by ${orderByClause}
         </if>
         GROUP BY big_depart
-    </select>
+    </select>-->
     <select id="selectDepartmentCountByExample" resultType="java.util.Map"
             parameterType="com.erui.report.model.HrCountExample">
         SELECT IFNULL(SUM(new_count),0)AS newCount,IFNULL(SUM(dimission_count),0)AS dimissionCount ,
@@ -156,7 +156,8 @@
         </if>
         group by TO_DAYS(create_at) order by 1 DESC limit 1
     </select>
-    <select id="findImmediateBigDepartNum" resultType="java.util.Map"
+   <!-- 即时查询大部门数据-->
+   <!-- <select id="findImmediateBigDepartNum" resultType="java.util.Map"
             parameterType="com.erui.report.model.HrCountExample">
         select FROM_DAYS(TO_DAYS(create_at)),sum(plan_count)AS plan_count,SUM(regular_count)AS
         regular_count,SUM(try_count)AS try_count,SUM(turn_right_count)AS turn_right_count,SUM(china_count)AS
@@ -166,7 +167,7 @@
             <include refid="Example_Where_Clause"/>
         </if>
         GROUP BY big_depart
-    </select>
+    </select>-->
     <select id="findImmediateDepartmentNum" resultType="java.util.Map"
             parameterType="com.erui.report.model.HrCountExample">
         select FROM_DAYS(TO_DAYS(create_at)),sum(plan_count)AS plan_count,SUM(regular_count)AS

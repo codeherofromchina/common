@@ -297,6 +297,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         Map<String, Long> curHrCountMap = null;
         // 即时数据
+        Date lastDate = selectLeastDate();
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         Map<String, Long> immediateMap = null;
@@ -305,7 +306,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
-            criteriaImediate.andCreateAtLessThan(endTime);
+            criteriaImediate.andCreateAtEqualTo(lastDate);
         }
         if ("".equals(depart) || depart == null) {
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
@@ -331,13 +332,14 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
                 curHrCountMap.put("groupTransferOut", 0L);
             }
         }
-        // 当前时段
+        //即时时段
         Number planCount = immediateMap.get("plan_count");
         Number regularCount = immediateMap.get("regular_count");
         Number tryCount = immediateMap.get("try_count");
         Number chinaCount = immediateMap.get("china_count");
         Number foreignCount = immediateMap.get("foreign_count");
         Number turnRightCount = immediateMap.get("turn_right_count");
+        // 当前时段
         Number newCount = curHrCountMap.get("newCount");
         Number dimissionCount = curHrCountMap.get("dimissionCount");
         Number turnJobin = curHrCountMap.get("groupTransferIn");
@@ -397,20 +399,17 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         // 查询累计数据
         List<Map> bigList = readMapper.selectDepartmentCountByExample(example);
-
         // 查询即时数据
         Date lastDate = selectLeastDate();
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         criteriaImediate.andCreateAtEqualTo(lastDate);
-        List<Map> bigImmediteList = findImmediateDepartmentNum(example);
-        Map<String, Map<String, Object>> bigImmediteMap = bigImmediteList.parallelStream().collect(Collectors.toMap(vo -> (String) StringUtils.defaultIfBlank((String)vo.get("department"),""), vo -> vo));
-
-
+        List<Map> bigImmediteList = findImmediateDepartmentNum(hrCountExampleImediate);
+        Map<String, Map<String, Object>> bigImmediteMap = bigImmediteList.parallelStream().collect(Collectors.toMap(vo -> (String) StringUtils.defaultIfBlank((String) vo.get("department"), ""), vo -> vo));
         Map<String, Object> bigerPart = new HashMap<>();
         bigList.stream().forEach(vo -> {
             String deparment = (String) vo.get("department");
-            if(StringUtils.isBlank(deparment)){
+            if (StringUtils.isBlank(deparment)) {
                 deparment = "";
             }
             String bigDeparment = (String) vo.get("big_depart");
@@ -434,16 +433,14 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             int dimissionCount = ((Number) vo.get("dimissionCount")).intValue();
             int groupTransferIn = ((Number) vo.get("groupTransferIn")).intValue();
             int groupTransferOut = ((Number) vo.get("groupTransferOut")).intValue();
-
-
             if (StringUtils.isNotBlank(deparment)) {
                 Map<String, Object> children = new HashMap<>();
                 children.put("departmentName", deparment);
                 children.put("staffFullRate", RateUtil.intChainRate(regularCount, planCount));
                 children.put("tryRate", RateUtil.intChainRate(tryCount, regularCount));
-                children.put("addRate", RateUtil.intChainRate(newCount, regularCount));
+                children.put("addRate", RateUtil.intChainRate(newCount, regularCount) - RateUtil.intChainRate(dimissionCount, regularCount));
                 children.put("foreignRate", RateUtil.intChainRate(foreignCount, regularCount));
-
+                children.put("leaveRate", RateUtil.intChainRate(groupTransferOut, regularCount) - RateUtil.intChainRate(groupTransferIn, regularCount));
                 Object childrens = bigMap.get("children");
                 List<Object> list = null;
                 if (childrens == null) {
@@ -486,19 +483,17 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         // 循环大部门
         for (Map.Entry<String, Object> entry : bigerPart.entrySet()) {
             String key = entry.getKey();
-            Map<String, Object> bigMap= (Map<String, Object>)entry.getValue();
+            Map<String, Object> bigMap = (Map<String, Object>) entry.getValue();
             Map<String, Integer> count = (Map<String, Integer>) bigMap.get("count");
             bigMap.put("staffFullRate", RateUtil.intChainRate(count.get("regularCount"), count.get("planCount")));
             bigMap.put("tryRate", RateUtil.intChainRate(count.get("tryCount"), count.get("regularCount")));
-            bigMap.put("addRate", RateUtil.intChainRate(count.get("newCount"), count.get("regularCount")));
+            bigMap.put("addRate", RateUtil.intChainRate(count.get("newCount"), count.get("regularCount")) - RateUtil.intChainRate(count.get("dimissionCount"), count.get("regularCount")));
             bigMap.put("foreignRate", RateUtil.intChainRate(count.get("foreignCount"), count.get("regularCount")));
-            bigMap.put("departName",key);
+            bigMap.put("leaveRate", RateUtil.intChainRate(count.get("groupTransferOut"), count.get("regularCount")) - RateUtil.intChainRate(count.get("groupTransferIn"), count.get("regularCount")));
+            bigMap.put("departName", key);
             result.add(bigMap);
         }
-
-
         return result;
-
 //
 //        List<Map> bigList = readMapper.selectBigDepartCountByExample(example);
 //        List<Map> bigImmediteList = findImmediateBigDepartNum(hrCountExampleImediate);
@@ -596,7 +591,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 //        }
 //        return result;
     }
-
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         ImportDataResponse response = new ImportDataResponse(
@@ -804,17 +798,10 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         return map;
     }
-
-    private List<Map> findImmediateBigDepartNum(HrCountExample example) {
-        List<Map> map = readMapper.findImmediateBigDepartNum(example);
-        return map;
-    }
-
     private List<Map> findImmediateDepartmentNum(HrCountExample example) {
         List<Map> map = readMapper.findImmediateDepartmentNum(example);
         return map;
     }
-
     private Date selectLeastDate() {
         return readMapper.selectEnd();
     }

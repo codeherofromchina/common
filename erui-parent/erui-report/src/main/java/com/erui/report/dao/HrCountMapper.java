@@ -15,9 +15,6 @@ public interface HrCountMapper {
     Date selectEnd();
 
     List<Map> selectDepartmentCountByExample(HrCountExample example);
-
-    List<Map> selectBigDepartCountByExample(HrCountExample example);
-
     List<Map> selectBigDepart();
 
     /**
@@ -54,11 +51,8 @@ public interface HrCountMapper {
     int updateByPrimaryKey(HrCount record);
 
     void truncateTable();
-
-
     Map<String,Long> findImmediateNum(HrCountExample example);
 
     List<Map> findImmediateDepartmentNum(HrCountExample example);
 
-    List<Map> findImmediateBigDepartNum(HrCountExample example);
 }
