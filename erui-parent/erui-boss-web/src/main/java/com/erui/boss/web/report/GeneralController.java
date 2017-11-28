@@ -71,7 +71,7 @@ public class GeneralController {
         Map<String, Object> member = new HashMap<String, Object>();
         member.put("count", curMemberCount);
         // 当期询单数
-        int inquiryCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
+        int inquiryCount = inquiryService.inquiryCountByTime(startTime, endTime, null, 0, 0, "", "");
         // 当期询单金额
         double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
         Map<String, Object> inquiry = new HashMap<>();
@@ -98,7 +98,7 @@ public class GeneralController {
             member.put("add", addMemberChain);
             member.put("chainRate", chainMemberRate);
             // 当期询单数环比chain
-            int chainInquiryCount = inquiryService.inquiryCountByTime(chainEnd, startTime, "", 0, 0, "", "");
+            int chainInquiryCount = inquiryService.inquiryCountByTime(chainEnd, startTime, null, 0, 0, "", "");
             int chainInquiryAdd = inquiryCount - chainInquiryCount;
             // 环比
             double chainInquiryRate = RateUtil.intChainRate(chainInquiryAdd, chainInquiryCount);

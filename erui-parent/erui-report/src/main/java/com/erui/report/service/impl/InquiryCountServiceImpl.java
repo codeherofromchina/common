@@ -58,7 +58,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     // 根据时间统计询单单数
     @Override
-    public int inquiryCountByTime(Date startTime, Date endTime, String quotedStatus, double leastQuoteTime,
+    public int inquiryCountByTime(Date startTime, Date endTime, String[] quotedStatus, double leastQuoteTime,
                                   double maxQuoteTime, String org, String area) {
         InquiryCountExample inquiryExample = new InquiryCountExample();
         Criteria criteria = inquiryExample.createCriteria();
@@ -71,17 +71,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        if(StringUtils.isNoneBlank(quotedStatus)){
-            if(quotedStatus.equals(QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus())){
-                criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),
-                        QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus());
-            }else if(quotedStatus.equals(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus())){
-                criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(),
-                        QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus());
-            }else if(quotedStatus.equals(QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus())){
-                criteria.andQuotedStatusEqualTo(QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus());
-            }
+        if (quotedStatus != null && quotedStatus.length > 0) {
+            criteria.andQuotedStatusIn(Arrays.asList(quotedStatus));
         }
+
+
         if (maxQuoteTime == 4) {
             criteria.andQuoteNeedTimeLessThan(mdecimal);
         } else if (leastQuoteTime >= 48) {
