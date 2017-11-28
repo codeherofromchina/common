@@ -113,16 +113,20 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         data.put("turnRight", turnRightCount);
         data.put("leave", dimissionCount);
         if (startTime != null && endTime != null && DateUtil.getDayBetween(startTime, endTime) > 0) {
+            HrCountExample hrCountExample02 = new HrCountExample();
+            HrCountExample.Criteria criteria02 = hrCountExample02.createCriteria();
             int days = DateUtil.getDayBetween(startTime, endTime);
             //环比开始
             Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
             // 环比时段
+            criteria02.andCreateAtGreaterThan(chainEnd).andCreateAtLessThan(startTime);
+            // 环比时段
             if (chainEnd != null) {
-                criteria.andCreateAtGreaterThanOrEqualTo(chainEnd);
+                criteria02.andCreateAtGreaterThanOrEqualTo(chainEnd);
             }
             if (startTime != null) {
-                criteria.andCreateAtLessThan(startTime);
-                lastDate = selectLeastDate(hrCountExample);
+                criteria02.andCreateAtLessThan(startTime);
+                lastDate = selectLeastDate(hrCountExample02);
             }
             // 即时数据环比
             HrCountExample hrCountExampleImediate2 = new HrCountExample();
@@ -255,9 +259,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             // 环比时段
             criteria02.andCreateAtGreaterThan(chainEnd).andCreateAtLessThan(startTime);
             // 即时数据环比
+            lastDate = selectLeastDate(hrCountExample02);
             HrCountExample hrCountExampleImediate2 = new HrCountExample();
             HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
-            lastDate = selectLeastDate(hrCountExample02);
             Map<String, Long> chainHrCountImmediateMap = null;
             if (lastDate != null) {
                 criteriaImediate2.andCreateAtEqualTo(lastDate);
