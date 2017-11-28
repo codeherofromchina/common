@@ -56,6 +56,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         // 即时数据
+        Date lastDate = selectLeastDate();
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         // 当前时段
@@ -65,7 +66,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
-            criteriaImediate.andCreateAtLessThan(endTime);
+            criteriaImediate.andCreateAtEqualTo(lastDate);
         }
         CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
         Map<String, Long> immediateMap = findImmediateNum(hrCountExampleImediate);
@@ -149,6 +150,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         // 即时数据
+        Date lastDate = selectLeastDate();
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         // 当前时段
@@ -158,7 +160,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
-            criteriaImediate.andCreateAtLessThan(endTime);
+            criteriaImediate.andCreateAtEqualTo(lastDate);
         }
         // {"s1":"计划人数","s2":"在编人数","s3":"试用期人数","s4":"转正人数","s5":"中方人数",
         //"s6":"外籍人数","s7":"新进人数","s8":"离职人数","s9":"集团转进","s10":"集团转出",
