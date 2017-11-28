@@ -59,6 +59,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         Date lastDate = null;
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
+        Map<String, Long> immediateMap = null;
         // 当前时段
         Map<String, Long> CurHrCountMap = null;
         if (startTime != null) {
@@ -67,10 +68,20 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
             lastDate = selectLeastDate(hrCountExample);
-            criteriaImediate.andCreateAtEqualTo(lastDate);
+            if (lastDate != null) {
+                criteriaImediate.andCreateAtEqualTo(lastDate);
+                immediateMap = findImmediateNum(hrCountExampleImediate);
+            } else {
+                immediateMap = new HashMap<>();
+                immediateMap.put("plan_count", 0L);
+                immediateMap.put("regular_count", 0L);
+                immediateMap.put("try_count", 0L);
+                immediateMap.put("china_count", 0L);
+                immediateMap.put("foreign_count", 0L);
+                immediateMap.put("turn_right_count", 0L);
+            }
         }
         CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
-        Map<String, Long> immediateMap = findImmediateNum(hrCountExampleImediate);
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
             CurHrCountMap.put("turnRightCount", 0L);
@@ -116,8 +127,15 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             // 即时数据环比
             HrCountExample hrCountExampleImediate2 = new HrCountExample();
             HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
-            criteriaImediate2.andCreateAtEqualTo(lastDate);
-            Map<String, Long> chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
+            Map<String, Long> chainHrCountImmediateMap = null;
+            if (lastDate != null) {
+                criteriaImediate2.andCreateAtEqualTo(lastDate);
+                chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
+            } else {
+                chainHrCountImmediateMap = new HashMap<>();
+                chainHrCountImmediateMap.put("regular_count", 0L);
+                chainHrCountImmediateMap.put("turn_right_count", 0L);
+            }
             // 环比人数
             Number chainRegularCount = chainHrCountImmediateMap.get("regular_count");
             Number chainTurnRightCount = chainHrCountImmediateMap.get("turn_right_count");
@@ -155,25 +173,36 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         Date lastDate = null;
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
+        Map<String, Long> immediateMap = null;
         // 当前时段
         Map<String, Long> CurHrCountMap = null;
+
         if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
             lastDate = selectLeastDate(hrCountExample);
-            criteriaImediate.andCreateAtEqualTo(lastDate);
+            if (lastDate != null) {
+                criteriaImediate.andCreateAtEqualTo(lastDate);
+                immediateMap = findImmediateNum(hrCountExampleImediate);
+            } else {
+                immediateMap = new HashMap<>();
+                immediateMap.put("plan_count", 0L);
+                immediateMap.put("regular_count", 0L);
+                immediateMap.put("try_count", 0L);
+                immediateMap.put("china_count", 0L);
+                immediateMap.put("foreign_count", 0L);
+                immediateMap.put("turn_right_count", 0L);
+            }
         }
         // {"s1":"计划人数","s2":"在编人数","s3":"试用期人数","s4":"转正人数","s5":"中方人数",
         //"s6":"外籍人数","s7":"新进人数","s8":"离职人数","s9":"集团转进","s10":"集团转出",
         // "staffFullRate":"在编/计划--满编率","tryRate":"试用/在编--试用占比","addRate":"(新进/在编-离职/在编) -- 增长率",
         //"leaveRate":"(转刚出/在编-转岗进/在编)--转岗流失","foreignRate":"外籍/在编--外籍占比"}
         CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
-        Map<String, Long> immediateMap = findImmediateNum(hrCountExampleImediate);
         if (CurHrCountMap == null) {
             CurHrCountMap = new HashMap<>();
-            CurHrCountMap.put("turnRightCount", 0L);
             CurHrCountMap.put("newCount", 0L);
             CurHrCountMap.put("dimissionCount", 0L);
             CurHrCountMap.put("groupTransferIn", 0L);
@@ -229,18 +258,25 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             HrCountExample hrCountExampleImediate2 = new HrCountExample();
             HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
             lastDate = selectLeastDate(hrCountExample02);
-            criteriaImediate2.andCreateAtEqualTo(lastDate);
+            Map<String, Long> chainHrCountImmediateMap = null;
+            if (lastDate != null) {
+                criteriaImediate2.andCreateAtEqualTo(lastDate);
+                chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
+            } else {
+                chainHrCountImmediateMap = new HashMap<>();
+                chainHrCountImmediateMap.put("regular_count", 0L);
+                chainHrCountImmediateMap.put("foreign_count", 0L);
+                chainHrCountImmediateMap.put("turn_right_count", 0L);
+            }
             Map<String, Long> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
-            Map<String, Long> chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
             if (chainHrCountMap == null) {
                 chainHrCountMap = new HashMap<>();
-                chainHrCountMap.put("turnRightCount", 0L);
                 chainHrCountMap.put("newCount", 0L);
                 chainHrCountMap.put("groupTransferIn", 0L);
             }
             // 环比人数
             Number chainRegularCount = chainHrCountImmediateMap.get("regular_count");
-            Number chainTurnRightCount = immediateMap.get("turn_right_count");
+            Number chainTurnRightCount = chainHrCountImmediateMap.get("turn_right_count");
             Number chainNewCount = chainHrCountMap.get("newCount");
             Number chainTurnJobin = chainHrCountMap.get("groupTransferIn");
             Number chainForeignCount = chainHrCountImmediateMap.get("foreign_count");
@@ -313,7 +349,18 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
             lastDate = selectLeastDate(hrCountExample);
-            criteriaImediate.andCreateAtEqualTo(lastDate);
+            if (lastDate != null) {
+                criteriaImediate.andCreateAtEqualTo(lastDate);
+                immediateMap = findImmediateNum(hrCountExampleImediate);
+            } else {
+                immediateMap = new HashMap<>();
+                immediateMap.put("plan_count", 0L);
+                immediateMap.put("regular_count", 0L);
+                immediateMap.put("try_count", 0L);
+                immediateMap.put("china_count", 0L);
+                immediateMap.put("foreign_count", 0L);
+                immediateMap.put("turn_right_count", 0L);
+            }
         }
         if ("".equals(depart) || depart == null) {
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
@@ -330,7 +377,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             criteria.andBigDepartEqualTo(depart);
             criteriaImediate.andBigDepartEqualTo(depart);
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
-            immediateMap = findImmediateNum(hrCountExampleImediate);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
                 curHrCountMap.put("newCount", 0L);
@@ -396,6 +442,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
      */
     @Override
     public List<Map> selectDepartmentCount(Date startTime, Date endTime) {
+        List<Map> result = new ArrayList<>();
         HrCountExample example = new HrCountExample();
         HrCountExample.Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -411,6 +458,9 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         lastDate = selectLeastDate(example);
+        if (lastDate == null){
+            return result;
+        }
         criteriaImediate.andCreateAtEqualTo(lastDate);
         List<Map> bigImmediteList = findImmediateDepartmentNum(hrCountExampleImediate);
         Map<String, Map<String, Object>> bigImmediteMap = bigImmediteList.parallelStream().collect(Collectors.toMap(vo -> (String) StringUtils.defaultIfBlank((String) vo.get("department"), ""), vo -> vo));
@@ -486,8 +536,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             }
             bigMap.put("count", bigPartNum);
         });
-
-        List<Map> result = new ArrayList<>();
         // 循环大部门
         for (Map.Entry<String, Object> entry : bigerPart.entrySet()) {
             String key = entry.getKey();
