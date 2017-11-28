@@ -148,10 +148,11 @@ public class CustomCentreController {
         Double chainProfitRate = null;
         if (profit != null) {
             profitRate = RateUtil.doubleChainRate(profit, 1);
+            if (chainProfit != null) {
+                chainProfitRate = RateUtil.doubleChainRate(profit - chainProfit, chainProfit);
+            }
         }
-        if (chainProfit != null) {
-            chainProfitRate = RateUtil.doubleChainRate(chainProfit, 1);
-        }
+
         Map<String, Object> profitMap = new HashMap<>();
         profitMap.put("profitRate", profitRate);
         profitMap.put("chainRate", chainProfitRate);
@@ -159,7 +160,9 @@ public class CustomCentreController {
         // 成单率
         double successOrderRate = 0.00;
         int successOrderCount = orderService.orderCountByTime(startDate, endDate, null, "", "");
-        int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), 0, 0, "", "");
+        int successInquiryCount = inquiryService.inquiryCountByTime(startDate, endDate,
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()}
+                , 0, 0, "", "");
         if (successInquiryCount > 0) {
             successOrderRate = RateUtil.intChainRate(successOrderCount, successInquiryCount);
         }
@@ -171,12 +174,12 @@ public class CustomCentreController {
         map.put("startTime", startDate);
         map.put("endTime", endDate);
         List<Map<String, Object>> proTop3 = orderService.selectOrderProTop3(map);
-        Map<String,Object> top3Container = new HashMap(); /// 定义要返回结果的top容器
-        for (int i=0;i<proTop3.size();i++) {
-            Map<String,Object> m = proTop3.get(i);
+        Map<String, Object> top3Container = new HashMap(); /// 定义要返回结果的top容器
+        for (int i = 0; i < proTop3.size(); i++) {
+            Map<String, Object> m = proTop3.get(i);
             BigDecimal s = new BigDecimal(String.valueOf(m.get("orderCount")));
             m.put("topProportion", RateUtil.intChainRate(s.intValue(), count));
-            top3Container.put("top" + (i+1), m);
+            top3Container.put("top" + (i + 1), m);
         }
 
         // 组装数据
@@ -201,13 +204,16 @@ public class CustomCentreController {
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
 
-        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
+        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate,
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
                 0, 0, "", "");//已完成询单数量
-        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus(),
+        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
                 0, 0, "", "");//报价中询单数量
-        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus(),
+        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
                 0, 0, "", "");//询单取消数量
-        int totalCount = quotedCount  + quotingCount + cancelCount;
+        int totalCount = quotedCount + quotingCount + cancelCount;
         Double quotedInquiryRate = null;
         Double quotingInquiryRate = null;
         Double cancelInquiryRate = null;
@@ -239,12 +245,14 @@ public class CustomCentreController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
 
-        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 0, 0, "", "");
-        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 0, 4, "", "");
-        int count2 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 4, 8, "", "");
-        int count3 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 8, 24, "", "");
-        int count5 = inquiryService.inquiryCountByTime(startDate, endDate,  QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), 24, 48, "", "");
-        int otherCount =totalCount-(count1+count2+count3+count5);
+        // 定义已完成询单的所有状态数组
+        String[] statusArr = new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
+        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate,statusArr, 0, 0, "", "");
+        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 4, "", "");
+        int count2 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 4, 8, "", "");
+        int count3 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 8, 24, "", "");
+        int count5 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 24, 48, "", "");
+        int otherCount = totalCount - (count1 + count2 + count3 + count5);
         HashMap<String, Object> quoteTimeMap = new HashMap<>();
         quoteTimeMap.put("oneCount", count1);
         quoteTimeMap.put("fourCount", count2);
@@ -289,7 +297,7 @@ public class CustomCentreController {
         // 查询给定时间段的事业部订单数量和金额
         List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
         //查询给定时间段的事业部平均报价时间
-        List<Map<String, Object>> avgNeedTimeList=inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(startDate, endDate);
+        List<Map<String, Object>> avgNeedTimeList = inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(startDate, endDate);
 
         // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
         Set<String> organizations = new HashSet<>();
@@ -303,38 +311,36 @@ public class CustomCentreController {
         inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
             Long total = (Long) m.get("total");
-            inquiryMap.put(organization,m);
+            inquiryMap.put(organization, m);
             organizations.add(organization);
             return total.intValue();
         }).reduce(0, (a, b) -> a + b);
-        Map<String, Map<String, Object>> avgMap = avgNeedTimeList.parallelStream().collect(Collectors.toMap(m ->(String) m.get("organization"), m -> m));
-       for(String org:inquiryMap.keySet()){
-           if(!avgMap.containsKey(org)){
-               Map<String, Object> m = inquiryMap.get(org);
-               m.put("avgNeedTime",BigDecimal.valueOf(0d));
-               inquiryMap.put(org,m);
-           }
-       }
-        avgNeedTimeList.parallelStream().forEach(m->{
-            String org =String.valueOf(m.get("organization"));
-            if(inquiryMap.containsKey(org)){
+        Map<String, Map<String, Object>> avgMap = avgNeedTimeList.parallelStream().collect(Collectors.toMap(m -> (String) m.get("organization"), m -> m));
+        for (String org : inquiryMap.keySet()) {
+            if (!avgMap.containsKey(org)) {
+                Map<String, Object> m = inquiryMap.get(org);
+                m.put("avgNeedTime", BigDecimal.valueOf(0d));
+                inquiryMap.put(org, m);
+            }
+        }
+        avgNeedTimeList.parallelStream().forEach(m -> {
+            String org = String.valueOf(m.get("organization"));
+            if (inquiryMap.containsKey(org)) {
                 Map<String, Object> map = inquiryMap.get(org);
                 BigDecimal avgNeedTime = (BigDecimal) m.get("avgNeedTime");
-                map.put("avgNeedTime",avgNeedTime);
-                inquiryMap.put(org,map);
+                map.put("avgNeedTime", avgNeedTime);
+                inquiryMap.put(org, map);
             }
         });
-
 
 
         orderCount = orderList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
             Long total = (Long) m.get("totalNum");
-            orderMap.put(organization,m);
+            orderMap.put(organization, m);
             organizations.add(organization);
             return total.intValue();
         }).reduce(0, (a, b) -> a + b);
-
 
 
         // 事业部列表
@@ -396,7 +402,7 @@ public class CustomCentreController {
         tableData.sort(new Comparator<Map<String, Object>>() {
             @Override
             public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                return (Integer)o1.get("inquiryTotal") - (Integer)o2.get("inquiryTotal");
+                return (Integer) o2.get("inquiryTotal") - (Integer) o1.get("inquiryTotal");
             }
         });
         data.put("tableData", tableData);
@@ -540,7 +546,7 @@ public class CustomCentreController {
             for (CateDetailVo vo : ordList) {
                 String category1 = vo.getCategory();
                 category.add(category1);
-                ordMap.put(category1,vo);
+                ordMap.put(category1, vo);
                 ordTotalCount += vo.getOrdCateCount();
                 ordTotalAmount = ordTotalAmount.add(new BigDecimal(vo.getOrdCatePrice()));
             }
@@ -550,14 +556,14 @@ public class CustomCentreController {
             for (CateDetailVo vo : inqList) {
                 String category1 = vo.getCategory();
                 category.add(category1);
-                inqMap.put(category1,vo);
+                inqMap.put(category1, vo);
                 inqTotalCount += vo.getInqCateCount();
                 inqTotalAmount = inqTotalAmount.add(new BigDecimal(vo.getInqCatePrice()));
             }
         }
 
         List<CateDetailVo> data = new ArrayList<>();
-        for (String c:category) {
+        for (String c : category) {
             CateDetailVo vo = new CateDetailVo();
             vo.setCategory(c);
 
@@ -568,7 +574,7 @@ public class CustomCentreController {
                 double price = inqVo.getInqCatePrice();
                 vo.setInqCateCount(count);
                 vo.setInqProportion(RateUtil.intChainRate(count, inqTotalCount));
-                vo.setInqCatePrice(new BigDecimal(price).setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+                vo.setInqCatePrice(new BigDecimal(price).setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
                 vo.setInqAmountProportion(RateUtil.doubleChainRate(price, inqTotalAmount.doubleValue()));
             } else {
                 vo.setInqCateCount(0);
