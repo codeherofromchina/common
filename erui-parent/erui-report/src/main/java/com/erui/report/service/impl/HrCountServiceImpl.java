@@ -355,7 +355,6 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             lastDate = selectLeastDate(hrCountExample);
             if (lastDate != null) {
                 criteriaImediate.andCreateAtEqualTo(lastDate);
-                immediateMap = findImmediateNum(hrCountExampleImediate);
             } else {
                 immediateMap = new HashMap<>();
                 immediateMap.put("plan_count", 0L);
@@ -381,6 +380,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             criteria.andBigDepartEqualTo(depart);
             criteriaImediate.andBigDepartEqualTo(depart);
             curHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
+            immediateMap = findImmediateNum(hrCountExampleImediate);
             if (curHrCountMap == null) {
                 curHrCountMap = new HashMap<>();
                 curHrCountMap.put("newCount", 0L);
