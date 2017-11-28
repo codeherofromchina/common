@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
 public interface HrCountMapper {
     Date selectStart();
 
-    Date selectEnd();
+    Date selectEnd(HrCountExample example);
 
     List<Map> selectDepartmentCountByExample(HrCountExample example);
     List<Map> selectBigDepart();

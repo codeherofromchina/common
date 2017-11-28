@@ -41,7 +41,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
     @Override
     public Date selectEnd() {
-        return readMapper.selectEnd();
+        return readMapper.selectEnd(null);
     }
 
     /**
@@ -56,7 +56,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         // 即时数据
-        Date lastDate = selectLeastDate();
+        Date lastDate = null;
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         // 当前时段
@@ -66,6 +66,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
+            lastDate = selectLeastDate(hrCountExample);
             criteriaImediate.andCreateAtEqualTo(lastDate);
         }
         CurHrCountMap = readMapper.selectHrCountByPart(hrCountExample);
@@ -110,11 +111,12 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             }
             if (startTime != null) {
                 criteria.andCreateAtLessThan(startTime);
+                lastDate = selectLeastDate(hrCountExample);
             }
             // 即时数据环比
             HrCountExample hrCountExampleImediate2 = new HrCountExample();
             HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
-            criteriaImediate2.andCreateAtLessThanOrEqualTo(chainEnd);
+            criteriaImediate2.andCreateAtEqualTo(lastDate);
             Map<String, Long> chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
             // 环比人数
             Number chainRegularCount = chainHrCountImmediateMap.get("regular_count");
@@ -150,7 +152,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample hrCountExample = new HrCountExample();
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         // 即时数据
-        Date lastDate = selectLeastDate();
+        Date lastDate = null;
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         // 当前时段
@@ -160,6 +162,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
+            lastDate = selectLeastDate(hrCountExample);
             criteriaImediate.andCreateAtEqualTo(lastDate);
         }
         // {"s1":"计划人数","s2":"在编人数","s3":"试用期人数","s4":"转正人数","s5":"中方人数",
@@ -225,7 +228,8 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
             // 即时数据环比
             HrCountExample hrCountExampleImediate2 = new HrCountExample();
             HrCountExample.Criteria criteriaImediate2 = hrCountExampleImediate.createCriteria();
-            criteriaImediate2.andCreateAtLessThanOrEqualTo(chainEnd);
+            lastDate = selectLeastDate(hrCountExample02);
+            criteriaImediate2.andCreateAtEqualTo(lastDate);
             Map<String, Long> chainHrCountMap = readMapper.selectHrCountByPart(hrCountExample02);
             Map<String, Long> chainHrCountImmediateMap = findImmediateNum(hrCountExampleImediate2);
             if (chainHrCountMap == null) {
@@ -299,7 +303,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         HrCountExample.Criteria criteria = hrCountExample.createCriteria();
         Map<String, Long> curHrCountMap = null;
         // 即时数据
-        Date lastDate = selectLeastDate();
+        Date lastDate = null;
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
         Map<String, Long> immediateMap = null;
@@ -308,6 +312,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
+            lastDate = selectLeastDate(hrCountExample);
             criteriaImediate.andCreateAtEqualTo(lastDate);
         }
         if ("".equals(depart) || depart == null) {
@@ -402,9 +407,10 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         // 查询累计数据
         List<Map> bigList = readMapper.selectDepartmentCountByExample(example);
         // 查询即时数据
-        Date lastDate = selectLeastDate();
+        Date lastDate = null;
         HrCountExample hrCountExampleImediate = new HrCountExample();
         HrCountExample.Criteria criteriaImediate = hrCountExampleImediate.createCriteria();
+        lastDate = selectLeastDate(example);
         criteriaImediate.andCreateAtEqualTo(lastDate);
         List<Map> bigImmediteList = findImmediateDepartmentNum(hrCountExampleImediate);
         Map<String, Map<String, Object>> bigImmediteMap = bigImmediteList.parallelStream().collect(Collectors.toMap(vo -> (String) StringUtils.defaultIfBlank((String) vo.get("department"), ""), vo -> vo));
@@ -593,6 +599,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 //        }
 //        return result;
     }
+
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         ImportDataResponse response = new ImportDataResponse(
@@ -800,11 +807,13 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
         }
         return map;
     }
+
     private List<Map> findImmediateDepartmentNum(HrCountExample example) {
         List<Map> map = readMapper.findImmediateDepartmentNum(example);
         return map;
     }
-    private Date selectLeastDate() {
-        return readMapper.selectEnd();
+
+    private Date selectLeastDate(HrCountExample example) {
+        return readMapper.selectEnd(example);
     }
 }
