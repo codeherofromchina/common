@@ -322,7 +322,7 @@
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
     select t.pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from
 		(
-			select selectProTop3,0 as xdCount,count(1) as ddCount from order_count
+			select pro_category,0 as xdCount,count(1) as ddCount from order_count
 			<if test="orderCountExample != null" >
       			<include refid="orderCount_alias_Example_Where_Clause" />
     		</if>
