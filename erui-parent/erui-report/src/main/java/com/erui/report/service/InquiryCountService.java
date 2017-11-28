@@ -30,7 +30,7 @@ public interface InquiryCountService {
     /*
     * 查询询单单数
     * */
-    public int inquiryCountByTime(Date startTime,Date endTime,String quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
+    public int inquiryCountByTime(Date startTime,Date endTime,String[] quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
 
     /*
     * 查询询单总金额
