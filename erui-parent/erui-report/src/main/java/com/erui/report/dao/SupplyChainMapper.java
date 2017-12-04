@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.util.SupplyPlanVo;
 import org.apache.ibatis.annotations.Param;
 
 public interface SupplyChainMapper {
@@ -44,4 +45,5 @@ public interface SupplyChainMapper {
     List<String> selectOrgList();
     
     void truncateTable();
+    SupplyPlanVo  selectPlanCount(SupplyChainExample example);
 }
