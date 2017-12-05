@@ -311,7 +311,7 @@ public class SupplyChainReadController {
                     }
                 }
             }
-        }
+
         sku.put("skuNum", skuNum);
         sku.put("planSKUNum", planSKUNum);
         sku.put("skuCompletionRate", skuCompletionRate);
@@ -324,7 +324,10 @@ public class SupplyChainReadController {
         data.put("sku", sku);
         data.put("spu", spu);
         data.put("supplier", supplier);
-        return data;
+        result.setData(data);
+        return result;
+        }
+        return  result.setStatus(ResultStatusEnum.DATA_NULL);
     }
     //分类明细
     @ResponseBody

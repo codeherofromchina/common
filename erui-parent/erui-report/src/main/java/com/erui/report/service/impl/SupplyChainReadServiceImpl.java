@@ -1,5 +1,6 @@
 package com.erui.report.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.encrypt.MD5;
@@ -37,7 +38,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
 
 
     @Override
-    public void getSupplyChainReadData(String startTime, String endTime) throws Exception {
+    public void supplyChainReadData(String startTime, String endTime) throws Exception {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPut goodPutMethod = getPutMethod(goodUrl, startTime, endTime);
         HttpPut productPutMethod = getPutMethod(productUrl, startTime, endTime);
@@ -47,34 +48,39 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         CloseableHttpResponse spuResult = client.execute(productPutMethod);
         //处理结果
         SupplyChainRead skuRead = this.handleResult(skuResult, GetDataEnum.SKU_DATA.getCode());
-        SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SKU_DATA.getCode());
+        SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SPU_DATA.getCode());
         CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
         CloseableHttpResponse cateResult = client.execute(catePutMethod);
-        SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SKU_DATA.getCode());
+        SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SUPPLIER_DATA.getCode());
         SupplyChainRead supplyChainRead = null;
         if (skuRead != null || spuRead != null || supplierRead != null) {
             supplyChainRead = mergeResult(skuRead, spuRead, supplierRead);
         }
         if (supplyChainRead != null) {
+            supplyChainRead.setCreateAt(new Date());
             this.writeMapper.insert(supplyChainRead);
         }
         //处理分类的数据
-        SupplyChainCategory chainCategory = new SupplyChainCategory();
         JSONObject json = new JSONObject();
         String cateData = EntityUtils.toString(cateResult.getEntity());
         JSONObject cateJson = json.parseObject(cateData);
         int cateCode = (int) cateJson.get("code");
-        List<SupplyChainCategory> cateList = null;
+        List<SupplyChainCategory> cateList = new ArrayList<>();
         if (cateCode == 1) {
-            List<SupplyChainCateVo> chainCateVoList = (List) cateJson.get("data");
+            String cates = cateJson.get("data").toString();
+            List<SupplyChainCateVo> chainCateVoList = JSON.parseArray(cates, SupplyChainCateVo.class);
             if (chainCateVoList != null && chainCateVoList.size() > 0) {
                 for (SupplyChainCateVo cateVo : chainCateVoList) {
+                    if(cateVo.getSku()==0&&cateVo.getSpu()==0&&cateVo.getSupplier_count()==0){
+                        continue;
+                    }
                     SupplyChainCategory chainCate = new SupplyChainCategory();
                     chainCate.setCreateAt(new Date());
                     chainCate.setItemClass(cateVo.getName());
                     chainCate.setSkuNum(cateVo.getSku());
                     chainCate.setSpuNum(cateVo.getSpu());
                     chainCate.setSuppliNum(cateVo.getSupplier_count());
+                    cateList.add(chainCate);
                 }
             }
             SupplyChainCategoryMapper catemapper = this.writerSession.getMapper(SupplyChainCategoryMapper.class);
@@ -122,14 +128,14 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         if (resultCode == 1) {//成功
             int draft_count = 0;
             int brand_count = 0;
-            int count = (int) jsonObject.get("count");
-            int checking_count = (int) jsonObject.get("checking_count");
-            int valid_count = (int) jsonObject.get("valid_count");
-            int invalid_count = (int) jsonObject.get("invalid_count");
+            int count = Integer.parseInt(jsonObject.get("count").toString()) ;
+            int checking_count = Integer.parseInt(jsonObject.get("checking_count").toString()) ;
+            int valid_count =  Integer.parseInt( jsonObject.get("valid_count").toString());
+            int invalid_count = Integer.parseInt(  jsonObject.get("invalid_count").toString());
             if (getDataCode != GetDataEnum.SUPPLIER_DATA.getCode()) {
-                draft_count = (int) jsonObject.get("draft_count");
+                draft_count = Integer.parseInt( jsonObject.get("draft_count").toString());
             } else {
-                brand_count = (int) jsonObject.get("brand_count");
+                brand_count =  Integer.parseInt( jsonObject.get("brand_count").toString());
             }
             System.out.println(count + "====" + draft_count + "====" + checking_count
                     + "===" + valid_count + "==" + invalid_count);

@@ -8,19 +8,19 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Date;
 
-@Component("GetDataTesk")
-public class GetDataServiceImpl {
+@Component("DataTesk")
+public class DataServiceImpl {
 
     @Autowired
     private  SupplyChainReadService readService;
 
     private static final String dateFormat="yyyy-MM-dd hh:mm:ss";
 
-    public void getSupplyChainData() throws Exception {
+    public void supplyChainData() throws Exception {
         System.out.println("这就是爱···");
         //获取今天的两个时间点
         String startTime = DateUtil.getStartTime(new Date(), dateFormat);
         String endTime = DateUtil.getEndTime(new Date(), dateFormat);
-        readService.getSupplyChainReadData("2017-11-19","2017-11-25");
+        readService.supplyChainReadData(startTime,endTime);
     }
 }

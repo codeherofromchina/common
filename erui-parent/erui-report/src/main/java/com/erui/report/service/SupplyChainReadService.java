@@ -7,7 +7,7 @@ import java.util.Date;
 
 public interface SupplyChainReadService {
 
-    void getSupplyChainReadData(String  startTime,String endTime) throws Exception;
+    void supplyChainReadData(String  startTime,String endTime) throws Exception;
     /**
     * 根据时间获取供应链数据（sku\spu\supplier）
      * return SupplyChainRead
