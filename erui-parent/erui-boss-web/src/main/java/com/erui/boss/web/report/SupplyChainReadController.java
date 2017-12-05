@@ -5,6 +5,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.SupplyChainRead;
+import com.erui.report.model.SupplyTrendVo;
 import com.erui.report.service.SupplyChainCategoryService;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.service.SupplyChainService;
@@ -231,6 +232,28 @@ public class SupplyChainReadController {
             return  result.setData(data);
         }
         return result.setStatus(ResultStatusEnum.DATA_NULL);
+    }
+
+    //趋势图
+    @ResponseBody
+    @RequestMapping(value = "/supplyTrend", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object supplyTrend(@RequestBody Map<String, Object> map) throws Exception {
+
+        Result<Object> result = new Result<>();
+        Map<String, Object> dataMap = new HashMap<>();
+        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            result.setData("参数输入有误");
+            return result;
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        SupplyTrendVo data=this.supplyChainReadService.supplyTrend(startTime,endTime);
+        result.setData(data);
+        return result;
     }
 
 }

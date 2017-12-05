@@ -1,12 +1,14 @@
 package com.erui.report.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.SupplyChainCategoryMapper;
 import com.erui.report.dao.SupplyChainReadMapper;
 import com.erui.report.model.SupplyChainCategory;
 import com.erui.report.model.SupplyChainRead;
 import com.erui.report.model.SupplyChainReadExample;
+import com.erui.report.model.SupplyTrendVo;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.util.GetDataEnum;
 import com.erui.report.util.SupplyChainCateVo;
@@ -43,11 +45,11 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         HttpPut catePutMethod = getPutMethod(cateUrl, startTime, endTime);
         CloseableHttpResponse skuResult = client.execute(goodPutMethod);
         CloseableHttpResponse spuResult = client.execute(productPutMethod);
-        CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
-        CloseableHttpResponse cateResult = client.execute(catePutMethod);
         //处理结果
         SupplyChainRead skuRead = this.handleResult(skuResult, GetDataEnum.SKU_DATA.getCode());
         SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SKU_DATA.getCode());
+        CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
+        CloseableHttpResponse cateResult = client.execute(catePutMethod);
         SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SKU_DATA.getCode());
         SupplyChainRead supplyChainRead = null;
         if (skuRead != null || spuRead != null || supplierRead != null) {
@@ -193,10 +195,85 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     public SupplyChainRead getSupplyChainReadDataByTime(Date startTime, Date endTime) {
         SupplyChainReadExample example = new SupplyChainReadExample();
         SupplyChainReadExample.Criteria criteria = example.createCriteria();
-        if(startTime!=null&&endTime!=null){
-            criteria.andCreateAtBetween(startTime,endTime);
+        if (startTime != null){
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
         }
         return readMapper.getSupplyChainReadDataByTime(example);
+    }
+
+    @Override
+    public SupplyTrendVo supplyTrend(Date startTime, Date endTime) {
+        SupplyChainReadExample example = new SupplyChainReadExample();
+        SupplyChainReadExample.Criteria criteria = example.createCriteria();
+        if (startTime != null){
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
+        }
+        List<SupplyChainRead> list = readMapper.selectByExample(example);
+        //解析数据
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        String[] DateTime = new String[days];//封装日期列表
+        Integer[] suppliyFinishCount = new Integer[days];//封装供应商数据列表
+        Integer[] SPUFinishCount = new Integer[days];//封装spu数据列表
+        Integer[] SKUFinishCount = new Integer[days];//封装sku数据列表
+        if (list != null && list.size() > 0) {
+            Map<String, Map<String, Integer>> dateMap = new HashMap<>();
+            Map<String, Integer> datamap;
+            for (int i = 0; i < list.size(); i++) {
+                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "yyyy年MM月dd日");
+                if (dateMap.containsKey(date2)) {
+                    Map<String, Integer> map = dateMap.get(date2);
+                    Integer sku = map.get("sku");
+                    Integer spu = map.get("spu");
+                    Integer suppliy = map.get("suppliy");
+                    map.put("sku", sku + list.get(i).getSkuNum());
+                    map.put("spu", spu + list.get(i).getSpuNum());
+                    map.put("suppliy", suppliy + list.get(i).getSuppliNum());
+
+                } else {
+                    datamap = new HashMap<>();
+                    datamap.put("sku", list.get(i).getSkuNum());
+                    datamap.put("spu", list.get(i).getSpuNum());
+                    datamap.put("suppliy", list.get(i).getSuppliNum());
+                    dateMap.put(date2, datamap);
+                }
+
+            }
+            for (int i = 0; i < days; i++) {
+                Date date = DateUtil.sometimeCalendar(startTime, -i);
+                String datet2 = DateUtil.format("yyyy年MM月dd日", date);
+                String datet3 = DateUtil.format("MM月dd日", date);
+                if (dateMap.containsKey(datet2)) {
+                    DateTime[i] = (datet3);
+                    SPUFinishCount[i] = (dateMap.get(datet2).get("spu"));
+                    SKUFinishCount[i] = (dateMap.get(datet2).get("sku"));
+                    suppliyFinishCount[i] = (dateMap.get(datet2).get("suppliy"));
+                } else {
+                    DateTime[i] = (datet3);
+                    SPUFinishCount[i] = (0);
+                    SKUFinishCount[i] = (0);
+                    suppliyFinishCount[i] = (0);
+                }
+            }
+
+        } else {
+            for (int i = 0; i < days; i++) {
+                Date date = DateUtil.sometimeCalendar(startTime, -i);
+                String datet2 = DateUtil.format("MM月dd日", date);
+                DateTime[i] = datet2;
+                suppliyFinishCount[i] = 0;
+                SPUFinishCount[i] = 0;
+                SKUFinishCount[i] = 0;
+            }
+        }
+        SupplyTrendVo trend = new SupplyTrendVo(DateTime, suppliyFinishCount, SPUFinishCount, SKUFinishCount);
+
+        return trend;
     }
 
 }
