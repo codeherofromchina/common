@@ -71,11 +71,26 @@
     id, create_at, item_class, spu_num, sku_num, suppli_num
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.SupplyChainCategoryExample" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
+  select
+  <if test="distinct" >
+    distinct
+  </if>
+  <include refid="Base_Column_List" />
+  from supply_chain_category
+  <if test="_parameter != null" >
+    <include refid="Example_Where_Clause" />
+  </if>
+  <if test="orderByClause != null" >
+    order by ${orderByClause}
+  </if>
+</select>
+
+  <select id="selectCateListByTime" resultType="com.erui.report.util.SupplyCateDetailVo" parameterType="com.erui.report.model.SupplyChainCategoryExample" >
+    SELECT
+    item_class AS itemClass,
+    spu_num AS spuCount,
+    sku_num AS skuCount,
+    suppli_num AS supplierCount
     from supply_chain_category
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -83,6 +98,10 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+    GROUP BY
+    item_class
+    HAVING
+    item_class IS NOT NULL
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 

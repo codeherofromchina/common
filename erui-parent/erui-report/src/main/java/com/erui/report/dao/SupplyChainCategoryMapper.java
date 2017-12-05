@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.SupplyChainCategory;
 import com.erui.report.model.SupplyChainCategoryExample;
 import java.util.List;
+
+import com.erui.report.util.SupplyCateDetailVo;
 import org.apache.ibatis.annotations.Param;
 
 public interface SupplyChainCategoryMapper {
@@ -27,4 +29,5 @@ public interface SupplyChainCategoryMapper {
     int updateByPrimaryKeySelective(SupplyChainCategory record);
 
     int updateByPrimaryKey(SupplyChainCategory record);
+    List<SupplyCateDetailVo>  selectCateListByTime(SupplyChainCategoryExample example);
 }
