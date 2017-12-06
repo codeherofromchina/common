@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
+
 @Controller
 @RequestMapping("/report/supplyChainRead")
 public class SupplyChainReadController {
@@ -312,23 +313,24 @@ public class SupplyChainReadController {
                 }
             }
 
-        sku.put("skuNum", skuNum);
-        sku.put("planSKUNum", planSKUNum);
-        sku.put("skuCompletionRate", skuCompletionRate);
-        spu.put("spuNum", spuNum);
-        spu.put("planSPUNum", planSPUNum);
-        spu.put("spuCompletionRate", spuCompletionRate);
-        supplier.put("suppliNum", suppliNum);
-        supplier.put("planSupplierNum", planSupplierNum);
-        supplier.put("supplierCompletionRate", supplierCompletionRate);
-        data.put("sku", sku);
-        data.put("spu", spu);
-        data.put("supplier", supplier);
-        result.setData(data);
-        return result;
+            sku.put("skuNum", skuNum);
+            sku.put("planSKUNum", planSKUNum);
+            sku.put("skuCompletionRate", skuCompletionRate);
+            spu.put("spuNum", spuNum);
+            spu.put("planSPUNum", planSPUNum);
+            spu.put("spuCompletionRate", spuCompletionRate);
+            supplier.put("suppliNum", suppliNum);
+            supplier.put("planSupplierNum", planSupplierNum);
+            supplier.put("supplierCompletionRate", supplierCompletionRate);
+            data.put("sku", sku);
+            data.put("spu", spu);
+            data.put("supplier", supplier);
+            result.setData(data);
+            return result;
         }
-        return  result.setStatus(ResultStatusEnum.DATA_NULL);
+        return result.setStatus(ResultStatusEnum.DATA_NULL);
     }
+
     //分类明细
     @ResponseBody
     @RequestMapping(value = "/cateDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -345,17 +347,20 @@ public class SupplyChainReadController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        List<SupplyCateDetailVo> list=this.supplyChainCategoryService.selectCateListByTime(startTime,endTime);
-        if(list!=null &&list.size()>0){
-         list.parallelStream().forEach(vo->{
-         int total=vo.getSkuCount()+vo.getSpuCount()+vo.getSupplierCount();
-         if(total>0){
-             vo.setSkuCompletionRate(RateUtil.intChainRate(vo.getSkuCount(),total));
-             vo.setSpuCompletionRate(RateUtil.intChainRate(vo.getSpuCount(),total));
-             vo.setSupplierCompletionRate(RateUtil.intChainRate(vo.getSupplierCount(),total));
-         }
-         });
-         result.setData(list);
+        List<SupplyCateDetailVo> list = this.supplyChainCategoryService.selectCateListByTime(startTime, endTime);
+        if (list != null && list.size() > 0) {
+            list.parallelStream().forEach(vo -> {
+                int total = vo.getSkuCount() + vo.getSpuCount() + vo.getSupplierCount();
+                if (total > 0) {
+                    vo.setSkuCompletionRate(RateUtil.intChainRate(vo.getSkuCount(), total));
+                    vo.setSpuCompletionRate(RateUtil.intChainRate(vo.getSpuCount(), total));
+                    vo.setSupplierCompletionRate(RateUtil.intChainRate(vo.getSupplierCount(), total));
+                }
+            });
+            //按照spu数量排序
+            list.sort((v1, v2) -> v2.getSpuCount() - v1.getSpuCount());
+
+            result.setData(list);
             return result;
         }
         return result.setStatus(ResultStatusEnum.DATA_NULL);

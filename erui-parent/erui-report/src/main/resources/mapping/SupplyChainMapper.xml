@@ -117,7 +117,7 @@
         SELECT
         SUM(plan_sku_num) AS planSKUNum,
         SUM(plan_spu_num) AS planSPUNum,
-        SUM(plan_suppli_num) planSupplierNum
+        SUM(plan_suppli_num) AS planSupplierNum
         from supply_chain
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>

@@ -398,7 +398,6 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         if(endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
-        this.readMapper.selectPlanCount(example);
-        return null;
+        return   this.readMapper.selectPlanCount(example);
     }
 }
