@@ -2,9 +2,9 @@ package com.erui.boss.web.report;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.report.model.SupplyChainCategory;
 import com.erui.report.model.SupplyChainRead;
 import com.erui.report.model.SupplyTrendVo;
 import com.erui.report.service.SupplyChainCategoryService;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/report/supplyChainRead")
@@ -47,13 +48,22 @@ public class SupplyChainReadController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        if(startTime.getTime()>endTime.getTime()){
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            result.setData("参数输入有误");
+            return result;
+        }
         //环比开始
         int days = DateUtil.getDayBetween(startTime, endTime);
         Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
         SupplyChainRead supplyRead = supplyChainReadService.getSupplyChainReadDataByTime(startTime, endTime);//当前数据
         SupplyChainRead supplchainRead = supplyChainReadService.getSupplyChainReadDataByTime(chainEnd, startTime);//当前环比数据
         //查询供应链计划数
-        SupplyPlanVo planVo = supplyChainService.getPlanNum(startTime, endTime);//当前计划数
+        SupplyPlanVo planVo=null;
+        //开始时间必须是周六，结束时间必须是周五
+        if(DateUtil.weekDays[6].equals(DateUtil.getWeekOfDate(startTime))&&DateUtil.weekDays[5].equals(DateUtil.getWeekOfDate(endTime))){
+            planVo= supplyChainService.getPlanNum(startTime, endTime);//当前计划数
+        }
         //封装数据
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> supplierDatas = new HashMap<>();
