@@ -281,31 +281,31 @@ public class SupplyChainController {
         HashMap<String, Object> planSKU = new HashMap<>();
         HashMap<String, Object> planSuppliy = new HashMap<>();
         if (suppliCateVo != null) {
-            int noFinishSPU = suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU();
-            int noFinishSKU = suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU();
-            int noFinishSuppliy = suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy();
-            if (noFinishSPU < 0) {
-                noFinishSPU = 0;
-            }
-            if (noFinishSKU < 0) {
-                noFinishSKU = 0;
-            }
-            if (noFinishSuppliy < 0) {
-                noFinishSuppliy = 0;
-            }
+//            int noFinishSPU = suppliCateVo.getPlanSPU() - suppliCateVo.getFinishSPU();
+//            int noFinishSKU = suppliCateVo.getPlanSKU() - suppliCateVo.getFinishSKU();
+//            int noFinishSuppliy = suppliCateVo.getPlanSuppliy() - suppliCateVo.getFinishSuppliy();
+//            if (noFinishSPU < 0) {
+//                noFinishSPU = 0;
+//            }
+//            if (noFinishSKU < 0) {
+//                noFinishSKU = 0;
+//            }
+//            if (noFinishSuppliy < 0) {
+//                noFinishSuppliy = 0;
+//            }
             planSPU.put("finishedSPU", suppliCateVo.getFinishSPU());
-            planSPU.put("noFinishSPU", noFinishSPU);
+            planSPU.put("planSPU", suppliCateVo.getPlanSPU());
             planSKU.put("finishedSKU", suppliCateVo.getFinishSKU());
-            planSKU.put("noFinishSKU", noFinishSKU);
+            planSKU.put("planSKU", suppliCateVo.getPlanSKU());
             planSuppliy.put("finishedSuppliy", suppliCateVo.getFinishSuppliy());
-            planSuppliy.put("noFinishSuppliy", noFinishSuppliy);
+            planSuppliy.put("planSuppliy", suppliCateVo.getPlanSuppliy());
         } else {
             planSPU.put("finishedSPU", 0);
-            planSPU.put("noFinishSPU", 0);
+            planSPU.put("planSPU", 0);
             planSKU.put("finishedSKU", 0);
-            planSKU.put("noFinishSKU", 0);
+            planSKU.put("planSKU", 0);
             planSuppliy.put("finishedSuppliy", 0);
-            planSuppliy.put("noFinishSuppliy", 0);
+            planSuppliy.put("planSuppliy", 0);
         }
         data.put("planSPU", planSPU);
         data.put("planSKU", planSKU);
