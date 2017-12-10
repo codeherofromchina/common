@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="erui-boss-web:war">
+    <output-path>$PROJECT_DIR$/erui-boss-web/target</output-path>
+    <root id="archive" name="erui-boss-web-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="erui-boss-web:war exploded" />
+    </root>
+  </artifact>
+</component>

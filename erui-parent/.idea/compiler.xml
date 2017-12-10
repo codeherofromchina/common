@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="erui-bmp" />
+        <module name="erui-boss-web" />
+        <module name="erui-cms" />
+        <module name="erui-comm" />
+        <module name="erui-monitor" />
+        <module name="erui-order" />
+        <module name="erui-pay" />
+        <module name="erui-power" />
+        <module name="erui-report" />
+        <module name="erui-sms" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="erui-bmp" target="1.8" />
+      <module name="erui-boss-web" target="1.8" />
+      <module name="erui-cms" target="1.8" />
+      <module name="erui-comm" target="1.8" />
+      <module name="erui-monitor" target="1.8" />
+      <module name="erui-order" target="1.8" />
+      <module name="erui-parent" target="1.8" />
+      <module name="erui-pay" target="1.8" />
+      <module name="erui-power" target="1.8" />
+      <module name="erui-report" target="1.8" />
+      <module name="erui-sms" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

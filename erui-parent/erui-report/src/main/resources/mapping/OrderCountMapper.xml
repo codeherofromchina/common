@@ -1,0 +1,1321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.OrderCountMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.report.model.OrderCount" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_serial_num" property="orderSerialNum" jdbcType="VARCHAR" />
+    <result column="pro_notice_num" property="proNoticeNum" jdbcType="VARCHAR" />
+    <result column="execute_num" property="executeNum" jdbcType="VARCHAR" />
+    <result column="po_num" property="poNum" jdbcType="VARCHAR" />
+    <result column="organization" property="organization" jdbcType="VARCHAR" />
+    <result column="exe_company" property="exeCompany" jdbcType="VARCHAR" />
+    <result column="order_area" property="orderArea" jdbcType="VARCHAR" />
+    <result column="cust_description" property="custDescription" jdbcType="VARCHAR" />
+    <result column="pro_name" property="proName" jdbcType="VARCHAR" />
+    <result column="english_name" property="englishName" jdbcType="VARCHAR" />
+    <result column="specification" property="specification" jdbcType="VARCHAR" />
+    <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
+    <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
+    <result column="pro_category" property="proCategory" jdbcType="VARCHAR" />
+    <result column="order_count" property="orderCount" jdbcType="INTEGER" />
+    <result column="order_unit" property="orderUnit" jdbcType="VARCHAR" />
+    <result column="sale_num" property="saleNum" jdbcType="VARCHAR" />
+    <result column="order_num" property="orderNum" jdbcType="VARCHAR" />
+    <result column="project_account" property="projectAccount" jdbcType="DECIMAL" />
+    <result column="pre_profit" property="preProfit" jdbcType="VARCHAR" />
+    <result column="back_form" property="backForm" jdbcType="VARCHAR" />
+    <result column="back_date" property="backDate" jdbcType="TIMESTAMP" />
+    <result column="back_amount" property="backAmount" jdbcType="DECIMAL" />
+    <result column="credit_extension" property="creditExtension" jdbcType="VARCHAR" />
+    <result column="project_start" property="projectStart" jdbcType="TIMESTAMP" />
+    <result column="exe_promise_date" property="exePromiseDate" jdbcType="TIMESTAMP" />
+    <result column="exe_promise_update_date" property="exePromiseUpdateDate" jdbcType="TIMESTAMP" />
+    <result column="require_purchase_get_date" property="requirePurchaseGetDate" jdbcType="TIMESTAMP" />
+    <result column="market_manager" property="marketManager" jdbcType="VARCHAR" />
+    <result column="business_manager" property="businessManager" jdbcType="VARCHAR" />
+    <result column="purchase_manager" property="purchaseManager" jdbcType="VARCHAR" />
+    <result column="supplier" property="supplier" jdbcType="VARCHAR" />
+    <result column="purchase_contract_nu" property="purchaseContractNu" jdbcType="VARCHAR" />
+    <result column="pre_quotes_account" property="preQuotesAccount" jdbcType="VARCHAR" />
+    <result column="purchase_account_cny" property="purchaseAccountCny" jdbcType="VARCHAR" />
+    <result column="purchase_account_usd" property="purchaseAccountUsd" jdbcType="VARCHAR" />
+    <result column="purchase_contract_date" property="purchaseContractDate" jdbcType="TIMESTAMP" />
+    <result column="purchase_contract_delivery_date" property="purchaseContractDeliveryDate" jdbcType="TIMESTAMP" />
+    <result column="purchase_payment_mode" property="purchasePaymentMode" jdbcType="VARCHAR" />
+    <result column="to_factory_payment_date" property="toFactoryPaymentDate" jdbcType="TIMESTAMP" />
+    <result column="purchase_get_date" property="purchaseGetDate" jdbcType="TIMESTAMP" />
+    <result column="inspection_date" property="inspectionDate" jdbcType="TIMESTAMP" />
+    <result column="inspection_finash_date" property="inspectionFinashDate" jdbcType="TIMESTAMP" />
+    <result column="to_storage_date" property="toStorageDate" jdbcType="TIMESTAMP" />
+    <result column="booking_date" property="bookingDate" jdbcType="TIMESTAMP" />
+    <result column="market_request_date" property="marketRequestDate" jdbcType="TIMESTAMP" />
+    <result column="forward_manager" property="forwardManager" jdbcType="VARCHAR" />
+    <result column="package_date" property="packageDate" jdbcType="TIMESTAMP" />
+    <result column="storage_out_date" property="storageOutDate" jdbcType="TIMESTAMP" />
+    <result column="ackage_notice_date" property="ackageNoticeDate" jdbcType="TIMESTAMP" />
+    <result column="ship_air_date" property="shipAirDate" jdbcType="TIMESTAMP" />
+    <result column="arrive_date" property="arriveDate" jdbcType="TIMESTAMP" />
+    <result column="logistics_num" property="logisticsNum" jdbcType="VARCHAR" />
+    <result column="pre_logistics_amount" property="preLogisticsAmount" jdbcType="DECIMAL" />
+    <result column="logistics_forward_amount" property="logisticsForwardAmount" jdbcType="DECIMAL" />
+    <result column="finish_date" property="finishDate" jdbcType="TIMESTAMP" />
+    <result column="trade_terms" property="tradeTerms" jdbcType="VARCHAR" />
+    <result column="purchase_delay_date" property="purchaseDelayDate" jdbcType="INTEGER" />
+    <result column="logistics_delay_date" property="logisticsDelayDate" jdbcType="INTEGER" />
+    <result column="project_status" property="projectStatus" jdbcType="VARCHAR" />
+    <result column="reason_type" property="reasonType" jdbcType="VARCHAR" />
+    <result column="reason_category" property="reasonCategory" jdbcType="VARCHAR" />
+    <result column="reality_reason" property="realityReason" jdbcType="VARCHAR" />
+    <result column="project_progress" property="projectProgress" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_serial_num, pro_notice_num, execute_num, po_num, organization, exe_company, 
+    order_area, cust_description, pro_name, english_name, specification, is_oil_gas, 
+    plat_pro_category, pro_category, order_count, order_unit, sale_num, order_num, project_account, 
+    pre_profit, back_form, back_date, back_amount, credit_extension, project_start, exe_promise_date, 
+    exe_promise_update_date, require_purchase_get_date, market_manager, business_manager, 
+    purchase_manager, supplier, purchase_contract_nu, pre_quotes_account, purchase_account_cny, 
+    purchase_account_usd, purchase_contract_date, purchase_contract_delivery_date, purchase_payment_mode, 
+    to_factory_payment_date, purchase_get_date, inspection_date, inspection_finash_date, 
+    to_storage_date, booking_date, market_request_date, forward_manager, package_date, 
+    storage_out_date, ackage_notice_date, ship_air_date, arrive_date, logistics_num, 
+    pre_logistics_amount, logistics_forward_amount, finish_date, trade_terms, purchase_delay_date, 
+    logistics_delay_date, project_status, reason_type, reason_category, reality_reason, 
+    project_progress, remark
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.OrderCountExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="ordTrendByTime" resultType="map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT COUNT(1) AS  count,FROM_DAYS(TO_DAYS(project_start)) AS  datetime
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY TO_DAYS(project_start)
+  </select>
+  <select id="selectStart" resultType="java.util.Date">
+    SELECT project_start FROM order_count ORDER BY project_start ASC LIMIT 1
+  </select>
+  <select id="selectEnd" resultType="java.util.Date">
+    SELECT project_start FROM order_count ORDER BY project_start DESC LIMIT 1
+  </select>
+  <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    IFNULL(SUM(project_account),0)
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectProfitRateByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    IFNULL(SUM(pre_profit*project_account),0)/IFNULL(SUM(project_account),0)
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selecOrdDetailByCategoryByExample"  resultType="com.erui.report.model.CateDetailVo" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordCatePrice,
+    COUNT(*) AS ordCateCount,
+    pro_category AS category
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY
+    category HAVING  category IS  NOT  NULL
+  </select>
+  <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
+    SELECT
+    COUNT(1) AS orderCount,
+    pro_category
+    FROM
+    order_count
+    <where>
+      <if test="startTime != null" >
+         and project_start >= #{startTime}
+      </if>
+      <if test="endTime != null " >
+        and project_start &lt; #{endTime}
+      </if>
+    </where>
+    group by pro_category HAVING  pro_category IS  NOT  NULL  ORDER BY orderCount DESC LIMIT 0,3;
+
+  </select>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from order_count
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  
+  
+    <!--查询所有销售大区和国家列表列表-->
+  <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
+    select order_area as area,exe_company as country from order_count group by order_area,exe_company
+  </select>
+  
+  <!-- 查询订单中的数量汇总数据 -->
+  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+		count(1) as total,
+        sum(case is_oil_gas when '油气' then 1 else 0 end) as oil
+		,sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil,
+        sum(project_account) as amount,
+        sum(case is_oil_gas when '油气' then ifnull(project_account,0) else 0 end) as oilAmount,
+        sum(case is_oil_gas when '非油气' then ifnull(project_account,0) else 0 end) as noNoilAmount
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+
+  <!-- 按条件统计事业部的订单数量和金额 -->
+  <select id="findCountAndAmountByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT organization,count(1) as totalNum,sum(IFNULL(project_account,0)) as totalAmount
+    FROM erui_report.order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    group by organization
+  </select>
+
+  <!-- 按条件统计区域的订单数量和金额 -->
+  <select id="findCountAndAmountByRangProjectStartGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT order_area as area,count(1) as totalNum,sum(IFNULL(project_account,0)) as totalAmount
+    FROM erui_report.order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    group by order_area
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from order_count
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.report.model.OrderCountExample" >
+    delete from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.report.model.OrderCount" >
+    insert into order_count (id, order_serial_num, pro_notice_num, 
+      execute_num, po_num, organization, 
+      exe_company, order_area, cust_description, 
+      pro_name, english_name, specification, 
+      is_oil_gas, plat_pro_category, pro_category, 
+      order_count, order_unit, sale_num, 
+      order_num, project_account, pre_profit, 
+      back_form, back_date, back_amount, 
+      credit_extension, project_start, exe_promise_date, 
+      exe_promise_update_date, require_purchase_get_date, 
+      market_manager, business_manager, purchase_manager, 
+      supplier, purchase_contract_nu, pre_quotes_account, 
+      purchase_account_cny, purchase_account_usd, 
+      purchase_contract_date, purchase_contract_delivery_date, 
+      purchase_payment_mode, to_factory_payment_date, 
+      purchase_get_date, inspection_date, inspection_finash_date, 
+      to_storage_date, booking_date, market_request_date, 
+      forward_manager, package_date, storage_out_date, 
+      ackage_notice_date, ship_air_date, arrive_date, 
+      logistics_num, pre_logistics_amount, logistics_forward_amount, 
+      finish_date, trade_terms, purchase_delay_date, 
+      logistics_delay_date, project_status, reason_type, 
+      reason_category, reality_reason, project_progress, 
+      remark)
+    values (#{id,jdbcType=BIGINT}, #{orderSerialNum,jdbcType=VARCHAR}, #{proNoticeNum,jdbcType=VARCHAR}, 
+      #{executeNum,jdbcType=VARCHAR}, #{poNum,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, 
+      #{exeCompany,jdbcType=VARCHAR}, #{orderArea,jdbcType=VARCHAR}, #{custDescription,jdbcType=VARCHAR}, 
+      #{proName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, 
+      #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, 
+      #{orderCount,jdbcType=INTEGER}, #{orderUnit,jdbcType=VARCHAR}, #{saleNum,jdbcType=VARCHAR}, 
+      #{orderNum,jdbcType=VARCHAR}, #{projectAccount,jdbcType=DECIMAL}, #{preProfit,jdbcType=VARCHAR}, 
+      #{backForm,jdbcType=VARCHAR}, #{backDate,jdbcType=TIMESTAMP}, #{backAmount,jdbcType=DECIMAL}, 
+      #{creditExtension,jdbcType=VARCHAR}, #{projectStart,jdbcType=TIMESTAMP}, #{exePromiseDate,jdbcType=TIMESTAMP}, 
+      #{exePromiseUpdateDate,jdbcType=TIMESTAMP}, #{requirePurchaseGetDate,jdbcType=TIMESTAMP}, 
+      #{marketManager,jdbcType=VARCHAR}, #{businessManager,jdbcType=VARCHAR}, #{purchaseManager,jdbcType=VARCHAR}, 
+      #{supplier,jdbcType=VARCHAR}, #{purchaseContractNu,jdbcType=VARCHAR}, #{preQuotesAccount,jdbcType=VARCHAR}, 
+      #{purchaseAccountCny,jdbcType=VARCHAR}, #{purchaseAccountUsd,jdbcType=VARCHAR}, 
+      #{purchaseContractDate,jdbcType=TIMESTAMP}, #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP}, 
+      #{purchasePaymentMode,jdbcType=VARCHAR}, #{toFactoryPaymentDate,jdbcType=TIMESTAMP}, 
+      #{purchaseGetDate,jdbcType=TIMESTAMP}, #{inspectionDate,jdbcType=TIMESTAMP}, #{inspectionFinashDate,jdbcType=TIMESTAMP}, 
+      #{toStorageDate,jdbcType=TIMESTAMP}, #{bookingDate,jdbcType=TIMESTAMP}, #{marketRequestDate,jdbcType=TIMESTAMP}, 
+      #{forwardManager,jdbcType=VARCHAR}, #{packageDate,jdbcType=TIMESTAMP}, #{storageOutDate,jdbcType=TIMESTAMP}, 
+      #{ackageNoticeDate,jdbcType=TIMESTAMP}, #{shipAirDate,jdbcType=TIMESTAMP}, #{arriveDate,jdbcType=TIMESTAMP}, 
+      #{logisticsNum,jdbcType=VARCHAR}, #{preLogisticsAmount,jdbcType=DECIMAL}, #{logisticsForwardAmount,jdbcType=DECIMAL}, 
+      #{finishDate,jdbcType=TIMESTAMP}, #{tradeTerms,jdbcType=VARCHAR}, #{purchaseDelayDate,jdbcType=INTEGER}, 
+      #{logisticsDelayDate,jdbcType=INTEGER}, #{projectStatus,jdbcType=VARCHAR}, #{reasonType,jdbcType=VARCHAR}, 
+      #{reasonCategory,jdbcType=VARCHAR}, #{realityReason,jdbcType=VARCHAR}, #{projectProgress,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.report.model.OrderCount" >
+    insert into order_count
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderSerialNum != null" >
+        order_serial_num,
+      </if>
+      <if test="proNoticeNum != null" >
+        pro_notice_num,
+      </if>
+      <if test="executeNum != null" >
+        execute_num,
+      </if>
+      <if test="poNum != null" >
+        po_num,
+      </if>
+      <if test="organization != null" >
+        organization,
+      </if>
+      <if test="exeCompany != null" >
+        exe_company,
+      </if>
+      <if test="orderArea != null" >
+        order_area,
+      </if>
+      <if test="custDescription != null" >
+        cust_description,
+      </if>
+      <if test="proName != null" >
+        pro_name,
+      </if>
+      <if test="englishName != null" >
+        english_name,
+      </if>
+      <if test="specification != null" >
+        specification,
+      </if>
+      <if test="isOilGas != null" >
+        is_oil_gas,
+      </if>
+      <if test="platProCategory != null" >
+        plat_pro_category,
+      </if>
+      <if test="proCategory != null" >
+        pro_category,
+      </if>
+      <if test="orderCount != null" >
+        order_count,
+      </if>
+      <if test="orderUnit != null" >
+        order_unit,
+      </if>
+      <if test="saleNum != null" >
+        sale_num,
+      </if>
+      <if test="orderNum != null" >
+        order_num,
+      </if>
+      <if test="projectAccount != null" >
+        project_account,
+      </if>
+      <if test="preProfit != null" >
+        pre_profit,
+      </if>
+      <if test="backForm != null" >
+        back_form,
+      </if>
+      <if test="backDate != null" >
+        back_date,
+      </if>
+      <if test="backAmount != null" >
+        back_amount,
+      </if>
+      <if test="creditExtension != null" >
+        credit_extension,
+      </if>
+      <if test="projectStart != null" >
+        project_start,
+      </if>
+      <if test="exePromiseDate != null" >
+        exe_promise_date,
+      </if>
+      <if test="exePromiseUpdateDate != null" >
+        exe_promise_update_date,
+      </if>
+      <if test="requirePurchaseGetDate != null" >
+        require_purchase_get_date,
+      </if>
+      <if test="marketManager != null" >
+        market_manager,
+      </if>
+      <if test="businessManager != null" >
+        business_manager,
+      </if>
+      <if test="purchaseManager != null" >
+        purchase_manager,
+      </if>
+      <if test="supplier != null" >
+        supplier,
+      </if>
+      <if test="purchaseContractNu != null" >
+        purchase_contract_nu,
+      </if>
+      <if test="preQuotesAccount != null" >
+        pre_quotes_account,
+      </if>
+      <if test="purchaseAccountCny != null" >
+        purchase_account_cny,
+      </if>
+      <if test="purchaseAccountUsd != null" >
+        purchase_account_usd,
+      </if>
+      <if test="purchaseContractDate != null" >
+        purchase_contract_date,
+      </if>
+      <if test="purchaseContractDeliveryDate != null" >
+        purchase_contract_delivery_date,
+      </if>
+      <if test="purchasePaymentMode != null" >
+        purchase_payment_mode,
+      </if>
+      <if test="toFactoryPaymentDate != null" >
+        to_factory_payment_date,
+      </if>
+      <if test="purchaseGetDate != null" >
+        purchase_get_date,
+      </if>
+      <if test="inspectionDate != null" >
+        inspection_date,
+      </if>
+      <if test="inspectionFinashDate != null" >
+        inspection_finash_date,
+      </if>
+      <if test="toStorageDate != null" >
+        to_storage_date,
+      </if>
+      <if test="bookingDate != null" >
+        booking_date,
+      </if>
+      <if test="marketRequestDate != null" >
+        market_request_date,
+      </if>
+      <if test="forwardManager != null" >
+        forward_manager,
+      </if>
+      <if test="packageDate != null" >
+        package_date,
+      </if>
+      <if test="storageOutDate != null" >
+        storage_out_date,
+      </if>
+      <if test="ackageNoticeDate != null" >
+        ackage_notice_date,
+      </if>
+      <if test="shipAirDate != null" >
+        ship_air_date,
+      </if>
+      <if test="arriveDate != null" >
+        arrive_date,
+      </if>
+      <if test="logisticsNum != null" >
+        logistics_num,
+      </if>
+      <if test="preLogisticsAmount != null" >
+        pre_logistics_amount,
+      </if>
+      <if test="logisticsForwardAmount != null" >
+        logistics_forward_amount,
+      </if>
+      <if test="finishDate != null" >
+        finish_date,
+      </if>
+      <if test="tradeTerms != null" >
+        trade_terms,
+      </if>
+      <if test="purchaseDelayDate != null" >
+        purchase_delay_date,
+      </if>
+      <if test="logisticsDelayDate != null" >
+        logistics_delay_date,
+      </if>
+      <if test="projectStatus != null" >
+        project_status,
+      </if>
+      <if test="reasonType != null" >
+        reason_type,
+      </if>
+      <if test="reasonCategory != null" >
+        reason_category,
+      </if>
+      <if test="realityReason != null" >
+        reality_reason,
+      </if>
+      <if test="projectProgress != null" >
+        project_progress,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderSerialNum != null" >
+        #{orderSerialNum,jdbcType=VARCHAR},
+      </if>
+      <if test="proNoticeNum != null" >
+        #{proNoticeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="executeNum != null" >
+        #{executeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="poNum != null" >
+        #{poNum,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null" >
+        #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="exeCompany != null" >
+        #{exeCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="orderArea != null" >
+        #{orderArea,jdbcType=VARCHAR},
+      </if>
+      <if test="custDescription != null" >
+        #{custDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="proName != null" >
+        #{proName,jdbcType=VARCHAR},
+      </if>
+      <if test="englishName != null" >
+        #{englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="isOilGas != null" >
+        #{isOilGas,jdbcType=VARCHAR},
+      </if>
+      <if test="platProCategory != null" >
+        #{platProCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="proCategory != null" >
+        #{proCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCount != null" >
+        #{orderCount,jdbcType=INTEGER},
+      </if>
+      <if test="orderUnit != null" >
+        #{orderUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="saleNum != null" >
+        #{saleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null" >
+        #{orderNum,jdbcType=VARCHAR},
+      </if>
+      <if test="projectAccount != null" >
+        #{projectAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="preProfit != null" >
+        #{preProfit,jdbcType=VARCHAR},
+      </if>
+      <if test="backForm != null" >
+        #{backForm,jdbcType=VARCHAR},
+      </if>
+      <if test="backDate != null" >
+        #{backDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="backAmount != null" >
+        #{backAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="creditExtension != null" >
+        #{creditExtension,jdbcType=VARCHAR},
+      </if>
+      <if test="projectStart != null" >
+        #{projectStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exePromiseDate != null" >
+        #{exePromiseDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exePromiseUpdateDate != null" >
+        #{exePromiseUpdateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="requirePurchaseGetDate != null" >
+        #{requirePurchaseGetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="marketManager != null" >
+        #{marketManager,jdbcType=VARCHAR},
+      </if>
+      <if test="businessManager != null" >
+        #{businessManager,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseManager != null" >
+        #{purchaseManager,jdbcType=VARCHAR},
+      </if>
+      <if test="supplier != null" >
+        #{supplier,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseContractNu != null" >
+        #{purchaseContractNu,jdbcType=VARCHAR},
+      </if>
+      <if test="preQuotesAccount != null" >
+        #{preQuotesAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountCny != null" >
+        #{purchaseAccountCny,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountUsd != null" >
+        #{purchaseAccountUsd,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseContractDate != null" >
+        #{purchaseContractDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseContractDeliveryDate != null" >
+        #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchasePaymentMode != null" >
+        #{purchasePaymentMode,jdbcType=VARCHAR},
+      </if>
+      <if test="toFactoryPaymentDate != null" >
+        #{toFactoryPaymentDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseGetDate != null" >
+        #{purchaseGetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspectionDate != null" >
+        #{inspectionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspectionFinashDate != null" >
+        #{inspectionFinashDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="toStorageDate != null" >
+        #{toStorageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bookingDate != null" >
+        #{bookingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="marketRequestDate != null" >
+        #{marketRequestDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="forwardManager != null" >
+        #{forwardManager,jdbcType=VARCHAR},
+      </if>
+      <if test="packageDate != null" >
+        #{packageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="storageOutDate != null" >
+        #{storageOutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ackageNoticeDate != null" >
+        #{ackageNoticeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="shipAirDate != null" >
+        #{shipAirDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arriveDate != null" >
+        #{arriveDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logisticsNum != null" >
+        #{logisticsNum,jdbcType=VARCHAR},
+      </if>
+      <if test="preLogisticsAmount != null" >
+        #{preLogisticsAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="logisticsForwardAmount != null" >
+        #{logisticsForwardAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="finishDate != null" >
+        #{finishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeTerms != null" >
+        #{tradeTerms,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseDelayDate != null" >
+        #{purchaseDelayDate,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsDelayDate != null" >
+        #{logisticsDelayDate,jdbcType=INTEGER},
+      </if>
+      <if test="projectStatus != null" >
+        #{projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="reasonType != null" >
+        #{reasonType,jdbcType=VARCHAR},
+      </if>
+      <if test="reasonCategory != null" >
+        #{reasonCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="realityReason != null" >
+        #{realityReason,jdbcType=VARCHAR},
+      </if>
+      <if test="projectProgress != null" >
+        #{projectProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.report.model.OrderCountExample" resultType="java.lang.Integer" >
+    select count(*) from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectProCountByExample"  resultType="java.lang.Integer" >
+    select  IFNULL(SUM(IFNULL(order_count,0.0)),0.0) AS orderCount
+     from
+      order_count
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update order_count
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderSerialNum != null" >
+        order_serial_num = #{record.orderSerialNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.proNoticeNum != null" >
+        pro_notice_num = #{record.proNoticeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.executeNum != null" >
+        execute_num = #{record.executeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.poNum != null" >
+        po_num = #{record.poNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organization != null" >
+        organization = #{record.organization,jdbcType=VARCHAR},
+      </if>
+      <if test="record.exeCompany != null" >
+        exe_company = #{record.exeCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderArea != null" >
+        order_area = #{record.orderArea,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custDescription != null" >
+        cust_description = #{record.custDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="record.proName != null" >
+        pro_name = #{record.proName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.englishName != null" >
+        english_name = #{record.englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.specification != null" >
+        specification = #{record.specification,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isOilGas != null" >
+        is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
+      </if>
+      <if test="record.platProCategory != null" >
+        plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.proCategory != null" >
+        pro_category = #{record.proCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderCount != null" >
+        order_count = #{record.orderCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderUnit != null" >
+        order_unit = #{record.orderUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleNum != null" >
+        sale_num = #{record.saleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderNum != null" >
+        order_num = #{record.orderNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectAccount != null" >
+        project_account = #{record.projectAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.preProfit != null" >
+        pre_profit = #{record.preProfit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.backForm != null" >
+        back_form = #{record.backForm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.backDate != null" >
+        back_date = #{record.backDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.backAmount != null" >
+        back_amount = #{record.backAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.creditExtension != null" >
+        credit_extension = #{record.creditExtension,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectStart != null" >
+        project_start = #{record.projectStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.exePromiseDate != null" >
+        exe_promise_date = #{record.exePromiseDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.exePromiseUpdateDate != null" >
+        exe_promise_update_date = #{record.exePromiseUpdateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.requirePurchaseGetDate != null" >
+        require_purchase_get_date = #{record.requirePurchaseGetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.marketManager != null" >
+        market_manager = #{record.marketManager,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessManager != null" >
+        business_manager = #{record.businessManager,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseManager != null" >
+        purchase_manager = #{record.purchaseManager,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplier != null" >
+        supplier = #{record.supplier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseContractNu != null" >
+        purchase_contract_nu = #{record.purchaseContractNu,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preQuotesAccount != null" >
+        pre_quotes_account = #{record.preQuotesAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseAccountCny != null" >
+        purchase_account_cny = #{record.purchaseAccountCny,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseAccountUsd != null" >
+        purchase_account_usd = #{record.purchaseAccountUsd,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseContractDate != null" >
+        purchase_contract_date = #{record.purchaseContractDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.purchaseContractDeliveryDate != null" >
+        purchase_contract_delivery_date = #{record.purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.purchasePaymentMode != null" >
+        purchase_payment_mode = #{record.purchasePaymentMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.toFactoryPaymentDate != null" >
+        to_factory_payment_date = #{record.toFactoryPaymentDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.purchaseGetDate != null" >
+        purchase_get_date = #{record.purchaseGetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.inspectionDate != null" >
+        inspection_date = #{record.inspectionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.inspectionFinashDate != null" >
+        inspection_finash_date = #{record.inspectionFinashDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.toStorageDate != null" >
+        to_storage_date = #{record.toStorageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.bookingDate != null" >
+        booking_date = #{record.bookingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.marketRequestDate != null" >
+        market_request_date = #{record.marketRequestDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.forwardManager != null" >
+        forward_manager = #{record.forwardManager,jdbcType=VARCHAR},
+      </if>
+      <if test="record.packageDate != null" >
+        package_date = #{record.packageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.storageOutDate != null" >
+        storage_out_date = #{record.storageOutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.ackageNoticeDate != null" >
+        ackage_notice_date = #{record.ackageNoticeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.shipAirDate != null" >
+        ship_air_date = #{record.shipAirDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.arriveDate != null" >
+        arrive_date = #{record.arriveDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.logisticsNum != null" >
+        logistics_num = #{record.logisticsNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preLogisticsAmount != null" >
+        pre_logistics_amount = #{record.preLogisticsAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.logisticsForwardAmount != null" >
+        logistics_forward_amount = #{record.logisticsForwardAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.finishDate != null" >
+        finish_date = #{record.finishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.tradeTerms != null" >
+        trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseDelayDate != null" >
+        purchase_delay_date = #{record.purchaseDelayDate,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsDelayDate != null" >
+        logistics_delay_date = #{record.logisticsDelayDate,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectStatus != null" >
+        project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reasonType != null" >
+        reason_type = #{record.reasonType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reasonCategory != null" >
+        reason_category = #{record.reasonCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.realityReason != null" >
+        reality_reason = #{record.realityReason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectProgress != null" >
+        project_progress = #{record.projectProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update order_count
+    set id = #{record.id,jdbcType=BIGINT},
+      order_serial_num = #{record.orderSerialNum,jdbcType=VARCHAR},
+      pro_notice_num = #{record.proNoticeNum,jdbcType=VARCHAR},
+      execute_num = #{record.executeNum,jdbcType=VARCHAR},
+      po_num = #{record.poNum,jdbcType=VARCHAR},
+      organization = #{record.organization,jdbcType=VARCHAR},
+      exe_company = #{record.exeCompany,jdbcType=VARCHAR},
+      order_area = #{record.orderArea,jdbcType=VARCHAR},
+      cust_description = #{record.custDescription,jdbcType=VARCHAR},
+      pro_name = #{record.proName,jdbcType=VARCHAR},
+      english_name = #{record.englishName,jdbcType=VARCHAR},
+      specification = #{record.specification,jdbcType=VARCHAR},
+      is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
+      plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
+      pro_category = #{record.proCategory,jdbcType=VARCHAR},
+      order_count = #{record.orderCount,jdbcType=INTEGER},
+      order_unit = #{record.orderUnit,jdbcType=VARCHAR},
+      sale_num = #{record.saleNum,jdbcType=VARCHAR},
+      order_num = #{record.orderNum,jdbcType=VARCHAR},
+      project_account = #{record.projectAccount,jdbcType=DECIMAL},
+      pre_profit = #{record.preProfit,jdbcType=VARCHAR},
+      back_form = #{record.backForm,jdbcType=VARCHAR},
+      back_date = #{record.backDate,jdbcType=TIMESTAMP},
+      back_amount = #{record.backAmount,jdbcType=DECIMAL},
+      credit_extension = #{record.creditExtension,jdbcType=VARCHAR},
+      project_start = #{record.projectStart,jdbcType=TIMESTAMP},
+      exe_promise_date = #{record.exePromiseDate,jdbcType=TIMESTAMP},
+      exe_promise_update_date = #{record.exePromiseUpdateDate,jdbcType=TIMESTAMP},
+      require_purchase_get_date = #{record.requirePurchaseGetDate,jdbcType=TIMESTAMP},
+      market_manager = #{record.marketManager,jdbcType=VARCHAR},
+      business_manager = #{record.businessManager,jdbcType=VARCHAR},
+      purchase_manager = #{record.purchaseManager,jdbcType=VARCHAR},
+      supplier = #{record.supplier,jdbcType=VARCHAR},
+      purchase_contract_nu = #{record.purchaseContractNu,jdbcType=VARCHAR},
+      pre_quotes_account = #{record.preQuotesAccount,jdbcType=VARCHAR},
+      purchase_account_cny = #{record.purchaseAccountCny,jdbcType=VARCHAR},
+      purchase_account_usd = #{record.purchaseAccountUsd,jdbcType=VARCHAR},
+      purchase_contract_date = #{record.purchaseContractDate,jdbcType=TIMESTAMP},
+      purchase_contract_delivery_date = #{record.purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
+      purchase_payment_mode = #{record.purchasePaymentMode,jdbcType=VARCHAR},
+      to_factory_payment_date = #{record.toFactoryPaymentDate,jdbcType=TIMESTAMP},
+      purchase_get_date = #{record.purchaseGetDate,jdbcType=TIMESTAMP},
+      inspection_date = #{record.inspectionDate,jdbcType=TIMESTAMP},
+      inspection_finash_date = #{record.inspectionFinashDate,jdbcType=TIMESTAMP},
+      to_storage_date = #{record.toStorageDate,jdbcType=TIMESTAMP},
+      booking_date = #{record.bookingDate,jdbcType=TIMESTAMP},
+      market_request_date = #{record.marketRequestDate,jdbcType=TIMESTAMP},
+      forward_manager = #{record.forwardManager,jdbcType=VARCHAR},
+      package_date = #{record.packageDate,jdbcType=TIMESTAMP},
+      storage_out_date = #{record.storageOutDate,jdbcType=TIMESTAMP},
+      ackage_notice_date = #{record.ackageNoticeDate,jdbcType=TIMESTAMP},
+      ship_air_date = #{record.shipAirDate,jdbcType=TIMESTAMP},
+      arrive_date = #{record.arriveDate,jdbcType=TIMESTAMP},
+      logistics_num = #{record.logisticsNum,jdbcType=VARCHAR},
+      pre_logistics_amount = #{record.preLogisticsAmount,jdbcType=DECIMAL},
+      logistics_forward_amount = #{record.logisticsForwardAmount,jdbcType=DECIMAL},
+      finish_date = #{record.finishDate,jdbcType=TIMESTAMP},
+      trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+      purchase_delay_date = #{record.purchaseDelayDate,jdbcType=INTEGER},
+      logistics_delay_date = #{record.logisticsDelayDate,jdbcType=INTEGER},
+      project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      reason_type = #{record.reasonType,jdbcType=VARCHAR},
+      reason_category = #{record.reasonCategory,jdbcType=VARCHAR},
+      reality_reason = #{record.realityReason,jdbcType=VARCHAR},
+      project_progress = #{record.projectProgress,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.OrderCount" >
+    update order_count
+    <set >
+      <if test="orderSerialNum != null" >
+        order_serial_num = #{orderSerialNum,jdbcType=VARCHAR},
+      </if>
+      <if test="proNoticeNum != null" >
+        pro_notice_num = #{proNoticeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="executeNum != null" >
+        execute_num = #{executeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="poNum != null" >
+        po_num = #{poNum,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null" >
+        organization = #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="exeCompany != null" >
+        exe_company = #{exeCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="orderArea != null" >
+        order_area = #{orderArea,jdbcType=VARCHAR},
+      </if>
+      <if test="custDescription != null" >
+        cust_description = #{custDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="proName != null" >
+        pro_name = #{proName,jdbcType=VARCHAR},
+      </if>
+      <if test="englishName != null" >
+        english_name = #{englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        specification = #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="isOilGas != null" >
+        is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
+      </if>
+      <if test="platProCategory != null" >
+        plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="proCategory != null" >
+        pro_category = #{proCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCount != null" >
+        order_count = #{orderCount,jdbcType=INTEGER},
+      </if>
+      <if test="orderUnit != null" >
+        order_unit = #{orderUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="saleNum != null" >
+        sale_num = #{saleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null" >
+        order_num = #{orderNum,jdbcType=VARCHAR},
+      </if>
+      <if test="projectAccount != null" >
+        project_account = #{projectAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="preProfit != null" >
+        pre_profit = #{preProfit,jdbcType=VARCHAR},
+      </if>
+      <if test="backForm != null" >
+        back_form = #{backForm,jdbcType=VARCHAR},
+      </if>
+      <if test="backDate != null" >
+        back_date = #{backDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="backAmount != null" >
+        back_amount = #{backAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="creditExtension != null" >
+        credit_extension = #{creditExtension,jdbcType=VARCHAR},
+      </if>
+      <if test="projectStart != null" >
+        project_start = #{projectStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exePromiseDate != null" >
+        exe_promise_date = #{exePromiseDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exePromiseUpdateDate != null" >
+        exe_promise_update_date = #{exePromiseUpdateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="requirePurchaseGetDate != null" >
+        require_purchase_get_date = #{requirePurchaseGetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="marketManager != null" >
+        market_manager = #{marketManager,jdbcType=VARCHAR},
+      </if>
+      <if test="businessManager != null" >
+        business_manager = #{businessManager,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseManager != null" >
+        purchase_manager = #{purchaseManager,jdbcType=VARCHAR},
+      </if>
+      <if test="supplier != null" >
+        supplier = #{supplier,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseContractNu != null" >
+        purchase_contract_nu = #{purchaseContractNu,jdbcType=VARCHAR},
+      </if>
+      <if test="preQuotesAccount != null" >
+        pre_quotes_account = #{preQuotesAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountCny != null" >
+        purchase_account_cny = #{purchaseAccountCny,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountUsd != null" >
+        purchase_account_usd = #{purchaseAccountUsd,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseContractDate != null" >
+        purchase_contract_date = #{purchaseContractDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseContractDeliveryDate != null" >
+        purchase_contract_delivery_date = #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchasePaymentMode != null" >
+        purchase_payment_mode = #{purchasePaymentMode,jdbcType=VARCHAR},
+      </if>
+      <if test="toFactoryPaymentDate != null" >
+        to_factory_payment_date = #{toFactoryPaymentDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseGetDate != null" >
+        purchase_get_date = #{purchaseGetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspectionDate != null" >
+        inspection_date = #{inspectionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspectionFinashDate != null" >
+        inspection_finash_date = #{inspectionFinashDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="toStorageDate != null" >
+        to_storage_date = #{toStorageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bookingDate != null" >
+        booking_date = #{bookingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="marketRequestDate != null" >
+        market_request_date = #{marketRequestDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="forwardManager != null" >
+        forward_manager = #{forwardManager,jdbcType=VARCHAR},
+      </if>
+      <if test="packageDate != null" >
+        package_date = #{packageDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="storageOutDate != null" >
+        storage_out_date = #{storageOutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ackageNoticeDate != null" >
+        ackage_notice_date = #{ackageNoticeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="shipAirDate != null" >
+        ship_air_date = #{shipAirDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arriveDate != null" >
+        arrive_date = #{arriveDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logisticsNum != null" >
+        logistics_num = #{logisticsNum,jdbcType=VARCHAR},
+      </if>
+      <if test="preLogisticsAmount != null" >
+        pre_logistics_amount = #{preLogisticsAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="logisticsForwardAmount != null" >
+        logistics_forward_amount = #{logisticsForwardAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="finishDate != null" >
+        finish_date = #{finishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeTerms != null" >
+        trade_terms = #{tradeTerms,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseDelayDate != null" >
+        purchase_delay_date = #{purchaseDelayDate,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsDelayDate != null" >
+        logistics_delay_date = #{logisticsDelayDate,jdbcType=INTEGER},
+      </if>
+      <if test="projectStatus != null" >
+        project_status = #{projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="reasonType != null" >
+        reason_type = #{reasonType,jdbcType=VARCHAR},
+      </if>
+      <if test="reasonCategory != null" >
+        reason_category = #{reasonCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="realityReason != null" >
+        reality_reason = #{realityReason,jdbcType=VARCHAR},
+      </if>
+      <if test="projectProgress != null" >
+        project_progress = #{projectProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.OrderCount" >
+    update order_count
+    set order_serial_num = #{orderSerialNum,jdbcType=VARCHAR},
+      pro_notice_num = #{proNoticeNum,jdbcType=VARCHAR},
+      execute_num = #{executeNum,jdbcType=VARCHAR},
+      po_num = #{poNum,jdbcType=VARCHAR},
+      organization = #{organization,jdbcType=VARCHAR},
+      exe_company = #{exeCompany,jdbcType=VARCHAR},
+      order_area = #{orderArea,jdbcType=VARCHAR},
+      cust_description = #{custDescription,jdbcType=VARCHAR},
+      pro_name = #{proName,jdbcType=VARCHAR},
+      english_name = #{englishName,jdbcType=VARCHAR},
+      specification = #{specification,jdbcType=VARCHAR},
+      is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
+      plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
+      pro_category = #{proCategory,jdbcType=VARCHAR},
+      order_count = #{orderCount,jdbcType=INTEGER},
+      order_unit = #{orderUnit,jdbcType=VARCHAR},
+      sale_num = #{saleNum,jdbcType=VARCHAR},
+      order_num = #{orderNum,jdbcType=VARCHAR},
+      project_account = #{projectAccount,jdbcType=DECIMAL},
+      pre_profit = #{preProfit,jdbcType=VARCHAR},
+      back_form = #{backForm,jdbcType=VARCHAR},
+      back_date = #{backDate,jdbcType=TIMESTAMP},
+      back_amount = #{backAmount,jdbcType=DECIMAL},
+      credit_extension = #{creditExtension,jdbcType=VARCHAR},
+      project_start = #{projectStart,jdbcType=TIMESTAMP},
+      exe_promise_date = #{exePromiseDate,jdbcType=TIMESTAMP},
+      exe_promise_update_date = #{exePromiseUpdateDate,jdbcType=TIMESTAMP},
+      require_purchase_get_date = #{requirePurchaseGetDate,jdbcType=TIMESTAMP},
+      market_manager = #{marketManager,jdbcType=VARCHAR},
+      business_manager = #{businessManager,jdbcType=VARCHAR},
+      purchase_manager = #{purchaseManager,jdbcType=VARCHAR},
+      supplier = #{supplier,jdbcType=VARCHAR},
+      purchase_contract_nu = #{purchaseContractNu,jdbcType=VARCHAR},
+      pre_quotes_account = #{preQuotesAccount,jdbcType=VARCHAR},
+      purchase_account_cny = #{purchaseAccountCny,jdbcType=VARCHAR},
+      purchase_account_usd = #{purchaseAccountUsd,jdbcType=VARCHAR},
+      purchase_contract_date = #{purchaseContractDate,jdbcType=TIMESTAMP},
+      purchase_contract_delivery_date = #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
+      purchase_payment_mode = #{purchasePaymentMode,jdbcType=VARCHAR},
+      to_factory_payment_date = #{toFactoryPaymentDate,jdbcType=TIMESTAMP},
+      purchase_get_date = #{purchaseGetDate,jdbcType=TIMESTAMP},
+      inspection_date = #{inspectionDate,jdbcType=TIMESTAMP},
+      inspection_finash_date = #{inspectionFinashDate,jdbcType=TIMESTAMP},
+      to_storage_date = #{toStorageDate,jdbcType=TIMESTAMP},
+      booking_date = #{bookingDate,jdbcType=TIMESTAMP},
+      market_request_date = #{marketRequestDate,jdbcType=TIMESTAMP},
+      forward_manager = #{forwardManager,jdbcType=VARCHAR},
+      package_date = #{packageDate,jdbcType=TIMESTAMP},
+      storage_out_date = #{storageOutDate,jdbcType=TIMESTAMP},
+      ackage_notice_date = #{ackageNoticeDate,jdbcType=TIMESTAMP},
+      ship_air_date = #{shipAirDate,jdbcType=TIMESTAMP},
+      arrive_date = #{arriveDate,jdbcType=TIMESTAMP},
+      logistics_num = #{logisticsNum,jdbcType=VARCHAR},
+      pre_logistics_amount = #{preLogisticsAmount,jdbcType=DECIMAL},
+      logistics_forward_amount = #{logisticsForwardAmount,jdbcType=DECIMAL},
+      finish_date = #{finishDate,jdbcType=TIMESTAMP},
+      trade_terms = #{tradeTerms,jdbcType=VARCHAR},
+      purchase_delay_date = #{purchaseDelayDate,jdbcType=INTEGER},
+      logistics_delay_date = #{logisticsDelayDate,jdbcType=INTEGER},
+      project_status = #{projectStatus,jdbcType=VARCHAR},
+      reason_type = #{reasonType,jdbcType=VARCHAR},
+      reason_category = #{reasonCategory,jdbcType=VARCHAR},
+      reality_reason = #{realityReason,jdbcType=VARCHAR},
+      project_progress = #{projectProgress,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+    <update id="truncateTable" >
+    truncate table order_count
+  </update>
+  
+</mapper>
