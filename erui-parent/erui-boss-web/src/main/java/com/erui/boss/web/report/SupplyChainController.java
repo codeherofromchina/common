@@ -271,10 +271,12 @@ public class SupplyChainController {
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         List<SuppliyChainCateVo> list = this.supplyChainService.selectCateSuppliyChain(startTime, endTime);
         SuppliyChainCateVo suppliCateVo = null;
-        for (SuppliyChainCateVo cateVo : list) {
-            if (category.equals(cateVo.getCategory())) {
-                suppliCateVo = cateVo;
-                break;
+        if(list!=null&&list.size()>0) {
+            for (SuppliyChainCateVo cateVo : list) {
+                if (category.equals(cateVo.getCategory())) {
+                    suppliCateVo = cateVo;
+                    break;
+                }
             }
         }
         HashMap<String, Object> planSPU = new HashMap<>();

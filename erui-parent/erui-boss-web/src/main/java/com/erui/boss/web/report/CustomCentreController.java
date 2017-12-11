@@ -101,7 +101,10 @@ public class CustomCentreController {
             m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
         });
 
-
+        //询价商品数
+        Map<String, Object> goodsMap = new HashMap<>();
+        goodsMap.put("goodsCount",927);
+        goodsMap.put("goodsChainAdd",23);
         Map<String, Object> datas = new HashMap<>();
         datas.put("inquiry", inquiryMap);
         datas.put("isOil", proIsOilMap);

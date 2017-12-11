@@ -33,13 +33,13 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     private static final String productUrl = "http://api.eruidev.com/v2/Report/getProductCount";//获取spu数据请求路径
     private static final String supplierUrl = "http://api.eruidev.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
     private static final String cateUrl = "http://api.eruidev.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
-    public static final String key = "9b2a37b7b606c14d43db538487a148c7";
-    private static ObjectMapper om = new ObjectMapper();
-
+    public   final String inquiryUrl = "http://api.eruidev.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
+    public   final String key = "9b2a37b7b606c14d43db538487a148c7";
+    public static ObjectMapper om = new ObjectMapper();
+    public   CloseableHttpClient client = HttpClients.createDefault();
 
     @Override
     public void supplyChainReadData(String startTime, String endTime) throws Exception {
-        CloseableHttpClient client = HttpClients.createDefault();
         HttpPut goodPutMethod = getPutMethod(goodUrl, startTime, endTime);
         HttpPut productPutMethod = getPutMethod(productUrl, startTime, endTime);
         HttpPut supplierPutMethod = getPutMethod(supplierUrl, startTime, endTime);
@@ -96,7 +96,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     /**
      * 获取PutMethod
      */
-    private HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
+     HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
         HttpPut method = new HttpPut(url);
         method.getParams().setParameter("http.socket.timeout", 3000);
         //组装请求json

@@ -10,12 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.report.model.*;
 import com.erui.report.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.erui.comm.util.data.date.DateUtil;
@@ -23,16 +29,17 @@ import com.erui.report.dao.InquiryCountMapper;
 import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.InquiryCountExample.Criteria;
 import com.erui.report.service.InquiryCountService;
-import org.springframework.util.NumberUtils;
-import sun.awt.geom.Crossings;
 
 /*
-* 客户中心-询单统计  服务实现类
-* */
+ * 客户中心-询单统计  服务实现类
+ * */
 @Service
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
+
+    @Autowired
+    private SupplyChainReadServiceImpl supplyChainReadService;
 
     /**
      * @Author:SHIGS
@@ -744,5 +751,105 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             result = new ArrayList<>();
         }
         return result;
+    }
+
+    @Override
+    public void inquiryData(String startTime, String endTime) throws Exception {
+
+        HttpPut putMethod = supplyChainReadService.getPutMethod(supplyChainReadService.inquiryUrl, "2017-11-27 00:00:00", "2017-12-05 00:00:00");
+        CloseableHttpResponse inquiryResult = supplyChainReadService.client.execute(putMethod);
+
+        JSONObject json1 = new JSONObject();
+        String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
+        JSONObject inquiryObject = json1.parseObject(inquiryData);
+        int inquiryCode = (int) inquiryObject.get("code");
+        if (inquiryCode == 1) {//成功了
+            String dataJson = inquiryObject.get("data").toString();
+            List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
+            if (list != null && list.size() > 0) {
+                List<InquiryCount> inquiryCounts=new ArrayList<>();
+                List<InquirySku> inquiryCates=new ArrayList<>();
+
+                for (Map<String, Object> map : list) {
+                    Object serial_no = map.get("serial_no");//报价单号
+                    Object created_at = map.get("created_at");//转入日期
+                    Object country_name = map.get("country_name");//国家
+                    Object area_name = map.get("area_name");//区域
+                    Object org_name = map.get("org_name");//事业部
+                    Object gross_profit_rate = map.get("gross_profit_rate");//利润率
+                    Object total_quote_price = map.get("total_quote_price");//报价总金额
+                    Object quote_time = map.get("quote_time");//报价用时
+                    Object quote_status = map.get("quote_status");//报价
+                    Object other = map.get("other");//询单商品数据
+                    InquiryCount inquiryCount = new InquiryCount();
+                    if (serial_no != null) {
+                        inquiryCount.setQuotationNum(serial_no.toString());
+                    }
+                    if (created_at != null) {
+                        inquiryCount.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                    }
+                    if (country_name != null) {
+                        inquiryCount.setInquiryUnit(country_name.toString());
+                    }
+                    if (area_name != null) {
+                        inquiryCount.setInquiryArea(area_name.toString());
+                    }
+                    if (org_name != null) {
+                        inquiryCount.setOrganization(org_name.toString());
+                    }
+                    if (gross_profit_rate != null) {
+                        inquiryCount.setProfitMargin(new BigDecimal(gross_profit_rate.toString()));
+                    }
+                    if (total_quote_price != null) {
+                        inquiryCount.setQuotationPrice(new BigDecimal(total_quote_price.toString()));
+                    }
+                    if (quote_time != null) {
+                        inquiryCount.setQuoteNeedTime(new BigDecimal(quote_time.toString()));
+                    }
+                    if (quote_status != null) {
+                        inquiryCount.setQuotedStatus(quote_status.toString());
+                    }
+                    inquiryCounts.add(inquiryCount);
+                    if (other != null) {
+                        List<HashMap> cateList = JSON.parseArray(other.toString(), HashMap.class);
+                        if (cateList != null && cateList.size() > 0) {
+                            for (Map<String, Object> goodsList : cateList) { //询单分类商品
+                                InquirySku inquirySku = new InquirySku();
+                                if (goodsList.get("category") != null) {
+                                    inquirySku.setProCategory(goodsList.get("category").toString());
+                                }
+                                if (goodsList.get("qty") != null) {
+                                    inquirySku.setCateCount(new BigDecimal(Integer.parseInt(goodsList.get("qty").toString())));
+                                }
+                                if (goodsList.get("oil_type") != null) {
+                                    inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
+                                }
+                                if (goodsList.get("quote_unit_price") != null) {
+                                    inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
+                                }
+                                if (goodsList.get("total_quote_price") != null) {
+                                    inquirySku.setQuoteTotalPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
+                                }
+                                inquiryCates.add(inquirySku);
+                            }
+                        }
+
+
+                    }
+
+                }
+
+                if(inquiryCounts!=null&&inquiryCounts.size()>0) {
+                    inquiryCounts.parallelStream().forEach(vo -> writeMapper.insert(vo));
+                }
+                if(inquiryCates!=null&&inquiryCates.size()>0){
+                    InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);
+                    inquiryCates.parallelStream().forEach(vo-> skuWriteMapper.insert(vo));
+
+                }
+            }
+        }
+
+
     }
 }

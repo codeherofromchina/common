@@ -135,4 +135,10 @@ public interface InquiryCountService {
 	 * @return  {"avgNeedTime":'平均响应时间--BigDecimal',"organization":'事业部--String'}
 	 */
 	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate);
+	/**
+	 * 从boss读取询单数据
+	 * @param startTime
+	 * @param endTime
+	 */
+	void inquiryData(String startTime,String endTime)throws  Exception;
 }

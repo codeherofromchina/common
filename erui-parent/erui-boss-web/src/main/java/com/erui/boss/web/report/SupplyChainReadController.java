@@ -48,7 +48,7 @@ public class SupplyChainReadController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        if(startTime.getTime()>endTime.getTime()){
+        if (startTime.getTime() > endTime.getTime()) {
             result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
             result.setData("参数输入有误");
             return result;
@@ -59,10 +59,10 @@ public class SupplyChainReadController {
         SupplyChainRead supplyRead = supplyChainReadService.getSupplyChainReadDataByTime(startTime, endTime);//当前数据
         SupplyChainRead supplchainRead = supplyChainReadService.getSupplyChainReadDataByTime(chainEnd, startTime);//当前环比数据
         //查询供应链计划数
-        SupplyPlanVo planVo=null;
+        SupplyPlanVo planVo = null;
         //开始时间必须是周六，结束时间必须是周五
-        if(DateUtil.weekDays[6].equals(DateUtil.getWeekOfDate(startTime))&&DateUtil.weekDays[5].equals(DateUtil.getWeekOfDate(endTime))){
-            planVo= supplyChainService.getPlanNum(startTime, endTime);//当前计划数
+        if (DateUtil.weekDays[6].equals(DateUtil.getWeekOfDate(startTime)) && DateUtil.weekDays[5].equals(DateUtil.getWeekOfDate(endTime))) {
+            planVo = supplyChainService.getPlanNum(startTime, endTime);//当前计划数
         }
         //封装数据
         Map<String, Object> data = new HashMap<>();

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.InquirySkuMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.report.model.InquirySku" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="quotation_num" property="quotationNum" jdbcType="VARCHAR" />
+    <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
+    <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
+    <result column="pro_category" property="proCategory" jdbcType="VARCHAR" />
+    <result column="cate_count" property="cateCount" jdbcType="BIGINT" />
+    <result column="is_kerui_equip_parts" property="isKeruiEquipParts" jdbcType="VARCHAR" />
+    <result column="pro_brand" property="proBrand" jdbcType="VARCHAR" />
+    <result column="quote_unit_price" property="quoteUnitPrice" jdbcType="DECIMAL" />
+    <result column="quote_total_price" property="quoteTotalPrice" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, quotation_num, is_oil_gas, plat_pro_category, pro_category, cate_count, is_kerui_equip_parts, 
+    pro_brand, quote_unit_price, quote_total_price
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquirySkuExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from inquiry_sku
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from inquiry_sku
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from inquiry_sku
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.report.model.InquirySkuExample" >
+    delete from inquiry_sku
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.report.model.InquirySku" >
+    insert into inquiry_sku (id, quotation_num, is_oil_gas, 
+      plat_pro_category, pro_category, cate_count, 
+      is_kerui_equip_parts, pro_brand, quote_unit_price, 
+      quote_total_price)
+    values (#{id,jdbcType=BIGINT}, #{quotationNum,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR}, 
+      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{cateCount,jdbcType=BIGINT}, 
+      #{isKeruiEquipParts,jdbcType=VARCHAR}, #{proBrand,jdbcType=VARCHAR}, #{quoteUnitPrice,jdbcType=DECIMAL}, 
+      #{quoteTotalPrice,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.report.model.InquirySku" >
+    insert into inquiry_sku
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="quotationNum != null" >
+        quotation_num,
+      </if>
+      <if test="isOilGas != null" >
+        is_oil_gas,
+      </if>
+      <if test="platProCategory != null" >
+        plat_pro_category,
+      </if>
+      <if test="proCategory != null" >
+        pro_category,
+      </if>
+      <if test="cateCount != null" >
+        cate_count,
+      </if>
+      <if test="isKeruiEquipParts != null" >
+        is_kerui_equip_parts,
+      </if>
+      <if test="proBrand != null" >
+        pro_brand,
+      </if>
+      <if test="quoteUnitPrice != null" >
+        quote_unit_price,
+      </if>
+      <if test="quoteTotalPrice != null" >
+        quote_total_price,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="quotationNum != null" >
+        #{quotationNum,jdbcType=VARCHAR},
+      </if>
+      <if test="isOilGas != null" >
+        #{isOilGas,jdbcType=VARCHAR},
+      </if>
+      <if test="platProCategory != null" >
+        #{platProCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="proCategory != null" >
+        #{proCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="cateCount != null" >
+        #{cateCount,jdbcType=BIGINT},
+      </if>
+      <if test="isKeruiEquipParts != null" >
+        #{isKeruiEquipParts,jdbcType=VARCHAR},
+      </if>
+      <if test="proBrand != null" >
+        #{proBrand,jdbcType=VARCHAR},
+      </if>
+      <if test="quoteUnitPrice != null" >
+        #{quoteUnitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="quoteTotalPrice != null" >
+        #{quoteTotalPrice,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.report.model.InquirySkuExample" resultType="java.lang.Integer" >
+    select count(*) from inquiry_sku
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update inquiry_sku
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.quotationNum != null" >
+        quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isOilGas != null" >
+        is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
+      </if>
+      <if test="record.platProCategory != null" >
+        plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.proCategory != null" >
+        pro_category = #{record.proCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cateCount != null" >
+        cate_count = #{record.cateCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.isKeruiEquipParts != null" >
+        is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
+      </if>
+      <if test="record.proBrand != null" >
+        pro_brand = #{record.proBrand,jdbcType=VARCHAR},
+      </if>
+      <if test="record.quoteUnitPrice != null" >
+        quote_unit_price = #{record.quoteUnitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.quoteTotalPrice != null" >
+        quote_total_price = #{record.quoteTotalPrice,jdbcType=DECIMAL},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update inquiry_sku
+    set id = #{record.id,jdbcType=BIGINT},
+      quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
+      is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
+      plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
+      pro_category = #{record.proCategory,jdbcType=VARCHAR},
+      cate_count = #{record.cateCount,jdbcType=BIGINT},
+      is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
+      pro_brand = #{record.proBrand,jdbcType=VARCHAR},
+      quote_unit_price = #{record.quoteUnitPrice,jdbcType=DECIMAL},
+      quote_total_price = #{record.quoteTotalPrice,jdbcType=DECIMAL}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.InquirySku" >
+    update inquiry_sku
+    <set >
+      <if test="quotationNum != null" >
+        quotation_num = #{quotationNum,jdbcType=VARCHAR},
+      </if>
+      <if test="isOilGas != null" >
+        is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
+      </if>
+      <if test="platProCategory != null" >
+        plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="proCategory != null" >
+        pro_category = #{proCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="cateCount != null" >
+        cate_count = #{cateCount,jdbcType=BIGINT},
+      </if>
+      <if test="isKeruiEquipParts != null" >
+        is_kerui_equip_parts = #{isKeruiEquipParts,jdbcType=VARCHAR},
+      </if>
+      <if test="proBrand != null" >
+        pro_brand = #{proBrand,jdbcType=VARCHAR},
+      </if>
+      <if test="quoteUnitPrice != null" >
+        quote_unit_price = #{quoteUnitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="quoteTotalPrice != null" >
+        quote_total_price = #{quoteTotalPrice,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.InquirySku" >
+    update inquiry_sku
+    set quotation_num = #{quotationNum,jdbcType=VARCHAR},
+      is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
+      plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
+      pro_category = #{proCategory,jdbcType=VARCHAR},
+      cate_count = #{cateCount,jdbcType=BIGINT},
+      is_kerui_equip_parts = #{isKeruiEquipParts,jdbcType=VARCHAR},
+      pro_brand = #{proBrand,jdbcType=VARCHAR},
+      quote_unit_price = #{quoteUnitPrice,jdbcType=DECIMAL},
+      quote_total_price = #{quoteTotalPrice,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
