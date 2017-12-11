@@ -7,7 +7,7 @@
     <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
     <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
     <result column="pro_category" property="proCategory" jdbcType="VARCHAR" />
-    <result column="cate_count" property="cateCount" jdbcType="BIGINT" />
+    <result column="cate_count" property="cateCount" jdbcType="INTEGER" />
     <result column="is_kerui_equip_parts" property="isKeruiEquipParts" jdbcType="VARCHAR" />
     <result column="pro_brand" property="proBrand" jdbcType="VARCHAR" />
     <result column="quote_unit_price" property="quoteUnitPrice" jdbcType="DECIMAL" />
@@ -111,7 +111,7 @@
       is_kerui_equip_parts, pro_brand, quote_unit_price, 
       quote_total_price)
     values (#{id,jdbcType=BIGINT}, #{quotationNum,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR}, 
-      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{cateCount,jdbcType=BIGINT}, 
+      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{cateCount,jdbcType=INTEGER}, 
       #{isKeruiEquipParts,jdbcType=VARCHAR}, #{proBrand,jdbcType=VARCHAR}, #{quoteUnitPrice,jdbcType=DECIMAL}, 
       #{quoteTotalPrice,jdbcType=DECIMAL})
   </insert>
@@ -166,7 +166,7 @@
         #{proCategory,jdbcType=VARCHAR},
       </if>
       <if test="cateCount != null" >
-        #{cateCount,jdbcType=BIGINT},
+        #{cateCount,jdbcType=INTEGER},
       </if>
       <if test="isKeruiEquipParts != null" >
         #{isKeruiEquipParts,jdbcType=VARCHAR},
@@ -207,7 +207,7 @@
         pro_category = #{record.proCategory,jdbcType=VARCHAR},
       </if>
       <if test="record.cateCount != null" >
-        cate_count = #{record.cateCount,jdbcType=BIGINT},
+        cate_count = #{record.cateCount,jdbcType=INTEGER},
       </if>
       <if test="record.isKeruiEquipParts != null" >
         is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
@@ -233,7 +233,7 @@
       is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
       plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
       pro_category = #{record.proCategory,jdbcType=VARCHAR},
-      cate_count = #{record.cateCount,jdbcType=BIGINT},
+      cate_count = #{record.cateCount,jdbcType=INTEGER},
       is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
       pro_brand = #{record.proBrand,jdbcType=VARCHAR},
       quote_unit_price = #{record.quoteUnitPrice,jdbcType=DECIMAL},
@@ -258,7 +258,7 @@
         pro_category = #{proCategory,jdbcType=VARCHAR},
       </if>
       <if test="cateCount != null" >
-        cate_count = #{cateCount,jdbcType=BIGINT},
+        cate_count = #{cateCount,jdbcType=INTEGER},
       </if>
       <if test="isKeruiEquipParts != null" >
         is_kerui_equip_parts = #{isKeruiEquipParts,jdbcType=VARCHAR},
@@ -281,7 +281,7 @@
       is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
       plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
       pro_category = #{proCategory,jdbcType=VARCHAR},
-      cate_count = #{cateCount,jdbcType=BIGINT},
+      cate_count = #{cateCount,jdbcType=INTEGER},
       is_kerui_equip_parts = #{isKeruiEquipParts,jdbcType=VARCHAR},
       pro_brand = #{proBrand,jdbcType=VARCHAR},
       quote_unit_price = #{quoteUnitPrice,jdbcType=DECIMAL},

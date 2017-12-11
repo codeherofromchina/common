@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.*;
 import com.erui.report.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -819,7 +820,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     inquirySku.setProCategory(goodsList.get("category").toString());
                                 }
                                 if (goodsList.get("qty") != null) {
-                                    inquirySku.setCateCount(new BigDecimal(Integer.parseInt(goodsList.get("qty").toString())));
+                                    inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
                                 }
                                 if (goodsList.get("oil_type") != null) {
                                     inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
