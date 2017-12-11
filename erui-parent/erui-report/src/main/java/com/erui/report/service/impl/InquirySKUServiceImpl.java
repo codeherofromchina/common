@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import com.erui.report.dao.InquirySkuMapper;
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquirySkuExample;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.util.IsOilVo;
@@ -49,5 +50,19 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
             list = new ArrayList<>();
         }
         return list;
+    }
+
+    @Override
+    public List<CateDetailVo> selectSKUDetailByCategory(Date startTime,Date endTime) {
+        InquirySkuExample example = new InquirySkuExample();
+        InquirySkuExample.Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        criteria.andProCategoryIsNotNull();
+        return readMapper. selectSKUDetailByCategory(example);
     }
 }

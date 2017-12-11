@@ -137,6 +137,23 @@
     </where>
     group by pro_category HAVING pro_category IS  NOT  NULL  ORDER BY proCount DESC LIMIT 0,3;
   </select>
+
+  <select id="selectSKUDetailByCategory"  resultType="com.erui.report.model.CateDetailVo"  parameterType="com.erui.report.model.InquirySkuExample">
+    SELECT
+    IFNULL(sum(IFNULL(quote_unit_price,0.00)*IFNULL(cate_count,0)),0) AS inqCatePrice,
+    SUM(cate_count) AS inqCateCount,
+    pro_category AS category
+    FROM
+    inquiry_sku
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY
+    category HAVING  category IS  NOT  NULL
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

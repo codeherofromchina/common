@@ -441,7 +441,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        criteria.andPlatProCategoryIsNotNull(); // 按照平台品类统计，平台品类不能为空
+        criteria.andProCategoryIsNotNull(); // 按照品类统计，品类不能为空
         return readMapper.selectInqDetailByCategoryByExample(example);
     }
 
@@ -832,7 +832,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (goodsList.get("oil_type") != null&&!goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
                                     }else{
-                                        inquirySku.setIsOilGas("非油气");
+                                        inquirySku.setIsOilGas("油气");
                                     }
                                     if (goodsList.get("quote_unit_price") != null) {
                                         inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));

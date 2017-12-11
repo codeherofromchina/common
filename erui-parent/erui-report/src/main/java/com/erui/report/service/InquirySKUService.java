@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquirySku;
 import com.erui.report.util.IsOilVo;
 
@@ -15,5 +16,9 @@ public interface InquirySKUService {
      * 查询产品Top3
      * */
     public List<Map<String,Object>> selectProTop3(Map<String,Object>params);
+    /*
+     * sku品类明细
+     * */
+    List<CateDetailVo> selectSKUDetailByCategory(Date startTime,Date endTime);
 
 }

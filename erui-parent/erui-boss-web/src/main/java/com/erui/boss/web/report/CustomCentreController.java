@@ -592,7 +592,8 @@ public class CustomCentreController {
         BigDecimal inqTotalAmount = BigDecimal.ZERO;
         BigDecimal ordTotalAmount = BigDecimal.ZERO;
 
-        List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
+      //  List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
+        List<CateDetailVo> inqList = inquirySKUService.selectSKUDetailByCategory(startTime, endTime);
         List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
         Map<String, CateDetailVo> ordMap = new HashMap<>();
         Map<String, CateDetailVo> inqMap = new HashMap<>();
