@@ -28,4 +28,6 @@ public interface InquirySkuMapper {
     int updateByPrimaryKeySelective(InquirySku record);
 
     int updateByPrimaryKey(InquirySku record);
+
+    int selectSKUCountByTime(InquirySkuExample example);
 }

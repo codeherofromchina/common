@@ -2,6 +2,7 @@ package com.erui.report.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class InquirySkuExample {
@@ -162,6 +163,66 @@ public class InquirySkuExample {
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
             addCriterion("id not between", value1, value2, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeIsNull() {
+            addCriterion("rollin_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeIsNotNull() {
+            addCriterion("rollin_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeEqualTo(Date value) {
+            addCriterion("rollin_time =", value, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeNotEqualTo(Date value) {
+            addCriterion("rollin_time <>", value, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeGreaterThan(Date value) {
+            addCriterion("rollin_time >", value, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("rollin_time >=", value, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeLessThan(Date value) {
+            addCriterion("rollin_time <", value, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeLessThanOrEqualTo(Date value) {
+            addCriterion("rollin_time <=", value, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeIn(List<Date> values) {
+            addCriterion("rollin_time in", values, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeNotIn(List<Date> values) {
+            addCriterion("rollin_time not in", values, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeBetween(Date value1, Date value2) {
+            addCriterion("rollin_time between", value1, value2, "rollinTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollinTimeNotBetween(Date value1, Date value2) {
+            addCriterion("rollin_time not between", value1, value2, "rollinTime");
             return (Criteria) this;
         }
 

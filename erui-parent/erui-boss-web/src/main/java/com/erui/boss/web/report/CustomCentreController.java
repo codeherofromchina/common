@@ -8,6 +8,7 @@ import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.service.InquiryCountService;
+import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
@@ -38,6 +39,8 @@ public class CustomCentreController {
     private InquiryCountService inquiryService;
     @Autowired
     private OrderCountService orderService;
+    @Autowired
+    private InquirySKUService inquirySKUService;
     private static DecimalFormat df = new DecimalFormat("0.00");
 
 
@@ -102,9 +105,11 @@ public class CustomCentreController {
         });
 
         //询价商品数
+        int skuCount =inquirySKUService.selectSKUCountByTime(startDate,endDate);
+        int skuCountChain =inquirySKUService.selectSKUCountByTime(rateStartDate,startDate);
         Map<String, Object> goodsMap = new HashMap<>();
-        goodsMap.put("goodsCount",927);
-        goodsMap.put("goodsChainAdd",23);
+        goodsMap.put("goodsCount",skuCount);
+        goodsMap.put("goodsChainAdd",skuCountChain);
         Map<String, Object> datas = new HashMap<>();
         datas.put("inquiry", inquiryMap);
         datas.put("isOil", proIsOilMap);
@@ -293,7 +298,7 @@ public class CustomCentreController {
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]x`
 
         ///查询给定时间的事业部询单数量
         List<Map<String, Object>> inquiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate);

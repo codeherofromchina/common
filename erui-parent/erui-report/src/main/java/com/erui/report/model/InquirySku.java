@@ -1,9 +1,12 @@
 package com.erui.report.model;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class InquirySku {
     private Long id;
+
+    private Date rollinTime;
 
     private String quotationNum;
 
@@ -29,6 +32,14 @@ public class InquirySku {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Date getRollinTime() {
+        return rollinTime;
+    }
+
+    public void setRollinTime(Date rollinTime) {
+        this.rollinTime = rollinTime;
     }
 
     public String getQuotationNum() {

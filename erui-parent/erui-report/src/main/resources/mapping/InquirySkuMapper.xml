@@ -3,6 +3,7 @@
 <mapper namespace="com.erui.report.dao.InquirySkuMapper" >
   <resultMap id="BaseResultMap" type="com.erui.report.model.InquirySku" >
     <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="rollin_time" property="rollinTime" jdbcType="TIMESTAMP" />
     <result column="quotation_num" property="quotationNum" jdbcType="VARCHAR" />
     <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
     <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, quotation_num, is_oil_gas, plat_pro_category, pro_category, cate_count, is_kerui_equip_parts, 
-    pro_brand, quote_unit_price, quote_total_price
+    id, rollin_time, quotation_num, is_oil_gas, plat_pro_category, pro_category, cate_count, 
+    is_kerui_equip_parts, pro_brand, quote_unit_price, quote_total_price
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquirySkuExample" >
     select
@@ -81,6 +82,19 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
+    from inquiry_sku
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <!--查询商品数量-->
+  <select id="selectSKUCountByTime" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquirySkuExample" >
+    SELECT
+    SUM(cate_count)
     from inquiry_sku
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -106,20 +120,23 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.InquirySku" >
-    insert into inquiry_sku (id, quotation_num, is_oil_gas, 
-      plat_pro_category, pro_category, cate_count, 
-      is_kerui_equip_parts, pro_brand, quote_unit_price, 
-      quote_total_price)
-    values (#{id,jdbcType=BIGINT}, #{quotationNum,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR}, 
-      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{cateCount,jdbcType=INTEGER}, 
-      #{isKeruiEquipParts,jdbcType=VARCHAR}, #{proBrand,jdbcType=VARCHAR}, #{quoteUnitPrice,jdbcType=DECIMAL}, 
-      #{quoteTotalPrice,jdbcType=DECIMAL})
+    insert into inquiry_sku (id, rollin_time, quotation_num, 
+      is_oil_gas, plat_pro_category, pro_category, 
+      cate_count, is_kerui_equip_parts, pro_brand, 
+      quote_unit_price, quote_total_price)
+    values (#{id,jdbcType=BIGINT}, #{rollinTime,jdbcType=TIMESTAMP}, #{quotationNum,jdbcType=VARCHAR}, 
+      #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, 
+      #{cateCount,jdbcType=INTEGER}, #{isKeruiEquipParts,jdbcType=VARCHAR}, #{proBrand,jdbcType=VARCHAR}, 
+      #{quoteUnitPrice,jdbcType=DECIMAL}, #{quoteTotalPrice,jdbcType=DECIMAL})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.InquirySku" >
     insert into inquiry_sku
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
+      </if>
+      <if test="rollinTime != null" >
+        rollin_time,
       </if>
       <if test="quotationNum != null" >
         quotation_num,
@@ -152,6 +169,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         #{id,jdbcType=BIGINT},
+      </if>
+      <if test="rollinTime != null" >
+        #{rollinTime,jdbcType=TIMESTAMP},
       </if>
       <if test="quotationNum != null" >
         #{quotationNum,jdbcType=VARCHAR},
@@ -194,6 +214,9 @@
       <if test="record.id != null" >
         id = #{record.id,jdbcType=BIGINT},
       </if>
+      <if test="record.rollinTime != null" >
+        rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="record.quotationNum != null" >
         quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
       </if>
@@ -229,6 +252,7 @@
   <update id="updateByExample" parameterType="map" >
     update inquiry_sku
     set id = #{record.id,jdbcType=BIGINT},
+      rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
       quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
       is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
       plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
@@ -245,6 +269,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.InquirySku" >
     update inquiry_sku
     <set >
+      <if test="rollinTime != null" >
+        rollin_time = #{rollinTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="quotationNum != null" >
         quotation_num = #{quotationNum,jdbcType=VARCHAR},
       </if>
@@ -277,7 +304,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.InquirySku" >
     update inquiry_sku
-    set quotation_num = #{quotationNum,jdbcType=VARCHAR},
+    set rollin_time = #{rollinTime,jdbcType=TIMESTAMP},
+      quotation_num = #{quotationNum,jdbcType=VARCHAR},
       is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
       plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
       pro_category = #{proCategory,jdbcType=VARCHAR},

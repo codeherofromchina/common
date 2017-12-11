@@ -13,12 +13,17 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.*;
 import com.erui.report.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +43,9 @@ import com.erui.report.service.InquiryCountService;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
+    public   final String inquiryUrl = "http://api.eruidev.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 
-    @Autowired
-    private SupplyChainReadServiceImpl supplyChainReadService;
-
+    private static    final String key = "9b2a37b7b606c14d43db538487a148c7";
     /**
      * @Author:SHIGS
      * @Description
@@ -756,15 +760,15 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     @Override
     public void inquiryData(String startTime, String endTime) throws Exception {
-
-        HttpPut putMethod = supplyChainReadService.getPutMethod(supplyChainReadService.inquiryUrl, "2017-11-27 00:00:00", "2017-12-05 00:00:00");
-        CloseableHttpResponse inquiryResult = supplyChainReadService.client.execute(putMethod);
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPut putMethod = getPutMethod(inquiryUrl, startTime, endTime);
+        CloseableHttpResponse inquiryResult = client.execute(putMethod);
 
         JSONObject json1 = new JSONObject();
         String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
         JSONObject inquiryObject = json1.parseObject(inquiryData);
-        int inquiryCode = (int) inquiryObject.get("code");
-        if (inquiryCode == 1) {//成功了
+        Object inquiryCode = inquiryObject.get("code");
+        if (inquiryCode!=null&&Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
             String dataJson = inquiryObject.get("data").toString();
             List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
             if (list != null && list.size() > 0) {
@@ -831,6 +835,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                 if (goodsList.get("total_quote_price") != null) {
                                     inquirySku.setQuoteTotalPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
                                 }
+                                if (created_at != null) {
+                                    inquirySku.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                                }
                                 inquiryCates.add(inquirySku);
                             }
                         }
@@ -852,5 +859,29 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
 
 
+    }
+
+    /**
+     * 获取PutMethod
+     */
+    HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
+         ObjectMapper om = new ObjectMapper();
+        HttpPut method = new HttpPut(url);
+        method.getParams().setParameter("http.socket.timeout", 3000);
+        //组装请求json
+        JSONObject jsonObject = new JSONObject();
+        Map<String, Object> input = new HashMap<>();
+        input.put("lang", "zh");
+        input.put("creat_at_start", startTime);
+        input.put("creat_at_end", endTime);
+        String inputStr = om.writeValueAsString(input);
+        System.out.println("===============" + inputStr);
+        String sign = MD5.encode(key + inputStr);
+        System.out.println(sign + "=====");
+        jsonObject.put("sign", sign);
+        jsonObject.put("input", inputStr);
+        StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
+        method.setEntity(entity);
+        return method;
     }
 }
