@@ -829,8 +829,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (goodsList.get("qty") != null) {
                                         inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
                                     }
-                                    if (goodsList.get("oil_type") != null) {
+                                    if (goodsList.get("oil_type") != null&&!goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
+                                    }else{
+                                        inquirySku.setIsOilGas("非油气");
                                     }
                                     if (goodsList.get("quote_unit_price") != null) {
                                         inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
@@ -854,7 +856,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     }
 
                     if (inquiryCounts != null && inquiryCounts.size() > 0) {
-                        inquiryCounts.parallelStream().forEach(vo -> writeMapper.insert(vo));
+                        InquiryCountMapper mapper = writerSession.getMapper(InquiryCountMapper.class);
+                        inquiryCounts.parallelStream().forEach(vo -> mapper.insert(vo));
                     }
                     if (inquiryCates != null && inquiryCates.size() > 0) {
                         InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);

@@ -17,17 +17,16 @@ public class DataServiceImpl {
     @Autowired
     private InquiryCountService inquiryService;
 
-    private static final String dateFormat = "yyyy-MM-dd hh:mm:ss";
 
     public void supplyChainData() throws Exception {
         System.out.println("这就是爱···");
-        //获取今天的两个时间点
-        //  Date date = DateUtil.parseStringToDate("2017-11-27 00:00:00", null);
-        String startTime = DateUtil.getStartTime(new Date(), dateFormat);
-        String endTime = DateUtil.getEndTime(new Date(), dateFormat);
+        //获取前一天的两个时间点
+        Date date = DateUtil.sometimeCalendar(new Date(), 1);
+        String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
+        String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
         inquiryService.inquiryData(startTime, endTime);
-
+          //  totalData();
 
     }
 
@@ -96,7 +95,8 @@ public class DataServiceImpl {
         for (Map<String, String> map : list) {
             String startTime = map.get("startTime");
             String endTime = map.get("endTime");
-            readService.supplyChainReadData(startTime, endTime);
+           // readService.supplyChainReadData(startTime, endTime);
+            inquiryService.inquiryData(startTime, endTime);
         }
     }
 
