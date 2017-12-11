@@ -153,6 +153,7 @@ public class CustomCentreController {
         datas.put("inquiry", inquiryMap);
         datas.put("isOil", proIsOilMap);
         datas.put("proTop3", listTop3);
+        datas.put("goodsMap", goodsMap);
         return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
     }
 

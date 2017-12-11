@@ -1,14 +1,9 @@
 package com.erui.report.service.impl;
 
 import com.erui.report.dao.InquirySkuMapper;
-import com.erui.report.dao.SupplyChainCategoryMapper;
-import com.erui.report.model.InquirySku;
 import com.erui.report.model.InquirySkuExample;
-import com.erui.report.model.SupplyChainCategoryExample;
 import com.erui.report.service.InquirySKUService;
-import com.erui.report.service.SupplyChainCategoryService;
 import com.erui.report.util.IsOilVo;
-import com.erui.report.util.SupplyCateDetailVo;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

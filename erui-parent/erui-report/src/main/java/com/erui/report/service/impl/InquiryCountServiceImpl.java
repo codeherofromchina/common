@@ -841,6 +841,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (created_at != null) {
                                         inquirySku.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
                                     }
+                                    if(serial_no!=null){
+                                        inquirySku.setQuotationNum(serial_no.toString());
+                                    }
                                     inquiryCates.add(inquirySku);
                                 }
                             }
