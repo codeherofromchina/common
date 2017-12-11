@@ -22,10 +22,10 @@ public class DataServiceImpl {
     public void supplyChainData() throws Exception {
         System.out.println("这就是爱···");
         //获取今天的两个时间点
-        Date date = DateUtil.parseStringToDate("2017-11-27 00:00:00", null);
-        String startTime = DateUtil.getStartTime(date, dateFormat);
+      //  Date date = DateUtil.parseStringToDate("2017-11-27 00:00:00", null);
+        String startTime = DateUtil.getStartTime(new Date(), dateFormat);
         String endTime = DateUtil.getEndTime(new Date(), dateFormat);
-      //  readService.supplyChainReadData(startTime,endTime);
+        readService.supplyChainReadData(startTime,endTime);
         inquiryService.inquiryData(startTime,endTime);
     }
 }

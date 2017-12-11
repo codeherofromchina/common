@@ -2,9 +2,11 @@ package com.erui.report.dao;
 
 import com.erui.report.model.InquirySku;
 import com.erui.report.model.InquirySkuExample;
+import com.erui.report.util.IsOilVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InquirySkuMapper {
     int countByExample(InquirySkuExample example);
@@ -29,5 +31,9 @@ public interface InquirySkuMapper {
 
     int updateByPrimaryKey(InquirySku record);
 
-    int selectSKUCountByTime(InquirySkuExample example);
+    Integer selectSKUCountByTime(InquirySkuExample example);
+    List<IsOilVo> selectCountGroupByIsOil(InquirySkuExample example);
+
+    //查询产品Top3
+    List<Map<String,Object>> selectProTop3(Map<String,Object>params);
 }
