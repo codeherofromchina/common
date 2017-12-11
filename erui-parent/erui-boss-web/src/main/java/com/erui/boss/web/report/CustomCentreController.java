@@ -148,7 +148,15 @@ public class CustomCentreController {
         Integer skuCountChain =inquirySKUService.selectSKUCountByTime(rateStartDate,startDate);
         Map<String, Object> goodsMap = new HashMap<>();
         goodsMap.put("goodsCount",skuCount);
-        goodsMap.put("goodsChainAdd",skuCountChain);
+        if(skuCount!=null&&skuCountChain!=null){
+            goodsMap.put("goodsChainAdd",skuCount-skuCountChain);
+        }else if(skuCountChain==null&&skuCount!=null){
+            goodsMap.put("goodsChainAdd",skuCount);
+        }else if(skuCount==null&&skuCountChain!=null){
+            goodsMap.put("goodsChainAdd",-skuCountChain);
+        }else {
+            goodsMap.put("goodsChainAdd",0.00);
+        }
         Map<String, Object> datas = new HashMap<>();
         datas.put("inquiry", inquiryMap);
         datas.put("isOil", proIsOilMap);

@@ -36,6 +36,12 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     private  static final String key = "9b2a37b7b606c14d43db538487a148c7";
     private  static ObjectMapper om = new ObjectMapper();
 
+
+        public static void main() throws Exception {
+
+        }
+
+
     @Override
     public void supplyChainReadData(String startTime, String endTime) throws Exception {
         CloseableHttpClient client = HttpClients.createDefault();
@@ -56,7 +62,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
             supplyChainRead = mergeResult(skuRead, spuRead, supplierRead);
         }
         if (supplyChainRead != null) {
-            supplyChainRead.setCreateAt(new Date());
+            supplyChainRead.setCreateAt(DateUtil.parseStringToDate(startTime,DateUtil.FULL_FORMAT_STR));
             this.writeMapper.insert(supplyChainRead);
         }
         //处理分类的数据
@@ -74,7 +80,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
                         continue;
                     }
                     SupplyChainCategory chainCate = new SupplyChainCategory();
-                    chainCate.setCreateAt(new Date());
+                    chainCate.setCreateAt(DateUtil.parseStringToDate(startTime,DateUtil.FULL_FORMAT_STR));
                     chainCate.setItemClass(cateVo.getName());
                     chainCate.setSkuNum(cateVo.getSku());
                     chainCate.setSpuNum(cateVo.getSpu());
@@ -102,8 +108,8 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         JSONObject jsonObject = new JSONObject();
         Map<String, Object> input = new HashMap<>();
         input.put("lang", "zh");
-        input.put("creat_at_start", startTime);
-        input.put("creat_at_end", endTime);
+        input.put("created_at_start", startTime);
+        input.put("created_at_end", endTime);
         String inputStr = om.writeValueAsString(input);
         System.out.println("=================" + inputStr);
         String sign = MD5.encode(key + inputStr);
