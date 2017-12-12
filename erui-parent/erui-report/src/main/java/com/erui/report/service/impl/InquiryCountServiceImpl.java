@@ -769,16 +769,24 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
         JSONObject inquiryObject = json1.parseObject(inquiryData);
         Object inquiryCode = inquiryObject.get("code");
+        InquiryCountMapper mapper = writerSession.getMapper(InquiryCountMapper.class);
+        InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);
+
         if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
             Object data = inquiryObject.get("data");
             if (data != null) {
                 String dataJson = data.toString();
                 List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
                 if (list != null && list.size() > 0) {
+
+                    InquiryCountExample example = new InquiryCountExample();
+
                     List<InquiryCount> inquiryCounts = new ArrayList<>();
+                    List<InquiryCount> updateCounts = new ArrayList<>();
                     List<InquirySku> inquiryCates = new ArrayList<>();
 
                     for (Map<String, Object> map : list) {
+                        List<InquiryCount> inqList = null;
                         Object serial_no = map.get("serial_no");//报价单号
                         Object created_at = map.get("created_at");//转入日期
                         Object country_name = map.get("country_name");//国家
@@ -790,9 +798,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         Object quote_status = map.get("quote_status");//报价
                         Object other = map.get("other");//询单商品数据
                         InquiryCount inquiryCount = new InquiryCount();
-                        if (serial_no != null) {
-                            inquiryCount.setQuotationNum(serial_no.toString());
-                        }
+
                         if (created_at != null) {
                             inquiryCount.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
                         }
@@ -813,13 +819,25 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         }
                         if (quote_time != null) {
                             double quote = Double.parseDouble(quote_time.toString());//秒
-                             double hour=quote/60/60;
+                            double hour = quote / 60 / 60;
                             inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
                         }
                         if (quote_status != null) {
                             inquiryCount.setQuotedStatus(quote_status.toString());
                         }
-                        inquiryCounts.add(inquiryCount);
+                        if (serial_no != null) {
+
+                            inquiryCount.setQuotationNum(serial_no.toString());
+                            Criteria criteria = example.createCriteria();
+                            criteria.andQuotationNumEqualTo(serial_no.toString());
+                            inqList = readMapper.selectByExample(example);//查询询单列表
+                            if (inqList != null && inqList.size() > 0) {
+                                updateCounts.add(inquiryCount);
+                            } else {
+                                inquiryCounts.add(inquiryCount);
+                            }
+                        }
+
                         if (other != null) {
                             List<HashMap> cateList = JSON.parseArray(other.toString(), HashMap.class);
                             if (cateList != null && cateList.size() > 0) {
@@ -831,9 +849,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (goodsList.get("qty") != null) {
                                         inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
                                     }
-                                    if (goodsList.get("oil_type") != null&&!goodsList.get("oil_type").equals("")) {
+                                    if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
-                                    }else{
+                                    } else {
                                         inquirySku.setIsOilGas("油气");
                                     }
                                     if (goodsList.get("quote_unit_price") != null) {
@@ -845,8 +863,15 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (created_at != null) {
                                         inquirySku.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
                                     }
-                                    if(serial_no!=null){
+                                    if (serial_no != null) {
                                         inquirySku.setQuotationNum(serial_no.toString());
+
+                                        if (inqList != null && inqList.size() > 0) {
+                                            InquirySkuExample skuExample = new InquirySkuExample();
+                                            InquirySkuExample.Criteria criteria = skuExample.createCriteria();
+                                            criteria.andQuotationNumEqualTo(serial_no.toString());
+                                            skuWriteMapper.deleteByExample(skuExample);
+                                        }
                                     }
                                     inquiryCates.add(inquirySku);
                                 }
@@ -856,13 +881,22 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         }
 
                     }
+                    if (updateCounts != null && updateCounts.size() > 0) {
+                        updateCounts.parallelStream().forEach(vo ->
+                        {
+                            InquiryCountExample e = new InquiryCountExample();
+                            Criteria criteria = e.createCriteria();
+                            criteria.andQuotationNumEqualTo(vo.getQuotationNum());
+                            mapper.updateByExample(vo, e);
+                        });
 
+                    }
                     if (inquiryCounts != null && inquiryCounts.size() > 0) {
-                        InquiryCountMapper mapper = writerSession.getMapper(InquiryCountMapper.class);
+
                         inquiryCounts.parallelStream().forEach(vo -> mapper.insert(vo));
                     }
                     if (inquiryCates != null && inquiryCates.size() > 0) {
-                        InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);
+
                         inquiryCates.parallelStream().forEach(vo -> skuWriteMapper.insert(vo));
 
                     }

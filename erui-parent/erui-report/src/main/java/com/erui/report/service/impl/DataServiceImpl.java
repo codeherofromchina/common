@@ -25,7 +25,7 @@ public class DataServiceImpl {
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
-        inquiryService.inquiryData(startTime, endTime);
+        inquiryService.inquiryData("2017-12-08 00:00:00", "2017-12-08 23:59:59");
 //            totalData();
 
     }
@@ -80,15 +80,22 @@ public class DataServiceImpl {
             dateMap.put("endTime", endTime);
             list.add(dateMap);
         }
-        for (int i = 10; i >= 0; i--) {
-            HashMap<String, String> dateMap = new HashMap<>();
-            Date date = DateUtil.sometimeCalendar(new Date(), i);
-            String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
-            String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
-            dateMap.put("startTime", startTime);
-            dateMap.put("endTime", endTime);
-            list.add(dateMap);
+
+        Date date = new Date();
+        Date firstDay = DateUtil.getMonthFirstDay(date);
+        int dayBetween = DateUtil.getDayBetween(firstDay, date);
+        if(dayBetween>0){
+            for (int i = dayBetween-1; i >= 0; i--) {
+                HashMap<String, String> dateMap = new HashMap<>();
+                Date date2 = DateUtil.sometimeCalendar(new Date(), i);
+                String startTime = DateUtil.getStartTime(date2, DateUtil.FULL_FORMAT_STR);
+                String endTime = DateUtil.getEndTime(date2, DateUtil.FULL_FORMAT_STR);
+                dateMap.put("startTime", startTime);
+                dateMap.put("endTime", endTime);
+                list.add(dateMap);
+            }
         }
+
         System.out.println(list.size());
 
 
