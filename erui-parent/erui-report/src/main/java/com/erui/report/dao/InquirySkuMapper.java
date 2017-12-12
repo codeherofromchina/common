@@ -22,7 +22,7 @@ public interface InquirySkuMapper {
 
     int insertSelective(InquirySku record);
 
-    List<InquirySku> selectByExample(InquiryCountExample example);
+    List<InquirySku> selectByExample(InquirySkuExample example);
 
     InquirySku selectByPrimaryKey(Long id);
 

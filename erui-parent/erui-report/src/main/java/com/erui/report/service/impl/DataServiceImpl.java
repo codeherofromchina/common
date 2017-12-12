@@ -19,7 +19,6 @@ public class DataServiceImpl {
 
 
     public void supplyChainData() throws Exception {
-        System.out.println("这就是爱···");
         //获取前一天的两个时间点
         Date date = DateUtil.sometimeCalendar(new Date(), 1);
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);

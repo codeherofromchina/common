@@ -3,6 +3,8 @@ package com.erui.report.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.data.string.StringUtils;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.SupplyChainCategoryMapper;
 import com.erui.report.dao.SupplyChainReadMapper;
@@ -29,10 +31,10 @@ import java.util.*;
 public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMapper> implements SupplyChainReadService {
 
 
-    private static final String goodUrl = "http://api.eruidev.com/v2/Report/getGoodsCount";//获取sku数据请求路径
-    private static final String productUrl = "http://api.eruidev.com/v2/Report/getProductCount";//获取spu数据请求路径
-    private static final String supplierUrl = "http://api.eruidev.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
-    private static final String cateUrl = "http://api.eruidev.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
+    private static final String goodUrl = "http://api2.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
+    private static final String productUrl = "http://api2.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
+    private static final String supplierUrl = "http://api2.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
+    private static final String cateUrl = "http://api2.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
     private  static final String key = "9b2a37b7b606c14d43db538487a148c7";
     private  static ObjectMapper om = new ObjectMapper();
 
@@ -64,29 +66,42 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         String cateData = EntityUtils.toString(cateResult.getEntity());
         JSONObject cateJson = json.parseObject(cateData);
         int cateCode = (int) cateJson.get("code");
-        List<SupplyChainCategory> cateList = new ArrayList<>();
         if (cateCode == 1) {
+            List<SupplyChainCategory> cateList = new ArrayList<>();
             String cates = cateJson.get("data").toString();
-            List<SupplyChainCateVo> chainCateVoList = JSON.parseArray(cates, SupplyChainCateVo.class);
+            List<HashMap> chainCateVoList = JSON.parseArray(cates, HashMap.class);
             if (chainCateVoList != null && chainCateVoList.size() > 0) {
-                for (SupplyChainCateVo cateVo : chainCateVoList) {
-                    if(cateVo.getSku()==0&&cateVo.getSpu()==0&&cateVo.getSupplier_count()==0){
+                for (Map<String, Object> map : chainCateVoList) {
+                    Object name = map.get("name");
+                    int spu_count =0;
+                    int sku_count =0;
+                    int supplier_count =0;
+                    if( map.get("spu_count")!=null){
+                        spu_count= (int) map.get("spu_count");
+                    }
+                    if(map.get("sku_count")!=null) {
+                         sku_count = (int) map.get("sku_count");
+                    }
+                    if(map.get("supplier_count")!=null) {
+                         supplier_count = (int) map.get("supplier_count");
+                    }
+                    if(spu_count==0&&sku_count==0&&supplier_count==0){
                         continue;
                     }
                     SupplyChainCategory chainCate = new SupplyChainCategory();
                     chainCate.setCreateAt(DateUtil.parseStringToDate(startTime,DateUtil.FULL_FORMAT_STR));
-                    chainCate.setItemClass(cateVo.getName());
-                    chainCate.setSkuNum(cateVo.getSku());
-                    chainCate.setSpuNum(cateVo.getSpu());
-                    chainCate.setSuppliNum(cateVo.getSupplier_count());
+                    if(name!=null){
+                        chainCate.setItemClass(name.toString());
+                    }
+                    chainCate.setSkuNum(sku_count);
+                    chainCate.setSpuNum(spu_count);
+                    chainCate.setSuppliNum(supplier_count);
                     cateList.add(chainCate);
                 }
             }
             SupplyChainCategoryMapper catemapper = this.writerSession.getMapper(SupplyChainCategoryMapper.class);
             if (cateList != null && cateList.size() > 0) {
-                for (SupplyChainCategory cate : cateList) {
-                    catemapper.insert(cate);
-                }
+              cateList.parallelStream().forEach(vo->catemapper.insert(vo));
             }
         }
     }
@@ -97,7 +112,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
      */
      HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
         HttpPut method = new HttpPut(url);
-        method.getParams().setParameter("http.socket.timeout", 3000);
+       // method.getParams().setParameter("http.socket.timeout", 3000);
         //组装请求json
         JSONObject jsonObject = new JSONObject();
         Map<String, Object> input = new HashMap<>();

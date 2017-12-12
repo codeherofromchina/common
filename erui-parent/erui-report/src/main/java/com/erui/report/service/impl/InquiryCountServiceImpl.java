@@ -43,7 +43,7 @@ import com.erui.report.service.InquiryCountService;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
-    public final String inquiryUrl = "http://api.eruidev.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
+    public final String inquiryUrl = "http://api2.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 
     private static final String key = "9b2a37b7b606c14d43db538487a148c7";
 
@@ -878,12 +878,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     }
                                     if (serial_no != null) {
                                         inquirySku.setQuotationNum(serial_no.toString());
-                                        InquiryCountExample example = new InquiryCountExample();
-                                        Criteria criteria = example.createCriteria();
-                                        criteria.andQuotationNumEqualTo(serial_no.toString());
-                                        List<InquirySku> skuLi = skuReaderMapper.selectByExample(example);
+                                        InquirySkuExample inquirySkuExample = new InquirySkuExample();
+                                        InquirySkuExample.Criteria inquirySkuCriteria = inquirySkuExample.createCriteria();
+                                        inquirySkuCriteria.andQuotationNumEqualTo(serial_no.toString());
+                                        List<InquirySku> skuLi = skuReaderMapper.selectByExample(inquirySkuExample);
                                         if (skuLi != null && skuLi.size() > 0) {
-                                            skuWriteMapper.deleteByQuotetionNum(serial_no.toString());
+                                            skuLi.parallelStream().forEach(vo->skuWriteMapper.deleteByPrimaryKey(vo.getId()));
                                         }
                                     }
                                     inquiryCates.add(inquirySku);
@@ -926,7 +926,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
         ObjectMapper om = new ObjectMapper();
         HttpPut method = new HttpPut(url);
-        method.getParams().setParameter("http.socket.timeout", 3000);
+       // method.getParams().setParameter("http.socket.timeout", 3000);
         //组装请求json
         JSONObject jsonObject = new JSONObject();
         Map<String, Object> input = new HashMap<>();
