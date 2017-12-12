@@ -23,7 +23,7 @@ public class InstockGoods {
     /**
      * 质检单商品
      */
-    @ManyToMany
+    @OneToOne
     @JoinColumn(name="inspect_apply_goods_id")
     private InspectApplyGoods inspectApplyGoods;
 
