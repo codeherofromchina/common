@@ -26,7 +26,7 @@ public class DataServiceImpl {
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
         inquiryService.inquiryData(startTime, endTime);
-          //  totalData();
+//            totalData();
 
     }
 

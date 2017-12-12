@@ -731,7 +731,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-
+        criteria.andInquiryAreaIsNotNull();
         List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
         if (result == null) {
             result = new ArrayList<>();
@@ -812,7 +812,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             inquiryCount.setQuotationPrice(new BigDecimal(total_quote_price.toString()));
                         }
                         if (quote_time != null) {
-                            inquiryCount.setQuoteNeedTime(new BigDecimal(quote_time.toString()));
+                            double quote = Double.parseDouble(quote_time.toString());//秒
+                             double hour=quote/60/60;
+                            inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
                         }
                         if (quote_status != null) {
                             inquiryCount.setQuotedStatus(quote_status.toString());
