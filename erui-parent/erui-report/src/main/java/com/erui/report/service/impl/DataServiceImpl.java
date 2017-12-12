@@ -6,7 +6,6 @@ import com.erui.report.service.SupplyChainReadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.*;
 
 @Component("DataTesk")
@@ -23,7 +22,7 @@ public class DataServiceImpl {
         Date date = DateUtil.sometimeCalendar(new Date(), 1);
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
-        readService.supplyChainReadData(startTime, endTime);
+        readService.supplyChainReadData("2017-12-12 00:00:00", "2017-12-12 23:59:59");
         inquiryService.inquiryData(startTime,endTime);
 
     }

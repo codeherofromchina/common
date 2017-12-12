@@ -827,20 +827,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             Criteria criteria = example.createCriteria();
                             criteria.andQuotationNumEqualTo(serial_no.toString());
                             List<InquiryCount>  inqList = readMapper.selectByExample(example);//查询询单列表
-                            if (inqList != null && inqList.size() > 0) {
-                                inquiryCount.setId(inqList.get(0).getId());
-                                if (quote_status != null) {
-                                    inqList.get(0).setQuotedStatus(quote_status.toString());
-                                }
-                                if (quote_time != null) {
-                                    double quote = Double.parseDouble(quote_time.toString());//秒
-                                    double hour = quote / 60 / 60;
-                                    inqList.get(0).setQuoteNeedTime(new BigDecimal(hour));
-                                }
-                                if (total_quote_price != null) {
-                                    inqList.get(0).setQuotationPrice(new BigDecimal(total_quote_price.toString()));
-                                }
-                                updateCounts.add(inqList.get(0));
+                            if (inqList != null && inqList.size() == 1) {
+//                                inquiryCount.setId(inqList.get(0).getId());
+
+                                updateCounts.add(inquiryCount);
                             } else {
                                 inquiryCounts.add(inquiryCount);
                             }
@@ -900,8 +890,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
                     }
                     if (inquiryCounts != null && inquiryCounts.size() > 0) {
-
-                        inquiryCounts.parallelStream().forEach(vo -> mapper.insert(vo));
+                        InquiryCountMapper mapper1 = writerSession.getMapper(InquiryCountMapper.class);
+                        inquiryCounts.parallelStream().forEach(vo -> mapper1.insert(vo));
                     }
                     if (inquiryCates != null && inquiryCates.size() > 0) {
 
