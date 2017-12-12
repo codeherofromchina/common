@@ -2,10 +2,14 @@ package com.erui.report.dao;
 
 import com.erui.report.model.SupplyChainRead;
 import com.erui.report.model.SupplyChainReadExample;
+
+import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface SupplyChainReadMapper {
+    Date selectStart();
+    Date selectEnd();
     int countByExample(SupplyChainReadExample example);
 
     int deleteByExample(SupplyChainReadExample example);

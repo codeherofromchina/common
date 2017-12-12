@@ -25,8 +25,7 @@ public class DataServiceImpl {
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
-        inquiryService.inquiryData("2017-12-08 00:00:00", "2017-12-08 23:59:59");
-//            totalData();
+        inquiryService.inquiryData(startTime,endTime);
 
     }
 
@@ -96,13 +95,10 @@ public class DataServiceImpl {
             }
         }
 
-        System.out.println(list.size());
-
-
         for (Map<String, String> map : list) {
             String startTime = map.get("startTime");
             String endTime = map.get("endTime");
-           // readService.supplyChainReadData(startTime, endTime);
+            readService.supplyChainReadData(startTime, endTime);
             inquiryService.inquiryData(startTime, endTime);
         }
     }

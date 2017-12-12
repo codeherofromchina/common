@@ -164,6 +164,12 @@
     delete from inquiry_sku
     where id = #{id,jdbcType=BIGINT}
   </delete>
+
+    <delete id="deleteByQuotetionNum" parameterType="java.lang.String" >
+        delete from inquiry_sku
+        where quotation_num = #{quotetionNum}
+    </delete>
+
   <delete id="deleteByExample" parameterType="com.erui.report.model.InquirySkuExample" >
     delete from inquiry_sku
     <if test="_parameter != null" >

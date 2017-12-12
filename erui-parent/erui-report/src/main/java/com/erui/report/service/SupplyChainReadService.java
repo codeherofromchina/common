@@ -6,7 +6,20 @@ import java.io.IOException;
 import java.util.Date;
 
 public interface SupplyChainReadService {
-
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:52 2017/11/14
+     * @modified By
+     */
+    Date selectStart();
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:52 2017/11/14
+     * @modified By
+     */
+    Date selectEnd();
     void supplyChainReadData(String  startTime,String endTime) throws Exception;
     /**
     * 根据时间获取供应链数据（sku\spu\supplier）

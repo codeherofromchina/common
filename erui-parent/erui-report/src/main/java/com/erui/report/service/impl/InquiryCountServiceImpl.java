@@ -771,7 +771,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         Object inquiryCode = inquiryObject.get("code");
         InquiryCountMapper mapper = writerSession.getMapper(InquiryCountMapper.class);
         InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);
-
+        InquirySkuMapper skuReaderMapper = readerSession.getMapper(InquirySkuMapper.class);
         if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
             Object data = inquiryObject.get("data");
             if (data != null) {
@@ -779,14 +779,14 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
                 if (list != null && list.size() > 0) {
 
-                    InquiryCountExample example = new InquiryCountExample();
+
 
                     List<InquiryCount> inquiryCounts = new ArrayList<>();
                     List<InquiryCount> updateCounts = new ArrayList<>();
                     List<InquirySku> inquiryCates = new ArrayList<>();
 
                     for (Map<String, Object> map : list) {
-                        List<InquiryCount> inqList = null;
+
                         Object serial_no = map.get("serial_no");//报价单号
                         Object created_at = map.get("created_at");//转入日期
                         Object country_name = map.get("country_name");//国家
@@ -828,11 +828,24 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         if (serial_no != null) {
 
                             inquiryCount.setQuotationNum(serial_no.toString());
+                            InquiryCountExample example = new InquiryCountExample();
                             Criteria criteria = example.createCriteria();
                             criteria.andQuotationNumEqualTo(serial_no.toString());
-                            inqList = readMapper.selectByExample(example);//查询询单列表
+                            List<InquiryCount>  inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() > 0) {
-                                updateCounts.add(inquiryCount);
+                                inquiryCount.setId(inqList.get(0).getId());
+                                if (quote_status != null) {
+                                    inqList.get(0).setQuotedStatus(quote_status.toString());
+                                }
+                                if (quote_time != null) {
+                                    double quote = Double.parseDouble(quote_time.toString());//秒
+                                    double hour = quote / 60 / 60;
+                                    inqList.get(0).setQuoteNeedTime(new BigDecimal(hour));
+                                }
+                                if (total_quote_price != null) {
+                                    inqList.get(0).setQuotationPrice(new BigDecimal(total_quote_price.toString()));
+                                }
+                                updateCounts.add(inqList.get(0));
                             } else {
                                 inquiryCounts.add(inquiryCount);
                             }
@@ -865,12 +878,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     }
                                     if (serial_no != null) {
                                         inquirySku.setQuotationNum(serial_no.toString());
-
-                                        if (inqList != null && inqList.size() > 0) {
-                                            InquirySkuExample skuExample = new InquirySkuExample();
-                                            InquirySkuExample.Criteria criteria = skuExample.createCriteria();
-                                            criteria.andQuotationNumEqualTo(serial_no.toString());
-                                            skuWriteMapper.deleteByExample(skuExample);
+                                        InquiryCountExample example = new InquiryCountExample();
+                                        Criteria criteria = example.createCriteria();
+                                        criteria.andQuotationNumEqualTo(serial_no.toString());
+                                        List<InquirySku> skuLi = skuReaderMapper.selectByExample(example);
+                                        if (skuLi != null && skuLi.size() > 0) {
+                                            skuWriteMapper.deleteByQuotetionNum(serial_no.toString());
                                         }
                                     }
                                     inquiryCates.add(inquirySku);

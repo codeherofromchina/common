@@ -32,7 +32,7 @@ public class TotalTimeController {
     @Autowired
     private RequestCreditService requestCreditService;
     @Autowired
-    private SupplyChainService supplyChainService;
+    private SupplyChainService supplyChainReadService;
 
     @RequestMapping(value = "totalTime", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
@@ -45,8 +45,8 @@ public class TotalTimeController {
         Date orderEndTime = orderCountService.selectEnd();
         Date requestStartTime = requestCreditService.selectStart();
         Date requestEndTime = requestCreditService.selectEnd();
-        Date supplyStartTime = supplyChainService.selectStart();
-        Date supplyEndTime = supplyChainService.selectEnd();
+        Date supplyStartTime = supplyChainReadService.selectStart();
+        Date supplyEndTime = supplyChainReadService.selectEnd();
         Date totalStartTime = DateUtil.minTime(hrStartTime, inquiryStartTime, orderStartTime, requestStartTime, supplyStartTime);
         Date totalEndTime = DateUtil.maxTime(hrEndTime, inquiryEndTime, orderEndTime, requestEndTime, supplyEndTime);
         Date customStartTime = DateUtil.minTime(inquiryStartTime,orderStartTime);

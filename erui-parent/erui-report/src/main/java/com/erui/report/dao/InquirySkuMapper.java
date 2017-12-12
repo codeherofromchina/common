@@ -1,6 +1,7 @@
 package com.erui.report.dao;
 
 import com.erui.report.model.CateDetailVo;
+import com.erui.report.model.InquiryCountExample;
 import com.erui.report.model.InquirySku;
 import com.erui.report.model.InquirySkuExample;
 import com.erui.report.util.IsOilVo;
@@ -21,7 +22,7 @@ public interface InquirySkuMapper {
 
     int insertSelective(InquirySku record);
 
-    List<InquirySku> selectByExample(InquirySkuExample example);
+    List<InquirySku> selectByExample(InquiryCountExample example);
 
     InquirySku selectByPrimaryKey(Long id);
 
@@ -40,4 +41,6 @@ public interface InquirySkuMapper {
     List<Map<String,Object>> selectProTop3(Map<String,Object>params);
 
     List<CateDetailVo> selectSKUDetailByCategory(InquirySkuExample example);
+
+     void  deleteByQuotetionNum(String quotetionNum);
 }

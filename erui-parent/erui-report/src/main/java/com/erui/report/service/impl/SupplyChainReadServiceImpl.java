@@ -36,12 +36,6 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     private  static final String key = "9b2a37b7b606c14d43db538487a148c7";
     private  static ObjectMapper om = new ObjectMapper();
 
-
-        public static void main() throws Exception {
-
-        }
-
-
     @Override
     public void supplyChainReadData(String startTime, String endTime) throws Exception {
         CloseableHttpClient client = HttpClients.createDefault();
@@ -286,5 +280,25 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
 
         return trend;
     }
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:53 2017/11/14
+     * @modified By
+     */
+    @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
 
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:53 2017/11/14
+     * @modified By
+     */
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
 }
