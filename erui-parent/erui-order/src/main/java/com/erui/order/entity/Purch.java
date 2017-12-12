@@ -8,75 +8,75 @@ import java.util.*;
  * 采购信息
  */
 @Entity
-@Table(name="purch")
+@Table(name = "purch")
 public class Purch {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name="purch_no")
+    @Column(name = "purch_no")
     private String purchNo;
 
-    @Column(name="agent_id")
+    @Column(name = "agent_id")
     private Integer agentId;
 
-    @Column(name="signing_date")
+    @Column(name = "signing_date")
     private Date signingDate;
 
-    @Column(name="arrival_date")
+    @Column(name = "arrival_date")
     private Date arrivalDate;
 
-    @Column(name="pur_chg_date")
+    @Column(name = "pur_chg_date")
     private Date purChgDate;
 
-    @Column(name="exe_chg_date")
+    @Column(name = "exe_chg_date")
     private Date exeChgDate;
 
-    @Column(name="supplier_id")
+    @Column(name = "supplier_id")
     private Integer supplierId;
 
-    @Column(name="total_price")
+    @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @Column(name="currency_bn")
+    @Column(name = "currency_bn")
     private String currencyBn;
 
-    @Column(name="pay_type")
+    @Column(name = "pay_type")
     private Integer payType;
 
-    @Column(name="producted_date")
+    @Column(name = "producted_date")
     private Date productedDate;
 
-    @Column(name="pay_factory_date")
+    @Column(name = "pay_factory_date")
     private Date payFactoryDate;
 
-    @Column(name="pay_deposit_date")
+    @Column(name = "pay_deposit_date")
     private Date payDepositDate;
 
-    @Column(name="pay_deposit_expired")
+    @Column(name = "pay_deposit_expired")
     private Date payDepositExpired;
 
-    @Column(name="invoice_no")
+    @Column(name = "invoice_no")
     private String invoiceNo;
 
-    @Column(name="account_date")
+    @Column(name = "account_date")
     private Date accountDate;
 
     private Integer status;
 
-    @Column(name="create_time")
+    @Column(name = "create_time")
     private Date createTime;
 
-    @Column(name="create_user_id")
+    @Column(name = "create_user_id")
     private Integer createUserId;
 
-    @Column(name="update_time")
+    @Column(name = "update_time")
     private Date updateTime;
 
-    @Column(name="delete_flag")
+    @Column(name = "delete_flag")
     private Boolean deleteFlag;
 
-    @Column(name="delete_time")
+    @Column(name = "delete_time")
     private Date deleteTime;
 
     private String inspected;
@@ -93,6 +93,7 @@ public class Purch {
     private List<PurchPayment> purchPaymentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name="purch_id")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
 
 
@@ -319,5 +320,49 @@ public class Purch {
 
     public void setPurchGoodsList(List<PurchGoods> purchGoodsList) {
         this.purchGoodsList = purchGoodsList;
+    }
+
+
+    /**
+     * 采购状态枚举
+     */
+    public static enum StatusEnum {
+        READY(0, "未开始"), BEING(1, "进行中"), DONE(2, "已完成");
+
+        private int code;
+        private String msg;
+
+        private StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        /**
+         * 通过code码获取采购状态信息
+         *
+         * @param code
+         * @return
+         */
+        public static StatusEnum fromCode(Integer code) {
+            if (code != null) {
+                int code02 = code;
+                StatusEnum[] values = StatusEnum.values();
+                for (StatusEnum s : StatusEnum.values()) {
+                    if (code02 == s.code) {
+                        return s;
+                    }
+                }
+            }
+            return null;
+        }
+
     }
 }
