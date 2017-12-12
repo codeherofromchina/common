@@ -78,12 +78,12 @@ public class DataServiceImpl {
             dateMap.put("endTime", endTime);
             list.add(dateMap);
         }
-
+        //本月数据
         Date date = new Date();
         Date firstDay = DateUtil.getMonthFirstDay(date);
         int dayBetween = DateUtil.getDayBetween(firstDay, date);
         if(dayBetween>0){
-            for (int i = dayBetween-1; i >= 0; i--) {
+            for (int i = dayBetween-1; i > 0; i--) {
                 HashMap<String, String> dateMap = new HashMap<>();
                 Date date2 = DateUtil.sometimeCalendar(new Date(), i);
                 String startTime = DateUtil.getStartTime(date2, DateUtil.FULL_FORMAT_STR);

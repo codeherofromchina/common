@@ -3,8 +3,6 @@ package com.erui.report.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtil;
-import com.erui.comm.util.data.string.StringUtils;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.SupplyChainCategoryMapper;
 import com.erui.report.dao.SupplyChainReadMapper;
@@ -14,7 +12,6 @@ import com.erui.report.model.SupplyChainReadExample;
 import com.erui.report.model.SupplyTrendVo;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.util.GetDataEnum;
-import com.erui.report.util.SupplyChainCateVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
@@ -31,10 +28,10 @@ import java.util.*;
 public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMapper> implements SupplyChainReadService {
 
 
-    private static final String goodUrl = "http://api2.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
-    private static final String productUrl = "http://api2.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
-    private static final String supplierUrl = "http://api2.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
-    private static final String cateUrl = "http://api2.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
+    private static final String goodUrl = "http://api.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
+    private static final String productUrl = "http://api.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
+    private static final String supplierUrl = "http://api.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
+    private static final String cateUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
     private  static final String key = "9b2a37b7b606c14d43db538487a148c7";
     private  static ObjectMapper om = new ObjectMapper();
 

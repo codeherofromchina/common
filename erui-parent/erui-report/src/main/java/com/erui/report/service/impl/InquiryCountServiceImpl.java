@@ -27,7 +27,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.erui.comm.util.data.date.DateUtil;
@@ -43,7 +42,7 @@ import com.erui.report.service.InquiryCountService;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
-    public final String inquiryUrl = "http://api2.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
+    public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 
     private static final String key = "9b2a37b7b606c14d43db538487a148c7";
 
@@ -778,15 +777,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 String dataJson = data.toString();
                 List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
                 if (list != null && list.size() > 0) {
-
-
-
                     List<InquiryCount> inquiryCounts = new ArrayList<>();
                     List<InquiryCount> updateCounts = new ArrayList<>();
                     List<InquirySku> inquiryCates = new ArrayList<>();
 
                     for (Map<String, Object> map : list) {
-
                         Object serial_no = map.get("serial_no");//报价单号
                         Object created_at = map.get("created_at");//转入日期
                         Object country_name = map.get("country_name");//国家
