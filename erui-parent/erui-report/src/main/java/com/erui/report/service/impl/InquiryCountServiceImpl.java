@@ -827,6 +827,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             criteria.andQuotationNumEqualTo(serial_no.toString());
                             List<InquiryCount> inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() == 1) {
+                                inquiryCount.setId(inqList.get(0).getId());
                                 updateCounts.add(inquiryCount);
                                 continue;
                             } else if (inqList != null && inqList.size() > 1) {
@@ -844,9 +845,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (goodsList.get("category") != null) {
                                         inquirySku.setProCategory(goodsList.get("category").toString());
                                     }
-                                    if (goodsList.get("qty") != null) {
-                                        inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
-                                    }
+
+                                        inquirySku.setCateCount(1);
+
                                     if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
                                     } else {
@@ -874,10 +875,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     }
                     if (updateCounts != null && updateCounts.size() > 0) {
                         for (InquiryCount inq:updateCounts ) {
-                            InquiryCountExample e = new InquiryCountExample();
-                            Criteria criteria = e.createCriteria();
-                            criteria.andQuotationNumEqualTo(inq.getQuotationNum());
-                            mapper.updateByExample(inq,e);
+//                            InquiryCountExample e = new InquiryCountExample();
+//                            Criteria criteria = e.createCriteria();
+//                            criteria.andQuotationNumEqualTo(inq.getQuotationNum());
+//                            mapper.updateByExample(inq,e);
+                            mapper.updateByPrimaryKey(inq);
                         }
                     }
 
