@@ -770,7 +770,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         Object inquiryCode = inquiryObject.get("code");
         InquiryCountMapper mapper = writerSession.getMapper(InquiryCountMapper.class);
         InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);
-        InquirySkuMapper skuReaderMapper = readerSession.getMapper(InquirySkuMapper.class);
         if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
             Object data = inquiryObject.get("data");
             if (data != null) {
@@ -826,11 +825,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             InquiryCountExample example = new InquiryCountExample();
                             Criteria criteria = example.createCriteria();
                             criteria.andQuotationNumEqualTo(serial_no.toString());
-                            List<InquiryCount>  inqList = readMapper.selectByExample(example);//查询询单列表
+                            List<InquiryCount> inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() == 1) {
-//                                inquiryCount.setId(inqList.get(0).getId());
-
                                 updateCounts.add(inquiryCount);
+                                continue;
+                            } else if (inqList != null && inqList.size() > 1) {
+                                continue;
                             } else {
                                 inquiryCounts.add(inquiryCount);
                             }
@@ -863,13 +863,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     }
                                     if (serial_no != null) {
                                         inquirySku.setQuotationNum(serial_no.toString());
-                                        InquirySkuExample inquirySkuExample = new InquirySkuExample();
-                                        InquirySkuExample.Criteria inquirySkuCriteria = inquirySkuExample.createCriteria();
-                                        inquirySkuCriteria.andQuotationNumEqualTo(serial_no.toString());
-                                        List<InquirySku> skuLi = skuReaderMapper.selectByExample(inquirySkuExample);
-                                        if (skuLi != null && skuLi.size() > 0) {
-                                            skuLi.parallelStream().forEach(vo->skuWriteMapper.deleteByPrimaryKey(vo.getId()));
-                                        }
                                     }
                                     inquiryCates.add(inquirySku);
                                 }
@@ -880,23 +873,23 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
                     }
                     if (updateCounts != null && updateCounts.size() > 0) {
-                        updateCounts.parallelStream().forEach(vo ->
-                        {
+                        for (InquiryCount inq:updateCounts ) {
                             InquiryCountExample e = new InquiryCountExample();
                             Criteria criteria = e.createCriteria();
-                            criteria.andQuotationNumEqualTo(vo.getQuotationNum());
-                            mapper.updateByExample(vo, e);
-                        });
-
+                            criteria.andQuotationNumEqualTo(inq.getQuotationNum());
+                            mapper.updateByExample(inq,e);
+                        }
                     }
+
                     if (inquiryCounts != null && inquiryCounts.size() > 0) {
-                        InquiryCountMapper mapper1 = writerSession.getMapper(InquiryCountMapper.class);
-                        inquiryCounts.parallelStream().forEach(vo -> mapper1.insert(vo));
+                        for (InquiryCount inq:inquiryCounts ) {
+                            mapper.insertSelective(inq);
+                        }
                     }
                     if (inquiryCates != null && inquiryCates.size() > 0) {
-
-                        inquiryCates.parallelStream().forEach(vo -> skuWriteMapper.insert(vo));
-
+                        for (InquirySku inqSKU:inquiryCates ) {
+                            skuWriteMapper.insertSelective(inqSKU);
+                        }
                     }
                 }
             }
@@ -911,7 +904,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
         ObjectMapper om = new ObjectMapper();
         HttpPut method = new HttpPut(url);
-       // method.getParams().setParameter("http.socket.timeout", 3000);
+        // method.getParams().setParameter("http.socket.timeout", 3000);
         //组装请求json
         JSONObject jsonObject = new JSONObject();
         Map<String, Object> input = new HashMap<>();
