@@ -1,20 +1,21 @@
 package com.erui.boss.web.report;
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.RequestCreditService;
+import com.erui.report.util.InquiryAreaVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author:SHIGS
@@ -260,7 +261,32 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(areaCountry);
         return result;
     }
+    /**
+     * @Author:Lirb
+     * @Description 查询主体公司列表和所属事业部
+     * @Date:19:40 2017/12/14
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "companyList")
+    public Object companyList( String companyName) {
+        Result<Object> result = new Result<>();
+        List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
+        if (StringUtils.isNotBlank(companyName)) {
+            List<InquiryAreaVO> ll = list.parallelStream().filter(vo -> vo.getAreaName().equals(companyName))
+                    .collect(Collectors.toList());
+            if (ll.size() > 0) {
+                result.setData(ll.get(0).getCountries());
+            } else {
+                return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
+            }
+        }else{
+            List<String> companyList = list.parallelStream().map(InquiryAreaVO::getAreaName).collect(Collectors.toList());
+            result.setData(companyList);
+        }
+        return result;
+    }
     /**
      * @Author:SHIGS
      * @Description 4.区域明细图

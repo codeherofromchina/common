@@ -3,11 +3,13 @@ package com.erui.report.service.impl;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.RequestCreditExample;
+import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +99,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         List<Map> nextMap = null;
         RequestCreditExample nextCreditExample = new RequestCreditExample();
         RequestCreditExample.Criteria criteria = nextCreditExample.createCriteria();
-        criteria.andBackDateGreaterThanOrEqualTo(DateUtil.getOperationTime(new Date(),0,0,0));
+        criteria.andBackDateGreaterThanOrEqualTo(DateUtil.getOperationTime(new Date(), 0, 0, 0));
         criteria.andBackDateLessThan(nextTime);
         nextMap = readMapper.selectNextRequestTrend(nextCreditExample);
         List<String> receivableList = new ArrayList<>();
@@ -424,6 +426,34 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         response.setDone(true);
 
         return response;
+    }
+
+    @Override
+    public List<InquiryAreaVO> selectAllCompanyAndOrgList() {
+        List<Map<String, String>> dataList = this.readMapper.selectAllCompanyAndOrgList();
+        List<InquiryAreaVO> list = new ArrayList<>();
+        if (dataList != null && dataList.size() > 0) {
+            Map<String, InquiryAreaVO> map = list.parallelStream()
+                    .collect(Collectors.toMap(InquiryAreaVO::getAreaName, vo -> vo));
+            for (Map<String, String> data : dataList) {
+                String area = data.get("area");
+                String country = data.get("country");
+                InquiryAreaVO vo = null;
+                if (map.containsKey(area)) {
+                    vo  = map.get(area);
+                } else {
+                    vo = new InquiryAreaVO();
+                    vo.setAreaName(area);
+                    list.add(vo);
+                    map.put(area, vo);
+                }
+
+                vo.pushCountry(country);
+            }
+
+        }
+
+        return list;
     }
 
 }

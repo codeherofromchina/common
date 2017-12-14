@@ -51,4 +51,6 @@ public interface RequestCreditMapper {
     int updateByPrimaryKey(RequestCredit record);
 
     void truncateTable();
+
+    List<Map<String,String>>   selectAllCompanyAndOrgList();
 }

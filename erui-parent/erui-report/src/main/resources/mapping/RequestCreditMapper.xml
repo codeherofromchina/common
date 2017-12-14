@@ -115,6 +115,7 @@
       order by ${orderByClause}
     </if>
   </select>
+
   <select id="selectNextRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
     SELECT sum(IFNULL(order_amount,0)) AS order_amount,FROM_DAYS(TO_DAYS(back_date)) AS back_date
     FROM request_credit
@@ -126,8 +127,8 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
-    SELECT sales_area FROM request_credit GROUP BY sales_area
+  <select id="selectArea" resultType="map">
+    SELECT sales_area FROM request_credit GROUP BY sales_area HAVING  sales_area IS  NOT  NULL
   </select>
   <select id="selectCountry" resultType="map" parameterType="com.erui.report.model.RequestCreditExample">
       SELECT DISTINCT sales_country FROM request_credit
@@ -139,6 +140,11 @@
     </if>
   </select>
 
+  <!--查询主体公司和所属事业部-->
+  <select id="selectAllCompanyAndOrgList" resultType="java.util.Map" >
+  SELECT  sales_main_company AS  area ,organization  AS country FROM request_credit group by sales_main_company ,organization
+   HAVING sales_main_company IS NOT NULL
+  </select>
   <select id="selectByAreaOrCountry" resultType="map" parameterType="com.erui.report.model.RequestCreditExample" >
     SELECT SUM(IFNULL(order_amount,0)) AS oa,SUM(IFNULL(ABS(receive_amount),0)) AS ra,SUM(IFNULL(order_amount,0)-IFNULL(ABS(receive_amount),0)) AS received
     FROM request_credit

@@ -24,8 +24,9 @@ public enum ResultStatusEnum {
 	EXCEL_FILE_NOT_EXIST(16,"Excel文件不存"),
 	
 //-----------daqu----------------
-	AREA_NOT_EXIST(20,"不存在的大区");
-
+	AREA_NOT_EXIST(20,"不存在的大区"),
+	//-----------company----------------
+	COMPANY_NOT_EXIST(21,"不存在的主体公司");
 	private int code;
 	private String msg;
 
