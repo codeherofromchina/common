@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -30,6 +32,20 @@ public class CompanyController {
     public Result<Object> get(@RequestParam(name = "id") Integer id) {
         Company company = companyService.findById(id);
         return new Result<>(company);
+
+    }
+    /**
+     * 查询所有分公司
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "getCompany")
+    public Result<Object> getCompany() {
+        List<Company> companyList = companyService.findAll();
+        companyList.parallelStream().forEach(vo -> {vo.setDeptSet(null);vo.setArea(null);});
+
+        return new Result<>(companyList);
 
     }
 }
