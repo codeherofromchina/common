@@ -30,12 +30,11 @@ public interface InquiryCountService {
     /*
     * 查询询单单数
     * */
-    public int inquiryCountByTime(Date startTime,Date endTime,String[] quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
-
+     int inquiryCountByTime(Date startTime,Date endTime,String[] quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
     /*
     * 查询询单总金额
     * */
-	public Double inquiryAmountByTime(Date startDate,Date endDate,String area) ;
+	 Double inquiryAmountByTime(Date startDate,Date endDate,String area,String[] quotedStatus) ;
 
 	/**
 	 * 导入客户中心-询单数据
@@ -43,17 +42,17 @@ public interface InquiryCountService {
 	 * @param testOnly	true:只检测数据  false:插入正式库
 	 * @return
 	 */
-	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
+	 ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
 	/*
 	* 根据油气类别查询产品数量
 	* */
-	public int selectProCountByExample(Date startTime,Date endTime,String isOil,String proCategory);
+	int selectProCountByExample(Date startTime,Date endTime,String isOil,String proCategory);
 
 
 	/*
 	* 查询产品Top3
 	* */
-	public List<Map<String,Object>> selectProTop3(Map<String,Object>params);
+	List<Map<String,Object>> selectProTop3(Map<String,Object>params);
 	
 	 /**
 	  * @Author:SHIGS
@@ -69,22 +68,22 @@ public interface InquiryCountService {
 	/*
 	* 查询事业部列表
 	* */
-	 public  List<String>   selectOrgList();
+	List<String>   selectOrgList();
 	/*
    * 查询销售大区列表
    * */
-	public  List<String>   selectAreaList();
+	  List<String>   selectAreaList();
 	/*
    * 根据时间查询询单列表
    * */
-	List<InquiryCount> selectListByTime(Date startTime, Date endTime);
+	List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes);
 	
 	
 	/**
      * 查询所有询单中的所有大区和城市列表（
      * @return
      */
-    public List<InquiryAreaVO> selectAllAreaAndCountryList() ;
+     List<InquiryAreaVO> selectAllAreaAndCountryList() ;
 
 	/**
 	 * 获取询单数据汇总
@@ -92,7 +91,7 @@ public interface InquiryCountService {
 	 * @param country
 	 * @return
 	 */
-	public CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
+	 CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
 
 	/**
 	 * 询订单分类 TOP N
@@ -100,7 +99,7 @@ public interface InquiryCountService {
 	 * @param platCategory	指定分类
 	 * @return
 	 */
-	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
+	 List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
 
 	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
 

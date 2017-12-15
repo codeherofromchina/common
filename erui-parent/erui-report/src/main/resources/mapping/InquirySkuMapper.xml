@@ -94,7 +94,7 @@
   <!--查询商品数量-->
   <select id="selectSKUCountByTime" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquirySkuExample" >
     SELECT
-    SUM(cate_count)
+     COUNT(*)
     from inquiry_sku
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -107,7 +107,7 @@
   <!--查询商品数量按是否为油气分类-->
   <select id="selectCountGroupByIsOil" resultType="com.erui.report.util.IsOilVo" parameterType="com.erui.report.model.InquirySkuExample" >
     SELECT
-    SUM(cate_count) AS skuCount,
+     COUNT(*) AS skuCount,
     is_oil_gas AS isOil
     from inquiry_sku
     <if test="_parameter != null" >
@@ -119,29 +119,42 @@
     GROUP  BY  is_oil_gas
   </select>
 
+    <!--查询商品数量按是否为油气分类-->
+    <select id="selectCountGroupByIsPlat" resultType="map" parameterType="com.erui.report.model.InquirySkuExample" >
+        SELECT
+        COUNT(*) AS  skuCount,
+        plat_pro_category AS  isPlat
+        FROM
+        inquiry_sku
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+        GROUP  BY  plat_pro_category HAVING  plat_pro_category IS  NOT  NULL
+    </select>
 
-  <select id="selectProTop3" resultType="map" parameterType="Object" >
+  <select id="selectProTop3" resultType="map" parameterType="com.erui.report.model.InquirySkuExample" >
 
     SELECT
-    SUM(cate_count) AS proCount,
+      COUNT(*) AS proCount,
     pro_category AS proCategory
     FROM
     inquiry_sku
-    <where >
-      <if test="startTime != null" >
-        and rollin_time >= #{startTime}
-      </if>
-      <if test="endTime != null " >
-        and rollin_time &lt; #{endTime}
-      </if>
-    </where>
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
     group by pro_category HAVING pro_category IS  NOT  NULL  ORDER BY proCount DESC LIMIT 0,3;
   </select>
 
   <select id="selectSKUDetailByCategory"  resultType="com.erui.report.model.CateDetailVo"  parameterType="com.erui.report.model.InquirySkuExample">
     SELECT
     IFNULL(sum(IFNULL(quote_unit_price,0.00)*IFNULL(cate_count,0)),0) AS inqCatePrice,
-    SUM(cate_count) AS inqCateCount,
+    COUNT(*) AS inqCateCount,
     pro_category AS category
     FROM
     inquiry_sku

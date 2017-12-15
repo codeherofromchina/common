@@ -16,7 +16,7 @@ import java.util.Map;
 public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implements InquirySKUService {
 
     @Override
-    public Integer selectSKUCountByTime(Date startDate, Date endDate) {
+    public Integer selectSKUCountByTime(Date startDate, Date endDate,List<String> inquiryNums) {
         InquirySkuExample e = new InquirySkuExample();
         InquirySkuExample.Criteria criteria = e.createCriteria();
         if(startDate!=null){
@@ -24,12 +24,15 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
         }
         if(endDate!=null){
             criteria.andRollinTimeLessThan(endDate);
+        }
+        if(inquiryNums!=null&&inquiryNums.size()>0){
+            criteria.andQuotationNumIn(inquiryNums);
         }
         return readMapper.selectSKUCountByTime(e);
     }
 
     @Override
-    public List<IsOilVo> selectCountGroupByIsOil(Date startDate, Date endDate) {
+    public List<IsOilVo> selectCountGroupByIsOil(Date startDate, Date endDate,List<String> inquiryNums) {
         InquirySkuExample e = new InquirySkuExample();
         InquirySkuExample.Criteria criteria = e.createCriteria();
         if(startDate!=null){
@@ -37,6 +40,9 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
         }
         if(endDate!=null){
             criteria.andRollinTimeLessThan(endDate);
+        }
+        if(inquiryNums!=null&&inquiryNums.size()>0){
+            criteria.andQuotationNumIn(inquiryNums);
         }
         return readMapper.selectCountGroupByIsOil(e);
     }
@@ -44,8 +50,19 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
 
 
     @Override
-    public List<Map<String, Object>> selectProTop3(Map<String, Object> params) {
-        List<Map<String, Object>> list = readMapper.selectProTop3(params);
+    public List<Map<String, Object>> selectProTop3(Date startTime,Date endTime,List<String> numList) {
+        InquirySkuExample skuExample = new InquirySkuExample();
+        InquirySkuExample.Criteria criteria = skuExample.createCriteria();
+        if(startTime!=null){
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        if(numList!=null&&numList.size()>0){
+            criteria.andQuotationNumIn(numList);
+        }
+        List<Map<String, Object>> list = readMapper.selectProTop3(skuExample);
         if (list == null) {
             list = new ArrayList<>();
         }
@@ -62,7 +79,19 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        criteria.andProCategoryIsNotNull();
         return readMapper. selectSKUDetailByCategory(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCountGroupByIsPlat(Date startTime, Date endTime) {
+        InquirySkuExample example = new InquirySkuExample();
+        InquirySkuExample.Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        return readMapper. selectCountGroupByIsPlat(example);
     }
 }

@@ -73,7 +73,7 @@ public class GeneralController {
         // 当期询单数
         int inquiryCount = inquiryService.inquiryCountByTime(startTime, endTime, null, 0, 0, "", "");
         // 当期询单金额
-        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
+        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "",null);
         Map<String, Object> inquiry = new HashMap<>();
         inquiry.put("count", inquiryCount);
         inquiry.put("amount", df.format(inquiryAmount / 10000) + "万$");
@@ -189,6 +189,7 @@ public class GeneralController {
         datas.put("xAxis", trendVo.getDate());
         datas.put("inquiry", trendVo.getInqCounts());
         datas.put("yAxis", trendVo.getOrdCounts());
+        datas.put("quote", trendVo.getQuoteCounts());
         return new Result<>(datas);
 
     }

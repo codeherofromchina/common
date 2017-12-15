@@ -7,6 +7,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.CateDetailVo;
+import com.erui.report.model.InquiryCount;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
@@ -46,8 +47,8 @@ public class CustomCentreController {
 
 
     /*
-    * 询单总览
-    * */
+     * 询单总览
+     * */
     @ResponseBody
     @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, String> params) {
@@ -60,10 +61,9 @@ public class CustomCentreController {
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
         // 获取需要环比的开始时间
         Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
-
         //当期询单数量和金额
         int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
-        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "");
+        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null);
         // 上期询单数量
         int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, null, 0, 0, "", "");
         Integer chain = count - chainCount;
@@ -78,93 +78,162 @@ public class CustomCentreController {
         inquiryMap.put("chainAdd", chain);
         inquiryMap.put("chainRate", chainRate);
 
-        //油气产品统计
-//        CustomerNumSummaryVO custSummaryVO = inquiryService.selectNumSummaryByExample(startDate, endDate);
-//        CustomerNumSummaryVO custSummaryVO2 = inquiryService.selectNumSummaryByExample(rateStartDate, startDate);
-       List<IsOilVo>   oilList= inquirySKUService.selectCountGroupByIsOil(startDate,endDate);
-       List<IsOilVo>   oilChainList= inquirySKUService.selectCountGroupByIsOil(rateStartDate,startDate);
-       Map<String, Object> proIsOilMap = new HashMap<>();//油气产品分析
-//        if (custSummaryVO != null && custSummaryVO.getTotal() > 0) {
-//            proIsOilMap.put("oil", custSummaryVO.getOil());
-//            proIsOilMap.put("notOil", custSummaryVO.getNonoil());
-//            proIsOilMap.put("oiProportionl", RateUtil.intChainRate(custSummaryVO.getOil(), custSummaryVO.getTotal()));
-//            proIsOilMap.put("chainRate", RateUtil.intChainRate(custSummaryVO.getOil() - custSummaryVO2.getOil(), custSummaryVO2.getOil()));
-//        } else {
-//            proIsOilMap.put("oil", 0);
-//            proIsOilMap.put("notOil", 0);
-//            proIsOilMap.put("oiProportionl", 0.00);
-//            proIsOilMap.put("chainRate", 0.00);
-//        }
-        int  oil=0;
-        int  oilChain=0;
-        int  notOil=0;
-        double oiProportionl=0.00;
-        double oilChainRate=0.00;
-        if(oilList!=null&& oilList.size()>0){
-            for (IsOilVo vo:oilList) {
-                if(vo.getIsOil().equals("油气")){
-                    if(vo.getSkuCount()>0){
-                        oil=vo.getSkuCount();
-                    }
-               }else if(vo.getIsOil().equals("非油气")){
-                    if(vo.getSkuCount()>0){
-                        notOil=vo.getSkuCount();
+        //平台产品统计
+        Map<String, Object> platMap = new HashMap<>();
+        List<Map<String, Object>> platList = inquirySKUService.selectCountGroupByIsPlat(startDate, endDate);
+        List<Map<String, Object>> chainPlatList = inquirySKUService.selectCountGroupByIsPlat(rateStartDate, startDate);
+        int platCount = 0,notPlatCount=0,chainPlatCount=0; double platProportion=0.00,platChainRate=0.00;
+        if(platList!=null&&platList.size()>0){
+            for (Map<String,Object> map:platList ) {
+                    String plat = map.get("isPlat").toString();
+               int skuCount= Integer.parseInt(map.get("skuCount").toString()) ;
+                    if("平台".equals(plat)){
+                        platCount=skuCount;
+                    }else{
+                        notPlatCount=skuCount;
                     }
                 }
-                    }
         }
-        if(oilChainList!=null&& oilChainList.size()>0){
-            for (IsOilVo vo:oilChainList) {
-                if(vo.getIsOil().equals("油气")){
-                    if(vo.getSkuCount()>0){
-                        oilChain=vo.getSkuCount();
-                    }
-               }
-                    }
+        if(chainPlatList!=null&&chainPlatList.size()>0){
+           for(Map<String ,Object> map : chainPlatList){
+                String plat = map.get("isPlat").toString();
+                if(plat.equals("平台")){
+                    chainPlatCount =Integer.parseInt(map.get("skuCount").toString()) ;
+                }
+            }
         }
-        if((oil+notOil)>0){
-            oiProportionl=RateUtil.intChainRate(oil,(oil+notOil));
+        if(platCount>0){
+            platProportion=RateUtil.intChainRate(platCount,platCount+notPlatCount);
         }
-        if(oilChainRate>0){
-            oiProportionl=RateUtil.intChainRate(oil-oilChain,oilChain);
+        if(chainPlatCount>0){
+            platChainRate=RateUtil.intChainRate(platCount-chainPlatCount,chainPlatCount);
         }
-        proIsOilMap.put("oil", oil);
-            proIsOilMap.put("notOil", notOil);
-            proIsOilMap.put("oiProportionl", oiProportionl);
-            proIsOilMap.put("chainRate", oilChainRate);
+        platMap.put("platCount",platCount);
+        platMap.put("notPlatCount",notPlatCount);
+        platMap.put("platProportion",platProportion);
+        platMap.put("planChainRate",platChainRate);
         // 询单Top 3 产品分类
-        Map<String, Object> map = new HashMap<>();
-        map.put("startTime", startDate);
-        map.put("endTime", endDate);
-//        List<Map<String, Object>> listTop3 = inquiryService.selectProTop3(map);
-        List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(map);
-        listTop3.parallelStream().forEach(m -> {
-            BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
-            m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
-        });
-
-        //询价商品数
-        Integer skuCount =inquirySKUService.selectSKUCountByTime(startDate,endDate);
-        Integer skuCountChain =inquirySKUService.selectSKUCountByTime(rateStartDate,startDate);
-        Map<String, Object> goodsMap = new HashMap<>();
-        goodsMap.put("goodsCount",skuCount);
-        if(skuCount!=null&&skuCountChain!=null){
-            goodsMap.put("goodsChainAdd",skuCount-skuCountChain);
-        }else if(skuCountChain==null&&skuCount!=null){
-            goodsMap.put("goodsChainAdd",skuCount);
-        }else if(skuCount==null&&skuCountChain!=null){
-            goodsMap.put("goodsChainAdd",-skuCountChain);
-        }else {
-            goodsMap.put("goodsChainAdd",0.00);
+        List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(startDate, endDate, null);
+        if (listTop3 != null && listTop3.size() > 0) {
+            listTop3.parallelStream().forEach(m -> {
+                BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
+                m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
+            });
         }
+        //询价商品数
+        Integer skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, null);
+        Integer skuCountChain = inquirySKUService.selectSKUCountByTime(rateStartDate, startDate, null);
+        Map<String, Object> goodsMap = new HashMap<>();
+        if(skuCount==null){
+            skuCount=0;
+        }
+        if(skuCountChain==null){
+            skuCountChain=0;
+        }
+        goodsMap.put("goodsCount", skuCount);
+        goodsMap.put("goodsChainAdd", skuCount - skuCountChain);
         Map<String, Object> datas = new HashMap<>();
         datas.put("inquiry", inquiryMap);
-        datas.put("isOil", proIsOilMap);
         datas.put("proTop3", listTop3);
         datas.put("goodsMap", goodsMap);
+        datas.put("platMap",platMap);
         return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
     }
 
+    /*
+     * 报价总览
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/quotePandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> quotePandect(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+        // 获取需要环比的开始时间
+        Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
+        String[] quotes = {QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
+        //当期报价询单数量和金额
+        int count = inquiryService.inquiryCountByTime(startDate, endDate, quotes, 0, 0, "", "");
+        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", quotes);
+        // 上期报价询单数量
+        int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, quotes, 0, 0, "", "");
+        Integer chain = count - chainCount;
+        Double chainRate = null;
+        if (chainCount > 0) {
+            chainRate = RateUtil.intChainRate(chain, chainCount);//环比
+        }
+        // 询单数据修改
+        Map<String, Object> inquiryMap = new HashMap<>();//询单统计信息
+        inquiryMap.put("count", count);
+        inquiryMap.put("amount", df.format(amount / 10000) + "万$");
+        inquiryMap.put("chainAdd", chain);
+        inquiryMap.put("chainRate", chainRate);
+
+        //油气产品统计
+        List<InquiryCount> inquiryCounts = inquiryService.selectListByTime(startDate, endDate, quotes);
+        List<IsOilVo> oilList = null;
+        List<IsOilVo> oilChainList = null;
+        List<String> nums = null;
+        if (inquiryCounts != null && inquiryCounts.size() > 0) {
+            nums = inquiryCounts.parallelStream().map(vo -> vo.getQuotationNum()).collect(Collectors.toList());//获取时间内报价的询单号
+            if (nums != null && nums.size() > 0) {
+                oilList = inquirySKUService.selectCountGroupByIsOil(startDate, endDate, nums);
+                oilChainList = inquirySKUService.selectCountGroupByIsOil(rateStartDate, startDate, nums);
+            }
+        }
+        Map<String, Object> proIsOilMap = new HashMap<>();//油气产品分析
+        int oil = 0;
+        int oilChain = 0;
+        int notOil = 0;
+        double oiProportionl = 0.00;
+        double oilChainRate = 0.00;
+        if (oilList != null && oilList.size() > 0) {
+            for (IsOilVo vo : oilList) {
+                if (vo.getIsOil().equals("油气")) {
+                    oil = vo.getSkuCount();
+                } else if (vo.getIsOil().equals("非油气")) {
+                    notOil = vo.getSkuCount();
+                }
+            }
+        }
+        if (oilChainList != null && oilChainList.size() > 0) {
+            for (IsOilVo vo : oilChainList) {
+                if (vo.getIsOil().equals("油气")) {
+                    oilChain = vo.getSkuCount();
+                }
+            }
+        }
+        if (oil > 0) {
+            oiProportionl = RateUtil.intChainRate(oil, (oil + notOil));
+        }
+        if (oilChain > 0) {
+            oiProportionl = RateUtil.intChainRate(oil - oilChain, oilChain);
+        }
+        proIsOilMap.put("oil", oil);
+        proIsOilMap.put("notOil", notOil);
+        proIsOilMap.put("oiProportionl", oiProportionl);
+        proIsOilMap.put("chainRate", oilChainRate);
+        // 询单Top 3 产品分类
+        List<Map<String, Object>> listTop3 = null;
+        if (nums != null && nums.size() > 0) {
+            listTop3 = inquirySKUService.selectProTop3(startDate, endDate, nums);
+        }
+        if (listTop3 != null && listTop3.size() > 0) {
+            listTop3.parallelStream().forEach(m -> {
+                BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
+                m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
+            });
+        }
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("quote", inquiryMap);
+        datas.put("isOil", proIsOilMap);
+        datas.put("proTop3", listTop3);
+        return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
+    }
 
     /*
      * 订单总览
@@ -264,7 +333,7 @@ public class CustomCentreController {
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
                 0, 0, "", "");//已完成询单数量
         int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
                 0, 0, "", "");//报价中询单数量
         int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
@@ -303,7 +372,7 @@ public class CustomCentreController {
 
         // 定义已完成询单的所有状态数组
         String[] statusArr = new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
-        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate,statusArr, 0, 0, "", "");
+        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 0, "", "");
         int count1 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 4, "", "");
         int count2 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 4, 8, "", "");
         int count3 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 8, 24, "", "");
@@ -592,7 +661,7 @@ public class CustomCentreController {
         BigDecimal inqTotalAmount = BigDecimal.ZERO;
         BigDecimal ordTotalAmount = BigDecimal.ZERO;
 
-      //  List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
+        //  List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
         List<CateDetailVo> inqList = inquirySKUService.selectSKUDetailByCategory(startTime, endTime);
         List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
         Map<String, CateDetailVo> ordMap = new HashMap<>();

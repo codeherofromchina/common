@@ -38,7 +38,8 @@ public interface InquirySkuMapper {
     List<IsOilVo> selectCountGroupByIsOil(InquirySkuExample example);
 
     //查询产品Top3
-    List<Map<String,Object>> selectProTop3(Map<String,Object>params);
+    List<Map<String,Object>> selectProTop3(InquirySkuExample example);
+    List<Map<String, Object>> selectCountGroupByIsPlat(InquirySkuExample example);
 
     List<CateDetailVo> selectSKUDetailByCategory(InquirySkuExample example);
 

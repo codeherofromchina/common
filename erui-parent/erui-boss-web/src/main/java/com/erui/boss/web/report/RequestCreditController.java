@@ -72,9 +72,9 @@ public class RequestCreditController {
         Map mapMount = requestCreditService.selectRequestTotal(startTime, endTime);
         if (mapMount == null) {
             mapMount = new HashMap();
-            mapMount.put("sdT", 0);
-            mapMount.put("sded", 0);
-            mapMount.put("sd", 0);
+            mapMount.put("sdT", 0);     //应收order_amount
+            mapMount.put("sded", 0);    //已收
+            mapMount.put("sd", 0);      //未收  receive_amount
         }
         //应收金额
         BigDecimal orderAmount = BigDecimal.ZERO;
