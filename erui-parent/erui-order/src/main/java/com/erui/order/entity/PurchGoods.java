@@ -21,15 +21,22 @@ public class PurchGoods {
     @Column(name="project_no")
     private String projectNo;
 
+    @Column(name="contract_no")
+    private String contractNo;
+
     @ManyToOne
     @JoinColumn(name="purch_id")
     private Purch purch;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="goods_id")
     private Goods goods;
 
     private boolean son = false;
+
+    @ManyToOne
+    @JoinColumn(name="parent_id")
+    private PurchGoods parent;
 
     @Column(name="purchase_num")
     private Integer purchaseNum;
@@ -73,6 +80,14 @@ public class PurchGoods {
         this.projectNo = projectNo;
     }
 
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
+
     public Purch getPurch() {
         return purch;
     }
@@ -93,8 +108,16 @@ public class PurchGoods {
         return son;
     }
 
-    public boolean getSon() {
-        return son;
+    public void setSon(boolean son) {
+        this.son = son;
+    }
+
+    public PurchGoods getParent() {
+        return parent;
+    }
+
+    public void setParent(PurchGoods parent) {
+        this.parent = parent;
     }
 
     public Integer getPurchaseNum() {

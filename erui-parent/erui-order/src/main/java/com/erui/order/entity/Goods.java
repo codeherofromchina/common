@@ -20,10 +20,17 @@ public class Goods {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
     private Integer seq;
 
     @Column(name="contract_no")
     private String contractNo;
+
+    @Column(name="project_no")
+    private String projectNo;
 
     private String sku;
     @Column(name="mete_type")
@@ -103,6 +110,14 @@ public class Goods {
         this.order = order;
     }
 
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
     public Integer getSeq() {
         return seq;
     }
@@ -117,6 +132,14 @@ public class Goods {
 
     public void setContractNo(String contractNo) {
         this.contractNo = contractNo;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 
     public String getSku() {
