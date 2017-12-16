@@ -9,6 +9,8 @@ import com.erui.order.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -21,5 +23,12 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public Goods findById(Integer id) {
         return goodsDao.findOne(id);
+    }
+
+    @Override
+    public List<Goods> findByProjectIds(List<Integer> projectIds) {
+        List<Goods> goodsList = goodsDao.findByProjectIdIn(projectIds);
+
+        return goodsList;
     }
 }

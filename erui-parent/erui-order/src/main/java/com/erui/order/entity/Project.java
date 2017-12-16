@@ -18,8 +18,14 @@ public class Project {
     @JoinColumn(name="order_id")
     private Order order;
 
+    @OneToOne(mappedBy="project")
+    private PurchRequisition purchRequisition;
+
     @Column(name="contract_no")
     private String contractNo;
+
+    @Column(name="project_no")
+    private String projectNo;
 
     @Column(name="project_name")
     private String projectName;
@@ -102,12 +108,28 @@ public class Project {
         this.order = order;
     }
 
+    public PurchRequisition getPurchRequisition() {
+        return purchRequisition;
+    }
+
+    public void setPurchRequisition(PurchRequisition purchRequisition) {
+        this.purchRequisition = purchRequisition;
+    }
+
     public String getContractNo() {
         return contractNo;
     }
 
     public void setContractNo(String contractNo) {
         this.contractNo = contractNo;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 
     public String getProjectName() {

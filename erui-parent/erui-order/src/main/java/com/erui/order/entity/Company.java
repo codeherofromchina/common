@@ -28,6 +28,7 @@ public class Company {
     private Date createTime;
 
     @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id")
     private Set<Dept> deptSet = new HashSet<>();
 
     public Integer getId() {

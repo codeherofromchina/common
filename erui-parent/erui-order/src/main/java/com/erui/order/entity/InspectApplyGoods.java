@@ -17,13 +17,11 @@ public class InspectApplyGoods {
     @JoinColumn(name="inspect_apply_id")
     private InspectApply inspectApply;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="goods_id")
     private Goods goods;
     @Column(name = "inspect_num")
     private Integer inspectNum;
-    @Column(name = "inspect_times")
-    private Integer inspectTimes;
 
     private Integer samples;
 
@@ -99,14 +97,6 @@ public class InspectApplyGoods {
 
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
-    }
-
-    public Integer getInspectTimes() {
-        return inspectTimes;
-    }
-
-    public void setInspectTimes(Integer inspectTimes) {
-        this.inspectTimes = inspectTimes;
     }
 
     public Integer getSamples() {

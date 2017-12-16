@@ -16,7 +16,7 @@ public class PurchRequisition {
     /**
      * 项目
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="project_id")
     private Project project;
 

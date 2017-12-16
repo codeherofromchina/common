@@ -23,6 +23,10 @@ public class Attachment {
     private Integer userId;
     @Column(name = "user_name")
     private String userName;
+
+    // 前台显示的创建时间
+    @Column(name = "front_date")
+    private String frontDate;
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
     @Column(name = "delete_time")
@@ -72,6 +76,14 @@ public class Attachment {
 
     public String getUserName() {
         return userName;
+    }
+
+    public String getFrontDate() {
+        return frontDate;
+    }
+
+    public void setFrontDate(String frontDate) {
+        this.frontDate = frontDate;
     }
 
     public void setUserName(String userName) {

@@ -1,15 +1,15 @@
 package com.erui.order.entity;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 报检单
  */
 @Entity
-@Table(name="inspect_apply")
+@Table(name = "inspect_apply")
 public class InspectApply {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,8 +19,13 @@ public class InspectApply {
      * 采购
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="purch_id")
+    @JoinColumn(name = "purch_id")
     private Purch purch;
+
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="inspect_apply_id")
+    private List<InspectApplyGoods> InspectApplyGoodsList = new ArrayList<>();
 
     /**
      * 是否是主报检单 true：是 false：否
@@ -28,7 +33,7 @@ public class InspectApply {
     private boolean master = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="p_id")
+    @JoinColumn(name = "p_id")
     private InspectApply parent;
 
     private String department;
@@ -43,11 +48,15 @@ public class InspectApply {
 
     private Boolean direct;
     @Column(name = "out_check")
-    private String outCheck;
+    private Boolean outCheck;
 
     private Integer num;
 
+    //质检申请单状态 0：未编辑 1：保存/草稿  2：已提交 3：合格 4:未合格
     private Integer status;
+
+    // 整改意见
+    private String msg;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -55,11 +64,11 @@ public class InspectApply {
     private String remark;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "inspect_apply_attach",
             joinColumns = @JoinColumn(name = "inspect_apply_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentList = new HashSet<>();
+    private List<Attachment> attachmentList = new ArrayList<>();
 
 
     public Integer getId() {
@@ -143,11 +152,11 @@ public class InspectApply {
         this.direct = direct;
     }
 
-    public String getOutCheck() {
+    public Boolean getOutCheck() {
         return outCheck;
     }
 
-    public void setOutCheck(String outCheck) {
+    public void setOutCheck(Boolean outCheck) {
         this.outCheck = outCheck;
     }
 
@@ -167,6 +176,14 @@ public class InspectApply {
         this.status = status;
     }
 
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -184,11 +201,38 @@ public class InspectApply {
     }
 
 
-    public Set<Attachment> getAttachmentList() {
+    public List<Attachment> getAttachmentList() {
         return attachmentList;
     }
 
-    public void setAttachmentList(Set<Attachment> attachmentList) {
+    public void setAttachmentList(List<Attachment> attachmentList) {
         this.attachmentList = attachmentList;
+    }
+
+    public List<InspectApplyGoods> getInspectApplyGoodsList() {
+        return InspectApplyGoodsList;
+    }
+
+    public void setInspectApplyGoodsList(List<InspectApplyGoods> inspectApplyGoodsList) {
+        InspectApplyGoodsList = inspectApplyGoodsList;
+    }
+
+    public static enum StatusEnum {
+        NO_EDIT(0, "未编辑"),SAVED(1,"保存"),SUBMITED(2,"已提交"),QUALIFIED(3,"已合格"),UNQUALIFIED(4,"未合格");
+        private int code;
+        private String msg;
+
+        StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
     }
 }
