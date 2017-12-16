@@ -36,6 +36,7 @@ public class PurchServiceImpl implements PurchService {
 
     /**
      * 根据条件分页查询采购单信息
+     *
      * @param condition
      * @return
      */
@@ -67,7 +68,7 @@ public class PurchServiceImpl implements PurchService {
                 // TODO 根据销售合同号查询，现在认为项目号和销售合同号是一个
                 if (StringUtils.isNotBlank(condition.getContractNo())) {
                     Join<Purch, PurchGoods> purchGoods = root.join("purchGoodsList");
-                    list.add(cb.like(purchGoods.get("projectNo").as(String.class), "%" + condition.getContractNo() +"%"));
+                    list.add(cb.like(purchGoods.get("projectNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
 
                 //根据供应商过滤条件

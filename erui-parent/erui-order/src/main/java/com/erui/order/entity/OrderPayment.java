@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -16,6 +18,7 @@ public class OrderPayment {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Order order;
 
     private Integer type;
