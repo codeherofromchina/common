@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -8,7 +10,8 @@ import java.util.*;
  * 订单表
  */
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,6 +38,9 @@ public class Order {
     @Column(name = "order_type")
     private boolean orderType = true;
 
+    @Column(name = "order_source")
+    private String orderSource;
+
     @Column(name = "signing_date")
     private Date signingDate;
 
@@ -46,6 +52,9 @@ public class Order {
 
     @Column(name = "agent_id")
     private Integer agentId;
+
+    @Column(name = "agent_name")
+    private String agentName;
 
     @Column(name = "exec_co_id")
     private Integer execCoId;
@@ -146,19 +155,23 @@ public class Order {
     @Column(name = "delete_time")
     private Date deleteTime;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<Attachment> attachmentSet = new HashSet<>();
 
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("id asc")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JoinColumn(name = "order_id")
     private List<Goods> goodsList = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("id asc")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JoinColumn(name = "order_id")
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
     @Column(name = "delivery_requires")
@@ -166,6 +179,74 @@ public class Order {
 
     @Column(name = "customer_context")
     private String customerContext;
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
+    }
+
+    public String getInquiryNo() {
+        if (inquiryNo == null)
+            setPoNo("");
+        return inquiryNo;
+    }
+
+    public void setInquiryNo(String inquiryNo) {
+        this.inquiryNo = inquiryNo;
+    }
+
+    public boolean isOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(boolean orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getOrderSource() {
+        if (orderSource == null)
+            setOrderSource("");
+        return orderSource;
+    }
+
+    public void setOrderSource(String orderSource) {
+        this.orderSource = orderSource;
+    }
+
+    public boolean isCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(boolean customerType) {
+        this.customerType = customerType;
+    }
+
+    public boolean isPreinvest() {
+        return isPreinvest;
+    }
+
+    public void setPreinvest(boolean preinvest) {
+        isPreinvest = preinvest;
+    }
+
+    public boolean isFinancing() {
+        return isFinancing;
+    }
+
+    public void setFinancing(boolean financing) {
+        isFinancing = financing;
+    }
+
+    public boolean isDeliverConsignC() {
+        return deliverConsignC;
+    }
+
+    public void setDeliverConsignC(boolean deliverConsignC) {
+        this.deliverConsignC = deliverConsignC;
+    }
 
     public Integer getId() {
         return id;
@@ -200,6 +281,9 @@ public class Order {
     }
 
     public String getPoNo() {
+        if (poNo == null) {
+            setPoNo("");
+        }
         return poNo;
     }
 
