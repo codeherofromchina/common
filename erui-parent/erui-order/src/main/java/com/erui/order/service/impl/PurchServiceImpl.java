@@ -6,6 +6,7 @@ import com.erui.order.dao.PurchDao;
 import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchGoods;
 import com.erui.order.requestVo.PurchListCondition;
+import com.erui.order.requestVo.PurchSaveVo;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,5 +89,25 @@ public class PurchServiceImpl implements PurchService {
 
 
         return page;
+    }
+
+    @Override
+    public boolean update(PurchSaveVo purchSaveVo) {
+        return false;
+    }
+
+    @Override
+    public boolean insert(PurchSaveVo purchSaveVo) {
+        return false;
+    }
+
+    @Override
+    public PurchSaveVo findByIdForDetailPage(Integer id) {
+        return null;
+    }
+
+    @Override
+    public List<PurchGoods> findInspectGoodsByPurch(Integer id) {
+        return null;
     }
 }

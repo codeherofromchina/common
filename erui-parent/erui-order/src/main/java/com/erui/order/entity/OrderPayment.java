@@ -16,10 +16,6 @@ public class OrderPayment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Order order;
 
     private Integer type;
 
@@ -41,13 +37,6 @@ public class OrderPayment {
         this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
     public Integer getType() {
         return type;
@@ -88,4 +77,6 @@ public class OrderPayment {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
+
 }

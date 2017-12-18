@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 
 import com.erui.order.entity.Order;
+import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
 
@@ -28,4 +29,8 @@ public interface OrderService {
      * @return
      */
     void deleteOrder(int ids []);
+
+    boolean updateOrder(AddOrderVo addOrderVo);
+
+    boolean addOrder(AddOrderVo addOrderVo);
 }
