@@ -40,6 +40,8 @@ public class CustomCentreController {
     @Autowired
     private InquiryCountService inquiryService;
     @Autowired
+    private DataServiceImpl DataServiceImpl;
+    @Autowired
     private OrderCountService orderService;
     @Autowired
     private InquirySKUService inquirySKUService;
@@ -709,8 +711,7 @@ public class CustomCentreController {
      */
     @RequestMapping("/data")
     public void data() throws Exception {
-        DataServiceImpl dataService = new DataServiceImpl();
-        dataService.totalData();
+        DataServiceImpl.totalData();
     }
     /**
      * 客户中心的订单和询单数据明细
