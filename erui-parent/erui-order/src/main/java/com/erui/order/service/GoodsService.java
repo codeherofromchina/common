@@ -14,7 +14,7 @@ public interface GoodsService {
      * @param id
      * @return
      */
-    Goods findById(Integer id);
+   Goods findById(Integer id);
 
     /**
      * 通过项目id查找商品列表

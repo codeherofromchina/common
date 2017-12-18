@@ -24,8 +24,9 @@ public class Goods {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Project project;
 
     private Integer seq;
@@ -360,5 +361,13 @@ public class Goods {
 
     public void setLwh(String lwh) {
         this.lwh = lwh;
+    }
+
+    public boolean isAbstracted() {
+        return abstracted;
+    }
+
+    public void setAbstracted(boolean abstracted) {
+        this.abstracted = abstracted;
     }
 }

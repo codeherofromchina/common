@@ -3,7 +3,9 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderDao;
+import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
+import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -107,5 +106,62 @@ public class OrderServiceImpl implements OrderService {
                     return vo;
                 }).collect(Collectors.toList());
         orderDao.save(collect);
+    }
+    @Override
+    public boolean updateOrder(AddOrderVo addOrderVo) {
+        return false;
+    }
+
+    @Override
+    public boolean addOrder(AddOrderVo addOrderVo) {
+        Order order = new Order();
+        order.setContractNo(addOrderVo.getContractNo());
+        order.setFrameworkNo(addOrderVo.getFrameworkNo());
+        order.setPoNo(addOrderVo.getPoNo());
+        order.setContractNoOs(addOrderVo.getContractNoOs());
+        order.setInquiryNo(addOrderVo.getInquiryNo());
+        order.setLogiQuoteNo(addOrderVo.getLogiQuoteNo());
+        order.setOrderType(addOrderVo.isOrderType());
+        order.setOrderSource(addOrderVo.getOrderSource());
+        order.setSigningDate(addOrderVo.getSigningDate());
+        order.setDeliveryDate(addOrderVo.getDeliveryDate());
+        order.setSigningCo(addOrderVo.getSigningCo());
+        order.setAgentId(addOrderVo.getAgentId());
+        order.setAgentName(addOrderVo.getAgentName());
+        order.setExecCoId(addOrderVo.getExecCoId());
+        order.setRegion(addOrderVo.getRegion());
+        order.setDistributionDeptId(addOrderVo.getDistributionDeptId());
+        order.setCountry(addOrderVo.getCountry());
+        order.setCrmCode(addOrderVo.getCrmCode());
+        order.setCustomerType(addOrderVo.isCustomerType());
+        order.setPerLiableRepay(addOrderVo.getPerLiableRepay());
+        order.setBusinessUnitId(addOrderVo.getBusinessUnitId());
+        order.setTechnicalId(addOrderVo.getTechnicalId());
+        order.setGrantType(addOrderVo.getGrantType());
+        order.setIsPreinvest(addOrderVo.isPreinvest());
+        order.setIsFinancing(addOrderVo.isFinancing());
+        order.setTradeTerms(addOrderVo.getTradeTerms());
+        order.setTransportType(addOrderVo.getTransportType());
+        order.setFromCountry(addOrderVo.getFromCountry());
+        order.setFromPlace(addOrderVo.getFromPlace());
+        order.setFromPort(addOrderVo.getFromPort());
+        order.setToCountry(addOrderVo.getToCountry());
+        order.setToPlace(addOrderVo.getToPlace());
+        order.setToPort(addOrderVo.getToPort());
+        order.setTotalPrice(addOrderVo.getTotalPrice());
+        order.setCurrencyBn(addOrderVo.getCurrencyBn());
+        order.setTaxBearing(addOrderVo.getTaxBearing());
+        order.setPaymentModeBn(addOrderVo.getPaymentModeBn());
+        order.setQualityFunds(addOrderVo.getQualityFunds());
+        order.setPayStatus(addOrderVo.getPayStatus());
+        order.setStatus(addOrderVo.getStatus());
+        order.setDeliveryRequires(addOrderVo.getDeliveryRequires());
+        order.setCustomerContext(addOrderVo.getCustomerContext());
+        order.setAttachmentSet((Set<Attachment>) addOrderVo.getAttachDesc());
+        order.setGoodsList(addOrderVo.getGoodDesc());
+        order.setOrderPayments(addOrderVo.getContractDesc());
+        order.setCreateTime(new Date());
+        orderDao.saveAndFlush(order);
+        return false;
     }
 }

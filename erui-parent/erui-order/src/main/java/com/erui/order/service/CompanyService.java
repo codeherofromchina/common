@@ -15,6 +15,10 @@ public interface CompanyService {
      * @return
      */
     Company findById(Integer id);
-
+    /**
+     * c查询所有分公司
+     * @param
+     * @return
+     */
     List<Company> findAll();
 }

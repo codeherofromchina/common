@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -27,7 +29,7 @@ public class Company {
     @Column(name="create_time")
     private Date createTime;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Set<Dept> deptSet = new HashSet<>();
 
@@ -35,9 +37,11 @@ public class Company {
         return id;
     }
 
+/*
     public void setId(Integer id) {
         this.id = id;
     }
+*/
 
     public Area getArea() {
         return area;
