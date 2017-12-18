@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -14,19 +15,19 @@ import java.util.Date;
 @Table(name = "goods")
 public class Goods {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name="parent_id")
     private Integer parentId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonIgnore
     private Order order;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonIgnore
     private Project project;
 
     private Integer seq;
@@ -39,7 +40,7 @@ public class Goods {
 
     private String sku;
     @Column(name="mete_type")
-    private String mateType; // 物料分类
+    private String meteType; // 物料分类
     @Column(name="pro_type")
     private String proType; // 产品分类
     @Column(name="name_en")
@@ -106,7 +107,7 @@ public class Goods {
     public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
-
+    @JoinColumn(name = "order_id",insertable = false,updatable = false)
     public Order getOrder() {
         return order;
     }
@@ -155,12 +156,12 @@ public class Goods {
         this.sku = sku;
     }
 
-    public String getMateType() {
-        return mateType;
+    public String getMeteType() {
+        return meteType;
     }
 
-    public void setMateType(String mateType) {
-        this.mateType = mateType;
+    public void setMeteType(String meteType) {
+        this.meteType = meteType;
     }
 
     public String getProType() {

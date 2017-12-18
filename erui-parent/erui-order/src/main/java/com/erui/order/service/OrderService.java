@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 
 import com.erui.order.entity.Order;
+import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
@@ -29,8 +30,17 @@ public interface OrderService {
      * @return
      */
     void deleteOrder(int ids []);
-
+    /**
+     * 修改订单
+     * @param addOrderVo
+     * @return
+     */
     boolean updateOrder(AddOrderVo addOrderVo);
-
+    /**
+     * 添加订单
+     * @param addOrderVo
+     * @return
+     */
     boolean addOrder(AddOrderVo addOrderVo);
+
 }

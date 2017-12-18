@@ -10,9 +10,9 @@ import java.util.Date;
 @Table(name = "attachment")
 public class Attachment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @Column(name = "`group`")
     private String group;
 
     private String title;

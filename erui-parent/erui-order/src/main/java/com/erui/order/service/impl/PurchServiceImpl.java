@@ -70,7 +70,7 @@ public class PurchServiceImpl implements PurchService {
             psvg.setPurchaseTotalPrice(pg.getPurchaseTotalPrice());
             psvg.setRemark(pg.getPurchaseRemark());
             psvg.setSku(goods.getSku());
-            psvg.setMateType(goods.getMateType());
+            psvg.setMeteType(goods.getMeteType());
             psvg.setProType(goods.getProType());
             psvg.setNameEn(goods.getNameEn());
             psvg.setNameZh(goods.getNameZh());
@@ -311,7 +311,7 @@ public class PurchServiceImpl implements PurchService {
                     Goods goods02 = new Goods();
 
                     goods02.setSku(sonGoods.getSku()); // 商品SKU
-                    goods02.setMateType(sonGoods.getMateType()); //  物料分类
+                    goods02.setMeteType(sonGoods.getMeteType()); //  物料分类
                     goods02.setProType(sonGoods.getProType()); //  产品分类
                     goods02.setNameEn(sonGoods.getNameEn()); // 外文品名
                     goods02.setNameZh(sonGoods.getNameZh()); //  中文品名

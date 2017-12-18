@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PGoods {
     private Integer id;
+    private Integer seq;
     private Integer goodsId;
     private String projectNo; // 项目号
     private String contractNo;
@@ -20,7 +21,7 @@ public class PGoods {
     private BigDecimal purchaseTotalPrice; // 采购总金额
     private String remark; // 采购备注
     private String sku;
-    private String mateType; // 物料分类
+    private String meteType; // 物料分类
     private String proType; // 产品分类
     private String nameEn;
     private String nameZh;
@@ -29,7 +30,15 @@ public class PGoods {
     private String model;
     private Integer contractGoodsNum; // 合同商品数量
     private String purchasedum; // 已采购数量
+    private String clientDesc;//客户描述
 
+    public Integer getSeq() {
+        return seq;
+    }
+
+    public void setSeq(Integer seq) {
+        this.seq = seq;
+    }
 
     public Integer getId() {
         return id;
@@ -119,12 +128,12 @@ public class PGoods {
         this.sku = sku;
     }
 
-    public String getMateType() {
-        return mateType;
+    public String getMeteType() {
+        return meteType;
     }
 
-    public void setMateType(String mateType) {
-        this.mateType = mateType;
+    public void setMeteType(String meteType) {
+        this.meteType = meteType;
     }
 
     public String getProType() {
@@ -189,5 +198,13 @@ public class PGoods {
 
     public void setPurchasedum(String purchasedum) {
         this.purchasedum = purchasedum;
+    }
+
+    public String getClientDesc() {
+        return clientDesc;
+    }
+
+    public void setClientDesc(String clientDesc) {
+        this.clientDesc = clientDesc;
     }
 }
