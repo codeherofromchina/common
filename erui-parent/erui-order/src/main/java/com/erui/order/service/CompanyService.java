@@ -3,6 +3,8 @@ package com.erui.order.service;
 import com.erui.order.entity.Area;
 import com.erui.order.entity.Company;
 
+import java.util.List;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -13,4 +15,6 @@ public interface CompanyService {
      * @return
      */
     Company findById(Integer id);
+
+    List<Company> findAll();
 }

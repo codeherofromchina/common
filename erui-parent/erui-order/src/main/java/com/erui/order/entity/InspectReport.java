@@ -1,9 +1,7 @@
 package com.erui.order.entity;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 仓库-入库-质检报告
@@ -21,6 +19,10 @@ public class InspectReport {
 
     // 是否还在质检中 true:进行中  false:已结束
     private boolean process = true;
+
+    // 是否是报检单的第一次质检  true:第一次  false：非第一次
+    @Column(name = "report_first")
+    private boolean reportFirst = true;
 
 
     @Column(name = "check_user_id")
@@ -50,7 +52,7 @@ public class InspectReport {
     private int checkTimes = 1;
 
     /**
-     * 质检报告状态 0:未编辑 1:进行中可办理 2:质检完成 3:进行中不可办理
+     * 质检报告状态 0:未编辑 1:草稿/保存 2:质检完成
      */
     private int status = 0;
 
@@ -62,7 +64,7 @@ public class InspectReport {
     @JoinTable(name = "inspect_report_attach",
             joinColumns = @JoinColumn(name = "inspect_report_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -102,6 +104,14 @@ public class InspectReport {
 
     public void setProcess(boolean process) {
         this.process = process;
+    }
+
+    public void setReportFirst(boolean reportFirst) {
+        this.reportFirst = reportFirst;
+    }
+
+    public boolean isReportFirst() {
+        return reportFirst;
     }
 
     public int getCheckTimes() {
@@ -169,11 +179,11 @@ public class InspectReport {
         this.msg = msg;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 }

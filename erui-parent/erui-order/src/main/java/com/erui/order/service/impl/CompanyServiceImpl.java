@@ -9,6 +9,8 @@ import com.erui.order.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -22,4 +24,11 @@ public class CompanyServiceImpl implements CompanyService {
     public Company findById(Integer id) {
         return companyDao.findOne(id);
     }
+
+    @Override
+    public List<Company> findAll() {
+        return null;
+    }
+
+
 }
