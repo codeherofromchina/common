@@ -614,12 +614,12 @@ public class CustomCentreController {
         Map<String, Object> data = new HashedMap();
         // 询单数量
         Map<String, Object> inqCount = new HashedMap();
-        inqCount.put("marketArea", areaInqAmounts);
+        inqCount.put("marketArea", areaInqCounts);
         inqCount.put("inqCounts", inqCounts);
         data.put("inqCount", inqCount);
         // 询单金额
         Map<String, Object> inqAmount = new HashedMap();
-        inqAmount.put("marketArea", areaInqCounts);
+        inqAmount.put("marketArea", areaInqAmounts);
         inqAmount.put("inqAmount", inqAmounts);
         data.put("inqAmount", inqAmount);
         // 订单数量
@@ -683,8 +683,12 @@ public class CustomCentreController {
                 String category1 = vo.getCategory();
                 category.add(category1);
                 inqMap.put(category1, vo);
-                inqTotalCount += vo.getInqCateCount();
-                inqTotalAmount = inqTotalAmount.add(new BigDecimal(vo.getInqCatePrice()));
+                if(vo.getInqCateCount()>0){
+                    inqTotalCount += vo.getInqCateCount();
+                }
+                if (vo.getInqCatePrice()>0){
+                    inqTotalAmount = inqTotalAmount.add(new BigDecimal(vo.getInqCatePrice()));
+                }
             }
         }
 
