@@ -333,7 +333,7 @@ public class CustomCentreController {
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
                 0, 0, "", "");//已完成询单数量
         int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_QUOTEING.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
                 0, 0, "", "");//报价中询单数量
         int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
@@ -614,12 +614,12 @@ public class CustomCentreController {
         Map<String, Object> data = new HashedMap();
         // 询单数量
         Map<String, Object> inqCount = new HashedMap();
-        inqCount.put("marketArea", areaInqCounts);
+        inqCount.put("marketArea",areaInqCounts);
         inqCount.put("inqCounts", inqCounts);
         data.put("inqCount", inqCount);
         // 询单金额
         Map<String, Object> inqAmount = new HashedMap();
-        inqAmount.put("marketArea", areaInqAmounts);
+        inqAmount.put("marketArea",areaInqAmounts);
         inqAmount.put("inqAmount", inqAmounts);
         data.put("inqAmount", inqAmount);
         // 订单数量
@@ -686,7 +686,7 @@ public class CustomCentreController {
                 if(vo.getInqCateCount()>0){
                     inqTotalCount += vo.getInqCateCount();
                 }
-                if (vo.getInqCatePrice()>0){
+                if(vo.getInqCatePrice()>0) {
                     inqTotalAmount = inqTotalAmount.add(new BigDecimal(vo.getInqCatePrice()));
                 }
             }
