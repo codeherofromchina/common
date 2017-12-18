@@ -264,7 +264,7 @@ public class CustomCentreController {
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
                 0, 0, "", "");//已完成询单数量
         int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_QUOTEING.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
                 0, 0, "", "");//报价中询单数量
         int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
