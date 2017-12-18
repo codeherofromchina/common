@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.middle.mongo.MongoUtil;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.*;
@@ -827,11 +828,14 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             criteria.andQuotationNumEqualTo(serial_no.toString());
                             inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() == 1) {
+                                MongoUtil.addStaticLog("ruibin if",String.valueOf(inqList.size())+":::"+inqList.get(0).getId());
                                 inquiryCount.setId(inqList.get(0).getId());
                                 updateCounts.add(inquiryCount);
                             } else if (inqList != null && inqList.size() > 1) {
+                                MongoUtil.addStaticLog("ruibin else if",String.valueOf(inqList.size()));
                                 continue;
                             } else {
+                                MongoUtil.addStaticLog("ruibin else",String.valueOf(inqList.size())+":::"+inquiryCount.getQuotationNum());
                                 inquiryCounts.add(inquiryCount);
                             }
                         }
@@ -882,6 +886,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     }
                     if (updateCounts != null && updateCounts.size() > 0) {
                         for (InquiryCount inq:updateCounts ) {
+                            MongoUtil.addStaticLog("ruibin","");
                             mapper.updateByPrimaryKey(inq);
                         }
                     }

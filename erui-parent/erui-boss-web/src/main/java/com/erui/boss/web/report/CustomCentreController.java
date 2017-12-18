@@ -10,6 +10,7 @@ import com.erui.report.model.CateDetailVo;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
+import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
 import com.erui.report.util.IsOilVo;
@@ -701,7 +702,16 @@ public class CustomCentreController {
         }
         return result;
     }
-
+    /**
+     * 获取区域明细中的所有大区和大区中的所有国家列表
+     *
+     * @return
+     */
+    @RequestMapping("/data")
+    public void data() throws Exception {
+        DataServiceImpl dataService = new DataServiceImpl();
+        dataService.totalData();
+    }
     /**
      * 客户中心的订单和询单数据明细
      *
