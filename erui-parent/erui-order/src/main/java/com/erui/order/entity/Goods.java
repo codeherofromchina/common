@@ -9,6 +9,7 @@ import java.util.Date;
 /**
  * 商品信息
  */
+
 @Entity
 @Table(name = "goods")
 public class Goods {
