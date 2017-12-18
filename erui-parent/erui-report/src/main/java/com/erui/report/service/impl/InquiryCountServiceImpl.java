@@ -792,7 +792,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         Object quote_status = map.get("quote_status");//报价
                         Object other = map.get("other");//询单商品数据
                         InquiryCount inquiryCount = new InquiryCount();
-
+                        List<InquiryCount> inqList =null;
                         if (created_at != null) {
                             inquiryCount.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
                         }
@@ -813,7 +813,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         }
                         if (quote_time != null) {
                             double quote = Double.parseDouble(quote_time.toString());//秒
-                            double hour = quote / 60 / 60;
+                            double hour =( quote / 60) / 60;
                             inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
                         }
                         if (quote_status != null) {
@@ -825,11 +825,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             InquiryCountExample example = new InquiryCountExample();
                             Criteria criteria = example.createCriteria();
                             criteria.andQuotationNumEqualTo(serial_no.toString());
-                            List<InquiryCount> inqList = readMapper.selectByExample(example);//查询询单列表
+                            inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() == 1) {
                                 inquiryCount.setId(inqList.get(0).getId());
                                 updateCounts.add(inquiryCount);
-                                continue;
                             } else if (inqList != null && inqList.size() > 1) {
                                 continue;
                             } else {
@@ -846,8 +845,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                         inquirySku.setProCategory(goodsList.get("category").toString());
                                     }
 
+//                                        inquirySku.setCateCount(1);
+                                    if (goodsList.get("qty") != null) {
                                         inquirySku.setCateCount(1);
-
+                                    }
                                     if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
                                     } else {
@@ -864,6 +865,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     }
                                     if (serial_no != null) {
                                         inquirySku.setQuotationNum(serial_no.toString());
+                                        if(inqList!=null&&inqList.size()>0){
+                                            InquirySkuExample skuExample = new InquirySkuExample();
+                                            InquirySkuExample.Criteria criteria = skuExample.createCriteria();
+                                            criteria.andQuotationNumEqualTo(serial_no.toString());
+                                            skuWriteMapper.deleteByExample(skuExample);
+                                        }
                                     }
                                     inquiryCates.add(inquirySku);
                                 }
@@ -875,10 +882,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     }
                     if (updateCounts != null && updateCounts.size() > 0) {
                         for (InquiryCount inq:updateCounts ) {
-//                            InquiryCountExample e = new InquiryCountExample();
-//                            Criteria criteria = e.createCriteria();
-//                            criteria.andQuotationNumEqualTo(inq.getQuotationNum());
-//                            mapper.updateByExample(inq,e);
                             mapper.updateByPrimaryKey(inq);
                         }
                     }
