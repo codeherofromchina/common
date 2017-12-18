@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import java.util.List;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -34,4 +36,6 @@ public class CompanyServiceImpl implements CompanyService {
     public List<Company> findAll() {
         return companyDao.findAll();
     }
+
+
 }

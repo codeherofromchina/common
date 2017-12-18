@@ -16,7 +16,7 @@ public class PGoods {
     private String contractNo;
     private PGoods son;
     private Integer purchaseNum; // 采购数量
-    private Integer inspectNum; // 已报检数量
+    private Integer inspectNum; // 已报检数量/报检数量
     private BigDecimal purchasePrice; // 采购金额
     private BigDecimal purchaseTotalPrice; // 采购总金额
     private String remark; // 采购备注
@@ -31,6 +31,11 @@ public class PGoods {
     private Integer contractGoodsNum; // 合同商品数量
     private String purchasedum; // 已采购数量
     private String clientDesc;//客户描述
+    private Integer samples;
+    private Integer unqualified;
+    private String unqualifiedDesc;
+    private Boolean unqualifiedFlag; // 是否不合格  true:不合格  false:合格
+    private Integer instockNum;
 
     public Integer getSeq() {
         return seq;
@@ -206,5 +211,48 @@ public class PGoods {
 
     public void setClientDesc(String clientDesc) {
         this.clientDesc = clientDesc;
+    }
+
+    public Integer getSamples() {
+        return samples;
+    }
+
+    public void setSamples(Integer samples) {
+        this.samples = samples;
+    }
+
+    public Integer getUnqualified() {
+        return unqualified;
+    }
+
+    public void setUnqualified(Integer unqualified) {
+        this.unqualified = unqualified;
+        if (unqualified != null) {
+            if (unqualified > 0) {
+                this.unqualifiedFlag = true;
+            } else {
+                this.unqualifiedFlag = false;
+            }
+        }
+    }
+
+    public Boolean getUnqualifiedFlag() {
+        return unqualifiedFlag;
+    }
+
+    public String getUnqualifiedDesc() {
+        return unqualifiedDesc;
+    }
+
+    public void setUnqualifiedDesc(String unqualifiedDesc) {
+        this.unqualifiedDesc = unqualifiedDesc;
+    }
+
+    public Integer getInstockNum() {
+        return instockNum;
+    }
+
+    public void setInstockNum(Integer instockNum) {
+        this.instockNum = instockNum;
     }
 }
