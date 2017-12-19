@@ -8,8 +8,8 @@ import java.util.*;
  * 订单表
  */
 @Entity
-@Table(name = "order")
-public class Order {
+@Table(name = "`order`")
+public class Order  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -146,6 +146,10 @@ public class Order {
     @Column(name = "delete_time")
     private Date deleteTime;
 
+    @Column(name = "receivable_account_remaining")
+    private BigDecimal receivableAccountRemaining;
+
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
@@ -161,11 +165,21 @@ public class Order {
     @OrderBy("id asc")
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
+
     @Column(name = "delivery_requires")
     private String deliveryRequires;
 
     @Column(name = "customer_context")
     private String customerContext;
+
+    public void setReceivableAccountRemaining(BigDecimal receivableAccountRemaining) {
+        this.receivableAccountRemaining = receivableAccountRemaining;
+    }
+
+    public BigDecimal getReceivableAccountRemaining() {
+
+        return receivableAccountRemaining;
+    }
 
     public Integer getId() {
         return id;
