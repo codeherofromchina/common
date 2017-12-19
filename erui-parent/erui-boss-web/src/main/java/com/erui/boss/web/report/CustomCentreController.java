@@ -11,6 +11,7 @@ import com.erui.report.model.InquiryCount;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
+import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
 import com.erui.report.util.IsOilVo;
@@ -43,6 +44,8 @@ public class CustomCentreController {
     private OrderCountService orderService;
     @Autowired
     private InquirySKUService inquirySKUService;
+    @Autowired
+    private DataServiceImpl DataServiceImpl;
     private static DecimalFormat df = new DecimalFormat("0.00");
 
 
@@ -234,7 +237,10 @@ public class CustomCentreController {
         datas.put("proTop3", listTop3);
         return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
     }
-
+    @RequestMapping("/data")
+    public void data() throws Exception {
+        DataServiceImpl.totalData();
+    }
     /*
      * 订单总览
      */

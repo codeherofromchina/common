@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.erui.report.service.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -29,19 +30,6 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ExcelReader;
 import com.erui.comm.FileUtil;
 import com.erui.comm.util.pinyin4j.Pinyin4j;
-import com.erui.report.service.CategoryQualityService;
-import com.erui.report.service.CreditExtensionService;
-import com.erui.report.service.HrCountService;
-import com.erui.report.service.InquiryCountService;
-import com.erui.report.service.MarketerCountService;
-import com.erui.report.service.MemberService;
-import com.erui.report.service.OrderCountService;
-import com.erui.report.service.OrderEntryCountService;
-import com.erui.report.service.OrderOutboundCountService;
-import com.erui.report.service.ProcurementCountService;
-import com.erui.report.service.RequestCreditService;
-import com.erui.report.service.StorageOrganiCountService;
-import com.erui.report.service.SupplyChainService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
 
@@ -80,6 +68,8 @@ public class ExcelController {
     private RequestCreditService requestCreditService;
     @Autowired
     private SupplyChainService supplyChainService;
+    @Autowired
+    private RequestReceiveService receiveService;
 
     /**
      * 下载模板
@@ -314,6 +304,10 @@ public class ExcelController {
             case SUPPLY_CHAIN:
                 logger.info("导入供应链数据");
                 response = supplyChainService.importData(datas, testOnly);
+                break;
+            case REQUEST_RECEIVE:
+                logger.info("导入回款金额数据");
+                response = receiveService.importData(datas, testOnly);
                 break;
             default:
                 response = new ImportDataResponse();
