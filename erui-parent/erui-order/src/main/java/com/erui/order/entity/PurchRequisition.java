@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.*;
 
@@ -48,6 +50,7 @@ public class PurchRequisition {
     private Integer status;
 
     @Column(name="create_time")
+    @JsonIgnore
     private Date createTime;
 
     private String remarks;
