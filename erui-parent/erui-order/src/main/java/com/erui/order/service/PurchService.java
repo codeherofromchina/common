@@ -1,10 +1,7 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Goods;
 import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchGoods;
-import com.erui.order.requestVo.PurchListCondition;
-import com.erui.order.requestVo.PurchSaveVo;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -14,30 +11,29 @@ import java.util.List;
  */
 public interface PurchService {
     /**
-     * 根据id查询采购信息
+     * 根据id查询采购基本信息
      * @param id
      * @return
      */
-    Purch findById(Integer id);
-
+    Purch findBaseInfo(Integer id);
 
     /**
      * 根据条件分页查询采购信息列表
      * @param condition
      * @return
      */
-    Page<Purch> findByPage(PurchListCondition condition) ;
+    Page<Purch> findByPage(Purch condition) ;
 
-    boolean update(PurchSaveVo purchSaveVo);
+    boolean update(Purch purchVo);
 
-    boolean insert(PurchSaveVo purchSaveVo);
+    boolean insert(Purch purchVo);
 
     /**
-     * 查询详情页面信息
-     * @param id
+     * 查询采购详情信息
+     * @param id    采购ID
      * @return
      */
-    PurchSaveVo findByIdForDetailPage(Integer id);
+    Purch findDetailInfo(Integer id);
 
     /**
      * 查询采购中可以新增报检单的商品列表

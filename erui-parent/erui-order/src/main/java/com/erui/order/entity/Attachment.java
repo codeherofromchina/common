@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -10,9 +12,10 @@ import java.util.Date;
 @Table(name = "attachment")
 public class Attachment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "`group`")
     private String group;
 
     private String title;
@@ -28,10 +31,14 @@ public class Attachment {
     @Column(name = "front_date")
     private String frontDate;
     @Column(name = "delete_flag")
+    @JsonIgnore
     private Boolean deleteFlag;
     @Column(name = "delete_time")
+    @JsonIgnore
     private Date deleteTime;
+
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     public Integer getId() {

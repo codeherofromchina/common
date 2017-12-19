@@ -18,7 +18,7 @@ public class Project {
     @JoinColumn(name="order_id")
     private Order order;
 
-    @OneToOne(mappedBy="project")
+    @OneToOne(mappedBy="project",fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
     @Column(name="contract_no")

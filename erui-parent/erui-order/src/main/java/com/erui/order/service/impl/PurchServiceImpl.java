@@ -2,24 +2,20 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.PurchDao;
-import com.erui.order.dao.PurchGoodsDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.PGoods;
-import com.erui.order.requestVo.PurchListCondition;
-import com.erui.order.requestVo.PurchSaveVo;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,9 +31,13 @@ public class PurchServiceImpl implements PurchService {
     private GoodsDao goodsDao;
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+    @Autowired
+    private PurchPaymentDao purchPaymentDao;
+    @Autowired
+    private AttachmentDao attachmentDao;
 
     @Override
-    public Purch findById(Integer id) {
+    public Purch findBaseInfo(Integer id) {
         return purchDao.findOne(id);
     }
 
@@ -49,50 +49,20 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    public PurchSaveVo findByIdForDetailPage(Integer id) {
+    @Transactional
+    public Purch findDetailInfo(Integer id) {
         Purch puch = purchDao.findOne(id);
-
-        PurchSaveVo result = new PurchSaveVo();
-        result.copyBaseInfoFrom(puch);
-
-        List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
-        Map<Integer, PGoods> purchGoodsMap = new HashMap<>();
-        List<PGoods> psvgList = new ArrayList<>();
-        Goods goods = null;
-        for (PurchGoods pg : purchGoodsList) {
-            goods = pg.getGoods();
-            PGoods psvg = new PGoods();
-
-            psvg.setId(pg.getId());
-            psvg.setGoodsId(goods.getId());
-            psvg.setPurchaseNum(pg.getPurchaseNum());
-            psvg.setPurchasePrice(pg.getPurchasePrice());
-            psvg.setPurchaseTotalPrice(pg.getPurchaseTotalPrice());
-            psvg.setRemark(pg.getPurchaseRemark());
-            psvg.setSku(goods.getSku());
-            psvg.setMateType(goods.getMateType());
-            psvg.setProType(goods.getProType());
-            psvg.setNameEn(goods.getNameEn());
-            psvg.setNameZh(goods.getNameZh());
-            psvg.setUnit(goods.getUnit());
-            psvg.setBrand(goods.getBrand());
-            psvg.setModel(goods.getModel());
-
-            if (pg.isSon()) {
-
-                PGoods goods1 = purchGoodsMap.get(pg.getParent().getId());
-                goods1.setSon(psvg);
-            } else {
-                purchGoodsMap.put(pg.getId(), psvg);
-                psvgList.add(psvg);
-            }
+        puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+        puch.getAttachments().size(); // 获取采购的附件信息
+        puch.getPurchGoodsList().size(); //获取采购商品信息
+        List<String> projectNoList = new ArrayList<>();
+        for (Project p : puch.getProjects()) {
+            projectNoList.add(p.getProjectNo());
         }
-        result.setPurchGoodsList(psvgList);
+        puch.setProjectNos(StringUtils.join(projectNoList,","));
 
-        result.setPurchPaymentList(puch.getPurchPaymentList());
-        result.setAttachments(puch.getAttachments());
 
-        return result;
+        return puch;
     }
 
     @Override
@@ -117,16 +87,16 @@ public class PurchServiceImpl implements PurchService {
      */
     @Override
     @Transactional
-    public Page<Purch> findByPage(final PurchListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), null);
+    public Page<Purch> findByPage(final Purch condition) {
+        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), Sort.Direction.DESC, "id");
 
         Page<Purch> page = purchDao.findAll(new Specification<Purch>() {
             @Override
             public Predicate toPredicate(Root<Purch> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
                 // 根据采购合同号模糊查询
-                if (StringUtil.isNotBlank(condition.getContractNo())) {
-                    list.add(cb.like(root.get("purchNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                if (StringUtil.isNotBlank(condition.getContractNos())) {
+                    list.add(cb.like(root.get("purchNo").as(String.class), "%" + condition.getContractNos() + "%"));
                 }
                 // 根据采购经办人查询
                 if (condition.getAgentId() != null) {
@@ -140,14 +110,20 @@ public class PurchServiceImpl implements PurchService {
                 if (condition.getArrivalDate() != null) {
                     list.add(cb.equal(root.get("arrivalDate").as(Date.class), NewDateUtil.getDate(condition.getArrivalDate())));
                 }
-                //  根据销售合同号查询
-                Join<Purch, PurchGoods> purchGoods = root.join("purchGoodsList");
-                if (StringUtils.isNotBlank(condition.getContractNo())) {
-                    list.add(cb.like(purchGoods.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
-                }
-                //根据项目号查找
-                if (StringUtils.isNotBlank(condition.getProjectNo())) {
-                    list.add(cb.like(purchGoods.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+
+                String contractNos = condition.getContractNos();
+                String projectNos = condition.getProjectNos();
+                // 根据销售合同号、项目号查询
+                if (StringUtils.isNoneBlank(contractNos, projectNos)) {
+                    Join<Purch, Project> projects = root.join("projects");
+                    // 销售合同号查询
+                    if (StringUtils.isNotBlank(contractNos)) {
+                        list.add(cb.like(projects.get("contractNo").as(String.class), "%" + contractNos + "%"));
+                    }
+                    // 项目号查询
+                    if (StringUtils.isNotBlank(projectNos)) {
+                        list.add(cb.like(projects.get("projectNo").as(String.class), "%" + projectNos + "%"));
+                    }
                 }
 
                 //根据供应商过滤条件
@@ -166,6 +142,12 @@ public class PurchServiceImpl implements PurchService {
             }
         }, request);
 
+        if (page.hasContent()) {
+            page.getContent().parallelStream().forEach(purch -> {
+                purch.getProjects().size();
+            });
+        }
+
 
         return page;
     }
@@ -174,43 +156,50 @@ public class PurchServiceImpl implements PurchService {
     /**
      * 新增采购单
      *
-     * @param purchSaveVo
+     * @param purch
      * @return
      */
-    public boolean insert(PurchSaveVo purchSaveVo) {
-
-        Purch purch = new Purch();
-        purchSaveVo.copyBaseInfoTo(purch);
-
-        List<PGoods> goodsList = purchSaveVo.getPurchGoodsList();
-        List<PurchPayment> paymentList = purchSaveVo.getPurchPaymentList();
-        List<Attachment> attachments = purchSaveVo.getAttachments();
+    @Transactional
+    public boolean insert(Purch purch) {
         Date now = new Date();
         purch.setCreateTime(now);
         purch.setUpdateTime(now);
         purch.setDeleteFlag(false);
 
-        // 处理商品
-        List<PurchGoods> purchGoodsList = handleGoods(purch, goodsList);
-        purch.setPurchGoodsList(purchGoodsList);
-
         // 处理结算方式
-        paymentList = handlePayment(purch, paymentList);
-        purch.setPurchPaymentList(paymentList);
-
+        purch.getPurchPaymentList().parallelStream().forEach(vo -> {
+            vo.setId(null);
+            vo.setCreateTime(now);
+        });
         // 处理附件信息
-        for (Attachment attachment : attachments) {
+        purch.getAttachments().parallelStream().forEach(attachment -> {
             attachment.setId(null); // 确保新增的采购一定是新增的附件
             attachment.setCreateTime(now);
             attachment.setDeleteFlag(false);
-            attachment.setUserId(purchSaveVo.getUserId());
-            attachment.setUserName(purchSaveVo.getUserName());
+            attachment.setUserId(purch.getCreateUserId());
+            attachment.setUserName(purch.getCreateUserName());
+        });
+
+        List<PurchGoods> purchGoodsList = new ArrayList<>();
+        Set<Project> projectSet = new HashSet<>();
+        // 处理商品
+        for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
+            Goods goods = goodsDao.findOne(purchGoods.getgId());
+            Project project = goods.getProject();
+            purchGoodsList.add(purchGoods);
+            projectSet.add(project);
+            // 处理新增的采购商品
+            PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods);
+            if (son != null) {
+                purchGoodsList.add(son);
+            }
         }
-        purch.setAttachments(attachments);
+
+        purch.setPurchGoodsList(purchGoodsList);
+        purch.setProjects(new ArrayList<>(projectSet));
 
         // 保存采购单
         purchDao.save(purch);
-
         return true;
     }
 
@@ -218,138 +207,204 @@ public class PurchServiceImpl implements PurchService {
     /**
      * 更新采购单
      *
-     * @param purchSaveVo
+     * @param purch
      * @return
      */
     @Override
     @Transactional
-    public boolean update(PurchSaveVo purchSaveVo) {
+    public boolean update(Purch purch) {
 
-        Purch purch = purch = purchDao.findOne(purchSaveVo.getId());
-        if (purch == null) {
+        Purch dbPurch = purchDao.findOne(purch.getId());
+        // 之前的采购必须不能为空且未提交状态
+        if (dbPurch == null || dbPurch.getStatus() != Purch.StatusEnum.READY.getCode()) {
             return false;
         }
-        purchSaveVo.copyBaseInfoTo(purch);
 
-        List<PGoods> goodsList = purchSaveVo.getPurchGoodsList();
-        List<PurchPayment> paymentList = purchSaveVo.getPurchPaymentList();
-        List<Attachment> attachments = purchSaveVo.getAttachments();
+        // 设置基本信息
+        dbPurch.setBaseInfo(purch);
+        dbPurch.setUpdateTime(new Date());
 
-        List<PurchGoods> purchGoodsList = handleGoods(purch, goodsList);
-        purch.setPurchGoodsList(purchGoodsList);
-
+        Date now = new Date();
         // 处理结算方式
-        paymentList = handlePayment(purch, paymentList);
-        purch.setPurchPaymentList(paymentList);
-        // 附件
-        purch.setAttachments(attachments);
+        Map<Integer, PurchPayment> collect = dbPurch.getPurchPaymentList().parallelStream().collect(Collectors.toMap(PurchPayment::getId, vo -> vo));
+        List<PurchPayment> paymentList = purch.getPurchPaymentList().parallelStream().filter(vo -> {
+            Integer payId = vo.getId();
+            return payId == null || collect.containsKey(payId);
+        }).map(payment -> {
+            Integer paymentId = payment.getId();
+            if (paymentId == null) {
+                payment.setCreateTime(now);
+            } else {
+                PurchPayment payment2 = collect.remove(paymentId);
+                payment.setCreateTime(payment2.getCreateTime());
+            }
+            return payment;
+        }).collect(Collectors.toList());
+        dbPurch.setPurchPaymentList(paymentList);
+        // 删除废弃的结算方式
+        if (collect.size() > 0) {
+            purchPaymentDao.delete(collect.values());
+        }
 
+
+        // 处理附件信息
+        Map<Integer, Attachment> attachmentMap = dbPurch.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        List<Attachment> attachmentlist = purch.getAttachments().parallelStream().filter(vo -> {
+            Integer id = vo.getId();
+            return id == null || attachmentMap.containsKey(id);
+        }).map(attachment -> {
+            Integer attId = attachment.getId();
+            if (attId == null) {
+                attachment.setCreateTime(now);
+                attachment.setDeleteFlag(false);
+                attachment.setUserId(purch.getCreateUserId());
+                attachment.setUserName(purch.getCreateUserName());
+            } else {
+                Attachment attachment1 = attachmentMap.remove(attId);
+                attachment.setCreateTime(attachment1.getCreateTime());
+                attachment.setDeleteFlag(attachment1.getDeleteFlag());
+                attachment.setUserId(attachment1.getUserId());
+                attachment.setUserName(attachment1.getUserName());
+            }
+            return attachment;
+        }).collect(Collectors.toList());
+        dbPurch.setAttachments(attachmentlist);
+        if (attachmentMap.size() > 0) {
+            List<Attachment> delAttachmentList = attachmentMap.values().parallelStream().map(vo -> {
+                vo.setDeleteFlag(true);
+                vo.setDeleteTime(new Date());
+                return vo;
+            }).collect(Collectors.toList());
+            attachmentDao.save(delAttachmentList);
+        }
+
+
+        // 处理商品
+        List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
+        Set<Project> projectSet = new HashSet<>();
+        // 数据库现在的采购商品信息
+        Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
+        Set<Integer> existId = new HashSet<>();
+
+        // 处理参数中的采购商品信息
+        for (PurchGoods pg : purch.getPurchGoodsList()) {
+            Integer pgId = pg.getId();
+            if (pgId == null) { // 新增加的采购商品信息
+                Goods goods = goodsDao.findOne(pg.getgId());
+                Project project = goods.getProject();
+
+                purchGoodsList.add(pg);
+                projectSet.add(project);
+
+                // 查看是否存在替换商品
+                PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg);
+                if (son != null) {
+                    purchGoodsList.add(son);
+                }
+
+            } else if (dbPurchGoodsMap.containsKey(pgId)) {
+                // 编辑原来的采购商品
+                PurchGoods purchGoods = dbPurchGoodsMap.get(pgId);
+                Goods goods = purchGoods.getGoods();
+                Project project = purchGoods.getProject();
+
+                boolean hasSon = false;
+                Boolean exchanged = purchGoods.getExchanged();
+                if (exchanged != null && exchanged) {
+                    // 是替换商品，查看父商品是否存在，如果父商品不存在，则忽略此替换商品
+                    Integer pId = purchGoods.getParent().getId();
+                    if (!(existId.contains(pId) || dbPurchGoodsMap.containsKey(pId))) {
+                        break;
+                    }
+                } else {
+                    // 不是替换商品，查看是否添加了替换商品
+                    hasSon = pg.getSon() != null;
+                }
+                // 正常添加
+                existId.add(pgId);
+                dbPurchGoodsMap.remove(pgId);
+                projectSet.add(project);
+
+                purchGoods.setPurchaseNum(pg.getPurchaseNum()); // 采购商品数量
+                purchGoods.setPurchasePrice(pg.getPurchasePrice()); // 采购单价
+                purchGoods.setPurchaseTotalPrice(pg.getPurchaseTotalPrice()); //  采购总金额
+                purchGoods.setPurchaseRemark(pg.getPurchaseRemark()); // 采购说明
+                purchGoodsList.add(purchGoods);
+                if (hasSon) {
+                    // 处理替换商品
+                    PurchGoods son = pg.getSon();
+                    handleExchangedPurchGoods(project, goods, dbPurch, purchGoods, son);
+                    purchGoodsList.add(son);
+                }
+            } else {
+                // 采购商品不属于此采购，忽略此条商品信息
+            }
+        }
+
+
+        dbPurch.setPurchGoodsList(purchGoodsList);
+        dbPurch.setProjects(new ArrayList<>(projectSet));
+
+        // 删除不关联的商品信息
+        if (dbPurchGoodsMap.size() > 0) {
+            purchGoodsDao.delete(dbPurchGoodsMap.values());
+        }
+
+        purchDao.save(dbPurch);
 
         return true;
     }
 
+    // 处理新增采购信息，如果采购信息有替换的商品，则返回替换信息
+    private PurchGoods handleAddNewPurchGoods(Project project, Purch purch, Goods goods, PurchGoods newPurchGoods) {
+        String contractNo = project.getContractNo();
+        String projectNo = project.getProjectNo();
+        newPurchGoods.setId(null);
+        newPurchGoods.setProject(project);
+        newPurchGoods.setContractNo(contractNo);
+        newPurchGoods.setProjectNo(projectNo);
+        newPurchGoods.setPurch(purch);
+        newPurchGoods.setGoods(goods);
+        newPurchGoods.setExchanged(false);
+        newPurchGoods.setInspectNum(0);
+        newPurchGoods.setCreateTime(new Date());
 
-    /**
-     * 处理采购单的支付方式
-     *
-     * @param paymentList
-     * @return
-     */
-    private List<PurchPayment> handlePayment(Purch purch, List<PurchPayment> paymentList) {
-        // 处理结算方式
-        for (PurchPayment payment : paymentList) {
-            payment.setPurch(purch);
-            if (payment.getId() == null) {
-                payment.setCreateTime(new Date());
-            }
+        // 查看是否存在替换商品
+        PurchGoods son = newPurchGoods.getSon();
+        if (son != null) {
+            // 处理替换商品
+            handleExchangedPurchGoods(project, goods, purch, newPurchGoods, son);
         }
-        return paymentList;
+        return son;
     }
 
+
     /**
-     * 处理采购单的商品信息
-     *
-     * @param goodsList
-     * @return
+     * 处理替换后的商品信息
      */
-    private List<PurchGoods> handleGoods(Purch purch, List<PGoods> goodsList) {
-        // 处理商品信息
-        List<PurchGoods> purchGoodsList = new ArrayList<>();
-        for (PGoods innerGoods : goodsList) {
-            Integer goodsId = innerGoods.getGoodsId();
-            Goods goods = goodsDao.findOne(goodsId);
-            if (goods == null) {
-                return null;
-            }
+    private void handleExchangedPurchGoods(Project project, Goods beforeGoods, Purch purch, PurchGoods beforePurchGoods, PurchGoods son) {
+        String contractNo = beforeGoods.getContractNo();
+        String projectNo = beforeGoods.getProjectNo();
 
-            PurchGoods pGoods = purchGoodsDao.findOne(innerGoods.getId());
-            if (pGoods == null) {
-                pGoods = new PurchGoods();
-                pGoods.setProject(goods.getProject());
-                pGoods.setProjectNo(goods.getProjectNo());
-                pGoods.setGoods(goods);
-                pGoods.setCreateTime(new Date());
-            } else {
-                // 原来存在，说明已经在商品中提现了已采购
-                goods.setPurchasedNum(goods.getPurchasedNum() - pGoods.getPurchaseNum());
-            }
-            pGoods.setPurchaseNum(innerGoods.getPurchaseNum());
-            pGoods.setPurchasePrice(innerGoods.getPurchasePrice());
-            pGoods.setPurchaseTotalPrice(innerGoods.getPurchaseTotalPrice());
-            pGoods.setPurchaseRemark(innerGoods.getRemark());
-            pGoods.setPurch(purch);
-            purchGoodsList.add(pGoods);
-            //商品修改已采购数量
-            goods.setPurchasedNum(goods.getPurchasedNum() + pGoods.getPurchaseNum());
+        //  插入替换后的新商品
+        Goods sonGoods = son.getGoods();
+        sonGoods.setExchanged(true);
+        sonGoods.setOrder(beforeGoods.getOrder());
+        sonGoods.setProject(project);
+        sonGoods.setContractNo(contractNo);
+        sonGoods.setProjectNo(projectNo);
+        sonGoods = goodsDao.save(sonGoods);
 
-            PGoods sonGoods = innerGoods.getSon();
-            if (sonGoods != null) {
-                PurchGoods pGoods2 = purchGoodsDao.findOne(sonGoods.getId());
-                if (pGoods2 == null) {
-                    // 新增一个替换的商品操作
-                    // 插入一个新的商品
-                    Goods goods02 = new Goods();
-
-                    goods02.setSku(sonGoods.getSku()); // 商品SKU
-                    goods02.setMateType(sonGoods.getMateType()); //  物料分类
-                    goods02.setProType(sonGoods.getProType()); //  产品分类
-                    goods02.setNameEn(sonGoods.getNameEn()); // 外文品名
-                    goods02.setNameZh(sonGoods.getNameZh()); //  中文品名
-                    goods02.setUnit(sonGoods.getUnit()); //  单位
-                    goods02.setBrand(sonGoods.getBrand()); //  品牌
-                    goods02.setModel(sonGoods.getModel()); //  规格型号
-                    goods02.setParentId(goods.getId());
-                    goods02.setProjectNo(goods.getProjectNo());
-                    goods02.setProject(goods.getProject());
-                    goods02.setOrder(goods.getOrder());
-                    goods02 = goodsDao.save(goods02);
-
-                    pGoods2 = new PurchGoods();
-                    pGoods2.setProject(goods.getProject());
-                    pGoods2.setProjectNo(goods.getProjectNo());
-                    pGoods2.setGoods(goods02);
-                    pGoods2.setParent(pGoods);
-                    pGoods2.setCreateTime(new Date());
-                } else {
-                    // 原来存在，说明已经在商品中提现了已采购
-                    goods.setPurchasedNum(goods.getPurchasedNum() - pGoods2.getPurchaseNum());
-                }
-
-                pGoods2.setPurchaseNum(sonGoods.getPurchaseNum());
-                pGoods2.setPurchasePrice(sonGoods.getPurchasePrice());
-                pGoods2.setPurchaseTotalPrice(sonGoods.getPurchaseTotalPrice());
-                pGoods2.setPurchaseRemark(sonGoods.getRemark());
-                pGoods2.setPurch(purch);
-                pGoods2.setSon(true);
-                purchGoodsList.add(pGoods2);
-                //商品修改已采购数量
-                goods.setPurchasedNum(goods.getPurchasedNum() + pGoods2.getPurchaseNum());
-                goods.setAbstracted(true);
-            }
-            goodsDao.save(goods);
-        }
-        return purchGoodsList;
+        // 处理替换后的采购信息
+        son.setProject(project);
+        son.setParent(beforePurchGoods);
+        son.setContractNo(contractNo);
+        son.setProjectNo(projectNo);
+        son.setPurch(purch);
+        son.setGoods(sonGoods);
+        son.setExchanged(true);
+        son.setInspectNum(0);
+        son.setCreateTime(new Date());
     }
-
 
 }
