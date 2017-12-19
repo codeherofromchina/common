@@ -2,6 +2,7 @@ package com.erui.order.requestVo;
 
 import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Goods;
+import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -144,13 +145,13 @@ public class AddOrderVo {
 
     //客户及项目背景描述
     private String customerContext;
-   //执行分公司
+    //执行分公司
     private String execCoName;
 
     //分销部
     private String distributionDeptName;
 
-   //事业部
+    //事业部
     private String businessUnitName;
 
     //附件信息
@@ -559,5 +560,56 @@ public class AddOrderVo {
 
     public void setBusinessUnitName(String businessUnitName) {
         this.businessUnitName = businessUnitName;
+    }
+
+    public void copyBaseInfoTo(Order order) {
+        if (order == null) {
+            return;
+        }
+        order.setContractNo(this.contractNo);
+        order.setFrameworkNo(this.frameworkNo);
+        order.setPoNo(this.poNo);
+        order.setContractNoOs(this.contractNoOs);
+        order.setInquiryNo(this.inquiryNo);
+        order.setLogiQuoteNo(this.logiQuoteNo);
+        order.setOrderType(this.orderType);
+        order.setOrderSource(this.orderSource);
+        order.setSigningDate(this.signingDate);
+        order.setDeliveryDate(this.deliveryDate);
+        order.setSigningCo(this.signingCo);
+        order.setAgentId(this.agentId);
+        order.setAgentName(this.agentName);
+        order.setExecCoId(this.execCoId);
+        order.setRegion(this.region);
+        order.setDistributionDeptId(this.distributionDeptId);
+        order.setCountry(this.country);
+        order.setCrmCode(this.crmCode);
+        order.setCustomerType(this.customerType);
+        order.setPerLiableRepay(this.perLiableRepay);
+        order.setBusinessUnitId(this.businessUnitId);
+        order.setTechnicalId(this.technicalId);
+        order.setGrantType(this.grantType);
+        order.setIsPreinvest(this.isPreinvest);
+        order.setIsFinancing(this.isFinancing);
+        order.setTradeTerms(this.tradeTerms);
+        order.setTransportType(this.transportType);
+        order.setFromCountry(this.fromCountry);
+        order.setFromPlace(this.fromPlace);
+        order.setFromPort(this.fromPort);
+        order.setToCountry(this.toCountry);
+        order.setToPlace(this.toPlace);
+        order.setToPort(this.toPort);
+        order.setTotalPrice(this.totalPrice);
+        order.setCurrencyBn(this.currencyBn);
+        order.setTaxBearing(this.taxBearing);
+        order.setPaymentModeBn(this.paymentModeBn);
+        order.setQualityFunds(this.qualityFunds);
+        order.setPayStatus(this.payStatus);
+        order.setStatus(this.status);
+        order.setDeliveryRequires(this.deliveryRequires);
+        order.setCustomerContext(this.customerContext);
+        order.setBusinessUnitName(this.businessUnitName);
+        order.setExecCoName(this.execCoName);
+        order.setDistributionDeptName(this.distributionDeptName);
     }
 }

@@ -13,7 +13,6 @@ import com.erui.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +33,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderDao orderDao;
     @Autowired
     private ProjectDao projectDao;
+
     @Override
     @Transactional
     public Order findById(Integer id) {
@@ -114,15 +114,56 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public boolean updateOrder(AddOrderVo addOrderVo) {
-        return false;
+        Order order = orderDao.findOne(addOrderVo.getId());
+        if (order == null) {
+            return false;
+        }
+        addOrderVo.copyBaseInfoTo(order);
+        order.setAttachmentSet(addOrderVo.getAttachDesc());
+        List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
+        Goods goods = null;
+        List<Goods> goodsList = new ArrayList<>();
+        for (PGoods pGoods : pGoodsList) {
+            goods = new Goods();
+            goods.setSeq(pGoods.getSeq());
+            goods.setSku(pGoods.getSku());
+            goods.setMeteType(pGoods.getMeteType());
+            goods.setNameEn(pGoods.getNameEn());
+            goods.setNameZh(pGoods.getNameZh());
+            goods.setContractGoodsNum(pGoods.getContractGoodsNum());
+            goods.setUnit(pGoods.getUnit());
+            goods.setModel(pGoods.getModel());
+            goods.setClientDesc(pGoods.getClientDesc());
+            goods.setBrand(pGoods.getBrand());
+            goods.setContractNo(order.getContractNo());
+            goodsList.add(goods);
+        }
+        order.setGoodsList(goodsList);
+        order.setOrderPayments(addOrderVo.getContractDesc());
+        order.setDeleteFlag(false);
+        Order orderUpdate = orderDao.saveAndFlush(order);
+        if (addOrderVo.getStatus() != 1) {
+            Project projectAdd = new Project();
+            projectAdd.setOrder(orderUpdate);
+            projectAdd.setContractNo(orderUpdate.getContractNo());
+            projectAdd.setExecCoName(orderUpdate.getExecCoName());
+            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
+            projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
+            projectAdd.setRegion(orderUpdate.getRegion());
+            projectAdd.setProjectStatus("SUBMIT");
+            projectDao.save(projectAdd);
+        }
+        return true;
     }
 
     @Override
-    @Transactional()
+    @Transactional
     public boolean addOrder(AddOrderVo addOrderVo) {
         Order order = new Order();
-        order.setContractNo(addOrderVo.getContractNo());
+        addOrderVo.copyBaseInfoTo(order);
+       /* order.setContractNo(addOrderVo.getContractNo());
         order.setFrameworkNo(addOrderVo.getFrameworkNo());
         order.setPoNo(addOrderVo.getPoNo());
         order.setContractNoOs(addOrderVo.getContractNoOs());
@@ -166,7 +207,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerContext(addOrderVo.getCustomerContext());
         order.setBusinessUnitName(addOrderVo.getBusinessUnitName());
         order.setExecCoName(addOrderVo.getExecCoName());
-        order.setDistributionDeptName(addOrderVo.getDistributionDeptName());
+        order.setDistributionDeptName(addOrderVo.getDistributionDeptName());*/
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
@@ -196,8 +237,8 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
-            Order order1 = orderDao.save(order);
-        if (addOrderVo.getStatus()!=1){
+        Order order1 = orderDao.save(order);
+        if (addOrderVo.getStatus() != 1) {
             Project project = new Project();
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
@@ -205,6 +246,7 @@ public class OrderServiceImpl implements OrderService {
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setRegion(order1.getRegion());
+            project.setProjectStatus("SUBMIT");
             projectDao.save(project);
         }
         return true;

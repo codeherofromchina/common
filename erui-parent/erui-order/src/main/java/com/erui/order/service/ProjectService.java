@@ -1,7 +1,8 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.requestVo.ProjectListCondition;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -16,6 +17,18 @@ public interface ProjectService {
      * @return
      */
     Project findById(Integer id);
+    /**
+     * 办理项目
+     * @param project
+     * @return
+     */
+    boolean updateProject(Project project);
+    /**
+     * 查看项目列表
+     * @param condition
+     * @return
+     */
+    Page<Project> findByPage(ProjectListCondition condition);
 
     /**
      * 可以生成采购单的项目列表

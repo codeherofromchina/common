@@ -22,6 +22,7 @@ public class Project {
     @JsonIgnore
     private Order order;
 
+    @OneToOne(mappedBy = "project")
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
@@ -54,6 +55,8 @@ public class Project {
     @Column(name = "purch_req_create")
     private Integer purchReqCreate;
 
+    @Column(name = "purch_done")
+    private String purchDone;
     //是否采购完成，true：完成  false/null：未完成  根据此字段新增采购单
     @Column(name = "purch_done")
     private Boolean purchDone;
@@ -351,6 +354,29 @@ public class Project {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public boolean copyProjectDesc(Project project) {
+        if (project == null) {
+            return false;
+        }
+        project.setStartDate(this.startDate);
+        project.setProjectName(this.projectName);
+        project.setDeliveryDate(this.deliveryDate);
+        project.setProfit(this.profit);
+        project.setProfitPercent(this.profitPercent);
+        project.setHasManager(this.hasManager);
+        project.setExeChgDate(this.exeChgDate);
+        project.setRequirePurchaseDate(this.requirePurchaseDate);
+        project.setPurchaseUid(this.purchaseUid);
+        project.setQualityUid(this.qualityUid);
+        project.setBusinessUid(this.businessUid);
+        project.setManagerUid(this.managerUid);
+        project.setLogisticsUid(this.logisticsUid);
+        project.setWarehouseUid(this.warehouseUid);
+        project.setRemarks(this.remarks);
+        project.setProjectStatus(this.projectStatus);
+        return true;
     }
 
     /**
