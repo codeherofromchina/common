@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,14 +17,40 @@ public class DeliverNotice {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToMany
+    /**
+     * 货通知单号 自动生成
+     */
+    @Column(name = "deliver_notice_no")
+    private String deliverNoticeNo;
+
+    // 销售合同号
+    @Transient
+    private String contractNo;
+    // 出口通知单号
+    @Transient
+    private String deliverConsignNo;
+    @Transient
+    private int page = 0;
+    @Transient
+    private int rows = 50;
+
+
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_notice_consign",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
+    @JsonIgnore
     private Set<DeliverConsign> deliverConsigns = new HashSet<>();
 
     @Column(name = "sender_id")
     private Integer senderId;
+
+    /**
+     * 下单人名称
+     */
+    @Column(name = "sender_name")
+    private String senderName;
+
     @Column(name = "send_date")
     private Date sendDate;
     @Column(name = "trade_terms")
@@ -53,10 +81,11 @@ public class DeliverNotice {
     @Column(name = "package_req")
     private String packageReq;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_notice_attach",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    @JsonIgnore
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
@@ -66,6 +95,46 @@ public class DeliverNotice {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getDeliverNoticeNo() {
+        return deliverNoticeNo;
+    }
+
+    public void setDeliverNoticeNo(String deliverNoticeNo) {
+        this.deliverNoticeNo = deliverNoticeNo;
+    }
+
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
+
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
     }
 
     public Set<DeliverConsign> getDeliverConsigns() {
@@ -82,6 +151,14 @@ public class DeliverNotice {
 
     public void setSenderId(Integer senderId) {
         this.senderId = senderId;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
 
     public Date getSendDate() {

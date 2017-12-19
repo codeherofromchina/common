@@ -353,6 +353,29 @@ public class Project {
         this.region = region;
     }
 
+    public boolean copyProjectDesc(Project project) {
+        if (project == null) {
+            return false;
+        }
+        project.setStartDate(this.startDate);
+        project.setProjectName(this.projectName);
+        project.setDeliveryDate(this.deliveryDate);
+        project.setProfit(this.profit);
+        project.setProfitPercent(this.profitPercent);
+        project.setHasManager(this.hasManager);
+        project.setExeChgDate(this.exeChgDate);
+        project.setRequirePurchaseDate(this.requirePurchaseDate);
+        project.setPurchaseUid(this.purchaseUid);
+        project.setQualityUid(this.qualityUid);
+        project.setBusinessUid(this.businessUid);
+        project.setManagerUid(this.managerUid);
+        project.setLogisticsUid(this.logisticsUid);
+        project.setWarehouseUid(this.warehouseUid);
+        project.setRemarks(this.remarks);
+        project.setProjectStatus(this.projectStatus);
+        return true;
+    }
+
     /**
      * 是否已经创建采购申请单枚举类
      */
