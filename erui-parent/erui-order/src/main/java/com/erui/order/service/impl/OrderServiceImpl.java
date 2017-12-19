@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
         List<Goods> goodsList = new ArrayList<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
-            goods.setSeq(pGoods.getSeq());
+            //goods.setSeq(pGoods.getSeq());
             goods.setSku(pGoods.getSku());
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());

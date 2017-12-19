@@ -22,7 +22,6 @@ public class Project {
     @JsonIgnore
     private Order order;
 
-    @OneToOne(mappedBy = "project")
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
@@ -55,8 +54,6 @@ public class Project {
     @Column(name = "purch_req_create")
     private Integer purchReqCreate;
 
-    @Column(name = "purch_done")
-    private String purchDone;
     //是否采购完成，true：完成  false/null：未完成  根据此字段新增采购单
     @Column(name = "purch_done")
     private Boolean purchDone;
