@@ -6,17 +6,11 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
-import com.hp.hpl.sparta.ParseLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -76,9 +70,13 @@ public class OrderController {
     }
 
     /**
-     * 为添加报检单而获取采购信息
+     * 获取订单详情
      *
-     * @param id 采购ID
      * @return
      */
+    @RequestMapping(value = "queryOrderDesc", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
+    public Result<Order> queryOrderDesc(@RequestParam(name = "id")Integer id) {
+        Order order = orderService.findById(id);
+        return new Result<>(order);
+    }
 }

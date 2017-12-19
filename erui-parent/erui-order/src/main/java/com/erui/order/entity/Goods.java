@@ -40,9 +40,10 @@ public class Goods {
     private String projectNo;
 
     private String sku;
-    @Column(name = "mete_type")
-    private String mateType; // 物料分类
-    @Column(name = "pro_type")
+
+    @Column(name="mete_type")
+    private String meteType; // 物料分类
+    @Column(name="pro_type")
     private String proType; // 产品分类
     @Column(name = "name_en")
     private String nameEn;
@@ -107,7 +108,7 @@ public class Goods {
     public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
-
+    @JoinColumn(name = "order_id",insertable = false,updatable = false)
     public Order getOrder() {
         return order;
     }
@@ -156,12 +157,12 @@ public class Goods {
         this.sku = sku;
     }
 
-    public String getMateType() {
-        return mateType;
+    public String getMeteType() {
+        return meteType;
     }
 
-    public void setMateType(String mateType) {
-        this.mateType = mateType;
+    public void setMeteType(String meteType) {
+        this.meteType = meteType;
     }
 
     public String getProType() {

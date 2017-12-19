@@ -2,6 +2,10 @@ package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,45 +17,49 @@ import java.util.Date;
 @Table(name = "order_account")
 public class OrderAccount {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;     //订单-收款信息id
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY  )
     @JoinColumn(name = "order_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Order order;
 
-    private Integer seq;
+    private Integer seq;    //序号
 
-    private String desc;
+    @Column(name = "`desc`")
+    private String desc;    //描述
 
-    private BigDecimal money;
+    private BigDecimal money;   //回款金额
 
-    private BigDecimal discount;
+    private BigDecimal discount;    //其他扣款金额
 
     @Column(name = "payment_date")
-    private Date paymentDate;
+    private Date paymentDate;   //回款时间
 
     @Column(name = "goods_price")
-    private BigDecimal goodsPrice;
+    private BigDecimal goodsPrice;  //发货金额
 
     @Column(name = "deliver_date")
     private Date deliverDate;
 
     @Column(name = "create_user_id")
-    private Integer createUserId;
+    private Integer createUserId;   //创建人
 
     @Column(name = "update_user_id")
-    private Integer updateUserId;
+    private Integer updateUserId;   //创建人
 
     @Column(name = "update_time")
-    private Date updateTime;
+    private Date updateTime;    //更新时间
 
     @Column(name = "create_time")
-    private Date createTime;
+    private Date createTime;    //创建时间
 
     @Column(name = "delete_time")
-    private Date deleteTime;
+    private Date deleteTime;    //删除时间
+
+    @Column(name = "del_yn")
+    private Integer delYn;  //删除标识
 
     public Integer getId() {
         return id;
@@ -163,5 +171,12 @@ public class OrderAccount {
 
     public void setDeleteTime(Date deleteTime) {
         this.deleteTime = deleteTime;
+    }
+    public Integer getDelYn() {
+        return delYn;
+    }
+
+    public void setDelYn(Integer delYn) {
+        this.delYn = delYn;
     }
 }

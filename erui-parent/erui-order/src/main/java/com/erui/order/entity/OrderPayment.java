@@ -13,13 +13,14 @@ import java.util.Date;
 @Table(name="order_payment")
 public class OrderPayment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
 
     private Integer type;
 
     private String topic;
+    @Column(name = "order_id")
+    private Integer orderId;
 
     private BigDecimal money;
 
@@ -37,6 +38,13 @@ public class OrderPayment {
         this.id = id;
     }
 
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
 
     public Integer getType() {
         return type;
@@ -77,6 +85,5 @@ public class OrderPayment {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
-
 
 }

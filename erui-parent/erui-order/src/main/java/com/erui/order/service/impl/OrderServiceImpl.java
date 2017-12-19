@@ -3,10 +3,12 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderDao;
-import com.erui.order.entity.Attachment;
+import com.erui.order.dao.ProjectDao;
+import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,8 @@ import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -28,7 +32,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderDao orderDao;
-
+    @Autowired
+    private ProjectDao projectDao;
     @Override
     @Transactional
     public Order findById(Integer id) {
@@ -107,12 +112,14 @@ public class OrderServiceImpl implements OrderService {
                 }).collect(Collectors.toList());
         orderDao.save(collect);
     }
+
     @Override
     public boolean updateOrder(AddOrderVo addOrderVo) {
         return false;
     }
 
     @Override
+    @Transactional()
     public boolean addOrder(AddOrderVo addOrderVo) {
         Order order = new Order();
         order.setContractNo(addOrderVo.getContractNo());
@@ -157,11 +164,50 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(addOrderVo.getStatus());
         order.setDeliveryRequires(addOrderVo.getDeliveryRequires());
         order.setCustomerContext(addOrderVo.getCustomerContext());
-        order.setAttachmentSet((Set<Attachment>) addOrderVo.getAttachDesc());
-        order.setGoodsList(addOrderVo.getGoodDesc());
+        order.setBusinessUnitName(addOrderVo.getBusinessUnitName());
+        order.setExecCoName(addOrderVo.getExecCoName());
+        order.setDistributionDeptName(addOrderVo.getDistributionDeptName());
+        order.setAttachmentSet(addOrderVo.getAttachDesc());
+        List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
+        Goods goods = null;
+
+        List<Goods> goodsList = new ArrayList<>();
+        for (PGoods pGoods : pGoodsList) {
+            goods = new Goods();
+            //goods.setSeq(pGoods.getSeq());
+            goods.setSku(pGoods.getSku());
+            goods.setMeteType(pGoods.getMeteType());
+            goods.setNameEn(pGoods.getNameEn());
+            goods.setNameZh(pGoods.getNameZh());
+            goods.setContractGoodsNum(pGoods.getContractGoodsNum());
+            goods.setUnit(pGoods.getUnit());
+            goods.setModel(pGoods.getModel());
+            goods.setClientDesc(pGoods.getClientDesc());
+            goods.setBrand(pGoods.getBrand());
+            goods.setContractNo(order.getContractNo());
+            goodsList.add(goods);
+
+        }
+      /*  List<OrderPayment> orderPaymentList = addOrderVo.getContractDesc();
+        for (OrderPayment orderPayment:orderPaymentList) {
+            orderPayment.setOrderId(order.getId());
+        }*/
+        order.setGoodsList(goodsList);
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
-        orderDao.saveAndFlush(order);
-        return false;
+        order.setDeleteFlag(false);
+            Order order1 = orderDao.save(order);
+        if (addOrderVo.getStatus()!=1){
+            Project project = new Project();
+            project.setOrder(order1);
+            project.setContractNo(order1.getContractNo());
+            project.setExecCoName(order1.getExecCoName());
+            project.setDistributionDeptName(order1.getDistributionDeptName());
+            project.setBusinessUnitName(order1.getBusinessUnitName());
+            project.setRegion(order1.getRegion());
+            projectDao.save(project);
+        }
+        return true;
     }
+
 }

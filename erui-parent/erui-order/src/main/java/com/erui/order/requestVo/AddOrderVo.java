@@ -144,12 +144,20 @@ public class AddOrderVo {
 
     //客户及项目背景描述
     private String customerContext;
+   //执行分公司
+    private String execCoName;
+
+    //分销部
+    private String distributionDeptName;
+
+   //事业部
+    private String businessUnitName;
 
     //附件信息
-    private List<Attachment> attachDesc = new ArrayList<>();
+    private Set<Attachment> attachDesc = new HashSet<>();
 
     //商品信息
-    private List<Goods> goodDesc = new ArrayList<>();
+    private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
 
@@ -505,19 +513,19 @@ public class AddOrderVo {
         this.customerContext = customerContext;
     }
 
-    public List<Attachment> getAttachDesc() {
+    public Set<Attachment> getAttachDesc() {
         return attachDesc;
     }
 
-    public void setAttachDesc(List<Attachment> attachDesc) {
+    public void setAttachDesc(Set<Attachment> attachDesc) {
         this.attachDesc = attachDesc;
     }
 
-    public List<Goods> getGoodDesc() {
+    public List<PGoods> getGoodDesc() {
         return goodDesc;
     }
 
-    public void setGoodDesc(List<Goods> goodDesc) {
+    public void setGoodDesc(List<PGoods> goodDesc) {
         this.goodDesc = goodDesc;
     }
 
@@ -527,5 +535,29 @@ public class AddOrderVo {
 
     public void setContractDesc(List<OrderPayment> contractDesc) {
         this.contractDesc = contractDesc;
+    }
+
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
+    }
+
+    public String getDistributionDeptName() {
+        return distributionDeptName;
+    }
+
+    public void setDistributionDeptName(String distributionDeptName) {
+        this.distributionDeptName = distributionDeptName;
+    }
+
+    public String getBusinessUnitName() {
+        return businessUnitName;
+    }
+
+    public void setBusinessUnitName(String businessUnitName) {
+        this.businessUnitName = businessUnitName;
     }
 }

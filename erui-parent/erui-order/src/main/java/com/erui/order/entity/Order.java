@@ -14,7 +14,7 @@ import java.util.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "contract_no")
@@ -155,23 +155,27 @@ public class Order {
     @Column(name = "delete_time")
     private Date deleteTime;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "receivable_account_remaining")
+    private BigDecimal receivableAccountRemaining;
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<Attachment> attachmentSet = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name="order_id")
     @OrderBy("id asc")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @JoinColumn(name = "order_id")
     private List<Goods> goodsList = new ArrayList<>();
 
+    @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("id asc")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @JoinColumn(name = "order_id")
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
     @Column(name = "delivery_requires")
@@ -179,6 +183,38 @@ public class Order {
 
     @Column(name = "customer_context")
     private String customerContext;
+    @Column(name="exec_co_name")
+    private String execCoName;
+
+    @Column(name="distribution_dept_name")
+    private String distributionDeptName;
+
+    @Column(name="business_unit_name")
+    private String businessUnitName;
+
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
+    }
+
+    public String getDistributionDeptName() {
+        return distributionDeptName;
+    }
+
+    public void setDistributionDeptName(String distributionDeptName) {
+        this.distributionDeptName = distributionDeptName;
+    }
+
+    public String getBusinessUnitName() {
+        return businessUnitName;
+    }
+
+    public void setBusinessUnitName(String businessUnitName) {
+        this.businessUnitName = businessUnitName;
+    }
 
     public String getAgentName() {
         return agentName;
@@ -611,6 +647,14 @@ public class Order {
         this.attachmentSet = attachmentSet;
     }
 
+    public BigDecimal getReceivableAccountRemaining() {
+        return receivableAccountRemaining;
+    }
+
+    public void setReceivableAccountRemaining(BigDecimal receivableAccountRemaining) {
+        this.receivableAccountRemaining = receivableAccountRemaining;
+    }
+
     public List<Goods> getGoodsList() {
         return goodsList;
     }
@@ -618,6 +662,7 @@ public class Order {
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
     }
+
 
     public List<OrderPayment> getOrderPayments() {
         return orderPayments;
