@@ -1,0 +1,51 @@
+package com.erui.boss.web.order;
+
+import com.erui.boss.web.util.Result;
+import com.erui.order.entity.Project;
+import com.erui.order.service.ProjectService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+/**
+ * 项目控制器
+ * Created by wangxiaodan on 2017/12/19.
+ */
+@RestController
+@RequestMapping("order/project")
+public class ProjectController {
+
+    @Autowired
+    private ProjectService projectService;
+
+    /**
+     * 可以采购的项目列表
+     *
+     * @return
+     */
+    @RequestMapping(value = "purchAbleList", method = RequestMethod.POST)
+    public Result<Object> purchAbleList() {
+
+        List<Project> projectList = projectService.purchAbleList();
+
+        List<Map<String, Object>> data = projectList.stream().map(project -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", project.getId());
+            map.put("projectNo", project.getProjectNo());
+            map.put("projectName", project.getProjectName());
+
+            return map;
+        }).collect(Collectors.toList());
+
+        return new Result<>(data);
+    }
+
+
+}

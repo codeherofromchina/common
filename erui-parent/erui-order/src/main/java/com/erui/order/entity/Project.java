@@ -11,94 +11,95 @@ import java.util.Date;
  * 订单-项目信息
  */
 @Entity
-@Table(name="project")
+@Table(name = "project")
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade={CascadeType.ALL})
-    @JoinColumn(name="order_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
 
-    @OneToOne(mappedBy="project",fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
-    @Column(name="contract_no")
+    @Column(name = "contract_no")
     private String contractNo;
 
-    @Column(name="project_no")
+    @Column(name = "project_no")
     private String projectNo;
 
-    @Column(name="project_name")
+    @Column(name = "project_name")
     private String projectName;
 
-    @Column(name="start_date")
+    @Column(name = "start_date")
     private Date startDate;
 
-    @Column(name="delivery_date")
+    @Column(name = "delivery_date")
     private Date deliveryDate;
 
     private BigDecimal profit;
 
-    @Column(name="currency_bn")
+    @Column(name = "currency_bn")
     private String currencyBn;
 
-    @Column(name="profit_percent")
+    @Column(name = "profit_percent")
     private BigDecimal profitPercent;
 
-    @Column(name="project_status")
+    @Column(name = "project_status")
     private String projectStatus;
 
-    @Column(name="purch_req_create")
+    @Column(name = "purch_req_create")
     private Integer purchReqCreate;
 
-    @Column(name="purch_done")
-    private String purchDone;
+    //是否采购完成，true：完成  false/null：未完成  根据此字段新增采购单
+    @Column(name = "purch_done")
+    private Boolean purchDone;
 
-    @Column(name="exe_chg_date")
+    @Column(name = "exe_chg_date")
     private Date exeChgDate;
 
-    @Column(name="require_purchase_date")
+    @Column(name = "require_purchase_date")
     private Date requirePurchaseDate;
 
-    @Column(name="has_manager")
+    @Column(name = "has_manager")
     private Integer hasManager;
 
-    @Column(name="purchase_uid")
+    @Column(name = "purchase_uid")
     private Integer purchaseUid;
 
-    @Column(name="quality_uid")
+    @Column(name = "quality_uid")
     private Integer qualityUid;
 
-    @Column(name="business_uid")
+    @Column(name = "business_uid")
     private Integer businessUid;
 
-    @Column(name="manager_uid")
+    @Column(name = "manager_uid")
     private Integer managerUid;
 
-    @Column(name="logistics_uid")
+    @Column(name = "logistics_uid")
     private Integer logisticsUid;
 
-    @Column(name="warehouse_uid")
+    @Column(name = "warehouse_uid")
     private Integer warehouseUid;
 
-    @Column(name="create_user_id")
+    @Column(name = "create_user_id")
     private Integer createUserId;
 
-    @Column(name="update_time")
+    @Column(name = "update_time")
     private Date updateTime;
 
-    @Column(name="create_time")
+    @Column(name = "create_time")
     private Date createTime;
-    @Column(name="exec_co_name")
+    @Column(name = "exec_co_name")
     private String execCoName;
 
-    @Column(name="distribution_dept_name")
+    @Column(name = "distribution_dept_name")
     private String distributionDeptName;
 
-    @Column(name="business_unit_name")
+    @Column(name = "business_unit_name")
     private String businessUnitName;
 
     private String region;
@@ -208,11 +209,11 @@ public class Project {
         this.purchReqCreate = purchReqCreate;
     }
 
-    public String getPurchDone() {
+    public Boolean getPurchDone() {
         return purchDone;
     }
 
-    public void setPurchDone(String purchDone) {
+    public void setPurchDone(Boolean purchDone) {
         this.purchDone = purchDone;
     }
 
@@ -351,4 +352,29 @@ public class Project {
     public void setRegion(String region) {
         this.region = region;
     }
+
+    /**
+     * 是否已经创建采购申请单枚举类
+     */
+    public static enum PurchReqCreateEnum {
+        NOT_CREATE(0, "未创建"), CREATED(1, "已创建"), SUBMITED(2, "已提交");
+
+        private int code;
+        private String msg;
+
+        PurchReqCreateEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+
 }
