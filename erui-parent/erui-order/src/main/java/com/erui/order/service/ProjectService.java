@@ -4,6 +4,8 @@ import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * 订单业务类
  * Created by wangxiaodan on 2017/12/11.
@@ -27,4 +29,10 @@ public interface ProjectService {
      * @return
      */
     Page<Project> findByPage(ProjectListCondition condition);
+
+    /**
+     * 可以生成采购单的项目列表
+     * @return
+     */
+    List<Project> purchAbleList();
 }

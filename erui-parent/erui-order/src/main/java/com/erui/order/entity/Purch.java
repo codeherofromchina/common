@@ -1,5 +1,9 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -9,9 +13,10 @@ import java.util.*;
  */
 @Entity
 @Table(name = "purch")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Purch {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "purch_no")
@@ -19,6 +24,9 @@ public class Purch {
 
     @Column(name = "agent_id")
     private Integer agentId;
+
+    @Column(name = "agent_name")
+    private String agentName;
 
     @Column(name = "signing_date")
     private Date signingDate;
@@ -34,6 +42,9 @@ public class Purch {
 
     @Column(name = "supplier_id")
     private Integer supplierId;
+
+    @Column(name = "supplier_name")
+    private String supplierName;
 
     @Column(name = "total_price")
     private BigDecimal totalPrice;
@@ -65,29 +76,57 @@ public class Purch {
     @Column(name = "account_date")
     private Date accountDate;
 
+    /**
+     * “未进行”：当新增采购订单时，点击“保存”按钮，状态为“未进行”。点击“提交”按钮，状态由“未执行”变为“进行中”。
+     * “已完成”：当报检单中所有商品全部检验合格后，状态由“进行中”，变为“已完成”。
+     */
+    @Column(name = "`status`")
     private Integer status;
 
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     @Column(name = "create_user_id")
     private Integer createUserId;
 
+    @Column(name = "create_user_name")
+    private String createUserName;
+
     @Column(name = "update_time")
+    @JsonIgnore
     private Date updateTime;
 
     @Column(name = "delete_flag")
+    @JsonIgnore
     private Boolean deleteFlag;
 
     @Column(name = "delete_time")
+    @JsonIgnore
     private Date deleteTime;
 
-    /**
-     * 是否报检完成 true：完成  false：未完成
-     */
-    private boolean inspected = false;
 
     private String remarks;
+
+    //销售合同号，多个
+    @Transient
+    private String contractNos;
+    //项目号，多个
+    @Transient
+    private String projectNos;
+    // 分页信息参数
+    @Transient
+    private int page = 0; // 默认从0开始
+    @Transient
+    private int rows = 20; // 默认每页20条记录
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "purch_project",
+            joinColumns = @JoinColumn(name = "purch_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id"))
+    @JsonIgnore
+    private List<Project> projects = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_attach",
@@ -96,13 +135,13 @@ public class Purch {
     private List<Attachment> attachments = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "purch_id")
     private List<PurchPayment> purchPaymentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="purch_id")
+    @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
-
 
     public Integer getId() {
         return id;
@@ -128,6 +167,14 @@ public class Purch {
         this.agentId = agentId;
     }
 
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
+    }
+
     public Date getSigningDate() {
         return signingDate;
     }
@@ -142,6 +189,14 @@ public class Purch {
 
     public void setArrivalDate(Date arrivalDate) {
         this.arrivalDate = arrivalDate;
+    }
+
+    public String getContractNos() {
+        return contractNos;
+    }
+
+    public void setContractNos(String contractNos) {
+        this.contractNos = contractNos;
     }
 
     public Date getPurChgDate() {
@@ -166,6 +221,15 @@ public class Purch {
 
     public void setSupplierId(Integer supplierId) {
         this.supplierId = supplierId;
+    }
+
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public BigDecimal getTotalPrice() {
@@ -272,6 +336,14 @@ public class Purch {
         this.createUserId = createUserId;
     }
 
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -296,14 +368,6 @@ public class Purch {
         this.deleteTime = deleteTime;
     }
 
-    public boolean getInspected() {
-        return inspected;
-    }
-
-    public void setInspected(boolean inspected) {
-        this.inspected = inspected;
-    }
-
     public String getRemarks() {
         return remarks;
     }
@@ -312,6 +376,37 @@ public class Purch {
         this.remarks = remarks;
     }
 
+    public String getProjectNos() {
+        return projectNos;
+    }
+
+    public void setProjectNos(String projectNos) {
+        this.projectNos = projectNos;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
 
     public List<Attachment> getAttachments() {
         return attachments;
@@ -342,7 +437,7 @@ public class Purch {
      * 采购状态枚举
      */
     public static enum StatusEnum {
-        READY(0, "未开始"), BEING(1, "进行中"), DONE(2, "已完成");
+        READY(0, "未进行"), BEING(1, "进行中"), DONE(2, "已完成");
 
         private int code;
         private String msg;
@@ -368,8 +463,7 @@ public class Purch {
          */
         public static StatusEnum fromCode(Integer code) {
             if (code != null) {
-                int code02 = code;
-                StatusEnum[] values = StatusEnum.values();
+                int code02 = code; // 拆箱一次
                 for (StatusEnum s : StatusEnum.values()) {
                     if (code02 == s.code) {
                         return s;
@@ -380,4 +474,83 @@ public class Purch {
         }
 
     }
+
+
+    /**
+     * 给供应商付款方式枚举
+     */
+    public static enum PayTypeEnum {
+        COD(1, "货到验收合格后付款"), PAY_FIRST(2, "款到发货"), OTHER(9, "其他方式");
+
+        private int code;
+        private String msg;
+
+        private PayTypeEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        /**
+         * 通过code码获取给供应商付款方式
+         *
+         * @param code
+         * @return
+         */
+        public static PayTypeEnum fromCode(Integer code) {
+            if (code != null) {
+                int code02 = code; // 拆箱一次
+                for (PayTypeEnum s : PayTypeEnum.values()) {
+                    if (code02 == s.code) {
+                        return s;
+                    }
+                }
+            }
+            return null;
+        }
+
+    }
+
+
+    public void setBaseInfo(Purch purch) {
+        this.setPurchNo(purch.getPurchNo());
+        this.setAgentId(purch.getAgentId());
+        this.setAgentName(purch.getAgentName());
+        this.setSigningDate(purch.getSigningDate());
+        this.setArrivalDate(purch.getArrivalDate());
+        this.setPurChgDate(purch.getPurChgDate());
+        this.setExeChgDate(purch.getExeChgDate());
+        this.setSupplierId(purch.getSupplierId());
+        this.setSupplierName(purch.getSupplierName());
+        this.setTotalPrice(purch.getTotalPrice());
+        this.setCurrencyBn(purch.getCurrencyBn());
+        this.setPayType(purch.getPayType());
+        this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
+        this.setProductedDate(purch.getProductedDate());
+        this.setPayFactoryDate(purch.getPayFactoryDate());
+        this.setPayDepositDate(purch.getPayDepositDate());
+        this.setPayDepositExpired(purch.getPayDepositExpired());
+        this.setInvoiceNo(purch.getInvoiceNo());
+        this.setAccountDate(purch.getAccountDate());
+        this.setRemarks(purch.getRemarks());
+        if (this.createUserId == null) {
+            this.setCreateUserId(purch.getCreateUserId());
+            this.setCreateUserName(purch.getCreateUserName());
+        }
+        if (this.createTime == null) {
+            this.setCreateTime(new Date());
+            this.setUpdateTime(new Date());
+        }
+        this.setStatus(purch.getStatus());
+
+    }
+
+
 }

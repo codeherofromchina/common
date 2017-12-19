@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,11 +13,12 @@ import java.util.Date;
 @Table(name = "purch_payment")
 public class PurchPayment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purch_id")
+    @JsonIgnore
     private Purch purch;
 
     /**
@@ -30,7 +33,9 @@ public class PurchPayment {
     @Column(name = "receipt_date")
     private Date receiptDate;
 
+
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     public Integer getId() {

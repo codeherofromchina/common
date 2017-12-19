@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -98,5 +101,16 @@ public class ProjectServiceImpl implements ProjectService {
         }, pageRequest);
         return pageList;
     }
+
+
+    @Override
+    public List<Project> purchAbleList() {
+        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(),Boolean.TRUE);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
+
 
 }

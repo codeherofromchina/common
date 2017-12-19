@@ -151,7 +151,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 采购中只要有一个商品的报检小于采购商品数量，则采购单还可以继续报检
         boolean inspectNotEnd = purchGoodsList.stream().anyMatch(obj -> obj.getInspectNum() < obj.getPurchaseNum());
         if (!inspectNotEnd) {
-            purch.setInspected(true);
             purchDao.save(purch);
         }
 

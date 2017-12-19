@@ -1,7 +1,6 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -156,7 +155,11 @@ public class Order {
     @Column(name = "delete_time")
     private Date deleteTime;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "receivable_account_remaining")
+    private BigDecimal receivableAccountRemaining;
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
@@ -642,6 +645,14 @@ public class Order {
 
     public void setAttachmentSet(Set<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
+    }
+
+    public BigDecimal getReceivableAccountRemaining() {
+        return receivableAccountRemaining;
+    }
+
+    public void setReceivableAccountRemaining(BigDecimal receivableAccountRemaining) {
+        this.receivableAccountRemaining = receivableAccountRemaining;
     }
 
     public List<Goods> getGoodsList() {

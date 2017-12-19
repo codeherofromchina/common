@@ -23,6 +23,7 @@ public class Project {
     private Order order;
 
     @OneToOne(mappedBy = "project")
+    @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
     @Column(name = "contract_no")
@@ -56,6 +57,9 @@ public class Project {
 
     @Column(name = "purch_done")
     private String purchDone;
+    //是否采购完成，true：完成  false/null：未完成  根据此字段新增采购单
+    @Column(name = "purch_done")
+    private Boolean purchDone;
 
     @Column(name = "exe_chg_date")
     private Date exeChgDate;
@@ -208,11 +212,11 @@ public class Project {
         this.purchReqCreate = purchReqCreate;
     }
 
-    public String getPurchDone() {
+    public Boolean getPurchDone() {
         return purchDone;
     }
 
-    public void setPurchDone(String purchDone) {
+    public void setPurchDone(Boolean purchDone) {
         this.purchDone = purchDone;
     }
 
@@ -374,4 +378,29 @@ public class Project {
         project.setProjectStatus(this.projectStatus);
         return true;
     }
+
+    /**
+     * 是否已经创建采购申请单枚举类
+     */
+    public static enum PurchReqCreateEnum {
+        NOT_CREATE(0, "未创建"), CREATED(1, "已创建"), SUBMITED(2, "已提交");
+
+        private int code;
+        private String msg;
+
+        PurchReqCreateEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+
 }

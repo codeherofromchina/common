@@ -13,11 +13,12 @@ import java.util.Date;
 
 @Entity
 @Table(name = "goods")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Goods {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name="parent_id")
+    @Column(name = "parent_id")
     private Integer parentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,22 +31,23 @@ public class Goods {
     @JsonIgnore
     private Project project;
 
-    private Integer seq;
+    private Boolean exchanged;
 
-    @Column(name="contract_no")
+    @Column(name = "contract_no")
     private String contractNo;
 
-    @Column(name="project_no")
+    @Column(name = "project_no")
     private String projectNo;
 
     private String sku;
+
     @Column(name="mete_type")
     private String meteType; // 物料分类
     @Column(name="pro_type")
     private String proType; // 产品分类
-    @Column(name="name_en")
+    @Column(name = "name_en")
     private String nameEn;
-    @Column(name="name_zh")
+    @Column(name = "name_zh")
     private String nameZh;
 
     private String unit;
@@ -53,39 +55,38 @@ public class Goods {
     private String brand;
 
     private String model;
-    @Column(name="contract_goods_num")
+    @Column(name = "contract_goods_num")
     private Integer contractGoodsNum;
-    @Column(name="client_desc")
+    @Column(name = "client_desc")
     private String clientDesc;
-    @Column(name="require_purchase_date")
+    @Column(name = "require_purchase_date")
     private Date requirePurchaseDate;
-    @Column(name="tech_require")
+    @Column(name = "tech_require")
     private String techRequire;
-    @Column(name="check_type")
+    @Column(name = "check_type")
     private String checkType;
-    @Column(name="check_method")
+    @Column(name = "check_method")
     private String checkMethod;
 
     private String certificate;
-    @Column(name="tech_audit")
+    @Column(name = "tech_audit")
     private String techAudit;
 
-    private boolean abstracted;
-    @Column(name="purchased_num")
+    @Column(name = "purchased_num")
     private Integer purchasedNum;
-    @Column(name="inspect_num")
+    @Column(name = "inspect_num")
     private Integer inspectNum;
-    @Column(name="instock_num")
+    @Column(name = "instock_num")
     private Integer instockNum;
-    @Column(name="outstock_apply_num")
+    @Column(name = "outstock_apply_num")
     private Integer outstockApplyNum;
-    @Column(name="outstock_num")
+    @Column(name = "outstock_num")
     private Integer outstockNum;
-    @Column(name="tax_price")
+    @Column(name = "tax_price")
     private BigDecimal taxPrice;
-    @Column(name="non_tax_price")
+    @Column(name = "non_tax_price")
     private BigDecimal nonTaxPrice;
-    @Column(name="total_price")
+    @Column(name = "total_price")
     private BigDecimal totalPrice;
 
     private BigDecimal height;
@@ -124,12 +125,12 @@ public class Goods {
         this.project = project;
     }
 
-    public Integer getSeq() {
-        return seq;
+    public Boolean getExchanged() {
+        return exchanged;
     }
 
-    public void setSeq(Integer seq) {
-        this.seq = seq;
+    public void setExchanged(Boolean exchanged) {
+        this.exchanged = exchanged;
     }
 
     public String getContractNo() {
@@ -276,13 +277,6 @@ public class Goods {
         this.techAudit = techAudit;
     }
 
-    public Boolean getAbstracted() {
-        return abstracted;
-    }
-
-    public void setAbstracted(Boolean abstracted) {
-        this.abstracted = abstracted;
-    }
 
     public Integer getPurchasedNum() {
         return purchasedNum;
@@ -364,11 +358,4 @@ public class Goods {
         this.lwh = lwh;
     }
 
-    public boolean isAbstracted() {
-        return abstracted;
-    }
-
-    public void setAbstracted(boolean abstracted) {
-        this.abstracted = abstracted;
-    }
 }

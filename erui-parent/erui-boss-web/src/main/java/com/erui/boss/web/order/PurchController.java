@@ -6,15 +6,15 @@ import com.erui.order.entity.Goods;
 import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchGoods;
 import com.erui.order.requestVo.PGoods;
-import com.erui.order.requestVo.PurchListCondition;
-import com.erui.order.requestVo.PurchSaveVo;
 import com.erui.order.service.PurchService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,30 +33,32 @@ public class PurchController {
 
 
     /**
-     * 获取采购信息
-     *
-     * @param id 采购ID
-     * @return
-     */
-    @RequestMapping("get")
-    public Result<Object> get(@RequestParam(name = "id", required = true) Integer id) {
-
-        PurchSaveVo data = purchService.findByIdForDetailPage(id);
-        if (data != null) {
-            return new Result<>(data);
-        }
-
-        return new Result<>(ResultStatusEnum.FAIL);
-    }
-
-    /**
      * 获取采购单列表
      *
      * @return
      */
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> list(@RequestBody PurchListCondition condition) {
+    public Result<Object> list(@RequestBody Purch condition) {
         Page<Purch> purchPage = purchService.findByPage(condition);
+
+        if (purchPage.hasContent()) {
+            purchPage.getContent().forEach(vo -> {
+                vo.setAttachments(null);
+                vo.setPurchPaymentList(null);
+                vo.setPurchGoodsList(null);
+
+                List<String> projectNoList = new ArrayList<String>();
+                List<String> contractNoList = new ArrayList<>();
+
+                vo.getProjects().stream().forEach(project -> {
+                    projectNoList.add(project.getProjectNo());
+                    contractNoList.add(project.getContractNo());
+                });
+                vo.setProjectNos(StringUtils.join(projectNoList, ","));
+                vo.setContractNos(StringUtils.join(contractNoList, ","));
+            });
+        }
+
         return new Result<>(purchPage);
     }
 
@@ -64,31 +66,54 @@ public class PurchController {
     /**
      * 新增采购单
      *
-     * @param purchSaveVo
+     * @param purch
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(@RequestBody PurchSaveVo purchSaveVo) {
+    public Result<Object> save(@RequestBody Purch purch) {
 
-        // TODO参数检查略过
-
-        try {
-            boolean flag = false;
-            if (purchSaveVo.getId() != null) {
-                flag = purchService.update(purchSaveVo);
-            } else {
-                flag = purchService.insert(purchSaveVo);
+        // TODO 参数检查略过
+        Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
+        if (statusEnum != null && statusEnum == Purch.StatusEnum.BEING || statusEnum == Purch.StatusEnum.READY) {
+            try {
+                boolean flag = false;
+                if (purch.getId() != null) {
+                    flag = purchService.update(purch);
+                } else {
+                    flag = purchService.insert(purch);
+                }
+                if (flag) {
+                    return new Result<>();
+                }
+            } catch (Exception ex) {
+                logger.error("采购单操作失败：{}", purch, ex);
             }
-            if (flag) {
-                return new Result<>();
-            }
-        } catch (Exception ex) {
-            logger.error("采购单操作失败：{}", purchSaveVo, ex);
         }
-
 
         return new Result<>(ResultStatusEnum.FAIL);
     }
+
+
+    /**
+     * 获取采购详情信息
+     *
+     * @param id 采购ID
+     * @return
+     */
+    @RequestMapping(value = "detail", method = RequestMethod.POST)
+    public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
+        Purch data = purchService.findDetailInfo(id);
+        if (data != null) {
+            return new Result<>(data);
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL);
+    }
+
+
+
+
+
 
     /**
      * 为添加报检单而获取采购信息
@@ -96,18 +121,19 @@ public class PurchController {
      * @param id 采购ID
      * @return
      */
+    @Deprecated
     @RequestMapping("getInfoForInspectApply")
     public Result<Object> getInfoForInspectApply(@RequestParam(name = "id", required = true) Integer id) {
 
-        Purch purch = purchService.findById(id);
+        Purch purch = purchService.findBaseInfo(id);
 
         List<PurchGoods> goodsList = purchService.findInspectGoodsByPurch(id);
 
         // 整合数据
-        Map<String,Object> data = new HashMap<>();
-        data.put("agentId",purch.getAgentId()); // 采购经办人ID
-        data.put("supplierId",purch.getSupplierId()); // 供应商ID
-        data.put("afterDept","采购部") ; // 下发部门就是采购部 -- 苗德宇说的
+        Map<String, Object> data = new HashMap<>();
+        data.put("agentId", purch.getAgentId()); // 采购经办人ID
+        data.put("supplierId", purch.getSupplierId()); // 供应商ID
+        data.put("afterDept", "采购部"); // 下发部门就是采购部 -- 苗德宇说的
 
         List<PGoods> list = goodsList.stream().map(vo -> {
             PGoods pg = new PGoods();
@@ -129,7 +155,7 @@ public class PurchController {
 
             return pg;
         }).collect(Collectors.toList());
-        data.put("goodsList",list) ;
+        data.put("goodsList", list);
 
         return new Result<>(data);
     }
