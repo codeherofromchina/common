@@ -41,6 +41,7 @@ public class HrCountServiceImpl extends BaseService<HrCountMapper> implements Hr
 
     @Override
     public Date selectEnd() {
+
         return readMapper.selectEnd(null);
     }
 

@@ -10,4 +10,5 @@ import java.io.Serializable;
  * Created by wangxiaodan on 2017/12/11.
  */
 public interface AreaDao extends JpaRepository<Area, Serializable> {
+    Area findByName(String name);
 }

@@ -1,5 +1,8 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -7,27 +10,37 @@ import java.util.Date;
 /**
  * 商品信息
  */
+
 @Entity
 @Table(name = "goods")
 public class Goods {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name="parent_id")
     private Integer parentId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
+    private Project project;
 
     private Integer seq;
 
     @Column(name="contract_no")
     private String contractNo;
 
+    @Column(name="project_no")
+    private String projectNo;
+
     private String sku;
     @Column(name="mete_type")
-    private String mateType; // 物料分类
+    private String meteType; // 物料分类
     @Column(name="pro_type")
     private String proType; // 产品分类
     @Column(name="name_en")
@@ -94,13 +107,21 @@ public class Goods {
     public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
-
+    @JoinColumn(name = "order_id",insertable = false,updatable = false)
     public Order getOrder() {
         return order;
     }
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public Integer getSeq() {
@@ -119,6 +140,14 @@ public class Goods {
         this.contractNo = contractNo;
     }
 
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
     public String getSku() {
         return sku;
     }
@@ -127,12 +156,12 @@ public class Goods {
         this.sku = sku;
     }
 
-    public String getMateType() {
-        return mateType;
+    public String getMeteType() {
+        return meteType;
     }
 
-    public void setMateType(String mateType) {
-        this.mateType = mateType;
+    public void setMeteType(String meteType) {
+        this.meteType = meteType;
     }
 
     public String getProType() {
@@ -333,5 +362,13 @@ public class Goods {
 
     public void setLwh(String lwh) {
         this.lwh = lwh;
+    }
+
+    public boolean isAbstracted() {
+        return abstracted;
+    }
+
+    public void setAbstracted(boolean abstracted) {
+        this.abstracted = abstracted;
     }
 }

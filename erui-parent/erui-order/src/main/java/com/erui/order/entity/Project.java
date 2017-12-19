@@ -1,5 +1,8 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,15 +14,22 @@ import java.util.Date;
 @Table(name="project")
 public class Project {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY,cascade={CascadeType.ALL})
     @JoinColumn(name="order_id")
+    @JsonIgnore
     private Order order;
+
+    @OneToOne(mappedBy="project")
+    private PurchRequisition purchRequisition;
 
     @Column(name="contract_no")
     private String contractNo;
+
+    @Column(name="project_no")
+    private String projectNo;
 
     @Column(name="project_name")
     private String projectName;
@@ -82,8 +92,16 @@ public class Project {
 
     @Column(name="create_time")
     private Date createTime;
+    @Column(name="exec_co_name")
+    private String execCoName;
 
+    @Column(name="distribution_dept_name")
+    private String distributionDeptName;
 
+    @Column(name="business_unit_name")
+    private String businessUnitName;
+
+    private String region;
     private String remarks;
 
     public Integer getId() {
@@ -102,12 +120,28 @@ public class Project {
         this.order = order;
     }
 
+    public PurchRequisition getPurchRequisition() {
+        return purchRequisition;
+    }
+
+    public void setPurchRequisition(PurchRequisition purchRequisition) {
+        this.purchRequisition = purchRequisition;
+    }
+
     public String getContractNo() {
         return contractNo;
     }
 
     public void setContractNo(String contractNo) {
         this.contractNo = contractNo;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 
     public String getProjectName() {
@@ -284,5 +318,37 @@ public class Project {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
+    }
+
+    public String getDistributionDeptName() {
+        return distributionDeptName;
+    }
+
+    public void setDistributionDeptName(String distributionDeptName) {
+        this.distributionDeptName = distributionDeptName;
+    }
+
+    public String getBusinessUnitName() {
+        return businessUnitName;
+    }
+
+    public void setBusinessUnitName(String businessUnitName) {
+        this.businessUnitName = businessUnitName;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 }

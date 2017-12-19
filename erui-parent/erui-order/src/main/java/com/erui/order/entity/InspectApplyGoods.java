@@ -17,15 +17,15 @@ public class InspectApplyGoods {
     @JoinColumn(name="inspect_apply_id")
     private InspectApply inspectApply;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="goods_id")
     private Goods goods;
     @Column(name = "inspect_num")
     private Integer inspectNum;
-    @Column(name = "inspect_times")
-    private Integer inspectTimes;
 
     private Integer samples;
+
+    private String remarks;
 
     private Integer unqualified;
     @Column(name = "unqualified_desc")
@@ -33,41 +33,10 @@ public class InspectApplyGoods {
     @Column(name = "instock_num")
     private Integer instockNum;
 
-
-    @Column(name="user_id")
-    private Integer userId;
-
-    /**
-     * 质检部门ID
-     */
-    @Column(name="dept_id")
-    private Integer deptId;
-
-    @Column(name="ncr_no")
-    private String ncrNo;
-
-    @Column(name="check_date")
-    private Date checkDate;
-
-    @Column(name="done_date")
-    private Date doneDate;
-
-    @Column(name="report_remarks")
-    private String reportRemarks;
-
-    private String msg;
-
-    /**
-     * 检验状态 0：未编辑 1：保存  2:合格，入库 3:不合格回退
-     */
-    private Integer status;
-    @Column(name = "inspect_time")
-    private Date inspectTime;
-
     @Column(name = "create_time")
     private Date createTime;
 
-    private String remarks;
+
 
     public Integer getId() {
         return id;
@@ -101,14 +70,6 @@ public class InspectApplyGoods {
         this.inspectNum = inspectNum;
     }
 
-    public Integer getInspectTimes() {
-        return inspectTimes;
-    }
-
-    public void setInspectTimes(Integer inspectTimes) {
-        this.inspectTimes = inspectTimes;
-    }
-
     public Integer getSamples() {
         return samples;
     }
@@ -139,79 +100,6 @@ public class InspectApplyGoods {
 
     public void setInstockNum(Integer instockNum) {
         this.instockNum = instockNum;
-    }
-
-
-    public Date getCheckDate() {
-        return checkDate;
-    }
-
-    public void setCheckDate(Date checkDate) {
-        this.checkDate = checkDate;
-    }
-
-    public Date getDoneDate() {
-        return doneDate;
-    }
-
-    public void setDeptId(Integer deptId) {
-        this.deptId = deptId;
-    }
-
-    public Integer getDeptId() {
-        return deptId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public String getNcrNo() {
-        return ncrNo;
-    }
-
-    public String getReportRemarks() {
-        return reportRemarks;
-    }
-
-    public void setDoneDate(Date doneDate) {
-        this.doneDate = doneDate;
-    }
-
-    public void setNcrNo(String ncrNo) {
-        this.ncrNo = ncrNo;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public void setReportRemarks(String reportRemarks) {
-        this.reportRemarks = reportRemarks;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Date getInspectTime() {
-        return inspectTime;
-    }
-
-    public void setInspectTime(Date inspectTime) {
-        this.inspectTime = inspectTime;
     }
 
     public Date getCreateTime() {

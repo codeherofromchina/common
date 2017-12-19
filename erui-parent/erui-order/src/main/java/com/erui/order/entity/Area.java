@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,6 +26,7 @@ public class Area {
     private Date createTime;
 
     @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="area_id")
     private Set<Company> companySet = new HashSet<>();
 
     public Integer getId() {

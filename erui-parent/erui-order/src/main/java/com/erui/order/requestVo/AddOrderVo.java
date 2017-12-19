@@ -1,287 +1,165 @@
-package com.erui.order.entity;
+package com.erui.order.requestVo;
+
+import com.erui.order.entity.Attachment;
+import com.erui.order.entity.Goods;
+import com.erui.order.entity.OrderPayment;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * 订单表
+ * Created by GS on 2017/12/16 0016.
  */
-@Entity
-@Table(name = "`order`")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class AddOrderVo {
     private Integer id;
 
-    @Column(name = "contract_no")
+    //销售合同号
     private String contractNo;
 
-    @Column(name = "framework_no")
+    //框架协议号
     private String frameworkNo;
-
-    @Column(name = "contract_no_os")
+    //海外销售合同号
     private String contractNoOs;
 
-    @Column(name = "po_no")
+    //PO号
     private String poNo;
 
-    @Column(name = "logi_quote_no")
+    //物流协议号
     private String logiQuoteNo;
-
-    @Column(name = "inquiry_no")
+    //询报价
     private String inquiryNo;
 
-    @Column(name = "order_type")
+    //订单类型
     private boolean orderType = true;
 
-    @Column(name = "order_source")
+    //订单来源
     private String orderSource;
 
-    @Column(name = "signing_date")
+    //订单签订日期
     private Date signingDate;
 
-    @Column(name = "delivery_date")
+    //合同签订日期
     private Date deliveryDate;
 
-    @Column(name = "signing_co")
+    //签约主体公司
     private Integer signingCo;
-
-    @Column(name = "agent_id")
+    //市场经办人id
     private Integer agentId;
 
-    @Column(name = "agent_name")
     private String agentName;
 
-    @Column(name = "exec_co_id")
+    //执行行分公司
     private Integer execCoId;
-
+    //所属地区
     private String region;
 
-    @Column(name = "distribution_dept_id")
+    //分销部
     private Integer distributionDeptId;
-
+    //国家
     private String country;
 
-    @Column(name = "crm_code")
+    //CRM客户代码
     private String crmCode;
 
-    @Column(name = "customer_type")
+    //客户类型
     private boolean customerType;
 
-    @Column(name = "per_liable_repay")
+    //汇款责任人
     private String perLiableRepay;
 
-    @Column(name = "business_unit_id")
+    //事业部
     private Integer businessUnitId;
 
-    @Column(name = "technical_id")
+    //商务技术经办人
     private Integer technicalId;
 
-    @Column(name = "grant_type")
+    //授信类型
     private String grantType;
 
-    @Column(name = "is_preinvest")
+    //是否预投
     private boolean isPreinvest = false;
 
-    @Column(name = "is_financing")
+    //是否融资
     private boolean isFinancing = false;
 
-    @Column(name = "trade_terms")
+    //贸易术语
     private String tradeTerms;
 
-    @Column(name = "transport_type")
+    //运输类型
     private String transportType;
 
-    @Column(name = "from_country")
+    //发运国
     private String fromCountry;
 
-    @Column(name = "from_port")
+    //发运港
     private String fromPort;
 
-    @Column(name = "from_place")
+    //起始发运地
     private String fromPlace;
 
-    @Column(name = "to_country")
+    //目的国
     private String toCountry;
 
-    @Column(name = "to_port")
+    //目的港
     private String toPort;
 
-    @Column(name = "to_place")
+    //目的地
     private String toPlace;
 
-    @Column(name = "total_price")
+    //合同总价
     private BigDecimal totalPrice;
 
-    @Column(name = "currency_bn")
+    //货币类型
     private String currencyBn;
 
-    @Column(name = "tax_bearing")
+    //是否含税
     private Boolean taxBearing;
 
-    @Column(name = "payment_mode_bn")
+    //收款方式
     private String paymentModeBn;
 
-    @Column(name = "quality_funds")
+    //质保金
     private BigDecimal qualityFunds;
 
     /**
      * 收款状态 0:未付款 1:部分付款 2:收款完成
      */
-    @Column(name = "pay_status")
     private Integer payStatus;
-
+    //订单状态
     private Integer status;
 
-    @Column(name = "create_time")
+    //订单创建时间
     private Date createTime;
 
-    @Column(name = "deliver_consign_c")
-    private boolean deliverConsignC = true;
+    //创建人
+    //   private Integer createUserId;
 
-    @Column(name = "create_user_id")
-    private Integer createUserId;
+    //修改时间
+    //   private Date updateTime;
 
-    @Column(name = "update_time")
-    private Date updateTime;
-
-    @Column(name = "delete_flag")
-    private Boolean deleteFlag;
-
-    @Column(name = "delete_time")
-    private Date deleteTime;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @Column(name = "receivable_account_remaining")
-    private BigDecimal receivableAccountRemaining;
-
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "order_attach",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Set<Attachment> attachmentSet = new HashSet<>();
-
-    @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name="order_id")
-    @OrderBy("id asc")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private List<Goods> goodsList = new ArrayList<>();
-
-    @JoinColumn(name = "order_id")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @OrderBy("id asc")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private List<OrderPayment> orderPayments = new ArrayList<>();
-
-    @Column(name = "delivery_requires")
+    //交货要求及描述
     private String deliveryRequires;
 
-    @Column(name = "customer_context")
+    //客户及项目背景描述
     private String customerContext;
-    @Column(name="exec_co_name")
+   //执行分公司
     private String execCoName;
 
-    @Column(name="distribution_dept_name")
+    //分销部
     private String distributionDeptName;
 
-    @Column(name="business_unit_name")
+   //事业部
     private String businessUnitName;
 
-    public String getExecCoName() {
-        return execCoName;
-    }
+    //附件信息
+    private Set<Attachment> attachDesc = new HashSet<>();
 
-    public void setExecCoName(String execCoName) {
-        this.execCoName = execCoName;
-    }
-
-    public String getDistributionDeptName() {
-        return distributionDeptName;
-    }
-
-    public void setDistributionDeptName(String distributionDeptName) {
-        this.distributionDeptName = distributionDeptName;
-    }
-
-    public String getBusinessUnitName() {
-        return businessUnitName;
-    }
-
-    public void setBusinessUnitName(String businessUnitName) {
-        this.businessUnitName = businessUnitName;
-    }
-
-    public String getAgentName() {
-        return agentName;
-    }
-
-    public void setAgentName(String agentName) {
-        this.agentName = agentName;
-    }
-
-    public String getInquiryNo() {
-        if (inquiryNo == null)
-            setPoNo("");
-        return inquiryNo;
-    }
-
-    public void setInquiryNo(String inquiryNo) {
-        this.inquiryNo = inquiryNo;
-    }
-
-    public boolean isOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(boolean orderType) {
-        this.orderType = orderType;
-    }
-
-    public String getOrderSource() {
-        if (orderSource == null)
-            setOrderSource("");
-        return orderSource;
-    }
-
-    public void setOrderSource(String orderSource) {
-        this.orderSource = orderSource;
-    }
-
-    public boolean isCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(boolean customerType) {
-        this.customerType = customerType;
-    }
-
-    public boolean isPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setPreinvest(boolean preinvest) {
-        isPreinvest = preinvest;
-    }
-
-    public boolean isFinancing() {
-        return isFinancing;
-    }
-
-    public void setFinancing(boolean financing) {
-        isFinancing = financing;
-    }
-
-    public boolean isDeliverConsignC() {
-        return deliverConsignC;
-    }
-
-    public void setDeliverConsignC(boolean deliverConsignC) {
-        this.deliverConsignC = deliverConsignC;
-    }
+    //商品信息
+    private List<PGoods> goodDesc = new ArrayList<>();
+    //合同信息
+    private List<OrderPayment> contractDesc = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -316,9 +194,6 @@ public class Order {
     }
 
     public String getPoNo() {
-        if (poNo == null) {
-            setPoNo("");
-        }
         return poNo;
     }
 
@@ -334,12 +209,28 @@ public class Order {
         this.logiQuoteNo = logiQuoteNo;
     }
 
-    public Boolean getOrderType() {
+    public String getInquiryNo() {
+        return inquiryNo;
+    }
+
+    public void setInquiryNo(String inquiryNo) {
+        this.inquiryNo = inquiryNo;
+    }
+
+    public boolean isOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public void setOrderType(boolean orderType) {
         this.orderType = orderType;
+    }
+
+    public String getOrderSource() {
+        return orderSource;
+    }
+
+    public void setOrderSource(String orderSource) {
+        this.orderSource = orderSource;
     }
 
     public Date getSigningDate() {
@@ -372,6 +263,14 @@ public class Order {
 
     public void setAgentId(Integer agentId) {
         this.agentId = agentId;
+    }
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
     }
 
     public Integer getExecCoId() {
@@ -414,11 +313,11 @@ public class Order {
         this.crmCode = crmCode;
     }
 
-    public Boolean getCustomerType() {
+    public boolean isCustomerType() {
         return customerType;
     }
 
-    public void setCustomerType(Boolean customerType) {
+    public void setCustomerType(boolean customerType) {
         this.customerType = customerType;
     }
 
@@ -454,20 +353,20 @@ public class Order {
         this.grantType = grantType;
     }
 
-    public Boolean getIsPreinvest() {
+    public boolean isPreinvest() {
         return isPreinvest;
     }
 
-    public void setIsPreinvest(Boolean isPreinvest) {
-        this.isPreinvest = isPreinvest;
+    public void setPreinvest(boolean preinvest) {
+        isPreinvest = preinvest;
     }
 
-    public Boolean getIsFinancing() {
+    public boolean isFinancing() {
         return isFinancing;
     }
 
-    public void setIsFinancing(Boolean isFinancing) {
-        this.isFinancing = isFinancing;
+    public void setFinancing(boolean financing) {
+        isFinancing = financing;
     }
 
     public String getTradeTerms() {
@@ -598,71 +497,6 @@ public class Order {
         this.createTime = createTime;
     }
 
-    public Boolean getDeliverConsignC() {
-        return deliverConsignC;
-    }
-
-    public void setDeliverConsignC(Boolean deliverConsignC) {
-        this.deliverConsignC = deliverConsignC;
-    }
-
-    public Integer getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Integer createUserId) {
-        this.createUserId = createUserId;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Boolean getDeleteFlag() {
-        return deleteFlag;
-    }
-
-    public void setDeleteFlag(Boolean deleteFlag) {
-        this.deleteFlag = deleteFlag;
-    }
-
-    public Date getDeleteTime() {
-        return deleteTime;
-    }
-
-    public void setDeleteTime(Date deleteTime) {
-        this.deleteTime = deleteTime;
-    }
-
-    public Set<Attachment> getAttachmentSet() {
-        return attachmentSet;
-    }
-
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
-        this.attachmentSet = attachmentSet;
-    }
-
-    public List<Goods> getGoodsList() {
-        return goodsList;
-    }
-
-    public void setGoodsList(List<Goods> goodsList) {
-        this.goodsList = goodsList;
-    }
-
-
-    public List<OrderPayment> getOrderPayments() {
-        return orderPayments;
-    }
-
-    public void setOrderPayments(List<OrderPayment> orderPayments) {
-        this.orderPayments = orderPayments;
-    }
-
     public String getDeliveryRequires() {
         return deliveryRequires;
     }
@@ -679,4 +513,51 @@ public class Order {
         this.customerContext = customerContext;
     }
 
+    public Set<Attachment> getAttachDesc() {
+        return attachDesc;
+    }
+
+    public void setAttachDesc(Set<Attachment> attachDesc) {
+        this.attachDesc = attachDesc;
+    }
+
+    public List<PGoods> getGoodDesc() {
+        return goodDesc;
+    }
+
+    public void setGoodDesc(List<PGoods> goodDesc) {
+        this.goodDesc = goodDesc;
+    }
+
+    public List<OrderPayment> getContractDesc() {
+        return contractDesc;
+    }
+
+    public void setContractDesc(List<OrderPayment> contractDesc) {
+        this.contractDesc = contractDesc;
+    }
+
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
+    }
+
+    public String getDistributionDeptName() {
+        return distributionDeptName;
+    }
+
+    public void setDistributionDeptName(String distributionDeptName) {
+        this.distributionDeptName = distributionDeptName;
+    }
+
+    public String getBusinessUnitName() {
+        return businessUnitName;
+    }
+
+    public void setBusinessUnitName(String businessUnitName) {
+        this.businessUnitName = businessUnitName;
+    }
 }

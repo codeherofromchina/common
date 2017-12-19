@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,6 +22,8 @@ public class OrderAccount {
 
     @ManyToOne(fetch = FetchType.LAZY  )
     @JoinColumn(name = "order_id")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private Order order;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @JsonIgnore
     private Order order;    //订单
@@ -40,7 +44,7 @@ public class OrderAccount {
     private BigDecimal goodsPrice;  //发货金额
 
     @Column(name = "deliver_date")
-    private Date deliverDate;   //发货时间
+    private Date deliverDate;
 
     @Column(name = "create_user_id")
     private Integer createUserId;   //创建人

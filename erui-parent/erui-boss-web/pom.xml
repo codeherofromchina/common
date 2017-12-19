@@ -59,11 +59,13 @@
             <artifactId>erui-comm</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>com.erui</groupId>
             <artifactId>erui-report</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>com.erui</groupId>
             <artifactId>erui-order</artifactId>

@@ -1,5 +1,8 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -16,9 +19,10 @@ public class Dept {
     /**
      * 分公司
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+ /*   @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "company_id")
-    private Company company;
+    @JsonIgnore
+    private Company company;*/
 
     /**
      * 分销部名称
@@ -32,17 +36,17 @@ public class Dept {
         return id;
     }
 
-    public void setId(Integer id) {
+   /* public void setId(Integer id) {
         this.id = id;
-    }
+    }*/
 
-    public Company getCompany() {
+/*    public Company getCompany() {
         return company;
     }
 
     public void setCompany(Company company) {
         this.company = company;
-    }
+    }*/
 
     public String getName() {
         return name;

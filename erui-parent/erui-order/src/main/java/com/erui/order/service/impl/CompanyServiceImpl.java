@@ -8,6 +8,11 @@ import com.erui.order.service.AreaService;
 import com.erui.order.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import java.util.List;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -19,7 +24,18 @@ public class CompanyServiceImpl implements CompanyService {
     private CompanyDao companyDao;
 
     @Override
+    @Transactional
     public Company findById(Integer id) {
-        return companyDao.findOne(id);
+        Company companyDaoOne = companyDao.findOne(id);
+        companyDaoOne.getDeptSet().size();
+        return companyDaoOne;
     }
+
+    @Override
+    @Transactional
+    public List<Company> findAll() {
+        return companyDao.findAll();
+    }
+
+
 }

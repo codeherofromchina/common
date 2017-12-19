@@ -44,6 +44,9 @@ public class Purch {
     @Column(name = "pay_type")
     private Integer payType;
 
+    @Column(name = "other_pay_type_msg")
+    private String otherPayTypeMsg;
+
     @Column(name = "producted_date")
     private Date productedDate;
 
@@ -79,7 +82,10 @@ public class Purch {
     @Column(name = "delete_time")
     private Date deleteTime;
 
-    private String inspected;
+    /**
+     * 是否报检完成 true：完成  false：未完成
+     */
+    private boolean inspected = false;
 
     private String remarks;
 
@@ -87,13 +93,14 @@ public class Purch {
     @JoinTable(name = "purch_attach",
             joinColumns = @JoinColumn(name = "purch_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachments = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PurchPayment> purchPaymentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="purch_id")
+    @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
 
 
@@ -183,6 +190,14 @@ public class Purch {
 
     public void setPayType(Integer payType) {
         this.payType = payType;
+    }
+
+    public String getOtherPayTypeMsg() {
+        return otherPayTypeMsg;
+    }
+
+    public void setOtherPayTypeMsg(String otherPayTypeMsg) {
+        this.otherPayTypeMsg = otherPayTypeMsg;
     }
 
     public Date getProductedDate() {
@@ -281,11 +296,11 @@ public class Purch {
         this.deleteTime = deleteTime;
     }
 
-    public String getInspected() {
+    public boolean getInspected() {
         return inspected;
     }
 
-    public void setInspected(String inspected) {
+    public void setInspected(boolean inspected) {
         this.inspected = inspected;
     }
 
@@ -298,12 +313,12 @@ public class Purch {
     }
 
 
-    public Set<Attachment> getAttachmentSet() {
-        return attachmentSet;
+    public List<Attachment> getAttachments() {
+        return attachments;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
-        this.attachmentSet = attachmentSet;
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public List<PurchPayment> getPurchPaymentList() {
