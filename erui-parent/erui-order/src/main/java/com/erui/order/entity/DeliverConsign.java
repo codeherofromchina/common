@@ -14,8 +14,17 @@ public class DeliverConsign {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @Column(name="order_id")
-    private Integer orderId;
+
+    /**
+     * 出口通知单号
+     */
+    @Column(name="deliver_consign_no")
+    private String deliverConsignNo;
+
+    @OneToOne
+    @JoinColumn(name="order_id")
+    private Order order;
+
     @Column(name="dept_id")
     private Integer deptId;
     @Column(name="co_id")
@@ -52,12 +61,20 @@ public class DeliverConsign {
         this.id = id;
     }
 
-    public Integer getOrderId() {
-        return orderId;
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public Integer getDeptId() {
