@@ -5,7 +5,7 @@ public enum GetDataEnum {
     SPU_DATA(1,"获取spu数据"),
     SUPPLIER_DATA(2,"获取供应商数据");
     private int code;
-    private String message;
+    private String message; 
 
     GetDataEnum(int code,String message) {
         this.code = code;

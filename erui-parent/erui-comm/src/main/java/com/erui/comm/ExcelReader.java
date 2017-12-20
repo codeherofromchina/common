@@ -144,7 +144,7 @@ public class ExcelReader {
 	}
 	
 	public static void main(String[] args) {
-		String str = "项目开始　 ";
+		String str = "项目开始　   ";
 		System.out.println(str.length() + str);
 		System.out.println(str.trim().length());
 //		str = StringUtils.trimToNull(str);
