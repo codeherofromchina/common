@@ -2,16 +2,21 @@ package com.erui.report.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.dao.RequestCreditMapper;
 import com.erui.report.dao.RequestReceiveMapper;
+import com.erui.report.model.RequestCredit;
+import com.erui.report.model.RequestCreditExample;
 import com.erui.report.model.RequestReceive;
 import com.erui.report.service.RequestReceiveService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
+import org.apache.poi.ss.formula.ptg.NotEqualPtg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,15 +26,16 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         // 回款金额 - backAmount、 应收未收金额 - receiveAmount
-        ImportDataResponse response = new ImportDataResponse(new String[]{"receiveAmount", "backAmount"});
+        ImportDataResponse response = new ImportDataResponse(new String[]{"backAmount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         RequestReceive receive = null;
         if (!testOnly) {
             writeMapper.truncateTable();
         }
-        // 定义下月应收金额
-        BigDecimal nextMouthReceiveAmount = BigDecimal.ZERO;
+
+        BigDecimal nextMouthReceiveAmount = BigDecimal.ZERO; // 定义下月应收金额
+        BigDecimal receivedAmount = BigDecimal.ZERO; // 定义应收余额
         // 遍历数据
         for (int index = 0; index < size; index++) {
             int cellIndex = index + 2;
@@ -96,6 +102,7 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
             }
             try {
                 receive.setBackAmount(new BigDecimal(strArr[16]));
+
             } catch (Exception ex) {
                 logger.error(ex.getMessage());
                 response.incrFail();
@@ -125,18 +132,42 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
                 response.sumData(receive);
             }
             // 下自然月应收金额
-            if (NewDateUtil.inNextMonth(receive.getNextBackDate()) && receive.getReceiveAmount() != null) {
-                nextMouthReceiveAmount = nextMouthReceiveAmount.add(receive.getReceiveAmount());
-            }
+//            if (NewDateUtil.inNextMonth(receive.getNextBackDate()) && receive.getReceiveAmount() != null) {
+//                nextMouthReceiveAmount = nextMouthReceiveAmount.add(receive.getReceiveAmount());
+//            }
             response.incrSuccess();
 
         }
-        // 计算应收已收金额，放置到键 hasReceivedAmount 中
+        //只要本期回款金额
+        RequestCreditMapper creditMapper = readerSession.getMapper(RequestCreditMapper.class);
+        Date[] dates = NewDateUtil.getBeforeSaturdayWeek(null);
+        Date startTime=dates[0];
+        Date endTime=dates[1];
+        RequestCreditExample creditExample = new RequestCreditExample();
+        RequestCreditExample.Criteria creditCriteria = creditExample.createCriteria();
+        if(startTime!=null){
+            creditCriteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            creditCriteria.andBackDateLessThan(endTime);
+        }
+        List<RequestCredit> credits = creditMapper.selectByExample(creditExample);
+        if(credits!=null&&credits.size()>0){
+            for (RequestCredit cr:credits ) {
+                if(cr.getReceiveAmount()!=null){
+                    receivedAmount=receivedAmount.add(cr.getReceiveAmount());
+                }
+                if (NewDateUtil.inNextMonth(cr.getBackDate()) && cr.getReceiveAmount() != null) {
+                nextMouthReceiveAmount = nextMouthReceiveAmount.add(cr.getReceiveAmount());
+            }
+            }
+        }
         Map<String, BigDecimal> map = response.getSumMap();
-        map.put("hasReceivedAmount", map.get("back_amount"));
+        map.put("backAmount", map.get("backAmount"));
+        map.put("receivedAmount", receivedAmount);
+        map.put("hasReceivedAmount", receivedAmount.add(map.get("backAmount")));
         map.put("nextMouthReceiveAmount", nextMouthReceiveAmount);
         response.setDone(true);
-
         return response;
     }
 }
