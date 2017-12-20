@@ -28,6 +28,10 @@ public interface RequestCreditMapper {
 
     List<Map> selectNextRequestTrend(RequestCreditExample example);
 
+    List<Map<String, Object>> selectReceiveGroupByArea(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByCompany(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByOrg(RequestCreditExample example);
+
     int countByExample(RequestCreditExample example);
 
     int deleteByExample(RequestCreditExample example);

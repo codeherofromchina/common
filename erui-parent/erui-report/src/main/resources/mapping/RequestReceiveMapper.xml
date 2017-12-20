@@ -102,7 +102,7 @@
     <!--根据条件查询回款金额-->
     <select id="selectBackAmount" resultType="java.lang.Double" parameterType="com.erui.report.model.RequestReceiveExample" >
         select
-        SUM(IFNULL(back_amount,0)) AS backAmount
+      IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount
         from request_receive
         <if test="_parameter != null" >
             <include refid="Example_Where_Clause" />
@@ -111,6 +111,46 @@
             order by ${orderByClause}
         </if>
     </select>
+
+  <!--查询各区域的回款金额-->
+  <select id="selectBackAmountGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
+    select
+    IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount , sales_area AS  area
+    from request_receive
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  sales_area HAVING  sales_area IS  NOT  NULL
+  </select>
+  <!--查询各主体公司的回款金额-->
+  <select id="selectBackAmountGroupByCompany" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
+    select
+    IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,sales_main_company AS  company
+    from request_receive
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  sales_main_company HAVING  sales_main_company IS  NOT  NULL
+  </select>
+  <!--查询各事业部的回款金额-->
+  <select id="selectBackAmoutGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
+    select
+    IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,organization AS  org
+    from request_receive
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  organization HAVING  organization IS  NOT  NULL
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

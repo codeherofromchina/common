@@ -199,4 +199,44 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
         }
         return readMapper.selectBackAmount(example);
     }
+
+    @Override
+    public List<Map<String, Object>> selectBackAmountGroupByArea(Date startTime, Date endTime) {
+        RequestReceiveExample example = new RequestReceiveExample();
+        RequestReceiveExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+
+        return readMapper.selectBackAmountGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectBackAmountGroupByCompany(Date startTime, Date endTime) {
+        RequestReceiveExample example = new RequestReceiveExample();
+        RequestReceiveExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        return this.readMapper.selectBackAmountGroupByCompany(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectBackAmountGroupByOrg(Date startTime, Date endTime) {
+        RequestReceiveExample example = new RequestReceiveExample();
+        RequestReceiveExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        return readMapper.selectBackAmoutGroupByOrg(example);
+    }
 }

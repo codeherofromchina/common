@@ -140,10 +140,10 @@ public class RequestCreditController {
         Date curDate = new Date();
         Date nextWeekEndTime = DateUtil.getWeek(curDate, 5);
         Date nextWeekStartTime = DateUtil.getBeforeWeek(nextWeekEndTime, 6);
-        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNextNew(nextWeekStartTime, nextWeekEndTime,"","");
+        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNextNew(nextWeekStartTime, nextWeekEndTime, "", "");
         Date chainWeekStartTime = DateUtil.sometimeCalendar(nextWeekStartTime, 7);
         Date chainWeekEndTime = DateUtil.getWeek(nextWeekEndTime, 5);
-        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNextNew(chainWeekStartTime, chainWeekEndTime,"","");
+        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNextNew(chainWeekStartTime, chainWeekEndTime, "", "");
         if (nextWeekMount == null) {
             nextWeekMount = new HashMap();
             nextWeekMount.put("sdT", 0);
@@ -161,19 +161,19 @@ public class RequestCreditController {
             chainWeekOrderAmount = new BigDecimal(chainNextWeekMount.get("sdT").toString());
         }
         HashMap<Object, Object> nextWeekReceivable = new HashMap<>();
-        Double chainWeekOrderAmountAdd = nextWeekOrderAmount.doubleValue()-chainWeekOrderAmount.doubleValue();
-        nextWeekReceivable.put("receive",df.format(nextWeekOrderAmount.doubleValue() / 10000) + "万$");
-        nextWeekReceivable.put("chainAdd",df.format(chainWeekOrderAmountAdd / 10000) + "万$");
-        nextWeekReceivable.put("chainRate",RateUtil.doubleChainRate(chainWeekOrderAmountAdd, nextWeekOrderAmount.doubleValue()));
-        nextWeekReceivable.put("startTime",DateUtil.formatDate2String(nextWeekStartTime,DateUtil.SHORT_SLASH_FORMAT_STR));
-        nextWeekReceivable.put("endTime",DateUtil.formatDate2String(nextWeekEndTime,DateUtil.SHORT_SLASH_FORMAT_STR));
+        Double chainWeekOrderAmountAdd = nextWeekOrderAmount.doubleValue() - chainWeekOrderAmount.doubleValue();
+        nextWeekReceivable.put("receive", df.format(nextWeekOrderAmount.doubleValue() / 10000) + "万$");
+        nextWeekReceivable.put("chainAdd", df.format(chainWeekOrderAmountAdd / 10000) + "万$");
+        nextWeekReceivable.put("chainRate", RateUtil.doubleChainRate(chainWeekOrderAmountAdd, nextWeekOrderAmount.doubleValue()));
+        nextWeekReceivable.put("startTime", DateUtil.formatDate2String(nextWeekStartTime, DateUtil.SHORT_SLASH_FORMAT_STR));
+        nextWeekReceivable.put("endTime", DateUtil.formatDate2String(nextWeekEndTime, DateUtil.SHORT_SLASH_FORMAT_STR));
         //下月应收
         Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
-        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNextNew(nextMonthStartTime, nextMonthEndTime,"","");
+        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNextNew(nextMonthStartTime, nextMonthEndTime, "", "");
         Date chainMonthFirstDay = DateUtil.getMonthFirstDay(curDate);
         Date chainMonthLastDay = DateUtil.getMonthLastDay(curDate);
-        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNextNew(chainMonthFirstDay, chainMonthLastDay,"","");
+        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNextNew(chainMonthFirstDay, chainMonthLastDay, "", "");
         if (nextMonthMount == null) {
             nextMonthMount = new HashMap();
             nextMonthMount.put("sdT", 0);
@@ -191,12 +191,12 @@ public class RequestCreditController {
             chainMonthOrderAmount = new BigDecimal(chainNextMonthMount.get("sdT").toString());
         }
         HashMap<Object, Object> nextMonthReceivable = new HashMap<>();
-        Double chainMonthOrderAmountAdd = nextMonthOrderAmount.doubleValue()-chainMonthOrderAmount.doubleValue();
-        nextMonthReceivable.put("receive",df.format(nextMonthOrderAmount.doubleValue() / 10000) + "万$");
-        nextMonthReceivable.put("chainAdd",df.format(chainMonthOrderAmountAdd / 10000) + "万$");
-        nextMonthReceivable.put("chainRate",RateUtil.doubleChainRate(chainMonthOrderAmountAdd, nextMonthOrderAmount.doubleValue()));
-        nextMonthReceivable.put("startTime",DateUtil.formatDate2String(nextMonthStartTime,DateUtil.SHORT_SLASH_FORMAT_STR));
-        nextMonthReceivable.put("endTime",DateUtil.formatDate2String(nextMonthEndTime,DateUtil.SHORT_SLASH_FORMAT_STR));
+        Double chainMonthOrderAmountAdd = nextMonthOrderAmount.doubleValue() - chainMonthOrderAmount.doubleValue();
+        nextMonthReceivable.put("receive", df.format(nextMonthOrderAmount.doubleValue() / 10000) + "万$");
+        nextMonthReceivable.put("chainAdd", df.format(chainMonthOrderAmountAdd / 10000) + "万$");
+        nextMonthReceivable.put("chainRate", RateUtil.doubleChainRate(chainMonthOrderAmountAdd, nextMonthOrderAmount.doubleValue()));
+        nextMonthReceivable.put("startTime", DateUtil.formatDate2String(nextMonthStartTime, DateUtil.SHORT_SLASH_FORMAT_STR));
+        nextMonthReceivable.put("endTime", DateUtil.formatDate2String(nextMonthEndTime, DateUtil.SHORT_SLASH_FORMAT_STR));
         Map<String, Object> data = new HashMap<>();
         data.put("receive", receivable);
         data.put("received", received);
@@ -249,6 +249,7 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(areaMap);
         return result;
     }
+
     /**
      * @Author:SHIGS
      * @Description 根据销售区域查询国家
@@ -265,6 +266,7 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(areaCountry);
         return result;
     }
+
     /**
      * @Author:Lirb
      * @Description 查询主体公司列表和所属事业部
@@ -273,7 +275,7 @@ public class RequestCreditController {
      */
     @ResponseBody
     @RequestMapping(value = "companyList")
-    public Object companyList( String companyName) {
+    public Object companyList(String companyName) {
         Result<Object> result = new Result<>();
         List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
@@ -285,12 +287,13 @@ public class RequestCreditController {
             } else {
                 return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
             }
-        }else{
+        } else {
             List<String> companyList = list.parallelStream().map(InquiryAreaVO::getAreaName).collect(Collectors.toList());
             result.setData(companyList);
         }
         return result;
     }
+
     /**
      * @Author:SHIGS
      * @Description 4.区域明细图
@@ -401,10 +404,10 @@ public class RequestCreditController {
         } else {
             conList.add("下月应收-占比" + df.format((nextOrderAmount.doubleValue() / totalOrderAmount.doubleValue()) * 100) + "%");
         }
-        amountList.add(acOrderAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
-        amountList.add(acReceiveAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
-        amountList.add(acNotreceiveAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
-        amountList.add(nextOrderAmount.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acOrderAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acReceiveAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(acNotreceiveAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
+        amountList.add(nextOrderAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
         Map<String, Object> data = new HashMap();
         data.put("xAxis", conList);
         data.put("yAxis", amountList);
@@ -435,48 +438,49 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //应收余额
-        double receive=this.requestCreditService.selectReceive(startDate,endDate,map.get("company"),map.get("org"));
+        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"));
         //回款金额
-        double backAmount= receiveService.selectBackAmount(startDate,endDate,map.get("company"),map.get("org"),null,null);
+        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), null, null);
         //获取下月应收
-        double nextMothReceive=this.requestCreditService.selectReceive(nextMonthStartTime,nextMonthEndTime,map.get("company"),map.get("org"));
+        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, map.get("company"), map.get("org"));
         //集团 余额、回款金额、下月应收
-        double totalReceive=this.requestCreditService.selectReceive(startDate,endDate,null,null);
-        double TotalBackAmount= receiveService.selectBackAmount(startDate,endDate,null,null,null,null);
-        double TotalNextMothReceive=this.requestCreditService.selectReceive(nextMonthStartTime,nextMonthEndTime,null,null);
+        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null);
+        double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
+        double TotalNextMothReceive = this.requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null);
 
         ArrayList<Double> yAxis = new ArrayList<>();
-        yAxis.add(receive+backAmount);
+        yAxis.add(receive + backAmount);
         yAxis.add(backAmount);
         yAxis.add(receive);
         yAxis.add(nextMothReceive);
 
         ArrayList<String> xAxis = new ArrayList<>();
-        double totalProportion=0d;
-        double receiveProportion=0d;
-        double backProportion=0d;
-        double nextProportion=0d;
-        if((totalReceive+TotalBackAmount)>0) {
+        double totalProportion = 0d;
+        double receiveProportion = 0d;
+        double backProportion = 0d;
+        double nextProportion = 0d;
+        if ((totalReceive + TotalBackAmount) > 0) {
             totalProportion = RateUtil.doubleChainRate((receive + backAmount), (totalReceive + TotalBackAmount));
         }
-        if(totalReceive>0){
-            receiveProportion=RateUtil.doubleChainRate(receive,totalReceive);
+        if (totalReceive > 0) {
+            receiveProportion = RateUtil.doubleChainRate(receive, totalReceive);
         }
-        if(TotalBackAmount>0){
-            backProportion=RateUtil.doubleChainRate(backAmount,TotalBackAmount);
+        if (TotalBackAmount > 0) {
+            backProportion = RateUtil.doubleChainRate(backAmount, TotalBackAmount);
         }
-        if(TotalNextMothReceive>0){
-            nextProportion=RateUtil.doubleChainRate(nextMothReceive,TotalNextMothReceive);
+        if (TotalNextMothReceive > 0) {
+            nextProportion = RateUtil.doubleChainRate(nextMothReceive, TotalNextMothReceive);
         }
-        xAxis.add("应收金额-占比"+totalProportion*100+"%");
-        xAxis.add("已收金额-占比"+backProportion*100+"%");
-        xAxis.add("应收未收-占比"+receiveProportion*100+"%");
-        xAxis.add("下月应收-占比"+nextProportion*100+"%");
-        Map<String ,Object> data=new HashMap<>();
-        data.put("yAxis",yAxis);
-        data.put("xAxis",xAxis);
-        return  new Result<>().setData(data);
+        xAxis.add("应收金额-占比" + totalProportion * 100 + "%");
+        xAxis.add("已收金额-占比" + backProportion * 100 + "%");
+        xAxis.add("应收未收-占比" + receiveProportion * 100 + "%");
+        xAxis.add("下月应收-占比" + nextProportion * 100 + "%");
+        Map<String, Object> data = new HashMap<>();
+        data.put("yAxis", yAxis);
+        data.put("xAxis", xAxis);
+        return new Result<>().setData(data);
     }
+
     /**
      * @Author:lirb
      * @Description 分类统计
@@ -485,7 +489,96 @@ public class RequestCreditController {
      */
     @ResponseBody
     @RequestMapping(value = "catesDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object catesDetail(@RequestBody Map<String, Object> map) throws Exception {
-        return  null;
+    public Object catesDetail(@RequestBody Map<String, String> map) throws Exception {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+        //区域应收账款明细
+        List<Map<String, Object>> areaReceiveList = this.requestCreditService.selectReceiveGroupByArea(startDate, endDate);
+        List<Map<String, Object>> areaBackList = receiveService.selectBackAmountGroupByArea(startDate, endDate);
+        Map<String, Object> areaResult = this.getOrderAmountDetail(areaReceiveList, areaBackList, 1);
+        //主体公司应收账款明细
+        List<Map<String, Object>> companyReceiveList = this.requestCreditService.selectReceiveGroupByCompany(startDate, endDate);
+        List<Map<String, Object>> companyBackList = receiveService.selectBackAmountGroupByCompany(startDate, endDate);
+        Map<String, Object> companyResult = this.getOrderAmountDetail(companyReceiveList, companyBackList, 2);
+        //主体公司应收账款明细
+        List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(startDate, endDate);
+        List<Map<String, Object>> orgpanyBackList = receiveService.selectBackAmountGroupByOrg(startDate, endDate);
+        Map<String, Object> orgResult = this.getOrderAmountDetail(orgReceiveList, orgpanyBackList, 3);
+        Map<String, Object> data =new HashMap<>();
+        data.put("area",areaResult);
+        data.put("company",companyResult);
+        data.put("busUnit",orgResult);
+        return new Result<>().setData(data);
     }
+
+    /**
+     * @Author:lirb
+     * @Description 合并应收账款信息
+     * @Date:14:41 2017/12/20
+     * @modified By
+     */
+    private Map<String, Object> getOrderAmountDetail(List<Map<String, Object>> receiveList, List<Map<String, Object>> backList, int type) {
+        List<String> areas = new ArrayList<>();
+        List<Double> areaAmounts = new ArrayList<>();
+        if (receiveList != null && receiveList.size() > 0) {
+            receiveList.parallelStream().forEach(m -> {
+                double amount1 = Double.parseDouble(m.get("receiveAmount").toString());
+                String groupBy = "";
+                if (type == 1) {
+                    groupBy = String.valueOf(m.get("area"));
+                } else if (type == 2) {
+                    groupBy = String.valueOf(m.get("company"));
+                } else if (type == 3) {
+                    groupBy = String.valueOf(m.get("org"));
+                }
+                areas.add(groupBy);
+                areaAmounts.add(amount1);
+            });
+
+        }
+        if (backList != null && backList.size() > 0) {
+            backList.parallelStream().forEach(m -> {
+                String groupBy = "";
+                if (type == 1) {
+                    groupBy = String.valueOf(m.get("area"));
+                } else if (type == 2) {
+                    groupBy = String.valueOf(m.get("company"));
+                } else if (type == 3) {
+                    groupBy = String.valueOf(m.get("org"));
+                }
+                double amount1 = Double.parseDouble(m.get("backAmount").toString());
+                if (areas.contains(groupBy)) {
+                    int index = 0;
+                    for (int i = 0; i < areas.size(); i++) {
+                        if (areas.get(i).equals(groupBy)) {
+                            index = i;
+                        }
+                    }
+                    areaAmounts.set(index, areaAmounts.get(index) + amount1);
+                } else {
+                    areas.add(groupBy);
+                    areaAmounts.add(amount1);
+                }
+            });
+        }
+        Map<String, Object> dataResult = new HashMap<>();
+        if (type == 1) {
+            dataResult.put("areaAmount", areaAmounts);
+            dataResult.put("area", areas);
+        } else if (type == 2) {
+            dataResult.put("companyAmount", areaAmounts);
+            dataResult.put("company", areas);
+        } else if (type == 3) {
+            dataResult.put("busUnitAmount", areaAmounts);
+            dataResult.put("busUnit", areas);
+        }
+        return dataResult;
+    }
+
+
 }

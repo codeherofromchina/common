@@ -502,4 +502,43 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         return readMapper.selectReceive(example);
     }
 
+    @Override
+    public List<Map<String, Object>> selectReceiveGroupByArea(Date startTime, Date endTime) {
+        RequestCreditExample example = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        return readMapper.selectReceiveGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectReceiveGroupByCompany(Date startTime, Date endTime) {
+        RequestCreditExample example = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        return readMapper.selectReceiveGroupByCompany(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectReceiveGroupByOrg(Date startTime, Date endTime) {
+        RequestCreditExample example = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        return readMapper.selectReceiveGroupByOrg(example);
+    }
+
 }

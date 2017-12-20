@@ -141,13 +141,46 @@
   </select>
   <!--获取相关条件下的应收余额 -->
   <select id="selectReceive" resultType="java.lang.Double" parameterType="com.erui.report.model.RequestCreditExample">
-    SELECT sum(IFNULL(receive_amount,0) AS  receiveAmount FROM request_credit
+      SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) FROM request_credit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+  </select>
+  <!--查询各区域的应收余额 -->
+  <select id="selectReceiveGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount ,sales_area AS  area FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY sales_area HAVING  sales_area IS  NOT  NULL
+  </select>
+  <!--查询各主体公司的应收余额 -->
+  <select id="selectReceiveGroupByCompany" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount ,sales_main_company AS  company FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY sales_main_company HAVING  sales_main_company IS  NOT  NULL
+  </select>
+  <!--查询各事业部的应收余额 -->
+  <select id="selectReceiveGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount ,organization AS  org FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY organization HAVING  organization IS  NOT  NULL
   </select>
   <!--查询主体公司和所属事业部-->
   <select id="selectAllCompanyAndOrgList" resultType="java.util.Map" >
