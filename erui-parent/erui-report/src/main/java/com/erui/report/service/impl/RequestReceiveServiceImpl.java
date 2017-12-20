@@ -168,7 +168,7 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
         }
         Map<String, BigDecimal> map = response.getSumMap();
         map.put("hasReceivedAmount", map.get("backAmount"));
-        map.put("receivedAmount", receivedAmount);
+        map.put("receiveAmount", receivedAmount);
         map.put("orderAmount", receivedAmount.add(map.get("backAmount")));
         map.put("nextMouthReceiveAmount", nextMouthReceiveAmount);
         response.setDone(true);
