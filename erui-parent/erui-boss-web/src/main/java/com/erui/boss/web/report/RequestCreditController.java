@@ -34,19 +34,6 @@ public class RequestCreditController {
     private RequestReceiveService receiveService;
     private static final DecimalFormat df = new DecimalFormat("0.00");
 
-    /**
-     * @Author:SHIGS
-     * @Description 1.应收账款累计数据图
-     * @Date:17:26 2017/10/23
-     * @modified By
-     */
-   /* @ResponseBody
-    @RequestMapping(value = "totalReceive", method = RequestMethod.POST)
-    public Object totalReceive() {
-        Map mapMount = requestCreditService.selectTotal();
-        Result<Map<String, Object>> result = new Result<>(mapMount);
-        return result;
-    }*/
 
     /**
      * @Author:SHIGS
@@ -296,7 +283,7 @@ public class RequestCreditController {
 
     /**
      * @Author:SHIGS
-     * @Description 4.区域明细图
+     * @Description 4.区域明细
      * @Date:14:41 2017/10/31
      * @modified By
      */
@@ -318,7 +305,7 @@ public class RequestCreditController {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         //下月应收
-        Date nextTime = DateUtil.recedeTime(-30);
+        Date nextMonthEndTime = DateUtil.getNextMonthLastDay(startTime);
         //应收,已收应收,未收总量
         Map mapTotal = requestCreditService.selectRequestTotal(startTime, endTime);
         if (mapTotal == null) {
@@ -373,7 +360,7 @@ public class RequestCreditController {
             acNotreceiveAmount = new BigDecimal(mapCount.get("ra").toString());
         }
         //下月应收
-        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextTime, map.get("area").toString(), country);
+        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextMonthEndTime, map.get("area").toString(), country);
         if (mapNext == null) {
             mapNext = new HashMap();
             mapNext.put("sdT", 0);
@@ -434,19 +421,19 @@ public class RequestCreditController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
         Date curDate = new Date();
-        Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
+        Date nextMonthFirstDay = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //应收余额
-        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"));
+        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"),map.get("area"),map.get("country"));
         //回款金额
-        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), null, null);
+        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), map.get("area"),map.get("country"));
         //获取下月应收
-        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, map.get("company"), map.get("org"));
+        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"),map.get("area"),map.get("country"));
         //集团 余额、回款金额、下月应收
-        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null);
+        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null,null, null);
         double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
-        double TotalNextMothReceive = this.requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null);
+        double TotalNextMothReceive = this.requestCreditService.selectReceive(endDate, nextMonthEndTime, null, null,null, null);
 
         ArrayList<Double> yAxis = new ArrayList<>();
         yAxis.add(receive + backAmount);
@@ -460,21 +447,21 @@ public class RequestCreditController {
         double backProportion = 0d;
         double nextProportion = 0d;
         if ((totalReceive + TotalBackAmount) > 0) {
-            totalProportion = RateUtil.doubleChainRate((receive + backAmount), (totalReceive + TotalBackAmount));
+            totalProportion = RateUtil.doubleChainRateTwo((receive + backAmount), (totalReceive + TotalBackAmount));
         }
         if (totalReceive > 0) {
-            receiveProportion = RateUtil.doubleChainRate(receive, totalReceive);
+            receiveProportion = RateUtil.doubleChainRateTwo(receive, totalReceive);
         }
         if (TotalBackAmount > 0) {
-            backProportion = RateUtil.doubleChainRate(backAmount, TotalBackAmount);
+            backProportion = RateUtil.doubleChainRateTwo(backAmount, TotalBackAmount);
         }
         if (TotalNextMothReceive > 0) {
-            nextProportion = RateUtil.doubleChainRate(nextMothReceive, TotalNextMothReceive);
+            nextProportion = RateUtil.doubleChainRateTwo(nextMothReceive, TotalNextMothReceive);
         }
-        xAxis.add("应收金额-占比" + totalProportion * 100 + "%");
-        xAxis.add("已收金额-占比" + backProportion * 100 + "%");
-        xAxis.add("应收未收-占比" + receiveProportion * 100 + "%");
-        xAxis.add("下月应收-占比" + nextProportion * 100 + "%");
+        xAxis.add("应收金额-占比" + RateUtil.doubleChainRateTwo(totalProportion * 100,1) + "%");
+        xAxis.add("已收金额-占比" + RateUtil.doubleChainRateTwo(backProportion * 100,1) + "%");
+        xAxis.add("应收未收-占比" + RateUtil.doubleChainRateTwo(receiveProportion * 100,1)  + "%");
+        xAxis.add("下月应收-占比" + RateUtil.doubleChainRateTwo(nextProportion * 100,1)  + "%");
         Map<String, Object> data = new HashMap<>();
         data.put("yAxis", yAxis);
         data.put("xAxis", xAxis);

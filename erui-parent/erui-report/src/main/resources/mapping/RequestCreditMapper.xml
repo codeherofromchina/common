@@ -182,6 +182,18 @@
     </if>
     GROUP  BY organization HAVING  organization IS  NOT  NULL
   </select>
+  <!--查询每天的应收余额列表 -->
+  <select id="selectReceiveGroupByBackDate" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount,DATE_FORMAT(back_date,'%Y-%m-%d') AS backDate
+    FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY backDate HAVING  backDate IS  NOT  NULL
+  </select>
   <!--查询主体公司和所属事业部-->
   <select id="selectAllCompanyAndOrgList" resultType="java.util.Map" >
   SELECT  sales_main_company AS  area ,organization  AS country FROM request_credit group by sales_main_company ,organization

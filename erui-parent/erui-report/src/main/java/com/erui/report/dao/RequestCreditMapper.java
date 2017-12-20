@@ -31,6 +31,7 @@ public interface RequestCreditMapper {
     List<Map<String, Object>> selectReceiveGroupByArea(RequestCreditExample example);
     List<Map<String, Object>> selectReceiveGroupByCompany(RequestCreditExample example);
     List<Map<String, Object>> selectReceiveGroupByOrg(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByBackDate(RequestCreditExample example);
 
     int countByExample(RequestCreditExample example);
 

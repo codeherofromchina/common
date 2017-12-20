@@ -151,6 +151,18 @@
     </if>
     GROUP  BY  organization HAVING  organization IS  NOT  NULL
   </select>
+  <!--查询每天回款金额 列表-->
+  <select id="selectBackAmountGroupByBackDate" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
+    SELECT  IFNULL(SUM(IFNULL(back_amount,0)),0) AS  backAmount ,DATE_FORMAT(back_date,'%Y-%m-%d') AS backDate
+    from request_receive
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  backDate HAVING  backDate IS  NOT  NULL
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

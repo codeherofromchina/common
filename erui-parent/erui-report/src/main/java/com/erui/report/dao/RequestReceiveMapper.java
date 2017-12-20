@@ -27,6 +27,7 @@ public interface RequestReceiveMapper {
     List<Map<String, Object>> selectBackAmountGroupByArea(RequestReceiveExample example);
     List<Map<String, Object>> selectBackAmountGroupByCompany(RequestReceiveExample example);
     List<Map<String, Object>> selectBackAmoutGroupByOrg(RequestReceiveExample example);
+    List<Map<String, Object>> selectBackAmountGroupByBackDate(RequestReceiveExample example);
 
     int updateByExampleSelective(@Param("record") RequestReceive record, @Param("example") RequestReceiveExample example);
 

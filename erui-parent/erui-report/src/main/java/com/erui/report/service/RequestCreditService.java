@@ -95,7 +95,7 @@ public interface RequestCreditService {
 	 * @Date:13:56 2017/12/20
 	 * @modified By
 	 */
-	Double selectReceive(Date startTime,Date endTime,String company,String org);
+	Double selectReceive(Date startTime,Date endTime,String company,String org,String area,String country);
 	/**
 	 * @Author:lirb
 	 * @Description 查询各区域的应收余额
