@@ -1,9 +1,11 @@
 package com.erui.order.entity;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 报检单
@@ -15,16 +17,36 @@ public class InspectApply {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    // 报检单号，自动生成
+    @Column(name = "inspect_apply_no")
+    private String inspectApplyNo;
+
     /**
      * 采购
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "purch_id")
+    @JsonIgnore
     private Purch purch;
 
 
+    /**
+     * 参数使用,不同情况可以使用为采购单ID，或父报检单ID
+     */
+    @Transient
+    private Integer pId;
+    @Transient
+    private Integer createUserId;
+    @Transient
+    private String createUserName;
+
+    // 采购合同号
+    @Column(name = "purch_no")
+    private String purchNo;
+
+
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="inspect_apply_id")
+    @JoinColumn(name = "inspect_apply_id")
     private List<InspectApplyGoods> InspectApplyGoodsList = new ArrayList<>();
 
     /**
@@ -35,12 +57,15 @@ public class InspectApply {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_id")
     private InspectApply parent;
-
+    // 下发部门
     private String department;
+    // 采购经办人
     @Column(name = "purchase_name")
     private String purchaseName;
+    // 供应商名称
     @Column(name = "supplier_name")
     private String supplierName;
+    // 国外分公司
     @Column(name = "abroad_co_name")
     private String abroadCoName;
     @Column(name = "inspect_date")
@@ -50,6 +75,7 @@ public class InspectApply {
     @Column(name = "out_check")
     private Boolean outCheck;
 
+    // 报检次数
     private Integer num;
 
     //质检申请单状态 0：未编辑 1：保存/草稿  2：已提交 3：合格 4:未合格
@@ -58,7 +84,11 @@ public class InspectApply {
     // 整改意见
     private String msg;
 
+    // 是否存在历史记录
+    private boolean history = false;
+
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     private String remark;
@@ -79,12 +109,52 @@ public class InspectApply {
         this.id = id;
     }
 
+    public String getInspectApplyNo() {
+        return inspectApplyNo;
+    }
+
+    public void setInspectApplyNo(String inspectApplyNo) {
+        this.inspectApplyNo = inspectApplyNo;
+    }
+
     public Purch getPurch() {
         return purch;
     }
 
     public void setPurch(Purch purch) {
         this.purch = purch;
+    }
+
+    public Integer getpId() {
+        return pId;
+    }
+
+    public void setpId(Integer pId) {
+        this.pId = pId;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public String getPurchNo() {
+        return purchNo;
+    }
+
+    public void setPurchNo(String purchNo) {
+        this.purchNo = purchNo;
     }
 
     public boolean isMaster() {
@@ -184,6 +254,14 @@ public class InspectApply {
         this.msg = msg;
     }
 
+    public void setHistory(boolean history) {
+        this.history = history;
+    }
+
+    public boolean isHistory() {
+        return history;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -218,7 +296,7 @@ public class InspectApply {
     }
 
     public static enum StatusEnum {
-        NO_EDIT(0, "未编辑"),SAVED(1,"保存"),SUBMITED(2,"已提交"),QUALIFIED(3,"已合格"),UNQUALIFIED(4,"未合格");
+        NO_EDIT(0, "未编辑"), SAVED(1, "保存"), SUBMITED(2, "已提交"), QUALIFIED(3, "已合格"), UNQUALIFIED(4, "未合格");
         private int code;
         private String msg;
 
@@ -233,6 +311,19 @@ public class InspectApply {
 
         public int getCode() {
             return code;
+        }
+
+
+        public static StatusEnum fromCode(Integer code) {
+            if (code != null) {
+                int v = code.intValue();
+                for (StatusEnum se : StatusEnum.values()) {
+                    if (se.getCode() == v) {
+                        return se;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

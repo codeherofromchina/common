@@ -35,10 +35,12 @@ public interface PurchService {
      */
     Purch findDetailInfo(Integer id);
 
+
     /**
-     * 查询采购中可以新增报检单的商品列表
-     * @param id
+     * 查询采购信息采购中的商品信息
+     * @param id    采购ID
      * @return
      */
-    List<PurchGoods> findInspectGoodsByPurch(Integer id);
+    Purch findPurchAndGoodsInfo(Integer id);
+
 }

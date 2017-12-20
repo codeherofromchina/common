@@ -13,4 +13,11 @@ import java.util.List;
  */
 public interface ProjectDao extends JpaRepository<Project, Serializable>,JpaSpecificationExecutor {
     List<Project> findByPurchReqCreateAndPurchDone(Integer purchReqCreate, Boolean b);
+
+    /**
+     * 根据项目ID查找项目列表
+     * @param projectIds
+     * @return
+     */
+    List<Project> findByIdIn(List<Integer> projectIds);
 }
