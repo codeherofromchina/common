@@ -89,4 +89,11 @@ public interface RequestCreditService {
 
 
 	List<InquiryAreaVO> selectAllCompanyAndOrgList();
+	/**
+	 * @Author:lirb
+	 * @Description 根据条件获取 应收余额
+	 * @Date:13:56 2017/12/20
+	 * @modified By
+	 */
+	Double selectReceive(Date startTime,Date endTime,String company,String org);
 }

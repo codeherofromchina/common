@@ -19,6 +19,7 @@ public interface RequestReceiveMapper {
     List<RequestReceive> selectByExample(RequestReceiveExample example);
 
     RequestReceive selectByPrimaryKey(Long id);
+    Double selectBackAmount(RequestReceiveExample example);
 
     int updateByExampleSelective(@Param("record") RequestReceive record, @Param("example") RequestReceiveExample example);
 

@@ -53,4 +53,6 @@ public interface RequestCreditMapper {
     void truncateTable();
 
     List<Map<String,String>>   selectAllCompanyAndOrgList();
+
+    Double selectReceive(RequestCreditExample example);
 }

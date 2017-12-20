@@ -8,7 +8,10 @@ import java.util.stream.Collectors;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.report.dao.RequestReceiveMapper;
 import com.erui.report.model.RequestCreditExample;
+import com.erui.report.model.RequestReceive;
+import com.erui.report.model.RequestReceiveExample;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -334,7 +337,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         // 应收账款金额 - orderAmount、 应收未收金额 - receiveAmount
-        ImportDataResponse response = new ImportDataResponse(new String[]{"orderAmount", "receiveAmount"});
+        ImportDataResponse response = new ImportDataResponse(new String[]{"receiveAmount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         RequestCredit rc = null;
@@ -409,7 +412,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 continue;
             }
             // 在上周范围内的数据做统计
-            if (NewDateUtil.inSaturdayWeek(rc.getCreateAt())) {
+            if (NewDateUtil.inSaturdayWeek(rc.getBackDate())) {
                 response.sumData(rc);
             }
             // 下自然月应收金额
@@ -417,12 +420,36 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
                 nextMouthReceiveAmount = nextMouthReceiveAmount.add(rc.getReceiveAmount());
             }
             response.incrSuccess();
-
+        }
+        //计算已收
+        RequestReceiveMapper mapper = readerSession.getMapper(RequestReceiveMapper.class);
+        Date[] dates = NewDateUtil.getBeforeSaturdayWeek(null);
+        Date startTime=dates[0];
+        Date end=dates[1];
+        String endTime1 = DateUtil.getEndTime(end, DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(endTime1, DateUtil.FULL_FORMAT_STR);
+        RequestReceiveExample receiveExample = new RequestReceiveExample();
+        RequestReceiveExample.Criteria receiveCriteria = receiveExample.createCriteria();
+        if(startTime!=null){
+            receiveCriteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            receiveCriteria.andBackDateLessThan(endTime);
+        }
+        BigDecimal hasReceivedAmount = BigDecimal.ZERO;//应收已收
+        List<RequestReceive> receives = mapper.selectByExample(receiveExample);
+        if(receives!=null&&receives.size()>0){
+            for (RequestReceive receive:receives) {
+                if(receive.getBackAmount()!=null){
+                    hasReceivedAmount=hasReceivedAmount.add(receive.getBackAmount());
+                }
+            }
         }
         // 计算应收已收金额，放置到键 hasReceivedAmount 中
         Map<String, BigDecimal> map = response.getSumMap();
-        map.put("hasReceivedAmount", map.get("orderAmount").subtract(map.get("receiveAmount")));
+        map.put("hasReceivedAmount", hasReceivedAmount);
         map.put("nextMouthReceiveAmount", nextMouthReceiveAmount);
+        map.put("orderAmount",hasReceivedAmount.add(map.get("receiveAmount")));
         response.setDone(true);
 
         return response;
@@ -454,6 +481,25 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         }
 
         return list;
+    }
+
+    @Override
+    public Double selectReceive(Date startTime,Date endTime ,String company ,String org) {
+        RequestCreditExample example = new RequestCreditExample();
+        RequestCreditExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        if(StringUtils.isNotEmpty(company)){
+            criteria.andSalesMainCompanyEqualTo(company);
+        }
+        if(StringUtils.isNotEmpty(org)){
+            criteria.andOrganizationEqualTo(org);
+        }
+        return readMapper.selectReceive(example);
     }
 
 }

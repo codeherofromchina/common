@@ -139,7 +139,16 @@
       order by ${orderByClause}
     </if>
   </select>
-
+  <!--获取相关条件下的应收余额 -->
+  <select id="selectReceive" resultType="java.lang.Double" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT sum(IFNULL(receive_amount,0) AS  receiveAmount FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
   <!--查询主体公司和所属事业部-->
   <select id="selectAllCompanyAndOrgList" resultType="java.util.Map" >
   SELECT  sales_main_company AS  area ,organization  AS country FROM request_credit group by sales_main_company ,organization

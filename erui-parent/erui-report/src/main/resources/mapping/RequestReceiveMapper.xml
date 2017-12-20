@@ -99,6 +99,18 @@
       order by ${orderByClause}
     </if>
   </select>
+    <!--根据条件查询回款金额-->
+    <select id="selectBackAmount" resultType="java.lang.Double" parameterType="com.erui.report.model.RequestReceiveExample" >
+        select
+        SUM(IFNULL(back_amount,0)) AS backAmount
+        from request_receive
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+    </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

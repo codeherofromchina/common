@@ -2,9 +2,11 @@ package com.erui.boss.web.report;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.RequestCreditService;
+import com.erui.report.service.RequestReceiveService;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 public class RequestCreditController {
     @Autowired
     private RequestCreditService requestCreditService;
+    @Autowired
+    private RequestReceiveService receiveService;
     private static final DecimalFormat df = new DecimalFormat("0.00");
 
     /**
@@ -408,5 +412,80 @@ public class RequestCreditController {
         result.put("data", data);
         result.put("code", 200);
         return result;
+    }
+
+    /**
+     * @Author:lirb
+     * @Description 主体公司明细
+     * @Date:14:41 2017/12/20
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "mainCompanyDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object mainCompanyDetail(@RequestBody Map<String, String> map) throws Exception {
+        // 获取参数并转换成时间格式
+        Date startDate = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startDate == null || endDate == null || startDate.after(endDate)) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
+        Date curDate = new Date();
+        Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
+        Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
+
+        //应收余额
+        double receive=this.requestCreditService.selectReceive(startDate,endDate,map.get("company"),map.get("org"));
+        //回款金额
+        double backAmount= receiveService.selectBackAmount(startDate,endDate,map.get("company"),map.get("org"),null,null);
+        //获取下月应收
+        double nextMothReceive=this.requestCreditService.selectReceive(nextMonthStartTime,nextMonthEndTime,map.get("company"),map.get("org"));
+        //集团 余额、回款金额、下月应收
+        double totalReceive=this.requestCreditService.selectReceive(startDate,endDate,null,null);
+        double TotalBackAmount= receiveService.selectBackAmount(startDate,endDate,null,null,null,null);
+        double TotalNextMothReceive=this.requestCreditService.selectReceive(nextMonthStartTime,nextMonthEndTime,null,null);
+
+        ArrayList<Double> yAxis = new ArrayList<>();
+        yAxis.add(receive+backAmount);
+        yAxis.add(backAmount);
+        yAxis.add(receive);
+        yAxis.add(nextMothReceive);
+
+        ArrayList<String> xAxis = new ArrayList<>();
+        double totalProportion=0d;
+        double receiveProportion=0d;
+        double backProportion=0d;
+        double nextProportion=0d;
+        if((totalReceive+TotalBackAmount)>0) {
+            totalProportion = RateUtil.doubleChainRate((receive + backAmount), (totalReceive + TotalBackAmount));
+        }
+        if(totalReceive>0){
+            receiveProportion=RateUtil.doubleChainRate(receive,totalReceive);
+        }
+        if(TotalBackAmount>0){
+            backProportion=RateUtil.doubleChainRate(backAmount,TotalBackAmount);
+        }
+        if(TotalNextMothReceive>0){
+            nextProportion=RateUtil.doubleChainRate(nextMothReceive,TotalNextMothReceive);
+        }
+        xAxis.add("应收金额-占比"+totalProportion*100+"%");
+        xAxis.add("已收金额-占比"+backProportion*100+"%");
+        xAxis.add("应收未收-占比"+receiveProportion*100+"%");
+        xAxis.add("下月应收-占比"+nextProportion*100+"%");
+        Map<String ,Object> data=new HashMap<>();
+        data.put("yAxis",yAxis);
+        data.put("xAxis",xAxis);
+        return  new Result<>().setData(data);
+    }
+    /**
+     * @Author:lirb
+     * @Description 分类统计
+     * @Date:14:41 2017/12/20
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "catesDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object catesDetail(@RequestBody Map<String, Object> map) throws Exception {
+        return  null;
     }
 }

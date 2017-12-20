@@ -7,9 +7,11 @@ import com.erui.report.dao.RequestReceiveMapper;
 import com.erui.report.model.RequestCredit;
 import com.erui.report.model.RequestCreditExample;
 import com.erui.report.model.RequestReceive;
+import com.erui.report.model.RequestReceiveExample;
 import com.erui.report.service.RequestReceiveService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.ptg.NotEqualPtg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +130,7 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
                 continue;
             }
             // 在上周范围内的数据做统计
-            if (NewDateUtil.inSaturdayWeek(receive.getCreateAt())) {
+            if (NewDateUtil.inSaturdayWeek(receive.getBackDate())) {
                 response.sumData(receive);
             }
             // 下自然月应收金额
@@ -142,7 +144,9 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
         RequestCreditMapper creditMapper = readerSession.getMapper(RequestCreditMapper.class);
         Date[] dates = NewDateUtil.getBeforeSaturdayWeek(null);
         Date startTime=dates[0];
-        Date endTime=dates[1];
+        Date end=dates[1];
+        String endTime1 = DateUtil.getEndTime(end, DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(endTime1, DateUtil.FULL_FORMAT_STR);
         RequestCreditExample creditExample = new RequestCreditExample();
         RequestCreditExample.Criteria creditCriteria = creditExample.createCriteria();
         if(startTime!=null){
@@ -163,11 +167,36 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
             }
         }
         Map<String, BigDecimal> map = response.getSumMap();
-        map.put("backAmount", map.get("backAmount"));
+        map.put("hasReceivedAmount", map.get("backAmount"));
         map.put("receivedAmount", receivedAmount);
-        map.put("hasReceivedAmount", receivedAmount.add(map.get("backAmount")));
+        map.put("orderAmount", receivedAmount.add(map.get("backAmount")));
         map.put("nextMouthReceiveAmount", nextMouthReceiveAmount);
         response.setDone(true);
         return response;
+    }
+
+    @Override
+    public Double selectBackAmount(Date startTime, Date endTime, String company, String org, String area, String country) {
+        RequestReceiveExample example = new RequestReceiveExample();
+        RequestReceiveExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+        if(StringUtils.isNotBlank(company)){
+            criteria.andSalesMainCompanyEqualTo(company);
+        }
+        if(StringUtils.isNotBlank(org)){
+            criteria.andOrganizationEqualTo(org);
+        }
+        if(StringUtils.isNotBlank(area)){
+            criteria.andSalesAreaEqualTo(area);
+        }
+        if(StringUtils.isNotBlank(country)){
+            criteria.andSalesCountryEqualTo(country);
+        }
+        return readMapper.selectBackAmount(example);
     }
 }
