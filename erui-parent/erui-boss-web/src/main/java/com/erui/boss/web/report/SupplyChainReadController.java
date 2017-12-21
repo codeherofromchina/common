@@ -358,15 +358,26 @@ public class SupplyChainReadController {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         List<SupplyCateDetailVo> list = this.supplyChainCategoryService.selectCateListByTime(startTime, endTime);
+        int totalSKU=0;
+        int totalSPU=0;
+        int totalSupplier=0;
         if (list != null && list.size() > 0) {
-            list.parallelStream().forEach(vo -> {
-                int total = vo.getSkuCount() + vo.getSpuCount() + vo.getSupplierCount();
-                if (total > 0) {
-                    vo.setSkuCompletionRate(RateUtil.intChainRate(vo.getSkuCount(), total));
-                    vo.setSpuCompletionRate(RateUtil.intChainRate(vo.getSpuCount(), total));
-                    vo.setSupplierCompletionRate(RateUtil.intChainRate(vo.getSupplierCount(), total));
+            for (SupplyCateDetailVo vo:list ) {
+                totalSKU+=vo.getSkuCount();
+                totalSPU+=vo.getSpuCount();
+                totalSupplier+=vo.getSupplierCount();
+            }
+            for (SupplyCateDetailVo vo:list ) {
+                if(totalSKU>0){
+                    vo.setSkuCompletionRate(RateUtil.intChainRate(vo.getSkuCount(), totalSKU));
                 }
-            });
+                if(totalSPU>0){
+                    vo.setSpuCompletionRate(RateUtil.intChainRate(vo.getSpuCount(), totalSPU));
+                }
+                if(totalSupplier>0){
+                    vo.setSupplierCompletionRate(RateUtil.intChainRate(vo.getSupplierCount(), totalSupplier));
+                }
+            }
             //按照spu数量排序
             list.sort((v1, v2) -> v2.getSpuCount() - v1.getSpuCount());
 
