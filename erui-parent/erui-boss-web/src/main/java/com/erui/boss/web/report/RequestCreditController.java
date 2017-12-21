@@ -193,7 +193,34 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
+    /**
+     * @Author:SHIGS
+     * @Description 2.应收账款图
+     * @Date:14:40 2017/10/31
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "receiveDetail2", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object totalReceive2(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("startTime")) {
+            throw new MissingServletRequestParameterException("startTime", "String");
+        }
+        if (!map.containsKey("endTime")) {
+            throw new MissingServletRequestParameterException("endTime", "String");
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        //当前时期
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        //环比时段
+        Date chainTime = DateUtil.sometimeCalendar(startTime, days);
 
+        Result<Map<String, Object>> result = new Result<>();
+        return result;
+    }
     /**
      * @Author:SHIGS
      * @Description 3.应收账款趋势图

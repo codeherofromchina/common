@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.dao.RequestReceiveMapper;
@@ -150,19 +151,19 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Map<String, Map<String, Object>> backMap = backAmountList.parallelStream().collect(Collectors.toMap(vo -> vo.get("backDate").toString(), vo -> vo));
         for (String date:nextDates ) {
             if(nextMap.containsKey(date)){
-                nList.add(Double.parseDouble(nextMap.get(date).get("receiveAmount").toString()));
+                nList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(nextMap.get(date).get("receiveAmount").toString()),1));
             }else {
                 nList.add(0d);
             }
         }
         for (String date : dates) {
             if (reMap.containsKey(date)) {
-                rList.add(Double.parseDouble(reMap.get(date).get("receiveAmount").toString()));
+                rList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(reMap.get(date).get("receiveAmount").toString()),1));
             } else {
                 rList.add(0d);
             }
             if (backMap.containsKey(date)) {
-                bList.add(Double.parseDouble(backMap.get(date).get("backAmount").toString()));
+                bList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(backMap.get(date).get("backAmount").toString()),1));
             } else {
                 bList.add(0d);
             }
@@ -171,7 +172,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             orderList.add(rList.get(i) + bList.get(i));
         }
         Map<String,Object> datas=new HashMap<>();
-        String[] types={"应收账款","应收未收","应收已收","下月应收"};
+        String[] types={"receivable","notReceive","received","nextMonth"};
         if(receiveName.equals(types[0])){
             datas.put("legend",types[0]);
             datas.put("xAxis",dates);
