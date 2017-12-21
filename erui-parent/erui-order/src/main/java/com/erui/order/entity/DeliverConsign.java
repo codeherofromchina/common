@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -63,12 +65,12 @@ public class DeliverConsign {
         this.deliverConsignNo = deliverConsignNo;
     }
 
-    public Order getOrder() {
-        return order;
+    public Integer getOrderId() {
+        return orderId;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
     public Integer getDeptId() {
