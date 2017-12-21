@@ -223,7 +223,25 @@ public class DateUtil {
         date = getOperationTime(calendar.getTime(), 0, 0, 0);
         return date;
     }
-
+    /**
+     * @Author:lirb
+     * @Description 获取本周六时间
+     * @Date:16:25 2017/12/21
+     * @modified By
+     */
+    public static Date getWeekSix(int week) {
+        Calendar cal = Calendar.getInstance();
+        int date = cal.get(Calendar.DAY_OF_MONTH);
+        int n = cal.get(Calendar.DAY_OF_WEEK);
+        if (n == 1) {
+            n = 7;
+        } else {
+            n = n - 1;
+        }
+        cal.set(Calendar.DAY_OF_MONTH, date + week - n);
+        Date time = cal.getTime();
+        return  parseString2DateNoException(getStartTime(time,FULL_FORMAT_STR),FULL_FORMAT_STR);
+    }
     /**
      * 得到本月的第一天
      *
@@ -368,7 +386,18 @@ public class DateUtil {
             return null;
         }
     }
-
+    /**
+     * @author lirb
+     * @param d
+     * @param day
+     * @return
+     */
+    public static Date getDateAfter(Date d,int day){
+        Calendar now =Calendar.getInstance();
+        now.setTime(d);
+        now.set(Calendar.DATE,now.get(Calendar.DATE)+day);
+        return getOperationTime( now.getTime(), 23, 59, 59);
+    }
     public static void main(String[] args) {
         //System.out.println(str2Date("1992-12-12"));
 //        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
@@ -383,9 +412,11 @@ public class DateUtil {
 //        System.out.println(nextMonthFirstDay);
 //        System.out.println(nextMonthLastDay);
 //        System.out.println(daysBetween);
-        String week = getWeekOfDate(new Date());
-
-        System.out.println(week);
+//        String week = getWeekOfDate(new Date());
+//        Date weekSix =getWeekSix(6);
+        Date dateAfter = getDateAfter(new Date(), 8);
+        String s = formatDateToString(dateAfter,FULL_FORMAT_STR);
+        System.out.println(s);
     }
 
     /**

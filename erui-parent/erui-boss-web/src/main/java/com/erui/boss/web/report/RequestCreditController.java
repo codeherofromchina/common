@@ -219,8 +219,8 @@ public class RequestCreditController {
         Date chainTime = DateUtil.sometimeCalendar(startTime, days);
         //下周应收
         Date curDate = new Date();
-        Date nextWeekEndTime = DateUtil.getWeek(curDate, 5);
-        Date nextWeekStartTime = DateUtil.getBeforeWeek(nextWeekEndTime, 6);
+        Date nextWeekStartTime = DateUtil.getWeekSix(6);
+        Date nextWeekEndTime = DateUtil.getDateAfter(nextWeekStartTime, 7);
         //下月应收
         Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
@@ -258,13 +258,44 @@ public class RequestCreditController {
         if(chainReceive>0) {
             notReceive.put("chainRate", RateUtil.doubleChainRateTwo(receive - chainReceive, chainReceive));
         }else{
-
+            notReceive.put("chainRate",0d);
         }
         Map<String ,Object> received=new HashMap<>();
+        received.put("receive",RateUtil.doubleChainRateTwo(backAmount,10000)+"万$");
+        received.put("chainAdd",RateUtil.doubleChainRateTwo(backAmount-chainBackAmount,10000)+"万$");
+        if(chainBackAmount>0) {
+            received.put("chainRate", RateUtil.doubleChainRateTwo(backAmount-chainBackAmount, chainBackAmount));
+        }else{
+            received.put("chainRate",0d);
+        }
         Map<String ,Object> nextWeekReceivable=new HashMap<>();
+        nextWeekReceivable.put("receive",RateUtil.doubleChainRateTwo(weekReceive,10000)+"万$");
+        nextWeekReceivable.put("chainAdd",RateUtil.doubleChainRateTwo(weekReceive-chainWeekReceive,10000)+"万$");
+        if(chainWeekReceive>0) {
+            nextWeekReceivable.put("chainRate", RateUtil.doubleChainRateTwo(weekReceive-chainWeekReceive, chainWeekReceive));
+        }else{
+            nextWeekReceivable.put("chainRate",0d);
+        }
+        nextWeekReceivable.put("startTime",DateUtil.formatDateToString(nextWeekStartTime,DateUtil.SHORT_FORMAT_STR));
+        nextWeekReceivable.put("endTime",DateUtil.formatDateToString(nextWeekEndTime,DateUtil.SHORT_FORMAT_STR));
+
         Map<String ,Object> nextMonthReceivable=new HashMap<>();
-        Result<Map<String, Object>> result = new Result<>();
-        return result;
+        nextMonthReceivable.put("receive",RateUtil.doubleChainRateTwo(MothReceive,10000)+"万$");
+        nextMonthReceivable.put("chainAdd",RateUtil.doubleChainRateTwo(MothReceive-chainMothReceive,10000)+"万$");
+        if(chainMothReceive>0) {
+            nextMonthReceivable.put("chainRate", RateUtil.doubleChainRateTwo(MothReceive-chainMothReceive, chainMothReceive));
+        }else{
+            nextMonthReceivable.put("chainRate",0d);
+        }
+        nextMonthReceivable.put("startTime",DateUtil.formatDateToString(nextMonthStartTime,DateUtil.SHORT_FORMAT_STR));
+        nextMonthReceivable.put("endTime",DateUtil.formatDateToString(nextMonthEndTime,DateUtil.SHORT_FORMAT_STR));
+        Map<String ,Object> data=new HashMap<>();
+        data.put("receive",total);
+        data.put("nextWeekReceivable",nextWeekReceivable);
+        data.put("received",received);
+        data.put("notReceive",notReceive);
+        data.put("nextMonthReceivable",nextMonthReceivable);
+        return new Result<>().setData(data);
     }
     /**
      * @Author:SHIGS
