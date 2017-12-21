@@ -42,8 +42,8 @@ public class RequestCreditController {
      * @modified By
      */
     @ResponseBody
-    @RequestMapping(value = "receiveDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object totalReceive(@RequestBody Map<String, Object> map) throws Exception {
+    @RequestMapping(value = "receiveDetailOld", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object totalReceiveOld(@RequestBody Map<String, Object> map) throws Exception {
         if (!map.containsKey("startTime")) {
             throw new MissingServletRequestParameterException("startTime", "String");
         }
@@ -200,8 +200,8 @@ public class RequestCreditController {
      * @modified By
      */
     @ResponseBody
-    @RequestMapping(value = "receiveDetail2", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object totalReceive2(@RequestBody Map<String, Object> map) throws Exception {
+    @RequestMapping(value = "receiveDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object totalReceive(@RequestBody Map<String, Object> map) throws Exception {
         if (!map.containsKey("startTime")) {
             throw new MissingServletRequestParameterException("startTime", "String");
         }
