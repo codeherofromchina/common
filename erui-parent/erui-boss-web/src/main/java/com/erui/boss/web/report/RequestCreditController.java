@@ -37,7 +37,7 @@ public class RequestCreditController {
 
     /**
      * @Author:SHIGS
-     * @Description 2.应收账款图
+     * @Description 2.应收账款总览
      * @Date:14:40 2017/10/31
      * @modified By
      */
@@ -195,7 +195,7 @@ public class RequestCreditController {
     }
     /**
      * @Author:SHIGS
-     * @Description 2.应收账款图
+     * @Description 2.应收账款总览
      * @Date:14:40 2017/10/31
      * @modified By
      */
@@ -217,7 +217,45 @@ public class RequestCreditController {
         int days = DateUtil.getDayBetween(startTime, endTime);
         //环比时段
         Date chainTime = DateUtil.sometimeCalendar(startTime, days);
+        //下周应收
+        Date curDate = new Date();
+        Date nextWeekEndTime = DateUtil.getWeek(curDate, 5);
+        Date nextWeekStartTime = DateUtil.getBeforeWeek(nextWeekEndTime, 6);
+        //下月应收
+        Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
+        Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
+        //1.应收未收 \ 已收、应收账款、下周未收、下月未收
+        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
+        double totalAmount=receive+backAmount;
+        double weekReceive = requestCreditService.selectReceive(nextWeekStartTime, nextWeekEndTime, null, null, null, null);
+        double MothReceive = requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null, null, null);
+
+        //2.环比时间的 应收未收 \ 已收、应收账款、下周未收、下月未收
+        int d = DateUtil.getDayBetween(nextWeekStartTime, nextWeekEndTime);
+        Date weekchainTime = DateUtil.sometimeCalendar(nextWeekStartTime, d);//下周环比时间
+        int d2 = DateUtil.getDayBetween(nextMonthStartTime, nextMonthEndTime);
+        Date mothchainTime = DateUtil.sometimeCalendar(nextMonthStartTime, d2);//下月环比时间
+        double chainReceive = requestCreditService.selectReceive(chainTime, startTime, null, null, null, null);
+        double chainBackAmount = receiveService.selectBackAmount(chainTime, startTime, null, null, null, null);
+        double chainTotalAmount=chainReceive+chainBackAmount;
+        double chainWeekReceive = requestCreditService.selectReceive(weekchainTime, nextWeekStartTime, null, null, null, null);
+        double chainMothReceive = requestCreditService.selectReceive(mothchainTime, nextMonthStartTime, null, null, null, null);
+
+        //封装结果
+        Map<String ,Object> total=new HashMap<>();
+        total.put("receive",RateUtil.doubleChainRateTwo(totalAmount,10000)+"万$");
+        total.put("chainAdd",RateUtil.doubleChainRateTwo((totalAmount-chainTotalAmount),10000)+"万$");
+        if(chainTotalAmount>0){
+            total.put("chainRate",RateUtil.doubleChainRate((totalAmount-chainTotalAmount),chainTotalAmount));
+        }else {
+            total.put("chainRate",0d);
+        }
+        Map<String ,Object> notReceive=new HashMap<>();
+        Map<String ,Object> received=new HashMap<>();
+        Map<String ,Object> nextWeekReceivable=new HashMap<>();
+        Map<String ,Object> nextMonthReceivable=new HashMap<>();
         Result<Map<String, Object>> result = new Result<>();
         return result;
     }
@@ -288,8 +326,9 @@ public class RequestCreditController {
      * @modified By
      */
     @ResponseBody
-    @RequestMapping(value = "companyList")
-    public Object companyList(String companyName) {
+    @RequestMapping(value = "companyList",method = RequestMethod.POST,produces =  {"application/json;charset=utf-8"})
+    public Object companyList(@RequestBody Map<String, String> map) {
+        String companyName=map.get("companyName");
         Result<Object> result = new Result<>();
         List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
