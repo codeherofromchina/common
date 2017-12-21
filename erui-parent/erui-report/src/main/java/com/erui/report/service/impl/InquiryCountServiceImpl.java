@@ -682,7 +682,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         ArrayList<String> quoteList = new ArrayList<>();
         quoteList.add("已报价");
         quoteList.add("已完成");
-        example2Criteria.andQuotationNumIn(quoteList);
+        example2Criteria.andQuotedStatusIn(quoteList);
         if (startTime != null && endTime != null) {
             example.createCriteria().andRollinTimeBetween(startTime, endTime);
             example2Criteria.andRollinTimeBetween(startTime, endTime);
