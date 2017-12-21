@@ -7,19 +7,23 @@ import java.util.Date;
  * 报检单-商品信息
  */
 @Entity
-@Table(name="inspect_apply_goods")
+@Table(name = "inspect_apply_goods")
 public class InspectApplyGoods {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name="inspect_apply_id")
+    @JoinColumn(name = "inspect_apply_id")
     private InspectApply inspectApply;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="goods_id")
+    @JoinColumn(name = "goods_id")
     private Goods goods;
+
+    @Transient
+    private Integer gId;
+
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
@@ -35,7 +39,6 @@ public class InspectApplyGoods {
 
     @Column(name = "create_time")
     private Date createTime;
-
 
 
     public Integer getId() {
@@ -60,6 +63,14 @@ public class InspectApplyGoods {
 
     public void setGoods(Goods goods) {
         this.goods = goods;
+    }
+
+    public Integer getgId() {
+        return gId;
+    }
+
+    public void setgId(Integer gId) {
+        this.gId = gId;
     }
 
     public Integer getInspectNum() {

@@ -72,7 +72,7 @@ public class PurchController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Purch purch) {
 
-        // TODO 参数检查略过
+        // TODO 参数检查略过,检查采购数量必须大于（如果存在替换商品则可以等于0）0
         Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
         if (statusEnum != null && statusEnum == Purch.StatusEnum.BEING || statusEnum == Purch.StatusEnum.READY) {
             try {
@@ -118,46 +118,42 @@ public class PurchController {
     /**
      * 为添加报检单而获取采购信息
      *
-     * @param id 采购ID
+     * @param purchId 采购ID
      * @return
      */
     @Deprecated
     @RequestMapping("getInfoForInspectApply")
-    public Result<Object> getInfoForInspectApply(@RequestParam(name = "id", required = true) Integer id) {
+    public Result<Object> getInfoForInspectApply(@RequestParam(name = "purchId", required = true) Integer purchId) {
+        Purch purch = purchService.findPurchAndGoodsInfo(purchId);
 
-        Purch purch = purchService.findBaseInfo(id);
+        // 只有进行中的采购才可以新增报检单信息
+        if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            // 整合数据
+            Map<String, Object> data = new HashMap<>();
+            data.put("purchId", purch.getId());
+            data.put("purchaseId", purch.getAgentId()); // 采购经办人ID
+            data.put("purchaseName", purch.getAgentName()); // 采购经办人名称
+            data.put("supplierId", purch.getSupplierId()); // 供应商ID
+            data.put("supplierName", purch.getSupplierName()); // 供应商名称
+            data.put("department", "采购部"); // 下发部门固定为采购部
 
-        List<PurchGoods> goodsList = purchService.findInspectGoodsByPurch(id);
+            List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
+            List<Goods> list =  purchGoodsList.stream().filter(vo -> {
+                // 只要已报检数量小于采购数量的商品显示
+                return vo.getInspectNum() < vo.getPurchaseNum();
+            }).map(vo -> {
+                Goods goods = vo.getGoods();
+                goods.setPurchasedNum(vo.getPurchaseNum());
+                goods.setInspectNum(vo.getInspectNum());
 
-        // 整合数据
-        Map<String, Object> data = new HashMap<>();
-        data.put("agentId", purch.getAgentId()); // 采购经办人ID
-        data.put("supplierId", purch.getSupplierId()); // 供应商ID
-        data.put("afterDept", "采购部"); // 下发部门就是采购部 -- 苗德宇说的
+                return goods;
+            }).collect(Collectors.toList());
+            data.put("goodsList", list);
 
-        List<PGoods> list = goodsList.stream().map(vo -> {
-            PGoods pg = new PGoods();
-            pg.setId(vo.getId());
-            Goods goods = vo.getGoods();
-            pg.setGoodsId(goods.getId());
-            pg.setContractNo(goods.getContractNo());
-            pg.setProjectNo(goods.getProjectNo());
-            pg.setSku(goods.getSku());
-            pg.setProType(goods.getProType());
-            pg.setNameEn(goods.getNameEn());
-            pg.setNameZh(goods.getNameZh());
-            pg.setBrand(goods.getBrand());
-            pg.setModel(goods.getModel());
-            pg.setPurchaseNum(vo.getPurchaseNum()); // 采购数量，这里在页面显示成数量
-            pg.setInspectNum(vo.getInspectNum());
-            pg.setUnit(goods.getUnit());
-            // TODO 这里先不返回不含税单价 含税单价、总价款、重量（kg）、长*宽*高(cm)、备注 等信息，还没有找到来源
+            return new Result<>(data);
+        }
 
-            return pg;
-        }).collect(Collectors.toList());
-        data.put("goodsList", list);
-
-        return new Result<>(data);
+        return new Result<>(ResultStatusEnum.FAIL);
     }
 
 }

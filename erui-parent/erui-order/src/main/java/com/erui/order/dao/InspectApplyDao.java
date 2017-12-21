@@ -12,11 +12,11 @@ import java.util.List;
  */
 public interface InspectApplyDao extends JpaRepository<InspectApply, Serializable> {
     /**
-     * 通过采购单查询报检单列表
+     * 通过采购单查询主报检单列表
      * @param parchId 采购单ID
      * @return
      */
-    List<InspectApply> findByPurchId(Integer parchId);
+    List<InspectApply> findByPurchIdAndMasterOrderByCreateTimeDesc(Integer parchId,Boolean master);
 
     /**
      * 获取主报检单的所有子报检单

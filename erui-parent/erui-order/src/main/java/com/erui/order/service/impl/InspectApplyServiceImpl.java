@@ -2,17 +2,15 @@ package com.erui.order.service.impl;
 
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
-import com.erui.order.requestVo.InspectApplySaveVo;
 import com.erui.order.requestVo.PGoods;
+import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectApplyService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +29,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private PurchGoodsDao purchGoodsDao;
     @Autowired
     private GoodsDao goodsDao;
+    @Autowired
+    private AttachmentDao attachmentDao;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Override
     public InspectApply findById(Integer id) {
@@ -39,144 +41,157 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
 
     @Override
-    public List<InspectApply> findListByParchId(Integer parchId) {
-        List<InspectApply> list = inspectApplyDao.findByPurchId(parchId);
+    public List<InspectApply> findMasterListByParchId(Integer parchId) {
+        List<InspectApply> list = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeDesc(parchId, Boolean.TRUE);
         if (list == null) {
             list = new ArrayList<>();
         }
         return list;
     }
 
+
     /**
-     * 0：是更新还是提交
-     * 1：查看是否厂家直发，如果直发且无检查，且是提交，则更新商品已入库数量
-     * 1：修改采购商品的已报检数量
-     * 1：检查采购是否已经报检完成
-     * 1：更改报检单基本信息
-     * 2：插入报检单商品信息
-     * 3：插入报检单附件信息
+     * 新插入报检单
      *
-     * @param vo
+     * @param inspectApply
+     * @return
+     */
+    public boolean insert(InspectApply inspectApply) {
+        // 处理基本信息
+        inspectApply.setInspectApplyNo(RandomStringUtils.random(32));
+        Purch purch = purchDao.findOne(inspectApply.getpId());
+        if (purch == null || purch.getStatus() == Purch.StatusEnum.DONE.getCode()) {
+            // 采购为空或采购已完成，则返回报检失败
+            return false;
+        }
+        inspectApply.setPurch(purch);
+        inspectApply.setPurchNo(purch.getPurchNo());
+        inspectApply.setMaster(true);
+        inspectApply.setNum(1);
+        Date now = new Date();
+        inspectApply.setCreateTime(new Date());
+
+        Map<Integer, PurchGoods> purchGoodsMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(vo -> vo.getGoods().getId(), vo -> vo));
+        List<Goods> updateInspectNumGoods = new ArrayList<>();
+        // 处理报检商品信息
+        inspectApply.getInspectApplyGoodsList().parallelStream().forEach(iaGoods -> {
+            iaGoods.setId(null);
+            iaGoods.setCreateTime(now);
+            iaGoods.setInspectApply(inspectApply);
+
+            PurchGoods purchGoods = purchGoodsMap.get(iaGoods.getgId());
+            Goods goods = purchGoods.getGoods();
+            iaGoods.setGoods(goods);
+            iaGoods.setSamples(0);
+
+            // 修改采购单中的已报检数量 // TODO 这里的报检数量不能大于采购中剩余可报检数量，未检查
+            purchGoods.setInspectNum(purchGoods.getInspectNum() + iaGoods.getInspectNum());
+            // 修改商品的已报检数量
+            goods.setInspectNum(goods.getInspectNum() + iaGoods.getInspectNum());
+            updateInspectNumGoods.add(goods);
+        });
+        // 更新采购单中的已报检数量到数据库
+        purchGoodsDao.save(purchGoodsMap.values());
+        // 更新商品中的已报检数量到数据库
+        goodsDao.save(updateInspectNumGoods);
+
+        // 处理附件信息
+        List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
+        inspectApply.setAttachmentList(attachmentlist);
+
+        inspectApplyDao.save(inspectApply);
+        return true;
+    }
+
+    /**
+     * 更新报检单
+     *
+     * @param inspectApply
      * @return
      */
     @Override
     @Transactional
-    public boolean save(InspectApplySaveVo vo) {
-        // 是更新还是提交
-        boolean insertFlag = true;
-        InspectApply inspectApply = null;
-        Integer id = vo.getId();
-        Integer purchId = vo.getPurchId();
-        Purch purch = null;
-
-
-        if (id != null) {
-            inspectApply = inspectApplyDao.findOne(id);
-            if (inspectApply == null) {
-                return false; // 不存在的报检单，返回失败
-            }
-            insertFlag = false;
-            purch = inspectApply.getPurch();
-        } else {
-            inspectApply = new InspectApply();
-            purch = purchDao.findOne(purchId);
-            if (purch == null) {
-                return false; // 没有关联到任何的采购单信息
-            }
-            inspectApply.setCreateTime(new Date());
-            inspectApply.setPurch(purch);
+    public boolean save(InspectApply inspectApply) {
+        InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
+        Purch purch = dbInspectApply.getPurch();
+        if (purch.getStatus() == Purch.StatusEnum.DONE.getCode()) {
+            // 采购已完成，则不存在报检质检等商品，返回错误
+            return false;
         }
-        int status = vo.getStatus();
-        boolean direct = vo.isDirect();
-        boolean outCheck = vo.isOutCheck();
-        List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
 
-        // 1.查看是否厂家直发，如果直发且无检查，且是提交，则更新商品已入库数量
-        // 此种情况下商品不需要走下面的入库质检和入库流程
-        // 2.修改采购商品的已报检数量
-        // 3.检查采购是否已经报检完成
-        List<PGoods> goodsList = vo.getGoodsList();
-        // 整理商品信息，过程中操作上面的3步
-        for (PGoods pGoods : goodsList) {
-            Integer inspectApplyGoodsId = pGoods.getId();
-            Integer goodsId = pGoods.getGoodsId();
-            Integer inspectNum = pGoods.getInspectNum();
-            int diff = inspectNum;
+        // 处理基本信息
+        dbInspectApply.setDepartment(inspectApply.getDepartment());
+        dbInspectApply.setPurchaseName(inspectApply.getPurchaseName());
+        dbInspectApply.setSupplierName(inspectApply.getSupplierName());
+        dbInspectApply.setAbroadCoName(inspectApply.getAbroadCoName());
+        dbInspectApply.setInspectDate(inspectApply.getInspectDate());
+        dbInspectApply.setDirect(inspectApply.getDirect() != null ? inspectApply.getDirect().booleanValue() : false);
+        dbInspectApply.setOutCheck(inspectApply.getOutCheck() != null ? inspectApply.getOutCheck() : true);
+        dbInspectApply.setRemark(inspectApply.getRemark());
+        dbInspectApply.setStatus(inspectApply.getStatus());
 
-            Goods goods = goodsDao.findOne(goodsId);
-            if (goods == null) {
-                return false; // 要操作的商品不存在，返回失败
-            }
+        // 处理附件信息
+        List<Attachment> attachmentlist = attachmentService.handleParamAttachment(
+                dbInspectApply.getAttachmentList(),
+                inspectApply.getAttachmentList(),
+                inspectApply.getCreateUserId(),
+                inspectApply.getCreateUserName());
+        dbInspectApply.setAttachmentList(attachmentlist);
 
+        // 处理商品信息
+        Map<Integer, PurchGoods> purchGoodsMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(vo -> vo.getGoods().getId(), vo -> vo));
+        Map<Integer, InspectApplyGoods> inspectApplyGoodsMap = dbInspectApply.getInspectApplyGoodsList().parallelStream()
+                .collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo));
+        Set<Goods> updateInspectNumGoods = new HashSet<>();
+        List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList().stream().map(iaGoods -> {
+            Integer id = iaGoods.getId();
+            Goods goods = null;
+            PurchGoods purchGoods = null;
+            int inspectNum = iaGoods.getInspectNum();
 
-            if (insertFlag && inspectApplyGoodsId != null) {
-                // 修改商品
-                InspectApplyGoods inspectApplyGoods = inspectApplyGoodsDao.findByIdAndGoodsIdAndInspectApplyId(inspectApply.getId(), goodsId, inspectApplyGoodsId);
-                if (inspectApplyGoods == null) {
-                    // 不存在要修改的商品，返回失败
-                    return false;
-                }
-                // 上次未提交时报检的商品数量
-                Integer inspectedNum = inspectApplyGoods.getInspectNum();
-                diff = inspectNum - inspectedNum;
-                inspectApplyGoods.setInspectNum(inspectNum);
-
-                inspectApplyGoodsList.add(inspectApplyGoods);
+            InspectApplyGoods applyGoods = inspectApplyGoodsMap.remove(id);
+            if (applyGoods != null) {
+                inspectNum -= applyGoods.getInspectNum();
+                applyGoods.setInspectNum(iaGoods.getInspectNum());
+                goods = applyGoods.getGoods();
+                purchGoods = purchGoodsMap.get(goods.getId());
             } else {
-                // 新插入商品
-                InspectApplyGoods inspectApplyGoods = new InspectApplyGoods();
-                inspectApplyGoods.setInspectApply(inspectApply);
-                inspectApplyGoods.setGoods(goods);
-                inspectApplyGoods.setInspectNum(inspectNum);
-                inspectApplyGoods.setCreateTime(new Date());
-
-                inspectApplyGoodsList.add(inspectApplyGoods);
+                applyGoods = iaGoods;
+                applyGoods.setCreateTime(new Date());
+                applyGoods.setInspectApply(inspectApply);
+                purchGoods = purchGoodsMap.get(applyGoods.getgId());
+                goods = purchGoods.getGoods();
+                applyGoods.setGoods(goods);
+                applyGoods.setSamples(0);
             }
 
-            // 1.查看是否厂家直发，如果直发且无检查，且是提交，则更新商品已入库数量
-            if (direct && !outCheck && status == 2) {
-                goods.setInstockNum(goods.getInstockNum() + inspectNum);
-            }
-            goods.setPurchasedNum(goods.getPurchasedNum() + diff); // 修改商品的总报检数量
-            goodsDao.save(goods);
+            // 修改采购单中的已报检数量 // TODO 这里的报检数量不能大于采购中剩余可报检数量，未检查
+            purchGoods.setInspectNum(purchGoods.getInspectNum() + inspectNum);
+            // 修改商品的已报检数量
+            goods.setInspectNum(goods.getInspectNum() + inspectNum);
+            updateInspectNumGoods.add(goods);
 
-            // 2.修改采购商品的已报检数量
-            PurchGoods purchGoods = purchGoodsDao.findByPurchIdAndGoodsId(purch.getId(), goodsId);
-            purchGoods.setInspectNum(purchGoods.getInspectNum() + diff);
-            purchGoodsDao.save(purchGoods);
+            return applyGoods;
+        }).collect(Collectors.toList());
+        // 报检商品中存在删除的情况操作
+        for (InspectApplyGoods inspectApplyGoods : inspectApplyGoodsMap.values()) {
+            Integer inspectNum = inspectApplyGoods.getInspectNum();
+            Goods goods = inspectApplyGoods.getGoods();
+            PurchGoods purchGoods = purchGoodsMap.get(goods.getId());
+            goods.setInspectNum(goods.getInspectNum() - inspectNum);
+            purchGoods.setInspectNum(purchGoods.getInspectNum() - inspectNum);
+            updateInspectNumGoods.add(goods);
         }
 
-        // 3.检查采购是否已经报检完成
-        List<PurchGoods> purchGoodsList = purchGoodsDao.findByPurchId(purch.getId());
-        // 采购中只要有一个商品的报检小于采购商品数量，则采购单还可以继续报检
-        boolean inspectNotEnd = purchGoodsList.stream().anyMatch(obj -> obj.getInspectNum() < obj.getPurchaseNum());
-        if (!inspectNotEnd) {
-            purchDao.save(purch);
-        }
-
-        // 保存基本信息
-        inspectApply.setDepartment(vo.getDepartment());
-        inspectApply.setPurchaseName(vo.getPurchaseName());
-        inspectApply.setSupplierName(vo.getSupplierName());
-        inspectApply.setAbroadCoName(vo.getAbroadCoName());
-        inspectApply.setInspectDate(vo.getInspectDate());
-        inspectApply.setDirect(direct);
-        if (direct) {
-            inspectApply.setOutCheck(outCheck);
-        } else {
-            inspectApply.setOutCheck(null);
-        }
-        inspectApply.setRemark(vo.getRemark());
-        inspectApply.setAttachmentList(vo.getAttachmentList());
-        inspectApply.setStatus(vo.getStatus());
-
+        inspectApplyGoodsDao.delete(inspectApplyGoodsMap.values());
+        // 更新采购单中的已报检数量到数据库
+        purchGoodsDao.save(purchGoodsMap.values());
+        // 更新商品中的已报检数量到数据库
+        goodsDao.save(updateInspectNumGoods);
+        // 设置报检商品信息
+        inspectApply.setInspectApplyGoodsList(inspectApplyGoodsList);
         // 保存报检单
         inspectApplyDao.save(inspectApply);
-
-        // 保存报检单中的商品信息
-        inspectApplyGoodsDao.save(inspectApplyGoodsList);
-
-
         return true;
     }
 
@@ -189,55 +204,56 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * 5：插入新报检单附件信息
      * 6：插入新的报检商品信息
      *
-     * @param vo
+     * @param inspectApply
      * @return
      */
     @Override
     @Transactional
-    public boolean againApply(InspectApplySaveVo vo) {
+    public boolean againApply(InspectApply inspectApply) {
 
-        InspectApply lastInspectApply = inspectApplyDao.findOne(vo.getId());
+        InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (lastInspectApply == null || lastInspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
             return false; // 不存在原来的报检单或当期报检单没有未合格产品，返回错误
         }
-
 
         InspectApply parentInspectApply = lastInspectApply.getParent(); // 主报检单
         if (parentInspectApply == null) {
             parentInspectApply = lastInspectApply;
         }
 
+        // 声明要插入的报检单
+        InspectApply newInspectApply = new InspectApply();
+
         // 判断每个商品的报检数量是否等于最后一次报检不合格数量
-        List<InspectApplyGoods> inspectApplyGoodsList = inspectApplyGoodsDao.findByInspectApplyId(lastInspectApply.getId());
-        List<PGoods> goodsList = vo.getGoodsList();
-        final Map<Integer, PGoods> pGoodsMap = goodsList.parallelStream().collect(Collectors.toMap(PGoods::getId, pg -> pg));
-        // 是否有不合格数量和这次不相等的
-        List<InspectApplyGoods> newApplyGoodsList = new ArrayList<>();
-        boolean allEqual = inspectApplyGoodsList.stream().allMatch(ipg -> {
-            // 判断商品是否存在不合格数量
-            Integer unqualified = ipg.getUnqualified();
-            PGoods pGoods = pGoodsMap.get(ipg.getId());
-            if (unqualified > 0 && pGoods == null) {
+        Map<Integer, InspectApplyGoods> inspectApplyGoodsMap = inspectApplyGoodsDao.findByInspectApplyId(lastInspectApply.getId()).parallelStream()
+                .filter(vo -> vo.getUnqualified() > 0).collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo));
+        List<InspectApplyGoods> goodsDataList = new ArrayList<>();
+        List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();
+        for (InspectApplyGoods inspectApplyGoods : inspectApplyGoodsList) {
+            Integer id = inspectApplyGoods.getId();
+            InspectApplyGoods applyGoods = inspectApplyGoodsMap.get(id);
+
+            if (applyGoods == null) {
                 return false;
             }
 
-            if (pGoods != null && pGoods.getInspectNum() != unqualified) {
+            if (applyGoods.getUnqualified() != inspectApplyGoods.getInspectNum()) {
                 return false;
             }
 
-            // 新建要插入的报检单商品
-            InspectApplyGoods inspectApplyGoods = new InspectApplyGoods();
-//            inspectApplyGoods.setInspectApply(inspectApply);
-            inspectApplyGoods.setGoods(ipg.getGoods());
-            inspectApplyGoods.setInspectNum(unqualified);
+            inspectApplyGoods.setId(null);
+            inspectApplyGoods.setInspectApply(newInspectApply);
+            inspectApplyGoods.setGoods(applyGoods.getGoods());
+            inspectApplyGoods.setSamples(0);
+            inspectApplyGoods.setUnqualified(0);
+            inspectApplyGoods.setInstockNum(0);
             inspectApplyGoods.setCreateTime(new Date());
 
-            newApplyGoodsList.add(inspectApplyGoods);
+            goodsDataList.add(inspectApplyGoods);
+        }
 
-            return true;
-        });
-        if (!allEqual) {
-            return false; // 存在和上次不合格的商品数量不符的商品，返回失败
+        if (inspectApplyGoodsMap.size() != goodsDataList.size()) {
+            return false;
         }
 
         // 检验完毕，做正式操作
@@ -246,7 +262,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         inspectApplyDao.save(parentInspectApply);
 
         //新插入报检单，并设置上级报检单
-        InspectApply newInspectApply = new InspectApply();
         newInspectApply.setParent(parentInspectApply);
         newInspectApply.setMaster(false);
         newInspectApply.setPurch(parentInspectApply.getPurch());
@@ -258,51 +273,43 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 设置供应商名称
         newInspectApply.setSupplierName(lastInspectApply.getSupplierName());
         // 设置国外分公司
-        newInspectApply.setAbroadCoName(vo.getAbroadCoName());
+        newInspectApply.setAbroadCoName(lastInspectApply.getAbroadCoName());
         // 设置报检时间
-        newInspectApply.setInspectDate(vo.getInspectDate());
+        newInspectApply.setInspectDate(lastInspectApply.getInspectDate());
         newInspectApply.setDirect(lastInspectApply.getDirect());
         newInspectApply.setOutCheck(lastInspectApply.getOutCheck());
-        newInspectApply.setMsg(vo.getMsg());
+        newInspectApply.setMsg(inspectApply.getMsg());
         //插入新报检单附件信息
         newInspectApply.setStatus(InspectApply.StatusEnum.SUBMITED.getCode());
-        vo.getAttachmentList().parallelStream().forEach(voAttch -> {
-            voAttch.setId(null);
-        });
-        newInspectApply.setAttachmentList(vo.getAttachmentList());
+        List<Attachment> attachmentList = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
+        newInspectApply.setAttachmentList(attachmentList);
+
+        newInspectApply.setInspectApplyGoodsList(goodsDataList);
+
+
         inspectApplyDao.save(newInspectApply);
-
-        // 插入新的报检商品信息
-        newApplyGoodsList.parallelStream().forEach(nag -> {
-            nag.setInspectApply(newInspectApply);
-        });
-
-        inspectApplyGoodsDao.save(newApplyGoodsList);
 
 
         return true;
     }
 
     @Override
-    public List<InspectApply> findSameApplyList(Integer id) {
-        InspectApply masterInspectApply = inspectApplyDao.findOne(id);
-        if (masterInspectApply != null && masterInspectApply.getNum() > 1) {
-            // 存在多次报检
-            List<InspectApply> inspectApplyList = inspectApplyDao.findByParentIdOrderByIdAsc(masterInspectApply.getId());
-
-            inspectApplyList.add(0, masterInspectApply);
+    public List<InspectApply> findByParentId(Integer parentId) {
+        // 存在多次报检
+        List<InspectApply> inspectApplyList = inspectApplyDao.findByParentIdOrderByIdAsc(parentId);
+        if (inspectApplyList != null) {
             return inspectApplyList;
         }
-        // 如果不存在多次报检，则返回空列表
         return new ArrayList<>();
     }
 
     @Override
+    @Transactional
     public InspectApply findDetail(Integer id) {
         InspectApply inspectApply = inspectApplyDao.findOne(id);
         if (inspectApply != null) {
             inspectApply.getAttachmentList().size();
-            inspectApply.getInspectApplyGoodsList();
+            inspectApply.getInspectApplyGoodsList().size();
         }
 
         return inspectApply;

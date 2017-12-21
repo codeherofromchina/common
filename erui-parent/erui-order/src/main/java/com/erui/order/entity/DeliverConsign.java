@@ -1,7 +1,5 @@
 package com.erui.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -16,6 +14,11 @@ public class DeliverConsign {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    /**
+     * 出口通知单号
+     */
+    @Column(name="deliver_consign_no")
+    private String deliverConsignNo;
     @Column(name = "order_id")
     private Integer orderId;
     @Column(name = "dept_id")
@@ -52,12 +55,20 @@ public class DeliverConsign {
         this.id = id;
     }
 
-    public Integer getOrderId() {
-        return orderId;
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public Integer getDeptId() {

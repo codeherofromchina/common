@@ -1,9 +1,6 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.InspectApply;
-import com.erui.order.requestVo.InspectApplySaveVo;
-
 import java.util.List;
 
 /**
@@ -18,32 +15,40 @@ public interface InspectApplyService {
     InspectApply findById(Integer id);
 
     /**
-     * 根据采购单ID查询质检申请单列表
+     * 根据采购单ID查询主报检单列表
      * @param parchId
      * @return
      */
-    List<InspectApply> findListByParchId(Integer parchId);
+    List<InspectApply> findMasterListByParchId(Integer parchId);
+
 
     /**
-     * 保存报检单信息
-     * @param vo
+     * 新增报检单
+     * @param inspectApply
      * @return
      */
-    boolean save(InspectApplySaveVo vo);
+    public boolean insert(InspectApply inspectApply);
+
+    /**
+     * 更新报检单信息
+     * @param inspectApply
+     * @return
+     */
+    boolean save(InspectApply inspectApply);
 
     /**
      * 重新报检报检单中不合格的商品
-     * @param vo
+     * @param inspectApply
      * @return
      */
-    boolean againApply(InspectApplySaveVo vo);
+    boolean againApply(InspectApply inspectApply);
 
     /**
-     * 获取历史报检单列表 （一次提交报检和它的所有报检子类）
-     * @param id
+     * 根据父报检单获取下面的报检单
+     * @param parentId
      * @return
      */
-    List<InspectApply> findSameApplyList(Integer id);
+    List<InspectApply> findByParentId(Integer parentId);
 
     /**
      * 查询报价单详情

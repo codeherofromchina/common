@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 商品控制器
@@ -32,27 +33,11 @@ public class GoodsController {
     @RequestMapping("listByProjectForPurch")
     public Result<Object> listByProjectForPurch(@RequestBody List<Integer> projectIds) {
 
-
         List<Goods> goodsList = goodsService.findByProjectIds(projectIds);
 
-        List<PGoods> data = new ArrayList<>();
-        goodsList.stream().forEach(vo -> {
-            if (vo.getPurchasedNum() < vo.getContractGoodsNum() ) {
-                PGoods pg = new PGoods();
-                pg.setContractNo(vo.getContractNo());
-                pg.setProjectNo(vo.getProjectNo());
-                pg.setSku(vo.getSku());
-                pg.setProType(vo.getProType());
-                pg.setNameZh(vo.getNameZh());
-                pg.setNameEn(vo.getNameEn());
-                pg.setUnit(vo.getUnit());
-                pg.setModel(vo.getModel());
-                pg.setBrand(vo.getBrand());
-                pg.setPurchaseNum(vo.getPurchasedNum());
-                pg.setContractGoodsNum(vo.getContractGoodsNum());
-                data.add(pg);
-            }
-        });
+        List<Goods> data = goodsList.stream().filter(goods -> {
+            return goods.getPurchasedNum() < goods.getContractGoodsNum();
+        }).collect(Collectors.toList());
 
         return new Result<>(data);
     }

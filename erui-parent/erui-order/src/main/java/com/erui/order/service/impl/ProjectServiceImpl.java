@@ -106,7 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<Project> purchAbleList() {
-        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.TRUE);
+        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(),Boolean.FALSE);
         if (list == null) {
             list = new ArrayList<>();
         }
