@@ -88,9 +88,9 @@
   <select id="selectCateListByTime" resultType="com.erui.report.util.SupplyCateDetailVo" parameterType="com.erui.report.model.SupplyChainCategoryExample" >
     SELECT
     item_class AS itemClass,
-    spu_num AS spuCount,
-    sku_num AS skuCount,
-    suppli_num AS supplierCount
+    SUM(spu_num) AS spuCount,
+    SUM(sku_num) AS skuCount,
+    SUM(suppli_num) AS supplierCount
     from supply_chain_category
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -101,7 +101,7 @@
     GROUP BY
     item_class
     HAVING
-    item_class IS NOT NULL
+    item_class IS NOT NULL ORDER BY spu_num DESC
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
