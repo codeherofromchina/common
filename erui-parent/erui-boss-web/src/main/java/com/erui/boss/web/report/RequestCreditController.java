@@ -220,7 +220,7 @@ public class RequestCreditController {
         //下周应收
         Date curDate = new Date();
         Date nextWeekStartTime = DateUtil.getWeekSix(6);
-        Date nextWeekEndTime = DateUtil.getDateAfter(nextWeekStartTime, 7);
+        Date nextWeekEndTime = DateUtil.getDateAfter(nextWeekStartTime, 6);
         //下月应收
         Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
