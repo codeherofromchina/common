@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,36 +14,34 @@ import java.util.Set;
 @Table(name = "deliver_consign")
 public class DeliverConsign {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name="order_id")
+    @Column(name = "order_id")
     private Integer orderId;
-    @Column(name="dept_id")
+    @Column(name = "dept_id")
     private Integer deptId;
-    @Column(name="co_id")
+    @Column(name = "co_id")
     private Integer coId;
-    @Column(name="write_date")
+    @Column(name = "write_date")
     private Date writeDate;
-    @Column(name="arrival_date")
+    @Column(name = "arrival_date")
     private Date arrivalDate;
-    @Column(name="booking_date")
+    @Column(name = "booking_date")
     private Date bookingDate;
-
     private String status;
-    @Column(name="create_user_id")
+    @Column(name = "create_user_id")
     private Integer createUserId;
-    @Column(name="create_time")
+    @Column(name = "create_time")
     private Date createTime;
-
     private String remarks;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     private Set<Attachment> attachmentSet = new HashSet<>();
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "deliver_consign_id")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
 
     public Integer getId() {

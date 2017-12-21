@@ -21,6 +21,8 @@ public class OrderListCondition {
     private Date deliveryDate;
     //CRM客户代码
     private String crmCode;
+    //框架协议号
+    private String frameworkNo;
     //订单类型
     private Boolean orderType;
     //款项状态
@@ -149,6 +151,14 @@ public class OrderListCondition {
 
     public void setDeleteFlag(Boolean deleteFlag) {
         this.deleteFlag = deleteFlag;
+    }
+
+    public String getFrameworkNo() {
+        return frameworkNo;
+    }
+
+    public void setFrameworkNo(String frameworkNo) {
+        this.frameworkNo = frameworkNo;
     }
 
     @Override

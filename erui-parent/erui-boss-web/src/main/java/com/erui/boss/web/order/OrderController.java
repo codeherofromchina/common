@@ -6,11 +6,15 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -31,6 +35,13 @@ public class OrderController {
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderManage(@RequestBody OrderListCondition condition) {
         Page<Order> orderPage = orderService.findByPage(condition);
+        if (orderPage.hasContent()) {
+            orderPage.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                vo.setGoodsList(null);
+            });
+        }
         return new Result<>(orderPage);
     }
     /**

@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -29,24 +27,27 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectDao projectDao;
+
     @Transactional
     @Override
     public Project findById(Integer id) {
         return projectDao.findOne(id);
     }
+
     @Transactional
     @Override
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
       /*  if (!project.getProjectStatus().equals("SUBMIT")) {
         }*/
-        projectUpdate.setUpdateTime(new Date());
         project.copyProjectDesc(projectUpdate);
         projectUpdate.setProjectStatus(project.getProjectStatus());
+        projectUpdate.setUpdateTime(new Date());
         projectDao.saveAndFlush(projectUpdate);
         return true;
     }
 
+    @Transactional
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage(), condition.getRows(), null);
@@ -91,7 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
                 }
                 //根据汇款状态
-                if (condition.getProjectStatus() != null) {
+                if (StringUtil.isNotBlank(condition.getProjectStatus()) ) {
                     list.add(cb.equal(root.get("projectStatus").as(String.class), condition.getProjectStatus()));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
@@ -105,7 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<Project> purchAbleList() {
-        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(),Boolean.TRUE);
+        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.TRUE);
         if (list == null) {
             list = new ArrayList<>();
         }

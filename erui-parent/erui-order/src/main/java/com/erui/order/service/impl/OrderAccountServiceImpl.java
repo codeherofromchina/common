@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -33,8 +34,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     /**
      * 根据id 查询订单收款信息(单条)
-     * @param id    收款信息id
      *
+     * @param id 收款信息id
      * @return
      */
     @Override
@@ -46,7 +47,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     /**
      * 收款记录查询   (根据订单，查询全部订单记录)
      *
-     * @param id    订单id
+     * @param id 订单id
      * @return
      */
     @Override
@@ -57,22 +58,22 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
 
     /**
-     *  根据收款信息id 逻辑删除
+     * 根据收款信息id 逻辑删除
      *
-     * @param id       收款信息id
+     * @param id 收款信息id
      */
     @Override
     public void delGatheringRecord(Integer id) {
-        OrderAccount orderAccounts=orderAccountDao.findOne(id);
+        OrderAccount orderAccounts = orderAccountDao.findOne(id);
         orderAccounts.setDelYn(0);
         orderAccountDao.save(orderAccounts);
     }
 
 
     /**
-     *  添加一条收款记录
+     * 添加一条收款记录
      *
-     * @param orderAccount  收款信息
+     * @param orderAccount 收款信息
      * @return
      */
     @Override
@@ -95,23 +96,23 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     public void updateGatheringRecord(OrderAccount orderAccount) {
-        OrderAccount orderAccounts=orderAccountDao.findOne(orderAccount.getId());
-        if (orderAccount.getDesc()!=null){
+        OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId());
+        if (orderAccount.getDesc() != null) {
             orderAccounts.setDesc(orderAccount.getDesc());
         }
-        if (orderAccount.getMoney()!=null){
+        if (orderAccount.getMoney() != null) {
             orderAccounts.setMoney(orderAccount.getMoney());
         }
-        if (orderAccount.getDiscount()!=null){
+        if (orderAccount.getDiscount() != null) {
             orderAccounts.setDiscount(orderAccount.getDiscount());
         }
-        if (orderAccount.getPaymentDate()!=null){
+        if (orderAccount.getPaymentDate() != null) {
             orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
         }
-        if (orderAccount.getGoodsPrice()!=null){
+        if (orderAccount.getGoodsPrice() != null) {
             orderAccounts.setGoodsPrice(orderAccount.getGoodsPrice());
         }
-        if (orderAccount.getDeliverDate()!=null){
+        if (orderAccount.getDeliverDate() != null) {
             orderAccounts.setDeliverDate(orderAccount.getDeliverDate());
         }
         orderAccounts.setUpdateTime(new Date());
@@ -121,6 +122,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     /**
      * 确认全部收款完成
+     *
      * @return
      */
     @Override
@@ -137,24 +139,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param id
      * @return
      */
-      @Override
-    public Order gatheringMessage( Integer id) {
-        Order order =orderDao.findOne(id);  //查询订单信息
+    @Override
+    public Order gatheringMessage(Integer id) {
+        Order order = orderDao.findOne(id);  //查询订单信息
 
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
 
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
-        BigDecimal sumMoney = BigDecimal.valueOf(0); ;       //汇款金额
+        BigDecimal sumMoney = BigDecimal.valueOf(0);
+        ;       //汇款金额
         BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
         int size = byOrderId.size();
-        for (int i=0;i<size;i++){
-            if(byOrderId.get(i).getGoodsPrice() != null){
-                sumGoodsPrice= sumGoodsPrice.add( byOrderId.get(i).getGoodsPrice());
+        for (int i = 0; i < size; i++) {
+            if (byOrderId.get(i).getGoodsPrice() != null) {
+                sumGoodsPrice = sumGoodsPrice.add(byOrderId.get(i).getGoodsPrice());
             }
-            if(byOrderId.get(i).getMoney()!=null){
+            if (byOrderId.get(i).getMoney() != null) {
                 sumMoney = sumMoney.add(byOrderId.get(i).getMoney());
             }
-            if(byOrderId.get(i).getDiscount()!= null){
+            if (byOrderId.get(i).getDiscount() != null) {
                 sumDiscount = sumDiscount.add(byOrderId.get(i).getDiscount());
             }
         }
@@ -174,7 +177,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param rows
      * @return
      */
- @Override
+    @Override
     public Page<Order> gatheringManage(Order order, Integer page, Integer rows) {
         PageRequest request = new PageRequest(page, rows, null);
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
@@ -186,24 +189,24 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + order.getContractNo() + "%"));
                 }
                 //根据订单状态查询
-                if(order.getStatus()!= null){
-                    list.add(cb.equal(root.get("status").as(Integer.class),order.getStatus()));
+                if (order.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), order.getStatus()));
                 }
                 //根据订单签约日期
-                if(order.getSigningDate()!=null){
+                if (order.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(order.getSigningDate())));
                 }
                 //根据po号
-                if(StringUtil.isNotBlank(order.getPoNo())){
-                    list.add(cb.like(root.get("poNo").as(String.class),"%"+ order.getPoNo() + "%"));
+                if (StringUtil.isNotBlank(order.getPoNo())) {
+                    list.add(cb.like(root.get("poNo").as(String.class), "%" + order.getPoNo() + "%"));
                 }
                 //根据收款状态
-                if(order.getPayStatus()!= null){
-                    list.add(cb.equal(root.get("payStatus").as(Integer.class),order.getPayStatus()));
+                if (order.getPayStatus() != null) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), order.getPayStatus()));
                 }
                 //根据CRM客户代码
-                if(StringUtil.isNotBlank(order.getCrmCode())){
-                    list.add(cb.equal(root.get("crmCode").as(String.class),order.getCrmCode()));
+                if (StringUtil.isNotBlank(order.getCrmCode())) {
+                    list.add(cb.equal(root.get("crmCode").as(String.class), order.getCrmCode()));
                 }
                 //
 
@@ -212,10 +215,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
-        },request);
+        }, request);
 
 
-     return pageOrder;
+        return pageOrder;
     }
 
 

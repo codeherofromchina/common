@@ -166,14 +166,14 @@ public class Order {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<Attachment> attachmentSet = new HashSet<>();
 
-    @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name="order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
     @OrderBy("id asc")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Goods> goodsList = new ArrayList<>();
 
     @JoinColumn(name = "order_id")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<OrderPayment> orderPayments = new ArrayList<>();
@@ -183,13 +183,13 @@ public class Order {
 
     @Column(name = "customer_context")
     private String customerContext;
-    @Column(name="exec_co_name")
+    @Column(name = "exec_co_name")
     private String execCoName;
 
-    @Column(name="distribution_dept_name")
+    @Column(name = "distribution_dept_name")
     private String distributionDeptName;
 
-    @Column(name="business_unit_name")
+    @Column(name = "business_unit_name")
     private String businessUnitName;
 
     public String getExecCoName() {

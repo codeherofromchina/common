@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -7,19 +9,23 @@ import java.util.Date;
  * 口发货通知单商品
  */
 @Entity
-@Table(name="deliver_consign_goods")
+@Table(name = "deliver_consign_goods")
 public class DeliverConsignGoods {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name="deliver_consign_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deliver_consign_id")
+    @JsonIgnore
     private DeliverConsign deliverConsign;
 
     @OneToOne
-    @JoinColumn(name="goods_id")
+    @JoinColumn(name = "goods_id")
     private Goods goods;
+
+    @Transient
+    private Integer gId;
 
     @Column(name = "send_num")
     private Integer sendNum;
@@ -55,6 +61,14 @@ public class DeliverConsignGoods {
 
     public void setGoods(Goods goods) {
         this.goods = goods;
+    }
+
+    public Integer getgId() {
+        return gId;
+    }
+
+    public void setgId(Integer gId) {
+        this.gId = gId;
     }
 
     public Integer getSendNum() {
