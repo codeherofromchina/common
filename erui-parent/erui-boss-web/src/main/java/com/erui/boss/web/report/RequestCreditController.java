@@ -253,6 +253,13 @@ public class RequestCreditController {
             total.put("chainRate",0d);
         }
         Map<String ,Object> notReceive=new HashMap<>();
+        notReceive.put("receive",RateUtil.doubleChainRateTwo(receive,10000)+"万$");
+        notReceive.put("chainAdd",RateUtil.doubleChainRateTwo(receive-chainReceive,10000)+"万$");
+        if(chainReceive>0) {
+            notReceive.put("chainRate", RateUtil.doubleChainRateTwo(receive - chainReceive, chainReceive));
+        }else{
+
+        }
         Map<String ,Object> received=new HashMap<>();
         Map<String ,Object> nextWeekReceivable=new HashMap<>();
         Map<String ,Object> nextMonthReceivable=new HashMap<>();

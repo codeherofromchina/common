@@ -174,19 +174,19 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Map<String,Object> datas=new HashMap<>();
         String[] types={"receivable","notReceive","received","nextMonth"};
         if(receiveName.equals(types[0])){
-            datas.put("legend",types[0]);
+            datas.put("legend","应收账款");
             datas.put("xAxis",dates);
             datas.put("yAxis",orderList);
         }else if(receiveName.equals(types[1])){
-            datas.put("legend",types[1]);
+            datas.put("legend","应收未收");
             datas.put("xAxis",dates);
             datas.put("yAxis",bList);
         }else if(receiveName.equals(types[2])){
-            datas.put("legend",types[2]);
+            datas.put("legend","应收已收");
             datas.put("xAxis",dates);
             datas.put("yAxis",rList);
         }else if(receiveName.equals(types[3])){
-            datas.put("legend",types[3]);
+            datas.put("legend","下月应收");
             datas.put("xAxis",nextDates);
             datas.put("yAxis",nList);
         }
