@@ -721,7 +721,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 ordCounts.add(0);
             }
             if (quoteTrend.containsKey(date)) {
-                quoteCounts.add(Integer.parseInt(ordTrend.get(date).get("count").toString()));
+                quoteCounts.add(Integer.parseInt(quoteTrend.get(date).get("count").toString()));
             } else {
                 quoteCounts.add(0);
             }

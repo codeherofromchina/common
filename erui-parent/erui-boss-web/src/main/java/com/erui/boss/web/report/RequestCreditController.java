@@ -194,9 +194,9 @@ public class RequestCreditController {
         return result;
     }
     /**
-     * @Author:SHIGS
+     * @Author:lirb
      * @Description 2.应收账款总览
-     * @Date:14:40 2017/10/31
+     * @Date:14:40 2017/12/21
      * @modified By
      */
     @ResponseBody
