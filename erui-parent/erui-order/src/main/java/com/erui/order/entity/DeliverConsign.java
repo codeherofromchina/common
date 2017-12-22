@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -19,10 +20,14 @@ public class DeliverConsign {
     /**
      * 出口通知单号
      */
-    @Column(name="deliver_consign_no")
+    @Column(name = "deliver_consign_no")
     private String deliverConsignNo;
     @Column(name = "order_id")
     private Integer orderId;
+    /*   @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+       @JoinColumn(name = "order_id")
+       @JsonIgnore
+       private Order order;*/
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
@@ -57,6 +62,22 @@ public class DeliverConsign {
         this.id = id;
     }
 
+/*    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }*/
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+
     public String getDeliverConsignNo() {
         return deliverConsignNo;
     }
@@ -65,13 +86,6 @@ public class DeliverConsign {
         this.deliverConsignNo = deliverConsignNo;
     }
 
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
-    }
 
     public Integer getDeptId() {
         return deptId;

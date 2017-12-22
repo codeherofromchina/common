@@ -1,11 +1,8 @@
 package com.erui.order.service.impl;
-
-import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.DeliverConsignDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.*;
-import com.erui.order.service.AreaService;
 import com.erui.order.service.DeliverConsignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +19,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private DeliverConsignDao deliverConsignDao;
+
     @Autowired
+
     private OrderDao orderDao;
     @Autowired
     private GoodsDao goodsDao;
