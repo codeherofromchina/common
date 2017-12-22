@@ -43,4 +43,5 @@ public interface OrderService {
      */
     boolean addOrder(AddOrderVo addOrderVo);
 
+    Order detail(Integer orderId);
 }

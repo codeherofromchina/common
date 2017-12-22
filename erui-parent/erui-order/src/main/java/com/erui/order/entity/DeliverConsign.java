@@ -2,6 +2,7 @@ package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.domain.Page;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,7 +18,6 @@ public class DeliverConsign {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     /**
      * 出口通知单号
      */
@@ -28,14 +28,24 @@ public class DeliverConsign {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @Column(name = "order_id")
+    private Integer orderId;
+    /*   @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+       @JoinColumn(name = "order_id")
+       @JsonIgnore
+       private Order order;*/
     @Column(name = "dept_id")
     private Integer deptId;
+
     @Column(name = "co_id")
     private Integer coId;
+
     @Column(name = "write_date")
     private Date writeDate;
+
     @Column(name = "arrival_date")
     private Date arrivalDate;
+
     @Column(name = "booking_date")
     private Date bookingDate;
 
@@ -46,6 +56,7 @@ public class DeliverConsign {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
+
     @Column(name = "create_time")
     private Date createTime;
 
@@ -59,9 +70,12 @@ public class DeliverConsign {
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
+
+    public DeliverConsign() {
+    }
 
 
     public Integer getDeliverYn() {
@@ -80,6 +94,22 @@ public class DeliverConsign {
         this.id = id;
     }
 
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+
     public String getDeliverConsignNo() {
         return deliverConsignNo;
     }
@@ -88,13 +118,6 @@ public class DeliverConsign {
         this.deliverConsignNo = deliverConsignNo;
     }
 
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
     public Integer getDeptId() {
         return deptId;
