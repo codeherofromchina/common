@@ -163,7 +163,7 @@ public class Order {
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+   /* @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
     private Set<Attachment> attachmentSet = new HashSet<>();
 
     @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -192,8 +192,30 @@ public class Order {
     @Column(name="business_unit_name")
     private String businessUnitName;
 
+    @Transient
+    private int page = 0;
+
+    @Transient
+    private int rows = 50;
+
+   @Column(name = "delivery_date_no")
+    private Date deliveryDateNo;    //执行单约定交付日期
+
     public String getExecCoName() {
         return execCoName;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void setDeliveryDateNo(Date deliveryDateNo) {
+        this.deliveryDateNo = deliveryDateNo;
+    }
+
+    public Date getDeliveryDateNo() {
+
+        return deliveryDateNo;
     }
 
     public void setExecCoName(String execCoName) {
@@ -469,6 +491,14 @@ public class Order {
 
     public void setIsFinancing(Boolean isFinancing) {
         this.isFinancing = isFinancing;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public int getRows() {
+        return rows;
     }
 
     public String getTradeTerms() {

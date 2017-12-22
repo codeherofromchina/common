@@ -170,13 +170,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * 收款管理
      *
      * @param order
-     * @param page
-     * @param rows
      * @return
      */
  @Override
-    public Page<Order> gatheringManage(Order order, Integer page, Integer rows) {
-        PageRequest request = new PageRequest(page, rows, null);
+    public Page<Order> gatheringManage(Order order) {
+        PageRequest request = new PageRequest(order.getPage(), order.getRows(), null);
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

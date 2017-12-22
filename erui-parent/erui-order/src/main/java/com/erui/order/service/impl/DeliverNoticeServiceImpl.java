@@ -2,11 +2,9 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.DeliverNoticeDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.service.AreaService;
 import com.erui.order.service.DeliverNoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +15,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Transient;
 import javax.persistence.criteria.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +36,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         return deliverNoticeDao.findOne(id);
     }
 
+
+    /**
+     * 看货通知管理
+     * @param condition
+     * @return
+     */
     @Override
     @Transactional
     public Page<DeliverNotice> listByPage(DeliverNotice condition) {
@@ -97,9 +101,81 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 notice.setContractNo(StringUtils.join(contractNos,","));
             });
         }
-
-
         return page;
+    }
+
+
+    //添加
+    @Override
+    public boolean addexitRequisition(DeliverNotice deliverNotice) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyymmdd");
+        String format = simpleDateFormat.format(new Date());
+        deliverNotice.setDeliverNoticeNo(format);
+        deliverNoticeDao.saveAndFlush(deliverNotice);
+        return true;
+    }
+
+
+    //编辑/保存
+    @Override
+    public boolean updateexitRequisition(DeliverNotice deliverNotice) {
+        DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
+        if(one == null){
+            return false;
+        }
+        if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
+            one.setContractNo(deliverNotice.getContractNo());
+        }
+        if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
+            one.setDeliverNoticeNo(deliverNotice.getDeliverNoticeNo());
+        }
+        if(deliverNotice.getSenderId() != null){
+            one.setSenderId(deliverNotice.getSenderId());
+        }
+        if(StringUtil.isNotBlank(deliverNotice.getSenderName())){
+            one.setSenderName(deliverNotice.getSenderName());
+        }
+        if(deliverNotice.getUrgency() != null){
+            one.setUrgency(deliverNotice.getUrgency());
+        }
+        if(deliverNotice.getDeliveryDate() != null){
+            one.setDeliveryDate(deliverNotice.getDeliveryDate());
+        }
+
+        one.setStatus(deliverNotice.getStatus());
+        one.setAttachmentSet(deliverNotice.getAttachmentSet());
+
+        if (deliverNotice.getStatus() == 2){
+
+        }
+
+        deliverNoticeDao.save(deliverNotice);
+
+        return true;
+    }
+
+
+
+    /**
+     *  看货通知单号id    查询看货信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional
+    public DeliverNotice exitRequisitionQuery(Integer id) {
+       DeliverNotice deliverNotice= deliverNoticeDao.findOne(id);
+        deliverNotice.getDeliverConsigns().size();
+       for (DeliverConsign deliverConsign : deliverNotice.getDeliverConsigns()){
+           deliverConsign.getAttachmentSet().size();
+           deliverConsign.getDeliverConsignGoodsSet().size();
+           for (DeliverConsignGoods deliverConsignGoods:deliverConsign.getDeliverConsignGoodsSet()){
+                deliverConsignGoods.getGoods().getId();
+            }
+       }
+        deliverNotice.getAttachmentSet().size();
+        return deliverNotice;
     }
 
 
