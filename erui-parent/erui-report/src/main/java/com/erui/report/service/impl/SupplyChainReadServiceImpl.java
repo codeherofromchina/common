@@ -32,8 +32,8 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     private static final String productUrl = "http://api.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
     private static final String supplierUrl = "http://api.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
     private static final String cateUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
-    private  static final String key = "9b2a37b7b606c14d43db538487a148c7";
-    private  static ObjectMapper om = new ObjectMapper();
+    private static final String key = "9b2a37b7b606c14d43db538487a148c7";
+    private static ObjectMapper om = new ObjectMapper();
 
     @Override
     public void supplyChainReadData(String startTime, String endTime) throws Exception {
@@ -54,52 +54,62 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         if (skuRead != null || spuRead != null || supplierRead != null) {
             supplyChainRead = mergeResult(skuRead, spuRead, supplierRead);
         }
+        Date date = DateUtil.parseStringToDate(startTime, DateUtil.FULL_FORMAT_STR);
+        SupplyChainReadExample example = new SupplyChainReadExample();
+        SupplyChainReadExample.Criteria criteria = example.createCriteria();
+        criteria.andCreateAtEqualTo(date);
+        List<SupplyChainRead> reads = readMapper.selectByExample(example);
         if (supplyChainRead != null) {
-            supplyChainRead.setCreateAt(DateUtil.parseStringToDate(startTime,DateUtil.FULL_FORMAT_STR));
-            this.writeMapper.insert(supplyChainRead);
+            supplyChainRead.setCreateAt(date);
+            if (reads == null || reads.size() < 1) {
+                this.writeMapper.insert(supplyChainRead);
+            }
         }
-        //处理分类的数据
-        JSONObject json = new JSONObject();
-        String cateData = EntityUtils.toString(cateResult.getEntity());
-        JSONObject cateJson = json.parseObject(cateData);
-        int cateCode = (int) cateJson.get("code");
-        if (cateCode == 1) {
-            List<SupplyChainCategory> cateList = new ArrayList<>();
-            String cates = cateJson.get("data").toString();
-            List<HashMap> chainCateVoList = JSON.parseArray(cates, HashMap.class);
-            if (chainCateVoList != null && chainCateVoList.size() > 0) {
-                for (Map<String, Object> map : chainCateVoList) {
-                    Object name = map.get("name");
-                    int spu_count =0;
-                    int sku_count =0;
-                    int supplier_count =0;
-                    if( map.get("spu_count")!=null){
-                        spu_count= (int) map.get("spu_count");
+        if (reads == null || reads.size() < 1) {
+            //处理分类的数据
+            JSONObject json = new JSONObject();
+            String cateData = EntityUtils.toString(cateResult.getEntity());
+            JSONObject cateJson = json.parseObject(cateData);
+            int cateCode = (int) cateJson.get("code");
+            if (cateCode == 1) {
+                List<SupplyChainCategory> cateList = new ArrayList<>();
+                String cates = cateJson.get("data").toString();
+                List<HashMap> chainCateVoList = JSON.parseArray(cates, HashMap.class);
+                if (chainCateVoList != null && chainCateVoList.size() > 0) {
+                    for (Map<String, Object> map : chainCateVoList) {
+                        Object name = map.get("name");
+                        int spu_count = 0;
+                        int sku_count = 0;
+                        int supplier_count = 0;
+                        if (map.get("spu_count") != null) {
+                            spu_count = (int) map.get("spu_count");
+                        }
+                        if (map.get("sku_count") != null) {
+                            sku_count = (int) map.get("sku_count");
+                        }
+                        if (map.get("supplier_count") != null) {
+                            supplier_count = (int) map.get("supplier_count");
+                        }
+                        if (spu_count == 0 && sku_count == 0 && supplier_count == 0) {
+                            continue;
+                        }
+                        SupplyChainCategory chainCate = new SupplyChainCategory();
+                        chainCate.setCreateAt(DateUtil.parseStringToDate(startTime, DateUtil.FULL_FORMAT_STR));
+                        if (name != null) {
+                            chainCate.setItemClass(name.toString());
+                        }
+                        chainCate.setSkuNum(sku_count);
+                        chainCate.setSpuNum(spu_count);
+                        chainCate.setSuppliNum(supplier_count);
+                        cateList.add(chainCate);
                     }
-                    if(map.get("sku_count")!=null) {
-                         sku_count = (int) map.get("sku_count");
-                    }
-                    if(map.get("supplier_count")!=null) {
-                         supplier_count = (int) map.get("supplier_count");
-                    }
-                    if(spu_count==0&&sku_count==0&&supplier_count==0){
-                        continue;
-                    }
-                    SupplyChainCategory chainCate = new SupplyChainCategory();
-                    chainCate.setCreateAt(DateUtil.parseStringToDate(startTime,DateUtil.FULL_FORMAT_STR));
-                    if(name!=null){
-                        chainCate.setItemClass(name.toString());
-                    }
-                    chainCate.setSkuNum(sku_count);
-                    chainCate.setSpuNum(spu_count);
-                    chainCate.setSuppliNum(supplier_count);
-                    cateList.add(chainCate);
+                }
+                SupplyChainCategoryMapper catemapper = this.writerSession.getMapper(SupplyChainCategoryMapper.class);
+                if (cateList != null && cateList.size() > 0) {
+                    cateList.parallelStream().forEach(vo -> catemapper.insert(vo));
                 }
             }
-            SupplyChainCategoryMapper catemapper = this.writerSession.getMapper(SupplyChainCategoryMapper.class);
-            if (cateList != null && cateList.size() > 0) {
-              cateList.parallelStream().forEach(vo->catemapper.insert(vo));
-            }
+
         }
     }
 
@@ -107,9 +117,9 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     /**
      * 获取PutMethod
      */
-     HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
+    HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
         HttpPut method = new HttpPut(url);
-       // method.getParams().setParameter("http.socket.timeout", 3000);
+        // method.getParams().setParameter("http.socket.timeout", 3000);
         //组装请求json
         JSONObject jsonObject = new JSONObject();
         Map<String, Object> input = new HashMap<>();
@@ -139,14 +149,14 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         if (resultCode == 1) {//成功
             int draft_count = 0;
             int brand_count = 0;
-            int count = Integer.parseInt(jsonObject.get("count").toString()) ;
-            int checking_count = Integer.parseInt(jsonObject.get("checking_count").toString()) ;
-            int valid_count =  Integer.parseInt( jsonObject.get("valid_count").toString());
-            int invalid_count = Integer.parseInt(  jsonObject.get("invalid_count").toString());
+            int count = Integer.parseInt(jsonObject.get("count").toString());
+            int checking_count = Integer.parseInt(jsonObject.get("checking_count").toString());
+            int valid_count = Integer.parseInt(jsonObject.get("valid_count").toString());
+            int invalid_count = Integer.parseInt(jsonObject.get("invalid_count").toString());
             if (getDataCode != GetDataEnum.SUPPLIER_DATA.getCode()) {
-                draft_count = Integer.parseInt( jsonObject.get("draft_count").toString());
+                draft_count = Integer.parseInt(jsonObject.get("draft_count").toString());
             } else {
-                brand_count =  Integer.parseInt( jsonObject.get("brand_count").toString());
+                brand_count = Integer.parseInt(jsonObject.get("brand_count").toString());
             }
             System.out.println(count + "====" + draft_count + "====" + checking_count
                     + "===" + valid_count + "==" + invalid_count);
@@ -212,10 +222,10 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     public SupplyChainRead getSupplyChainReadDataByTime(Date startTime, Date endTime) {
         SupplyChainReadExample example = new SupplyChainReadExample();
         SupplyChainReadExample.Criteria criteria = example.createCriteria();
-        if (startTime != null){
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
-        if(endTime != null) {
+        if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
         return readMapper.getSupplyChainReadDataByTime(example);
@@ -225,10 +235,10 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     public SupplyTrendVo supplyTrend(Date startTime, Date endTime) {
         SupplyChainReadExample example = new SupplyChainReadExample();
         SupplyChainReadExample.Criteria criteria = example.createCriteria();
-        if (startTime != null){
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
-        if(endTime != null) {
+        if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
         List<SupplyChainRead> list = readMapper.selectByExample(example);
@@ -292,6 +302,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
 
         return trend;
     }
+
     /**
      * @Author:SHIGS
      * @Description

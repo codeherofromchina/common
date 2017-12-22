@@ -42,8 +42,8 @@ public class DataServiceImpl {
             list.add(dateMap);
         }
 
-        Date day2 = DateUtil.parseStringToDate("2017-08-01 00:00:00", DateUtil.FULL_FORMAT_STR);
-        Date lastDay2 = DateUtil.getNextMonthLastDay(day);
+        Date lastDay2 = DateUtil.parseStringToDate("2017-09-30 00:00:00", DateUtil.FULL_FORMAT_STR);
+//        Date lastDay2 = DateUtil.getNextMonthLastDay(day);
         for (int i = 29; i >= 0; i--) {
             HashMap<String, String> dateMap = new HashMap<>();
             Date date1 = DateUtil.sometimeCalendar(lastDay2, i);

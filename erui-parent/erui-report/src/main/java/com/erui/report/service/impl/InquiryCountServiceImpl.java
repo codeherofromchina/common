@@ -440,7 +440,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        criteria.andProCategoryIsNotNull(); // 按照品类统计，品类不能为空
+        criteria.andProCategoryIsNotNull(); // 按照品类统计，品类不能为空D
         return readMapper.selectInqDetailByCategoryByExample(example);
     }
 
@@ -851,11 +851,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                              inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() == 1) {
                                 inquiryCount.setId(inqList.get(0).getId());
-                                updateCounts.add(inquiryCount);
+//                                updateCounts.add(inquiryCount);
+                                mapper.updateByPrimaryKey(inquiryCount);
                             } else if (inqList != null && inqList.size() > 1) {
                                 continue;
                             } else {
-                                inquiryCounts.add(inquiryCount);
+//                                inquiryCounts.add(inquiryCount);
+                                mapper.insertSelective(inquiryCount);
                             }
                         }
 
@@ -868,14 +870,19 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                         inquirySku.setProCategory(goodsList.get("category").toString());
                                     }
 
-//                                        inquirySku.setCateCount(1);
-                                    if (goodsList.get("qty") != null) {
-                                        inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
-                                    }
+                                        inquirySku.setCateCount(1);
+//                                    if (goodsList.get("qty") != null) {
+//                                        inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
+//                                    }
                                     if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
                                     } else {
                                         inquirySku.setIsOilGas("油气");
+                                    }
+                                    if (goodsList.get("sku_type") != null && !goodsList.get("sku_type").equals("")) {
+                                        inquirySku.setPlatProCategory(goodsList.get("oil_type").toString());
+                                    } else {
+                                        inquirySku.setPlatProCategory("非油气");
                                     }
                                     if (goodsList.get("quote_unit_price") != null) {
                                         inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
@@ -895,7 +902,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                             skuWriteMapper.deleteByExample(skuExample);
                                         }
                                     }
-                                    inquiryCates.add(inquirySku);
+//                                    inquiryCates.add(inquirySku);
+                                    skuWriteMapper.insertSelective(inquirySku);
                                 }
                             }
 
@@ -903,22 +911,22 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         }
 
                     }
-                    if (updateCounts != null && updateCounts.size() > 0) {
-                        for (InquiryCount inq:updateCounts ) {
-                            mapper.updateByPrimaryKey(inq);
-                        }
-                    }
+//                    if (updateCounts != null && updateCounts.size() > 0) {
+//                        for (InquiryCount inq:updateCounts ) {
+//                            mapper.updateByPrimaryKey(inq);
+//                        }
+//                    }
 
-                    if (inquiryCounts != null && inquiryCounts.size() > 0) {
-                        for (InquiryCount inq:inquiryCounts ) {
-                            mapper.insertSelective(inq);
-                        }
-                    }
-                    if (inquiryCates != null && inquiryCates.size() > 0) {
-                        for (InquirySku inqSKU:inquiryCates ) {
-                            skuWriteMapper.insertSelective(inqSKU);
-                        }
-                    }
+//                    if (inquiryCounts != null && inquiryCounts.size() > 0) {
+//                        for (InquiryCount inq:inquiryCounts ) {
+//                            mapper.insertSelective(inq);
+//                        }
+//                    }
+//                    if (inquiryCates != null && inquiryCates.size() > 0) {
+//                        for (InquirySku inqSKU:inquiryCates ) {
+//                            skuWriteMapper.insertSelective(inqSKU);
+//                        }
+//                    }
                 }
             }
         }
