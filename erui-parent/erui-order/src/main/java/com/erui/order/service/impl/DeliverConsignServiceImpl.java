@@ -45,9 +45,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Transactional
     @Override
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
-        Order order = orderDao.findOne(deliverConsign.getOrderId());
+        Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = deliverConsignDao.findOne(deliverConsign.getId());
-        deliverConsignUpdate.setOrderId(deliverConsign.getOrderId());
+        deliverConsignUpdate.setoId(deliverConsign.getoId());
         deliverConsignUpdate.setDeptId(order.getExecCoId());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
@@ -76,9 +76,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Transactional
     @Override
     public boolean addDeliverConsign(DeliverConsign deliverConsign) {
-        Order order = orderDao.findOne(deliverConsign.getOrderId());
+        Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
-        deliverConsignAdd.setOrderId(deliverConsign.getOrderId());
+        deliverConsignAdd.setoId(deliverConsign.getoId());
         deliverConsignAdd.setDeptId(order.getExecCoId());
         deliverConsignAdd.setCreateUserId(order.getAgentId());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());

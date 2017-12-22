@@ -24,16 +24,19 @@ public class DeliverConsign {
     @Column(name = "deliver_consign_no")
     private String deliverConsignNo;
 
-    @OneToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @Column(name = "order_id")
-    private Integer orderId;
-    /*   @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-       @JoinColumn(name = "order_id")
-       @JsonIgnore
-       private Order order;*/
+    @Transient
+    private Integer oId;
+    /*
+        @Column(name = "order_id")
+        private Integer orderId;
+          @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+           @JoinColumn(name = "order_id")
+           @JsonIgnore
+           private Order order;*/
     @Column(name = "dept_id")
     private Integer deptId;
 
@@ -69,9 +72,9 @@ public class DeliverConsign {
    /* @JsonIgnore*/
     private Set<Attachment> attachmentSet = new HashSet<>();
 
-
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "deliver_consign_id")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonIgnore
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
 
     public DeliverConsign() {
@@ -102,13 +105,13 @@ public class DeliverConsign {
         this.order = order;
     }
 
-    public Integer getOrderId() {
-        return orderId;
-    }
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public Integer getoId() {
+        return oId;
     }
 
+    public void setoId(Integer oId) {
+        this.oId = oId;
+    }
 
     public String getDeliverConsignNo() {
         return deliverConsignNo;
