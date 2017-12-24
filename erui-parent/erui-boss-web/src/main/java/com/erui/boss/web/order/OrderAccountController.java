@@ -114,8 +114,8 @@ public class OrderAccountController {
      * @return
      */
    @RequestMapping(value = "gatheringManage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringManage( Order order,Integer page, Integer rows){
-       Page<Order> orderbyId= orderAccountService.gatheringManage(order,page,rows);
+    public Result<Object> gatheringManage( Order order){
+       Page<Order> orderbyId= orderAccountService.gatheringManage(order);
        return new Result<>(orderbyId);
     }
 

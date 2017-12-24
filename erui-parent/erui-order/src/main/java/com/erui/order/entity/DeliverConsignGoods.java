@@ -9,19 +9,25 @@ import java.util.Date;
  * 口发货通知单商品
  */
 @Entity
-@Table(name="deliver_consign_goods")
+@Table(name = "deliver_consign_goods")
 public class DeliverConsignGoods {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="deliver_consign_id")
-    private DeliverConsign deliverConsign;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="goods_id")
     private Goods goods;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deliver_consign_id")
+    @JsonIgnore
+    private DeliverConsign deliverConsign;
+
+    @Transient
+    private Integer gId;
 
     @Column(name = "send_num")
     private Integer sendNum;
@@ -35,6 +41,8 @@ public class DeliverConsignGoods {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
+
+
 
     public Integer getId() {
         return id;
@@ -52,12 +60,21 @@ public class DeliverConsignGoods {
         this.deliverConsign = deliverConsign;
     }
 
+
     public Goods getGoods() {
         return goods;
     }
 
     public void setGoods(Goods goods) {
         this.goods = goods;
+    }
+
+    public Integer getgId() {
+        return gId;
+    }
+
+    public void setgId(Integer gId) {
+        this.gId = gId;
     }
 
     public Integer getSendNum() {

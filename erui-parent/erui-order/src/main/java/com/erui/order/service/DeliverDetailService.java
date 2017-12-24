@@ -1,6 +1,8 @@
 package com.erui.order.service;
 
 import com.erui.order.entity.DeliverDetail;
+import com.erui.order.requestVo.DeliverD;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -20,5 +22,14 @@ public interface DeliverDetailService {
      * @return
      */
     DeliverDetail findDetailById(Integer id);
+
+
+    /**
+     * 出库管理
+     *
+     * @param deliverD
+     * @return
+     */
+    Page<DeliverDetail> outboundManage(DeliverD deliverD);
 
 }

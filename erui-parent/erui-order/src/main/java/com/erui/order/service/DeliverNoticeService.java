@@ -1,6 +1,5 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.DeliverNotice;
 import org.springframework.data.domain.Page;
 
@@ -21,4 +20,19 @@ public interface DeliverNoticeService {
      * @return
      */
     Page<DeliverNotice> listByPage(DeliverNotice condition);
+
+
+    //编辑/保存
+    boolean updateexitRequisition(DeliverNotice deliverNotice);
+
+    //新增
+    boolean addexitRequisition(DeliverNotice deliverNotice);
+
+    /**
+     *  看货通知单号id
+     *
+     * @param id
+     * @return
+     */
+    DeliverNotice exitRequisitionQuery(Integer id);
 }

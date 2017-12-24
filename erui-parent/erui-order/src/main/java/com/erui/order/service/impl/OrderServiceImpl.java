@@ -37,7 +37,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order findById(Integer id) {
-        return orderDao.findOne(id);
+        Order order = orderDao.findOne(id);
+        order.getGoodsList().size();
+        order.getAttachmentSet().size();
+        order.getOrderPayments().size();
+        return order;
     }
 
     @Transactional
@@ -75,6 +79,10 @@ public class OrderServiceImpl implements OrderService {
                 //根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
+                    list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
                 }
                 //根据订单类型
                 if (condition.isOrderType() != null) {
@@ -127,7 +135,8 @@ public class OrderServiceImpl implements OrderService {
         List<Goods> goodsList = new ArrayList<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
-            //goods.setSeq(pGoods.getSeq());
+        //    goods.setSeq(pGoods.getSeq());
+            goods.setId(pGoods.getId());
             goods.setSku(pGoods.getSku());
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -138,6 +147,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setClientDesc(pGoods.getClientDesc());
             goods.setBrand(pGoods.getBrand());
             goods.setContractNo(order.getContractNo());
+            goods.setOutstockNum(0);
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
@@ -147,8 +157,8 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getStatus() != 1) {
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
-            projectAdd.setContractNo(orderUpdate.getContractNo());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
+            projectAdd.setContractNo(orderUpdate.getContractNo());
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
@@ -217,6 +227,7 @@ public class OrderServiceImpl implements OrderService {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
             goods.setSku(pGoods.getSku());
+            goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
@@ -243,13 +254,24 @@ public class OrderServiceImpl implements OrderService {
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
             project.setExecCoName(order1.getExecCoName());
-            project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
+            project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
             project.setProjectStatus("SUBMIT");
             projectDao.save(project);
         }
         return true;
     }
+
+    @Override
+    @Transactional
+    public Order detail(Integer orderId) {
+        Order order = orderDao.findOne(orderId);
+        if (order != null) {
+            order.getGoodsList().size();
+        }
+        return order;
+    }
+
 
 }

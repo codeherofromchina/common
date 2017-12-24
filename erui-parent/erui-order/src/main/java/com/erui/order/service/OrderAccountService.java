@@ -67,10 +67,8 @@ public interface OrderAccountService {
     /**
      * 收款管理
      * @param order
-     * @param page
-     * @param rows
      * @return
      */
 
-  Page<Order> gatheringManage(Order order, Integer page, Integer rows);
+  Page<Order> gatheringManage(Order order);
 }

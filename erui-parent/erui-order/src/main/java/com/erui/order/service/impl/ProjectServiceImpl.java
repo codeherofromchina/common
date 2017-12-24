@@ -13,13 +13,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -29,6 +30,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectDao projectDao;
+
     @Transactional
     @Override
     public Project findById(Integer id) {
@@ -51,13 +53,14 @@ public class ProjectServiceImpl implements ProjectService {
         Project projectUpdate = projectDao.findOne(project.getId());
       /*  if (!project.getProjectStatus().equals("SUBMIT")) {
         }*/
-        projectUpdate.setUpdateTime(new Date());
         project.copyProjectDesc(projectUpdate);
         projectUpdate.setProjectStatus(project.getProjectStatus());
+        projectUpdate.setUpdateTime(new Date());
         projectDao.saveAndFlush(projectUpdate);
         return true;
     }
 
+    @Transactional
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage(), condition.getRows(), null);
@@ -74,12 +77,12 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
                 }
                 //根据项目开始时间查询
-                if (condition.getStartDate()!=null) {
-                    list.add(cb.equal(root.get("startDate").as(Date.class),  NewDateUtil.getDate(condition.getStartDate())));
+                if (condition.getStartDate() != null) {
+                    list.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
                 }
                 //根据执行分公司查询
                 if (StringUtil.isNotBlank(condition.getExecCoName())) {
-                    list.add(cb.like(root.get("execCoName").as(String.class),"%" + condition.getExecCoName() + "%"));
+                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
                 }
                 //执行单约定交付日期
                 if (condition.getDeliveryDate() != null) {
@@ -102,7 +105,7 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
                 }
                 //根据汇款状态
-                if (condition.getProjectStatus() != null) {
+                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
                     list.add(cb.equal(root.get("projectStatus").as(String.class), condition.getProjectStatus()));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
@@ -116,7 +119,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<Project> purchAbleList() {
-        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(),Boolean.FALSE);
+        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         if (list == null) {
             list = new ArrayList<>();
         }

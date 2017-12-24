@@ -361,6 +361,7 @@ public class Project {
         project.setProjectName(this.projectName);
         project.setDeliveryDate(this.deliveryDate);
         project.setProfit(this.profit);
+        project.setCurrencyBn(this.currencyBn);
         project.setProfitPercent(this.profitPercent);
         project.setHasManager(this.hasManager);
         project.setExeChgDate(this.exeChgDate);

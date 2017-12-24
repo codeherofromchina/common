@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -163,17 +164,17 @@ public class Order {
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+   /* @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
     private Set<Attachment> attachmentSet = new HashSet<>();
 
-    @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name="order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
     @OrderBy("id asc")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Goods> goodsList = new ArrayList<>();
 
     @JoinColumn(name = "order_id")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<OrderPayment> orderPayments = new ArrayList<>();
@@ -183,17 +184,48 @@ public class Order {
 
     @Column(name = "customer_context")
     private String customerContext;
-    @Column(name="exec_co_name")
+    @Column(name = "exec_co_name")
     private String execCoName;
 
-    @Column(name="distribution_dept_name")
+    @Column(name = "distribution_dept_name")
     private String distributionDeptName;
 
-    @Column(name="business_unit_name")
+    @Column(name = "business_unit_name")
     private String businessUnitName;
+
+    @Transient
+    private int page = 0;
+
+    @Transient
+    private int rows = 50;
+
+   @Column(name = "delivery_date_no")
+    private Date deliveryDateNo;    //执行单约定交付日期
+
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private Project project;
+
+
+
 
     public String getExecCoName() {
         return execCoName;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void setDeliveryDateNo(Date deliveryDateNo) {
+        this.deliveryDateNo = deliveryDateNo;
+    }
+
+    public Date getDeliveryDateNo() {
+
+        return deliveryDateNo;
     }
 
     public void setExecCoName(String execCoName) {
@@ -447,6 +479,14 @@ public class Order {
         this.technicalId = technicalId;
     }
 
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
     public String getGrantType() {
         return grantType;
     }
@@ -469,6 +509,14 @@ public class Order {
 
     public void setIsFinancing(Boolean isFinancing) {
         this.isFinancing = isFinancing;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public int getRows() {
+        return rows;
     }
 
     public String getTradeTerms() {
