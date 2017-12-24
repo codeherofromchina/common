@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,79 +14,123 @@ import java.util.Set;
 @Table(name = "deliver_detail")
 public class DeliverDetail {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
 
     @OneToOne
     @JoinColumn(name = "deliver_notice_id")
-    private DeliverNotice deliverNotice;
+    private DeliverNotice deliverNotice;    //看货通知单ID
+
+    // 销售合同号
+    @Transient
+    private String contractNo;
+
+    // 出口通知单号
+    @Transient
+    private String projectNo;
+
+
+
+    @Column(name = "product_discharged_no")
+    private String productDischargedNo;    //产品放行单号
 
     @Column(name = "carrier_co")
-    private String carrierCo;
+    private String carrierCo;   //承运单位名称
 
-    private String driver;
+    @Column(name = "Billing_date")
+    private Date BillingDate;   //开单日期
+
+    private String driver;  //司机姓名
 
     @Column(name = "plate_no")
-    private String plateNo;
+    private String plateNo; //车牌号码
+
     @Column(name = "pickup_date")
-    private Date pickupDate;
+    private Date pickupDate;    //取货日期
+
     @Column(name = "contact_tel")
-    private String contactTel;
+    private String contactTel;  //联系电话
+
+    @Column(name="handle_department")
+    private String handleDepartment;    //经办部门
+
     @Column(name = "ware_houseman")
-    private Integer wareHouseman;
+    private Integer wareHouseman;   //仓库经办人
+
     @Column(name = "send_date")
-    private Date sendDate;
+    private Date sendDate;  ///发运日期
 
-    private Integer sender;
+    private Integer sender; //发运人员
 
-    private Integer reviewer;
+    private Integer reviewer;   //协办/复核人
+
     @Column(name = "goods_chk_status")
-    private String goodsChkStatus;
+    private String goodsChkStatus;  //实物检验结论
+
     @Column(name = "bills_chk_status")
-    private String billsChkStatus;
+    private String billsChkStatus;  //资料检验结论
+
     @Column(name = "checker_uid")
-    private Integer checkerUid;
+    private Integer checkerUid; //检验工程师
+
     @Column(name = "check_date")
-    private Date checkDate;
+    private Date checkDate; //检验日期
+
     @Column(name = "release_date")
-    private Date releaseDate;
+    private Date releaseDate;   //放行日期
+
     @Column(name = "release_uid")
-    private Integer releaseUid;
+    private Integer releaseUid; //最终放行人
+
     @Column(name = "quality_leader_id")
-    private Integer qualityLeaderId;
+    private Integer qualityLeaderId;    //质量分管领导
 
-    private Integer applicant;
+    private Integer applicant;  //特殊放行申请人
+
     @Column(name = "applicant_date")
-    private Date applicantDate;
+    private Date applicantDate; //特殊放行申请日期
 
-    private Integer approver;
+    private Integer approver;   //批准人
+
     @Column(name = "approval_date")
-    private Date approvalDate;
+    private Date approvalDate;  //批准日期
 
-    private String opinion;
+
+    private String opinion; //审批意见
+
     @Column(name = "leave_date")
-    private Date leaveDate;
+    private Date leaveDate; //出库时间
+
     @Column(name = "logistics_user_id")
-    private Integer logisticsUserId;
+    private Integer logisticsUserId;    //物流经办人
+
     @Column(name = "logistics_date")
-    private Date logisticsDate;
+    private Date logisticsDate; //物流经办时间
+
     @Column(name = "booking_time")
-    private Date bookingTime;
+    private Date bookingTime;   //订舱时间
+
     @Column(name = "logi_invoice_no")
-    private String logiInvoiceNo;
+    private String logiInvoiceNo;   //物流发票号
+
     @Column(name = "packing_time")
-    private Date packingTime;
+    private Date packingTime;   //通知市场箱单时间
+
     @Column(name = "leave_factory")
-    private Date leaveFactory;
+    private Date leaveFactory;  //离厂时间
+
     @Column(name = "sailing_date")
-    private Date sailingDate;
+    private Date sailingDate;   //船期或航班
+
     @Column(name = "customs_clearance")
-    private Date customsClearance;
+    private Date customsClearance;  //报关放行时间
+
     @Column(name = "leave_port_time")
-    private Date leavePortTime;
+    private Date leavePortTime; //实际离港时间
+
     @Column(name = "arrival_port_time")
-    private Date arrivalPortTime;
+    private Date arrivalPortTime;   //预计抵达时间
 
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
@@ -96,22 +142,24 @@ public class DeliverDetail {
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    @JsonIgnore
     private Set<Attachment> attachmentList = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
+    @JsonIgnore
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
 
 
 
-    private String reason;
+    private String reason; //特殊情况产品放行原因
 
-    private String logs;
+    private String logs;    //动态描述
 
 
-    private String remarks;
+    private String remarks; //备注
 
 
     public Integer getId() {
@@ -122,6 +170,13 @@ public class DeliverDetail {
         this.id = id;
     }
 
+    public void setProductDischargedNo(String productDischargedNo) {
+        this.productDischargedNo = productDischargedNo;
+    }
+
+    public String getProductDischargedNo() {
+        return productDischargedNo;
+    }
 
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;
@@ -141,6 +196,14 @@ public class DeliverDetail {
 
     public String getDriver() {
         return driver;
+    }
+
+    public void setHandleDepartment(String handleDepartment) {
+        this.handleDepartment = handleDepartment;
+    }
+
+    public String getHandleDepartment() {
+        return handleDepartment;
     }
 
     public void setDriver(String driver) {
@@ -435,5 +498,30 @@ public class DeliverDetail {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public void setBillingDate(Date billingDate) {
+        BillingDate = billingDate;
+    }
+
+    public Date getBillingDate() {
+        return BillingDate;
+    }
+
+
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
     }
 }

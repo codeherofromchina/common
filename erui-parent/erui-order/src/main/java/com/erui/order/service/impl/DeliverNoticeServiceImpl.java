@@ -2,11 +2,15 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.DeliverConsignDao;
+import com.erui.order.dao.DeliverDetailDao;
 import com.erui.order.dao.DeliverNoticeDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverNoticeService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,10 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static java.lang.System.out;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -30,11 +33,22 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
+    @Autowired
+    private DeliverConsignDao deliverConsignDao;
+
+    @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
+    private DeliverDetailDao deliverDetailDao;
+
 
     @Override
     public DeliverNotice findById(Integer id) {
         return deliverNoticeDao.findOne(id);
     }
+
+
 
 
     /**
@@ -94,8 +108,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 Set<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
                 for (DeliverConsign dc : deliverConsignSet) {
                     deliverConsignNos.add(dc.getDeliverConsignNo());
-                 /*   Order order = dc.getOrder();
-                    contractNos.add(order.getContractNo());*/
                 }
                 notice.setDeliverConsignNo(StringUtils.join(deliverConsignNos,","));
                 notice.setContractNo(StringUtils.join(contractNos,","));
@@ -108,50 +120,119 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     //添加
     @Override
     public boolean addexitRequisition(DeliverNotice deliverNotice) {
+
+        String[] split = deliverNotice.getDeliverConsignNo().split(",");
+        DeliverConsign deliverConsign = null;
+        Set<DeliverConsign> list = new HashSet<DeliverConsign>();
+        for (String s :split){
+            deliverConsign = new DeliverConsign();
+            deliverConsign.setId(Integer.parseInt(s));
+            list.add(deliverConsign);
+            DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
+            one.setDeliverYn(2);
+            deliverConsignDao.saveAndFlush(one);
+        }
+
+        deliverNotice.setDeliverConsigns(list);
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyymmdd");
         String format = simpleDateFormat.format(new Date());
         deliverNotice.setDeliverNoticeNo(format);
+
+        // 处理附件信息
+        List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
+        deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
+
         deliverNoticeDao.saveAndFlush(deliverNotice);
+
+        //推送到出库管理
+        if (deliverNotice.getStatus() == 2){
+            DeliverDetail deliverDetail = new DeliverDetail();
+
+            deliverDetail.setDeliverNotice(deliverNotice);
+
+            SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyymmdd");
+            String formats = simpleDateFormats.format(new Date());
+            deliverDetail.setProductDischargedNo(formats);   //产品放行单
+
+            deliverDetailDao.saveAndFlush(deliverDetail);
+        }
+
         return true;
     }
 
 
     //编辑/保存
     @Override
+    @Transactional
     public boolean updateexitRequisition(DeliverNotice deliverNotice) {
         DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
         if(one == null){
             return false;
         }
-        if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
-            one.setContractNo(deliverNotice.getContractNo());
-        }
-        if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
-            one.setDeliverNoticeNo(deliverNotice.getDeliverNoticeNo());
-        }
-        if(deliverNotice.getSenderId() != null){
-            one.setSenderId(deliverNotice.getSenderId());
-        }
-        if(StringUtil.isNotBlank(deliverNotice.getSenderName())){
-            one.setSenderName(deliverNotice.getSenderName());
-        }
-        if(deliverNotice.getUrgency() != null){
-            one.setUrgency(deliverNotice.getUrgency());
-        }
-        if(deliverNotice.getDeliveryDate() != null){
-            one.setDeliveryDate(deliverNotice.getDeliveryDate());
-        }
+           try {
+                if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
+                    one.setContractNo(deliverNotice.getContractNo());
+                }
+                if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
 
-        one.setStatus(deliverNotice.getStatus());
-        one.setAttachmentSet(deliverNotice.getAttachmentSet());
 
-        if (deliverNotice.getStatus() == 2){
+                    Set<DeliverConsign> deliverConsigns = one.getDeliverConsigns(); //已存在的关联关系
+                    for (DeliverConsign deliverConsign : deliverConsigns){
+                        DeliverConsign ones = deliverConsignDao.findOne(deliverConsign.getId());    //改变出口单状态
+                        ones.setDeliverYn(1);
+                        deliverConsignDao.saveAndFlush(ones);
+                    }
 
-        }
+                    String[] split = deliverNotice.getDeliverConsignNo().split(",");    //选中的关联关系
+                    DeliverConsign deliverConsign = null;
+                    Set<DeliverConsign> list = new HashSet<DeliverConsign>();
+                    for (String s :split){
+                        list.add(deliverConsignDao.findOne(Integer.parseInt(s)));
+                        DeliverConsign ones = deliverConsignDao.findOne(Integer.parseInt(s));   //改变出口单状态
+                        ones.setDeliverYn(2);
+                        deliverConsignDao.saveAndFlush(ones);
+                    }
+                    one.setDeliverConsigns(list);
 
-        deliverNoticeDao.save(deliverNotice);
+                }
+                if(deliverNotice.getSenderId() != null){
+                    one.setSenderId(deliverNotice.getSenderId());
+                }
+                if(StringUtil.isNotBlank(deliverNotice.getSenderName())){
+                    one.setSenderName(deliverNotice.getSenderName());
+                }
+                if(deliverNotice.getUrgency() != null){
+                    one.setUrgency(deliverNotice.getUrgency());
+                }
+                if(deliverNotice.getDeliveryDate() != null){
+                    one.setDeliveryDate(deliverNotice.getDeliveryDate());
+                }
 
-        return true;
+                one.setStatus(deliverNotice.getStatus());
+
+                // 处理附件信息
+                List<Attachment> attachmentlist = attachmentService.handleParamAttachment(new ArrayList<>(one.getAttachmentSet()), new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
+                one.setAttachmentSet(new HashSet<>(attachmentlist));
+
+                deliverNoticeDao.saveAndFlush(one);
+
+                //推送到出库管理
+                if (deliverNotice.getStatus() == 2){
+                    DeliverDetail deliverDetail = new DeliverDetail();
+                    deliverDetail.setDeliverNotice(deliverNotice);
+
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyymmdd");
+                    String format = simpleDateFormat.format(new Date());
+                    deliverDetail.setProductDischargedNo(format);   //产品放行单
+
+                    deliverDetailDao.saveAndFlush(deliverDetail);
+                }
+
+                return true;
+            }catch (Exception ex){
+                return false;
+            }
     }
 
 
@@ -173,6 +254,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
            for (DeliverConsignGoods deliverConsignGoods:deliverConsign.getDeliverConsignGoodsSet()){
                 deliverConsignGoods.getGoods().getId();
             }
+            deliverConsign.getOrder().getId();
        }
         deliverNotice.getAttachmentSet().size();
         return deliverNotice;

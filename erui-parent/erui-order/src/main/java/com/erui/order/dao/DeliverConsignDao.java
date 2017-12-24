@@ -3,9 +3,6 @@ package com.erui.order.dao;
 import com.erui.order.entity.DeliverConsign;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,7 +13,7 @@ import java.util.List;
 public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Serializable>, JpaSpecificationExecutor<DeliverConsign> {
     DeliverConsign findByDeliverConsignNoAndStatus(String deliverNoticeNos, String s);
 
-    List<DeliverConsign> findByIdInAndStatus(Integer[] deliverNoticeNos, String s);
+    List<DeliverConsign> findByIdInAndStatus(Integer[] deliverNoticeNos, Integer s);
 
     List<DeliverConsign> findByStatusAndDeliverYn(int i, int i1);
 

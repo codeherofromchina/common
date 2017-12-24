@@ -118,7 +118,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     @Transactional
     public List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeNos) {
-        List<DeliverConsign> page = deliverConsignDao.findByIdInAndStatus(deliverNoticeNos, "3");
+        List<DeliverConsign> page = deliverConsignDao.findByIdInAndStatus(deliverNoticeNos, 3);
 
         for (DeliverConsign deliverConsign : page){
             deliverConsign.getOrder().getId();
@@ -141,7 +141,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      */
     @Override
     public List<DeliverConsign> queryExitAdvice() {
-        List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,2);
+        List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);
         return lsit;
     }
 

@@ -1,7 +1,7 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.DeliverDetail;
+import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
 import org.springframework.data.domain.Page;
 
@@ -36,4 +36,13 @@ public interface DeliverDetailService {
      * @return
      */
     boolean save(DeliverDetailVo deliverDetailVo) throws Exception;
+
+    /**
+     * 出库管理
+     *
+     * @param deliverD
+     * @return
+     */
+    Page<DeliverDetail> outboundManage(DeliverD deliverD);
+
 }

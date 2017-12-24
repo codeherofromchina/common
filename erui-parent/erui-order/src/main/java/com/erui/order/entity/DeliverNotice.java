@@ -39,11 +39,11 @@ public class DeliverNotice {
     private int status; //看货通知单状态
 
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)  //看货通知单，出口发货通知单关联表
     @JoinTable(name = "deliver_notice_consign",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
-   /* @JsonIgnore*/
+    @JsonIgnore
     private Set<DeliverConsign> deliverConsigns = new HashSet<>();
 
     @Column(name = "sender_id")
@@ -80,6 +80,9 @@ public class DeliverNotice {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
+
+    @Column(name = "create_user_name")
+    private String createUserName;
 
     @Column(name = "update_time")
     private Date updateTime;
@@ -284,6 +287,13 @@ public class DeliverNotice {
         this.packageReq = packageReq;
     }
 
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
 
     public Set<Attachment> getAttachmentSet() {
         return attachmentSet;
