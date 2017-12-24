@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -10,10 +12,10 @@ import java.util.Date;
 @Table(name="deliver_consign_goods")
 public class DeliverConsignGoods {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="deliver_consign_id")
     private DeliverConsign deliverConsign;
 
@@ -28,6 +30,7 @@ public class DeliverConsignGoods {
     private String packRequire;
 
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     @Column(name = "create_user_id")

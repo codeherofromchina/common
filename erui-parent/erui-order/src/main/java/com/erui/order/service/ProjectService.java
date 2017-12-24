@@ -13,18 +13,31 @@ import java.util.List;
 public interface ProjectService {
     /**
      * 根据id查询项目信息
+     *
      * @param id
      * @return
      */
     Project findById(Integer id);
+
+    /**
+     * 根据id列表查询项目信息
+     *
+     * @param ids
+     * @return
+     */
+    List<Project> findByIds(List<Integer> ids);
+
     /**
      * 办理项目
+     *
      * @param project
      * @return
      */
     boolean updateProject(Project project);
+
     /**
      * 查看项目列表
+     *
      * @param condition
      * @return
      */
@@ -32,6 +45,7 @@ public interface ProjectService {
 
     /**
      * 可以生成采购单的项目列表
+     *
      * @return
      */
     List<Project> purchAbleList();

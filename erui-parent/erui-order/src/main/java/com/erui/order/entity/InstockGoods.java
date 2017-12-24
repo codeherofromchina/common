@@ -10,15 +10,22 @@ import java.util.Date;
 @Table(name="instock_goods")
 public class InstockGoods {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
      * 入库-记录
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="instock_id")
     private Instock instock;
+
+    // 订单商品中的销售合同号
+    @Column(name="contract_no")
+    private String contractNo;
+    // 项目商品中的项目号
+    @Column(name="project_no")
+    private String projectNo;
 
     /**
      * 质检单商品
@@ -26,6 +33,9 @@ public class InstockGoods {
     @OneToOne
     @JoinColumn(name="inspect_apply_goods_id")
     private InspectApplyGoods inspectApplyGoods;
+
+    @Column(name = "qualified_num")
+    private Integer qualifiedNum;
 
     @Column(name = "instock_num")
     private Integer instockNum;
@@ -37,7 +47,7 @@ public class InstockGoods {
     private Date createTime;
 
     @Column(name = "create_user_id")
-    private String createUserId;
+    private Integer createUserId;
 
     @Column(name = "update_time")
     private Date updateTime;
@@ -48,6 +58,14 @@ public class InstockGoods {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getQualifiedNum() {
+        return qualifiedNum;
+    }
+
+    public void setQualifiedNum(Integer qualifiedNum) {
+        this.qualifiedNum = qualifiedNum;
     }
 
     public InspectApplyGoods getInspectApplyGoods() {
@@ -64,6 +82,22 @@ public class InstockGoods {
 
     public void setInstock(Instock instock) {
         this.instock = instock;
+    }
+
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 
     public Integer getInstockNum() {
@@ -91,11 +125,11 @@ public class InstockGoods {
         this.createTime = createTime;
     }
 
-    public String getCreateUserId() {
+    public Integer getCreateUserId() {
         return createUserId;
     }
 
-    public void setCreateUserId(String createUserId) {
+    public void setCreateUserId(Integer createUserId) {
         this.createUserId = createUserId;
     }
 

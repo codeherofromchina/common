@@ -34,6 +34,17 @@ public class ProjectServiceImpl implements ProjectService {
     public Project findById(Integer id) {
         return projectDao.findOne(id);
     }
+
+    @Override
+    public List<Project> findByIds(List<Integer> ids) {
+        List<Project> projects = projectDao.findByIdIn(ids);
+        if (projects == null) {
+            projects = new ArrayList<>();
+        }
+        return projects;
+    }
+
+
     @Transactional
     @Override
     public boolean updateProject(Project project) {

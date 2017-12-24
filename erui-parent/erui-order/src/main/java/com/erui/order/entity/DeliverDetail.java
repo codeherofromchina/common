@@ -1,9 +1,9 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 物流-出库单详情
@@ -12,13 +12,20 @@ import java.util.Set;
 @Table(name = "deliver_detail")
 public class DeliverDetail {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_notice_id")
+    @JsonIgnore
     private DeliverNotice deliverNotice;
+
+    /**
+     * 开单日期
+     */
+    @Column(name = "billing_date")
+    private Date billingDate;
 
     @Column(name = "carrier_co")
     private String carrierCo;
@@ -89,21 +96,21 @@ public class DeliverDetail {
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
      */
-    private int status = 0;
+    private Integer status;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     private Set<Attachment> attachmentList = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
-    private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
-
+    @JsonIgnore
+    private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
 
 
     private String reason;
@@ -125,6 +132,14 @@ public class DeliverDetail {
 
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;
+    }
+
+    public Date getBillingDate() {
+        return billingDate;
+    }
+
+    public void setBillingDate(Date billingDate) {
+        this.billingDate = billingDate;
     }
 
     public void setDeliverNotice(DeliverNotice deliverNotice) {
@@ -395,7 +410,6 @@ public class DeliverDetail {
         this.status = status;
     }
 
-
     public Set<Attachment> getAttachmentList() {
         return attachmentList;
     }
@@ -404,14 +418,13 @@ public class DeliverDetail {
         this.attachmentList = attachmentList;
     }
 
-    public Set<DeliverConsignGoods> getDeliverConsignGoodsSet() {
-        return deliverConsignGoodsSet;
+    public List<DeliverConsignGoods> getDeliverConsignGoodsList() {
+        return deliverConsignGoodsList;
     }
 
-    public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
-        this.deliverConsignGoodsSet = deliverConsignGoodsSet;
+    public void setDeliverConsignGoodsList(List<DeliverConsignGoods> deliverConsignGoodsList) {
+        this.deliverConsignGoodsList = deliverConsignGoodsList;
     }
-
 
     public String getReason() {
         return reason;

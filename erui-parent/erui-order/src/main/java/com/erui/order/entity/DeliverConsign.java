@@ -12,7 +12,7 @@ import java.util.Set;
 @Table(name = "deliver_consign")
 public class DeliverConsign {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**

@@ -1,21 +1,23 @@
 package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
-import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.order.entity.DeliverConsignGoods;
 import com.erui.order.entity.DeliverDetail;
-import com.erui.order.requestVo.DeliverDetailVo;
+import com.erui.order.entity.DeliverNotice;
+import com.erui.order.entity.Goods;
 import com.erui.order.service.DeliverDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -28,6 +30,8 @@ public class DeliverDetailController {
     @Autowired
     private DeliverDetailService deliverDetailService;
 
+
+
     /**
      * 查询物流-出库单详情信息
      * @param id
@@ -37,80 +41,46 @@ public class DeliverDetailController {
     public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
         DeliverDetail deliverDetail = deliverDetailService.findDetailById(id);
 
-        DeliverDetailVo data = new DeliverDetailVo();
-        data.copyFrom(deliverDetail);
+
+        Map<String,Object> data = new HashMap<>();
+        // 出库基本信息
+        data.put("deliverDetailInfo",deliverDetail); // 出库基本信息
+        DeliverNotice deliverNotice = deliverDetail.getDeliverNotice();
+
+        Map<String,Object> deliverNoticeInfo = new HashMap<>();
+        deliverNoticeInfo.put("id",deliverNotice.getId()); // 发货通知单ID
+        deliverNoticeInfo.put("tradeTerms",deliverNotice.getTradeTerms()); // 贸易术语
+        deliverNoticeInfo.put("toPlace",deliverNotice.getToPlace()); // 目的港
+        deliverNoticeInfo.put("numers",deliverNotice.getNumers()); // 总包装件数
+
+        List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+        List<Map<String,Object>> goodsInfoList = new ArrayList<>();
+        for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList) {
+            Goods goods = deliverConsignGoods.getGoods();
+
+            Map<String,Object> goodsInfoMap = new HashMap<>();
+            goodsInfoMap.put("goodsId",goods.getId());
+            goodsInfoMap.put("contractNo",goods.getContractNo()); // 销售合同号
+            goodsInfoMap.put("projectNo",goods.getProjectNo()); // 项目号
+            goodsInfoMap.put("sku",goods.getSku()); // 平台SKU
+            goodsInfoMap.put("nameEn",goods.getNameEn()); // 英文品名
+            goodsInfoMap.put("nameZh",goods.getNameZh()); // 中文品名
+            goodsInfoMap.put("model",goods.getModel()); // 规格型号
+            goodsInfoMap.put("unit",goods.getUnit()); // 单位
+            goodsInfoMap.put("sendNum",deliverConsignGoods.getSendNum()); // 数量
+            goodsInfoMap.put("packRequire",deliverConsignGoods.getPackRequire()); // 包装要求
+            goodsInfoMap.put("clientDesc",goods.getClientDesc());  // 描述
+            goodsInfoMap.put("remark",""); // 备注 TODO
+
+            goodsInfoList.add(goodsInfoMap);
+        }
+
+        deliverNoticeInfo.put("goodsInfo",goodsInfoList);
+        data.put("deliverNoticeInfo",deliverNoticeInfo);// 出库通知单基本信息
+
 
         return new Result<>(data);
     }
 
-
-    /**
-     * 物流-出库单列表
-     *
-     * @param condition 条件
-     * @return
-     */
-    @RequestMapping(value = "/list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> list(@RequestBody final DeliverDetailVo condition) {
-        if (condition.getOpType() == null) {
-            return new Result<>(ResultStatusEnum.FAIL);
-        }
-
-        Page<DeliverDetail> page = deliverDetailService.listByPage(condition);
-
-        // 数据转换
-        List<DeliverDetailVo> newContentList = null;
-        if (page.hasContent()) {
-            List<DeliverDetail> content = page.getContent();
-            newContentList = content.stream().map(vo -> {
-                DeliverDetailVo deliverDetailVo = new DeliverDetailVo();
-                deliverDetailVo.setId(vo.getId());
-
-
-                switch (condition.getOpType().intValue()) {
-                    case 1:
-                        break;
-                    case 2:
-                        // 质检提交以后的状态都算质检提交，之前的状态都是保存状态
-                        deliverDetailVo.setStatus(vo.getStatus() > 2 ? 2 : 1);
-                        break;
-                    case 3:
-
-                        break;
-                    default:
-                }
-
-                return deliverDetailVo;
-            }).collect(Collectors.toList());
-        } else {
-            newContentList = new ArrayList<>();
-        }
-
-        Page<DeliverDetailVo> data = new PageImpl<DeliverDetailVo>(newContentList, new PageRequest(page.getNumber(), page.getNumberOfElements()), page.getTotalElements());
-
-        return new Result<>(data);
-    }
-
-
-    /**
-     * 保存物流-出库单
-     * @param deliverDetailVo
-     * @return
-     */
-    @RequestMapping(value = "/save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(@RequestBody final DeliverDetailVo deliverDetailVo) {
-
-        try {
-            boolean flag = deliverDetailService.save(deliverDetailVo);
-            if (flag) {
-                return new Result<>();
-            }
-        }catch (Exception ex) {
-            logger.error("保存异常",ex);
-        }
-
-
-        return new Result<>(ResultStatusEnum.FAIL);
-    }
 
 }

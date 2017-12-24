@@ -34,7 +34,7 @@ public interface InspectApplyService {
      * @param inspectApply
      * @return
      */
-    boolean save(InspectApply inspectApply);
+    boolean save(InspectApply inspectApply) throws Exception;
 
     /**
      * 重新报检报检单中不合格的商品

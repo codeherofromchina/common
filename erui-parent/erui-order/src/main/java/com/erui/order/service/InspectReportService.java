@@ -33,14 +33,14 @@ public interface InspectReportService {
      * @param condition
      * @return
      */
-    Page<InspectReport> listByPage(InspectReportVo condition);
+    Page<InspectReport> listByPage(InspectReport condition);
 
     /**
      * 保存质检单
-     * @param params
+     * @param inspectReport
      * @return
      */
-    boolean save(InspectReportVo params) throws Exception;
+    boolean save(InspectReport inspectReport) throws Exception;
 
     /**
      * 查询质检单的历史记录

@@ -12,7 +12,7 @@ import java.util.*;
 @Table(name="purch_requisition")
 public class PurchRequisition {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**

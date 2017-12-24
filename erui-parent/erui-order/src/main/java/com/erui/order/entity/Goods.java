@@ -74,8 +74,10 @@ public class Goods {
 
     @Column(name = "purchased_num")
     private Integer purchasedNum;
+    // 已报检提交数量
     @Column(name = "inspect_num")
     private Integer inspectNum;
+    //已入库数量
     @Column(name = "instock_num")
     private Integer instockNum;
     @Column(name = "outstock_apply_num")
@@ -293,6 +295,7 @@ public class Goods {
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
     }
+
 
     public Integer getInstockNum() {
         return instockNum;

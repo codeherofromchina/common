@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 @Table(name = "inspect_apply")
 public class InspectApply {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     // 报检单号，自动生成
@@ -24,7 +25,7 @@ public class InspectApply {
     /**
      * 采购
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purch_id")
     @JsonIgnore
     private Purch purch;
@@ -45,9 +46,9 @@ public class InspectApply {
     private String purchNo;
 
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
-    private List<InspectApplyGoods> InspectApplyGoodsList = new ArrayList<>();
+    private List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
 
     /**
      * 是否是主报检单 true：是 false：否
@@ -288,11 +289,11 @@ public class InspectApply {
     }
 
     public List<InspectApplyGoods> getInspectApplyGoodsList() {
-        return InspectApplyGoodsList;
+        return inspectApplyGoodsList;
     }
 
     public void setInspectApplyGoodsList(List<InspectApplyGoods> inspectApplyGoodsList) {
-        InspectApplyGoodsList = inspectApplyGoodsList;
+        this.inspectApplyGoodsList = inspectApplyGoodsList;
     }
 
     public static enum StatusEnum {
@@ -326,4 +327,5 @@ public class InspectApply {
             return null;
         }
     }
+
 }
