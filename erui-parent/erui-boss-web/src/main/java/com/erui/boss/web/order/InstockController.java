@@ -139,14 +139,14 @@ public class InstockController {
     }
 
 
-    private int getStrNumber(String numStr, int defaultNum) {
+    protected static int getStrNumber(String numStr, int defaultNum) {
         if (StringUtils.isNumeric(numStr)) {
             return Integer.parseInt(numStr);
         }
         return defaultNum;
     }
 
-    private final static int DEFAULT_PAGE = 0;
-    private final static int DEFAULT_PAGESIZE = 20;
+    protected final static int DEFAULT_PAGE = 0;
+    protected final static int DEFAULT_PAGESIZE = 20;
 
 }
