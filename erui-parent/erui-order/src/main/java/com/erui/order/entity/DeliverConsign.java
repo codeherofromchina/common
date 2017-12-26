@@ -24,7 +24,7 @@ public class DeliverConsign {
     @Column(name = "deliver_consign_no")
     private String deliverConsignNo;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 

@@ -20,13 +20,14 @@ public class DeliverDetail {
 
     @OneToOne
     @JoinColumn(name = "deliver_notice_id")
+    @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
 
     // 销售合同号
     @Transient
     private String contractNo;
 
-    // 出口通知单号
+    // 项目号
     @Transient
     private String projectNo;
 
@@ -129,6 +130,9 @@ public class DeliverDetail {
     @Column(name = "leave_port_time")
     private Date leavePortTime; //实际离港时间
 
+    @Column(name = "accomplish_date")
+    private Date accomplishDate; //实际完成时间
+
     @Column(name = "arrival_port_time")
     private Date arrivalPortTime;   //预计抵达时间
 
@@ -137,12 +141,19 @@ public class DeliverDetail {
      */
     private int status = 0;
 
+    @Column(name = "create_user_id")
+    private Integer createUserId;   //创建人id
+
+    @Column(name = "create_user_name")
+    private String createUserName;  //创建人名字
+
+
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonIgnore
+   /* @JsonIgnore*/
     private Set<Attachment> attachmentList = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -270,6 +281,22 @@ public class DeliverDetail {
         return goodsChkStatus;
     }
 
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
     public void setGoodsChkStatus(String goodsChkStatus) {
         this.goodsChkStatus = goodsChkStatus;
     }
@@ -348,6 +375,14 @@ public class DeliverDetail {
 
     public Date getApprovalDate() {
         return approvalDate;
+    }
+
+    public Date getAccomplishDate() {
+        return accomplishDate;
+    }
+
+    public void setAccomplishDate(Date accomplishDate) {
+        this.accomplishDate = accomplishDate;
     }
 
     public void setApprovalDate(Date approvalDate) {

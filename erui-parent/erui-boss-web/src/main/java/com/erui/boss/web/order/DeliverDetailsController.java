@@ -51,4 +51,45 @@ public class DeliverDetailsController {
     }
 
 
+
+    /**
+     * 出库详情页 - 查看
+     *
+     * @return
+     */
+    //TODO 待掉接口
+
+    @RequestMapping(value = "outboundDetailsPage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> outboundDetailsPage(){
+
+        return new Result<>(null);
+    }
+
+
+
+    /**
+     * 出库详情页 保存 or 提交质检
+     *
+     * @param deliverDetail
+     * @return
+     */
+    @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail){
+        try {
+            boolean flag = false;
+                flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
+            if (flag) {
+                return new Result<>();
+            }
+        } catch (Exception ex) {
+            logger.error("订单操作失败：{}", deliverDetail, ex);
+        }
+        return new Result<>(ResultStatusEnum.FAIL);
+    }
+
+
+
+
+
+
 }
