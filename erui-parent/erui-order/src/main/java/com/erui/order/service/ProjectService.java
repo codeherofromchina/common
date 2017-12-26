@@ -35,4 +35,10 @@ public interface ProjectService {
      * @return
      */
     List<Project> purchAbleList();
+    /**
+     * 根据id查询项目信息
+     * @param id
+     * @return
+     */
+    Project findDesc(Integer id);
 }

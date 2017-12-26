@@ -22,12 +22,13 @@ public class DeliverConsign {
      */
     @Column(name = "deliver_consign_no")
     private String deliverConsignNo;
-    @Column(name = "order_id")
-    private Integer orderId;
-    /*   @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-       @JoinColumn(name = "order_id")
-       @JsonIgnore
-       private Order order;*/
+    //orderId
+    @Transient
+    private Integer oId;
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private Order order;
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
@@ -62,21 +63,21 @@ public class DeliverConsign {
         this.id = id;
     }
 
-/*    public Order getOrder() {
+    public Order getOrder() {
         return order;
     }
 
     public void setOrder(Order order) {
         this.order = order;
-    }*/
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
     }
 
+    public Integer getoId() {
+        return oId;
+    }
+
+    public void setoId(Integer oId) {
+        this.oId = oId;
+    }
 
     public String getDeliverConsignNo() {
         return deliverConsignNo;

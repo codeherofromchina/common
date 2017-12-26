@@ -13,8 +13,7 @@ import java.util.List;
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
-@Repository("deliverConsignDao")
 public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Serializable> {
-    @Query("select dc.id,dc.deptId,dc.coId,dc.writeDate,dc.createUserId,dc.status from DeliverConsign dc where dc.orderId =:orderId order by id asc")
+   // @Query("select dc.id,dc.deptId,dc.coId,dc.writeDate,dc.createUserId,dc.status from DeliverConsign dc where dc.orderId =:orderId order by id asc")
     List<DeliverConsign> findByOrderId(@Param(value = "orderId") Integer orderId);
 }

@@ -80,6 +80,8 @@ public class Order {
 
     @Column(name = "technical_id")
     private Integer technicalId;
+    @Column(name = "technical_id_dept")
+    private String technicalIdDept;
 
     @Column(name = "grant_type")
     private String grantType;
@@ -445,6 +447,14 @@ public class Order {
 
     public void setTechnicalId(Integer technicalId) {
         this.technicalId = technicalId;
+    }
+
+    public String getTechnicalIdDept() {
+        return technicalIdDept;
+    }
+
+    public void setTechnicalIdDept(String technicalIdDept) {
+        this.technicalIdDept = technicalIdDept;
     }
 
     public String getGrantType() {

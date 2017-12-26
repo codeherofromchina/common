@@ -2,10 +2,9 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Purch;
-import com.erui.order.entity.PurchGoods;
+import com.erui.order.entity.*;
 import com.erui.order.requestVo.PGoods;
+import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +29,8 @@ public class PurchController {
 
     @Autowired
     private PurchService purchService;
-
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * 获取采购单列表

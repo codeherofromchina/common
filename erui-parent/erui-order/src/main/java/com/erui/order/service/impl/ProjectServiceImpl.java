@@ -64,12 +64,12 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
                 }
                 //根据项目开始时间查询
-                if (condition.getStartDate()!=null) {
-                    list.add(cb.equal(root.get("startDate").as(Date.class),  NewDateUtil.getDate(condition.getStartDate())));
+                if (condition.getStartDate() != null) {
+                    list.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
                 }
                 //根据执行分公司查询
                 if (StringUtil.isNotBlank(condition.getExecCoName())) {
-                    list.add(cb.like(root.get("execCoName").as(String.class),"%" + condition.getExecCoName() + "%"));
+                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
                 }
                 //执行单约定交付日期
                 if (condition.getDeliveryDate() != null) {
@@ -92,7 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
                 }
                 //根据汇款状态
-                if (StringUtil.isNotBlank(condition.getProjectStatus()) ) {
+                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
                     list.add(cb.equal(root.get("projectStatus").as(String.class), condition.getProjectStatus()));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
@@ -106,11 +106,21 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<Project> purchAbleList() {
-        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(),Boolean.FALSE);
+        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         if (list == null) {
             list = new ArrayList<>();
         }
         return list;
+    }
+
+    @Transactional
+    @Override
+    public Project findDesc(Integer id) {
+        Project project = projectDao.findOne(id);
+        if (project != null) {
+            project.getOrder().getGoodsList().size();
+        }
+        return project;
     }
 
 

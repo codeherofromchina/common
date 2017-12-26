@@ -20,5 +20,5 @@ public interface CompanyService {
      * @param
      * @return
      */
-    List<Company> findAll();
+    List<Company> findAll(String name);
 }

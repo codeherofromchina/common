@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "attachment")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
