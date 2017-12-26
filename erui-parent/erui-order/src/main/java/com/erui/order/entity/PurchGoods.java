@@ -38,8 +38,9 @@ public class PurchGoods {
     @JsonIgnore
     private Purch purch;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "goods_id")
+    @JsonIgnore
     private Goods goods;
     /**
      * 商品ID
@@ -58,8 +59,21 @@ public class PurchGoods {
     @Column(name = "purchase_num")
     private Integer purchaseNum;
 
+    // 已报检数量
     @Column(name = "inspect_num")
     private Integer inspectNum;
+
+    /**
+     * 已报检提交数量
+     */
+    @Column(name = "inspect_submit_num")
+    private Integer inspectSubmitNum;
+
+    /**
+     * 已入库数量
+     */
+    @Column(name = "instock_num")
+    private Integer instockNum;
 
     // 采购单价
     @Column(name = "purchase_price")
@@ -169,6 +183,23 @@ public class PurchGoods {
 
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
+    }
+
+
+    public Integer getInspectSubmitNum() {
+        return inspectSubmitNum;
+    }
+
+    public void setInspectSubmitNum(Integer inspectSubmitNum) {
+        this.inspectSubmitNum = inspectSubmitNum;
+    }
+
+    public Integer getInstockNum() {
+        return instockNum;
+    }
+
+    public void setInstockNum(Integer instockNum) {
+        this.instockNum = instockNum;
     }
 
     public BigDecimal getPurchasePrice() {

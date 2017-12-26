@@ -41,11 +41,9 @@ public class CompanyController {
      * @return
      */
     @RequestMapping(value = "getCompany")
-    public Result<Object> getCompany() {
-        List<Company> companyList = companyService.findAll();
+    public Result<Object> getCompany(@RequestParam(name = "name") String name) {
+        List<Company> companyList = companyService.findAll(name);
         companyList.parallelStream().forEach(vo -> {vo.setDeptSet(null);vo.setArea(null);});
-
         return new Result<>(companyList);
-
     }
 }

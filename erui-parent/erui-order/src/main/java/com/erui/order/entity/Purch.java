@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,18 +21,24 @@ public class Purch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // 采购合同号
     @Column(name = "purch_no")
     private String purchNo;
 
+    // 采购经办人ID
     @Column(name = "agent_id")
     private Integer agentId;
 
+    //采购经办人名称
     @Column(name = "agent_name")
     private String agentName;
 
+    private String department;
+
+    // 采购合同签订日期
     @Column(name = "signing_date")
     private Date signingDate;
-
+    // 采购合同规定交货日期
     @Column(name = "arrival_date")
     private Date arrivalDate;
 
@@ -40,9 +48,11 @@ public class Purch {
     @Column(name = "exe_chg_date")
     private Date exeChgDate;
 
+    // 供应商ID
     @Column(name = "supplier_id")
     private Integer supplierId;
 
+    // 供货商名称
     @Column(name = "supplier_name")
     private String supplierName;
 
@@ -173,6 +183,14 @@ public class Purch {
 
     public void setAgentName(String agentName) {
         this.agentName = agentName;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public Date getSigningDate() {
@@ -520,26 +538,27 @@ public class Purch {
 
 
     public void setBaseInfo(Purch purch) {
-        this.setPurchNo(purch.getPurchNo());
-        this.setAgentId(purch.getAgentId());
-        this.setAgentName(purch.getAgentName());
-        this.setSigningDate(purch.getSigningDate());
-        this.setArrivalDate(purch.getArrivalDate());
-        this.setPurChgDate(purch.getPurChgDate());
-        this.setExeChgDate(purch.getExeChgDate());
+        this.setPurchNo(purch.getPurchNo()); // 采购合同号
+        this.setAgentId(purch.getAgentId()); // 采购经办人ID
+        this.setAgentName(purch.getAgentName()); // 采购经办人名称
+        this.setDepartment(purch.getDepartment()); // 下发部门
+        this.setSigningDate(NewDateUtil.getDate(purch.getSigningDate())); //采购合同签订日期
+        this.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
+        this.setPurChgDate(NewDateUtil.getDate(purch.getPurChgDate()));
+        this.setExeChgDate(NewDateUtil.getDate(purch.getExeChgDate()));
         this.setSupplierId(purch.getSupplierId());
         this.setSupplierName(purch.getSupplierName());
         this.setTotalPrice(purch.getTotalPrice());
         this.setCurrencyBn(purch.getCurrencyBn());
         this.setPayType(purch.getPayType());
         this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
-        this.setProductedDate(purch.getProductedDate());
-        this.setPayFactoryDate(purch.getPayFactoryDate());
-        this.setPayDepositDate(purch.getPayDepositDate());
-        this.setPayDepositExpired(purch.getPayDepositExpired());
-        this.setInvoiceNo(purch.getInvoiceNo());
-        this.setAccountDate(purch.getAccountDate());
-        this.setRemarks(purch.getRemarks());
+        this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
+        this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
+        this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
+        this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
+        this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
+        this.setAccountDate(purch.getAccountDate()); // 挂账时间
+        this.setRemarks(purch.getRemarks()); // 备注
         if (this.createUserId == null) {
             this.setCreateUserId(purch.getCreateUserId());
             this.setCreateUserName(purch.getCreateUserName());

@@ -36,6 +36,7 @@ public class DeliverConsignGoods {
     private String packRequire;
 
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     @Column(name = "create_user_id")

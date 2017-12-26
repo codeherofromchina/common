@@ -1,7 +1,4 @@
 package com.erui.order.service.impl;
-
-import com.erui.order.entity.DeliverConsign;
-
 import com.erui.order.dao.DeliverConsignDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
@@ -48,7 +45,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = deliverConsignDao.findOne(deliverConsign.getId());
-        deliverConsignUpdate.setoId(deliverConsign.getoId());
+        deliverConsignUpdate.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
+        deliverConsignUpdate.setOrder(order);
         deliverConsignUpdate.setDeptId(order.getExecCoId());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
@@ -79,7 +77,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public boolean addDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
-        deliverConsignAdd.setoId(deliverConsign.getoId());
+        deliverConsignAdd.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
+        deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setDeptId(order.getExecCoId());
         deliverConsignAdd.setCreateUserId(order.getAgentId());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
@@ -106,6 +105,26 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     public List<DeliverConsign> findByOrderId(Integer orderId) {
         List<DeliverConsign> deliverConsignList = deliverConsignDao.findByOrderId(orderId);
+        for (DeliverConsign deliverConsign:deliverConsignList){
+            deliverConsign.getId();
+            deliverConsign.getCoId();
+            deliverConsign.getDeliverConsignNo();
+            deliverConsign.getWriteDate();
+            deliverConsign.getStatus();
+            deliverConsign.getDeptId();
+            deliverConsign.getCreateUserId();
+            deliverConsign.setDeliverConsignGoodsSet(null);
+            deliverConsign.setAttachmentSet(null);
+           /* DeliverConsign deliverConsign2 = new DeliverConsign();
+            deliverConsign2.setId(deliverConsign.getoId());
+            deliverConsign2.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
+            deliverConsign2.setDeptId(deliverConsign.getDeptId());
+            deliverConsign2.setWriteDate(deliverConsign.getWriteDate());
+            deliverConsign2.setStatus(deliverConsign.getStatus());
+            deliverConsign2.setCoId(deliverConsign.getCoId());
+            deliverConsign2.setCreateUserId(deliverConsign.getCreateUserId());*/
+
+        }
         return deliverConsignList;
     }
 

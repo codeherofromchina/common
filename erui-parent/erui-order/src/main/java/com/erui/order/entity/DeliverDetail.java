@@ -3,9 +3,7 @@ package com.erui.order.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 物流-出库单详情
@@ -17,8 +15,12 @@ public class DeliverDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // 产品放行单号,自动生成
+    @Column(name = "deliver_detail_no")
+    private String deliverDetailNo;
 
-    @OneToOne
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
@@ -32,9 +34,14 @@ public class DeliverDetail {
     private String projectNo;
 
 
-
     @Column(name = "product_discharged_no")
     private String productDischargedNo;    //产品放行单号
+
+    /**
+     * 开单日期
+     */
+    @Column(name = "billing_date")
+    private Date billingDate;
 
     @Column(name = "carrier_co")
     private String carrierCo;   //承运单位名称
@@ -53,7 +60,7 @@ public class DeliverDetail {
     @Column(name = "contact_tel")
     private String contactTel;  //联系电话
 
-    @Column(name="handle_department")
+    @Column(name = "handle_department")
     private String handleDepartment;    //经办部门
 
     @Column(name = "ware_houseman")
@@ -73,7 +80,14 @@ public class DeliverDetail {
     private String billsChkStatus;  //资料检验结论
 
     @Column(name = "checker_uid")
-    private Integer checkerUid; //检验工程师
+    private Integer checkerUid; //检验工程师 ID
+
+    // 检验工程师名称
+    @Column(name = "checker_uname")
+    private String checkerName;
+
+    @Column(name = "check_dept")
+    private String checkDept;
 
     @Column(name = "check_date")
     private Date checkDate; //检验日期
@@ -136,10 +150,16 @@ public class DeliverDetail {
     @Column(name = "arrival_port_time")
     private Date arrivalPortTime;   //预计抵达时间
 
+
+    @Transient
+    private Integer createUserId;
+    @Transient
+    private String createUserName;
+
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
      */
-    private int status = 0;
+    private Integer status;
 
     @Column(name = "create_user_id")
     private Integer createUserId;   //创建人id
@@ -149,20 +169,19 @@ public class DeliverDetail {
 
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-   /* @JsonIgnore*/
-    private Set<Attachment> attachmentList = new HashSet<>();
+    @JsonIgnore
+    private List<Attachment> attachmentList = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
     @JsonIgnore
-    private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
-
+    private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
 
 
     private String reason; //特殊情况产品放行原因
@@ -192,6 +211,7 @@ public class DeliverDetail {
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;
     }
+
 
     public void setDeliverNotice(DeliverNotice deliverNotice) {
         this.deliverNotice = deliverNotice;
@@ -325,6 +345,15 @@ public class DeliverDetail {
         this.checkDate = checkDate;
     }
 
+
+    public String getCheckDept() {
+        return checkDept;
+    }
+
+    public void setCheckDept(String checkDept) {
+        this.checkDept = checkDept;
+    }
+
     public Date getReleaseDate() {
         return releaseDate;
     }
@@ -383,6 +412,31 @@ public class DeliverDetail {
 
     public void setAccomplishDate(Date accomplishDate) {
         this.accomplishDate = accomplishDate;
+    }
+
+
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
+
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
+    }
+
+    public Date getBillingDate() {
+        return billingDate;
+    }
+
+    public void setBillingDate(Date billingDate) {
+        this.billingDate = billingDate;
+    }
+
+    public String getCheckerName() {
+        return checkerName;
+    }
+
+    public void setCheckerName(String checkerName) {
+        this.checkerName = checkerName;
     }
 
     public void setApprovalDate(Date approvalDate) {
@@ -493,23 +547,21 @@ public class DeliverDetail {
         this.status = status;
     }
 
-
-    public Set<Attachment> getAttachmentList() {
+    public List<Attachment> getAttachmentList() {
         return attachmentList;
     }
 
-    public void setAttachmentList(Set<Attachment> attachmentList) {
+    public void setAttachmentList(List<Attachment> attachmentList) {
         this.attachmentList = attachmentList;
     }
 
-    public Set<DeliverConsignGoods> getDeliverConsignGoodsSet() {
-        return deliverConsignGoodsSet;
+    public List<DeliverConsignGoods> getDeliverConsignGoodsList() {
+        return deliverConsignGoodsList;
     }
 
-    public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
-        this.deliverConsignGoodsSet = deliverConsignGoodsSet;
+    public void setDeliverConsignGoodsList(List<DeliverConsignGoods> deliverConsignGoodsList) {
+        this.deliverConsignGoodsList = deliverConsignGoodsList;
     }
-
 
     public String getReason() {
         return reason;
@@ -535,14 +587,6 @@ public class DeliverDetail {
         this.remarks = remarks;
     }
 
-    public void setBillingDate(Date billingDate) {
-        BillingDate = billingDate;
-    }
-
-    public Date getBillingDate() {
-        return BillingDate;
-    }
-
 
     public String getContractNo() {
         return contractNo;
@@ -558,5 +602,46 @@ public class DeliverDetail {
 
     public String getProjectNo() {
         return projectNo;
+    }
+
+
+
+
+    /**
+     * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人完整 5：完善物流状态中 6：项目完结',
+     */
+    public static enum StatusEnum {
+        SAVED_OUTSTOCK(0, "出库保存"), SUBMITED_OUTSTOCK(1, "出库提交"), SAVED_OUT_INSPECT(2, "出库质检保存"),
+        SUBMITED_OUT_INSPECT(3, "出库质检提交"), PROCESS_LOGI_PERSON(4, "物流人完整"), PROCESS_LOGI(5, "完善物流状态中"), DONE_PROJECT(6, "项目完结");
+
+        private int statusCode;
+        private String statusMsg;
+
+        StatusEnum(int statusCode, String statusMsg) {
+            this.statusCode = statusCode;
+            this.statusMsg = statusMsg;
+        }
+
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        public String getStatusMsg() {
+            return statusMsg;
+        }
+
+        public static StatusEnum fromStatusCode(Integer statusCode) {
+            if (statusCode == null) {
+                int sInt = statusCode.intValue();
+                for (StatusEnum se : StatusEnum.values()) {
+                    if (se.statusCode == sInt) {
+                        return se;
+                    }
+                }
+            }
+            return null;
+
+
+        }
     }
 }

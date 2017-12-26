@@ -1,22 +1,17 @@
 package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
-import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.DeliverDetail;
 import com.erui.order.requestVo.DeliverD;
-import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.service.DeliverDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
