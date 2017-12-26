@@ -1,9 +1,9 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 入库-记录
@@ -18,25 +18,48 @@ public class Instock {
     /**
      * 质检报告
      */
-    @OneToOne
-    @JoinColumn(name="inspect_report_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inspect_report_id")
     private InspectReport inspectReport;
 
+    @Column(name = "inspect_apply_no")
+    private String inspectApplyNo;
+
+    @Column(name = "supplier_name")
+    private String supplierName;
+    // 仓库经办人ID
     private Integer uid;
+    // 仓库经办人名称
+    private String uname;
+    // 下发部门，和仓库经办人管理
+    private String department;
 
     @Column(name = "instock_date")
     private Date instockDate;
 
-    private Byte status;
+    private Integer status;
 
     private String remarks;
 
+    @Column(name = "create_time")
+    @JsonIgnore
+    private Date createTime;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "current_user_id")
+    private Integer currentUserId;
+    @Column(name = "current_user_name")
+    private String currentUserName;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "instock_id")
+    private List<InstockGoods> instockGoodsList = new ArrayList<>();
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "instock_attach",
             joinColumns = @JoinColumn(name = "instock_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentList = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -44,6 +67,22 @@ public class Instock {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getInspectApplyNo() {
+        return inspectApplyNo;
+    }
+
+    public void setInspectApplyNo(String inspectApplyNo) {
+        this.inspectApplyNo = inspectApplyNo;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public InspectReport getInspectReport() {
@@ -70,11 +109,28 @@ public class Instock {
         this.instockDate = instockDate;
     }
 
-    public Byte getStatus() {
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -86,11 +142,74 @@ public class Instock {
         this.remarks = remarks;
     }
 
-    public Set<Attachment> getAttachmentSet() {
-        return attachmentSet;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
-        this.attachmentSet = attachmentSet;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public List<InstockGoods> getInstockGoodsList() {
+        return instockGoodsList;
+    }
+
+    public void setInstockGoodsList(List<InstockGoods> instockGoodsList) {
+        this.instockGoodsList = instockGoodsList;
+    }
+
+    public List<Attachment> getAttachmentList() {
+        return attachmentList;
+    }
+
+    public void setAttachmentList(List<Attachment> attachmentList) {
+        this.attachmentList = attachmentList;
+    }
+
+    public Integer getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public void setCurrentUserId(Integer currentUserId) {
+        this.currentUserId = currentUserId;
+    }
+
+    public String getCurrentUserName() {
+        return currentUserName;
+    }
+
+    public void setCurrentUserName(String currentUserName) {
+        this.currentUserName = currentUserName;
+    }
+
+    public static enum StatusEnum {
+        INIT(0, "未编辑"), SAVED(1, "保存"), SUBMITED(2, "提交");
+        private int status;
+        private String msg;
+
+        StatusEnum(int status, String msg) {
+            this.status = status;
+            this.msg = msg;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public static StatusEnum formStatus(Integer status) {
+            if (status != null) {
+                int s = status.intValue();
+                for (StatusEnum se : StatusEnum.values()) {
+                    if (se.getStatus() == status) {
+                        return se;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

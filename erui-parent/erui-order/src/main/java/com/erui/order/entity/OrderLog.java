@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "order_log")
 public class OrderLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne

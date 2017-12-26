@@ -15,14 +15,16 @@ public class DeliverConsignGoods {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="goods_id")
+    private Goods goods;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
     @JsonIgnore
     private DeliverConsign deliverConsign;
-
-    @OneToOne
-    @JoinColumn(name = "goods_id")
-    private Goods goods;
 
     @Transient
     private Integer gId;
@@ -34,10 +36,13 @@ public class DeliverConsignGoods {
     private String packRequire;
 
     @Column(name = "create_time")
+    @JsonIgnore
     private Date createTime;
 
     @Column(name = "create_user_id")
     private Integer createUserId;
+
+
 
     public Integer getId() {
         return id;
@@ -54,6 +59,7 @@ public class DeliverConsignGoods {
     public void setDeliverConsign(DeliverConsign deliverConsign) {
         this.deliverConsign = deliverConsign;
     }
+
 
     public Goods getGoods() {
         return goods;

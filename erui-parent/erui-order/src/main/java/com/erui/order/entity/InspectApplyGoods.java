@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -10,20 +12,42 @@ import java.util.Date;
 @Table(name = "inspect_apply_goods")
 public class InspectApplyGoods {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "inspect_apply_id")
+    @JsonIgnore
     private InspectApply inspectApply;
+
+    @Column(name="inspect_report_id")
+    private Integer inspectReportId;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
     private Goods goods;
 
-    @Transient
-    private Integer gId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "purch_goods_id")
+    private PurchGoods purchGoods;
 
+    @Transient
+    private Integer gId; // 商品ID
+
+
+    /**
+     * 本次报检对应的采购单商品中的采购数量
+     */
+    @Column(name = "purchase_num")
+    private Integer purchaseNum;
+
+    /**
+     * 当次采购已经报检数量，用于返回参数
+     */
+    @Transient
+    private Integer hasInspectNum;
+
+    // 报检数量
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
@@ -57,6 +81,14 @@ public class InspectApplyGoods {
         this.inspectApply = inspectApply;
     }
 
+    public Integer getInspectReportId() {
+        return inspectReportId;
+    }
+
+    public void setInspectReportId(Integer inspectReportId) {
+        this.inspectReportId = inspectReportId;
+    }
+
     public Goods getGoods() {
         return goods;
     }
@@ -71,6 +103,30 @@ public class InspectApplyGoods {
 
     public void setgId(Integer gId) {
         this.gId = gId;
+    }
+
+    public PurchGoods getPurchGoods() {
+        return purchGoods;
+    }
+
+    public void setPurchGoods(PurchGoods purchGoods) {
+        this.purchGoods = purchGoods;
+    }
+
+    public Integer getPurchaseNum() {
+        return purchaseNum;
+    }
+
+    public void setPurchaseNum(Integer purchaseNum) {
+        this.purchaseNum = purchaseNum;
+    }
+
+    public Integer getHasInspectNum() {
+        return hasInspectNum;
+    }
+
+    public void setHasInspectNum(Integer hasInspectNum) {
+        this.hasInspectNum = hasInspectNum;
     }
 
     public Integer getInspectNum() {

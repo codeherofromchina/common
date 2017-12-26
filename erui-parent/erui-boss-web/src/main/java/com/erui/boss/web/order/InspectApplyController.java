@@ -2,14 +2,20 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.InspectApply;
+import com.erui.order.entity.InspectApplyGoods;
+import com.erui.order.entity.PurchGoods;
 import com.erui.order.service.InspectApplyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 报检单控制器
@@ -32,15 +38,29 @@ public class InspectApplyController {
      */
     @RequestMapping("listByParch")
     public Result<Object> listByParch(@RequestParam(name = "parchId", required = true) Integer parchId) {
-
         List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(parchId);
-        inspectApplyList.parallelStream().forEach(vo -> {
-            vo.setAttachmentList(null);
-            vo.setInspectApplyGoodsList(null);
-            vo.setpId(vo.getPurch().getId());
-        });
+        if (inspectApplyList != null) {
+            // 转换数据
+            List<Map<String, Object>> data = inspectApplyList.stream().map(vo -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", vo.getId()); // 报检单ID
+                map.put("inspectApplyNo", vo.getInspectApplyNo()); // 采购合同号
+                map.put("purchNo", vo.getPurchNo()); // 到货报检单号
+                map.put("department", vo.getDepartment()); // 下发部门
+                map.put("purchaseName", vo.getPurchaseName()); // 采购经办人
+                map.put("supplierName", vo.getSupplierName()); // 供应商名称
+                map.put("inspectDate", vo.getInspectDate()); // 报检日期
+                map.put("num", vo.getNum()); //报检次数
+                map.put("status", vo.getStatus()); // 质检结果
+                map.put("history", vo.isHistory()); //
+                return map;
+            }).collect(Collectors.toList());
 
-        return new Result<>(inspectApplyList);
+            return new Result<>(data);
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL);
+
     }
 
 
@@ -54,7 +74,18 @@ public class InspectApplyController {
     public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
         InspectApply inspectApply = inspectApplyService.findDetail(id);
         if (inspectApply != null) {
+            // 组织数据格式
             inspectApply.setpId(inspectApply.getPurch().getId());
+            List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();
+            for (InspectApplyGoods inspectApplyGoods : inspectApplyGoodsList) {
+                Goods goods = inspectApplyGoods.getGoods();
+                PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
+                inspectApplyGoods.setHasInspectNum(purchGoods.getInspectNum());
+                inspectApplyGoods.setPurchGoods(null);
+                inspectApplyGoods.setgId(goods.getId());
+            }
+
+
             return new Result<>(inspectApply);
         }
 
@@ -97,10 +128,18 @@ public class InspectApplyController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody InspectApply inspectApply) {
 
-        //TODO 参数检查略过
         InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
+        boolean checkoutContinue = true;
+        // 必须是保存、提交、重新报检的一种，这里将NO_EDIT设置为重新报检类型复用
+        if (statusEnum == null || (statusEnum != InspectApply.StatusEnum.SAVED && statusEnum != InspectApply.StatusEnum.SUBMITED && statusEnum != InspectApply.StatusEnum.NO_EDIT)) {
+            checkoutContinue = false;
+        }
+        if (inspectApply.getInspectApplyGoodsList() == null || inspectApply.getInspectApplyGoodsList().size() <= 0) {
+            checkoutContinue = false;
+        }
 
-        if (statusEnum != null && (statusEnum == InspectApply.StatusEnum.SAVED || statusEnum == InspectApply.StatusEnum.SUBMITED || statusEnum == InspectApply.StatusEnum.NO_EDIT)){
+        if (checkoutContinue) {
+
             boolean flag = false;
             try {
 

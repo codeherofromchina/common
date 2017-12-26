@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name = "deliver_notice")
 public class DeliverNotice {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
@@ -29,13 +29,17 @@ public class DeliverNotice {
     // 出口通知单号
     @Transient
     private String deliverConsignNo;
+
     @Transient
     private int page = 0;
     @Transient
     private int rows = 50;
 
+    @Transient
+    private int status; //看货通知单状态
 
-    @OneToMany(fetch = FetchType.LAZY)
+
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)  //看货通知单，出口发货通知单关联表
     @JoinTable(name = "deliver_notice_consign",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
@@ -70,10 +74,16 @@ public class DeliverNotice {
     private Date deliveryDate;
 
     private Integer numers;
+
     @Column(name = "create_time")
     private Date createTime;
+
     @Column(name = "create_user_id")
     private Integer createUserId;
+
+    @Column(name = "create_user_name")
+    private String createUserName;
+
     @Column(name = "update_time")
     private Date updateTime;
     @Column(name = "prepare_req")
@@ -81,12 +91,15 @@ public class DeliverNotice {
     @Column(name = "package_req")
     private String packageReq;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "deliver_notice_attach",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonIgnore
     private Set<Attachment> attachmentSet = new HashSet<>();
+
+
+
+
 
 
     public Integer getId() {
@@ -135,6 +148,15 @@ public class DeliverNotice {
 
     public void setRows(int rows) {
         this.rows = rows;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getStatus() {
+
+        return status;
     }
 
     public Set<DeliverConsign> getDeliverConsigns() {
@@ -265,6 +287,13 @@ public class DeliverNotice {
         this.packageReq = packageReq;
     }
 
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
 
     public Set<Attachment> getAttachmentSet() {
         return attachmentSet;

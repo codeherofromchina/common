@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -194,8 +195,39 @@ public class Order {
     @Column(name = "business_unit_name")
     private String businessUnitName;
 
+    @Transient
+    private int page = 0;
+
+    @Transient
+    private int rows = 50;
+
+   @Column(name = "delivery_date_no")
+    private Date deliveryDateNo;    //执行单约定交付日期
+
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private Project project;
+
+
+
+
     public String getExecCoName() {
         return execCoName;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void setDeliveryDateNo(Date deliveryDateNo) {
+        this.deliveryDateNo = deliveryDateNo;
+    }
+
+    public Date getDeliveryDateNo() {
+
+        return deliveryDateNo;
     }
 
     public void setExecCoName(String execCoName) {
@@ -457,6 +489,14 @@ public class Order {
         this.technicalIdDept = technicalIdDept;
     }
 
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
     public String getGrantType() {
         return grantType;
     }
@@ -479,6 +519,14 @@ public class Order {
 
     public void setIsFinancing(Boolean isFinancing) {
         this.isFinancing = isFinancing;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public int getRows() {
+        return rows;
     }
 
     public String getTradeTerms() {

@@ -16,4 +16,9 @@ import java.util.List;
 public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Serializable> {
    // @Query("select dc.id,dc.deptId,dc.coId,dc.writeDate,dc.createUserId,dc.status from DeliverConsign dc where dc.orderId =:orderId order by id asc")
     List<DeliverConsign> findByOrderId(@Param(value = "orderId") Integer orderId);
+
+    List<DeliverConsign> findByIdInAndStatus(Integer[] deliverNoticeNos, Integer s);
+
+    List<DeliverConsign> findByStatusAndDeliverYn(int i, int i1);
+
 }

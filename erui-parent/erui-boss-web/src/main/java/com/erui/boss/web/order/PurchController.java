@@ -3,7 +3,6 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.*;
-import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +46,7 @@ public class PurchController {
                 vo.setPurchPaymentList(null);
                 vo.setPurchGoodsList(null);
 
-                List<String> projectNoList = new ArrayList<String>();
+                List<String> projectNoList = new ArrayList<>();
                 List<String> contractNoList = new ArrayList<>();
 
                 vo.getProjects().stream().forEach(project -> {
@@ -72,9 +71,16 @@ public class PurchController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Purch purch) {
 
-        // TODO 参数检查略过,检查采购数量必须大于（如果存在替换商品则可以等于0）0
+
+        boolean continueFlag = true;
+        // 状态检查
         Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
-        if (statusEnum != null && statusEnum == Purch.StatusEnum.BEING || statusEnum == Purch.StatusEnum.READY) {
+        if (statusEnum != Purch.StatusEnum.BEING && statusEnum != Purch.StatusEnum.READY) {
+            continueFlag = false;
+        }
+
+
+        if (continueFlag) {
             try {
                 boolean flag = false;
                 if (purch.getId() != null) {
@@ -111,23 +117,18 @@ public class PurchController {
     }
 
 
-
-
-
-
     /**
      * 为添加报检单而获取采购信息
      *
      * @param purchId 采购ID
      * @return
      */
-    @Deprecated
     @RequestMapping("getInfoForInspectApply")
     public Result<Object> getInfoForInspectApply(@RequestParam(name = "purchId", required = true) Integer purchId) {
         Purch purch = purchService.findPurchAndGoodsInfo(purchId);
 
         // 只有进行中的采购才可以新增报检单信息
-        if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+        if (purch != null && purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             // 整合数据
             Map<String, Object> data = new HashMap<>();
             data.put("purchId", purch.getId());
@@ -135,16 +136,16 @@ public class PurchController {
             data.put("purchaseName", purch.getAgentName()); // 采购经办人名称
             data.put("supplierId", purch.getSupplierId()); // 供应商ID
             data.put("supplierName", purch.getSupplierName()); // 供应商名称
-            data.put("department", "采购部"); // 下发部门固定为采购部
+            data.put("department", purch.getDepartment()); // 下发部门
 
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
-            List<Goods> list =  purchGoodsList.stream().filter(vo -> {
+            List<Goods> list = purchGoodsList.stream().filter(vo -> {
                 // 只要已报检数量小于采购数量的商品显示
                 return vo.getInspectNum() < vo.getPurchaseNum();
             }).map(vo -> {
                 Goods goods = vo.getGoods();
-                goods.setPurchasedNum(vo.getPurchaseNum());
-                goods.setInspectNum(vo.getInspectNum());
+                goods.setPurchasedNum(vo.getPurchaseNum()); // 采购数量
+                goods.setInspectNum(vo.getInspectNum()); // 报检数量
 
                 return goods;
             }).collect(Collectors.toList());
