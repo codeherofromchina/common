@@ -24,76 +24,32 @@ public class DataServiceImpl {
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
-        inquiryService.inquiryData(startTime,endTime);
+        inquiryService.inquiryData(startTime, endTime);
 
     }
 
     public void totalData() throws Exception {
         Date day = DateUtil.parseStringToDate("2017-07-01 00:00:00", DateUtil.FULL_FORMAT_STR);
         List<Map<String, String>> list = new ArrayList<>();
-        Date lastDay = DateUtil.getNextMonthLastDay(day);
-        for (int i = 30; i >= 0; i--) {
-            HashMap<String, String> dateMap = new HashMap<>();
-            Date date1 = DateUtil.sometimeCalendar(lastDay, i);
-            String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
-            String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
-            dateMap.put("startTime", startTime);
-            dateMap.put("endTime", endTime);
-            list.add(dateMap);
-        }
-
-        Date lastDay2 = DateUtil.parseStringToDate("2017-09-30 00:00:00", DateUtil.FULL_FORMAT_STR);
-//        Date lastDay2 = DateUtil.getNextMonthLastDay(day);
-        for (int i = 29; i >= 0; i--) {
-            HashMap<String, String> dateMap = new HashMap<>();
-            Date date1 = DateUtil.sometimeCalendar(lastDay2, i);
-            String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
-            String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
-            dateMap.put("startTime", startTime);
-            dateMap.put("endTime", endTime);
-            list.add(dateMap);
-        }
-
-
-        Date day3 = DateUtil.parseStringToDate("2017-09-01 00:00:00", DateUtil.FULL_FORMAT_STR);
-        Date lastDay3 = DateUtil.getNextMonthLastDay(day3);
-        for (int i = 30; i >= 0; i--) {
-            HashMap<String, String> dateMap = new HashMap<>();
-            Date date1 = DateUtil.sometimeCalendar(lastDay3, i);
-            String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
-            String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
-            dateMap.put("startTime", startTime);
-            dateMap.put("endTime", endTime);
-            list.add(dateMap);
-        }
-
-        Date day4 = DateUtil.parseStringToDate("2017-10-01 00:00:00", DateUtil.FULL_FORMAT_STR);
-        Date lastDay4 = DateUtil.getNextMonthLastDay(day4);
-        for (int i = 29; i >= 0; i--) {
-            HashMap<String, String> dateMap = new HashMap<>();
-            Date date1 = DateUtil.sometimeCalendar(lastDay4, i);
-            String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
-            String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
-            dateMap.put("startTime", startTime);
-            dateMap.put("endTime", endTime);
-            list.add(dateMap);
-        }
-        //本月数据
-        Date date = new Date();
-        Date firstDay = DateUtil.getMonthFirstDay(date);
-        int dayBetween = DateUtil.getDayBetween(firstDay, date);
-        if(dayBetween>0){
-            for (int i = dayBetween-1; i > 0; i--) {
+        for (int j = 0; j < 5; j++) {
+            Date   lastDay = DateUtil.getNextMonthLastDay(day);
+            Date firstDay = DateUtil.getNextMonthFirstDay(day);
+            day=lastDay;
+            int days = DateUtil.getDayBetween(firstDay, lastDay);
+            if(j==4){
+                days=DateUtil.getDayBetween(firstDay,new Date())-1;
+                lastDay=DateUtil.sometimeCalendar(new Date(),1);
+            }
+            for (int i = days - 1; i >= 0; i--) {
                 HashMap<String, String> dateMap = new HashMap<>();
-                Date date2 = DateUtil.sometimeCalendar(new Date(), i);
-                String startTime = DateUtil.getStartTime(date2, DateUtil.FULL_FORMAT_STR);
-                String endTime = DateUtil.getEndTime(date2, DateUtil.FULL_FORMAT_STR);
+                Date date1 = DateUtil.sometimeCalendar(lastDay, i);
+                String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
+                String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
                 dateMap.put("startTime", startTime);
                 dateMap.put("endTime", endTime);
                 list.add(dateMap);
             }
         }
-
         for (Map<String, String> map : list) {
             String startTime = map.get("startTime");
             String endTime = map.get("endTime");
@@ -101,6 +57,8 @@ public class DataServiceImpl {
             inquiryService.inquiryData(startTime, endTime);
         }
     }
+
+
 
 
 }

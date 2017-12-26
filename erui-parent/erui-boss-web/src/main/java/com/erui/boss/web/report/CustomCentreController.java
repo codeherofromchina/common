@@ -179,14 +179,17 @@ public class CustomCentreController {
 
         //油气产品统计
         List<InquiryCount> inquiryCounts = inquiryService.selectListByTime(startDate, endDate, quotes);
+        List<InquiryCount> chainCounts = inquiryService.selectListByTime(rateStartDate, endDate, quotes);
         List<IsOilVo> oilList = null;
         List<IsOilVo> oilChainList = null;
         List<String> nums = null;
+        List<String> chainNums = null;
         if (inquiryCounts != null && inquiryCounts.size() > 0) {
             nums = inquiryCounts.parallelStream().map(vo -> vo.getQuotationNum()).collect(Collectors.toList());//获取时间内报价的询单号
+            chainNums = chainCounts.parallelStream().map(vo -> vo.getQuotationNum()).collect(Collectors.toList());//获取时间内报价的询单号
             if (nums != null && nums.size() > 0) {
                 oilList = inquirySKUService.selectCountGroupByIsOil(startDate, endDate, nums);
-                oilChainList = inquirySKUService.selectCountGroupByIsOil(rateStartDate, startDate, nums);
+                oilChainList = inquirySKUService.selectCountGroupByIsOil(rateStartDate, startDate, chainNums);
             }
         }
         Map<String, Object> proIsOilMap = new HashMap<>();//油气产品分析
@@ -215,7 +218,7 @@ public class CustomCentreController {
             oiProportionl = RateUtil.intChainRate(oil, (oil + notOil));
         }
         if (oilChain > 0) {
-            oiProportionl = RateUtil.intChainRate(oil - oilChain, oilChain);
+            oilChainRate = RateUtil.intChainRate(oil - oilChain, oilChain);
         }
         proIsOilMap.put("oil", oil);
         proIsOilMap.put("notOil", notOil);

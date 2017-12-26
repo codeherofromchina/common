@@ -630,7 +630,7 @@ public class RequestCreditController {
                     groupBy = String.valueOf(m.get("org"));
                 }
                 areas.add(groupBy);
-                areaAmounts.add(amount1);
+                areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1));
             });
 
         }
@@ -669,26 +669,24 @@ public class RequestCreditController {
                 mapList.add(map);
             }
         }
-        mapList.sort(new Comparator<Map<String, Object>>() {
-            @Override
-            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                double areaAmount2=(Double) o2.get("areaAmount");
-                double areaAmount1=(Double) o1.get("areaAmount");
-                return (int)areaAmount2 -(int)areaAmount1;
-            }
-        });
-        if (mapList.size() > 0) {
-            areas.clear();
-            areaAmounts.clear();
-            for (Map<String ,Object> m:mapList) {
-                String area = m.get("area").toString();
-                Double areaAmount = (Double) m.get("areaAmount");
-                areas.add(area);
-                areaAmounts.add(areaAmount);
-            }
-
+        if(mapList.size()>0) {
+            mapList.sort(new Comparator<Map<String, Object>>() {
+                @Override
+                public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                    double areaAmount2 = (Double) o2.get("areaAmount");
+                    double areaAmount1 = (Double) o1.get("areaAmount");
+                    return (int) areaAmount2 - (int) areaAmount1;
+                }
+            });
+                areas.clear();
+                areaAmounts.clear();
+                for (Map<String, Object> m : mapList) {
+                    String area = m.get("area").toString();
+                    Double areaAmount = (Double) m.get("areaAmount");
+                    areas.add(area);
+                    areaAmounts.add(areaAmount);
+                }
         }
-
         //封装结果
         Map<String, Object> dataResult = new HashMap<>();
         if (type == 1) {

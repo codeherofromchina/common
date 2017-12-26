@@ -902,8 +902,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                             skuWriteMapper.deleteByExample(skuExample);
                                         }
                                     }
-//                                    inquiryCates.add(inquirySku);
-                                    skuWriteMapper.insertSelective(inquirySku);
+                                    inquiryCates.add(inquirySku);
+//                                    skuWriteMapper.insertSelective(inquirySku);
                                 }
                             }
 
@@ -922,11 +922,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 //                            mapper.insertSelective(inq);
 //                        }
 //                    }
-//                    if (inquiryCates != null && inquiryCates.size() > 0) {
-//                        for (InquirySku inqSKU:inquiryCates ) {
-//                            skuWriteMapper.insertSelective(inqSKU);
-//                        }
-//                    }
+                    if (inquiryCates != null && inquiryCates.size() > 0) {
+                        for (InquirySku inqSKU:inquiryCates ) {
+                            skuWriteMapper.insertSelective(inqSKU);
+                        }
+                    }
                 }
             }
         }
