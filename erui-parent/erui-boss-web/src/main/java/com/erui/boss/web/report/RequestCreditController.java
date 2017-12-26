@@ -193,6 +193,7 @@ public class RequestCreditController {
         Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }
+
     /**
      * @Author:lirb
      * @Description 2.应收账款总览
@@ -228,7 +229,7 @@ public class RequestCreditController {
         //1.应收未收 \ 已收、应收账款、下周未收、下月未收
         double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
-        double totalAmount=receive+backAmount;
+        double totalAmount = receive + backAmount;
         double weekReceive = requestCreditService.selectReceive(nextWeekStartTime, nextWeekEndTime, null, null, null, null);
         double MothReceive = requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null, null, null);
 
@@ -239,64 +240,65 @@ public class RequestCreditController {
         Date mothchainTime = DateUtil.sometimeCalendar(nextMonthStartTime, d2);//下月环比时间
         double chainReceive = requestCreditService.selectReceive(chainTime, startTime, null, null, null, null);
         double chainBackAmount = receiveService.selectBackAmount(chainTime, startTime, null, null, null, null);
-        double chainTotalAmount=chainReceive+chainBackAmount;
+        double chainTotalAmount = chainReceive + chainBackAmount;
         double chainWeekReceive = requestCreditService.selectReceive(weekchainTime, nextWeekStartTime, null, null, null, null);
         double chainMothReceive = requestCreditService.selectReceive(mothchainTime, nextMonthStartTime, null, null, null, null);
 
         //封装结果
-        Map<String ,Object> total=new HashMap<>();
-        total.put("receive",RateUtil.doubleChainRateTwo(totalAmount,10000)+"万$");
-        total.put("chainAdd",RateUtil.doubleChainRateTwo((totalAmount-chainTotalAmount),10000)+"万$");
-        if(chainTotalAmount>0){
-            total.put("chainRate",RateUtil.doubleChainRate((totalAmount-chainTotalAmount),chainTotalAmount));
-        }else {
-            total.put("chainRate",0d);
+        Map<String, Object> total = new HashMap<>();
+        total.put("receive", RateUtil.doubleChainRateTwo(totalAmount, 10000) + "万$");
+        total.put("chainAdd", RateUtil.doubleChainRateTwo((totalAmount - chainTotalAmount), 10000) + "万$");
+        if (chainTotalAmount > 0) {
+            total.put("chainRate", RateUtil.doubleChainRate((totalAmount - chainTotalAmount), chainTotalAmount));
+        } else {
+            total.put("chainRate", 0d);
         }
-        Map<String ,Object> notReceive=new HashMap<>();
-        notReceive.put("receive",RateUtil.doubleChainRateTwo(receive,10000)+"万$");
-        notReceive.put("chainAdd",RateUtil.doubleChainRateTwo(receive-chainReceive,10000)+"万$");
-        if(chainReceive>0) {
+        Map<String, Object> notReceive = new HashMap<>();
+        notReceive.put("receive", RateUtil.doubleChainRateTwo(receive, 10000) + "万$");
+        notReceive.put("chainAdd", RateUtil.doubleChainRateTwo(receive - chainReceive, 10000) + "万$");
+        if (chainReceive > 0) {
             notReceive.put("chainRate", RateUtil.doubleChainRateTwo(receive - chainReceive, chainReceive));
-        }else{
-            notReceive.put("chainRate",0d);
+        } else {
+            notReceive.put("chainRate", 0d);
         }
-        Map<String ,Object> received=new HashMap<>();
-        received.put("receive",RateUtil.doubleChainRateTwo(backAmount,10000)+"万$");
-        received.put("chainAdd",RateUtil.doubleChainRateTwo(backAmount-chainBackAmount,10000)+"万$");
-        if(chainBackAmount>0) {
-            received.put("chainRate", RateUtil.doubleChainRateTwo(backAmount-chainBackAmount, chainBackAmount));
-        }else{
-            received.put("chainRate",0d);
+        Map<String, Object> received = new HashMap<>();
+        received.put("receive", RateUtil.doubleChainRateTwo(backAmount, 10000) + "万$");
+        received.put("chainAdd", RateUtil.doubleChainRateTwo(backAmount - chainBackAmount, 10000) + "万$");
+        if (chainBackAmount > 0) {
+            received.put("chainRate", RateUtil.doubleChainRateTwo(backAmount - chainBackAmount, chainBackAmount));
+        } else {
+            received.put("chainRate", 0d);
         }
-        Map<String ,Object> nextWeekReceivable=new HashMap<>();
-        nextWeekReceivable.put("receive",RateUtil.doubleChainRateTwo(weekReceive,10000)+"万$");
-        nextWeekReceivable.put("chainAdd",RateUtil.doubleChainRateTwo(weekReceive-chainWeekReceive,10000)+"万$");
-        if(chainWeekReceive>0) {
-            nextWeekReceivable.put("chainRate", RateUtil.doubleChainRateTwo(weekReceive-chainWeekReceive, chainWeekReceive));
-        }else{
-            nextWeekReceivable.put("chainRate",0d);
+        Map<String, Object> nextWeekReceivable = new HashMap<>();
+        nextWeekReceivable.put("receive", RateUtil.doubleChainRateTwo(weekReceive, 10000) + "万$");
+        nextWeekReceivable.put("chainAdd", RateUtil.doubleChainRateTwo(weekReceive - chainWeekReceive, 10000) + "万$");
+        if (chainWeekReceive > 0) {
+            nextWeekReceivable.put("chainRate", RateUtil.doubleChainRateTwo(weekReceive - chainWeekReceive, chainWeekReceive));
+        } else {
+            nextWeekReceivable.put("chainRate", 0d);
         }
-        nextWeekReceivable.put("startTime",DateUtil.formatDateToString(nextWeekStartTime,DateUtil.SHORT_FORMAT_STR));
-        nextWeekReceivable.put("endTime",DateUtil.formatDateToString(nextWeekEndTime,DateUtil.SHORT_FORMAT_STR));
+        nextWeekReceivable.put("startTime", DateUtil.formatDateToString(nextWeekStartTime, DateUtil.SHORT_FORMAT_STR));
+        nextWeekReceivable.put("endTime", DateUtil.formatDateToString(nextWeekEndTime, DateUtil.SHORT_FORMAT_STR));
 
-        Map<String ,Object> nextMonthReceivable=new HashMap<>();
-        nextMonthReceivable.put("receive",RateUtil.doubleChainRateTwo(MothReceive,10000)+"万$");
-        nextMonthReceivable.put("chainAdd",RateUtil.doubleChainRateTwo(MothReceive-chainMothReceive,10000)+"万$");
-        if(chainMothReceive>0) {
-            nextMonthReceivable.put("chainRate", RateUtil.doubleChainRateTwo(MothReceive-chainMothReceive, chainMothReceive));
-        }else{
-            nextMonthReceivable.put("chainRate",0d);
+        Map<String, Object> nextMonthReceivable = new HashMap<>();
+        nextMonthReceivable.put("receive", RateUtil.doubleChainRateTwo(MothReceive, 10000) + "万$");
+        nextMonthReceivable.put("chainAdd", RateUtil.doubleChainRateTwo(MothReceive - chainMothReceive, 10000) + "万$");
+        if (chainMothReceive > 0) {
+            nextMonthReceivable.put("chainRate", RateUtil.doubleChainRateTwo(MothReceive - chainMothReceive, chainMothReceive));
+        } else {
+            nextMonthReceivable.put("chainRate", 0d);
         }
-        nextMonthReceivable.put("startTime",DateUtil.formatDateToString(nextMonthStartTime,DateUtil.SHORT_FORMAT_STR));
-        nextMonthReceivable.put("endTime",DateUtil.formatDateToString(nextMonthEndTime,DateUtil.SHORT_FORMAT_STR));
-        Map<String ,Object> data=new HashMap<>();
-        data.put("receive",total);
-        data.put("nextWeekReceivable",nextWeekReceivable);
-        data.put("received",received);
-        data.put("notReceive",notReceive);
-        data.put("nextMonthReceivable",nextMonthReceivable);
+        nextMonthReceivable.put("startTime", DateUtil.formatDateToString(nextMonthStartTime, DateUtil.SHORT_FORMAT_STR));
+        nextMonthReceivable.put("endTime", DateUtil.formatDateToString(nextMonthEndTime, DateUtil.SHORT_FORMAT_STR));
+        Map<String, Object> data = new HashMap<>();
+        data.put("receive", total);
+        data.put("nextWeekReceivable", nextWeekReceivable);
+        data.put("received", received);
+        data.put("notReceive", notReceive);
+        data.put("nextMonthReceivable", nextMonthReceivable);
         return new Result<>().setData(data);
     }
+
     /**
      * @Author:SHIGS
      * @Description 3.应收账款趋势图
@@ -364,9 +366,9 @@ public class RequestCreditController {
      * @modified By
      */
     @ResponseBody
-    @RequestMapping(value = "companyList",method = RequestMethod.POST,produces =  {"application/json;charset=utf-8"})
+    @RequestMapping(value = "companyList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object companyList(@RequestBody Map<String, String> map) {
-        String companyName=map.get("companyName");
+        String companyName = map.get("companyName");
         Result<Object> result = new Result<>();
         List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
@@ -529,15 +531,15 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //应收余额
-        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"),map.get("area"),map.get("country"));
+        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
         //回款金额
-        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), map.get("area"),map.get("country"));
+        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
         //获取下月应收
-        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"),map.get("area"),map.get("country"));
+        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
         //集团 余额、回款金额、下月应收
-        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null,null, null);
+        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null, null, null);
         double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
-        double TotalNextMothReceive = this.requestCreditService.selectReceive(endDate, nextMonthEndTime, null, null,null, null);
+        double TotalNextMothReceive = this.requestCreditService.selectReceive(endDate, nextMonthEndTime, null, null, null, null);
 
         ArrayList<Double> yAxis = new ArrayList<>();
         yAxis.add(receive + backAmount);
@@ -562,10 +564,10 @@ public class RequestCreditController {
         if (TotalNextMothReceive > 0) {
             nextProportion = RateUtil.doubleChainRateTwo(nextMothReceive, TotalNextMothReceive);
         }
-        xAxis.add("应收金额-占比" + RateUtil.doubleChainRateTwo(totalProportion * 100,1) + "%");
-        xAxis.add("已收金额-占比" + RateUtil.doubleChainRateTwo(backProportion * 100,1) + "%");
-        xAxis.add("应收未收-占比" + RateUtil.doubleChainRateTwo(receiveProportion * 100,1)  + "%");
-        xAxis.add("下月应收-占比" + RateUtil.doubleChainRateTwo(nextProportion * 100,1)  + "%");
+        xAxis.add("应收金额-占比" + RateUtil.doubleChainRateTwo(totalProportion * 100, 1) + "%");
+        xAxis.add("已收金额-占比" + RateUtil.doubleChainRateTwo(backProportion * 100, 1) + "%");
+        xAxis.add("应收未收-占比" + RateUtil.doubleChainRateTwo(receiveProportion * 100, 1) + "%");
+        xAxis.add("下月应收-占比" + RateUtil.doubleChainRateTwo(nextProportion * 100, 1) + "%");
         Map<String, Object> data = new HashMap<>();
         data.put("yAxis", yAxis);
         data.put("xAxis", xAxis);
@@ -600,10 +602,10 @@ public class RequestCreditController {
         List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(startDate, endDate);
         List<Map<String, Object>> orgpanyBackList = receiveService.selectBackAmountGroupByOrg(startDate, endDate);
         Map<String, Object> orgResult = this.getOrderAmountDetail(orgReceiveList, orgpanyBackList, 3);
-        Map<String, Object> data =new HashMap<>();
-        data.put("area",areaResult);
-        data.put("company",companyResult);
-        data.put("busUnit",orgResult);
+        Map<String, Object> data = new HashMap<>();
+        data.put("area", areaResult);
+        data.put("company", companyResult);
+        data.put("busUnit", orgResult);
         return new Result<>().setData(data);
     }
 
@@ -657,6 +659,37 @@ public class RequestCreditController {
                 }
             });
         }
+        //排序
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        if (areas.size() > 0 && areaAmounts.size() > 0 && areaAmounts.size() == areas.size()) {
+            for (int i = 0; i < areas.size(); i++) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("area", areas.get(i));
+                map.put("areaAmount", areaAmounts.get(i));
+                mapList.add(map);
+            }
+        }
+        mapList.sort(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                double areaAmount2=(Double) o2.get("areaAmount");
+                double areaAmount1=(Double) o1.get("areaAmount");
+                return (int)areaAmount2 -(int)areaAmount1;
+            }
+        });
+        if (mapList.size() > 0) {
+            areas.clear();
+            areaAmounts.clear();
+            for (Map<String ,Object> m:mapList) {
+                String area = m.get("area").toString();
+                Double areaAmount = (Double) m.get("areaAmount");
+                areas.add(area);
+                areaAmounts.add(areaAmount);
+            }
+
+        }
+
+        //封装结果
         Map<String, Object> dataResult = new HashMap<>();
         if (type == 1) {
             dataResult.put("areaAmount", areaAmounts);

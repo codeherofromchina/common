@@ -882,7 +882,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (goodsList.get("sku_type") != null && !goodsList.get("sku_type").equals("")) {
                                         inquirySku.setPlatProCategory(goodsList.get("oil_type").toString());
                                     } else {
-                                        inquirySku.setPlatProCategory("非平台");
+                                        inquirySku.setPlatProCategory("平台");
                                     }
                                     if (goodsList.get("quote_unit_price") != null) {
                                         inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));

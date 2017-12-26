@@ -116,20 +116,21 @@ public class CustomCentreController {
         platMap.put("platProportion",platProportion);
         platMap.put("planChainRate",platChainRate);
         // 询单Top 3 产品分类
+        int skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, null);
         List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(startDate, endDate, null);
         if (listTop3 != null && listTop3.size() > 0) {
             listTop3.parallelStream().forEach(m -> {
                 BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
-                m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
+                if(skuCount>0) {
+                    m.put("proProportionl", RateUtil.intChainRate(s.intValue(), skuCount));
+                }else {
+                    m.put("proProportionl",0d);
+                }
             });
         }
         //询价商品数
-        Integer skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, null);
         Integer skuCountChain = inquirySKUService.selectSKUCountByTime(rateStartDate, startDate, null);
         Map<String, Object> goodsMap = new HashMap<>();
-        if(skuCount==null){
-            skuCount=0;
-        }
         if(skuCountChain==null){
             skuCountChain=0;
         }
@@ -221,6 +222,7 @@ public class CustomCentreController {
         proIsOilMap.put("oiProportionl", oiProportionl);
         proIsOilMap.put("chainRate", oilChainRate);
         // 询单Top 3 产品分类
+        int skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate,nums);
         List<Map<String, Object>> listTop3 = null;
         if (nums != null && nums.size() > 0) {
             listTop3 = inquirySKUService.selectProTop3(startDate, endDate, nums);
@@ -228,7 +230,11 @@ public class CustomCentreController {
         if (listTop3 != null && listTop3.size() > 0) {
             listTop3.parallelStream().forEach(m -> {
                 BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
-                m.put("proProportionl", RateUtil.intChainRate(s.intValue(), count));
+                if(skuCount>0) {
+                    m.put("proProportionl", RateUtil.intChainRate(s.intValue(), skuCount));
+                }else {
+                    m.put("proProportionl",0d);
+                }
             });
         }
         Map<String, Object> datas = new HashMap<>();
