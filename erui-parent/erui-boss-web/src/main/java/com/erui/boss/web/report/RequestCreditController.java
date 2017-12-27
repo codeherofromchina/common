@@ -411,15 +411,18 @@ public class RequestCreditController {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         //下月应收
-        Date nextMonthEndTime = DateUtil.getNextMonthLastDay(startTime);
+        Date curDate = new Date();
+        Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
+        Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
         //应收,已收应收,未收总量
-        Map mapTotal = requestCreditService.selectRequestTotal(startTime, endTime);
-        if (mapTotal == null) {
-            mapTotal = new HashMap();
-            mapTotal.put("sdT", 0);
-            mapTotal.put("sded", 0);
-            mapTotal.put("sd", 0);
-        }
+//        Map mapTotal = requestCreditService.selectRequestTotal(startTime, endTime);
+        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
+        double totalAmount = receive + backAmount;
+          Map<String,Double>  mapTotal = new HashMap();
+            mapTotal.put("sdT", totalAmount);
+            mapTotal.put("sded", backAmount);
+            mapTotal.put("sd", receive);
         //应收金额
         BigDecimal totalOrderAmount = BigDecimal.ZERO;
         if (mapTotal.containsKey("sdT")) {
@@ -443,13 +446,14 @@ public class RequestCreditController {
 
 
         //根据区域或者国家
-        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime, endTime, map.get("area").toString(), country);
-        if (mapCount == null) {
-            mapCount = new HashMap();
-            mapCount.put("oa", 0);
-            mapCount.put("received", 0);
-            mapCount.put("ra", 0);
-        }
+//        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime, endTime, map.get("area").toString(), country);
+        double ra = requestCreditService.selectReceive(startTime, endTime, null, null, map.get("area").toString(), country);
+        double received = receiveService.selectBackAmount(startTime, endTime, null, null, map.get("area").toString(), country);
+        double oa = ra + received;
+          Map<String,Double>  mapCount = new HashMap();
+            mapCount.put("oa", oa);
+            mapCount.put("received", received);
+            mapCount.put("ra", ra);
         //应收金额
         BigDecimal acOrderAmount = BigDecimal.ZERO;
         if (mapCount.containsKey("oa")) {
@@ -466,11 +470,10 @@ public class RequestCreditController {
             acNotreceiveAmount = new BigDecimal(mapCount.get("ra").toString());
         }
         //下月应收
-        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextMonthEndTime, map.get("area").toString(), country);
-        if (mapNext == null) {
-            mapNext = new HashMap();
-            mapNext.put("sdT", 0);
-        }
+        double MothReceive = requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null, map.get("area").toString(), country);
+//        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextMonthEndTime, map.get("area").toString(), country);
+        Map<String,Double>   mapNext = new HashMap();
+            mapNext.put("sdT", MothReceive);
         BigDecimal nextOrderAmount = BigDecimal.ZERO;
         if (mapNext.containsKey("sdT")) {
             nextOrderAmount = new BigDecimal(mapNext.get("sdT").toString());
@@ -504,10 +507,8 @@ public class RequestCreditController {
         Map<String, Object> data = new HashMap();
         data.put("xAxis", conList);
         data.put("yAxis", amountList);
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", data);
-        result.put("code", 200);
-        return result;
+
+        return new Result<>().setData(data);
     }
 
     /**
