@@ -180,11 +180,11 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         }else if(receiveName.equals(types[1])){
             datas.put("legend","应收未收");
             datas.put("xAxis",dates);
-            datas.put("yAxis",bList);
+            datas.put("yAxis",rList);
         }else if(receiveName.equals(types[2])){
             datas.put("legend","应收已收");
             datas.put("xAxis",dates);
-            datas.put("yAxis",rList);
+            datas.put("yAxis",bList);
         }else if(receiveName.equals(types[3])){
             datas.put("legend","下月应收");
             datas.put("xAxis",nextDates);

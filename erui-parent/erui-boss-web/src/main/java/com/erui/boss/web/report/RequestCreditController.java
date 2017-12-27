@@ -471,6 +471,7 @@ public class RequestCreditController {
         }
         //下月应收
         double MothReceive = requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null, map.get("area").toString(), country);
+        double TotalMothReceive = requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null, null, null);
 //        Map mapNext = requestCreditService.selectRequestNextNew(new Date(), nextMonthEndTime, map.get("area").toString(), country);
         Map<String,Double>   mapNext = new HashMap();
             mapNext.put("sdT", MothReceive);
@@ -495,10 +496,10 @@ public class RequestCreditController {
         } else {
             conList.add("应收未收-占比" + df.format((acNotreceiveAmount.doubleValue() / totalNotreceiveAmount.doubleValue()) * 100) + "%");
         }
-        if (totalOrderAmount.doubleValue() == 0) {
+        if (TotalMothReceive == 0d) {
             conList.add("下月应收-占比0.00%");
         } else {
-            conList.add("下月应收-占比" + df.format((nextOrderAmount.doubleValue() / totalOrderAmount.doubleValue()) * 100) + "%");
+            conList.add("下月应收-占比" + df.format((nextOrderAmount.doubleValue() / TotalMothReceive) * 100) + "%");
         }
         amountList.add(acOrderAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
         amountList.add(acReceiveAmount.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
@@ -543,10 +544,10 @@ public class RequestCreditController {
         double TotalNextMothReceive = this.requestCreditService.selectReceive(endDate, nextMonthEndTime, null, null, null, null);
 
         ArrayList<Double> yAxis = new ArrayList<>();
-        yAxis.add(receive + backAmount);
-        yAxis.add(backAmount);
-        yAxis.add(receive);
-        yAxis.add(nextMothReceive);
+        yAxis.add(RateUtil.doubleChainRateTwo(receive + backAmount,1));
+        yAxis.add(RateUtil.doubleChainRateTwo(backAmount,1));
+        yAxis.add(RateUtil.doubleChainRateTwo(receive,1));
+        yAxis.add(RateUtil.doubleChainRateTwo(nextMothReceive,1));
 
         ArrayList<String> xAxis = new ArrayList<>();
         double totalProportion = 0d;
