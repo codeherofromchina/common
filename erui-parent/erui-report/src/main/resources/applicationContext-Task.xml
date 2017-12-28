@@ -10,7 +10,7 @@
 	default-lazy-init="false">
 
 	<task:scheduled-tasks>
-		<task:scheduled ref="DataTesk" method="supplyChainData" cron="0 20 11 * * ?"/>
+		<task:scheduled ref="DataTesk" method="supplyChainData" cron="0 15 12 * * ?"/>
 		<task:scheduled ref="DataTesk" method="totalData" cron="0 47 17 18 12 ?"/>
 	</task:scheduled-tasks>
 	<context:component-scan base-package="com.erui.report.service.impl" />
