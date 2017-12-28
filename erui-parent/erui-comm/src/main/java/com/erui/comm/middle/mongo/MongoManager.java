@@ -29,7 +29,7 @@ public class MongoManager {
 		private final static ThreadLocal<MongoClient> mongos = new ThreadLocal<MongoClient>();
 		
 		public static DB getdb(){
-			return getMongos().getDB("log");
+			return getMongos().getDB("syslog");
 		}
 
 		public static MongoClient getMongos() {
