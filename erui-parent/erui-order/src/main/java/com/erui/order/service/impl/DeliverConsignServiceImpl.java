@@ -25,8 +25,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private OrderDao orderDao;
+
     @Autowired
     private GoodsDao goodsDao;
+
     @Transactional
     @Override
     public DeliverConsign findById(Integer id) {
@@ -143,11 +145,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.getAttachmentSet().size();
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                deliverConsignGoods.getGoods().getId();
+                deliverConsignGoods.getGoods().getProject().getId();
             }
-
         }
-
         return page;
     }
 

@@ -49,11 +49,8 @@ public class DeliverNoticeController {
     @RequestMapping(value = "querExitInformMessage")
     public Result<Object> querExitInformMessage(Integer[] deliverNoticeId) {
         Integer[] deliverNoticeIds= {1};
-
         List<DeliverConsign> list= deliverConsignService.querExitInformMessage(deliverNoticeIds);
-
         Map<String,Object> data = new HashMap<>();
-
         List<Goods> goodsList = new ArrayList<>();  //商品信息
         List<String> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
         List<String> tradeTermsList = new ArrayList<>();  //贸易术语
@@ -71,7 +68,7 @@ public class DeliverNoticeController {
             toPlaceList.add(order1.getToPlace());
             transportTypeList.add(order1.getTransportType());
             agentNameList.add(order1.getAgentName());
-            deliveryDateList.add(order1.getDeliveryDate());
+            deliveryDateList.add(order1.getProject().getDeliveryDate());
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                 Goods goods = deliverConsignGoods.getGoods();
@@ -79,7 +76,6 @@ public class DeliverNoticeController {
                 goodsList.add(goods);
             }
         }
-
         data.put("goodsList",goodsList);//商品信息
         data.put("deliverConsignNoList",deliverConsignNoList);//出口发货通知单号
         data.put("tradeTermsList",tradeTermsList);//贸易术语
@@ -88,7 +84,6 @@ public class DeliverNoticeController {
         data.put("agentNameList",agentNameList);//商务技术经办人名字
         data.put("deliveryDateList",deliveryDateList);//执行单约定交付日期
         data.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
-
 
         return new Result<>(data);
     }
@@ -145,7 +140,6 @@ public class DeliverNoticeController {
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                     Goods goods = deliverConsignGoods.getGoods();
-                   /* goods.setProject(null);*/
                     goods.setSendNum(deliverConsignGoods.getSendNum());
                     goodsList.add(goods);
                 }
@@ -154,18 +148,9 @@ public class DeliverNoticeController {
             toPlaceList.add(order.getToPlace());
             transportTypeList.add(order.getTransportType());
             agentNameList.add(order.getAgentName());
-            deliveryDateList.add(order.getDeliveryDate());
-
+            deliveryDateList.add(order.getProject().getDeliveryDate());
         }
         Map<String,Object>  map = new HashMap<>();
-
-   /*     page.getSendDate();//下单时间
-        page.getUrgency();//紧急程度
-        page.getNumers();//件数
-        page.getPrepareReq();//备货要求
-        page.getPackageReq();//包装要求
-        page.getAttachmentSet();    //看货通知单附件*/
-
         map.put("id",page.getId());  //看货通知单id
         map.put("senderId", page.getSenderId());//下单人
         map.put("sendDate", page.getSendDate());//下单时间
@@ -185,8 +170,6 @@ public class DeliverNoticeController {
 
         return new Result<>(map);
     }
-
-
 
     /**
      * 看货通知管理   查询出口发货通知单

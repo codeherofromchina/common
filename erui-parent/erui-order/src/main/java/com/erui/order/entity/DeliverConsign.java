@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -39,7 +40,9 @@ public class DeliverConsign {
     private Date arrivalDate;
     @Column(name = "booking_date")
     private Date bookingDate;
-    private String status;
+    private Integer status;
+    @Column(name = "deliver_yn")
+    private Integer deliverYn;  //是否已发货
     @Column(name = "create_user_id")
     private Integer createUserId;
     @Column(name = "create_time")
@@ -54,7 +57,7 @@ public class DeliverConsign {
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
-    private int deliverYn;
+
 
     public Integer getId() {
         return id;
@@ -129,11 +132,11 @@ public class DeliverConsign {
         this.bookingDate = bookingDate;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
