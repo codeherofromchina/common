@@ -93,7 +93,7 @@ public class CustomCentreController {
                     if("平台".equals(plat)){
                         platCount=skuCount;
                     }else{
-                        notPlatCount=skuCount;
+                        notPlatCount+=skuCount;
                     }
                 }
         }

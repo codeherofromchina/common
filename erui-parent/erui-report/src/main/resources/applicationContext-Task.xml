@@ -11,7 +11,8 @@
 
 	<task:scheduled-tasks>
 		<task:scheduled ref="DataTesk" method="supplyChainData" cron="0 10 1 * * ?"/>
-		<task:scheduled ref="DataTesk" method="totalData" cron="0 56 18 28 12 ?"/>
+		<task:scheduled ref="DataTesk" method="inquiryData" cron="0 12 1 * * ?"/>
+	<!--	<task:scheduled ref="DataTesk" method="totalData" cron="0 29 22 28 12 ?"/>-->
 	</task:scheduled-tasks>
 	<context:component-scan base-package="com.erui.report.service.impl" />
 </beans>

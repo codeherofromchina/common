@@ -654,10 +654,10 @@ public class RequestCreditController {
                             index = i;
                         }
                     }
-                    areaAmounts.set(index, areaAmounts.get(index) + amount1);
+                    areaAmounts.set(index, areaAmounts.get(index) +RateUtil.doubleChainRateTwo(amount1,1) );
                 } else {
                     areas.add(groupBy);
-                    areaAmounts.add(amount1);
+                    areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1));
                 }
             });
         }
@@ -671,7 +671,7 @@ public class RequestCreditController {
                 mapList.add(map);
             }
         }
-        if(mapList.size()>0) {
+        if(mapList.size()>1) {
             mapList.sort(new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> o1, Map<String, Object> o2) {

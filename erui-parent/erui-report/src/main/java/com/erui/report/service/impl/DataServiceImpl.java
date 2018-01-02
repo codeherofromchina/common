@@ -24,19 +24,26 @@ public class DataServiceImpl {
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
-        inquiryService.inquiryData(startTime, endTime);
 
     }
 
+    public void inquiryData() throws Exception {
+        //获取前一天的两个时间点
+        Date date = DateUtil.sometimeCalendar(new Date(), 1);
+        String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
+        String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
+        inquiryService.inquiryData(startTime, endTime);
+
+    }
     public void totalData() throws Exception {
         Date day = DateUtil.parseStringToDate("2017-07-01 00:00:00", DateUtil.FULL_FORMAT_STR);
         List<Map<String, String>> list = new ArrayList<>();
-        for (int j = 0; j < 5; j++) {
+        for (int j = 0; j < 6; j++) {
             Date   lastDay = DateUtil.getNextMonthLastDay(day);
             Date firstDay = DateUtil.getNextMonthFirstDay(day);
             day=lastDay;
             int days = DateUtil.getDayBetween(firstDay, lastDay);
-            if(j==4){
+            if(j==5){
                 days=DateUtil.getDayBetween(firstDay,new Date())-1;
                 lastDay=DateUtil.sometimeCalendar(new Date(),1);
             }
