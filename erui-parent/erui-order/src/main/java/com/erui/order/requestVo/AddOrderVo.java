@@ -75,7 +75,8 @@ public class AddOrderVo {
 
     //商务技术经办人
     private Integer technicalId;
-
+    //商务技术经办人部门
+    private String technicalIdDept;
     //授信类型
     private String grantType;
 
@@ -346,6 +347,14 @@ public class AddOrderVo {
         this.technicalId = technicalId;
     }
 
+    public String getTechnicalIdDept() {
+        return technicalIdDept;
+    }
+
+    public void setTechnicalIdDept(String technicalIdDept) {
+        this.technicalIdDept = technicalIdDept;
+    }
+
     public String getGrantType() {
         return grantType;
     }
@@ -588,6 +597,7 @@ public class AddOrderVo {
         order.setPerLiableRepay(this.perLiableRepay);
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
+        order.setTechnicalIdDept(this.technicalIdDept);
         order.setGrantType(this.grantType);
         order.setIsPreinvest(this.isPreinvest);
         order.setIsFinancing(this.isFinancing);

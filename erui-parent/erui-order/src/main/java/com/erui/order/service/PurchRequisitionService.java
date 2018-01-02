@@ -13,4 +13,8 @@ public interface PurchRequisitionService {
      * @return
      */
     PurchRequisition findById(Integer id);
+
+    boolean updatePurchRequisition(PurchRequisition purchRequisition);
+
+    boolean insertPurchRequisition(PurchRequisition purchRequisition);
 }

@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.CompanyDao;
 import com.erui.order.entity.Area;
@@ -7,9 +8,16 @@ import com.erui.order.entity.Company;
 import com.erui.order.service.AreaService;
 import com.erui.order.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.List;
@@ -30,12 +38,22 @@ public class CompanyServiceImpl implements CompanyService {
         companyDaoOne.getDeptSet().size();
         return companyDaoOne;
     }
-
     @Override
     @Transactional
-    public List<Company> findAll() {
-        return companyDao.findAll();
+    public List<Company> findAll(String name) {
+        List<Company> companyList = companyDao.findAll(new Specification<Company>() {
+            @Override
+            public Predicate toPredicate(Root<Company> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 根据销售同号模糊查询
+                if (StringUtil.isNotBlank(name)) {
+                    list.add(cb.like(root.get("name").as(String.class), "%" + name + "%"));
+                }
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        });
+        return companyList;
     }
-
-
 }

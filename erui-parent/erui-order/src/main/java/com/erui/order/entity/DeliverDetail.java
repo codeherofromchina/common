@@ -23,13 +23,13 @@ public class DeliverDetail {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
-    private DeliverNotice deliverNotice; //看货通知单ID
+    private DeliverNotice deliverNotice;    //看货通知单ID
 
     // 销售合同号
     @Transient
     private String contractNo;
 
-    // 出口通知单号
+    // 项目号
     @Transient
     private String projectNo;
 
@@ -46,6 +46,8 @@ public class DeliverDetail {
     @Column(name = "carrier_co")
     private String carrierCo;   //承运单位名称
 
+    @Column(name = "Billing_date")
+    private Date BillingDate;   //开单日期
 
     private String driver;  //司机姓名
 
@@ -142,6 +144,9 @@ public class DeliverDetail {
     @Column(name = "leave_port_time")
     private Date leavePortTime; //实际离港时间
 
+    @Column(name = "accomplish_date")
+    private Date accomplishDate; //实际完成时间
+
     @Column(name = "arrival_port_time")
     private Date arrivalPortTime;   //预计抵达时间
 
@@ -155,6 +160,13 @@ public class DeliverDetail {
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
      */
     private Integer status;
+
+    @Column(name = "create_user_id")
+    private Integer createUserId;   //创建人id
+
+    @Column(name = "create_user_name")
+    private String createUserName;  //创建人名字
+
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -289,6 +301,22 @@ public class DeliverDetail {
         return goodsChkStatus;
     }
 
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
     public void setGoodsChkStatus(String goodsChkStatus) {
         this.goodsChkStatus = goodsChkStatus;
     }
@@ -376,6 +404,14 @@ public class DeliverDetail {
 
     public Date getApprovalDate() {
         return approvalDate;
+    }
+
+    public Date getAccomplishDate() {
+        return accomplishDate;
+    }
+
+    public void setAccomplishDate(Date accomplishDate) {
+        this.accomplishDate = accomplishDate;
     }
 
 
@@ -569,21 +605,7 @@ public class DeliverDetail {
     }
 
 
-    public Integer getCreateUserId() {
-        return createUserId;
-    }
 
-    public void setCreateUserId(Integer createUserId) {
-        this.createUserId = createUserId;
-    }
-
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
-    }
 
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人完整 5：完善物流状态中 6：项目完结',

@@ -67,6 +67,19 @@ public class Goods {
 
     private String brand;
 
+    @Transient
+    private String remarks; //备注
+
+    @Transient
+    private String packRequire;  //包装要求
+
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "goods")
+    //@JoinColumn(name = "order_id")
+    @JsonIgnore
+    private  DeliverConsignGoods deliverConsignGoods;
+
+
     private String model;
     @Column(name = "contract_goods_num")
     private Integer contractGoodsNum;
@@ -130,6 +143,30 @@ public class Goods {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public DeliverConsignGoods getDeliverConsignGoods() {
+        return deliverConsignGoods;
+    }
+
+    public void setDeliverConsignGoods(DeliverConsignGoods deliverConsignGoods) {
+        this.deliverConsignGoods = deliverConsignGoods;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public String getPackRequire() {
+        return packRequire;
+    }
+
+    public void setPackRequire(String packRequire) {
+        this.packRequire = packRequire;
     }
 
     public Project getProject() {

@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.util.*;
@@ -18,10 +19,11 @@ public class PurchRequisition {
     /**
      * 项目
      */
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="project_id")
     private Project project;
-
+    @Transient
+    private Integer proId;
     @Column(name="contract_no")
     private String contractNo;
 
@@ -55,14 +57,14 @@ public class PurchRequisition {
 
     private String remarks;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_attach",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_goods",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "goods_id"))
@@ -74,6 +76,14 @@ public class PurchRequisition {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getProId() {
+        return proId;
+    }
+
+    public void setProId(Integer proId) {
+        this.proId = proId;
     }
 
     public Project getProject() {

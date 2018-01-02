@@ -37,8 +37,9 @@ public class PurchGoods {
     @JsonIgnore
     private Purch purch;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "goods_id")
+    @JsonIgnore
     private Goods goods;
     /**
      * 商品ID

@@ -126,5 +126,15 @@ public class ProjectServiceImpl implements ProjectService {
         return list;
     }
 
+    @Transactional
+    @Override
+    public Project findDesc(Integer id) {
+        Project project = projectDao.findOne(id);
+        if (project != null) {
+            project.getOrder().getGoodsList().size();
+        }
+        return project;
+    }
+
 
 }
