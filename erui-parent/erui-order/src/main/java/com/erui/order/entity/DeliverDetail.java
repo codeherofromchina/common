@@ -33,9 +33,9 @@ public class DeliverDetail {
     @Transient
     private String projectNo;
 
-
+/*
     @Column(name = "product_discharged_no")
-    private String productDischargedNo;    //产品放行单号
+    private String productDischargedNo;    //产品放行单号*/
 
     /**
      * 开单日期
@@ -45,9 +45,6 @@ public class DeliverDetail {
 
     @Column(name = "carrier_co")
     private String carrierCo;   //承运单位名称
-
-    @Column(name = "Billing_date")
-    private Date BillingDate;   //开单日期
 
     private String driver;  //司机姓名
 
@@ -152,20 +149,15 @@ public class DeliverDetail {
 
 
     @Transient
-    private Integer createUserId;
+    private Integer createUserId; //创建人id
     @Transient
-    private String createUserName;
+    private String createUserName;  //创建人名字
 
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
      */
     private Integer status;
 
-    @Column(name = "create_user_id")
-    private Integer createUserId;   //创建人id
-
-    @Column(name = "create_user_name")
-    private String createUserName;  //创建人名字
 
 
 
@@ -200,13 +192,13 @@ public class DeliverDetail {
         this.id = id;
     }
 
-    public void setProductDischargedNo(String productDischargedNo) {
+  /*  public void setProductDischargedNo(String productDischargedNo) {
         this.productDischargedNo = productDischargedNo;
     }
 
     public String getProductDischargedNo() {
         return productDischargedNo;
-    }
+    }*/
 
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;

@@ -6,12 +6,14 @@ import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -172,42 +174,42 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     /**
      * 收款管理
      *
-     * @param order
+     * @param condition
      * @return
      */
  @Override
-    public Page<Order> gatheringManage(Order order) {
-        PageRequest request = new PageRequest(order.getPage(), order.getRows(), null);
+ @Transactional
+    public Page<Order> gatheringManage(OrderListCondition condition) {
+        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), null);
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
                 // 根据采购合同号模糊查询
-                if (StringUtil.isNotBlank(order.getContractNo())) {
-                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + order.getContractNo() + "%"));
+                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 //根据订单状态查询
-                if (order.getStatus() != null) {
-                    list.add(cb.equal(root.get("status").as(Integer.class), order.getStatus()));
+                if (condition.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
                 }
                 //根据订单签约日期
-                if (order.getSigningDate() != null) {
-                    list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(order.getSigningDate())));
+                if (condition.getSigningDate() != null) {
+                    list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 }
                 //根据po号
-                if (StringUtil.isNotBlank(order.getPoNo())) {
-                    list.add(cb.like(root.get("poNo").as(String.class), "%" + order.getPoNo() + "%"));
+                if (StringUtil.isNotBlank(condition.getPoNo())) {
+                    list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
                 }
                 //根据收款状态
-                if (order.getPayStatus() != null) {
-                    list.add(cb.equal(root.get("payStatus").as(Integer.class), order.getPayStatus()));
+                if (condition.getPayStatus() != null) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
                 }
                 //根据CRM客户代码
-                if (StringUtil.isNotBlank(order.getCrmCode())) {
-                    list.add(cb.equal(root.get("crmCode").as(String.class), order.getCrmCode()));
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
                 //
-
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);

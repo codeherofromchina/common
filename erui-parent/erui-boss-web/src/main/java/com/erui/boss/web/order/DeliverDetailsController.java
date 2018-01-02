@@ -1,6 +1,7 @@
 package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.DeliverDetail;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.service.DeliverDetailService;
@@ -38,10 +39,7 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundManage(@RequestBody DeliverD deliverD){
-
         Page<DeliverDetail> deliverDetail=deliverDetailService.outboundManage(deliverD);
-
-
         return new Result<>(deliverDetail);
     }
 
@@ -56,6 +54,20 @@ public class DeliverDetailsController {
 
     @RequestMapping(value = "outboundDetailsPage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundDetailsPage(){
+
+        return new Result<>(null);
+    }
+
+
+    /**
+     * 出库管理 - 查看（出库）
+     *
+     * @return
+     */
+    //TODO 待掉接口
+
+    @RequestMapping(value = "outboundDetails", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> outboundDetails(){
 
         return new Result<>(null);
     }

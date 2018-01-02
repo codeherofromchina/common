@@ -2,9 +2,11 @@ package com.erui.order.service;
 
 import com.erui.order.entity.DeliverDetail;
 import com.erui.order.requestVo.DeliverD;
+/*import com.erui.order.requestVo.DeliverDetailVo;*/
 import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -24,6 +26,8 @@ public interface DeliverDetailService {
      * @param condition
      * @return
      */
+  /*  Page<DeliverDetail> listByPage(DeliverDetailVo condition);*/
+
     Page<DeliverDetail> listByPage(DeliverDetailVo condition);
 
     /**
@@ -38,6 +42,9 @@ public interface DeliverDetailService {
      * @param deliverDetailVo
      * @return
      */
+   /* boolean save(DeliverDetailVo deliverDetailVo) throws Exception;*/
+
+    @Transactional
     boolean save(DeliverDetailVo deliverDetailVo) throws Exception;
 
     /**

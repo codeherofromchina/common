@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -36,7 +37,7 @@ public class DeliverNoticeController {
      * @return
      */
     @RequestMapping(value = "lookMoneyInformManage")
-    public Result<Object> lookMoneyInformManage(DeliverNotice condition) {
+    public Result<Object> lookMoneyInformManage(@RequestBody DeliverNotice condition) {
         Page<DeliverNotice> page = deliverNoticeService.listByPage(condition);
         return new Result<>(page);
     }
@@ -180,6 +181,7 @@ public class DeliverNoticeController {
         List<DeliverConsign> list =deliverConsignService.queryExitAdvice();
         return new Result<>();
     }
+
 
 
 

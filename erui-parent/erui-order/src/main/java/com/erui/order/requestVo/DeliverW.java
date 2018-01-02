@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class DeliverW {
 
-    private String productDischargedNo; //产品放行单号
+    private String deliverDetailNo; //产品放行单号
 
     private String contractNo; //销售合同号
 
@@ -21,9 +21,6 @@ public class DeliverW {
     private Integer rows;
 
 
-    public void setProductDischargedNo(String productDischargedNo) {
-        this.productDischargedNo = productDischargedNo;
-    }
 
     public void setContractNo(String contractNo) {
         this.contractNo = contractNo;
@@ -53,9 +50,6 @@ public class DeliverW {
         this.rows = rows;
     }
 
-    public String getProductDischargedNo() {
-        return productDischargedNo;
-    }
 
     public String getContractNo() {
         return contractNo;
@@ -75,6 +69,14 @@ public class DeliverW {
 
     public Integer getStatus() {
         return status;
+    }
+
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
+
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
     }
 
     public Integer getPage() {

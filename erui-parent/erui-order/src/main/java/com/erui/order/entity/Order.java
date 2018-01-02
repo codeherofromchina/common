@@ -201,16 +201,13 @@ public class Order {
     @Transient
     private int rows = 50;
 
-   @Column(name = "delivery_date_no")
-    private Date deliveryDateNo;    //执行单约定交付日期
+   /*@Column(name = "delivery_date_no")
+    private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "order_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "order")
     @JsonIgnore
     private Project project;
-
-
 
 
     public String getExecCoName() {
@@ -221,14 +218,12 @@ public class Order {
         this.page = page;
     }
 
-    public void setDeliveryDateNo(Date deliveryDateNo) {
+   /* public void setDeliveryDateNo(Date deliveryDateNo) {
         this.deliveryDateNo = deliveryDateNo;
     }
-
     public Date getDeliveryDateNo() {
-
         return deliveryDateNo;
-    }
+    }*/
 
     public void setExecCoName(String execCoName) {
         this.execCoName = execCoName;

@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -59,7 +60,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     list.add(cb.greaterThan(root.get("status").as(Integer.class), Integer.valueOf(1)));
                 }
 
-
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
@@ -83,7 +83,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @param deliverDetailVo
      * @return
      */
-    @Override
+   @Override
     @Transactional
     public boolean save(DeliverDetailVo deliverDetailVo) throws Exception {
         DeliverDetail deliverDetail = null;
@@ -123,8 +123,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 List<Predicate> list = new ArrayList<>();
 
                 // 根据产品放行单号查询
-                if (StringUtil.isNotBlank(deliverD.getProductDischargedNo())) {
-                    list.add(cb.like(root.get("productDischargedNo").as(String.class), "%" + deliverD.getProductDischargedNo() + "%"));
+                if (StringUtil.isNotBlank(deliverD.getDeliverDetailNo())) {
+                    list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + deliverD.getDeliverDetailNo() + "%"));
                 }
 
                 //根据销售合同号   根据项目号
@@ -194,8 +194,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
                 // 根据产品放行单号查询
-                if (StringUtil.isNotBlank(deliverW.getProductDischargedNo())) {
-                    list.add(cb.like(root.get("productDischargedNo").as(String.class), "%" + deliverW.getProductDischargedNo()+ "%"));
+                if (StringUtil.isNotBlank(deliverW.getDeliverDetailNo())) {
+                    list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + deliverW.getDeliverDetailNo()+ "%"));
                 }
                 //根据销售合同号
                 if (StringUtil.isNotBlank(deliverW.getContractNo())){
@@ -336,7 +336,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
             attachmentList02.addAll(attachments);
-            one.setAttachmentList(new HashSet<>(attachmentList02));
+            one.setAttachmentList(attachmentList02);
 
             deliverDetailDao.saveAndFlush(one);
 
@@ -432,9 +432,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setRemarks(deliverDetail.getRemarks());
         }
         //实际创建时间
-        if (deliverDetail.getStatus() == 6) {
-            one.setAccomplishDate(new Date());
-        }
+            if (deliverDetail.getStatus() == 6) {
+                one.setAccomplishDate(new Date());
+            }
         // 只接受国际物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "国际物流部".equals(attachment.getGroup());
@@ -454,7 +454,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
         attachmentList02.addAll(attachments);
-        one.setAttachmentList(new HashSet<>(attachmentList02));
+        one.setAttachmentList(attachmentList02);
 
         deliverDetailDao.saveAndFlush(one);
     }
@@ -467,6 +467,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
+    @Transactional
     public DeliverDetail queryLogisticsTrace(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
         if(one.getStatus() == 6){

@@ -4,14 +4,20 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * 收款管理
+ */
 
 @RestController
 @RequestMapping(value = "/order/financeManage")
@@ -30,7 +36,10 @@ public class OrderAccountController {
     @RequestMapping(value="queryGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryGatheringRecord(@RequestParam(name = "id") Integer id ){
         List<OrderAccount> orderAccountList = orderAccountService.queryGatheringRecordAll(id);
-        return new Result<>(orderAccountList);
+        for (OrderAccount orderAccount :orderAccountList){
+            orderAccount.setOrder(null);
+        }
+            return new Result<>(orderAccountList);
     }
 
 
@@ -69,6 +78,7 @@ public class OrderAccountController {
     @RequestMapping(value="findById", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> findById(@RequestParam(name = "id") Integer id ){
         OrderAccount orderAccount = orderAccountService.findById(id);
+        orderAccount.setOrder(null);
         return new Result<>(orderAccount);
     }
 
@@ -110,16 +120,18 @@ public class OrderAccountController {
 
     /**
      * 收款管理
-     * @param order
+     * @param condition
      * @return
      */
    @RequestMapping(value = "gatheringManage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringManage( Order order){
-       Page<Order> orderbyId= orderAccountService.gatheringManage(order);
+    public Result<Object> gatheringManage(@RequestBody OrderListCondition condition){
+       Page<Order> orderbyId= orderAccountService.gatheringManage(condition);
+       for (Order order1 : orderbyId){
+           order1.setAttachmentSet(null);
+           order1.setGoodsList(null);
+           order1.setOrderPayments(null);
+       }
        return new Result<>(orderbyId);
     }
-
-
-
 
 }

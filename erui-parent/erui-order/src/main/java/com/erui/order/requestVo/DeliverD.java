@@ -9,7 +9,7 @@ import java.util.Date;
 public class DeliverD {
 
 
-    private String productDischargedNo; //产品放行单号
+    private String deliverDetailNo; //产品放行单号
 
     private String contractNo; //销售合同号
 
@@ -25,10 +25,12 @@ public class DeliverD {
 
     private Integer rows;
 
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
 
-
-    public String getProductDischargedNo() {
-        return productDischargedNo;
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
     }
 
     public String getContractNo() {
@@ -87,7 +89,4 @@ public class DeliverD {
         this.rows = rows;
     }
 
-    public void setProductDischargedNo(String productDischargedNo) {
-        this.productDischargedNo = productDischargedNo;
-    }
 }
