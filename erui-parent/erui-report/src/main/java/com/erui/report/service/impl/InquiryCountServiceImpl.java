@@ -870,17 +870,17 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                         inquirySku.setProCategory(goodsList.get("category").toString());
                                     }
 
-                                        inquirySku.setCateCount(1);
-//                                    if (goodsList.get("qty") != null) {
-//                                        inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
-//                                    }
+//                                        inquirySku.setCateCount(1);
+                                    if (goodsList.get("qty") != null) {
+                                        inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
+                                    }
                                     if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
                                         inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
                                     } else {
                                         inquirySku.setIsOilGas("油气");
                                     }
                                     if (goodsList.get("sku_type") != null && !goodsList.get("sku_type").equals("")) {
-                                        inquirySku.setPlatProCategory(goodsList.get("oil_type").toString());
+                                        inquirySku.setPlatProCategory(goodsList.get("sku_type").toString());
                                     } else {
                                         inquirySku.setPlatProCategory("平台");
                                     }

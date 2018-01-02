@@ -4,6 +4,7 @@ import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCountExample;
 import com.erui.report.model.InquirySku;
 import com.erui.report.model.InquirySkuExample;
+import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.IsOilVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,4 +45,6 @@ public interface InquirySkuMapper {
     List<CateDetailVo> selectSKUDetailByCategory(InquirySkuExample example);
 
      void  deleteByQuotetionNum(String quotetionNum);
+     //获取sku区域数据汇总
+    CustomerNumSummaryVO selectNumSummaryByExcample(InquirySkuExample example);
 }

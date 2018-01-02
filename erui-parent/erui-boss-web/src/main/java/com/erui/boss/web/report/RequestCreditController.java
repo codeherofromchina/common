@@ -683,10 +683,18 @@ public class RequestCreditController {
                 areas.clear();
                 areaAmounts.clear();
                 for (Map<String, Object> m : mapList) {
-                    String area = m.get("area").toString();
-                    Double areaAmount = (Double) m.get("areaAmount");
-                    areas.add(area);
-                    areaAmounts.add(areaAmount);
+                    String area=null;
+                    Double areaAmount=0d;
+                    if(m.get("area")!=null) {
+                         area = m.get("area").toString();
+                    }
+                    if(m.get("areaAmount")!=null) {
+                        areaAmount = (Double) m.get("areaAmount");
+                    }
+                    if(area!=null) {
+                        areas.add(area);
+                        areaAmounts.add(areaAmount);
+                    }
                 }
         }
         //封装结果

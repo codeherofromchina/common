@@ -4,6 +4,7 @@ import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquirySkuExample;
 import com.erui.report.service.InquirySKUService;
+import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.IsOilVo;
 import org.springframework.stereotype.Service;
 
@@ -94,4 +95,5 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
         }
         return readMapper. selectCountGroupByIsPlat(example);
     }
+
 }
