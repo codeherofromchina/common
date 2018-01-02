@@ -17,9 +17,8 @@ public class DeliverDetailVo {
     private Integer status ; // 状态
 
     private int page;
+
     private int pageSize;
-
-
 
     public Integer getId() {
         return id;
