@@ -9,5 +9,6 @@
 	</context:component-scan>
 	<context:property-placeholder
 		ignore-unresolvable="true" location="classpath:application.properties" />
-	
+	<import resource="classpath:report-quartz.xml"/>
+
 </beans>

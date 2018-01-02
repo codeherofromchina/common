@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component("DataTesk")
+@Component("dataService")
 public class DataServiceImpl {
 
     @Autowired
@@ -18,23 +18,16 @@ public class DataServiceImpl {
     private InquiryCountService inquiryService;
 
 
-    public void supplyChainData() throws Exception {
+    public void supplyChainData() throws  Exception{
         //获取前一天的两个时间点
+        System.out.println("执行一次调度");
         Date date = DateUtil.sometimeCalendar(new Date(), 1);
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         readService.supplyChainReadData(startTime, endTime);
-
-    }
-
-    public void inquiryData() throws Exception {
-        //获取前一天的两个时间点
-        Date date = DateUtil.sometimeCalendar(new Date(), 1);
-        String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
-        String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
         inquiryService.inquiryData(startTime, endTime);
-
     }
+
     public void totalData() throws Exception {
         Date day = DateUtil.parseStringToDate("2017-07-01 00:00:00", DateUtil.FULL_FORMAT_STR);
         List<Map<String, String>> list = new ArrayList<>();
@@ -49,18 +42,18 @@ public class DataServiceImpl {
             }
             for (int i = days - 1; i >= 0; i--) {
                 HashMap<String, String> dateMap = new HashMap<>();
-                Date date1 = DateUtil.sometimeCalendar(lastDay, i);
+               Date date1 = DateUtil.sometimeCalendar(lastDay, i);
                 String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
                 String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
                 dateMap.put("startTime", startTime);
-                dateMap.put("endTime", endTime);
-                list.add(dateMap);
+               dateMap.put("endTime", endTime);
+               list.add(dateMap);
             }
         }
-        for (Map<String, String> map : list) {
-            String startTime = map.get("startTime");
+       for (Map<String, String> map : list) {
+           String startTime = map.get("startTime");
             String endTime = map.get("endTime");
-            readService.supplyChainReadData(startTime, endTime);
+           readService.supplyChainReadData(startTime, endTime);
             inquiryService.inquiryData(startTime, endTime);
         }
     }

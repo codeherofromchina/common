@@ -248,7 +248,7 @@ public class CustomCentreController {
     }
     @RequestMapping("/data")
     public void data() throws Exception {
-        DataServiceImpl.totalData();
+        //DataServiceImpl.totalData();
     }
     /*
      * 订单总览
