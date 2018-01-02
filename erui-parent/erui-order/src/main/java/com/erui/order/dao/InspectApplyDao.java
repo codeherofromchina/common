@@ -1,8 +1,8 @@
 package com.erui.order.dao;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.InspectApply;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
-public interface InspectApplyDao extends JpaRepository<InspectApply, Serializable> {
+public interface InspectApplyDao extends JpaRepository<InspectApply, Serializable>,JpaSpecificationExecutor<InspectApply> {
     /**
      * 通过采购单查询主报检单列表
      * @param parchId 采购单ID

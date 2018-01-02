@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,24 +79,17 @@ public class InspectReportServiceImpl implements InspectReportService {
 
 
                 Join<InspectReport, InspectApply> inspectApply = root.join("inspectApply");
-                // 销售合同号/项目号模糊查询
-                if (StringUtils.isNotBlank(condition.getContractNo()) || StringUtils.isNotBlank(condition.getProjectNo())) {
+                list.add(cb.equal(inspectApply.get("master").as(Boolean.class), Boolean.TRUE)); // 只查询主质检单
 
-                    Join<InspectApply, InspectApplyGoods> inspectApplyGoods = inspectApply.join("inspectApplyGoodsList");
-                    Join<InspectApplyGoods, Goods> goods = inspectApplyGoods.join("goods");
-
-                    // 销售合同号模糊查询
-                    if (StringUtils.isNotBlank(condition.getContractNo())) {
-                        list.add(cb.like(goods.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                Set<InspectApply> inspectApplySet = findByProjectNoAndContractNo(condition.getProjectNo(), condition.getContractNo());
+                if (inspectApplySet != null && inspectApplySet.size() > 0) {
+                    CriteriaBuilder.In<Object> idIn = cb.in(inspectApply.get("id"));
+                    for (InspectApply p : inspectApplySet) {
+                        idIn.value(p.getId());
                     }
-
-
-                    // 根据项目号模糊查询
-                    if (StringUtils.isNotBlank(condition.getProjectNo())) {
-                        list.add(cb.like(goods.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
-                    }
-
+                    list.add(idIn);
                 }
+
                 // 根据采购合同号模糊查询
                 if (StringUtils.isNotBlank(condition.getPurchNo())) {
                     list.add(cb.like(inspectApply.get("purchNo").as(String.class), "%" + condition.getPurchNo() + "%"));
@@ -161,6 +151,44 @@ public class InspectReportServiceImpl implements InspectReportService {
         return page;
     }
 
+
+    // 根据销售号和项目号查询报检列表信息
+    private Set<InspectApply> findByProjectNoAndContractNo(String projectNo, String contractNo) {
+        Set<InspectApply> result = null;
+        if (!(StringUtils.isBlank(projectNo) && StringUtils.isBlank(contractNo))) {
+            List<InspectApply> list = inspectApplyDao.findAll(new Specification<InspectApply>() {
+
+                @Override
+                public Predicate toPredicate(Root<InspectApply> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+
+
+                    Join<InspectApply, InspectApplyGoods> inspectApplyGoods = root.join("inspectApplyGoodsList");
+                    Join<InspectApplyGoods, Goods> goods = inspectApplyGoods.join("goods");
+
+                    // 销售合同号模糊查询
+                    if (StringUtils.isNotBlank(contractNo)) {
+                        list.add(cb.like(goods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                    }
+
+                    // 根据项目号模糊查询
+                    if (StringUtils.isNotBlank(projectNo)) {
+                        list.add(cb.like(goods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                    }
+
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            });
+        }
+
+
+        return result;
+    }
+
+
     /**
      * 保存质检单
      *
@@ -191,6 +219,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         dbInspectReport.setCheckDate(inspectReport.getCheckDate());
         dbInspectReport.setDoneDate(inspectReport.getDoneDate());
         dbInspectReport.setReportRemarks(inspectReport.getReportRemarks());
+        dbInspectReport.setStatus(statusEnum.getCode());
 
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInspectReport.getAttachments(), inspectReport.getAttachments(), inspectReport.getCreateUserId(), inspectReport.getCreateUserName());
@@ -198,74 +227,54 @@ public class InspectReportServiceImpl implements InspectReportService {
 
         // 处理商品信息
         Map<Integer, InspectApplyGoods> inspectGoodsMap = inspectReport.getInspectGoodsList().parallelStream().
-                collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo));
-        List<InspectApplyGoods> inspectGoodsList = dbInspectReport.getInspectGoodsList();
+                collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo)); // 参数的质检商品
+        List<InspectApplyGoods> inspectGoodsList = dbInspectReport.getInspectGoodsList(); // 数据库原来报检商品
         if (inspectGoodsMap.size() != inspectGoodsList.size()) {
             return false;
         }
-        List<PurchGoods> updatePurchGoodsList = new ArrayList<>();
-        boolean hege = true;
-        Map<Integer, PurchGoods> purchGoodsMap = dbInspectReport.getInspectApply().getPurch().getPurchGoodsList().parallelStream().collect(Collectors.toMap(vo02 -> {
-            return vo02.getGoods().getId();
-        }, vo02 -> vo02));
+        boolean hegeFlag = true;
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
             if (paramApplyGoods == null) {
                 return false;
             }
 
-            Integer inspectNum = applyGoods.getInspectNum();
             applyGoods.setSamples(paramApplyGoods.getSamples());
-            Integer unqualified = paramApplyGoods.getUnqualified();
-
-            if (unqualified > 0) {
-                if (paramApplyGoods.getSamples() < unqualified) {
-                    return false;
-                }
-                hege = false;
-            } else if (unqualified < 0) {
-                unqualified = 0;
-            }
-            applyGoods.setUnqualified(unqualified);
+            applyGoods.setUnqualified(paramApplyGoods.getUnqualified());
             applyGoods.setUnqualifiedDesc(applyGoods.getUnqualifiedDesc());
+            if (applyGoods.getUnqualified() > 0) {
+                hegeFlag = false;
+            }
 
+            // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
-                Goods goods = applyGoods.getGoods();
-
-                int instockNum = inspectNum - unqualified;
-                if (instockNum < 0) {
+                // 合格数量
+                int qualifiedNum = applyGoods.getInspectNum() - applyGoods.getUnqualified();
+                if (qualifiedNum < 0) {
                     return false;
                 }
-                applyGoods.setInstockNum(instockNum);
-
-                PurchGoods purchGoods = purchGoodsMap.get(goods.getId());
-                purchGoods.setInspectSubmitNum(purchGoods.getInspectSubmitNum() + inspectNum);
-                updatePurchGoodsList.add(purchGoods);
+                PurchGoods purchGoods = applyGoods.getPurchGoods();
+                purchGoods.setGoodNum(purchGoods.getGoodNum() + qualifiedNum);
+                purchGoodsDao.save(purchGoods);
             }
         }
-
-        if (updatePurchGoodsList.size() > 0) {
-            purchGoodsDao.save(updatePurchGoodsList);
-        }
-
 
         // 提交动作 则设置第一次质检，和相应的报检信息
         if (statusEnum == InspectReport.StatusEnum.DONE) {
             dbInspectReport.setProcess(false);
             InspectApply inspectApply = dbInspectReport.getInspectApply();
 
-            if (hege && !dbInspectReport.getReportFirst()) {
+            if (hegeFlag && !dbInspectReport.getReportFirst()) {
                 // 将第一次质检设置为完成
-                InspectApply parentInspectApply = dbInspectReport.getInspectApply().getParent();
+                InspectApply parentInspectApply = inspectApply.getParent();
                 InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(parentInspectApply.getId());
                 firstInspectReport.setProcess(false);
                 inspectReportDao.save(firstInspectReport);
-            } else if (dbInspectReport.getReportFirst() && !hege) {
+            } else if (dbInspectReport.getReportFirst() && !hegeFlag) {
                 dbInspectReport.setProcess(true);
             }
 
-            inspectApply.setStatus(hege ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
-
+            inspectApply.setStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
             inspectApplyDao.save(inspectApply);
         }
 
@@ -277,7 +286,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
             boolean doneFlag = true;
             for (PurchGoods pg : purchGoodsList) {
-                if (pg.getInspectSubmitNum() < pg.getPurchaseNum()) {
+                if (pg.getGoodNum() < pg.getPurchaseNum()) {
                     doneFlag = false;
                     break;
                 }
@@ -291,6 +300,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
             instock.setInspectApplyNo(dbInspectReport.getInspectApplyNo()); // 报检单号
+            instock.setSupplierName(dbInspectReport.getInspectApply().getPurch().getSupplierName()); // 供应商
             instock.setStatus(Instock.StatusEnum.INIT.getStatus());
             instock.setCreateTime(new Date());
             List<InstockGoods> instockGoodsList = new ArrayList<>();
@@ -298,12 +308,14 @@ public class InspectReportServiceImpl implements InspectReportService {
             for (InspectApplyGoods inspectGoods : dbInspectReport.getInspectGoodsList()) {
                 InstockGoods instockGoods = new InstockGoods();
                 instockGoods.setInstock(instock);
+                instockGoods.setContractNo(inspectGoods.getGoods().getContractNo());
+                instockGoods.setProjectNo(inspectGoods.getGoods().getProjectNo());
                 instockGoods.setInspectApplyGoods(inspectGoods);
+                instockGoods.setQualifiedNum(inspectGoods.getInspectNum() - inspectGoods.getUnqualified());
+                instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
                 Date date = new Date();
                 instockGoods.setCreateTime(date);
                 instockGoods.setUpdateTime(date);
-                instockGoods.setQualifiedNum(inspectGoods.getInspectNum() - inspectGoods.getUnqualified());
-                instockGoods.setInstockNum(0); // 入库数量
                 instockGoods.setCreateUserId(dbInspectReport.getCreateUserId());
             }
             instock.setInstockGoodsList(instockGoodsList);

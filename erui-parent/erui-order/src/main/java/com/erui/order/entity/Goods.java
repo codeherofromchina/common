@@ -41,9 +41,9 @@ public class Goods {
 
     private String sku;
 
-    @Column(name="mete_type")
+    @Column(name = "mete_type")
     private String meteType; // 物料分类
-    @Column(name="pro_type")
+    @Column(name = "pro_type")
     private String proType; // 产品分类
     @Column(name = "name_en")
     private String nameEn;
@@ -51,7 +51,7 @@ public class Goods {
     private String nameZh;
 
 
-    @Column(name="send_num")
+    @Column(name = "send_num")
     private Integer sendNum;    //本批次发货数量
 
 
@@ -100,9 +100,9 @@ public class Goods {
 
     @Column(name = "purchased_num")
     private Integer purchasedNum;
-    // 已报检提交数量
     @Column(name = "inspect_num")
     private Integer inspectNum;
+
     //已入库数量
     @Column(name = "instock_num")
     private Integer instockNum;
@@ -110,16 +110,15 @@ public class Goods {
     private Integer outstockApplyNum;
     @Column(name = "outstock_num")
     private Integer outstockNum;
-    @Column(name = "tax_price")
-    private BigDecimal taxPrice;
-    @Column(name = "non_tax_price")
-    private BigDecimal nonTaxPrice;
-    @Column(name = "total_price")
-    private BigDecimal totalPrice;
 
-    private BigDecimal height;
 
-    private String lwh;
+    public Integer getInspectNum() {
+        return inspectNum;
+    }
+
+    public void setInspectNum(Integer inspectNum) {
+        this.inspectNum = inspectNum;
+    }
 
     public Integer getId() {
         return id;
@@ -136,7 +135,8 @@ public class Goods {
     public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
-    @JoinColumn(name = "order_id",insertable = false,updatable = false)
+
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
     public Order getOrder() {
         return order;
     }
@@ -338,15 +338,6 @@ public class Goods {
         this.purchasedNum = purchasedNum;
     }
 
-    public Integer getInspectNum() {
-        return inspectNum;
-    }
-
-    public void setInspectNum(Integer inspectNum) {
-        this.inspectNum = inspectNum;
-    }
-
-
     public Integer getInstockNum() {
         return instockNum;
     }
@@ -369,46 +360,6 @@ public class Goods {
 
     public void setOutstockNum(Integer outstockNum) {
         this.outstockNum = outstockNum;
-    }
-
-    public BigDecimal getTaxPrice() {
-        return taxPrice;
-    }
-
-    public void setTaxPrice(BigDecimal taxPrice) {
-        this.taxPrice = taxPrice;
-    }
-
-    public BigDecimal getNonTaxPrice() {
-        return nonTaxPrice;
-    }
-
-    public void setNonTaxPrice(BigDecimal nonTaxPrice) {
-        this.nonTaxPrice = nonTaxPrice;
-    }
-
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public BigDecimal getHeight() {
-        return height;
-    }
-
-    public void setHeight(BigDecimal height) {
-        this.height = height;
-    }
-
-    public String getLwh() {
-        return lwh;
-    }
-
-    public void setLwh(String lwh) {
-        this.lwh = lwh;
     }
 
 }

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,23 +43,10 @@ public class InspectApplyController {
         if (inspectApplyList != null) {
             // 转换数据
             List<Map<String, Object>> data = inspectApplyList.stream().map(vo -> {
-                Map<String, Object> map = new HashMap<>();
-                map.put("id", vo.getId()); // 报检单ID
-                map.put("inspectApplyNo", vo.getInspectApplyNo()); // 采购合同号
-                map.put("purchNo", vo.getPurchNo()); // 到货报检单号
-                map.put("department", vo.getDepartment()); // 下发部门
-                map.put("purchaseName", vo.getPurchaseName()); // 采购经办人
-                map.put("supplierName", vo.getSupplierName()); // 供应商名称
-                map.put("inspectDate", vo.getInspectDate()); // 报检日期
-                map.put("num", vo.getNum()); //报检次数
-                map.put("status", vo.getStatus()); // 质检结果
-                map.put("history", vo.isHistory()); //
-                return map;
+                return coverInspectApply2Map(vo);
             }).collect(Collectors.toList());
-
             return new Result<>(data);
         }
-
         return new Result<>(ResultStatusEnum.FAIL);
 
     }
@@ -74,21 +62,51 @@ public class InspectApplyController {
     public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
         InspectApply inspectApply = inspectApplyService.findDetail(id);
         if (inspectApply != null) {
-            // 组织数据格式
-            inspectApply.setpId(inspectApply.getPurch().getId());
-            List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();
-            for (InspectApplyGoods inspectApplyGoods : inspectApplyGoodsList) {
-                Goods goods = inspectApplyGoods.getGoods();
-                PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
-                inspectApplyGoods.setHasInspectNum(purchGoods.getInspectNum());
-                inspectApplyGoods.setPurchGoods(null);
-                inspectApplyGoods.setgId(goods.getId());
+            // 数据转换
+            Map<String, Object> data = new HashMap<>();
+            data.put("id", inspectApply.getId());
+            data.put("department", inspectApply.getDepartment());
+            data.put("purchaseName", inspectApply.getPurchaseName());
+            data.put("sSupplierName", inspectApply.getSupplierName());
+            data.put("abroadCoName", inspectApply.getAbroadCoName());
+            data.put("inspectDate", inspectApply.getInspectDate());
+            data.put("direct", inspectApply.getDirect());
+            data.put("outCheck", inspectApply.getOutCheck());
+            data.put("remark", inspectApply.getRemark());
+            data.put("attachmentList", inspectApply.getAttachmentList());
+
+            List<Map<String, Object>> inspectApplyGoodsList = new ArrayList<>();
+            for (InspectApplyGoods vo : inspectApply.getInspectApplyGoodsList()) {
+                Goods goods = vo.getGoods();
+                PurchGoods purchGoods = vo.getPurchGoods();
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", vo.getId());
+                map.put("purchGid", vo.getId());
+                map.put("contractNo", goods.getContractNo());
+                map.put("projectNo", goods.getProjectNo());
+                map.put("sku", goods.getSku());
+                map.put("proType", goods.getProType());
+                map.put("nameEn", goods.getNameEn());
+                map.put("nameZh", goods.getNameZh());
+                map.put("brand", goods.getBrand());
+                map.put("model", goods.getModel());
+                map.put("purchaseNum", purchGoods.getPurchaseNum());
+                map.put("hasInspectNum", purchGoods.getPurchaseNum() - purchGoods.getInspectNum());
+                map.put("inspectNum", vo.getInspectNum()); // 报检数量
+                map.put("unit", goods.getUnit());
+                map.put("nonTaxPrice", purchGoods.getNonTaxPrice());
+                map.put("taxPrice", purchGoods.getTaxPrice());
+                map.put("totalPrice", purchGoods.getTotalPrice());
+                map.put("height", vo.getHeight());
+                map.put("lwh", vo.getLwh());
+                map.put("purchaseRemark", purchGoods.getPurchaseRemark());
+
+                inspectApplyGoodsList.add(map);
             }
+            data.put("inspectApplyGoodsList", inspectApplyGoodsList);
 
-
-            return new Result<>(inspectApply);
+            return new Result<>(data);
         }
-
         return new Result<>(ResultStatusEnum.FAIL);
     }
 
@@ -102,20 +120,35 @@ public class InspectApplyController {
     public Result<Object> history(@RequestParam(name = "id", required = true) Integer id) {
         // 查询多次相同报检提交的报检单
         InspectApply masterInspectApply = inspectApplyService.findById(id);
-
         if (masterInspectApply != null && masterInspectApply.isMaster()) {
+
             List<InspectApply> list = inspectApplyService.findByParentId(masterInspectApply.getId());
             list.add(0, masterInspectApply);
 
-            list.parallelStream().forEach(vo -> {
-                vo.setAttachmentList(null);
-                vo.setInspectApplyGoodsList(null);
-                vo.setpId(vo.getPurch().getId());
-            });
+            List<Map<String, Object>> data = list.parallelStream().map(vo -> {
+                return coverInspectApply2Map(vo);
+            }).collect(Collectors.toList());
 
-            return new Result<>(list);
+
+            return new Result<>(data);
         }
         return new Result<>(ResultStatusEnum.FAIL);
+    }
+
+
+    private Map<String, Object> coverInspectApply2Map(InspectApply inspectApply) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", inspectApply.getId()); // 报检单ID
+        map.put("inspectApplyNo", inspectApply.getInspectApplyNo()); // 到货报检单号
+        map.put("purchNo", inspectApply.getPurchNo()); // 采购合同号
+        map.put("department", inspectApply.getDepartment()); // 下发部门
+        map.put("purchaseName", inspectApply.getPurchaseName()); // 采购经办人
+        map.put("supplierName", inspectApply.getSupplierName()); // 供应商名称
+        map.put("inspectDate", inspectApply.getInspectDate()); // 报检日期
+        map.put("num", inspectApply.getNum()); //报检次数
+        map.put("status", inspectApply.getStatus()); // 质检结果
+        map.put("history", inspectApply.isHistory()); // 是否存在历史记录
+        return map;
     }
 
 
@@ -129,16 +162,16 @@ public class InspectApplyController {
     public Result<Object> save(@RequestBody InspectApply inspectApply) {
 
         InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
-        boolean checkoutContinue = true;
+        boolean continueFlag = true;
         // 必须是保存、提交、重新报检的一种，这里将NO_EDIT设置为重新报检类型复用
         if (statusEnum == null || (statusEnum != InspectApply.StatusEnum.SAVED && statusEnum != InspectApply.StatusEnum.SUBMITED && statusEnum != InspectApply.StatusEnum.NO_EDIT)) {
-            checkoutContinue = false;
+            continueFlag = false;
         }
         if (inspectApply.getInspectApplyGoodsList() == null || inspectApply.getInspectApplyGoodsList().size() <= 0) {
-            checkoutContinue = false;
+            continueFlag = false;
         }
 
-        if (checkoutContinue) {
+        if (continueFlag) {
 
             boolean flag = false;
             try {

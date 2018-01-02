@@ -4,6 +4,8 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.AreaDao;
+import com.erui.order.dao.GoodsDao;
+import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
 import com.erui.order.service.AreaService;
@@ -21,10 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,6 +39,10 @@ public class InstockServiceImpl implements InstockService {
     private InstockDao instockDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private GoodsDao goodsDao;
+    @Autowired
+    private InspectApplyGoodsDao inspectApplyGoodsDao;
 
     @Override
     public Instock findById(Integer id) {
@@ -85,9 +88,14 @@ public class InstockServiceImpl implements InstockService {
                 }
 
                 // 销售合同号 、 项目号查询
-                String contractNo = condition.get("contractNo");
-                String projectNo = condition.get("projectNo");
-                // TODO 这里待处理这两项查询
+                Set<Instock> instockSet = findByProjectNoAndContractNo(condition.get("projectNo"), condition.get("contractNo"));
+                if (instockSet != null && instockSet.size() > 0) {
+                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                    for (Instock p : instockSet) {
+                        idIn.value(p.getId());
+                    }
+                    list.add(idIn);
+                }
 
 
                 Predicate[] predicates = new Predicate[list.size()];
@@ -129,8 +137,43 @@ public class InstockServiceImpl implements InstockService {
     }
 
 
+    // 根据销售号和项目号查询采购列表信息
+    private Set<Instock> findByProjectNoAndContractNo(String projectNo, String contractNo) {
+        Set<Instock> result = null;
+        if (!(StringUtils.isBlank(projectNo) && StringUtils.isBlank(contractNo))) {
+            List<Instock> list = instockDao.findAll(new Specification<Instock>() {
+                @Override
+                public Predicate toPredicate(Root<Instock> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+                    Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
+                    if (StringUtils.isNotBlank(projectNo)) {
+                        list.add(cb.equal(instockGoods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                    }
+
+                    if (StringUtils.isNotBlank(contractNo)) {
+                        list.add(cb.equal(instockGoods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                    }
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            });
+
+            if(list != null) {
+                result = new HashSet<>(list);
+            }
+
+        }
+
+
+        return result;
+    }
+
+
     @Override
-    public boolean save(Instock instock) {
+    @Transactional
+    public boolean save(Instock instock) throws Exception {
 
         Instock dbInstock = instockDao.findOne(instock.getId());
         if (dbInstock == null || dbInstock.getStatus() == Instock.StatusEnum.SUBMITED.getStatus()) {
@@ -154,11 +197,7 @@ public class InstockServiceImpl implements InstockService {
 
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = dbInstock.getInstockGoodsList().parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
-        List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
-        if (instockGoodsMap.size() != instockGoodsList.size()) {
-            return false;
-        }
-        for (InstockGoods instockGoods : instockGoodsList) {
+        for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
             if (instockGoods.getInstockNum() == null || StringUtils.isBlank(instockGoods.getInstockStock())) {
                 return false;
             }
@@ -175,13 +214,26 @@ public class InstockServiceImpl implements InstockService {
             instockGoods02.setInstockStock(instockGoods.getInstockStock());
             instockGoods02.setCreateUserId(dbInstock.getCurrentUserId());
 
-            // TODO 修改商品中的入库数量,稍后实现
+            // 修改商品和采购商品中的入库数量
+            if (dbInstock.getStatus() == Instock.StatusEnum.SUBMITED.getStatus()) {
+                InspectApplyGoods inspectApplyGoods = instockGoods02.getInspectApplyGoods();
+                inspectApplyGoods.setInstockNum(inspectApplyGoods.getInstockNum() + instockGoods02.getInstockNum());
+                inspectApplyGoodsDao.save(inspectApplyGoods);
+
+
+                Goods goods = inspectApplyGoods.getGoods();
+                if (goods.getParentId() != null) {
+                    goods = goodsDao.findOne(goods.getParentId());
+                }
+                goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
+                goodsDao.save(goods);
+            }
         }
         if (instockGoodsMap.size() > 0) {
-            return false;
+            throw new Exception("入库商品数量错误");
         }
 
-        instockDao.save(instock);
+        instockDao.save(dbInstock);
 
         return true;
     }

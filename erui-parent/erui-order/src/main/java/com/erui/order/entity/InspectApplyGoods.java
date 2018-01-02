@@ -3,6 +3,7 @@ package com.erui.order.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -20,7 +21,7 @@ public class InspectApplyGoods {
     @JsonIgnore
     private InspectApply inspectApply;
 
-    @Column(name="inspect_report_id")
+    @Column(name = "inspect_report_id")
     private Integer inspectReportId;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -32,7 +33,7 @@ public class InspectApplyGoods {
     private PurchGoods purchGoods;
 
     @Transient
-    private Integer gId; // 商品ID
+    private Integer purchGid; // 采购商品ID
 
 
     /**
@@ -51,15 +52,22 @@ public class InspectApplyGoods {
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
+    private BigDecimal height;
+
+    private String lwh;
+
     private Integer samples;
 
     private String remarks;
 
     private Integer unqualified;
+
     @Column(name = "unqualified_desc")
     private String unqualifiedDesc;
+
     @Column(name = "instock_num")
     private Integer instockNum;
+
 
     @Column(name = "create_time")
     private Date createTime;
@@ -97,12 +105,12 @@ public class InspectApplyGoods {
         this.goods = goods;
     }
 
-    public Integer getgId() {
-        return gId;
+    public Integer getPurchGid() {
+        return purchGid;
     }
 
-    public void setgId(Integer gId) {
-        this.gId = gId;
+    public void setPurchGid(Integer purchGid) {
+        this.purchGid = purchGid;
     }
 
     public PurchGoods getPurchGoods() {
@@ -135,6 +143,22 @@ public class InspectApplyGoods {
 
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
+    }
+
+    public BigDecimal getHeight() {
+        return height;
+    }
+
+    public void setHeight(BigDecimal height) {
+        this.height = height;
+    }
+
+    public String getLwh() {
+        return lwh;
+    }
+
+    public void setLwh(String lwh) {
+        this.lwh = lwh;
     }
 
     public Integer getSamples() {
