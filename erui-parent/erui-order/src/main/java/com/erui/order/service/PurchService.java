@@ -24,9 +24,9 @@ public interface PurchService {
      */
     Page<Purch> findByPage(Purch condition) ;
 
-    boolean update(Purch purchVo);
+    boolean update(Purch purchVo) throws Exception;
 
-    boolean insert(Purch purchVo);
+    boolean insert(Purch purchVo) throws Exception;
 
     /**
      * 查询采购详情信息

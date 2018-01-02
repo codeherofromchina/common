@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,25 +36,6 @@ public class PurchController {
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> list(@RequestBody Purch condition) {
         Page<Purch> purchPage = purchService.findByPage(condition);
-
-        if (purchPage.hasContent()) {
-            purchPage.getContent().forEach(vo -> {
-                vo.setAttachments(null);
-                vo.setPurchPaymentList(null);
-                vo.setPurchGoodsList(null);
-
-                List<String> projectNoList = new ArrayList<>();
-                List<String> contractNoList = new ArrayList<>();
-
-                vo.getProjects().stream().forEach(project -> {
-                    projectNoList.add(project.getProjectNo());
-                    contractNoList.add(project.getContractNo());
-                });
-                vo.setProjectNos(StringUtils.join(projectNoList, ","));
-                vo.setContractNos(StringUtils.join(contractNoList, ","));
-            });
-        }
-
         return new Result<>(purchPage);
     }
 
@@ -71,14 +49,13 @@ public class PurchController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Purch purch) {
 
-
         boolean continueFlag = true;
         // 状态检查
         Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
+        // 不是提交也不是保存
         if (statusEnum != Purch.StatusEnum.BEING && statusEnum != Purch.StatusEnum.READY) {
             continueFlag = false;
         }
-
 
         if (continueFlag) {
             try {
@@ -139,15 +116,32 @@ public class PurchController {
             data.put("department", purch.getDepartment()); // 下发部门
 
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
-            List<Goods> list = purchGoodsList.stream().filter(vo -> {
+            List<Map<String,Object>> list = purchGoodsList.stream().filter(vo -> {
                 // 只要已报检数量小于采购数量的商品显示
                 return vo.getInspectNum() < vo.getPurchaseNum();
             }).map(vo -> {
+                Map<String,Object> map = new HashMap<>();
                 Goods goods = vo.getGoods();
-                goods.setPurchasedNum(vo.getPurchaseNum()); // 采购数量
-                goods.setInspectNum(vo.getInspectNum()); // 报检数量
 
-                return goods;
+                map.put("purchGid",vo.getId());
+                map.put("contractNo",goods.getContractNo());
+                map.put("projectNo",goods.getProjectNo());
+                map.put("sku",goods.getSku());
+                map.put("proType",goods.getProType());
+                map.put("nameEn",goods.getNameEn());
+                map.put("nameZh",goods.getNameZh());
+                map.put("brand",goods.getBrand());
+                map.put("model",goods.getModel());
+                map.put("purchaseNum",vo.getPurchaseNum());
+                map.put("hasInspectNum",vo.getInspectNum());
+                map.put("inspectNum",vo.getPurchaseNum() - vo.getInspectNum()); // 报检数量
+                map.put("unit",goods.getUnit());
+                map.put("nonTaxPrice",vo.getNonTaxPrice());
+                map.put("taxPrice",vo.getTaxPrice());
+                map.put("totalPrice",vo.getTotalPrice());
+                map.put("purchaseRemark",vo.getPurchaseRemark());
+
+                return map;
             }).collect(Collectors.toList());
             data.put("goodsList", list);
 

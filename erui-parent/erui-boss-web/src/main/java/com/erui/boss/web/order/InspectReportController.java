@@ -163,8 +163,7 @@ public class InspectReportController {
 
         // TODO 验证参数需完善
         try {
-            boolean flag = inspectReportService.save(inspectReport);
-            if (flag) {
+            if (inspectReportService.save(inspectReport)) {
                 return new Result<>();
             }
         } catch (Exception e) {

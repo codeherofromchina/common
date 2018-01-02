@@ -2,10 +2,7 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.InspectApplyGoods;
-import com.erui.order.entity.Instock;
-import com.erui.order.entity.InstockGoods;
+import com.erui.order.entity.*;
 import com.erui.order.service.InstockService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -108,6 +105,7 @@ public class InstockController {
         List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
         for (InstockGoods instockGoods : instockGoodsList) {
             InspectApplyGoods inspectApplyGoods = instockGoods.getInspectApplyGoods();
+            PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
             Goods goods = inspectApplyGoods.getGoods();
             Map<String, Object> map = new HashMap();
             map.put("id", instockGoods.getId());
@@ -121,15 +119,15 @@ public class InstockController {
             map.put("unqualified", inspectApplyGoods.getUnqualified()); // 不合格数量
             map.put("instockNum", instockGoods.getInstockNum()); // 入库数量
             map.put("unit", goods.getUnit()); // 单位
-            map.put("nonTaxPrice", goods.getNonTaxPrice()); // 不含税单价
-            map.put("taxPrice", goods.getTaxPrice()); // 含税单价
-            map.put("totalPrice", goods.getTotalPrice()); // 总价款
+            map.put("nonTaxPrice", purchGoods.getNonTaxPrice()); // 不含税单价
+            map.put("taxPrice", purchGoods.getTaxPrice()); // 含税单价
+            map.put("totalPrice", purchGoods.getTotalPrice()); // 总价款
             map.put("model", goods.getModel()); // 规格型号
             map.put("brand", goods.getBrand()); // 品牌
-            map.put("height", goods.getHeight()); // 重量（kg）
-            map.put("lwh", goods.getLwh()); // 长*宽*高
+            map.put("height", inspectApplyGoods.getHeight()); // 重量（kg）
+            map.put("lwh", inspectApplyGoods.getLwh()); // 长*宽*高
             map.put("instockStock", instockGoods.getInstockStock()); // 货物存放地
-            map.put("remark", ""); // 备注 TODO 先置空
+            map.put("remark", inspectApplyGoods.getRemarks()); // 备注
 
             goodsInfoList.add(map);
         }

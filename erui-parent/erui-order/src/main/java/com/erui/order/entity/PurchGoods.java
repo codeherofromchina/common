@@ -2,7 +2,6 @@ package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -50,7 +49,7 @@ public class PurchGoods {
     private Boolean exchanged;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parent_id")
+    @JoinColumn(name = "parent_id")
     @JsonIgnore
     private PurchGoods parent;
 
@@ -58,21 +57,14 @@ public class PurchGoods {
     @Column(name = "purchase_num")
     private Integer purchaseNum;
 
-    // 已报检数量
+    // 已报检数量，报检提交才增加此数量
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
-    /**
-     * 已报检提交数量
-     */
-    @Column(name = "inspect_submit_num")
-    private Integer inspectSubmitNum;
+    // 检验合格商品数量
+    @Column(name = "good_num")
+    private Integer goodNum;
 
-    /**
-     * 已入库数量
-     */
-    @Column(name = "instock_num")
-    private Integer instockNum;
 
     // 采购单价
     @Column(name = "purchase_price")
@@ -84,6 +76,15 @@ public class PurchGoods {
     // 采购备注
     @Column(name = "purchase_remark")
     private String purchaseRemark;
+
+    // 含税单价,提交采购时计算
+    @Column(name = "tax_price")
+    private BigDecimal taxPrice;
+    //
+    @Column(name = "non_tax_price")
+    private BigDecimal nonTaxPrice;
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -184,21 +185,12 @@ public class PurchGoods {
         this.inspectNum = inspectNum;
     }
 
-
-    public Integer getInspectSubmitNum() {
-        return inspectSubmitNum;
+    public Integer getGoodNum() {
+        return goodNum;
     }
 
-    public void setInspectSubmitNum(Integer inspectSubmitNum) {
-        this.inspectSubmitNum = inspectSubmitNum;
-    }
-
-    public Integer getInstockNum() {
-        return instockNum;
-    }
-
-    public void setInstockNum(Integer instockNum) {
-        this.instockNum = instockNum;
+    public void setGoodNum(Integer goodNum) {
+        this.goodNum = goodNum;
     }
 
     public BigDecimal getPurchasePrice() {
@@ -223,6 +215,30 @@ public class PurchGoods {
 
     public void setPurchaseRemark(String purchaseRemark) {
         this.purchaseRemark = purchaseRemark;
+    }
+
+    public BigDecimal getTaxPrice() {
+        return taxPrice;
+    }
+
+    public void setTaxPrice(BigDecimal taxPrice) {
+        this.taxPrice = taxPrice;
+    }
+
+    public BigDecimal getNonTaxPrice() {
+        return nonTaxPrice;
+    }
+
+    public void setNonTaxPrice(BigDecimal nonTaxPrice) {
+        this.nonTaxPrice = nonTaxPrice;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public Date getCreateTime() {
