@@ -290,12 +290,22 @@ public class DeliverDetail {
         return goodsChkStatus;
     }
 
-    public void setCreateUserId(Integer createUserId) {
-        this.createUserId = createUserId;
+    public Integer getCreateUserId() {
+        return createUserId;
     }
 
-    public void setCreateUserName(String createUserName) {
+    public DeliverDetail setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+        return this;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public DeliverDetail setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
+        return this;
     }
 
     public void setGoodsChkStatus(String goodsChkStatus) {
