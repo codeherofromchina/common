@@ -621,7 +621,7 @@ public class RequestCreditController {
         List<String> areas = new ArrayList<>();
         List<Double> areaAmounts = new ArrayList<>();
         if (receiveList != null && receiveList.size() > 0) {
-            receiveList.parallelStream().forEach(m -> {
+            for (Map<String,Object> m: receiveList ) {
                 double amount1 = Double.parseDouble(m.get("receiveAmount").toString());
                 String groupBy = "";
                 if (type == 1) {
@@ -633,11 +633,10 @@ public class RequestCreditController {
                 }
                 areas.add(groupBy);
                 areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1));
-            });
-
+            }
         }
         if (backList != null && backList.size() > 0) {
-            backList.parallelStream().forEach(m -> {
+            for (Map<String, Object> m:backList ) {
                 String groupBy = "";
                 if (type == 1) {
                     groupBy = String.valueOf(m.get("area"));
@@ -654,12 +653,16 @@ public class RequestCreditController {
                             index = i;
                         }
                     }
-                    areaAmounts.set(index, areaAmounts.get(index) +RateUtil.doubleChainRateTwo(amount1,1) );
+                    double sIndex =0d;
+                    if(areaAmounts.get(index)!=null){
+                        sIndex=areaAmounts.get(index);
+                    }
+                    areaAmounts.set(index, +sIndex+RateUtil.doubleChainRateTwo(amount1,1) );
                 } else {
                     areas.add(groupBy);
                     areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1));
                 }
-            });
+            }
         }
         //排序
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -675,8 +678,15 @@ public class RequestCreditController {
             mapList.sort(new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                    double areaAmount2 = (Double) o2.get("areaAmount");
-                    double areaAmount1 = (Double) o1.get("areaAmount");
+
+                    double areaAmount2 =0d;
+                    double areaAmount1 =0d;
+                    if(o2.get("areaAmount")!=null){
+                        areaAmount2=Double.parseDouble(o2.get("areaAmount").toString());
+                    }
+                    if(o1.get("areaAmount")!=null){
+                        areaAmount1=  Double.parseDouble(o1.get("areaAmount").toString());
+                    }
                     return (int) areaAmount2 - (int) areaAmount1;
                 }
             });
