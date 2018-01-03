@@ -58,6 +58,14 @@ public class DeliverConsign {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
 
+    public Integer getDeliverYn() {
+        return deliverYn;
+    }
+
+    public DeliverConsign setDeliverYn(Integer deliverYn) {
+        this.deliverYn = deliverYn;
+        return this;
+    }
 
     public Integer getId() {
         return id;

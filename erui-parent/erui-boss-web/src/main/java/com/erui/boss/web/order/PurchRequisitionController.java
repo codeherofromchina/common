@@ -36,7 +36,7 @@ public class PurchRequisitionController {
         return new Result<>(purchRequisition);
     }
     /**
-     * 采购生清单信息
+     * 采购申请单信息
      *
      * @return
      */

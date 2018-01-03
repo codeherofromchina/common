@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -23,12 +25,12 @@ public class AreaController {
     /**
      * 根据ID获取地区信息
      *
-     * @param id
+     * @param map
      * @return
      */
     @RequestMapping(value = "get")
-    public Result<Object> get(@RequestParam(name = "id") Integer id) {
-        Area area = areaService.findById(id);
+    public Result<Object> get(@RequestBody Map<String,Integer> map) {
+        Area area = areaService.findById(map.get("id"));
         return new Result<>(area);
 
     }

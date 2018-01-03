@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(final OrderListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage(), condition.getRows(), null);
+        PageRequest pageRequest = new PageRequest(condition.getPage()-1, condition.getRows(), null);
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

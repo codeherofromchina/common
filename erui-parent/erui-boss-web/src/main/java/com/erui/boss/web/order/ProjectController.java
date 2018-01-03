@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -57,8 +54,27 @@ public class ProjectController {
      */
     @RequestMapping(value = "projectManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
-        Page<Project> orderPage = projectService.findByPage(condition);
-        return new Result<>(orderPage);
+        Page<Project> projectPage = projectService.findByPage(condition);
+        if (projectPage.hasContent()){
+            projectPage.getContent().forEach(vo -> {
+                vo.setOrder(null);
+            });
+        }
+           /* Map<String, Object> projectMap = new HashMap<>();
+            projectMap.put("id",vo.getId());
+            projectMap.put("contractNo",vo.getContractNo());
+            projectMap.put("projectName",vo.getProjectName());
+            projectMap.put("execCoId",vo.getExecCoName());
+            projectMap.put("startDate",vo.getStartDate());
+            projectMap.put("distributionDeptId",vo.getDistributionDeptName());
+            projectMap.put("businessUnitId",vo.getBusinessUid());
+            projectMap.put("region",vo.getRegion());
+            projectMap.put("deliveryDate",vo.getDeliveryDate());
+            projectMap.put("exeChgDate",vo.getExeChgDate());
+            projectMap.put("requireDurchaseDate",vo.getRequirePurchaseDate());
+            projectMap.put("projectStatus",vo.getProjectStatus());
+            list.add(projectMap);*/
+        return new Result<>(projectPage);
     }
     /**
      * 办理项目
@@ -80,5 +96,14 @@ public class ProjectController {
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }
-
+    /**
+     * 获取项目详情
+     *
+     * @return
+     */
+    @RequestMapping(value = "queryProject", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
+    public Result<Project> queryProject(@RequestParam(name = "id")Integer id) {
+        Project project = projectService.findDesc(id);
+        return new Result<>(project);
+    }
 }

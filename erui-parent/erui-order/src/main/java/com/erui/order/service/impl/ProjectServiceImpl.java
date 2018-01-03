@@ -113,6 +113,9 @@ public class ProjectServiceImpl implements ProjectService {
                 return cb.and(predicates);
             }
         }, pageRequest);
+        pageList.getContent().forEach(vo -> {
+            vo.getOrder().getGoodsList().size();
+        });
         return pageList;
     }
 

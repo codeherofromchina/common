@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -41,15 +42,15 @@ public class Order {
 
     @Column(name = "order_source")
     private String orderSource;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "signing_date")
     private Date signingDate;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
     @Column(name = "signing_co")
-    private Integer signingCo;
+    private String signingCo;
 
     @Column(name = "agent_id")
     private Integer agentId;
@@ -139,7 +140,7 @@ public class Order {
     private Integer payStatus;
 
     private Integer status;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -148,13 +149,13 @@ public class Order {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "delete_time")
     private Date deleteTime;
 
@@ -205,7 +206,7 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "order")
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JsonIgnore
     private Project project;
 
@@ -388,12 +389,13 @@ public class Order {
         this.deliveryDate = deliveryDate;
     }
 
-    public Integer getSigningCo() {
+    public String getSigningCo() {
         return signingCo;
     }
 
-    public void setSigningCo(Integer signingCo) {
+    public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
+
     }
 
     public Integer getAgentId() {
