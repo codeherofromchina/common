@@ -299,9 +299,6 @@ public class DeliverDetail {
         return this;
     }
 
-    public String getCreateUserName() {
-        return createUserName;
-    }
 
     public DeliverDetail setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
@@ -593,10 +590,6 @@ public class DeliverDetail {
 
     public String getProjectNo() {
         return projectNo;
-    }
-
-    public Integer getCreateUserId() {
-        return createUserId;
     }
 
 

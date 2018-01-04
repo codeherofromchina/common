@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -55,8 +56,11 @@ public class DeliverNotice {
     @Column(name = "sender_name")
     private String senderName;
 
+
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @Column(name = "send_date")
     private Date sendDate;
+
     @Column(name = "trade_terms")
     private String tradeTerms;
     @Column(name = "to_place")

@@ -51,12 +51,15 @@ public class OrderController {
     }
     /**
      * 删除订单
-     *@param map
+     *@param ids
      * @return
      */
     @RequestMapping(value = "deleteOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderDelete(@RequestBody Map<String,Integer []> map) {
-        orderService.deleteOrder(map.get("ids"));
+    public Result<Object> orderDelete(@RequestBody Map<String, Integer[]> ids) {
+      /*  Integer id = map.get("ids");
+        Integer [] ids = new Integer[1];
+        ids[0] = id;*/
+        orderService.deleteOrder(ids.get("ids"));
         return  new Result<>();
     }
 

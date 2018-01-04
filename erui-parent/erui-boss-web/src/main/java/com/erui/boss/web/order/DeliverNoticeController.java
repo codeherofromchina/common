@@ -49,6 +49,9 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "querExitInformMessage")
     public Result<Object> querExitInformMessage(Integer[] deliverNoticeIds) {
+        /*if(deliverNoticeId.length ==0 ){
+              return new Result<>(ResultStatusEnum.FAIL);
+        }else{}*/
            /* Integer[] deliverNoticeIds= {12,13,14};*/     //测试放开
             List<DeliverConsign> list= deliverConsignService.querExitInformMessage(deliverNoticeIds);
             Map<String,Object> data = new HashMap<>();
