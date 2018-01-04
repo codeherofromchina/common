@@ -57,7 +57,7 @@ public class AddOrderVo {
     private String region;
 
     //分销部
-    private Integer distributionDeptId;
+   // private String distributionDeptId;
     //国家
     private String country;
 
@@ -75,8 +75,8 @@ public class AddOrderVo {
 
     //商务技术经办人
     private Integer technicalId;
-    //商务技术经办人部门
-    private String technicalIdDept;
+   /* //商务技术经办人部门
+    private String technicalIdDept;*/
     //授信类型
     private String grantType;
 
@@ -282,14 +282,6 @@ public class AddOrderVo {
         this.region = region;
     }
 
-    public Integer getDistributionDeptId() {
-        return distributionDeptId;
-    }
-
-    public void setDistributionDeptId(Integer distributionDeptId) {
-        this.distributionDeptId = distributionDeptId;
-    }
-
     public String getCountry() {
         return country;
     }
@@ -328,14 +320,6 @@ public class AddOrderVo {
 
     public void setTechnicalId(Integer technicalId) {
         this.technicalId = technicalId;
-    }
-
-    public String getTechnicalIdDept() {
-        return technicalIdDept;
-    }
-
-    public void setTechnicalIdDept(String technicalIdDept) {
-        this.technicalIdDept = technicalIdDept;
     }
 
     public String getGrantType() {
@@ -593,14 +577,13 @@ public class AddOrderVo {
         order.setAgentName(this.agentName);
         order.setExecCoId(this.execCoId);
         order.setRegion(this.region);
-        order.setDistributionDeptId(this.distributionDeptId);
         order.setCountry(this.country);
         order.setCrmCode(this.crmCode);
         order.setCustomerType(this.customerType);
         order.setPerLiableRepay(this.perLiableRepay);
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
-        order.setTechnicalIdDept(this.technicalIdDept);
+     //   order.setTechnicalIdDept(this.technicalIdDept);
         order.setGrantType(this.grantType);
         order.setIsPreinvest(this.isPreinvest);
         order.setIsFinancing(this.isFinancing);

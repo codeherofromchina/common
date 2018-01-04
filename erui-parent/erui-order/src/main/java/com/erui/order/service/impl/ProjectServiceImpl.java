@@ -114,7 +114,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }, pageRequest);
         pageList.getContent().forEach(vo -> {
-            vo.getOrder().getGoodsList().size();
+            vo.setOrder(null);
         });
         return pageList;
     }

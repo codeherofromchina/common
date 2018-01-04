@@ -55,11 +55,14 @@ public class ProjectController {
     @RequestMapping(value = "projectManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
         Page<Project> projectPage = projectService.findByPage(condition);
-        if (projectPage.hasContent()){
+        for (Project project:projectPage) {
+            project.setOrder(null);
+        }
+        /*if (projectPage.hasContent()){
             projectPage.getContent().forEach(vo -> {
                 vo.setOrder(null);
             });
-        }
+        }*/
            /* Map<String, Object> projectMap = new HashMap<>();
             projectMap.put("id",vo.getId());
             projectMap.put("contractNo",vo.getContractNo());

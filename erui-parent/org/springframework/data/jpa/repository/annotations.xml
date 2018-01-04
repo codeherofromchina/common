@@ -1,6 +1,0 @@
-<root>
-    <item name='org.springframework.data.jpa.repository.JpaSpecificationExecutor org.springframework.data.domain.Page&lt;T&gt; findAll(org.springframework.data.jpa.domain.Specification&lt;T&gt;, org.springframework.data.domain.Pageable)'>
-        <annotation name='java.lang.Deprecated'/>
-        <annotation name='org.jetbrains.annotations.Nullable'/>
-    </item>
-</root>

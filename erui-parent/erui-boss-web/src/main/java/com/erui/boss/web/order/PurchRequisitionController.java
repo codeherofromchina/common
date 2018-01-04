@@ -45,7 +45,7 @@ public class PurchRequisitionController {
         Project project = projectService.findDesc(id);
         Map<String,Object> map = new HashMap<>();
         map.put("pmUid",project.getManagerUid());
-        map.put("department",project.getOrder().getTechnicalIdDept());
+     //   map.put("department",project.getOrder().getTechnicalIdDept());
         map.put("transModeBn",project.getOrder().getTradeTerms());
         map.put("goodList",project.getOrder().getGoodsList());
         return new Result<>(map);
