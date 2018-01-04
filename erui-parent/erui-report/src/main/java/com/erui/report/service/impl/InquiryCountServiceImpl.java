@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.*;
@@ -460,7 +461,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     // 根据时间查询询单列表
     @Override
-    public List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes) {
+    public List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes,String area ,String country) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -471,6 +472,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if(quotes!=null&&quotes.length>0){
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
+        }
+        if(StringUtil.isNotBlank(area)){
+            criteria.andInquiryAreaEqualTo(area);
+        }
+        if(StringUtil.isNotBlank(country)){
+            criteria.andInquiryUnitEqualTo(country);
         }
         return readMapper.selectByExample(example);
     }
@@ -526,7 +533,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     // // 根据时间统计询单金额
-    public Double inquiryAmountByTime(Date startTime, Date endTime, String area,String[] quotedStatus) {
+    public Double inquiryAmountByTime(Date startTime, Date endTime, String area,String country,String[] quotedStatus) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -537,6 +544,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (area != null && !"".equals(area)) {
             criteria.andInquiryAreaEqualTo(area);
+        }
+        if (country != null && !"".equals(country)) {
+            criteria.andInquiryUnitEqualTo(country);
         }
         if (quotedStatus != null && quotedStatus.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotedStatus));
@@ -888,7 +898,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                         inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
                                     }
                                     if (goodsList.get("total_quote_price") != null) {
-                                        inquirySku.setQuoteTotalPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
+                                        inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("total_quote_price").toString()));
                                     }
                                     if (created_at != null) {
                                         inquirySku.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));

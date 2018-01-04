@@ -34,7 +34,7 @@ public interface InquiryCountService {
     /*
     * 查询询单总金额
     * */
-	 Double inquiryAmountByTime(Date startDate,Date endDate,String area,String[] quotedStatus) ;
+	 Double inquiryAmountByTime(Date startDate,Date endDate,String area,String country,String[] quotedStatus) ;
 
 	/**
 	 * 导入客户中心-询单数据
@@ -76,7 +76,7 @@ public interface InquiryCountService {
 	/*
    * 根据时间查询询单列表
    * */
-	List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes);
+	List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes,String area,String country);
 	
 	
 	/**

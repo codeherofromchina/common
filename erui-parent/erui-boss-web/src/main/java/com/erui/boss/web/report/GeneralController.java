@@ -73,7 +73,7 @@ public class GeneralController {
         // 当期询单数
         int inquiryCount = inquiryService.inquiryCountByTime(startTime, endTime, null, 0, 0, "", "");
         // 当期询单金额
-        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "",null);
+        double inquiryAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "",null,null);
         Map<String, Object> inquiry = new HashMap<>();
         inquiry.put("count", inquiryCount);
         inquiry.put("amount", df.format(inquiryAmount / 10000) + "万$");

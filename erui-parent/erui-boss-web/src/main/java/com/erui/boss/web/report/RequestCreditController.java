@@ -536,11 +536,14 @@ public class RequestCreditController {
         double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
         //回款金额
         double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
+        //应收金额
+        double amount=receive+backAmount;
         //获取下月应收
         double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
-        //集团 余额、回款金额、下月应收
+        //集团 余额、回款金额、应收金额、下月应收
         double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null, null, null);
         double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
+        double totalAmount=totalReceive+TotalBackAmount;
         double TotalNextMothReceive = this.requestCreditService.selectReceive(endDate, nextMonthEndTime, null, null, null, null);
 
         ArrayList<Double> yAxis = new ArrayList<>();
@@ -554,17 +557,17 @@ public class RequestCreditController {
         double receiveProportion = 0d;
         double backProportion = 0d;
         double nextProportion = 0d;
-        if ((totalReceive + TotalBackAmount) > 0) {
-            totalProportion = RateUtil.doubleChainRateTwo((receive + backAmount), (totalReceive + TotalBackAmount));
+        if (totalAmount> 0) {
+            totalProportion = RateUtil.doubleChainRate(amount, totalAmount);
         }
         if (totalReceive > 0) {
-            receiveProportion = RateUtil.doubleChainRateTwo(receive, totalReceive);
+            receiveProportion = RateUtil.doubleChainRate(receive, totalReceive);
         }
         if (TotalBackAmount > 0) {
-            backProportion = RateUtil.doubleChainRateTwo(backAmount, TotalBackAmount);
+            backProportion = RateUtil.doubleChainRate(backAmount, TotalBackAmount);
         }
         if (TotalNextMothReceive > 0) {
-            nextProportion = RateUtil.doubleChainRateTwo(nextMothReceive, TotalNextMothReceive);
+            nextProportion = RateUtil.doubleChainRate(nextMothReceive, TotalNextMothReceive);
         }
         xAxis.add("应收金额-占比" + RateUtil.doubleChainRateTwo(totalProportion * 100, 1) + "%");
         xAxis.add("已收金额-占比" + RateUtil.doubleChainRateTwo(backProportion * 100, 1) + "%");

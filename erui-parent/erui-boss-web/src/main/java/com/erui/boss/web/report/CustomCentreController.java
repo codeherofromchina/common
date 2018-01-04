@@ -66,7 +66,7 @@ public class CustomCentreController {
         Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
         //当期询单数量和金额
         int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
-        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null);
+        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null,null);
         // 上期询单数量
         int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, null, 0, 0, "", "");
         Integer chain = count - chainCount;
@@ -162,7 +162,7 @@ public class CustomCentreController {
         String[] quotes = {QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
         //当期报价询单数量和金额
         int count = inquiryService.inquiryCountByTime(startDate, endDate, quotes, 0, 0, "", "");
-        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", quotes);
+        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "",null, quotes);
         // 上期报价询单数量
         int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, quotes, 0, 0, "", "");
         Integer chain = count - chainCount;
@@ -178,8 +178,8 @@ public class CustomCentreController {
         inquiryMap.put("chainRate", chainRate);
 
         //油气产品统计
-        List<InquiryCount> inquiryCounts = inquiryService.selectListByTime(startDate, endDate, quotes);
-        List<InquiryCount> chainCounts = inquiryService.selectListByTime(rateStartDate, endDate, quotes);
+        List<InquiryCount> inquiryCounts = inquiryService.selectListByTime(startDate, endDate, quotes,null,null);
+        List<InquiryCount> chainCounts = inquiryService.selectListByTime(rateStartDate, endDate, quotes,null,null);
         List<IsOilVo> oilList = null;
         List<IsOilVo> oilChainList = null;
         List<String> nums = null;
@@ -812,12 +812,40 @@ public class CustomCentreController {
         String countryName = (String) map.get("country");
         CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
         CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
-
+        //询单数量和金额
+        double inAmount = inquiryService.inquiryAmountByTime(startTime, endTime, areaName, countryName, null);
+        List<InquiryCount> inList = inquiryService.selectListByTime(startTime, endTime, null, areaName, countryName);
+        //定义询单数量
+        int inCount=0;
+        List<String> nums=new ArrayList<>();
+        if(inList!=null&&inList.size()>0){
+            inCount=inList.size();
+            inList.parallelStream().forEach(inq->{
+                nums.add(inq.getQuotationNum());
+            });
+        }
+        //油气分类数量和金额
+        int oil=0;
+        int notOil=0;
+        BigDecimal oilAmount = new BigDecimal(0);
+        BigDecimal notOilAmount=new BigDecimal(0);
+        List<IsOilVo> isOilList = inquirySKUService.selectCountGroupByIsOil(startTime, endTime, nums);
+        if(isOilList!=null&&isOilList.size()>0){
+            for (IsOilVo vo:isOilList) {
+                if(vo.getIsOil().equals("油气")) {
+                    oil = vo.getSkuCount();
+                    oilAmount = vo.getSkuAmount();
+                }else if(vo.getIsOil().equals("非油气")){
+                    notOil=vo.getSkuCount();
+                    notOilAmount=vo.getSkuAmount();
+                }
+            }
+        }
         Map<String, Object> numData = new HashMap<String, Object>();
 
         String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
-        Integer[] yValueArr = new Integer[]{inquiryNumSummary.getTotal(), inquiryNumSummary.getOil(),
-                inquiryNumSummary.getNonoil(), orderNumSummary.getTotal(), orderNumSummary.getOil(),
+        Integer[] yValueArr = new Integer[]{inCount, oil,
+                notOil, orderNumSummary.getTotal(), orderNumSummary.getOil(),
                 orderNumSummary.getNonoil()};
         numData.put("x", xTitleArr);
         numData.put("y", yValueArr);
@@ -826,9 +854,9 @@ public class CustomCentreController {
 
         String[] xTitleArr02 = new String[]{"询单总金额", "油气金额", "非油气金额", "订单总金额", "油气金额", "非油气金额",};
         BigDecimal[] yValueArr02 = new BigDecimal[]{
-                inquiryNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                inquiryNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
-                inquiryNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                new BigDecimal(inAmount).setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                oilAmount.setScale(2, BigDecimal.ROUND_HALF_DOWN),
+                notOilAmount.setScale(2, BigDecimal.ROUND_HALF_DOWN),
                 orderNumSummary.getAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
                 orderNumSummary.getOilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN),
                 orderNumSummary.getNoNoilAmount().setScale(2, BigDecimal.ROUND_HALF_DOWN)};
