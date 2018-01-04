@@ -533,18 +533,18 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //应收余额
-        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
+        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"), null, null);
         //回款金额
-        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
+        double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), null, null);
         //应收金额
         double amount=receive+backAmount;
         //获取下月应收
-        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"), map.get("area"), map.get("country"));
+        double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"),null,null);
         //集团 余额、回款金额、应收金额、下月应收
         double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null, null, null);
         double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
         double totalAmount=totalReceive+TotalBackAmount;
-        double TotalNextMothReceive = this.requestCreditService.selectReceive(endDate, nextMonthEndTime, null, null, null, null);
+        double TotalNextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, null, null, null, null);
 
         ArrayList<Double> yAxis = new ArrayList<>();
         yAxis.add(RateUtil.doubleChainRateTwo(receive + backAmount,1));

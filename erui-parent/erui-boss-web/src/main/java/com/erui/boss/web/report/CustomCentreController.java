@@ -811,7 +811,7 @@ public class CustomCentreController {
         String areaName = (String) map.get("area");
         String countryName = (String) map.get("country");
         CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
-        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
+//        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
         //询单数量和金额
         double inAmount = inquiryService.inquiryAmountByTime(startTime, endTime, areaName, countryName, null);
         List<InquiryCount> inList = inquiryService.selectListByTime(startTime, endTime, null, areaName, countryName);
@@ -820,9 +820,9 @@ public class CustomCentreController {
         List<String> nums=new ArrayList<>();
         if(inList!=null&&inList.size()>0){
             inCount=inList.size();
-            inList.parallelStream().forEach(inq->{
+            for (InquiryCount inq:inList ) {
                 nums.add(inq.getQuotationNum());
-            });
+            }
         }
         //油气分类数量和金额
         int oil=0;
