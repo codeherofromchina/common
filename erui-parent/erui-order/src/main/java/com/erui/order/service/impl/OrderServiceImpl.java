@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void deleteOrder(int[] ids) {
+    public void deleteOrder(Integer [] ids) {
         List<Order> orderList = orderDao.findByIdIn(ids);
         List<Order> collect = orderList.parallelStream()
                 .filter(vo -> vo.getStatus() == 1)

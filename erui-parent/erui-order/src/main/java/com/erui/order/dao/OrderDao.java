@@ -15,5 +15,5 @@ import java.util.List;
  * Created by wangxiaodan on 2017/12/11.
  */
 public interface OrderDao extends JpaRepository<Order, Serializable>, JpaSpecificationExecutor<Order>  {
-    List<Order> findByIdIn(int[] ids);
+    List<Order> findByIdIn(Integer[] ids);
 }

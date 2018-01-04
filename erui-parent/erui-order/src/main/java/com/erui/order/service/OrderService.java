@@ -29,7 +29,7 @@ public interface OrderService {
      * @param ids
      * @return
      */
-    void deleteOrder(int ids []);
+    void deleteOrder(Integer ids []);
     /**
      * 修改订单
      * @param addOrderVo
