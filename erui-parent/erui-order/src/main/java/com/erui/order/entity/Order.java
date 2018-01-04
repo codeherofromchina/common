@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -12,7 +13,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "`order`")
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,15 +42,15 @@ public class Order {
 
     @Column(name = "order_source")
     private String orderSource;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "signing_date")
     private Date signingDate;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
     @Column(name = "signing_co")
-    private Integer signingCo;
+    private String signingCo;
 
     @Column(name = "agent_id")
     private Integer agentId;
@@ -62,8 +63,8 @@ public class Order {
 
     private String region;
 
-    @Column(name = "distribution_dept_id")
-    private Integer distributionDeptId;
+    @Column(name = "distribution_dept_name")
+    private String distributionDeptName;
 
     private String country;
 
@@ -81,8 +82,8 @@ public class Order {
 
     @Column(name = "technical_id")
     private Integer technicalId;
-    @Column(name = "technical_id_dept")
-    private String technicalIdDept;
+   /* @Column(name = "technical_id_dept")
+    private String technicalIdDept;*/
 
     @Column(name = "grant_type")
     private String grantType;
@@ -139,7 +140,7 @@ public class Order {
     private Integer payStatus;
 
     private Integer status;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -148,13 +149,13 @@ public class Order {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "delete_time")
     private Date deleteTime;
 
@@ -166,19 +167,19 @@ public class Order {
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<Attachment> attachmentSet = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     @OrderBy("id asc")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Goods> goodsList = new ArrayList<>();
 
     @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
     @Column(name = "delivery_requires")
@@ -186,11 +187,9 @@ public class Order {
 
     @Column(name = "customer_context")
     private String customerContext;
+
     @Column(name = "exec_co_name")
     private String execCoName;
-
-    @Column(name = "distribution_dept_name")
-    private String distributionDeptName;
 
     @Column(name = "business_unit_name")
     private String businessUnitName;
@@ -205,7 +204,7 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "order")
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JsonIgnore
     private Project project;
 
@@ -388,12 +387,13 @@ public class Order {
         this.deliveryDate = deliveryDate;
     }
 
-    public Integer getSigningCo() {
+    public String getSigningCo() {
         return signingCo;
     }
 
-    public void setSigningCo(Integer signingCo) {
+    public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
+
     }
 
     public Integer getAgentId() {
@@ -418,14 +418,6 @@ public class Order {
 
     public void setRegion(String region) {
         this.region = region;
-    }
-
-    public Integer getDistributionDeptId() {
-        return distributionDeptId;
-    }
-
-    public void setDistributionDeptId(Integer distributionDeptId) {
-        this.distributionDeptId = distributionDeptId;
     }
 
     public String getCountry() {
@@ -474,14 +466,6 @@ public class Order {
 
     public void setTechnicalId(Integer technicalId) {
         this.technicalId = technicalId;
-    }
-
-    public String getTechnicalIdDept() {
-        return technicalIdDept;
-    }
-
-    public void setTechnicalIdDept(String technicalIdDept) {
-        this.technicalIdDept = technicalIdDept;
     }
 
     public Project getProject() {

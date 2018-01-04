@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 收款管理
@@ -31,12 +32,12 @@ public class OrderAccountController {
 
     /**
      * 收款记录查询   (根据订单)
-     * @param id    订单id
+     * @param     map
      * @return
      */
     @RequestMapping(value="queryGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> queryGatheringRecord(@RequestParam(name = "id") Integer id ){
-        List<OrderAccount> orderAccountList = orderAccountService.queryGatheringRecordAll(id);
+    public Result<Object> queryGatheringRecord(@RequestBody Map<String,Integer> map){
+        List<OrderAccount> orderAccountList = orderAccountService.queryGatheringRecordAll(map.get("id"));
         for (OrderAccount orderAccount :orderAccountList){
             orderAccount.setOrder(null);
         }

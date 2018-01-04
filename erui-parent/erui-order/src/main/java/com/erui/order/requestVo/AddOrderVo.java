@@ -33,7 +33,7 @@ public class AddOrderVo {
     private String inquiryNo;
 
     //订单类型
-    private boolean orderType = true;
+    private Boolean orderType = true;
 
     //订单来源
     private String orderSource;
@@ -45,7 +45,7 @@ public class AddOrderVo {
     private Date deliveryDate;
 
     //签约主体公司
-    private Integer signingCo;
+    private String signingCo;
     //市场经办人id
     private Integer agentId;
 
@@ -57,7 +57,7 @@ public class AddOrderVo {
     private String region;
 
     //分销部
-    private Integer distributionDeptId;
+   // private String distributionDeptId;
     //国家
     private String country;
 
@@ -65,7 +65,7 @@ public class AddOrderVo {
     private String crmCode;
 
     //客户类型
-    private boolean customerType;
+    private Boolean customerType;
 
     //汇款责任人
     private String perLiableRepay;
@@ -75,16 +75,16 @@ public class AddOrderVo {
 
     //商务技术经办人
     private Integer technicalId;
-    //商务技术经办人部门
-    private String technicalIdDept;
+   /* //商务技术经办人部门
+    private String technicalIdDept;*/
     //授信类型
     private String grantType;
 
     //是否预投
-    private boolean isPreinvest = false;
+    private Boolean isPreinvest = false;
 
     //是否融资
-    private boolean isFinancing = false;
+    private Boolean isFinancing = false;
 
     //贸易术语
     private String tradeTerms;
@@ -219,14 +219,6 @@ public class AddOrderVo {
         this.inquiryNo = inquiryNo;
     }
 
-    public boolean isOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(boolean orderType) {
-        this.orderType = orderType;
-    }
-
     public String getOrderSource() {
         return orderSource;
     }
@@ -251,14 +243,13 @@ public class AddOrderVo {
         this.deliveryDate = deliveryDate;
     }
 
-    public Integer getSigningCo() {
+
+    public String getSigningCo() {
         return signingCo;
     }
-
-    public void setSigningCo(Integer signingCo) {
+    public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
     }
-
     public Integer getAgentId() {
         return agentId;
     }
@@ -291,14 +282,6 @@ public class AddOrderVo {
         this.region = region;
     }
 
-    public Integer getDistributionDeptId() {
-        return distributionDeptId;
-    }
-
-    public void setDistributionDeptId(Integer distributionDeptId) {
-        this.distributionDeptId = distributionDeptId;
-    }
-
     public String getCountry() {
         return country;
     }
@@ -313,14 +296,6 @@ public class AddOrderVo {
 
     public void setCrmCode(String crmCode) {
         this.crmCode = crmCode;
-    }
-
-    public boolean isCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(boolean customerType) {
-        this.customerType = customerType;
     }
 
     public String getPerLiableRepay() {
@@ -347,36 +322,12 @@ public class AddOrderVo {
         this.technicalId = technicalId;
     }
 
-    public String getTechnicalIdDept() {
-        return technicalIdDept;
-    }
-
-    public void setTechnicalIdDept(String technicalIdDept) {
-        this.technicalIdDept = technicalIdDept;
-    }
-
     public String getGrantType() {
         return grantType;
     }
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
-    }
-
-    public boolean isPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setPreinvest(boolean preinvest) {
-        isPreinvest = preinvest;
-    }
-
-    public boolean isFinancing() {
-        return isFinancing;
-    }
-
-    public void setFinancing(boolean financing) {
-        isFinancing = financing;
     }
 
     public String getTradeTerms() {
@@ -465,6 +416,42 @@ public class AddOrderVo {
 
     public void setTaxBearing(Boolean taxBearing) {
         this.taxBearing = taxBearing;
+    }
+
+    public Boolean getOrderType() {
+        return orderType;
+    }
+
+    public AddOrderVo setOrderType(Boolean orderType) {
+        this.orderType = orderType;
+        return this;
+    }
+
+    public Boolean getCustomerType() {
+        return customerType;
+    }
+
+    public AddOrderVo setCustomerType(Boolean customerType) {
+        this.customerType = customerType;
+        return this;
+    }
+
+    public Boolean getPreinvest() {
+        return isPreinvest;
+    }
+
+    public AddOrderVo setPreinvest(Boolean preinvest) {
+        isPreinvest = preinvest;
+        return this;
+    }
+
+    public Boolean getFinancing() {
+        return isFinancing;
+    }
+
+    public AddOrderVo setFinancing(Boolean financing) {
+        isFinancing = financing;
+        return this;
     }
 
     public String getPaymentModeBn() {
@@ -590,14 +577,13 @@ public class AddOrderVo {
         order.setAgentName(this.agentName);
         order.setExecCoId(this.execCoId);
         order.setRegion(this.region);
-        order.setDistributionDeptId(this.distributionDeptId);
         order.setCountry(this.country);
         order.setCrmCode(this.crmCode);
         order.setCustomerType(this.customerType);
         order.setPerLiableRepay(this.perLiableRepay);
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
-        order.setTechnicalIdDept(this.technicalIdDept);
+     //   order.setTechnicalIdDept(this.technicalIdDept);
         order.setGrantType(this.grantType);
         order.setIsPreinvest(this.isPreinvest);
         order.setIsFinancing(this.isFinancing);
