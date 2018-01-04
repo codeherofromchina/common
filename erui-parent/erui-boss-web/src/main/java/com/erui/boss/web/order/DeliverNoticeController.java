@@ -49,6 +49,9 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "querExitInformMessage")
     public Result<Object> querExitInformMessage(Integer[] deliverNoticeIds) {
+        /*if(deliverNoticeId.length ==0 ){
+              return new Result<>(ResultStatusEnum.FAIL);
+        }else{}*/
            /* Integer[] deliverNoticeIds= {12,13,14};*/     //测试放开
             List<DeliverConsign> list= deliverConsignService.querExitInformMessage(deliverNoticeIds);
             Map<String,Object> data = new HashMap<>();
@@ -58,7 +61,7 @@ public class DeliverNoticeController {
             List<String> toPlaceList = new ArrayList<>();  //目的地
             List<String>  transportTypeList = new ArrayList<>();  //运输方式
             List<String>  agentNameList = new ArrayList<>();  //商务技术经办人名字
-            List<Date>  deliveryDateList = new ArrayList<>();  //执行单约定交付日期
+            List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
             List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
             for (DeliverConsign deliverConsign : list){
@@ -69,7 +72,7 @@ public class DeliverNoticeController {
                 toPlaceList.add(order1.getToPlace());
                 transportTypeList.add(order1.getTransportType());
                 agentNameList.add(order1.getAgentName());
-                deliveryDateList.add(order1.getProject().getDeliveryDate());
+                deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order1.getProject().getDeliveryDate()));
                 order1.setAttachmentSet(null);
                 order1.setGoodsList(null);
                 order1.setOrderPayments(null);
@@ -134,7 +137,7 @@ public class DeliverNoticeController {
         List<String> toPlaceList = new ArrayList<>();  //目的地
         List<String>  transportTypeList = new ArrayList<>();  //运输方式
         List<String>  agentNameList = new ArrayList<>();  //商务技术经办人名字
-        List<Date>  deliveryDateList = new ArrayList<>();  //执行单约定交付日期
+        List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
         List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
         Set<DeliverConsign> deliverConsigns = page.getDeliverConsigns();
@@ -152,12 +155,12 @@ public class DeliverNoticeController {
             toPlaceList.add(order.getToPlace());
             transportTypeList.add(order.getTransportType());
             agentNameList.add(order.getAgentName());
-            deliveryDateList.add(order.getProject().getDeliveryDate());
+            deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order.getProject().getDeliveryDate()));
         }
         Map<String,Object>  map = new HashMap<>();
         map.put("id",page.getId());  //看货通知单id
         map.put("senderId", page.getSenderId());//下单人
-        map.put("sendDate", page.getSendDate());//下单时间
+        map.put("sendDate", new SimpleDateFormat("yyyy-MM-dd").format(page.getSendDate()));//下单时间
         map.put("urgency",  page.getUrgency());//紧急程度
         map.put("numers",page.getNumers());//件数
         map.put("prepareReq",page.getPrepareReq());//备货要求

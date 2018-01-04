@@ -180,7 +180,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
  @Override
  @Transactional
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), null);
+        PageRequest request = new PageRequest(condition.getPage()-1, condition.getRows(), null);
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

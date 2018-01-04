@@ -1,11 +1,13 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * 订单-项目信息
@@ -37,6 +39,7 @@ public class Project {
     @Column(name = "start_date")
     private Date startDate;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
