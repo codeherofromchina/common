@@ -4,6 +4,7 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,14 +58,21 @@ public class OrderAccountController {
 
     /**
      *  添加一条收款记录
-     * @param orderAccount  收款信息
+     * @param orderAcciuntAdd  收款信息
      * @return
      */
     @RequestMapping(value = "addGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> addGatheringRecord(@RequestBody OrderAccount orderAccount){
+    public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+        OrderAccount orderAccount = new OrderAccount();
         Order order = new Order();
-        order.setId(orderAccount.getId());
+        order.setId(orderAcciuntAdd.getOrderId());
         orderAccount.setId(null);
+        orderAccount.setDesc(orderAcciuntAdd.getDesc());
+        orderAccount.setMoney(orderAcciuntAdd.getMoney());
+        orderAccount.setDiscount(orderAcciuntAdd.getDiscount());
+        orderAccount.setPaymentDate(orderAcciuntAdd.getPaymentDate());
+        orderAccount.setGoodsPrice(orderAcciuntAdd.getGoodsPrice());
+        orderAccount.setDeliverDate(orderAcciuntAdd.getDeliverDate());
         orderAccount.setOrder(order);
         orderAccountService.addGatheringRecord(orderAccount);
         return new Result<>();

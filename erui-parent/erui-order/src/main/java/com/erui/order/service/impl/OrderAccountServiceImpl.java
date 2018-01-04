@@ -85,7 +85,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccountDao.save(orderAccount);
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
-        order.setPayStatus(1);
+        order.setPayStatus(2);
         orderDao.saveAndFlush(order);
     }
 
@@ -130,7 +130,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     public void endGatheringRecord(Integer id) {
         Order order = orderDao.findOne(id);
-        order.setPayStatus(2);
+        order.setPayStatus(3);
         orderDao.saveAndFlush(order);
     }
 

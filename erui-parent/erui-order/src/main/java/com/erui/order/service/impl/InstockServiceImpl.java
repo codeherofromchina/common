@@ -240,6 +240,7 @@ public class InstockServiceImpl implements InstockService {
 
 
     @Override
+    @Transactional
     public Instock detail(Integer id) {
         Instock instock = instockDao.findOne(id);
         instock.getInstockGoodsList().size();

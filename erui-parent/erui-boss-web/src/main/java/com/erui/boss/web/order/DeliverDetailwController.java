@@ -53,61 +53,65 @@ public class DeliverDetailwController {
     @RequestMapping(value = "logisticsMoveFollow", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> logisticsMoveFollow(@RequestParam(name = "id") Integer id){
         DeliverDetail deliverDetail =deliverDetailService.logisticsMoveFollow(id);
-        Map<String,Object> map = new HashMap<>();
-        List<String> tradeTermsList = new ArrayList<>();    //贸易术语
-        List<String> fromPlaceList = new ArrayList<>();    //货物起运地
-        List<String> fromPortList = new ArrayList<>();    //起运港
-        List<String> toCountryList = new ArrayList<>();    //目的国
-        List<String> toPortList = new ArrayList<>();    //目的港
-        List<String> toPlaceList = new ArrayList<>();    //目的地
-        List<Goods> goodsList = new ArrayList<>();    //商品信息
-        Set<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
-        for (DeliverConsign deliverConsign : deliverConsigns){
-            Order order = deliverConsign.getOrder();
-            tradeTermsList.add(order.getTradeTerms());
-            fromPlaceList.add(order.getFromPlace());
-            fromPortList.add(order.getFromPort());
-            toCountryList.add(order.getCountry());
-            toPortList.add(order.getToPort());
-            toPlaceList.add(order.getToPlace());
-            for (Goods goods : order.getGoodsList()){
-                goods.setRemarks(deliverConsign.getRemarks());     //备注
-                goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
-                goodsList.add(goods);
+        if (deliverDetail == null) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }else{
+            Map<String,Object> map = new HashMap<>();
+            List<String> tradeTermsList = new ArrayList<>();    //贸易术语
+            List<String> fromPlaceList = new ArrayList<>();    //货物起运地
+            List<String> fromPortList = new ArrayList<>();    //起运港
+            List<String> toCountryList = new ArrayList<>();    //目的国
+            List<String> toPortList = new ArrayList<>();    //目的港
+            List<String> toPlaceList = new ArrayList<>();    //目的地
+            List<Goods> goodsList = new ArrayList<>();    //商品信息
+            Set<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
+            for (DeliverConsign deliverConsign : deliverConsigns){
+                Order order = deliverConsign.getOrder();
+                tradeTermsList.add(order.getTradeTerms());
+                fromPlaceList.add(order.getFromPlace());
+                fromPortList.add(order.getFromPort());
+                toCountryList.add(order.getCountry());
+                toPortList.add(order.getToPort());
+                toPlaceList.add(order.getToPlace());
+                for (Goods goods : order.getGoodsList()){
+                    goods.setRemarks(deliverConsign.getRemarks());     //备注
+                    goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
+                    goodsList.add(goods);
+                }
             }
-        }
-        List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
-        Iterator<Attachment> iterator = attachmentList.iterator();
-        while (iterator.hasNext()) {
-            Attachment next = iterator.next();
-            if (!"国际物流部".equals(next.getGroup())) {
-                iterator.remove();
+            List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
+            Iterator<Attachment> iterator = attachmentList.iterator();
+            while (iterator.hasNext()) {
+                Attachment next = iterator.next();
+                if (!"国际物流部".equals(next.getGroup())) {
+                    iterator.remove();
+                }
             }
-        }
-        map.put("id",deliverDetail.getId());    //id
-        map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人
-        map.put("logisticsDate",deliverDetail.getLogisticsDate());      //经办日期
-        map.put("tradeTermsList",tradeTermsList);    //贸易术语
-        map.put("fromPlaceList",fromPlaceList);   //货物起运地
-        map.put("fromPortList",fromPortList);  //起运港
-        map.put("toCountryList",toCountryList);    //目的国
-        map.put("toPortList",toPortList);    //目的港
-        map.put("toPlaceList",toPlaceList);    //目的地
-        map.put("goodsList",goodsList);    //商品信息
-        map.put("bookingTime",deliverDetail.getBookingTime());   //下发订舱时间
-        map.put("logiInvoiceNo",deliverDetail.getLogiInvoiceNo());   //物流发票号
-        map.put("packingTime",deliverDetail.getPackingTime());   //通知市场箱单时间
-        map.put("leaveFactory",deliverDetail.getLeaveFactory());   //离厂时间
-        map.put("sailingDate",deliverDetail.getSailingDate());   //船期或航班
-        map.put("customsClearance",deliverDetail.getCustomsClearance());   //报关放行时间
-        map.put("leavePortTime",deliverDetail.getLeavePortTime());   //实际离港时间
-        map.put("arrivalPortTime",deliverDetail.getArrivalPortTime());   //预计抵达时间
-        map.put("logs",deliverDetail.getLogs());   //动态描述
-        map.put("remarks",deliverDetail.getRemarks());   //备注
-        map.put("status",deliverDetail.getStatus());    //状态
-        map.put("attachmentList",attachmentList);   //物流跟踪附件信息
+            map.put("id",deliverDetail.getId());    //id
+            map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人
+            map.put("logisticsDate",deliverDetail.getLogisticsDate());      //经办日期
+            map.put("tradeTermsList",tradeTermsList);    //贸易术语
+            map.put("fromPlaceList",fromPlaceList);   //货物起运地
+            map.put("fromPortList",fromPortList);  //起运港
+            map.put("toCountryList",toCountryList);    //目的国
+            map.put("toPortList",toPortList);    //目的港
+            map.put("toPlaceList",toPlaceList);    //目的地
+            map.put("goodsList",goodsList);    //商品信息
+            map.put("bookingTime",deliverDetail.getBookingTime());   //下发订舱时间
+            map.put("logiInvoiceNo",deliverDetail.getLogiInvoiceNo());   //物流发票号
+            map.put("packingTime",deliverDetail.getPackingTime());   //通知市场箱单时间
+            map.put("leaveFactory",deliverDetail.getLeaveFactory());   //离厂时间
+            map.put("sailingDate",deliverDetail.getSailingDate());   //船期或航班
+            map.put("customsClearance",deliverDetail.getCustomsClearance());   //报关放行时间
+            map.put("leavePortTime",deliverDetail.getLeavePortTime());   //实际离港时间
+            map.put("arrivalPortTime",deliverDetail.getArrivalPortTime());   //预计抵达时间
+            map.put("logs",deliverDetail.getLogs());   //动态描述
+            map.put("remarks",deliverDetail.getRemarks());   //备注
+            map.put("status",deliverDetail.getStatus());    //状态
+            map.put("attachmentList",attachmentList);   //物流跟踪附件信息
 
-        return new Result<>(map);
+            return new Result<>(map);
+        }
     }
 
 

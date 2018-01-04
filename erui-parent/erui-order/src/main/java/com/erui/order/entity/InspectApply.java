@@ -53,6 +53,7 @@ public class InspectApply {
     /**
      * 是否是主报检单 true：是 false：否
      */
+    @Column(name = "`master`")
     private boolean master = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
