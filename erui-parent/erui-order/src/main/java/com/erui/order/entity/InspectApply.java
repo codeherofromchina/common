@@ -48,6 +48,7 @@ public class InspectApply {
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
+    @JsonIgnore
     private List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
 
     /**

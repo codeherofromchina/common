@@ -20,11 +20,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -125,7 +127,7 @@ public class InstockServiceImpl implements InstockService {
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
                 // 入库时间
-                map.put("instockDate", instock.getInstockDate());
+                map.put("instockDate", new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()));
                 map.put("status", instock.getStatus());
 
                 list.add(map);
@@ -243,8 +245,14 @@ public class InstockServiceImpl implements InstockService {
     @Transactional
     public Instock detail(Integer id) {
         Instock instock = instockDao.findOne(id);
-        instock.getInstockGoodsList().size();
         instock.getAttachmentList().size();
+        List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
+        for (InstockGoods v :instockGoodsList){
+            InspectApplyGoods inspectApplyGoods = v.getInspectApplyGoods();
+            inspectApplyGoods.getPurchGoods().getInspectNum();
+            inspectApplyGoods.getGoods().getId();
+        }
+
         return instock;
     }
 }

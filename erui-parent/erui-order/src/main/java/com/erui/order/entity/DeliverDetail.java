@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -51,6 +52,7 @@ public class DeliverDetail {
     @Column(name = "plate_no")
     private String plateNo; //车牌号码
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "pickup_date")
     private Date pickupDate;    //取货日期
 
@@ -63,6 +65,7 @@ public class DeliverDetail {
     @Column(name = "ware_houseman")
     private Integer wareHouseman;   //仓库经办人
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "send_date")
     private Date sendDate;  ///发运日期
 
@@ -86,9 +89,11 @@ public class DeliverDetail {
     @Column(name = "check_dept")
     private String checkDept;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "check_date")
     private Date checkDate; //检验日期
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "release_date")
     private Date releaseDate;   //放行日期
 
@@ -100,50 +105,62 @@ public class DeliverDetail {
 
     private Integer applicant;  //特殊放行申请人
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "applicant_date")
     private Date applicantDate; //特殊放行申请日期
 
     private Integer approver;   //批准人
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "approval_date")
     private Date approvalDate;  //批准日期
 
 
     private String opinion; //审批意见
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "leave_date")
     private Date leaveDate; //出库时间
 
     @Column(name = "logistics_user_id")
     private Integer logisticsUserId;    //物流经办人
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "logistics_date")
     private Date logisticsDate; //物流经办时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "booking_time")
     private Date bookingTime;   //订舱时间
 
     @Column(name = "logi_invoice_no")
     private String logiInvoiceNo;   //物流发票号
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "packing_time")
     private Date packingTime;   //通知市场箱单时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "leave_factory")
     private Date leaveFactory;  //离厂时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "sailing_date")
     private Date sailingDate;   //船期或航班
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "customs_clearance")
     private Date customsClearance;  //报关放行时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "leave_port_time")
     private Date leavePortTime; //实际离港时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "accomplish_date")
     private Date accomplishDate; //实际完成时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "arrival_port_time")
     private Date arrivalPortTime;   //预计抵达时间
 

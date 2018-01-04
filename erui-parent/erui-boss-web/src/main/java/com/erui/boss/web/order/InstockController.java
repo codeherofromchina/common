@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +41,7 @@ public class InstockController {
         int page = getStrNumber(condition.get("page"), DEFAULT_PAGE);
         int pageSize = getStrNumber(condition.get("pageSize"), DEFAULT_PAGESIZE);
 
-        Page<Map<String, Object>> data = instockService.listByPage(condition, page, pageSize);
+        Page<Map<String, Object>> data = instockService.listByPage(condition, page-1, pageSize);
 
         return new Result<>(data);
     }
@@ -96,7 +97,7 @@ public class InstockController {
         data.put("id", instock.getId());
         data.put("uid", instock.getUid());
         data.put("uname", instock.getUname());
-        data.put("instockDate", instock.getInstockDate());
+        data.put("instockDate", new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()));
         data.put("remarks", instock.getRemarks());
         data.put("attachmentList", instock.getAttachmentList());
 

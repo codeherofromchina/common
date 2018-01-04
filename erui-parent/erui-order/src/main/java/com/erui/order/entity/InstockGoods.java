@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -32,6 +34,7 @@ public class InstockGoods {
      */
     @OneToOne
     @JoinColumn(name="inspect_apply_goods_id")
+    @JsonIgnore
     private InspectApplyGoods inspectApplyGoods;
 
     @Column(name = "qualified_num")
