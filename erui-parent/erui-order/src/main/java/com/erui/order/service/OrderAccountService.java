@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
 import java.util.List;
@@ -46,7 +47,7 @@ public interface OrderAccountService {
      * @param orderAccount
      * @return
      */
-    void updateGatheringRecord(OrderAccount orderAccount);
+    void updateGatheringRecord(OrderAcciuntAdd orderAccount);
 
 
 

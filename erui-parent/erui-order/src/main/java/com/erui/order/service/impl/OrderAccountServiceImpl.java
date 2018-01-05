@@ -6,6 +6,7 @@ import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
-    public void updateGatheringRecord(OrderAccount orderAccount) {
+    public void updateGatheringRecord(OrderAcciuntAdd orderAccount) {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId());
         if (orderAccount.getDesc() != null) {
             orderAccounts.setDesc(orderAccount.getDesc());

@@ -5,6 +5,8 @@ import java.util.Date;
 
 public class OrderAcciuntAdd {
 
+    private Integer id;     //订单收款信息id；
+
     private Integer orderId;    //订单id
 
     private String desc;    //描述
@@ -68,6 +70,14 @@ public class OrderAcciuntAdd {
 
     public Integer getOrderId() {
         return orderId;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getDesc() {
