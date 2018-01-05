@@ -151,25 +151,25 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Map<String, Map<String, Object>> backMap = backAmountList.parallelStream().collect(Collectors.toMap(vo -> vo.get("backDate").toString(), vo -> vo));
         for (String date:nextDates ) {
             if(nextMap.containsKey(date)){
-                nList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(nextMap.get(date).get("receiveAmount").toString()),1));
+                nList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(nextMap.get(date).get("receiveAmount").toString()),1d));
             }else {
                 nList.add(0d);
             }
         }
         for (String date : dates) {
             if (reMap.containsKey(date)) {
-                rList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(reMap.get(date).get("receiveAmount").toString()),1));
+                rList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(reMap.get(date).get("receiveAmount").toString()),1d));
             } else {
                 rList.add(0d);
             }
             if (backMap.containsKey(date)) {
-                bList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(backMap.get(date).get("backAmount").toString()),1));
+                bList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(backMap.get(date).get("backAmount").toString()),1d));
             } else {
                 bList.add(0d);
             }
         }
         for (int i = 0; i < dates.size(); i++) {
-            orderList.add(rList.get(i) + bList.get(i));
+            orderList.add(RateUtil.doubleChainRateTwo(rList.get(i) + bList.get(i),1d));
         }
         Map<String,Object> datas=new HashMap<>();
         String[] types={"receivable","notReceive","received","nextMonth"};

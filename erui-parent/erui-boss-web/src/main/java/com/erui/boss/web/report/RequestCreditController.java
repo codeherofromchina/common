@@ -635,7 +635,7 @@ public class RequestCreditController {
                     groupBy = String.valueOf(m.get("org"));
                 }
                 areas.add(groupBy);
-                areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1));
+                areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1d));
             }
         }
         if (backList != null && backList.size() > 0) {
@@ -660,10 +660,10 @@ public class RequestCreditController {
                     if(areaAmounts.get(index)!=null){
                         sIndex=areaAmounts.get(index);
                     }
-                    areaAmounts.set(index, +sIndex+RateUtil.doubleChainRateTwo(amount1,1) );
+                    areaAmounts.set(index, sIndex+RateUtil.doubleChainRateTwo(amount1,1d) );
                 } else {
                     areas.add(groupBy);
-                    areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1));
+                    areaAmounts.add(RateUtil.doubleChainRateTwo(amount1,1d));
                 }
             }
         }
@@ -706,7 +706,7 @@ public class RequestCreditController {
                     }
                     if(area!=null) {
                         areas.add(area);
-                        areaAmounts.add(areaAmount);
+                        areaAmounts.add(RateUtil.doubleChainRateTwo(areaAmount,1d));
                     }
                 }
         }
