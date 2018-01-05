@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.erui.report.util.ImportDataResponse;
 
+import com.erui.report.util.InquiryAreaVO;
+
 public interface RequestCreditService {
 	 /**
 	  * @Author:SHIGS
@@ -85,4 +87,35 @@ public interface RequestCreditService {
 	 * @return
 	 */
 	ImportDataResponse importData(List<String[]> datas, boolean testOnly);
+
+
+	List<InquiryAreaVO> selectAllCompanyAndOrgList();
+	/**
+	 * @Author:lirb
+	 * @Description 根据条件获取 应收余额
+	 * @Date:13:56 2017/12/20
+	 * @modified By
+	 */
+	Double selectReceive(Date startTime,Date endTime,String company,String org,String area,String country);
+	/**
+	 * @Author:lirb
+	 * @Description 查询各区域的应收余额
+	 * @Date:13:56 2017/12/20
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectReceiveGroupByArea(Date startTime,Date endTime);
+	/**
+	 * @Author:lirb
+	 * @Description 查询各主体公司的应收余额
+	 * @Date:13:56 2017/12/20
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectReceiveGroupByCompany(Date startTime,Date endTime);
+	/**
+	 * @Author:lirb
+	 * @Description 查询各事业部的应收余额
+	 * @Date:13:56 2017/12/20
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectReceiveGroupByOrg(Date startTime,Date endTime);
 }

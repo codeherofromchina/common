@@ -5,7 +5,6 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.*;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,106 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
-    <mvc:annotation-driven/>
+	<mvc:annotation-driven />
 
-    <context:component-scan base-package="com.erui.boss.web"/>
-    <bean
-            class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
-        <property name="messageConverters">
-            <list>
-                <bean
-                        class="org.springframework.http.converter.StringHttpMessageConverter">
-                    <constructor-arg value="UTF-8" index="0"/>
-                    <property name="supportedMediaTypes">
-                        <list>
-                            <value>text/plain;charset=UTF-8</value>
-                        </list>
-                    </property>
-                </bean>
-                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                    <property name="objectMapper">
-                        <bean class="com.fasterxml.jackson.databind.ObjectMapper">
-                            <!-- 处理responseBody 里面日期类型 -->
-                            <property name="dateFormat">
-                                <bean class="java.text.SimpleDateFormat">
-                                    <constructor-arg type="java.lang.String" value="yyyy-MM-dd"/>
-                                </bean>
-                            </property>
-                        </bean>
-                    </property>
-                </bean>
-            </list>
-        </property>
-    </bean>
-    <!-- 拦截日期格式 -->
-   <!-- <mvc:annotation-driven>
-        <mvc:message-converters>
-            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                <property name="objectMapper" ref="objectMapper"/>
-            </bean>
-            <bean class="org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter">
-                <property name="objectMapper" ref="xmlMapper"/>
-            </bean>
-        </mvc:message-converters>
-    </mvc:annotation-driven>
-    <bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"
-          p:indentOutput="true"
-          p:simpleDateFormat="yyyy-MM-dd HH:mm:ss"
-          p:modulesToInstall="com.fasterxml.jackson.module.paramnames.ParameterNamesModule"/>
-    <bean id="xmlMapper" parent="objectMapper" p:createXmlMapper="true"/>
--->
-    <!--  <mvc:annotation-driven conversion-service="conversionService"/>
-  <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
-        <property name="converters">
-            <bean class="com.erui.boss.web.util.DateConverter"/>
-        </property>
-    </bean>-->
+	<context:component-scan base-package="com.erui.boss.web" />
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter">
+					<constructor-arg value="UTF-8" index="0" />
+					<property name="supportedMediaTypes">
+						<list>
+							<value>text/plain;charset=UTF-8</value>
+						</list>
+					</property>
+				</bean>
+				<bean
+					class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+	
 
-    <!-- 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 -->
-    <bean id="multipartResolver"
-          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <!-- 默认编码 -->
-        <property name="defaultEncoding" value="utf-8"/>
-        <!-- 文件大小最大值
-        <property name="maxUploadSize" value="10485760000" />-->
-        <!-- 内存中的最大值
-        <property name="maxInMemorySize" value="40960" />-->
-    </bean>
+	<!-- 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 -->
+	<bean id="multipartResolver"
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 默认编码 -->
+		<property name="defaultEncoding" value="utf-8" />
+		<!-- 文件大小最大值
+		<property name="maxUploadSize" value="10485760000" />-->
+		<!-- 内存中的最大值
+		<property name="maxInMemorySize" value="40960" />-->
+	</bean>
 
-    <!-- 模板信息设置 -->
-    <bean id="velocityConfigurer"
-          class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
-        <property name="resourceLoaderPath" value="WEB-INF/velocity"/><!--
+	<!-- 模板信息设置 -->
+	<bean id="velocityConfigurer"
+		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<property name="resourceLoaderPath" value="WEB-INF/velocity" /><!-- 
 			設置模板放置位置 -->
-        <property name="velocityProperties">
-            <props>
-                <prop key="directive.foreach.counter.name">loopCounter</prop>
-                <prop key="directive.foreach.counter.initial.value">0</prop>
-                <prop key="input.encoding">UTF-8</prop><!-- 指定模板引擎进行模板处理的编码 -->
-                <prop key="output.encoding">UTF-8</prop><!-- 指定输出流的编码 -->
-            </props>
-        </property>
-    </bean>
+		<property name="velocityProperties">
+			<props>
+				<prop key="directive.foreach.counter.name">loopCounter</prop>
+				<prop key="directive.foreach.counter.initial.value">0</prop>
+				<prop key="input.encoding">UTF-8</prop><!-- 指定模板引擎进行模板处理的编码 -->
+				<prop key="output.encoding">UTF-8</prop><!-- 指定输出流的编码 -->
+			</props>
+		</property>
+	</bean>
 
-    <!-- 设置视图解析工具 -->
-    <bean id="viewResolver"
-          class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
-        <property name="suffix" value=".htm"/>
-        <!-- 避免乱码 -->
-        <property name="contentType" value="text/html;charset=UTF-8"/>
-        <property name="toolboxConfigLocation">
-            <value>/WEB-INF/toolbox.xml</value>
-        </property>
-        <property name="dateToolAttribute" value="dateTool"/>
-        <property name="numberToolAttribute" value="numberTool"/>
-        <property name="exposeRequestAttributes" value="true"/>
-        <property name="exposeSessionAttributes" value="true"/>
-    </bean>
+	<!-- 设置视图解析工具 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="suffix" value=".htm" />
+		<!-- 避免乱码 -->
+		<property name="contentType" value="text/html;charset=UTF-8" />
+		<property name="toolboxConfigLocation">
+			<value>/WEB-INF/toolbox.xml</value>
+		</property>
+		<property name="dateToolAttribute" value="dateTool" />
+		<property name="numberToolAttribute" value="numberTool" />
+		<property name="exposeRequestAttributes" value="true" />
+		<property name="exposeSessionAttributes" value="true" />
+	</bean>
 </beans>
 
 

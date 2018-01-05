@@ -246,8 +246,8 @@
   <!--查询所有销售大区和国家列表列表-->
   <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
     select inquiry_area as area,inquiry_unit as country
-    from inquiry_count 
-    group by inquiry_area,inquiry_unit
+    from inquiry_count
+    group by inquiry_area,inquiry_unit  HAVING  inquiry_area IS  NOT  NULL
   </select>
   <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT  COUNT(1) as proCountTotal FROM inquiry_count
@@ -926,7 +926,7 @@
   </update>
   <update id="updateByExample" parameterType="map" >
     update inquiry_count
-    set id = #{record.id,jdbcType=BIGINT},
+    set
       inquiry_num = #{record.inquiryNum,jdbcType=VARCHAR},
       quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
       inquiry_unit = #{record.inquiryUnit,jdbcType=VARCHAR},

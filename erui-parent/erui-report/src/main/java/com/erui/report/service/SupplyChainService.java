@@ -3,9 +3,10 @@ package com.erui.report.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import com.erui.report.model.*;
 import com.erui.report.util.ImportDataResponse;
+import com.erui.report.util.SupplyPlanVo;
+
 
 public interface SupplyChainService {
 	 /**
@@ -86,5 +87,10 @@ public interface SupplyChainService {
 	 */
 	List<String>  selectOrgList();
 
-
+	/**
+	 *
+	 * 根据时间查询计划数 sku spu supplier
+	 * @return
+	 */
+	SupplyPlanVo getPlanNum(Date startTime,Date endTime);
 }

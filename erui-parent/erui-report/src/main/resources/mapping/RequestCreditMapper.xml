@@ -126,8 +126,8 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectArea" resultType="map" parameterType="com.erui.report.model.RequestCredit" >
-    SELECT sales_area FROM request_credit GROUP BY sales_area
+  <select id="selectArea" resultType="map">
+    SELECT sales_area FROM request_credit GROUP BY sales_area HAVING  sales_area IS  NOT  NULL
   </select>
   <select id="selectCountry" resultType="map" parameterType="com.erui.report.model.RequestCreditExample">
       SELECT DISTINCT sales_country FROM request_credit
@@ -138,7 +138,66 @@
       order by ${orderByClause}
     </if>
   </select>
-
+  <!--获取相关条件下的应收余额 -->
+  <select id="selectReceive" resultType="java.lang.Double" parameterType="com.erui.report.model.RequestCreditExample">
+      SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <!--查询各区域的应收余额 -->
+  <select id="selectReceiveGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount ,sales_area AS  area FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY sales_area HAVING  sales_area IS  NOT  NULL
+  </select>
+  <!--查询各主体公司的应收余额 -->
+  <select id="selectReceiveGroupByCompany" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount ,sales_main_company AS  company FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY sales_main_company HAVING  sales_main_company IS  NOT  NULL
+  </select>
+  <!--查询各事业部的应收余额 -->
+  <select id="selectReceiveGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount ,organization AS  org FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY organization HAVING  organization IS  NOT  NULL
+  </select>
+  <!--查询每天的应收余额列表 -->
+  <select id="selectReceiveGroupByBackDate" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
+    SELECT  IFNULL(SUM(IFNULL(receive_amount,0)),0) AS  receiveAmount,DATE_FORMAT(back_date,'%Y-%m-%d') AS backDate
+    FROM request_credit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY backDate HAVING  backDate IS  NOT  NULL
+  </select>
+  <!--查询主体公司和所属事业部-->
+  <select id="selectAllCompanyAndOrgList" resultType="java.util.Map" >
+  SELECT  sales_main_company AS  area ,organization  AS country FROM request_credit group by sales_main_company ,organization
+   HAVING sales_main_company IS NOT NULL
+  </select>
   <select id="selectByAreaOrCountry" resultType="map" parameterType="com.erui.report.model.RequestCreditExample" >
     SELECT SUM(IFNULL(order_amount,0)) AS oa,SUM(IFNULL(ABS(receive_amount),0)) AS ra,SUM(IFNULL(order_amount,0)-IFNULL(ABS(receive_amount),0)) AS received
     FROM request_credit

@@ -112,6 +112,20 @@
             order by ${orderByClause}
         </if>
     </select>
+    <!--根据时间查询sku 、spu、supplier 的计划数-->
+    <select id="selectPlanCount" resultType="com.erui.report.util.SupplyPlanVo" parameterType="com.erui.report.model.SupplyChainExample">
+        SELECT
+        SUM(plan_sku_num) AS planSKUNum,
+        SUM(plan_spu_num) AS planSPUNum,
+        SUM(plan_suppli_num) AS planSupplierNum
+        from supply_chain
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
     <!--品类部列表-->
     <select id="selectCategoryList" resultType="java.lang.String">
     SELECT DISTINCT(category) FROM supply_chain

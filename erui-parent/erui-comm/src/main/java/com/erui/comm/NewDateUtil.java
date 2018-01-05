@@ -24,7 +24,8 @@ public class NewDateUtil {
         return null;
     }
 
-    //向后退时间
+
+    //向后退时间111
     public static Date recedeTime(int day) {
         LocalDateTime dateTime = LocalDateTime.now();
         dateTime.minusDays(day);
@@ -243,6 +244,5 @@ public class NewDateUtil {
 
         return Date.from(localDate.atStartOfDay(zoneId).toInstant());
     }
-
 
 }

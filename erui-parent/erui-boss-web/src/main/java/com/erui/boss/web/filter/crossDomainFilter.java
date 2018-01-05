@@ -21,7 +21,6 @@ public class crossDomainFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
@@ -36,21 +35,25 @@ public class crossDomainFilter implements Filter {
             } else {
                 httpResponse.addHeader("Access-Control-Allow-Origin", origin);
             }
-            //httpResponse.addHeader("Access-Control-Allow-Origin", "*");
+//            httpResponse.addHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
             httpResponse.addHeader("Access-Control-Allow-Headers", "Origin, x-requested-with, Content-Type, Accept,X-Cookie,token");
             httpResponse.addHeader("Access-Control-Allow-Credentials", "true");
             httpResponse.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS,DELETE");
-            if (httpRequest.getMethod().equals("OPTIONS")) {
+            if ( httpRequest.getMethod().equals("OPTIONS") ) {
                 httpResponse.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
+            if ( httpRequest.getMethod().equals("HEAD") ) {
+                httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
             chain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("Exception in crossDomainFilter.doFilter", e);
             throw e;
         }
     }
-
     @Override
     public void destroy() {
     }

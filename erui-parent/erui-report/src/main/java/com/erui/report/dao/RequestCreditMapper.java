@@ -28,6 +28,11 @@ public interface RequestCreditMapper {
 
     List<Map> selectNextRequestTrend(RequestCreditExample example);
 
+    List<Map<String, Object>> selectReceiveGroupByArea(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByCompany(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByOrg(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByBackDate(RequestCreditExample example);
+
     int countByExample(RequestCreditExample example);
 
     int deleteByExample(RequestCreditExample example);
@@ -51,4 +56,8 @@ public interface RequestCreditMapper {
     int updateByPrimaryKey(RequestCredit record);
 
     void truncateTable();
+
+    List<Map<String,String>>   selectAllCompanyAndOrgList();
+
+    Double selectReceive(RequestCreditExample example);
 }

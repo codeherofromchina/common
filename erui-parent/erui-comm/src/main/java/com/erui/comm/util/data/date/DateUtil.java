@@ -16,6 +16,7 @@ public class DateUtil {
     public static final String FULL_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
     public static final String SHORT_FORMAT_STR = "yyyy-MM-dd";
     public static final String SHORT_SLASH_FORMAT_STR = "yyyy/MM/dd";
+    public static final String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
 
     /**
      * <summary>
@@ -190,6 +191,20 @@ public class DateUtil {
         date = getOperationTime(calendar.getTime(), 23, 59, 59);
         return date;
     }
+    /**
+     * 获取当前日期是星期几<br>
+     *@Author:lirb
+     * @param dt
+     * @return 当前日期是星期几
+     */
+    public static String getWeekOfDate(Date dt) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
+        if (w < 0)
+            w = 0;
+        return weekDays[w];
+    }
      /**
       * @Author:SHIGS
       * @Description
@@ -208,7 +223,25 @@ public class DateUtil {
         date = getOperationTime(calendar.getTime(), 0, 0, 0);
         return date;
     }
-
+    /**
+     * @Author:lirb
+     * @Description 获取本周六时间
+     * @Date:16:25 2017/12/21
+     * @modified By
+     */
+    public static Date getWeekSix(int week) {
+        Calendar cal = Calendar.getInstance();
+        int date = cal.get(Calendar.DAY_OF_MONTH);
+        int n = cal.get(Calendar.DAY_OF_WEEK);
+        if (n == 1) {
+            n = 7;
+        } else {
+            n = n - 1;
+        }
+        cal.set(Calendar.DAY_OF_MONTH, date + week - n);
+        Date time = cal.getTime();
+        return  parseString2DateNoException(getStartTime(time,FULL_FORMAT_STR),FULL_FORMAT_STR);
+    }
     /**
      * 得到本月的第一天
      *
@@ -353,21 +386,37 @@ public class DateUtil {
             return null;
         }
     }
-
+    /**
+     * @author lirb
+     * @param d
+     * @param day
+     * @return
+     */
+    public static Date getDateAfter(Date d,int day){
+        Calendar now =Calendar.getInstance();
+        now.setTime(d);
+        now.set(Calendar.DATE,now.get(Calendar.DATE)+day);
+        return getOperationTime( now.getTime(), 23, 59, 59);
+    }
     public static void main(String[] args) {
         //System.out.println(str2Date("1992-12-12"));
-        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
-        Date monthFirstDay = getMonthFirstDay(new Date());
-        Date nextMonthFirstDay = getNextMonthFirstDay(str2Date("1992-12-12"));
-        Date nextMonthLastDay = getNextMonthLastDay(str2Date("1992-12-12"));
-        Date week = getWeek(new Date(), 5);
-        Date beforeWeek = getBeforeWeek(new Date(), 7);
-        System.out.println(beforeWeek);
-        System.out.println("周"+week);
-        System.out.println(monthFirstDay);
-        System.out.println(nextMonthFirstDay);
-        System.out.println(nextMonthLastDay);
-        System.out.println(daysBetween);
+//        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
+//        Date monthFirstDay = getMonthFirstDay(new Date());
+//        Date nextMonthFirstDay = getNextMonthFirstDay(str2Date("1992-12-12"));
+//        Date nextMonthLastDay = getNextMonthLastDay(str2Date("1992-12-12"));
+//        Date week = getWeek(new Date(), 5);
+//        Date beforeWeek = getBeforeWeek(new Date(), 7);
+//        System.out.println(beforeWeek);
+//        System.out.println("周"+week);
+//        System.out.println(monthFirstDay);
+//        System.out.println(nextMonthFirstDay);
+//        System.out.println(nextMonthLastDay);
+//        System.out.println(daysBetween);
+//        String week = getWeekOfDate(new Date());
+//        Date weekSix =getWeekSix(6);
+        Date dateAfter = getDateAfter(new Date(), 8);
+        String s = formatDateToString(dateAfter,FULL_FORMAT_STR);
+        System.out.println(s);
     }
 
     /**
