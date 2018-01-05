@@ -9,6 +9,7 @@ public class InqOrdTrendVo {
     private List<String> date;
     private List<Integer> inqCounts;
     private List<Integer> ordCounts;
+
     private List<Integer> quoteCounts;
 
     public List<Integer> getQuoteCounts() {

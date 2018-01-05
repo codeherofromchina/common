@@ -11,7 +11,7 @@ import com.erui.report.model.InquiryCount;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
-import com.erui.report.service.impl.DataServiceImpl;
+//import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.CustomerNumSummaryVO;
 import com.erui.report.util.InquiryAreaVO;
 import com.erui.report.util.IsOilVo;
@@ -44,8 +44,8 @@ public class CustomCentreController {
     private OrderCountService orderService;
     @Autowired
     private InquirySKUService inquirySKUService;
-    @Autowired
-    private DataServiceImpl DataServiceImpl;
+   /* @Autowired
+    private DataServiceImpl DataServiceImpl;*/
     private static DecimalFormat df = new DecimalFormat("0.00");
 
 

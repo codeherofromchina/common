@@ -24,6 +24,7 @@ public class NewDateUtil {
         return null;
     }
 
+
     //向后退时间111
     public static Date recedeTime(int day) {
         LocalDateTime dateTime = LocalDateTime.now();
@@ -222,5 +223,26 @@ public class NewDateUtil {
         boolean b = inSaturdayWeek(dateFormat.parse("2017-11-13"));
         System.out.println(b);
 
+        Date date = getDate(new Date());
+        System.out.println(format("yyyy-MM-dd HH:mm:ss",date));
+
     }
+
+    /**
+     * 只获取给定日期的年月日日期
+     * @param date
+     * @return
+     */
+    public static Date getDate(Date date) {
+        if (date == null) {
+            return null;
+        }
+
+        Instant instant = date.toInstant();
+        ZoneId zoneId = ZoneId.systemDefault();
+        LocalDate localDate = instant.atZone(zoneId).toLocalDate();
+
+        return Date.from(localDate.atStartOfDay(zoneId).toInstant());
+    }
+
 }

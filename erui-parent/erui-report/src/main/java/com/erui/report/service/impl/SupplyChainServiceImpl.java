@@ -8,7 +8,6 @@ import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.*;
-
 import com.erui.report.util.SupplyPlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -387,7 +386,6 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<String> selectOrgList() {
         return readMapper.selectOrgList();
     }
-
     @Override
     public SupplyPlanVo getPlanNum(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
@@ -400,4 +398,5 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         }
         return   this.readMapper.selectPlanCount(example);
     }
+
 }

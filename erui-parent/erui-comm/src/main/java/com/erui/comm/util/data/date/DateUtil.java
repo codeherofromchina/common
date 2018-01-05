@@ -17,6 +17,7 @@ public class DateUtil {
     public static final String SHORT_FORMAT_STR = "yyyy-MM-dd";
     public static final String SHORT_SLASH_FORMAT_STR = "yyyy/MM/dd";
     public static final String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+
     /**
      * <summary>
      * 判断年份是否是闰年，true为闰年，false为平年
@@ -190,7 +191,6 @@ public class DateUtil {
         date = getOperationTime(calendar.getTime(), 23, 59, 59);
         return date;
     }
-
     /**
      * 获取当前日期是星期几<br>
      *@Author:lirb

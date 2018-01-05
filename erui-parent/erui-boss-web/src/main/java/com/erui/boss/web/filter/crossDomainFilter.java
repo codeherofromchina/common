@@ -47,6 +47,7 @@ public class crossDomainFilter implements Filter {
                 httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
+
             chain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("Exception in crossDomainFilter.doFilter", e);

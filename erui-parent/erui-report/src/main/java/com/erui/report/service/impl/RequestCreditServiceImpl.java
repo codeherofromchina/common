@@ -518,5 +518,4 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         }
         return readMapper.selectReceiveGroupByOrg(example);
     }
-
 }

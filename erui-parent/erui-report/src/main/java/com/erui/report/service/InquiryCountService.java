@@ -30,11 +30,13 @@ public interface InquiryCountService {
     /*
     * 查询询单单数
     * */
+
      int inquiryCountByTime(Date startTime,Date endTime,String[] quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
     /*
     * 查询询单总金额
     * */
 	 Double inquiryAmountByTime(Date startDate,Date endDate,String area,String country,String[] quotedStatus) ;
+
 
 	/**
 	 * 导入客户中心-询单数据
@@ -53,7 +55,6 @@ public interface InquiryCountService {
 	* 查询产品Top3
 	* */
 	List<Map<String,Object>> selectProTop3(Map<String,Object>params);
-	
 	 /**
 	  * @Author:SHIGS
 	  * @Description 查询产品Top3总数

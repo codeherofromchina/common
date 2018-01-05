@@ -10,6 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
+import com.erui.report.model.*;
+import com.erui.report.service.InquiryCountService;
+import com.erui.report.util.*;
+import org.apache.commons.lang3.StringUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
@@ -34,7 +40,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.InquiryCountMapper;
 import com.erui.report.dao.OrderCountMapper;
 import com.erui.report.model.InquiryCountExample.Criteria;
-import com.erui.report.service.InquiryCountService;
+
 
 /*
  * 客户中心-询单统计  服务实现类
@@ -43,6 +49,7 @@ import com.erui.report.service.InquiryCountService;
 public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> implements InquiryCountService {
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
+
     public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 
     private static final String key = "9b2a37b7b606c14d43db538487a148c7";
@@ -719,6 +726,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<Integer> inqCounts = new ArrayList<>();
         List<Integer> ordCounts = new ArrayList<>();
         List<Integer> quoteCounts = new ArrayList<>();
+
         for (String date : dates) {
             if (inqTrend.containsKey(date)) {
                 inqCounts.add(Integer.parseInt(inqTrend.get(date).get("count").toString()));
@@ -735,7 +743,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             } else {
                 quoteCounts.add(0);
             }
-
         }
         InqOrdTrendVo trendVo = new InqOrdTrendVo();
         trendVo.setDate(dates);
@@ -790,7 +797,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         return result;
     }
-
     @Override
     public void inquiryData(String startTime, String endTime) throws Exception {
         CloseableHttpClient client = HttpClients.createDefault();

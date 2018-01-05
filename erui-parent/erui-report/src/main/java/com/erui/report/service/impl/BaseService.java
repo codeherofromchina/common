@@ -1,5 +1,4 @@
 package com.erui.report.service.impl;
-
 import org.mybatis.spring.SqlSessionTemplate;
 
 import javax.annotation.Resource;

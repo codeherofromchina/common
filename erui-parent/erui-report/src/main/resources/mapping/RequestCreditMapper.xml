@@ -115,7 +115,6 @@
       order by ${orderByClause}
     </if>
   </select>
-
   <select id="selectNextRequestTrend" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCreditExample">
     SELECT sum(IFNULL(order_amount,0)) AS order_amount,FROM_DAYS(TO_DAYS(back_date)) AS back_date
     FROM request_credit

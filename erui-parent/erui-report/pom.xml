@@ -78,16 +78,10 @@
 			<version>${parent.version}</version>
 		</dependency>
         <dependency>
-            <groupId>com.erui</groupId>
-            <artifactId>erui-comm</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>RELEASE</version>
         </dependency>
-
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -98,8 +92,5 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 		</dependency>
-
-
-
     </dependencies>
 </project>
