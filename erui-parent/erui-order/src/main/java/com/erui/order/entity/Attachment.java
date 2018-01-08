@@ -11,7 +11,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "attachment")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

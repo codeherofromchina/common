@@ -17,8 +17,7 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER,optional = false)
-    @JoinColumn(name="area_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private Area area;
 
     /**

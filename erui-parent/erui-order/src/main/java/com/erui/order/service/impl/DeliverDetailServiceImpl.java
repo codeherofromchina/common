@@ -50,7 +50,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Override
     public Page<DeliverDetail> listByPage(DeliverDetailVo condition) {
-        PageRequest request = new PageRequest(condition.getPage(), condition.getPageSize(), Sort.Direction.DESC, "createTime");
+        PageRequest request = new PageRequest(condition.getPage()-1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
@@ -74,6 +74,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Transactional
     public DeliverDetail findDetailById(Integer id) {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
+        deliverDetail.getDeliverNotice().getId();
+        deliverDetail.getAttachmentList().size();
+        deliverDetail.getDeliverConsignGoodsList().size();
         return deliverDetail;
     }
 
@@ -114,7 +117,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional
     public Page<DeliverDetail> outboundManage(DeliverD deliverD) {
-        PageRequest request = new PageRequest(deliverD.getPage(), deliverD.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(deliverD.getPage()-1, deliverD.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
@@ -187,7 +190,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional
     public Page<DeliverDetail> logisticsTraceManage(DeliverW deliverW) {
-        PageRequest request = new PageRequest(deliverW.getPage(), deliverW.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(deliverW.getPage()-1, deliverW.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
@@ -499,8 +502,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
+    @Transactional
     public Page<Map<String, Object>> listQualityByPage(Map<String, String> condition, int pageNum, int pageSize) {
-        PageRequest request = new PageRequest(pageNum, pageSize, Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(pageNum-1, pageSize, Sort.Direction.DESC, "id");
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
             public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

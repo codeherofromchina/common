@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -34,6 +35,10 @@ public class OrderController {
      */
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderManage(@RequestBody OrderListCondition condition) {
+        //页数不能小于1
+        if (condition.getPage()<1){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         Page<Order> orderPage = orderService.findByPage(condition);
         if (orderPage.hasContent()) {
             orderPage.getContent().forEach(vo -> {
@@ -50,8 +55,11 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "deleteOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderDelete(@RequestBody int[] ids ) {
-        orderService.deleteOrder(ids);
+    public Result<Object> orderDelete(@RequestBody Map<String, Integer[]> ids) {
+      /*  Integer id = map.get("ids");
+        Integer [] ids = new Integer[1];
+        ids[0] = id;*/
+        orderService.deleteOrder(ids.get("ids"));
         return  new Result<>();
     }
 
@@ -85,9 +93,9 @@ public class OrderController {
      *
      * @return
      */
-    @RequestMapping(value = "queryOrderDesc", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Order> queryOrderDesc(@RequestParam(name = "id")Integer id) {
-        Order order = orderService.findById(id);
+    @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Order> queryOrderDesc(@RequestBody Map<String,Integer> map) {
+        Order order = orderService.findById(map.get("id"));
         return new Result<>(order);
     }
 }

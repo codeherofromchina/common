@@ -48,12 +48,14 @@ public class InspectApply {
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
+    @JsonIgnore
     private List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
 
     /**
      * 是否是主报检单 true：是 false：否
      */
-    private boolean master = true;
+    @Column(name = "`master`")
+    private Boolean master = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_id")
@@ -72,9 +74,9 @@ public class InspectApply {
     @Column(name = "inspect_date")
     private Date inspectDate;
 
-    private Boolean direct;
+    private Boolean direct= false;
     @Column(name = "out_check")
-    private Boolean outCheck;
+    private Boolean outCheck= false;
 
     // 报检次数
     private Integer num;
@@ -86,7 +88,7 @@ public class InspectApply {
     private String msg;
 
     // 是否存在历史记录
-    private boolean history = false;
+    private Boolean history = false;
 
     @Column(name = "create_time")
     @JsonIgnore

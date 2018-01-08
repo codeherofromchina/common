@@ -59,7 +59,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     @Override
     @Transactional
     public Page<DeliverNotice> listByPage(DeliverNotice condition) {
-        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(condition.getPage()-1, condition.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverNotice> page = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
             @Override

@@ -38,7 +38,7 @@ public class InspectReport {
     /**
      * 质检员ID
      */
-    @Column(name = "check_user_id")
+        @Column(name = "check_user_id")
     private Integer checkUserId;
 
     /**

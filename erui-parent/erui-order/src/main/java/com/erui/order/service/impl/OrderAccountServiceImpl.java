@@ -6,6 +6,7 @@ import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +86,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccountDao.save(orderAccount);
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
-        order.setPayStatus(1);
+        order.setPayStatus(2);
         orderDao.saveAndFlush(order);
     }
 
@@ -97,7 +98,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
-    public void updateGatheringRecord(OrderAccount orderAccount) {
+    public void updateGatheringRecord(OrderAcciuntAdd orderAccount) {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId());
         if (orderAccount.getDesc() != null) {
             orderAccounts.setDesc(orderAccount.getDesc());
@@ -130,7 +131,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     public void endGatheringRecord(Integer id) {
         Order order = orderDao.findOne(id);
-        order.setPayStatus(2);
+        order.setPayStatus(3);
         orderDao.saveAndFlush(order);
     }
 
@@ -180,7 +181,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
  @Override
  @Transactional
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), null);
+        PageRequest request = new PageRequest(condition.getPage()-1, condition.getRows(), null);
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

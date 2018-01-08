@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -55,6 +56,7 @@ public class DeliverNotice {
     @Column(name = "sender_name")
     private String senderName;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "send_date")
     private Date sendDate;
     @Column(name = "trade_terms")
@@ -70,11 +72,13 @@ public class DeliverNotice {
      * 紧急程度 COMMONLY:一般 URGENT:紧急 PARTICULAR:异常紧急
      */
     private String urgency;
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
     private Integer numers;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -84,6 +88,7 @@ public class DeliverNotice {
     @Column(name = "create_user_name")
     private String createUserName;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
     @Column(name = "prepare_req")

@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Instock {
      */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspect_report_id")
+    @JsonIgnore
     private InspectReport inspectReport;
 
     @Column(name = "inspect_apply_no")
@@ -34,6 +36,7 @@ public class Instock {
     // 下发部门，和仓库经办人管理
     private String department;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "instock_date")
     private Date instockDate;
 
@@ -51,6 +54,7 @@ public class Instock {
     private String currentUserName;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     @JoinColumn(name = "instock_id")
     private List<InstockGoods> instockGoodsList = new ArrayList<>();
 
