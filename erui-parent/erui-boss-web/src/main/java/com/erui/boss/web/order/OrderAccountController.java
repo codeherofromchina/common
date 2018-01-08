@@ -97,7 +97,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> updateGatheringRecord( OrderAccount orderAccount){
+    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount){
         orderAccountService.updateGatheringRecord(orderAccount);
         return new Result<>();
     }

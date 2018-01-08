@@ -21,6 +21,7 @@ public class Instock {
      */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspect_report_id")
+    @JsonIgnore
     private InspectReport inspectReport;
 
     @Column(name = "inspect_apply_no")
