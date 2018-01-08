@@ -66,12 +66,12 @@ public class DeliverConsign {
         this.id = id;
     }
 
-    public String getDeliverConsignNo() {
-        return deliverConsignNo;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setDeliverConsignNo(String deliverConsignNo) {
-        this.deliverConsignNo = deliverConsignNo;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public Integer getoId() {
@@ -82,13 +82,14 @@ public class DeliverConsign {
         this.oId = oId;
     }
 
-    public Order getOrder() {
-        return order;
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
     }
+
 
     public Integer getDeptId() {
         return deptId;
@@ -184,5 +185,9 @@ public class DeliverConsign {
 
     public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
+    }
+
+    public void setDeliverYn(int deliverYn) {
+        this.deliverYn = deliverYn;
     }
 }

@@ -4,6 +4,8 @@ import java.util.Date;
 
 public class DeliverW {
 
+    private Integer id;
+
     private String deliverDetailNo; //产品放行单号
 
     private String contractNo; //销售合同号
@@ -21,6 +23,13 @@ public class DeliverW {
     private Integer rows;
 
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public void setContractNo(String contractNo) {
         this.contractNo = contractNo;

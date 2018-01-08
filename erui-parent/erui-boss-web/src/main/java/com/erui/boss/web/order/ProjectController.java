@@ -59,7 +59,6 @@ public class ProjectController {
         Page<Project> projectPage = projectService.findByPage(condition);
         for (Project project:projectPage) {
             project.setOrder(null);
-            project.setPurchRequisition(null);
         }
         /*if (projectPage.hasContent()){
             projectPage.getContent().forEach(vo -> {

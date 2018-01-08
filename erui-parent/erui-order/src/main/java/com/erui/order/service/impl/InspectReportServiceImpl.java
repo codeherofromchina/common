@@ -66,7 +66,7 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Transactional
     public Page<InspectReport> listByPage(InspectReport condition) {
 
-        PageRequest request = new PageRequest(condition.getPage(), condition.getPageSize(), Sort.Direction.DESC, "createTime");
+        PageRequest request = new PageRequest(condition.getPage()-1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
 
         Page<InspectReport> page = inspectReportDao.findAll(new Specification<InspectReport>() {
             @Override
@@ -145,6 +145,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 inspectReport.setProjectNo(StringUtils.join(projectNoList, ","));
                 inspectReport.setDirect(inspectApply.getDirect());
                 inspectReport.setAttachments(null);
+                inspectReport.setInspectGoodsList(null);
             });
         }
 

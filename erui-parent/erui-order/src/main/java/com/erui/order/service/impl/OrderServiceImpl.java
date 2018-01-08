@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(final OrderListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage()-1, condition.getRows(), null);
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), null);
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void deleteOrder(Integer [] ids) {
+    public void deleteOrder(Integer[] ids) {
         List<Order> orderList = orderDao.findByIdIn(ids);
         List<Order> collect = orderList.parallelStream()
                 .filter(vo -> vo.getStatus() == 1)
@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
         List<Goods> goodsList = new ArrayList<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
-        //    goods.setSeq(pGoods.getSeq());
+            //    goods.setSeq(pGoods.getSeq());
             goods.setId(pGoods.getId());
             goods.setSku(pGoods.getSku());
             goods.setMeteType(pGoods.getMeteType());
@@ -263,6 +263,8 @@ public class OrderServiceImpl implements OrderService {
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
             project.setProjectStatus("SUBMIT");
+            project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
+            project.setPurchDone(Boolean.FALSE);
             projectDao.save(project);
         }
         return true;

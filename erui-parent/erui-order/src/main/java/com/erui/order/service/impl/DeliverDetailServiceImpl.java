@@ -360,6 +360,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Transactional
     public DeliverDetail logisticsMoveFollow(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
+        one.getDeliverConsignGoodsList().size();
         one.getAttachmentList().size();
         Set<DeliverConsign> deliverConsigns =one.getDeliverNotice().getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns){
@@ -474,6 +475,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public DeliverDetail queryLogisticsTrace(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
         if(one.getStatus() == 6){
+            one.getDeliverConsignGoodsList().size();
             one.getAttachmentList().size();
             Set<DeliverConsign> deliverConsigns =one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns){
