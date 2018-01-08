@@ -21,7 +21,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = {CascadeType.MERGE})
+    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.MERGE})
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;

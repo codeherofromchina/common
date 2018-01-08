@@ -106,9 +106,9 @@ public class ProjectController {
      *
      * @return
      */
-    @RequestMapping(value = "queryProject", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Project> queryProject(@RequestParam(name = "id")Integer id) {
-        Project project = projectService.findDesc(id);
+    @RequestMapping(value = "queryProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Project> queryProject(@RequestBody Map<String,Integer> map) {
+        Project project = projectService.findDesc(map.get("id"));
         return new Result<>(project);
     }
 }
