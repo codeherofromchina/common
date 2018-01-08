@@ -48,12 +48,12 @@ public class DeliverDetailwController {
     /**
      * 物流动态跟踪 - 物流信息
      *
-     * @param id    物流数据id
+     * @param deliverW    物流数据id
      * @return
      */
     @RequestMapping(value = "logisticsMoveFollow", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> logisticsMoveFollow(@RequestParam(name = "id") Integer id){
-        DeliverDetail deliverDetail =deliverDetailService.logisticsMoveFollow(id);
+    public Result<Object> logisticsMoveFollow(@RequestBody DeliverW deliverW){
+        DeliverDetail deliverDetail =deliverDetailService.logisticsMoveFollow(deliverW.getId());
         if (deliverDetail == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }else{
@@ -141,12 +141,12 @@ public class DeliverDetailwController {
     /**
      * 物流管理 - 查看页面
      *
-     * @param id    物流数据id
+     * @param deliverW    物流数据id
      * @return
      */
     @RequestMapping(value = "queryLogisticsTrace", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> queryLogisticsTrace(@RequestParam(name = "id") Integer id){
-        DeliverDetail deliverDetail =deliverDetailService.queryLogisticsTrace(id);
+    public Result<Object> queryLogisticsTrace(@RequestBody DeliverW deliverW){
+        DeliverDetail deliverDetail =deliverDetailService.queryLogisticsTrace(deliverW.getId());
 
             if(deliverDetail!=null){
 

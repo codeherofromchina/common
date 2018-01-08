@@ -51,11 +51,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
-        if (!project.getProjectStatus().equals("SUBMIT")) {
-            project.copyProjectDesc(projectUpdate);
-            projectUpdate.setProjectStatus(project.getProjectStatus());
-            projectUpdate.setUpdateTime(new Date());
-        }
+      /*  if (!project.getProjectStatus().equals("SUBMIT")) {
+        }*/
+        project.copyProjectDesc(projectUpdate);
+        projectUpdate.setProjectStatus(project.getProjectStatus());
+        projectUpdate.setUpdateTime(new Date());
         projectDao.saveAndFlush(projectUpdate);
         return true;
     }
@@ -113,9 +113,9 @@ public class ProjectServiceImpl implements ProjectService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-      /*  pageList.getContent().forEach(vo -> {
+        pageList.getContent().forEach(vo -> {
             vo.setOrder(null);
-        });*/
+        });
         return pageList;
     }
 

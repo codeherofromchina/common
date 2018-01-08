@@ -58,8 +58,8 @@ public class DeliverDetailsController {
     //TODO 掉接口
 
     @RequestMapping(value = "outboundDetailsPage", method = RequestMethod.POST)
-    public Result<Object> outboundDetailsPage(@RequestParam(name = "id", required = true) Integer id){
-        DeliverDetail deliverDetail = deliverDetailService.findDetailById(id);
+    public Result<Object> outboundDetailsPage(@RequestBody DeliverDetail deliverDetails){
+        DeliverDetail deliverDetail = deliverDetailService.findDetailById(deliverDetails.getId());
         Map<String, Object> data = new HashMap<>();
         // 出库基本信息
         data.put("deliverDetailInfo", deliverDetail); // 出库基本信息
@@ -109,8 +109,8 @@ public class DeliverDetailsController {
     //TODO 掉接口
 
     @RequestMapping(value = "outboundDetails", method = RequestMethod.POST)
-    public Result<Object> outboundDetails(@RequestParam(name = "id", required = true) Integer id){
-        DeliverDetail deliverDetail = deliverDetailService.findDetailById(id);
+    public Result<Object> outboundDetails(@RequestBody DeliverDetail deliverDetails){
+        DeliverDetail deliverDetail = deliverDetailService.findDetailById(deliverDetails.getId());
         Map<String, Object> data = new HashMap<>();
         // 出库基本信息
         data.put("deliverDetailInfo", deliverDetail); // 出库基本信息

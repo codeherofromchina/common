@@ -1,6 +1,5 @@
 package com.erui.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -205,7 +204,7 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JsonIgnore
     private Project project;
 

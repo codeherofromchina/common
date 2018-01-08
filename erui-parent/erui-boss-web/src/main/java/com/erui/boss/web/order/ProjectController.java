@@ -53,14 +53,12 @@ public class ProjectController {
      *
      * @return
      */
-    @Transactional
     @RequestMapping(value = "projectManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
         Page<Project> projectPage = projectService.findByPage(condition);
         for (Project project:projectPage) {
             project.setOrder(null);
-            project.setPurchRequisition(null);
         }
         /*if (projectPage.hasContent()){
             projectPage.getContent().forEach(vo -> {

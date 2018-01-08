@@ -64,9 +64,11 @@ public class Goods {
     @Transient
     private String packRequire;  //包装要求
 
-   /* @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "goods")
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "goods")
+    //@JoinColumn(name = "order_id")
     @JsonIgnore
-    private  DeliverConsignGoods deliverConsignGoods;*/
+    private  DeliverConsignGoods deliverConsignGoods;
 
 
     private String model;
@@ -99,6 +101,7 @@ public class Goods {
     private Integer outstockApplyNum;
     @Column(name = "outstock_num")
     private Integer outstockNum;
+
 
     public Integer getInspectNum() {
         return inspectNum;
@@ -137,13 +140,13 @@ public class Goods {
         return remarks;
     }
 
-  /*  public DeliverConsignGoods getDeliverConsignGoods() {
+    public DeliverConsignGoods getDeliverConsignGoods() {
         return deliverConsignGoods;
     }
 
     public void setDeliverConsignGoods(DeliverConsignGoods deliverConsignGoods) {
         this.deliverConsignGoods = deliverConsignGoods;
-    }*/
+    }
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
