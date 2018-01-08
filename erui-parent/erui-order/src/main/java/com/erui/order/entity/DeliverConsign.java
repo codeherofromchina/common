@@ -58,37 +58,12 @@ public class DeliverConsign {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
 
-    public Integer getDeliverYn() {
-        return deliverYn;
-    }
-
-    public DeliverConsign setDeliverYn(Integer deliverYn) {
-        this.deliverYn = deliverYn;
-        return this;
-    }
-
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public Integer getoId() {
-        return oId;
-    }
-
-    public void setoId(Integer oId) {
-        this.oId = oId;
     }
 
     public String getDeliverConsignNo() {
@@ -99,6 +74,21 @@ public class DeliverConsign {
         this.deliverConsignNo = deliverConsignNo;
     }
 
+    public Integer getoId() {
+        return oId;
+    }
+
+    public void setoId(Integer oId) {
+        this.oId = oId;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
     public Integer getDeptId() {
         return deptId;
@@ -148,6 +138,14 @@ public class DeliverConsign {
         this.status = status;
     }
 
+    public Integer getDeliverYn() {
+        return deliverYn;
+    }
+
+    public void setDeliverYn(Integer deliverYn) {
+        this.deliverYn = deliverYn;
+    }
+
     public Integer getCreateUserId() {
         return createUserId;
     }
@@ -186,9 +184,5 @@ public class DeliverConsign {
 
     public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
-    }
-
-    public void setDeliverYn(int deliverYn) {
-        this.deliverYn = deliverYn;
     }
 }

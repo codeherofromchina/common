@@ -77,7 +77,7 @@ public class DeliverDetailwController {
                 toPlaceList.add(order.getToPlace());
                 for (Goods goods : order.getGoodsList()){
                     goods.setRemarks(deliverConsign.getRemarks());     //备注
-                    goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
+                   // goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
                     goodsList.add(goods);
                 }
             }
@@ -165,7 +165,7 @@ public class DeliverDetailwController {
                     toPlaceList.add(order.getToPlace());
                     for (Goods goods : order.getGoodsList()){
                         goods.setRemarks(deliverConsign.getRemarks());     //备注
-                        goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
+                   //     goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
                         goodsList.add(goods);
                     }
                 }
