@@ -16,20 +16,20 @@
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
-        <property name="driverClassName" value="${report.master.driver}"/>
-        <property name="url" value="${report.master.url}"/>
-        <property name="username" value="${report.master.username}"/>
-        <property name="password" value="${report.master.password}"/>
+        <property name="driverClassName" value="${order.master.driver}"/>
+        <property name="url" value="${order.master.url}"/>
+        <property name="username" value="${order.master.username}"/>
+        <property name="password" value="${order.master.password}"/>
         <!-- 初始化连接大小 -->
-        <property name="initialSize" value="${report.master.initialSize}"></property>
+        <property name="initialSize" value="${order.master.initialSize}"></property>
         <!-- 连接池最大数量 -->
-        <property name="maxActive" value="${report.master.maxActive}"></property>
+        <property name="maxActive" value="${order.master.maxActive}"></property>
         <!-- 连接池最大空闲 -->
-        <property name="maxIdle" value="${report.master.maxIdle}"></property>
+        <property name="maxIdle" value="${order.master.maxIdle}"></property>
         <!-- 连接池最小空闲 -->
-        <property name="minIdle" value="${report.master.minIdle}"></property>
+        <property name="minIdle" value="${order.master.minIdle}"></property>
         <!-- 获取连接最大等待时间 -->
-        <property name="maxWait" value="${report.master.maxWait}"></property>
+        <property name="maxWait" value="${order.master.maxWait}"></property>
         <property name="defaultAutoCommit" value="false"/>
         <property name="testOnBorrow" value="true"/>
         <property name="validationQuery" value="SELECT 1"/>

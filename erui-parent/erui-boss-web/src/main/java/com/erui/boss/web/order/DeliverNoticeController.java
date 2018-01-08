@@ -44,16 +44,18 @@ public class DeliverNoticeController {
 
     /**
      * 根据出口发货通知单 查询信息
-     * @param deliverNoticeIds  看货通知单号  数组
+     * @param map  看货通知单号  数组
      * @return
      */
     @RequestMapping(value = "querExitInformMessage")
-    public Result<Object> querExitInformMessage(Integer[] deliverNoticeIds) {
-        /*if(deliverNoticeId.length ==0 ){
-              return new Result<>(ResultStatusEnum.FAIL);
-        }else{}*/
-           /* Integer[] deliverNoticeIds= {12,13,14};*/     //测试放开
-            List<DeliverConsign> list= deliverConsignService.querExitInformMessage(deliverNoticeIds);
+    public Result<Object> querExitInformMessage(@RequestBody Map<String,String> map) {
+        String[] split = map.get("deliverNoticeIds").split(",");
+        Integer[] intTemp = new Integer[split.length];
+        for (int i = 0; i <split.length; i++) {
+                intTemp[i] = Integer.parseInt(split[i]);
+            }
+
+        List<DeliverConsign> list= deliverConsignService.querExitInformMessage(intTemp);
             Map<String,Object> data = new HashMap<>();
             List<Goods> goodsList = new ArrayList<>();  //商品信息
             List<String> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
@@ -79,7 +81,7 @@ public class DeliverNoticeController {
                 Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                     Goods goods = deliverConsignGoods.getGoods();
-                    goods.setSendNum(deliverConsignGoods.getSendNum());
+             //       goods.setSendNum(deliverConsignGoods.getSendNum());
                     goodsList.add(goods);
                 }
             }
@@ -124,12 +126,12 @@ public class DeliverNoticeController {
     /**
      *看货通知详情 - 查看
      *
-     * @param id    看货通知单号id
+     * @param deliverNotice    看货通知单号id
      * @return
      */
     @RequestMapping(value = "exitRequisitionQuery", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> exitRequisitionQuery( Integer  id) {
-        DeliverNotice page = deliverNoticeService.exitRequisitionQuery(id);
+    public Result<Object> exitRequisitionQuery(@RequestBody DeliverNotice deliverNotice) {
+        DeliverNotice page = deliverNoticeService.exitRequisitionQuery(deliverNotice.getId());
 
         List<Goods> goodsList = new ArrayList<>();  //商品信息
         List<String> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
@@ -147,7 +149,7 @@ public class DeliverNoticeController {
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                     Goods goods = deliverConsignGoods.getGoods();
-                    goods.setSendNum(deliverConsignGoods.getSendNum());
+                 //   goods.setSendNum(deliverConsignGoods.getSendNum());
                     goodsList.add(goods);
                 }
             Order order = deliverConsign.getOrder();

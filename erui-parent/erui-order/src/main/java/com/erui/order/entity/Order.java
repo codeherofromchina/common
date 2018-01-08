@@ -13,7 +13,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "`order`")
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -134,7 +134,7 @@ public class Order {
     private BigDecimal qualityFunds;
 
     /**
-     * 收款状态 0:未付款 1:部分付款 2:收款完成
+     * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
     @Column(name = "pay_status")
     private Integer payStatus;
@@ -173,7 +173,7 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     @OrderBy("id asc")
-   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Goods> goodsList = new ArrayList<>();
 
     @JoinColumn(name = "order_id")

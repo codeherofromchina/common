@@ -51,17 +51,8 @@ public class Goods {
     private String nameZh;
 
 
-    @Column(name = "send_num")
-    private Integer sendNum;    //本批次发货数量
-
-
-    public Integer getSendNum() {
-        return sendNum;
-    }
-
-    public void setSendNum(Integer sendNum) {
-        this.sendNum = sendNum;
-    }
+  /*  @Column(name = "send_num")
+    private Integer sendNum;    //本批次发货数量*/
 
     private String unit;
 
