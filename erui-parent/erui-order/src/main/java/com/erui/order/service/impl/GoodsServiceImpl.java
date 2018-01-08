@@ -28,8 +28,10 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public List<Goods> findByProjectIds(List<Integer> projectIds) {
-
-        List<Goods> goodsList = goodsDao.findByProjectIdIn(projectIds);
+        List<Goods> goodsList = null;
+        if (projectIds != null && projectIds.size() > 0) {
+            goodsList = goodsDao.findByProjectIdIn(projectIds);
+        }
         if (goodsList == null) {
             goodsList = new ArrayList<>();
         }

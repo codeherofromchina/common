@@ -39,7 +39,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<Project> findByIds(List<Integer> ids) {
-        List<Project> projects = projectDao.findByIdIn(ids);
+        List<Project> projects = null;
+        if (ids != null && ids.size() > 0) {
+            projects = projectDao.findByIdIn(ids);
+        }
         if (projects == null) {
             projects = new ArrayList<>();
         }

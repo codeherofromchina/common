@@ -57,18 +57,20 @@ public class PurchServiceImpl implements PurchService {
     @Override
     @Transactional
     public Purch findDetailInfo(Integer id) {
-        Purch puch = purchDao.findOne(id);
-        puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
-        puch.getAttachments().size(); // 获取采购的附件信息
-        puch.getPurchGoodsList().size(); //获取采购商品信息
-        List<String> projectNoList = new ArrayList<>();
-        for (Project p : puch.getProjects()) {
-            projectNoList.add(p.getProjectNo());
+        if (id != null && id > 0) {
+            Purch puch = purchDao.findOne(id);
+            puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+            puch.getAttachments().size(); // 获取采购的附件信息
+            puch.getPurchGoodsList().size(); //获取采购商品信息
+            List<String> projectNoList = new ArrayList<>();
+            for (Project p : puch.getProjects()) {
+                projectNoList.add(p.getProjectNo());
+            }
+            puch.setProjectNos(StringUtils.join(projectNoList, ","));
+
+            return puch;
         }
-        puch.setProjectNos(StringUtils.join(projectNoList, ","));
-
-
-        return puch;
+        return null;
     }
 
 
@@ -139,31 +141,15 @@ public class PurchServiceImpl implements PurchService {
                     list.add(cb.equal(root.get("status").as(Integer.class), statusEnum.getCode()));
                 }
 
+                // 连接查询项目信息
+                Join<Object, Object> projectsJoin = root.join("projects");
+
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
         }, request);
-
-        // 转换为控制层需要的数据
-        if (page.hasContent()) {
-            page.getContent().forEach(vo -> {
-                vo.setAttachments(null);
-                vo.setPurchPaymentList(null);
-                vo.setPurchGoodsList(null);
-
-                List<String> projectNoList = new ArrayList<>();
-                List<String> contractNoList = new ArrayList<>();
-
-                vo.getProjects().stream().forEach(project -> {
-                    projectNoList.add(project.getProjectNo());
-                    contractNoList.add(project.getContractNo());
-                });
-                vo.setProjectNos(StringUtils.join(projectNoList, ","));
-                vo.setContractNos(StringUtils.join(contractNoList, ","));
-            });
-        }
 
         return page;
     }
@@ -190,6 +176,9 @@ public class PurchServiceImpl implements PurchService {
                     return cb.and(predicates);
                 }
             });
+            if (list != null && list.size() > 0) {
+                result = new HashSet<>(list);
+            }
 
         }
 
@@ -394,7 +383,7 @@ public class PurchServiceImpl implements PurchService {
                 if ("人民币".equals(currencyBn)) {
                     // 人民币是默认含税价格
                     purchGoods.setTaxPrice(purchGoods.getPurchasePrice());
-                    purchGoods.setNonTaxPrice(purchGoods.getPurchasePrice().divide(new BigDecimal("1.17")));
+                    purchGoods.setNonTaxPrice(purchGoods.getPurchasePrice().divide(new BigDecimal("1.17"),4,BigDecimal.ROUND_DOWN));
                 } else {
                     purchGoods.setNonTaxPrice(purchGoods.getPurchasePrice());
                 }
@@ -464,7 +453,7 @@ public class PurchServiceImpl implements PurchService {
         if ("人民币".equals(currencyBn)) {
             // 人民币是默认含税价格
             newPurchGoods.setTaxPrice(newPurchGoods.getPurchasePrice());
-            newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice().divide(new BigDecimal("1.17")));
+            newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice().divide(new BigDecimal("1.17"),4,BigDecimal.ROUND_DOWN));
         } else {
             newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice());
         }
@@ -522,7 +511,7 @@ public class PurchServiceImpl implements PurchService {
         if ("人民币".equals(currencyBn)) {
             // 人民币是默认含税价格
             son.setTaxPrice(son.getPurchasePrice());
-            son.setNonTaxPrice(son.getPurchasePrice().divide(new BigDecimal("1.17")));
+            son.setNonTaxPrice(son.getPurchasePrice().divide(new BigDecimal("1.17"),4,BigDecimal.ROUND_DOWN));
         } else {
             son.setNonTaxPrice(son.getPurchasePrice());
         }

@@ -36,6 +36,24 @@ public class PurchController {
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> list(@RequestBody Purch condition) {
         Page<Purch> purchPage = purchService.findByPage(condition);
+        // 转换为控制层需要的数据
+        if (purchPage.hasContent()) {
+            purchPage.getContent().forEach(vo -> {
+                vo.setAttachments(null);
+                vo.setPurchPaymentList(null);
+                vo.setPurchGoodsList(null);
+
+                List<String> projectNoList = new ArrayList<>();
+                List<String> contractNoList = new ArrayList<>();
+
+                vo.getProjects().stream().forEach(project -> {
+                    projectNoList.add(project.getProjectNo());
+                    contractNoList.add(project.getContractNo());
+                });
+                vo.setProjectNos(StringUtils.join(projectNoList, ","));
+                vo.setContractNos(StringUtils.join(contractNoList, ","));
+            });
+        }
         return new Result<>(purchPage);
     }
 
