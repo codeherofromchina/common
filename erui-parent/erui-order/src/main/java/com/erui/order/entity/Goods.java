@@ -13,7 +13,6 @@ import java.util.Date;
 
 @Entity
 @Table(name = "goods")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Goods {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

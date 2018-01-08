@@ -237,6 +237,11 @@ public class OrderServiceImpl implements OrderService {
             goods.setClientDesc(pGoods.getClientDesc());
             goods.setBrand(pGoods.getBrand());
             goods.setContractNo(order.getContractNo());
+            goods.setPurchasedNum(0);
+            goods.setInstockNum(0);
+            goods.setInspectNum(0);
+            goods.setOutstockApplyNum(0);
+            goods.setOutstockNum(0);
             goodsList.add(goods);
 
         }

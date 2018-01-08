@@ -53,7 +53,6 @@ public class ProjectController {
      *
      * @return
      */
-    @Transactional
     @RequestMapping(value = "projectManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
