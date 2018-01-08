@@ -47,12 +47,12 @@ public class OrderAccountController {
 
     /**
      *  根据收款记录id 逻辑删除
-     * @param id       收款信息id
+     * @param orderAcciuntAdd       收款信息id
      */
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public  Result<Object> delGatheringRecord(Integer id){
-        orderAccountService.delGatheringRecord(id);
+    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+        orderAccountService.delGatheringRecord(orderAcciuntAdd.getId());
         return new Result<>();
     }
 
@@ -81,12 +81,12 @@ public class OrderAccountController {
 
     /**
      * 根据id查询订单收款记录 (编辑收款订单查询数据)
-     * @param id    收款信息id
+     * @param orderAcciuntAdd    收款信息id
      * @return
      */
     @RequestMapping(value="findById", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> findById(@RequestParam(name = "id") Integer id ){
-        OrderAccount orderAccount = orderAccountService.findById(id);
+    public Result<Object> findById(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+        OrderAccount orderAccount = orderAccountService.findById(orderAcciuntAdd.getId());
         orderAccount.setOrder(null);
         return new Result<>(orderAccount);
     }
@@ -109,8 +109,8 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "endGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> endGatheringRecord(@RequestParam(name = "id") Integer id ){
-        orderAccountService.endGatheringRecord(id);
+    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount){
+        orderAccountService.endGatheringRecord(orderAccount.getId());
         return new Result<>();
     }
 

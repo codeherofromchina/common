@@ -66,6 +66,11 @@ public class DeliverDetailwController {
             List<String> toPortList = new ArrayList<>();    //目的港
             List<String> toPlaceList = new ArrayList<>();    //目的地
             List<Goods> goodsList = new ArrayList<>();    //商品信息
+            StringBuffer sb = new StringBuffer(); //包装要求
+            List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
+                sb.append(deliverConsignGoods.getPackRequire());
+            }
             Set<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns){
                 Order order = deliverConsign.getOrder();
@@ -77,7 +82,7 @@ public class DeliverDetailwController {
                 toPlaceList.add(order.getToPlace());
                 for (Goods goods : order.getGoodsList()){
                     goods.setRemarks(deliverConsign.getRemarks());     //备注
-                    goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
+                    goods.setPackRequire(sb.toString());  //包装要求
                     goodsList.add(goods);
                 }
             }
@@ -154,6 +159,11 @@ public class DeliverDetailwController {
                 List<String> toPortList = new ArrayList<>();    //目的港
                 List<String> toPlaceList = new ArrayList<>();    //目的地
                 List<Goods> goodsList = new ArrayList<>();    //商品信息
+                StringBuffer sb = new StringBuffer(); //包装要求
+                List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
+                    sb.append(deliverConsignGoods.getPackRequire());
+                }
                 Set<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
                     Order order = deliverConsign.getOrder();
@@ -165,7 +175,7 @@ public class DeliverDetailwController {
                     toPlaceList.add(order.getToPlace());
                     for (Goods goods : order.getGoodsList()){
                         goods.setRemarks(deliverConsign.getRemarks());     //备注
-                        goods.setPackRequire(goods.getDeliverConsignGoods().getPackRequire());  //包装要求
+                        goods.setPackRequire(sb.toString());  //包装要求
                         goodsList.add(goods);
                     }
                 }
