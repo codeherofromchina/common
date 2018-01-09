@@ -73,6 +73,19 @@
   <sql id="Base_Column_List" >
     id, assign_time, plan_num, execute_num, ammount, category, area, country, oil
   </sql>
+  <select id="selectProcurPandent" resultType="java.util.Map" parameterType="com.erui.report.model.ProcurementCountExample" >
+    select
+    COUNT(plan_num) AS procurementCount,
+    COUNT(execute_num) AS signingContractCount,
+    SUM(ammount) AS signingContractAmount
+    from procurement_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.ProcurementCountExample" >
     select
     <if test="distinct" >

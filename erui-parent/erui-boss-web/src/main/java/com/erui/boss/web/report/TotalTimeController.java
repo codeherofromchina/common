@@ -52,16 +52,36 @@ public class TotalTimeController {
         Date customStartTime = DateUtil.minTime(inquiryStartTime,orderStartTime);
         Date customEndTime = DateUtil.maxTime(inquiryEndTime,inquiryEndTime);
         Map<String, Object> data = new HashMap<>();
-        data.put("hrStartTime", DateUtil.formatDate2String(hrStartTime,"yyyy/MM/dd"));
-        data.put("hrEndTime", DateUtil.formatDate2String(hrEndTime,"yyyy/MM/dd"));
-        data.put("customStartTime", DateUtil.formatDate2String(customStartTime,"yyyy/MM/dd"));
-        data.put("customEndTime", DateUtil.formatDate2String(customEndTime,"yyyy/MM/dd"));
-        data.put("requestStartTime", DateUtil.formatDate2String(requestStartTime,"yyyy/MM/dd"));
-        data.put("requestEndTime", DateUtil.formatDate2String(requestEndTime,"yyyy/MM/dd"));
-        data.put("supplyStartTime", DateUtil.formatDate2String(supplyStartTime,"yyyy/MM/dd"));
-        data.put("supplyEndTime", DateUtil.formatDate2String(supplyEndTime,"yyyy/MM/dd"));
-        data.put("totalStartTime", DateUtil.formatDate2String(totalStartTime,"yyyy/MM/dd"));
-        data.put("totalEndTime", DateUtil.formatDate2String(totalEndTime,"yyyy/MM/dd"));
+        if(hrStartTime!=null) {
+            data.put("hrStartTime", DateUtil.formatDate2String(hrStartTime, "yyyy/MM/dd"));
+        }
+        if(hrEndTime!=null) {
+            data.put("hrEndTime", DateUtil.formatDate2String(hrEndTime, "yyyy/MM/dd"));
+        }
+        if(customStartTime!=null) {
+            data.put("customStartTime", DateUtil.formatDate2String(customStartTime, "yyyy/MM/dd"));
+        }
+        if(customEndTime!=null) {
+            data.put("customEndTime", DateUtil.formatDate2String(customEndTime, "yyyy/MM/dd"));
+        }
+        if(requestStartTime!=null) {
+            data.put("requestStartTime", DateUtil.formatDate2String(requestStartTime, "yyyy/MM/dd"));
+        }
+        if(requestEndTime!=null) {
+            data.put("requestEndTime", DateUtil.formatDate2String(requestEndTime, "yyyy/MM/dd"));
+        }
+        if(supplyStartTime!=null) {
+            data.put("supplyStartTime", DateUtil.formatDate2String(supplyStartTime, "yyyy/MM/dd"));
+        }
+        if(supplyEndTime!=null) {
+            data.put("supplyEndTime", DateUtil.formatDate2String(supplyEndTime, "yyyy/MM/dd"));
+        }
+        if(totalStartTime!=null) {
+            data.put("totalStartTime", DateUtil.formatDate2String(totalStartTime, "yyyy/MM/dd"));
+        }
+        if(totalEndTime!=null) {
+            data.put("totalEndTime", DateUtil.formatDate2String(totalEndTime, "yyyy/MM/dd"));
+        }
         Result<Map<String, Object>> result = new Result<>(data);
         return result;
     }

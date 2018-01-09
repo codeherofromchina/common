@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.ProcurementCount;
 import com.erui.report.model.ProcurementCountExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface ProcurementCountMapper {
@@ -29,4 +31,6 @@ public interface ProcurementCountMapper {
     int updateByPrimaryKey(ProcurementCount record);
     
     void truncateTable();
+
+    List<Map<String, Object>> selectProcurPandent(ProcurementCountExample example);
 }

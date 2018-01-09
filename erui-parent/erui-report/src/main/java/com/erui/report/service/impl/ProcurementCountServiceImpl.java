@@ -1,8 +1,13 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.report.model.ProcurementCountExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -75,5 +80,44 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         response.setDone(true);
 
         return response;
+    }
+    /**
+     * 获取采购总览数据实现
+     */
+    @Override
+    public List<Map<String, Object>> selectProcurPandent(Date startTime, Date endTime) {
+        ProcurementCountExample example = new ProcurementCountExample();
+        ProcurementCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andAssignTimeGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andAssignTimeLessThan(endTime);
+        }
+        return   this.readMapper.selectProcurPandent(example);
+    }
+    /**
+     * 获取采购趋势图实现
+     */
+    @Override
+    public Map<String, Object> procurementTrend(Date startTime, Date endTime, String queryType) {
+        //虚拟一个标准的时间集合
+        List<String> dates = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
+            dates.add(dateFormat.format(datetime));
+        }
+        ProcurementCountExample example = new ProcurementCountExample();
+        ProcurementCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andAssignTimeGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andAssignTimeLessThan(endTime);
+        }
+     //List<Map<String,Object>> list=   readMapper.selectProcurTrend(example);
+        return null;
     }
 }

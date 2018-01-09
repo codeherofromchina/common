@@ -11,6 +11,7 @@ import com.erui.report.model.InquiryCount;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
+import com.erui.report.service.ProcurementCountService;
 import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.*;
 import org.apache.commons.collections.map.HashedMap;
@@ -34,6 +35,10 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/report/procurement")
 public class ProcurementCotroller {
+
+
+    @Autowired
+    private ProcurementCountService procurementService;
     /**
      *采购总览
      * @param map
@@ -54,11 +59,13 @@ public class ProcurementCotroller {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        Map<String,Object> data=new HashMap<>();
-        data.put("procurementCount",230);
-        data.put("signingContractCount",158);
-        data.put("signingContractAmount",561516.56);
-        return result.setData(data);
+
+        //查询采购数据
+        List<Map<String,Object>> dataList=procurementService.selectProcurPandent(startTime,endTime);
+        if(dataList!=null&&dataList.size()>0) {
+            return result.setData(dataList.get(0));
+        }
+        return result.setStatus(ResultStatusEnum.DATA_NULL);
 
     }
 
@@ -82,6 +89,8 @@ public class ProcurementCotroller {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
+        Map<String,Object> trendData=this.procurementService.procurementTrend(startTime,endTime,map.get("queryType").toString());
         Map<String,Object> data=new HashMap<>();
         data.put("procurementCount",230);
         data.put("signingContractCount",158);
