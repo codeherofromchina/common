@@ -14,4 +14,5 @@ public interface OrderAccountDao extends JpaRepository<OrderAccount, Serializabl
 
     List<OrderAccount> findByOrderId(Integer id);
 
+    List<OrderAccount> findByOrderIdAndDelYn(Integer id, int i);
 }
