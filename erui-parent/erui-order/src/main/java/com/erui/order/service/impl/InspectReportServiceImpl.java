@@ -122,32 +122,14 @@ public class InspectReportServiceImpl implements InspectReportService {
                 return cb.and(predicates);
             }
         }, request);
-
-
         if (page.hasContent()) {
-            // 转换数据
+            // 获取报检单和商品信息
             page.getContent().parallelStream().forEach(inspectReport -> {
-                InspectApply inspectApply = inspectReport.getInspectApply();
-                inspectReport.setPurchNo(inspectApply.getPurchNo());
-
-
-                // 销售合同号
-                List<String> contractNoList = new ArrayList<String>();
-                // 项目号
-                List<String> projectNoList = new ArrayList<String>();
-                inspectApply.getInspectApplyGoodsList().forEach(vo -> {
-                    Goods goods = vo.getGoods();
-
-                    contractNoList.add(goods.getContractNo());
-                    projectNoList.add(goods.getProjectNo());
-                });
-                inspectReport.setContractNo(StringUtils.join(contractNoList, ","));
-                inspectReport.setProjectNo(StringUtils.join(projectNoList, ","));
-                inspectReport.setDirect(inspectApply.getDirect());
-                inspectReport.setAttachments(null);
-                inspectReport.setInspectGoodsList(null);
+                inspectReport.getInspectApply().getPurchNo();
+                inspectReport.getInspectGoodsList().size();
             });
         }
+
 
         return page;
     }
@@ -231,13 +213,13 @@ public class InspectReportServiceImpl implements InspectReportService {
                 collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo)); // 参数的质检商品
         List<InspectApplyGoods> inspectGoodsList = dbInspectReport.getInspectGoodsList(); // 数据库原来报检商品
         if (inspectGoodsMap.size() != inspectGoodsList.size()) {
-            return false;
+            throw new Exception("传入质检商品数量不正确");
         }
         boolean hegeFlag = true;
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
             if (paramApplyGoods == null) {
-                return false;
+                throw new Exception("传入质检商品不正确");
             }
 
             applyGoods.setSamples(paramApplyGoods.getSamples());
@@ -252,7 +234,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - applyGoods.getUnqualified();
                 if (qualifiedNum < 0) {
-                    return false;
+                    throw new Exception("传入不合格数量参数不正确");
                 }
                 PurchGoods purchGoods = applyGoods.getPurchGoods();
                 purchGoods.setGoodNum(purchGoods.getGoodNum() + qualifiedNum);
@@ -318,6 +300,8 @@ public class InspectReportServiceImpl implements InspectReportService {
                 instockGoods.setCreateTime(date);
                 instockGoods.setUpdateTime(date);
                 instockGoods.setCreateUserId(dbInspectReport.getCreateUserId());
+
+                instockGoodsList.add(instockGoods);
             }
             instock.setInstockGoodsList(instockGoodsList);
 

@@ -406,13 +406,16 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setStatus(InspectReport.StatusEnum.INIT.getCode());
         report.setCreateTime(new Date());
 
-        InspectReport report02 = inspectReportDao.save(report);
-
-        List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();
-        inspectApplyGoodsList.forEach(vo -> {
-            vo.setInspectReportId(report02.getId());
+        List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
+        inspectApply.getInspectApplyGoodsList().forEach(vo -> {
+            InspectApplyGoods iag = new InspectApplyGoods();
+            iag.setId(vo.getId());
+            inspectApplyGoodsList.add(iag);
         });
-        inspectApplyGoodsDao.save(inspectApplyGoodsList);
+        report.setInspectGoodsList(inspectApplyGoodsList);
+
+        inspectReportDao.save(report);
+
     }
 
 }

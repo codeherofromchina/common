@@ -637,7 +637,7 @@ public class DeliverDetail {
         }
 
         public static StatusEnum fromStatusCode(Integer statusCode) {
-            if (statusCode == null) {
+            if (statusCode != null) {
                 int sInt = statusCode.intValue();
                 for (StatusEnum se : StatusEnum.values()) {
                     if (se.statusCode == sInt) {
@@ -646,8 +646,6 @@ public class DeliverDetail {
                 }
             }
             return null;
-
-
         }
     }
 }

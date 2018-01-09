@@ -69,7 +69,7 @@ public class DeliverDetailController {
             continueFlag = false;
         }
         DeliverDetail.StatusEnum statusEnum = DeliverDetail.StatusEnum.fromStatusCode(deliverDetail.getStatus());
-        if (statusEnum != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT && statusEnum != DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT ) {
+        if (statusEnum != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT && statusEnum != DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT) {
             continueFlag = false;
         }
 
@@ -97,7 +97,10 @@ public class DeliverDetailController {
     @RequestMapping(value = "/detail", method = RequestMethod.POST)
     public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
         DeliverDetail deliverDetail = deliverDetailService.findDetailById(id);
-
+        DeliverDetail.StatusEnum statusEnum = DeliverDetail.StatusEnum.fromStatusCode(deliverDetail.getStatus());
+        if (statusEnum == null || statusEnum.getStatusCode() < DeliverDetail.StatusEnum.SUBMITED_OUTSTOCK.getStatusCode()) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
 
         Map<String, Object> data = new HashMap<>();
         // 出库基本信息

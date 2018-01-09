@@ -42,7 +42,30 @@ public class InspectReportController {
     public Result<Object> list(@RequestBody InspectReport condition) {
 
         Page<InspectReport> page = inspectReportService.listByPage(condition);
+        if (page.hasContent()) {
+            // 转换数据
+            page.getContent().parallelStream().forEach(inspectReport -> {
+                InspectApply inspectApply = inspectReport.getInspectApply();
+                inspectReport.setPurchNo(inspectApply.getPurchNo());
 
+
+                // 销售合同号
+                List<String> contractNoList = new ArrayList<String>();
+                // 项目号
+                List<String> projectNoList = new ArrayList<String>();
+                inspectReport.getInspectGoodsList().forEach(vo -> {
+                    Goods goods = vo.getGoods();
+
+                    contractNoList.add(goods.getContractNo());
+                    projectNoList.add(goods.getProjectNo());
+                });
+                inspectReport.setContractNo(StringUtils.join(contractNoList, ","));
+                inspectReport.setProjectNo(StringUtils.join(projectNoList, ","));
+                inspectReport.setDirect(inspectApply.getDirect());
+                inspectReport.setAttachments(null);
+                inspectReport.setInspectGoodsList(null);
+            });
+        }
         return new Result<>(page);
     }
 

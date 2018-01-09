@@ -86,7 +86,7 @@ public class InstockServiceImpl implements InstockService {
                 }
                 // 仓库经办人
                 if (StringUtil.isNotBlank(condition.get("name"))) {
-                    list.add(cb.like(root.get("name").as(String.class), "%" + condition.get("name") + "%"));
+                    list.add(cb.like(root.get("uname").as(String.class), "%" + condition.get("name") + "%"));
                 }
 
                 // 销售合同号 、 项目号查询
@@ -127,7 +127,8 @@ public class InstockServiceImpl implements InstockService {
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
                 // 入库时间
-                map.put("instockDate", new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()));
+
+                map.put("instockDate", instock.getInstockDate() != null?new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()):null);
                 map.put("status", instock.getStatus());
 
                 list.add(map);

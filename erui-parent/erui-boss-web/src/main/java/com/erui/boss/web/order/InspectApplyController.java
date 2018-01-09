@@ -32,7 +32,7 @@ public class InspectApplyController {
 
 
     /**
-     * 获取采购纬度的质检申请信息列表
+     * 获取采购纬度的报检单信息列表
      *
      * @param parchId 采购ID
      * @return
@@ -67,7 +67,7 @@ public class InspectApplyController {
             data.put("id", inspectApply.getId());
             data.put("department", inspectApply.getDepartment());
             data.put("purchaseName", inspectApply.getPurchaseName());
-            data.put("sSupplierName", inspectApply.getSupplierName());
+            data.put("supplierName", inspectApply.getSupplierName());
             data.put("abroadCoName", inspectApply.getAbroadCoName());
             data.put("inspectDate", inspectApply.getInspectDate());
             data.put("direct", inspectApply.getDirect());
@@ -81,7 +81,8 @@ public class InspectApplyController {
                 PurchGoods purchGoods = vo.getPurchGoods();
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", vo.getId());
-                map.put("purchGid", vo.getId());
+                map.put("purchGid", purchGoods.getId());
+                map.put("gid", goods.getId());
                 map.put("contractNo", goods.getContractNo());
                 map.put("projectNo", goods.getProjectNo());
                 map.put("sku", goods.getSku());
@@ -173,9 +174,8 @@ public class InspectApplyController {
 
         if (continueFlag) {
 
-            boolean flag = false;
             try {
-
+                boolean flag;
                 if (statusEnum != InspectApply.StatusEnum.NO_EDIT) {
                     if (inspectApply.getId() != null) {
                         flag = inspectApplyService.save(inspectApply);
