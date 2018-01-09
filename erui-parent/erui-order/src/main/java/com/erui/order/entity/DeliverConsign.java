@@ -33,7 +33,7 @@ public class DeliverConsign {
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
-    private Integer coId;
+    private String coId;
     @Column(name = "write_date")
     private Date writeDate;
     @Column(name = "arrival_date")
@@ -98,11 +98,11 @@ public class DeliverConsign {
         this.deptId = deptId;
     }
 
-    public Integer getCoId() {
+    public String getCoId() {
         return coId;
     }
 
-    public void setCoId(Integer coId) {
+    public void setCoId(String coId) {
         this.coId = coId;
     }
 
