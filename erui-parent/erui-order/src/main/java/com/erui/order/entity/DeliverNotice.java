@@ -36,7 +36,7 @@ public class DeliverNotice {
     @Transient
     private int rows = 50;
 
-    @Transient
+
     private int status; //看货通知单状态
 
 

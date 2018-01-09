@@ -204,7 +204,7 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.ALL})
+    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.ALL},mappedBy = "order")
     @JsonIgnore
     private Project project;
 
