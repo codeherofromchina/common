@@ -2,7 +2,6 @@ package com.erui.report.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.erui.comm.middle.mongo.MongoUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.SupplyChainCategoryMapper;
@@ -40,7 +39,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
     @Override
     public void supplyChainReadData(String startTime, String endTime) throws Exception {
 
-        MongoUtil.addStaticLog("supplyChainReadData", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+//        MongoUtil.addStaticLog("supplyChainReadData", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPut goodPutMethod = getPutMethod(goodUrl, startTime, endTime);
         HttpPut productPutMethod = getPutMethod(productUrl, startTime, endTime);
@@ -66,7 +65,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         if (supplyChainRead != null) {
             supplyChainRead.setCreateAt(date);
             if (reads == null || reads.size() < 1) {
-                MongoUtil.addStaticLog("supplyChainReadData", "");
+//                MongoUtil.addStaticLog("supplyChainReadData", "");
                 this.writeMapper.insert(supplyChainRead);
             }
         }
