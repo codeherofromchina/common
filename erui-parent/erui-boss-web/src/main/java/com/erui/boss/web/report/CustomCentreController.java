@@ -12,10 +12,7 @@ import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.InquirySKUService;
 import com.erui.report.service.OrderCountService;
 import com.erui.report.service.impl.DataServiceImpl;
-import com.erui.report.util.CustomerNumSummaryVO;
-import com.erui.report.util.InquiryAreaVO;
-import com.erui.report.util.IsOilVo;
-import com.erui.report.util.QuotedStatusEnum;
+import com.erui.report.util.*;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -348,7 +345,7 @@ public class CustomCentreController {
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
                 0, 0, "", "");//已完成询单数量
         int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_QUOTEING.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(),QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
                 0, 0, "", "");//报价中询单数量
         int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
@@ -868,5 +865,122 @@ public class CustomCentreController {
         data.put("number", numData);
 
         return new Result<>().setData(data);
+    }
+
+
+
+    /**
+     * 客户中心-询单详细分析: 询单状态总览
+     *
+     * @param map 大区
+     *            <p>
+     *            城市
+     * @return
+     */
+    @RequestMapping(value = "/inqQuotePandent", method = RequestMethod.POST, produces = "application/json;charset=utf8")
+    @ResponseBody
+    public Object inqQuotePandent(@RequestBody Map<String, Object> map) throws Exception {
+
+        Result<Object> result = new Result<>();
+
+        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            return result;
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
+//       1 处理退回询单的数据
+        String[] quotes={"已退回"};
+        int rtnInqCount = inquiryService.inquiryCountByTime(startTime, endTime, quotes, 0, 0, null, null);//已退回询单数
+        int inqCount = inquiryService.inquiryCountByTime(startTime, endTime, null, 0, 0, null, null);//总询单数
+
+        double rtnInqProportion=0d;
+        if(inqCount>0){
+            rtnInqProportion=RateUtil.intChainRateTwo(rtnInqCount,inqCount);
+        }
+        //退回次数和平均退回次数
+        int rtnCount=2;
+        double avgRtnCount=1.23;
+        Map<String,Object> returnData=new HashMap<>();
+        returnData.put("rtnInqCount",rtnInqCount);
+        returnData.put("rtnInqProportion",rtnInqProportion);
+        returnData.put("rtnCount",rtnCount);
+        returnData.put("avgRtnCount",avgRtnCount);
+//        2 处理已完成询单数据
+        String[] finishedQuote={QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
+        String[] Quoted={QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
+        int finishedInqCount = inquiryService.inquiryCountByTime(startTime, endTime, finishedQuote, 0, 0, null, null);//已完成询单数
+        int quotedInqCount = inquiryService.inquiryCountByTime(startTime, endTime, Quoted, 0, 0, null, null);//已报价询单数
+        int totalFinishCount=finishedInqCount+quotedInqCount;
+        double finishProportion=0d;
+        if(inqCount>0){
+            finishProportion=RateUtil.intChainRateTwo(totalFinishCount,inqCount);
+        }
+        Map<String,Object> finishedData=new HashMap<>();
+        finishedData.put("finishedInqCount",finishedInqCount);
+        finishedData.put("quotedInqCount",quotedInqCount);
+        finishedData.put("totalFinishCount",totalFinishCount);
+        finishedData.put("finishProportion",finishProportion);
+//        3. 处理报价中的数据
+        int noQuoteInqCount = inquiryService.inquiryCountByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus()},
+                0, 0, null, null);//未报价询单数
+        int quotingInqCount = inquiryService.inquiryCountByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
+                0, 0, null, null);//报价中询单数
+        int totalQuotingCount=noQuoteInqCount+quotingInqCount;
+        double quotingProportion=0d;
+        if(inqCount>0){
+            quotingProportion=RateUtil.intChainRateTwo(totalQuotingCount,inqCount);
+        }
+        Map<String,Object> quotingData=new HashMap<>();
+        quotingData.put("noQuoteInqCount",noQuoteInqCount);
+        quotingData.put("quotingInqCount",quotingInqCount);
+        quotingData.put("totalQuotingCount",totalQuotingCount);
+        quotingData.put("quotingProportion",quotingProportion);
+
+        Map<String,Object> data=new HashMap<>();
+        data.put("returnData",returnData);
+        data.put("finishedData",finishedData);
+        data.put("quotingData",quotingData);
+        return result.setData(data);
+
+    }
+
+    /**
+     * 客户中心-询单详细分析: 询单详细分析饼图
+     *
+     * @param map 大区
+     *            <p>
+     *            城市
+     * @return
+     */
+    @RequestMapping(value = "/inqDetailPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
+    @ResponseBody
+    public Object inqDetailPie(@RequestBody Map<String, Object> map) throws Exception {
+
+        Result<Object> result = new Result<>();
+
+        if (!map.containsKey("startTime") || !map.containsKey("endTime")|| !map.containsKey("quoteStatus")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            return result;
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        InqDetailPievo inqDetailPievo = new InqDetailPievo();
+        inqDetailPievo.setQuoteStatus("已退回");
+        inqDetailPievo.setRtnDescrList(new String[]{"项目澄清","无供应渠道"});
+        inqDetailPievo.setRtnDecrCountList(new BigDecimal[]{new BigDecimal(5),new BigDecimal(6)});
+        inqDetailPievo.setAreaList(new String[]{"南非","北美"});
+        inqDetailPievo.setAreaCountList(new BigDecimal[]{new BigDecimal(8),new BigDecimal(9)});
+        inqDetailPievo.setOrgList(new String[]{"易瑞","天然气"});
+        inqDetailPievo.setOrgCountList(new  BigDecimal[]{new BigDecimal(55),new BigDecimal(22)});
+        return result.setData(inqDetailPievo);
+
     }
 }
