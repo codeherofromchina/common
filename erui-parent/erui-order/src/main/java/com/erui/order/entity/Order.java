@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,7 +14,6 @@ import java.util.*;
  */
 @Entity
 @Table(name = "`order`")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -204,7 +204,7 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.ALL},mappedBy = "order")
     @JsonIgnore
     private Project project;
 

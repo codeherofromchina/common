@@ -66,7 +66,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage(), condition.getRows(), null);
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), null);
         Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -116,9 +116,6 @@ public class ProjectServiceImpl implements ProjectService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-        pageList.getContent().forEach(vo -> {
-            vo.setOrder(null);
-        });
         return pageList;
     }
 

@@ -14,7 +14,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "goods")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Goods {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,9 +65,11 @@ public class Goods {
     private String packRequire;  //包装要求
 
 
+
     @ManyToMany(fetch = FetchType.LAZY,mappedBy = "goods")
     @JsonIgnore
     private List<DeliverConsignGoods> deliverConsignGoodsList;
+
 
 
     private String model;
@@ -140,6 +141,7 @@ public class Goods {
         return remarks;
     }
 
+
     public List<DeliverConsignGoods> getDeliverConsignGoodsList() {
         return deliverConsignGoodsList;
     }
@@ -147,6 +149,7 @@ public class Goods {
     public void setDeliverConsignGoodsList(List<DeliverConsignGoods> deliverConsignGoodsList) {
         this.deliverConsignGoodsList = deliverConsignGoodsList;
     }
+
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;

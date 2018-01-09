@@ -168,7 +168,7 @@ public class DeliverDetailsController {
                 return new Result<>();
             }
         } catch (Exception ex) {
-            logger.error("订单操作失败：{}", deliverDetail, ex);
+            logger.error("出库详情页操作失败：{}", deliverDetail, ex);
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }

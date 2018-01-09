@@ -56,7 +56,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     public List<OrderAccount> queryGatheringRecordAll(Integer id) {
 
-        return orderAccountDao.findByOrderId(id);
+        return orderAccountDao.findByOrderIdAndDelYn(id,1);
     }
 
 

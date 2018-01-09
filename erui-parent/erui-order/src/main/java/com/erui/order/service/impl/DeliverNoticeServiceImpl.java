@@ -115,7 +115,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     @Override
     public boolean addexitRequisition(DeliverNotice deliverNotice) {
 
-        String[] split = deliverNotice.getDeliverConsignNo().split(",");
+        String[] split = deliverNotice.getDeliverConsignIds().split(",");
         DeliverConsign deliverConsign = null;
         Set<DeliverConsign> list = new HashSet<DeliverConsign>();
         for (String s :split){
@@ -232,7 +232,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         ones.setDeliverYn(1);
                         deliverConsignDao.saveAndFlush(ones);
                     }
-                    String[] split = deliverNotice.getDeliverConsignNo().split(",");    //选中的关联关系
+                    String[] split = deliverNotice.getDeliverConsignIds().split(",");    //选中的关联关系
                     DeliverConsign deliverConsign = null;
                     Set<DeliverConsign> list = new HashSet<DeliverConsign>();
                     for (String s :split){

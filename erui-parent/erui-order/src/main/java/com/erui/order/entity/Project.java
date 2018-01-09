@@ -1,7 +1,9 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import javax.persistence.*;
@@ -19,7 +21,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.MERGE})
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;

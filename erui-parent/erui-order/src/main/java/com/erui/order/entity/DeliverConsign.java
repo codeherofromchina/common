@@ -33,7 +33,7 @@ public class DeliverConsign {
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
-    private Integer coId;
+    private String coId;
     @Column(name = "write_date")
     private Date writeDate;
     @Column(name = "arrival_date")
@@ -66,12 +66,12 @@ public class DeliverConsign {
         this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
     }
 
     public Integer getoId() {
@@ -82,14 +82,13 @@ public class DeliverConsign {
         this.oId = oId;
     }
 
-    public String getDeliverConsignNo() {
-        return deliverConsignNo;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setDeliverConsignNo(String deliverConsignNo) {
-        this.deliverConsignNo = deliverConsignNo;
+    public void setOrder(Order order) {
+        this.order = order;
     }
-
 
     public Integer getDeptId() {
         return deptId;
@@ -99,11 +98,11 @@ public class DeliverConsign {
         this.deptId = deptId;
     }
 
-    public Integer getCoId() {
+    public String getCoId() {
         return coId;
     }
 
-    public void setCoId(Integer coId) {
+    public void setCoId(String coId) {
         this.coId = coId;
     }
 
@@ -185,9 +184,5 @@ public class DeliverConsign {
 
     public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
-    }
-
-    public void setDeliverYn(int deliverYn) {
-        this.deliverYn = deliverYn;
     }
 }

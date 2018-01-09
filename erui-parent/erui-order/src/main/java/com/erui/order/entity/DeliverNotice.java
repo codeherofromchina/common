@@ -36,7 +36,7 @@ public class DeliverNotice {
     @Transient
     private int rows = 50;
 
-    @Transient
+
     private int status; //看货通知单状态
 
 
@@ -49,6 +49,9 @@ public class DeliverNotice {
 
     @Column(name = "sender_id")
     private Integer senderId;
+
+    @Transient
+    private String deliverConsignIds;   //出口通知单id
 
     /**
      * 下单人名称
@@ -103,9 +106,13 @@ public class DeliverNotice {
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
+    public String getDeliverConsignIds() {
+        return deliverConsignIds;
+    }
 
-
-
+    public void setDeliverConsignIds(String deliverConsignIds) {
+        this.deliverConsignIds = deliverConsignIds;
+    }
 
     public Integer getId() {
         return id;
