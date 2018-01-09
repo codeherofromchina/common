@@ -217,13 +217,6 @@ public class Order {
         this.page = page;
     }
 
-   /* public void setDeliveryDateNo(Date deliveryDateNo) {
-        this.deliveryDateNo = deliveryDateNo;
-    }
-    public Date getDeliveryDateNo() {
-        return deliveryDateNo;
-    }*/
-
     public void setExecCoName(String execCoName) {
         this.execCoName = execCoName;
     }
@@ -235,7 +228,6 @@ public class Order {
     public void setDistributionDeptName(String distributionDeptName) {
         this.distributionDeptName = distributionDeptName;
     }
-
     public String getBusinessUnitName() {
         return businessUnitName;
     }
@@ -254,7 +246,7 @@ public class Order {
 
     public String getInquiryNo() {
         if (inquiryNo == null)
-            setPoNo("");
+            setInquiryNo("");
         return inquiryNo;
     }
 

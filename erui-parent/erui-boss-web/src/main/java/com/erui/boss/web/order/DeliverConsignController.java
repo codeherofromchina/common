@@ -44,12 +44,12 @@ public class DeliverConsignController {
     /**
      * 根据订单ID获取出口通知单所需信息
      *
-     * @param orderId
+     * @param map
      * @return
      */
     @RequestMapping(value = "orderInfoForAdd", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderInfoForAdd(@RequestParam(name = "orderId") Integer orderId) {
-        Order order = orderService.detail(orderId);
+    public Result<Object> orderInfoForAdd(@RequestBody Map<String,Integer> map) {
+        Order order = orderService.detail(map.get("orderId"));
         Map<String, Object> data = new HashMap<>();
         data.put("orderId", order.getId());
         data.put("deptId", order.getExecCoId());
@@ -91,19 +91,19 @@ public class DeliverConsignController {
      *
      * @return
      */
-    @RequestMapping(value = "queryDeliverConsignDesc", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<DeliverConsign> queryOrderDesc(@RequestParam(name = "id")Integer id) {
-        DeliverConsign deliverConsign = deliverConsignService.findById(id);
+    @RequestMapping(value = "queryDeliverConsignDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<DeliverConsign> queryOrderDesc(@RequestBody Map<String,Integer> map) {
+        DeliverConsign deliverConsign = deliverConsignService.findById(map.get("id"));
         return new Result<>(deliverConsign);
     }
     /**
      * 获取出口发货单列表
-     *
+     *@param map
      * @return
      */
-    @RequestMapping(value = "queryExportList", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<List<DeliverConsign> > queryExportList(@RequestParam(name = "orderId")Integer orderId) {
-        List<DeliverConsign> deliverList = deliverConsignService.findByOrderId(orderId);
+    @RequestMapping(value = "queryExportList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<List<DeliverConsign> > queryExportList(@RequestBody Map<String,Integer> map) {
+        List<DeliverConsign> deliverList = deliverConsignService.findByOrderId(map.get("orderId"));
         return new Result<>(deliverList);
     }
 }

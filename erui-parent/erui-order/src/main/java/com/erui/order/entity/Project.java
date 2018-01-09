@@ -21,12 +21,13 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.MERGE})
+    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.ALL})
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
 
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
+    @JsonIgnore
     private PurchRequisition purchRequisition;
 
     @Column(name = "contract_no")
@@ -125,7 +126,6 @@ public class Project {
     public void setOrder(Order order) {
         this.order = order;
     }
-
     public PurchRequisition getPurchRequisition() {
         return purchRequisition;
     }
@@ -133,7 +133,6 @@ public class Project {
     public void setPurchRequisition(PurchRequisition purchRequisition) {
         this.purchRequisition = purchRequisition;
     }
-
     public String getContractNo() {
         return contractNo;
     }

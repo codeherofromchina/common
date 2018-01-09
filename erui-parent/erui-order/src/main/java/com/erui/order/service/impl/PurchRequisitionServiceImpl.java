@@ -13,6 +13,9 @@ import com.erui.order.service.PurchRequisitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -100,21 +103,24 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
         purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
-        purchRequisitionAdd.setGoodsList(purchRequisition.getGoodsList());
-        Map<Integer, Goods> goodList = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        purchRequisition.getGoodsList().parallelStream().forEach(dcGoods -> {
+        //purchRequisitionAdd.setGoodsList(purchRequisition.getGoodsList());
+        ArrayList<Goods> list = new ArrayList<>();
+        Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
             Integer gid = dcGoods.getId();
-            Goods goods = goodList.get(gid);
+            Goods goods = goodsMap.get(gid);
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
             goods.setRequirePurchaseDate(dcGoods.getRequirePurchaseDate());
             goods.setTechAudit(dcGoods.getTechAudit());
             goods.setTechRequire(dcGoods.getTechRequire());
+            goodsDao.save(goods);
+           list.add(goods);
         });
+        purchRequisitionAdd.setGoodsList(list);
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
-        goodsDao.save(goodList.values());
-        purchRequisitionDao.saveAndFlush(purchRequisitionAdd);
+        purchRequisitionDao.save(purchRequisitionAdd);
         return true;
     }
 }
