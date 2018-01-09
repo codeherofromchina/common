@@ -81,7 +81,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     }
 
     /**
-     * TODO 待实现并完善,具体逻辑待思考
+     * TODO
      *
      * @param deliverDetailVo
      * @return
@@ -170,7 +170,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 for (DeliverConsign deliverConsign : deliverConsigns){
                     Order order = deliverConsign.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
-                    projectNos.add(order.getProject().getProjectNo()); //项目号
+                    if(order.getProject().getProjectNo() != null){
+                        projectNos.add(order.getProject().getProjectNo()); //项目号
+                    }
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
                 notice.setProjectNo(StringUtils.join(projectNos,","));
@@ -251,6 +253,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     contractNos.add(order.getContractNo());  //销售合同号
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
+                notice.setDeliverConsignGoodsList(null);
             });
         }
 

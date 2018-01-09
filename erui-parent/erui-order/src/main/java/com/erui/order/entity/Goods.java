@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 商品信息
@@ -64,10 +65,11 @@ public class Goods {
     private String packRequire;  //包装要求
 
 
-   /* @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},mappedBy = "goods")
-    //@JoinColumn(name = "order_id")
+
+    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "goods")
     @JsonIgnore
-    private  DeliverConsignGoods deliverConsignGoods;*/
+    private List<DeliverConsignGoods> deliverConsignGoodsList;
+
 
 
     private String model;
@@ -138,6 +140,16 @@ public class Goods {
     public String getRemarks() {
         return remarks;
     }
+
+
+    public List<DeliverConsignGoods> getDeliverConsignGoodsList() {
+        return deliverConsignGoodsList;
+    }
+
+    public void setDeliverConsignGoodsList(List<DeliverConsignGoods> deliverConsignGoodsList) {
+        this.deliverConsignGoodsList = deliverConsignGoodsList;
+    }
+
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;

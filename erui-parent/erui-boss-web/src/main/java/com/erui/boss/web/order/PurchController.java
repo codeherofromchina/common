@@ -141,6 +141,7 @@ public class PurchController {
                 Map<String,Object> map = new HashMap<>();
                 Goods goods = vo.getGoods();
 
+                map.put("id",goods.getId());
                 map.put("purchGid",vo.getId());
                 map.put("contractNo",goods.getContractNo());
                 map.put("projectNo",goods.getProjectNo());

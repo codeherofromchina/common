@@ -16,7 +16,7 @@ public class InspectReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
     @JsonIgnore
     private InspectApply inspectApply;

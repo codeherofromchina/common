@@ -13,7 +13,7 @@ import java.util.*;
 @Table(name = "instock")
 public class Instock {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
@@ -54,7 +54,6 @@ public class Instock {
     private String currentUserName;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
     @JoinColumn(name = "instock_id")
     private List<InstockGoods> instockGoodsList = new ArrayList<>();
 

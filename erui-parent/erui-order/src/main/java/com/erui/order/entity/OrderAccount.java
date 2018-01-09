@@ -59,7 +59,7 @@ public class OrderAccount {
     private Date deleteTime;    //删除时间
 
     @Column(name = "del_yn")
-    private Integer delYn;  //删除标识
+    private Integer delYn =1;  //删除标识
 
     public Integer getId() {
         return id;

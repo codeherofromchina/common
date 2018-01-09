@@ -41,7 +41,7 @@ public class InstockController {
         int page = getStrNumber(condition.get("page"), DEFAULT_PAGE);
         int pageSize = getStrNumber(condition.get("pageSize"), DEFAULT_PAGESIZE);
 
-        Page<Map<String, Object>> data = instockService.listByPage(condition, page-1, pageSize);
+        Page<Map<String, Object>> data = instockService.listByPage(condition, page - 1, pageSize);
 
         return new Result<>(data);
     }
@@ -97,7 +97,7 @@ public class InstockController {
         data.put("id", instock.getId());
         data.put("uid", instock.getUid());
         data.put("uname", instock.getUname());
-        data.put("instockDate", new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()));
+        data.put("instockDate", instock.getInstockDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()) : null);
         data.put("remarks", instock.getRemarks());
         data.put("attachmentList", instock.getAttachmentList());
 
