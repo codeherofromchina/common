@@ -95,7 +95,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         }, request);
 
         if (page.hasContent()) {
-            page.getContent().parallelStream().forEach(notice -> {
+            for(DeliverNotice notice:page.getContent()) {
                 List<String>  deliverConsignNos = new ArrayList<String>();
                 List<String>  contractNos = new ArrayList<String>();
 
@@ -106,7 +106,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 }
                 notice.setDeliverConsignNo(StringUtils.join(deliverConsignNos,","));
                 notice.setContractNo(StringUtils.join(contractNos,","));
-            });
+            }
         }
         return page;
     }
