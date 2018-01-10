@@ -1,4 +1,5 @@
 package com.erui.order.service.impl;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.dao.DeliverConsignDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +47,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = deliverConsignDao.findOne(deliverConsign.getId());
-        deliverConsignUpdate.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
         deliverConsignUpdate.setOrder(order);
         deliverConsignUpdate.setDeptId(order.getExecCoId());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
@@ -62,12 +63,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Integer gid = dcGoods.getgId();
             Goods goods = goodsList.get(gid);
             //商品需增加发货数量 = 要修改的数量-原发货数量
-            Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
+            //Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
             dcGoods.setGoods(goods);
             dcGoods.setCreateTime(new Date());
-            goods.setOutstockNum(outStockNum + goods.getOutstockNum());
+            if (deliverConsign.getStatus() == 3){
+                goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+            }
         });
-        goodsDao.save(goodsList.values());
+        if (deliverConsign.getStatus() == 3){
+            goodsDao.save(goodsList.values());
+        }
         deliverConsignDao.saveAndFlush(deliverConsignUpdate);
         return true;
     }
@@ -77,14 +82,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public boolean addDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
-        deliverConsignAdd.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
+        deliverConsignAdd.setDeliverConsignNo("CKTZD/"+DateUtil.format("yyyy-MM-dd hh:mm:ss",new Date()));
         deliverConsignAdd.setOrder(order);
+        deliverConsignAdd.setCoId(order.getSigningCo());
         deliverConsignAdd.setDeptId(order.getExecCoId());
-        deliverConsignAdd.setCreateUserId(order.getAgentId());
+        deliverConsignAdd.setExecCoName(order.getExecCoName());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignAdd.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
+        deliverConsignAdd.setDeliverYn(deliverConsign.getDeliverYn());
         deliverConsignAdd.setRemarks(deliverConsign.getRemarks());
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
@@ -95,9 +102,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Goods goods = goodsList.get(gid);
             dcGoods.setGoods(goods);
             dcGoods.setCreateTime(new Date());
-            goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+            if (deliverConsign.getStatus() == 3){
+                goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+            }
         });
-        goodsDao.save(goodsList.values());
+        if (deliverConsign.getStatus() == 3){
+            goodsDao.save(goodsList.values());
+        }
         deliverConsignDao.save(deliverConsignAdd);
         return true;
     }

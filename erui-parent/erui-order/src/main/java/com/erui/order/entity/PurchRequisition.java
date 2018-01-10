@@ -19,9 +19,11 @@ public class PurchRequisition {
     /**
      * 项目
      */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name="project_id")
+    @JsonIgnore
     private Project project;
+
     @Transient
     private Integer proId;
     @Column(name="contract_no")
@@ -56,15 +58,15 @@ public class PurchRequisition {
     private Date createTime;
 
     private String remarks;
-
-    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    //
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_attach",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
-    @OneToMany(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_goods",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "goods_id"))
@@ -78,20 +80,20 @@ public class PurchRequisition {
         this.id = id;
     }
 
-    public Integer getProId() {
-        return proId;
-    }
-
-    public void setProId(Integer proId) {
-        this.proId = proId;
-    }
-
     public Project getProject() {
         return project;
     }
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public Integer getProId() {
+        return proId;
+    }
+
+    public void setProId(Integer proId) {
+        this.proId = proId;
     }
 
     public String getContractNo() {
@@ -142,12 +144,12 @@ public class PurchRequisition {
         this.transModeBn = transModeBn;
     }
 
-    public void setFactorySend(boolean factorySend) {
-        this.factorySend = factorySend;
-    }
-
     public boolean isFactorySend() {
         return factorySend;
+    }
+
+    public void setFactorySend(boolean factorySend) {
+        this.factorySend = factorySend;
     }
 
     public String getDeliveryPlace() {
@@ -201,7 +203,6 @@ public class PurchRequisition {
     public List<Goods> getGoodsList() {
         return goodsList;
     }
-
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;

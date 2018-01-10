@@ -30,10 +30,13 @@ public class DeliverConsign {
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
+
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
     private String coId;
+    @Column(name = "exec_co_name")
+    private String execCoName;
     @Column(name = "write_date")
     private Date writeDate;
     @Column(name = "arrival_date")
@@ -48,15 +51,25 @@ public class DeliverConsign {
     @Column(name = "create_time")
     private Date createTime;
     private String remarks;
+    //出口通知单附件
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     private Set<Attachment> attachmentSet = new HashSet<>();
+    //出口通知单商品
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
+
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
+    }
 
     public Integer getId() {
         return id;
