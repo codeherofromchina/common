@@ -102,12 +102,15 @@ public class PurchController {
     /**
      * 获取采购详情信息
      *
-     * @param id 采购ID
+     * @param purch.id 采购ID
      * @return
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
-        Purch data = purchService.findDetailInfo(id);
+    public Result<Object> detail(@RequestBody Purch purch) {
+        if (purch == null || purch.getId() == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Purch data = purchService.findDetailInfo(purch.getId());
         if (data != null) {
             return new Result<>(data);
         }
@@ -119,12 +122,15 @@ public class PurchController {
     /**
      * 为添加报检单而获取采购信息
      *
-     * @param purchId 采购ID
+     * @param params {purchId:采购ID}
      * @return
      */
     @RequestMapping("getInfoForInspectApply")
-    public Result<Object> getInfoForInspectApply(@RequestParam(name = "purchId", required = true) Integer purchId) {
-        Purch purch = purchService.findPurchAndGoodsInfo(purchId);
+    public Result<Object> getInfoForInspectApply(@RequestBody Map<String, Integer> params) {
+        if (params.get("purchId") == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Purch purch = purchService.findPurchAndGoodsInfo(params.get("purchId"));
 
         // 只有进行中的采购才可以新增报检单信息
         if (purch != null && purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
