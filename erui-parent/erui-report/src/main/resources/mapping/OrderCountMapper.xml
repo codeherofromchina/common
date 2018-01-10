@@ -11,6 +11,7 @@
     <result column="exe_company" property="exeCompany" jdbcType="VARCHAR" />
     <result column="order_area" property="orderArea" jdbcType="VARCHAR" />
     <result column="cust_description" property="custDescription" jdbcType="VARCHAR" />
+    <result column="cust_category" property="custCategory" jdbcType="VARCHAR" />
     <result column="pro_name" property="proName" jdbcType="VARCHAR" />
     <result column="english_name" property="englishName" jdbcType="VARCHAR" />
     <result column="specification" property="specification" jdbcType="VARCHAR" />
@@ -129,18 +130,18 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_serial_num, pro_notice_num, execute_num, po_num, organization, exe_company, 
-    order_area, cust_description, pro_name, english_name, specification, is_oil_gas, 
-    plat_pro_category, pro_category, order_count, order_unit, sale_num, order_num, project_account, 
-    pre_profit, back_form, back_date, back_amount, credit_extension, project_start, exe_promise_date, 
-    exe_promise_update_date, require_purchase_get_date, market_manager, business_manager, 
-    purchase_manager, supplier, purchase_contract_nu, pre_quotes_account, purchase_account_cny, 
-    purchase_account_usd, purchase_contract_date, purchase_contract_delivery_date, purchase_payment_mode, 
-    to_factory_payment_date, purchase_get_date, inspection_date, inspection_finash_date, 
-    to_storage_date, booking_date, market_request_date, forward_manager, package_date, 
-    storage_out_date, ackage_notice_date, ship_air_date, arrive_date, logistics_num, 
-    pre_logistics_amount, logistics_forward_amount, finish_date, trade_terms, purchase_delay_date, 
-    logistics_delay_date, project_status, reason_type, reason_category, reality_reason, 
-    project_progress, remark
+    order_area, cust_description, cust_category, pro_name, english_name, specification,
+    is_oil_gas, plat_pro_category, pro_category, order_count, order_unit, sale_num, order_num,
+    project_account, pre_profit, back_form, back_date, back_amount, credit_extension,
+    project_start, exe_promise_date, exe_promise_update_date, require_purchase_get_date,
+    market_manager, business_manager, purchase_manager, supplier, purchase_contract_nu,
+    pre_quotes_account, purchase_account_cny, purchase_account_usd, purchase_contract_date,
+    purchase_contract_delivery_date, purchase_payment_mode, to_factory_payment_date,
+    purchase_get_date, inspection_date, inspection_finash_date, to_storage_date, booking_date,
+    market_request_date, forward_manager, package_date, storage_out_date, ackage_notice_date,
+    ship_air_date, arrive_date, logistics_num, pre_logistics_amount, logistics_forward_amount,
+    finish_date, trade_terms, purchase_delay_date, logistics_delay_date, project_status,
+    reason_type, reason_category, reality_reason, project_progress, remark
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.OrderCountExample" >
     select

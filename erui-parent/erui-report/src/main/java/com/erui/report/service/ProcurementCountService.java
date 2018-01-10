@@ -4,7 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.ProcurementCount;
+import com.erui.report.model.ProcurementCountExample;
 import com.erui.report.util.ImportDataResponse;
+import com.erui.report.util.InquiryAreaVO;
 
 /**
  * 采购业务接口
@@ -32,4 +35,23 @@ public interface ProcurementCountService {
 	 * @param queryType
 	 */
 	Map<String,Object> procurementTrend(Date startTime,Date endTime,String queryType);
+
+	/**
+	 * 查询区域列表和国家列表
+	 */
+	List<InquiryAreaVO> selectAllAreaAndCountryList();
+    /**
+     * 获取采购明细数据
+     * @param startTime
+     * @param endTime
+     * @param area
+     * @param country
+     */
+    Map<String ,Object>  selectAreaDetailData(Date startTime,Date endTime,String area,Object country);
+    /**
+     * 获取分类数据
+     * @param startTime
+     * @param endTime
+     */
+    List<ProcurementCount>  selectCategoryDetail(Date startTime, Date endTime);
 }

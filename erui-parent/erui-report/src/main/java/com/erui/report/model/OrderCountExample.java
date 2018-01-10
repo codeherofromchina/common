@@ -726,6 +726,76 @@ public class OrderCountExample {
             return (Criteria) this;
         }
 
+        public Criteria andCustCategoryIsNull() {
+            addCriterion("cust_category is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryIsNotNull() {
+            addCriterion("cust_category is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryEqualTo(String value) {
+            addCriterion("cust_category =", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryNotEqualTo(String value) {
+            addCriterion("cust_category <>", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryGreaterThan(String value) {
+            addCriterion("cust_category >", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryGreaterThanOrEqualTo(String value) {
+            addCriterion("cust_category >=", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryLessThan(String value) {
+            addCriterion("cust_category <", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryLessThanOrEqualTo(String value) {
+            addCriterion("cust_category <=", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryLike(String value) {
+            addCriterion("cust_category like", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryNotLike(String value) {
+            addCriterion("cust_category not like", value, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryIn(List<String> values) {
+            addCriterion("cust_category in", values, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryNotIn(List<String> values) {
+            addCriterion("cust_category not in", values, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryBetween(String value1, String value2) {
+            addCriterion("cust_category between", value1, value2, "custCategory");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustCategoryNotBetween(String value1, String value2) {
+            addCriterion("cust_category not between", value1, value2, "custCategory");
+            return (Criteria) this;
+        }
+
         public Criteria andProNameIsNull() {
             addCriterion("pro_name is null");
             return (Criteria) this;

@@ -76,8 +76,8 @@
   <select id="selectProcurPandent" resultType="java.util.Map" parameterType="com.erui.report.model.ProcurementCountExample" >
     select
     COUNT(plan_num) AS procurementCount,
-    COUNT(execute_num) AS signingContractCount,
-    SUM(ammount) AS signingContractAmount
+      COUNT(execute_num) AS signingContractCount,
+      IFNULL(SUM(IFNULL(ammount,0)),0) AS signingContractAmount
     from procurement_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -85,6 +85,42 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
+  </select>
+  <select id="selectProcurTrend" resultType="java.util.Map" parameterType="com.erui.report.model.ProcurementCountExample" >
+    select
+    COUNT(plan_num) AS procurementCount,
+    COUNT(execute_num) AS signingContractCount,
+    IFNULL(SUM(IFNULL(ammount,0)),0) AS signingContractAmount,
+    DATE_FORMAT(assign_time,'%Y-%m-%d') AS assignTime
+    from procurement_count
+    <if test="_parameter != null" >
+        <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+        order by ${orderByClause}
+    </if>
+    GROUP BY assign_time HAVING assign_time IS NOT NULL
+</select>
+
+    <select id="selectCategoryDetail" resultType="com.erui.report.model.ProcurementCount" parameterType="com.erui.report.model.ProcurementCountExample" >
+        select
+        COUNT(plan_num) AS planNum,
+        COUNT(execute_num) AS executeNum,
+        IFNULL(SUM(IFNULL(ammount,0)),0) AS ammount,
+        category AS category
+        from procurement_count
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+        GROUP BY category HAVING category IS NOT NULL
+    </select>
+
+  <select id="selectAllAreaAndCountryList" resultType="java.util.Map">
+    SELECT  area AS area, country AS country FROM  procurement_count
+    GROUP BY area, 	country HAVING  area IS NOT NULL
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.ProcurementCountExample" >
     select

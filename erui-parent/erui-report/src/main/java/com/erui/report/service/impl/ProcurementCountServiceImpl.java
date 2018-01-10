@@ -2,12 +2,13 @@ package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.erui.comm.RateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.ProcurementCountExample;
+import com.erui.report.util.InquiryAreaVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -109,6 +110,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
             Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             dates.add(dateFormat.format(datetime));
         }
+        //获取趋势图数据
         ProcurementCountExample example = new ProcurementCountExample();
         ProcurementCountExample.Criteria criteria = example.createCriteria();
         if(startTime!=null){
@@ -117,7 +119,162 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         if(endTime!=null){
             criteria.andAssignTimeLessThan(endTime);
         }
-     //List<Map<String,Object>> list=   readMapper.selectProcurTrend(example);
-        return null;
+        List<Map<String,Object>> trendDatas=   readMapper.selectProcurTrend(example);
+        Map<String, Map<String, Object>> dataMap = trendDatas.parallelStream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
+        //处理数据
+        List<Integer> procurementList=new ArrayList<>();
+        List<Integer> signingContractList=new ArrayList<>();
+        List<Double> signingContractAmountList=new ArrayList<>();
+
+        for (String date: dates) {
+            if(dataMap.containsKey(date)){
+                procurementList.add(Integer.parseInt(dataMap.get(date).get("procurementCount").toString()));
+                signingContractList.add(Integer.parseInt(dataMap.get(date).get("signingContractCount").toString()));
+                signingContractAmountList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("signingContractAmount").toString()),1d));
+            }else {
+                procurementList.add(0);
+                signingContractList.add(0);
+                signingContractAmountList.add(0d);
+            }
+        }
+        Map<String,Object> datas=new HashMap<>();
+        String[] types={"采购申请单","签约合同","合同金额"};
+        if(queryType.equals(types[0])){
+            datas.put("legend",types[0]);
+            datas.put("xAxis",dates);
+            datas.put("yAxis",procurementList);
+        }
+        if(queryType.equals(types[1])){
+            datas.put("legend",types[1]);
+            datas.put("xAxis",dates);
+            datas.put("yAxis",signingContractList);
+        }
+        if(queryType.equals(types[2])){
+            datas.put("legend",types[2]);
+            datas.put("xAxis",dates);
+            datas.put("yAxis",signingContractAmountList);
+        }
+        return datas;
+    }
+    /**
+     * 获取大区和国家列表实现
+     */
+    @Override
+    public List<InquiryAreaVO> selectAllAreaAndCountryList() {
+        List<Map<String, String>> dataList = this.readMapper.selectAllAreaAndCountryList();
+        List<InquiryAreaVO> list = new ArrayList<>();
+        if (dataList != null && dataList.size() > 0) {
+            Map<String, InquiryAreaVO> map = list.parallelStream()
+                    .collect(Collectors.toMap(InquiryAreaVO::getAreaName, vo -> vo));
+            for (Map<String, String> data : dataList) {
+                String area = data.get("area");
+                String country = data.get("country");
+                InquiryAreaVO vo = null;
+                if (map.containsKey(area)) {
+                    vo = map.get(area);
+                } else {
+                    vo = new InquiryAreaVO();
+                    vo.setAreaName(area);
+                    list.add(vo);
+                    map.put(area, vo);
+                }
+                vo.pushCountry(country);
+            }
+
+        }
+        return list;
+    }
+    /**
+     * 区域明细实现
+     */
+    @Override
+    public Map<String, Object> selectAreaDetailData(Date startTime, Date endTime, String area, Object country) {
+        ProcurementCountExample example = new ProcurementCountExample();
+        ProcurementCountExample.Criteria criteria = example.createCriteria();
+        ProcurementCountExample tExample= new ProcurementCountExample();
+        ProcurementCountExample.Criteria totalCriteria = tExample.createCriteria();
+        if(startTime!=null){
+            criteria.andAssignTimeGreaterThanOrEqualTo(startTime);
+            totalCriteria.andAssignTimeGreaterThanOrEqualTo(startTime);
+
+        }
+        if(endTime!=null){
+            criteria.andAssignTimeLessThan(endTime);
+            totalCriteria.andAssignTimeLessThan(endTime);
+        }
+        if(StringUtil.isNotBlank(area)){
+            criteria.andAreaEqualTo(area);
+        }
+        if(country!=null) {
+            if (StringUtil.isNotBlank(country.toString())) {
+                criteria.andCountryEqualTo(country.toString());
+            }
+        }
+        List<Map<String, Object>> maps = readMapper.selectProcurPandent(example);
+        List<Map<String, Object>> totalMaps = readMapper.selectProcurPandent(tExample);
+        int procurementCount=0;
+        int signingContractCount=0;
+        double signingContractAmount=0d;
+        int proCount=0;
+        int signCount=0;
+        double signAmount=0d;
+        double proProportion=0d;
+        double signCountProportion=0d;
+        double signAmountProportion=0d;
+        if(maps!=null&&maps.size()>0){
+            Map<String, Object> data = maps.get(0);
+            procurementCount=Integer.parseInt(data.get("procurementCount").toString());
+            signingContractCount=Integer.parseInt(data.get("signingContractCount").toString());
+            if(data.get("signingContractAmount")!=null) {
+                signingContractAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("signingContractAmount").toString()), 1d);
+            }
+        }
+        if(totalMaps!=null&&totalMaps.size()>0){
+            Map<String, Object> data = totalMaps.get(0);
+            proCount=Integer.parseInt(data.get("procurementCount").toString());
+            signCount=Integer.parseInt(data.get("signingContractCount").toString());
+            if(data.get("signingContractAmount")!=null) {
+                signAmount = Double.parseDouble(data.get("signingContractAmount").toString());
+            }
+        }
+        if(proCount>0){
+            proProportion=RateUtil.intChainRate(procurementCount,proCount);
+        }
+        if(signCount>0){
+            signCountProportion=RateUtil.intChainRate(signingContractCount,signCount);
+        }
+        if(signAmount>0){
+            signAmountProportion=RateUtil.doubleChainRate(signingContractAmount,signAmount);
+        }
+
+        //整理数据
+        List<Object> dataList=new ArrayList<>();
+        List<String> xList=new ArrayList<>();
+        dataList.add(procurementCount);
+        dataList.add(signingContractCount);
+        dataList.add(signingContractAmount);
+        xList.add("采购申请单数量-占比"+ RateUtil.doubleChainRateTwo(proProportion * 100, 1) + "%");
+        xList.add("签约合同数-占比"+ RateUtil.doubleChainRateTwo(signCountProportion * 100, 1) + "%");
+        xList.add("签约合同金额-占比"+ RateUtil.doubleChainRateTwo(signAmountProportion * 100, 1) + "%");
+        Map<String,Object> data=new HashMap<>();
+        data.put("yAxis", dataList);
+        data.put("xAxis", xList);
+        return data;
+    }
+    /**
+     * 获取分类数据实现
+     */
+    @Override
+    public List<ProcurementCount> selectCategoryDetail(Date startTime, Date endTime) {
+        ProcurementCountExample example = new ProcurementCountExample();
+        ProcurementCountExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andAssignTimeGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andAssignTimeLessThan(endTime);
+        }
+
+        return readMapper.selectCategoryDetail(example);
     }
 }
