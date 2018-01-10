@@ -251,7 +251,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     contractNos.add(order.getContractNo());  //销售合同号
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
-                notice.setDeliverConsignGoodsList(null);
             });
         }
 
