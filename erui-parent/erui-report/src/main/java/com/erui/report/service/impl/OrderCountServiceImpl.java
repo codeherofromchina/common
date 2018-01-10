@@ -239,7 +239,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[42] != null) {
                 try {
-                    oc.setInspectionDate(DateUtil.parseString2Date(strArr[41], "yyyy/M/d", "yyyy/M/d",
+                    oc.setInspectionDate(DateUtil.parseString2Date(strArr[42], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -250,7 +250,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[43] != null) {
                 try {
-                    oc.setInspectionFinashDate(DateUtil.parseString2Date(strArr[42], "yyyy/M/d", "yyyy/M/d",
+                    oc.setInspectionFinashDate(DateUtil.parseString2Date(strArr[43], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -262,7 +262,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             if (strArr[44] != null) {
                 try {
-                    oc.setToStorageDate(DateUtil.parseString2Date(strArr[43], "yyyy/M/d", "yyyy/M/d",
+                    oc.setToStorageDate(DateUtil.parseString2Date(strArr[44], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -274,7 +274,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             if (strArr[45] != null) {
                 try {
-                    oc.setBookingDate(DateUtil.parseString2Date(strArr[44], "yyyy/M/d", "yyyy/M/d",
+                    oc.setBookingDate(DateUtil.parseString2Date(strArr[45], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -285,7 +285,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[46] != null) {
                 try {
-                    oc.setMarketRequestDate(DateUtil.parseString2Date(strArr[45], "yyyy/M/d", "yyyy/M/d",
+                    oc.setMarketRequestDate(DateUtil.parseString2Date(strArr[46], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -298,7 +298,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             oc.setForwardManager(strArr[47]);
             if (strArr[48] != null) {
                 try {
-                    oc.setPackageDate(DateUtil.parseString2Date(strArr[47], "yyyy/M/d", "yyyy/M/d",
+                    oc.setPackageDate(DateUtil.parseString2Date(strArr[48], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -310,7 +310,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             if (strArr[49] != null) {
                 try {
-                    oc.setStorageOutDate(DateUtil.parseString2Date(strArr[48], "yyyy/M/d", "yyyy/M/d",
+                    oc.setStorageOutDate(DateUtil.parseString2Date(strArr[49], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -321,7 +321,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[50] != null) {
                 try {
-                    oc.setAckageNoticeDate(DateUtil.parseString2Date(strArr[49], "yyyy/M/d", "yyyy/M/d",
+                    oc.setAckageNoticeDate(DateUtil.parseString2Date(strArr[50], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -333,7 +333,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             if (strArr[51] != null) {
                 try {
-                    oc.setShipAirDate(DateUtil.parseString2Date(strArr[50], "yyyy/M/d", "yyyy/M/d",
+                    oc.setShipAirDate(DateUtil.parseString2Date(strArr[51], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -345,7 +345,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             if (strArr[52] != null) {
                 try {
-                    oc.setArriveDate(DateUtil.parseString2Date(strArr[51], "yyyy/M/d", "yyyy/M/d",
+                    oc.setArriveDate(DateUtil.parseString2Date(strArr[52], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -359,7 +359,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             if (strArr[54] != null) {
                 try {
-                    oc.setPreLogisticsAmount(new BigDecimal(strArr[53]));
+                    oc.setPreLogisticsAmount(new BigDecimal(strArr[54]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -369,7 +369,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[55] != null) {
                 try {
-                    oc.setLogisticsForwardAmount(new BigDecimal(strArr[54]));
+                    oc.setLogisticsForwardAmount(new BigDecimal(strArr[55]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -380,7 +380,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[56] != null) {
                 try {
-                    oc.setFinishDate(DateUtil.parseString2Date(strArr[55], "yyyy/M/d", "yyyy/M/d",
+                    oc.setFinishDate(DateUtil.parseString2Date(strArr[56], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -393,7 +393,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             oc.setTradeTerms(strArr[57]);
             if (strArr[58] != null) {
                 try {
-                    oc.setPurchaseDelayDate(new BigDecimal(strArr[57]).intValue());
+                    oc.setPurchaseDelayDate(new BigDecimal(strArr[58]).intValue());
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -403,7 +403,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             }
             if (strArr[59] != null) {
                 try {
-                    oc.setLogisticsDelayDate(new BigDecimal(strArr[58]).intValue());
+                    oc.setLogisticsDelayDate(new BigDecimal(strArr[59]).intValue());
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
