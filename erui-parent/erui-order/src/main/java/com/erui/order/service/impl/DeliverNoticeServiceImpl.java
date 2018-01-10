@@ -102,6 +102,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 Set<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
                 for (DeliverConsign dc : deliverConsignSet) {
                     deliverConsignNos.add(dc.getDeliverConsignNo());
+                    contractNos.add(dc.getOrder().getContractNo());
                 }
                 notice.setDeliverConsignNo(StringUtils.join(deliverConsignNos,","));
                 notice.setContractNo(StringUtils.join(contractNos,","));
