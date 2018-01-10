@@ -102,10 +102,10 @@ public class PurchController {
     /**
      * 获取采购详情信息
      *
-     * @param purch.id 采购ID
+     * @param purch {id:采购ID}
      * @return
      */
-    @RequestMapping(value = "detail", method = RequestMethod.POST)
+    @RequestMapping(value = "detail", method = RequestMethod.POST ,produces = {"application/json;charset=utf-8"})
     public Result<Object> detail(@RequestBody Purch purch) {
         if (purch == null || purch.getId() == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
@@ -125,7 +125,7 @@ public class PurchController {
      * @param params {purchId:采购ID}
      * @return
      */
-    @RequestMapping("getInfoForInspectApply")
+    @RequestMapping(value = "getInfoForInspectApply", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> getInfoForInspectApply(@RequestBody Map<String, Integer> params) {
         if (params.get("purchId") == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
