@@ -98,7 +98,7 @@ public class PurchServiceImpl implements PurchService {
     @Override
     @Transactional
     public Page<Purch> findByPage(final Purch condition) {
-        PageRequest request = new PageRequest(condition.getPage(), condition.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "id");
 
         Page<Purch> page = purchDao.findAll(new Specification<Purch>() {
             @Override
