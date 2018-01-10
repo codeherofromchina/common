@@ -95,17 +95,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         }, request);
 
         if (page.hasContent()) {
-            page.getContent().parallelStream().forEach(notice -> {
+            for(DeliverNotice notice:page.getContent()) {
                 List<String>  deliverConsignNos = new ArrayList<String>();
                 List<String>  contractNos = new ArrayList<String>();
 
                 Set<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
                 for (DeliverConsign dc : deliverConsignSet) {
                     deliverConsignNos.add(dc.getDeliverConsignNo());
+                    contractNos.add(dc.getOrder().getContractNo());
                 }
                 notice.setDeliverConsignNo(StringUtils.join(deliverConsignNos,","));
                 notice.setContractNo(StringUtils.join(contractNos,","));
-            });
+            }
         }
         return page;
     }
