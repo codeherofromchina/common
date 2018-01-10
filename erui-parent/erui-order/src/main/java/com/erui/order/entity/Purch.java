@@ -455,7 +455,7 @@ public class Purch {
      * 采购状态枚举
      */
     public static enum StatusEnum {
-        READY(0, "未进行"), BEING(1, "进行中"), DONE(2, "已完成");
+        READY(1, "未进行"), BEING(2, "进行中"), DONE(3, "已完成");
 
         private int code;
         private String msg;
