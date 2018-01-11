@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -105,6 +106,9 @@ public class Project {
 
     @Column(name = "distribution_dept_name")
     private String distributionDeptName;
+
+    @Column(name = "send_dept_id")
+    private Integer sendDeptId;
 
     @Column(name = "business_unit_name")
     private String businessUnitName;
@@ -344,6 +348,14 @@ public class Project {
         this.execCoName = execCoName;
     }
 
+    public String getBusinessUnitName() {
+        return businessUnitName;
+    }
+
+    public void setBusinessUnitName(String businessUnitName) {
+        this.businessUnitName = businessUnitName;
+    }
+
     public String getDistributionDeptName() {
         return distributionDeptName;
     }
@@ -352,12 +364,12 @@ public class Project {
         this.distributionDeptName = distributionDeptName;
     }
 
-    public String getBusinessUnitName() {
-        return businessUnitName;
+    public Integer getSendDeptId() {
+        return sendDeptId;
     }
 
-    public void setBusinessUnitName(String businessUnitName) {
-        this.businessUnitName = businessUnitName;
+    public void setSendDeptId(Integer sendDeptId) {
+        this.sendDeptId = sendDeptId;
     }
 
     public String getRegion() {
@@ -387,6 +399,7 @@ public class Project {
         project.setManagerUid(this.managerUid);
         project.setLogisticsUid(this.logisticsUid);
         project.setWarehouseUid(this.warehouseUid);
+        project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
         project.setProjectStatus(this.projectStatus);
         return true;

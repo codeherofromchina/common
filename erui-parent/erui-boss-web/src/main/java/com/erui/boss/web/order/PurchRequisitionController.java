@@ -37,8 +37,9 @@ public class PurchRequisitionController {
         if (purchRequisition != null) {
             purchRequisition.setProject(null);
             purchRequisition.getGoodsList().iterator().next().setOrder(null);
+            return new Result<>(purchRequisition);
         }
-        return new Result<>(purchRequisition);
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
     /**
@@ -49,12 +50,15 @@ public class PurchRequisitionController {
     @RequestMapping(value = "addPurchDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) {
         Project project = projectService.findDesc(proMap.get("proId"));
-        Map<String, Object> map = new HashMap<>();
-        map.put("pmUid", project.getManagerUid());
-        //   map.put("department",project.getOrder().getTechnicalIdDept());
-        map.put("transModeBn", project.getOrder().getTradeTerms());
-        map.put("goodList", project.getOrder().getGoodsList());
-        return new Result<>(map);
+        if (project!=null){
+            Map<String, Object> map = new HashMap<>();
+            map.put("pmUid", project.getManagerUid());
+            //   map.put("department",project.getOrder().getTechnicalIdDept());
+            map.put("transModeBn", project.getOrder().getTradeTerms());
+            map.put("goodList", project.getOrder().getGoodsList());
+            return new Result<>(map);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL.DATA_NULL);
     }
 
     /**

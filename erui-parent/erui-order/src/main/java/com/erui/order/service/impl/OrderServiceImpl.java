@@ -9,6 +9,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
+import com.erui.order.service.AttachmentService;
 import com.erui.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import javax.validation.constraints.Null;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderDao orderDao;
     @Autowired
     private ProjectDao projectDao;
-
+    @Autowired
+    private AttachmentService attachmentService;
     @Override
     @Transactional
     public Order findById(Integer id) {
@@ -129,6 +132,8 @@ public class OrderServiceImpl implements OrderService {
             return false;
         }
         addOrderVo.copyBaseInfoTo(order);
+        // 处理附件信息
+      //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;

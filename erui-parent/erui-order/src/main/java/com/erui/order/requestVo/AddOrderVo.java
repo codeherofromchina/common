@@ -136,10 +136,10 @@ public class AddOrderVo {
     private Date createTime;
 
     //创建人
-    //   private Integer createUserId;
+    //private Integer createUserId;
 
     //修改时间
-    //   private Date updateTime;
+    //private Date updateTime;
 
     //交货要求及描述
     private String deliveryRequires;
@@ -156,7 +156,7 @@ public class AddOrderVo {
     private String businessUnitName;
 
     //附件信息
-    private Set<Attachment> attachDesc = new HashSet<>();
+    private List<Attachment> attachDesc = new ArrayList<>();
 
     //商品信息
     private List<PGoods> goodDesc = new ArrayList<>();
@@ -510,11 +510,11 @@ public class AddOrderVo {
         this.customerContext = customerContext;
     }
 
-    public Set<Attachment> getAttachDesc() {
+    public List<Attachment> getAttachDesc() {
         return attachDesc;
     }
 
-    public void setAttachDesc(Set<Attachment> attachDesc) {
+    public void setAttachDesc(List<Attachment> attachDesc) {
         this.attachDesc = attachDesc;
     }
 

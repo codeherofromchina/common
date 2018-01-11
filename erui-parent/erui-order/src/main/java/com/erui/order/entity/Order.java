@@ -168,7 +168,7 @@ public class Order {
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
@@ -668,11 +668,11 @@ public class Order {
         this.deleteTime = deleteTime;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 

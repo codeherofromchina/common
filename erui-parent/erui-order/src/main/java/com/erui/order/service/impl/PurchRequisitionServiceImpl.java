@@ -4,11 +4,9 @@ import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.dao.PurchRequisitionDao;
-import com.erui.order.entity.Area;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Project;
-import com.erui.order.entity.PurchRequisition;
+import com.erui.order.entity.*;
 import com.erui.order.service.AreaService;
+import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchRequisitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -31,16 +30,19 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     ProjectDao projectDao;
     @Autowired
     private GoodsDao goodsDao;
-
+    @Autowired
+    private AttachmentService attachmentService;
     @Transactional
     @Override
     public PurchRequisition findById(Integer id,Integer orderId) {
         PurchRequisition purchRequisition = purchRequisitionDao.findByIdOrOrderId(id,orderId);
         if (purchRequisition != null) {
+            purchRequisition.setProId(purchRequisition.getProject().getId());
             purchRequisition.getGoodsList().size();
             purchRequisition.getAttachmentSet().size();
+            return purchRequisition;
         }
-        return purchRequisition;
+        return null;
     }
 
     @Transactional
@@ -53,8 +55,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         PurchRequisition purchRequisitionUpdate = purchRequisitionDao.findOne(purchRequisition.getId());
         purchRequisitionUpdate.setProject(project);
         purchRequisitionUpdate.setContractNo(purchRequisition.getContractNo());
-        purchRequisitionUpdate.setDepartment(project.getOrder().getTechnicalId());
-        purchRequisitionUpdate.setPmUid(project.getManagerUid());
+       /* purchRequisitionUpdate.setDepartment(project.getSendDeptId());
+        purchRequisitionUpdate.setPmUid(project.getManagerUid());*/
         purchRequisitionUpdate.setSubmitDate(purchRequisition.getSubmitDate());
         purchRequisitionUpdate.setTradeMethod(purchRequisition.getTradeMethod());
         purchRequisitionUpdate.setTransModeBn(project.getOrder().getTradeTerms());
@@ -68,6 +70,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
+            goods.setProType(dcGoods.getProType());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
@@ -103,12 +106,15 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setFactorySend(purchRequisition.isFactorySend());
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
+        // 处理附件信息
+//        Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
         purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
+            goods.setProType(dcGoods.getProType());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());

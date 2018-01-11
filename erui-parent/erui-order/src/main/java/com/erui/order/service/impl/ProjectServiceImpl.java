@@ -2,9 +2,12 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.AttachmentDao;
 import com.erui.order.dao.ProjectDao;
+import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
+import com.erui.order.service.AttachmentService;
 import com.erui.order.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +33,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectDao projectDao;
-
     @Transactional
     @Override
     public Project findById(Integer id) {
