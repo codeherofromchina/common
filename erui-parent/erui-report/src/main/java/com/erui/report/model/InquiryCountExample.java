@@ -3156,6 +3156,66 @@ public class InquiryCountExample {
             return (Criteria) this;
         }
 
+        public Criteria andReturnCountIsNull() {
+            addCriterion("return_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountIsNotNull() {
+            addCriterion("return_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountEqualTo(Integer value) {
+            addCriterion("return_count =", value, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountNotEqualTo(Integer value) {
+            addCriterion("return_count <>", value, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountGreaterThan(Integer value) {
+            addCriterion("return_count >", value, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("return_count >=", value, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountLessThan(Integer value) {
+            addCriterion("return_count <", value, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountLessThanOrEqualTo(Integer value) {
+            addCriterion("return_count <=", value, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountIn(List<Integer> values) {
+            addCriterion("return_count in", values, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountNotIn(List<Integer> values) {
+            addCriterion("return_count not in", values, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountBetween(Integer value1, Integer value2) {
+            addCriterion("return_count between", value1, value2, "returnCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andReturnCountNotBetween(Integer value1, Integer value2) {
+            addCriterion("return_count not between", value1, value2, "returnCount");
+            return (Criteria) this;
+        }
+
         public Criteria andRemarkIsNull() {
             addCriterion("remark is null");
             return (Criteria) this;

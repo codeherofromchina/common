@@ -326,12 +326,22 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             ic.setStandardTradeItems(strArr[42]);
             ic.setLatestSchedule(strArr[43]);
             ic.setQuotedStatus(strArr[44]);
-            ic.setRemark(strArr[45]);
-            ic.setQuoteOvertimeCategory(strArr[46]);
-            ic.setQuoteOvertimeCause(strArr[47]);
-            ic.setIsSuccessOrder(strArr[48]);
-            ic.setLoseOrderCategory(strArr[49]);
-            ic.setLoseOrderCause(strArr[50]);
+            if (strArr[45] != null) {
+                try {
+                    ic.setReturnCount(new BigDecimal(strArr[45]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
+                    continue;
+                }
+            }
+            ic.setRemark(strArr[46]);
+            ic.setQuoteOvertimeCategory(strArr[47]);
+            ic.setQuoteOvertimeCause(strArr[48]);
+            ic.setIsSuccessOrder(strArr[49]);
+            ic.setLoseOrderCategory(strArr[50]);
+            ic.setLoseOrderCause(strArr[51]);
 
             try {
                 if (!testOnly) {
@@ -944,6 +954,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     }
 
+
     /**
      * 获取PutMethod
      */
@@ -966,5 +977,19 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
         method.setEntity(entity);
         return method;
+    }
+
+    @Override
+    public List<Map<String, Object>> selectRejectCount(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        criteria.andQuotedStatusIn(Arrays.asList(new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()}));
+        return readMapper.selectRejectCount(example);
     }
 }

@@ -140,4 +140,10 @@ public interface InquiryCountService {
 	 * @param endTime
 	 */
 	void inquiryData(String startTime,String endTime)throws  Exception;
+	/**
+	 * 获取询单退回的次数和平均次数
+	 * @param startTime
+	 * @param endTime
+	 */
+	List<Map<String,Object>> selectRejectCount(Date startTime, Date endTime);
 }

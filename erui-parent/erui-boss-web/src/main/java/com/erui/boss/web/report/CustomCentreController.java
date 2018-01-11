@@ -894,7 +894,7 @@ public class CustomCentreController {
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
 //       1 处理退回询单的数据
-        String[] quotes={"已退回"};
+        String[] quotes={QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()};
         int rtnInqCount = inquiryService.inquiryCountByTime(startTime, endTime, quotes, 0, 0, null, null);//已退回询单数
         int inqCount = inquiryService.inquiryCountByTime(startTime, endTime, null, 0, 0, null, null);//总询单数
 
@@ -903,13 +903,23 @@ public class CustomCentreController {
             rtnInqProportion=RateUtil.intChainRateTwo(rtnInqCount,inqCount);
         }
         //退回次数和平均退回次数
-        int rtnCount=2;
-        double avgRtnCount=1.23;
+        int rejectCount=0;//退回次数
+        double  avgRejectCount=0d;//平均退回次数
+          List<Map<String,Object>> rejectData=  inquiryService.selectRejectCount(startTime,endTime);
+        if(rejectData!=null&&rejectData.size()>0){
+            Map<String, Object> data = rejectData.get(0);
+          if(data.get("sumCount")!=null){
+              rejectCount=Integer.parseInt(data.get("sumCount").toString());
+          }
+          if(data.get("avgCount")!=null){
+              avgRejectCount=RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("avgCount").toString()),1d);
+          }
+        }
         Map<String,Object> returnData=new HashMap<>();
         returnData.put("rtnInqCount",rtnInqCount);
         returnData.put("rtnInqProportion",rtnInqProportion);
-        returnData.put("rtnCount",rtnCount);
-        returnData.put("avgRtnCount",avgRtnCount);
+        returnData.put("rtnCount",rejectCount);
+        returnData.put("avgRtnCount",avgRejectCount);
 //        2 处理已完成询单数据
         String[] finishedQuote={QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
         String[] Quoted={QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};

@@ -107,4 +107,10 @@ public interface InquiryCountMapper {
      * @return  {"avgNeedTime":'平均响应时间',"organization":'事业部'}
      */
     List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(InquiryCountExample example);
+    /**
+     * 询单退回次数和退回平均次数
+     * @param example
+     * @return
+     */
+    List<Map<String, Object>> selectRejectCount(InquiryCountExample example);
 }
