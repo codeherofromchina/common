@@ -72,7 +72,10 @@ public class DeliverNoticeController {
 
             for (DeliverConsign deliverConsign : list){
                 deliverConsignNoList.add(deliverConsign.getDeliverConsignNo());
-                dcAttachmentSetList.add(deliverConsign.getAttachmentSet());
+                Set<Attachment> attachmentSet = deliverConsign.getAttachmentSet();
+                for (Attachment attachment : attachmentSet){
+                    dcAttachmentSetList.add(attachment);//出口通知单附件
+                }
                 Order order1 = deliverConsign.getOrder();
                 tradeTermsList.add(order1.getTradeTerms());
                 toPlaceList.add(order1.getToPlace());
@@ -148,7 +151,10 @@ public class DeliverNoticeController {
 
         Set<DeliverConsign> deliverConsigns = page.getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns){
-            dcAttachmentSetList.add(deliverConsign.getAttachmentSet());//出口通知单附件
+            Set<Attachment> attachmentSet = deliverConsign.getAttachmentSet();
+            for (Attachment attachment : attachmentSet){
+                dcAttachmentSetList.add(attachment);//出口通知单附件
+            }
             deliverConsignNoList.add(deliverConsign.getDeliverConsignNo());
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
