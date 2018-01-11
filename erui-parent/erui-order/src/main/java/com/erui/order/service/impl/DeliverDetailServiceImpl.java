@@ -224,13 +224,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 //根据状态
                 if(deliverW.getStatus() != null){
                     if(deliverW.getStatus()== 2){
-                        list.add(cb.equal(root.get("status").as(Integer.class),deliverW.getStatus()));
-                    }else{
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class),2));
-                        list.add(cb.lessThan(root.get("status").as(Integer.class),6));
+                      /*  list.add(cb.equal(root.get("status").as(Integer.class),deliverW.getStatus()));*/
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class),6));
+                    }else if (deliverW.getStatus()== 1){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class),3));
+                        list.add(cb.lessThan(root.get("status").as(Integer.class),7));
                     }
                 }else{
-                    list.add(cb.greaterThan(root.get("status").as(Integer.class),2));
+                    list.add(cb.greaterThan(root.get("status").as(Integer.class),3));
                 }
 
 
@@ -243,7 +244,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
         if (page.hasContent()) {
-            page.getContent().parallelStream().forEach(notice -> {
+            for(DeliverDetail notice:page.getContent()){
                 List<String>  contractNos = new ArrayList<String>();    //销售合同号
                 Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
@@ -251,7 +252,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     contractNos.add(order.getContractNo());  //销售合同号
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
-            });
+            }
         }
 
         return page;
@@ -436,7 +437,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setRemarks(deliverDetail.getRemarks());
         }
         //实际创建时间
-            if (deliverDetail.getStatus() == 6) {
+            if (deliverDetail.getStatus() == 4) {
                 one.setAccomplishDate(new Date());
             }
         // 只接受国际物流部的附件
@@ -474,7 +475,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Transactional
     public DeliverDetail queryLogisticsTrace(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
-        if(one.getStatus() == 6){
+        if(one.getStatus() == 7){
             one.getDeliverConsignGoodsList().size();
             one.getAttachmentList().size();
             Set<DeliverConsign> deliverConsigns =one.getDeliverNotice().getDeliverConsigns();

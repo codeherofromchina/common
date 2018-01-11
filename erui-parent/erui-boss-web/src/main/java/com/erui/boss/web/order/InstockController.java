@@ -40,7 +40,9 @@ public class InstockController {
 
         int page = getStrNumber(condition.get("page"), DEFAULT_PAGE);
         int pageSize = getStrNumber(condition.get("pageSize"), DEFAULT_PAGESIZE);
-
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
         Page<Map<String, Object>> data = instockService.listByPage(condition, page - 1, pageSize);
 
         return new Result<>(data);

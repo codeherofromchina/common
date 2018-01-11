@@ -54,8 +54,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
-      /*  if (!project.getProjectStatus().equals("SUBMIT")) {
-        }*/
         project.copyProjectDesc(projectUpdate);
         projectUpdate.setProjectStatus(project.getProjectStatus());
         projectUpdate.setUpdateTime(new Date());
@@ -116,6 +114,9 @@ public class ProjectServiceImpl implements ProjectService {
                 return cb.and(predicates);
             }
         }, pageRequest);
+        for (Project project:pageList){
+            project.setoId(project.getOrder().getId());
+        }
         return pageList;
     }
 
@@ -137,6 +138,16 @@ public class ProjectServiceImpl implements ProjectService {
             project.getOrder().getGoodsList().size();
         }
         return project;
+    }
+
+    @Transactional
+    @Override
+    public Project findByIdOrOrderId(Integer id, Integer orderId) {
+        Project project = projectDao.findByIdOrOrderId(id, orderId);
+        if (project != null) {
+            return project;
+        }
+        return null;
     }
 
 

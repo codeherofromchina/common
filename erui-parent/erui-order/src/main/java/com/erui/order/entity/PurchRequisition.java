@@ -16,6 +16,8 @@ public class PurchRequisition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name="order_id")
+    private Integer orderId;
     /**
      * 项目
      */
@@ -78,6 +80,14 @@ public class PurchRequisition {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
     public Project getProject() {

@@ -44,6 +44,10 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundManage(@RequestBody DeliverD deliverD){
+        int page = deliverD.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
         Page<DeliverDetail> deliverDetail=deliverDetailService.outboundManage(deliverD);
         return new Result<>(deliverDetail);
     }

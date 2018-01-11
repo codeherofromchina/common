@@ -38,8 +38,12 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "lookMoneyInformManage")
     public Result<Object> lookMoneyInformManage(@RequestBody DeliverNotice condition) {
-        Page<DeliverNotice> page = deliverNoticeService.listByPage(condition);
-        return new Result<>(page);
+        int page = condition.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
+        Page<DeliverNotice> pageList = deliverNoticeService.listByPage(condition);
+        return new Result<>(pageList);
     }
 
     /**
@@ -68,7 +72,10 @@ public class DeliverNoticeController {
 
             for (DeliverConsign deliverConsign : list){
                 deliverConsignNoList.add(deliverConsign.getDeliverConsignNo());
-                dcAttachmentSetList.add(deliverConsign.getAttachmentSet());
+                Set<Attachment> attachmentSet = deliverConsign.getAttachmentSet();
+                for (Attachment attachment : attachmentSet){
+                    dcAttachmentSetList.add(attachment);//出口通知单附件
+                }
                 Order order1 = deliverConsign.getOrder();
                 tradeTermsList.add(order1.getTradeTerms());
                 toPlaceList.add(order1.getToPlace());
@@ -144,7 +151,10 @@ public class DeliverNoticeController {
 
         Set<DeliverConsign> deliverConsigns = page.getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns){
-            dcAttachmentSetList.add(deliverConsign.getAttachmentSet());//出口通知单附件
+            Set<Attachment> attachmentSet = deliverConsign.getAttachmentSet();
+            for (Attachment attachment : attachmentSet){
+                dcAttachmentSetList.add(attachment);//出口通知单附件
+            }
             deliverConsignNoList.add(deliverConsign.getDeliverConsignNo());
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
@@ -176,6 +186,7 @@ public class DeliverNoticeController {
         map.put("agentNameList",agentNameList);//商务技术经办人名字
         map.put("deliveryDateList",deliveryDateList);//执行单约定交付日期
         map.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
+        map.put("senderName",page.getSenderName());//下单人名称
 
         return new Result<>(map);
     }

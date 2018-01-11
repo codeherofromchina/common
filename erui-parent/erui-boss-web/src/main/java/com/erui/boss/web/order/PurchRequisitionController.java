@@ -30,26 +30,33 @@ public class PurchRequisitionController {
     private PurchRequisitionService purchRequisitionService;
     @Autowired
     private ProjectService projectService;
-    @RequestMapping(value = "queryPurchRequisition",method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<PurchRequisition> queryPurchRequisition(@RequestParam(name = "id") Integer id){
-        PurchRequisition purchRequisition = purchRequisitionService.findById(id);
+
+    @RequestMapping(value = "queryPurchRequisition", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<PurchRequisition> queryPurchRequisition(@RequestBody Map<String, Integer> map) {
+        PurchRequisition purchRequisition = purchRequisitionService.findById(map.get("id"), map.get("orderId"));
+        if (purchRequisition != null) {
+            purchRequisition.setProject(null);
+            purchRequisition.getGoodsList().iterator().next().setOrder(null);
+        }
         return new Result<>(purchRequisition);
     }
+
     /**
      * 采购申请单信息
      *
      * @return
      */
-    @RequestMapping(value = "addPurchDesc", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchDesc(@RequestParam(name = "id") Integer id) {
-        Project project = projectService.findDesc(id);
-        Map<String,Object> map = new HashMap<>();
-        map.put("pmUid",project.getManagerUid());
-     //   map.put("department",project.getOrder().getTechnicalIdDept());
-        map.put("transModeBn",project.getOrder().getTradeTerms());
-        map.put("goodList",project.getOrder().getGoodsList());
+    @RequestMapping(value = "addPurchDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) {
+        Project project = projectService.findDesc(proMap.get("proId"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("pmUid", project.getManagerUid());
+        //   map.put("department",project.getOrder().getTechnicalIdDept());
+        map.put("transModeBn", project.getOrder().getTradeTerms());
+        map.put("goodList", project.getOrder().getGoodsList());
         return new Result<>(map);
     }
+
     /**
      * 新增采购单
      *
