@@ -186,6 +186,7 @@ public class DeliverNoticeController {
         map.put("agentNameList",agentNameList);//商务技术经办人名字
         map.put("deliveryDateList",deliveryDateList);//执行单约定交付日期
         map.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
+        map.put("senderName",page.getSenderName());//下单人名称
 
         return new Result<>(map);
     }
