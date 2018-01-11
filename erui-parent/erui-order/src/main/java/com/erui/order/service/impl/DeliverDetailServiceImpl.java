@@ -244,7 +244,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
         if (page.hasContent()) {
-            page.getContent().parallelStream().forEach(notice -> {
+            for(DeliverDetail notice:page.getContent()){
                 List<String>  contractNos = new ArrayList<String>();    //销售合同号
                 Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
@@ -252,7 +252,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     contractNos.add(order.getContractNo());  //销售合同号
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
-            });
+            }
         }
 
         return page;
