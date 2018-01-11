@@ -22,8 +22,7 @@ import java.util.Map;
  * Created by wangxiaodan on 2017/12/12.
  */
 @RestController
-@RequestMapping("order/" +
-        "")
+@RequestMapping("order/purchRequestion")
 public class PurchRequisitionController {
     private final static Logger logger = LoggerFactory.getLogger(PurchRequisitionController.class);
 
