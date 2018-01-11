@@ -373,12 +373,23 @@ public class RequestCreditController {
         List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
         if (StringUtils.isNotBlank(companyName)) {
-            List<InquiryAreaVO> ll = list.parallelStream().filter(vo -> vo.getAreaName().equals(companyName))
-                    .collect(Collectors.toList());
-            if (ll.size() > 0) {
-                result.setData(ll.get(0).getCountries());
-            } else {
-                return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
+            if(!companyName.equals("全部")) {
+                List<InquiryAreaVO> ll = list.parallelStream().filter(vo -> vo.getAreaName().equals(companyName))
+                        .collect(Collectors.toList());
+                if (ll.size() > 0) {
+                    result.setData(ll.get(0).getCountries());
+                } else {
+                    return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
+                }
+            }else {
+               Set<String> countrys=new HashSet<>();
+                for (InquiryAreaVO areaVo:list) {
+                    Set<String> set = areaVo.getCountries();
+                    for (String country: set ) {
+                        countrys.add(country);
+                    }
+                }
+                result.setData(countrys);
             }
         } else {
             List<String> companyList = list.parallelStream().map(InquiryAreaVO::getAreaName).collect(Collectors.toList());
@@ -598,15 +609,15 @@ public class RequestCreditController {
         //区域应收账款明细
         List<Map<String, Object>> areaReceiveList = this.requestCreditService.selectReceiveGroupByArea(startDate, endDate);
         List<Map<String, Object>> areaBackList = receiveService.selectBackAmountGroupByArea(startDate, endDate);
-        Map<String, Object> areaResult = this.getOrderAmountDetail(areaReceiveList, areaBackList, 1);
+        Map<String, Object> areaResult = this.getOrderAmountDetail(startDate,endDate,areaReceiveList, areaBackList, 1);
         //主体公司应收账款明细
         List<Map<String, Object>> companyReceiveList = this.requestCreditService.selectReceiveGroupByCompany(startDate, endDate);
         List<Map<String, Object>> companyBackList = receiveService.selectBackAmountGroupByCompany(startDate, endDate);
-        Map<String, Object> companyResult = this.getOrderAmountDetail(companyReceiveList, companyBackList, 2);
+        Map<String, Object> companyResult = this.getOrderAmountDetail(startDate,endDate,companyReceiveList, companyBackList, 2);
         //主体公司应收账款明细
         List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(startDate, endDate);
         List<Map<String, Object>> orgpanyBackList = receiveService.selectBackAmountGroupByOrg(startDate, endDate);
-        Map<String, Object> orgResult = this.getOrderAmountDetail(orgReceiveList, orgpanyBackList, 3);
+        Map<String, Object> orgResult = this.getOrderAmountDetail(startDate,endDate,orgReceiveList, orgpanyBackList, 3);
         Map<String, Object> data = new HashMap<>();
         data.put("area", areaResult);
         data.put("company", companyResult);
@@ -620,7 +631,10 @@ public class RequestCreditController {
      * @Date:14:41 2017/12/20
      * @modified By
      */
-    private Map<String, Object> getOrderAmountDetail(List<Map<String, Object>> receiveList, List<Map<String, Object>> backList, int type) {
+    private Map<String, Object> getOrderAmountDetail(Date startTime,Date endTime,List<Map<String, Object>> receiveList, List<Map<String, Object>> backList, int type) {
+        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
+        double totalAmount = receive + backAmount;
         List<String> areas = new ArrayList<>();
         List<Double> areaAmounts = new ArrayList<>();
         if (receiveList != null && receiveList.size() > 0) {
@@ -710,17 +724,30 @@ public class RequestCreditController {
                     }
                 }
         }
+
+        //占比
+        List<Double> proportions=new ArrayList<>();
+        if(areaAmounts!=null&&areaAmounts.size()>0){
+            for (Double amount:areaAmounts) {
+                if(totalAmount>0){
+                    proportions.add(RateUtil.doubleChainRateTwo(amount,totalAmount));
+                }
+            }
+        }
         //封装结果
         Map<String, Object> dataResult = new HashMap<>();
         if (type == 1) {
             dataResult.put("areaAmount", areaAmounts);
             dataResult.put("area", areas);
+            dataResult.put("areaProportion", proportions);
         } else if (type == 2) {
             dataResult.put("companyAmount", areaAmounts);
             dataResult.put("company", areas);
+            dataResult.put("companyProportion", proportions);
         } else if (type == 3) {
             dataResult.put("busUnitAmount", areaAmounts);
             dataResult.put("busUnit", areas);
+            dataResult.put("busUnitProportion", proportions);
         }
         return dataResult;
     }
