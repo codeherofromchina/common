@@ -437,7 +437,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setRemarks(deliverDetail.getRemarks());
         }
         //实际创建时间
-            if (deliverDetail.getStatus() == 6) {
+            if (deliverDetail.getStatus() == 4) {
                 one.setAccomplishDate(new Date());
             }
         // 只接受国际物流部的附件
