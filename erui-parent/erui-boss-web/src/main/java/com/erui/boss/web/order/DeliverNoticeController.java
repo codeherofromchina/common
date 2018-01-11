@@ -38,8 +38,12 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "lookMoneyInformManage")
     public Result<Object> lookMoneyInformManage(@RequestBody DeliverNotice condition) {
-        Page<DeliverNotice> page = deliverNoticeService.listByPage(condition);
-        return new Result<>(page);
+        int page = condition.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
+        Page<DeliverNotice> pageList = deliverNoticeService.listByPage(condition);
+        return new Result<>(pageList);
     }
 
     /**
