@@ -163,20 +163,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
         if (page.hasContent()) {
-            page.getContent().parallelStream().forEach(notice -> {
+            for(DeliverDetail notice : page.getContent()){
                 List<String>  contractNos = new ArrayList<String>();    //销售合同号
                 List<String>  projectNos = new ArrayList<String>();     //项目号
                 Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
                     Order order = deliverConsign.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
-                    if(order.getProject().getProjectNo() != null){
                         projectNos.add(order.getProject().getProjectNo()); //项目号
-                    }
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
                 notice.setProjectNo(StringUtils.join(projectNos,","));
-            });
+            }
         }
 
         return page;
@@ -253,7 +251,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     contractNos.add(order.getContractNo());  //销售合同号
                 }
                 notice.setContractNo(StringUtils.join(contractNos,","));
-                notice.setDeliverConsignGoodsList(null);
             });
         }
 

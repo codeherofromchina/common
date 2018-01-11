@@ -39,7 +39,6 @@ public class PurchGoods {
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
-    @JsonIgnore
     private Goods goods;
     /**
      * 商品ID

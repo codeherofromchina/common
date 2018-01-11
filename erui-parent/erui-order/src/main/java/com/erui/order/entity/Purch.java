@@ -126,7 +126,7 @@ public class Purch {
     private String projectNos;
     // 分页信息参数
     @Transient
-    private int page = 0; // 默认从0开始
+    private int page = 1; // 默认从1开始
     @Transient
     private int rows = 20; // 默认每页20条记录
 
@@ -455,7 +455,7 @@ public class Purch {
      * 采购状态枚举
      */
     public static enum StatusEnum {
-        READY(0, "未进行"), BEING(1, "进行中"), DONE(2, "已完成");
+        READY(1, "未进行"), BEING(2, "进行中"), DONE(3, "已完成");
 
         private int code;
         private String msg;

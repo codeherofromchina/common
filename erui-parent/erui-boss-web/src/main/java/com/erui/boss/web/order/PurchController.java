@@ -35,6 +35,10 @@ public class PurchController {
      */
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> list(@RequestBody Purch condition) {
+        int page = condition.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
         Page<Purch> purchPage = purchService.findByPage(condition);
         // 转换为控制层需要的数据
         if (purchPage.hasContent()) {
@@ -98,12 +102,15 @@ public class PurchController {
     /**
      * 获取采购详情信息
      *
-     * @param id 采购ID
+     * @param purch {id:采购ID}
      * @return
      */
-    @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
-        Purch data = purchService.findDetailInfo(id);
+    @RequestMapping(value = "detail", method = RequestMethod.POST ,produces = {"application/json;charset=utf-8"})
+    public Result<Object> detail(@RequestBody Purch purch) {
+        if (purch == null || purch.getId() == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Purch data = purchService.findDetailInfo(purch.getId());
         if (data != null) {
             return new Result<>(data);
         }
@@ -115,12 +122,15 @@ public class PurchController {
     /**
      * 为添加报检单而获取采购信息
      *
-     * @param purchId 采购ID
+     * @param params {purchId:采购ID}
      * @return
      */
-    @RequestMapping("getInfoForInspectApply")
-    public Result<Object> getInfoForInspectApply(@RequestParam(name = "purchId", required = true) Integer purchId) {
-        Purch purch = purchService.findPurchAndGoodsInfo(purchId);
+    @RequestMapping(value = "getInfoForInspectApply", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> getInfoForInspectApply(@RequestBody Map<String, Integer> params) {
+        if (params.get("purchId") == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Purch purch = purchService.findPurchAndGoodsInfo(params.get("purchId"));
 
         // 只有进行中的采购才可以新增报检单信息
         if (purch != null && purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
@@ -134,31 +144,31 @@ public class PurchController {
             data.put("department", purch.getDepartment()); // 下发部门
 
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
-            List<Map<String,Object>> list = purchGoodsList.stream().filter(vo -> {
+            List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
                 // 只要已报检数量小于采购数量的商品显示
                 return vo.getInspectNum() < vo.getPurchaseNum();
             }).map(vo -> {
-                Map<String,Object> map = new HashMap<>();
+                Map<String, Object> map = new HashMap<>();
                 Goods goods = vo.getGoods();
 
-                map.put("id",goods.getId());
-                map.put("purchGid",vo.getId());
-                map.put("contractNo",goods.getContractNo());
-                map.put("projectNo",goods.getProjectNo());
-                map.put("sku",goods.getSku());
-                map.put("proType",goods.getProType());
-                map.put("nameEn",goods.getNameEn());
-                map.put("nameZh",goods.getNameZh());
-                map.put("brand",goods.getBrand());
-                map.put("model",goods.getModel());
-                map.put("purchaseNum",vo.getPurchaseNum());
-                map.put("hasInspectNum",vo.getInspectNum());
-                map.put("inspectNum",vo.getPurchaseNum() - vo.getInspectNum()); // 报检数量
-                map.put("unit",goods.getUnit());
-                map.put("nonTaxPrice",vo.getNonTaxPrice());
-                map.put("taxPrice",vo.getTaxPrice());
-                map.put("totalPrice",vo.getTotalPrice());
-                map.put("purchaseRemark",vo.getPurchaseRemark());
+                map.put("id", goods.getId());
+                map.put("purchGid", vo.getId());
+                map.put("contractNo", goods.getContractNo());
+                map.put("projectNo", goods.getProjectNo());
+                map.put("sku", goods.getSku());
+                map.put("proType", goods.getProType());
+                map.put("nameEn", goods.getNameEn());
+                map.put("nameZh", goods.getNameZh());
+                map.put("brand", goods.getBrand());
+                map.put("model", goods.getModel());
+                map.put("purchaseNum", vo.getPurchaseNum());
+                map.put("hasInspectNum", vo.getInspectNum());
+                map.put("inspectNum", vo.getPurchaseNum() - vo.getInspectNum()); // 报检数量
+                map.put("unit", goods.getUnit());
+                map.put("nonTaxPrice", vo.getNonTaxPrice());
+                map.put("taxPrice", vo.getTaxPrice());
+                map.put("totalPrice", vo.getTotalPrice());
+                map.put("purchaseRemark", vo.getPurchaseRemark());
 
                 return map;
             }).collect(Collectors.toList());
