@@ -45,7 +45,7 @@ public class DeliverConsign {
     private Date bookingDate;
     private Integer status;
     @Column(name = "deliver_yn")
-    private Integer deliverYn;  //是否已发货
+    private Integer deliverYn =1;  //是否已发货      1:未发货  2：已发货
     @Column(name = "create_user_id")
     private Integer createUserId;
     @Column(name = "create_time")

@@ -247,6 +247,9 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 if(deliverNotice.getSenderId() != null){
                     one.setSenderId(deliverNotice.getSenderId());
                 }
+                if(deliverNotice.getSenderName() != null){
+                    one.setSenderName(deliverNotice.getSenderName());
+                }
                 if(StringUtil.isNotBlank(deliverNotice.getSenderName())){
                     one.setSenderName(deliverNotice.getSenderName());
                 }

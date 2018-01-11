@@ -40,6 +40,10 @@ public class DeliverDetailwController {
      */
     @RequestMapping(value = "logisticsTraceManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> logisticsTraceManage(@RequestBody DeliverW deliverW){
+        int page = deliverW.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
         Page<DeliverDetail> deliverDetail=deliverDetailService.logisticsTraceManage(deliverW);
         return new Result<>(deliverDetail);
     }
