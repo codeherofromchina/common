@@ -55,4 +55,10 @@ public interface ProjectService {
      * @return
      */
     Project findDesc(Integer id);
+    /**
+     * 根据项目ID和订单id查找项目列表
+     * @param
+     * @return
+     */
+    Project findByIdOrOrderId(Integer id,Integer orderId);
 }

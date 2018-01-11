@@ -12,7 +12,7 @@ public interface PurchRequisitionService {
      * @param id
      * @return
      */
-    PurchRequisition findById(Integer id);
+    PurchRequisition findById(Integer id,Integer orderId);
 
     boolean updatePurchRequisition(PurchRequisition purchRequisition);
 

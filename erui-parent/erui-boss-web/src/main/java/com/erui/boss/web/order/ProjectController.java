@@ -58,7 +58,9 @@ public class ProjectController {
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
         Page<Project> projectPage = projectService.findByPage(condition);
         for (Project project:projectPage) {
-            project.setOrder(null);
+          /*  project.getOrder().setAttachmentSet(null);
+            project.getOrder().setOrderPayments(null);
+            project.getOrder().setGoodsList(null);*/
           //  project.setPurchRequisition(null);
         }
         /*if (projectPage.hasContent()){
@@ -110,6 +112,16 @@ public class ProjectController {
     @RequestMapping(value = "queryProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Project> queryProject(@RequestBody Map<String,Integer> map) {
         Project project = projectService.findDesc(map.get("id"));
+        return new Result<>(project);
+    }
+    /**
+     * 根据订单id或者项目id获取项目详情
+     *@param map
+     * @return
+     */
+    @RequestMapping(value = "queryByIdOrOrderId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Project> queryByIdOrOrderId(@RequestBody Map<String,Integer> map) {
+        Project project = projectService.findByIdOrOrderId(map.get("id"),map.get("orderId"));
         return new Result<>(project);
     }
 }

@@ -34,13 +34,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional
     @Override
-    public PurchRequisition findById(Integer id) {
-        PurchRequisition purchRequisition = purchRequisitionDao.findOne(id);
+    public PurchRequisition findById(Integer id,Integer orderId) {
+        PurchRequisition purchRequisition = purchRequisitionDao.findByIdOrOrderId(id,orderId);
         if (purchRequisition != null) {
             purchRequisition.getGoodsList().size();
             purchRequisition.getAttachmentSet().size();
-            purchRequisition.setProject(null);
-            purchRequisition.getGoodsList().iterator().next().setOrder(null);
         }
         return purchRequisition;
     }
@@ -65,21 +63,23 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionUpdate.setRequirements(purchRequisition.getRequirements());
         purchRequisitionUpdate.setRemarks(purchRequisition.getRemarks());
         purchRequisitionUpdate.setAttachmentSet(purchRequisition.getAttachmentSet());
-        purchRequisitionUpdate.setGoodsList(purchRequisition.getGoodsList());
-        Map<Integer, Goods> goodList = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        purchRequisition.getGoodsList().parallelStream().forEach(dcGoods -> {
+        ArrayList<Goods> list = new ArrayList<>();
+        Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
             Integer gid = dcGoods.getId();
-            Goods goods = goodList.get(gid);
-            goods.setCheckType(dcGoods.getCheckType());
+            Goods goods = goodsMap.get(gid);
             goods.setCheckMethod(dcGoods.getCheckMethod());
+            goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
             goods.setRequirePurchaseDate(dcGoods.getRequirePurchaseDate());
             goods.setTechAudit(dcGoods.getTechAudit());
             goods.setTechRequire(dcGoods.getTechRequire());
+            goodsDao.save(goods);
+            list.add(goods);
         });
+        purchRequisitionUpdate.setGoodsList(list);
         purchRequisitionUpdate.setStatus(purchRequisition.getStatus());
-        goodsDao.flush();
-        purchRequisitionDao.flush();
+        purchRequisitionDao.save(purchRequisitionUpdate);
         return true;
     }
 
@@ -91,7 +91,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project.getOrder().getGoodsList().size();
         }
         PurchRequisition purchRequisitionAdd = new PurchRequisition();
-        purchRequisitionAdd.setContractNo(purchRequisition.getContractNo());
+        purchRequisitionAdd.setContractNo(project.getContractNo());
+        purchRequisitionAdd.setOrderId(project.getOrder().getId());
         purchRequisitionAdd.setProject(project);
         purchRequisitionAdd.setDepartment(project.getOrder().getTechnicalId());
         purchRequisitionAdd.setPmUid(project.getManagerUid());
@@ -103,7 +104,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
         purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
-        //purchRequisitionAdd.setGoodsList(purchRequisition.getGoodsList());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
