@@ -46,10 +46,8 @@ public class PurchController {
                 vo.setAttachments(null);
                 vo.setPurchPaymentList(null);
                 vo.setPurchGoodsList(null);
-
                 List<String> projectNoList = new ArrayList<>();
                 List<String> contractNoList = new ArrayList<>();
-
                 vo.getProjects().stream().forEach(project -> {
                     projectNoList.add(project.getProjectNo());
                     contractNoList.add(project.getContractNo());
@@ -70,7 +68,6 @@ public class PurchController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Purch purch) {
-
         boolean continueFlag = true;
         // 状态检查
         Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
@@ -150,7 +147,6 @@ public class PurchController {
             }).map(vo -> {
                 Map<String, Object> map = new HashMap<>();
                 Goods goods = vo.getGoods();
-
                 map.put("id", goods.getId());
                 map.put("purchGid", vo.getId());
                 map.put("contractNo", goods.getContractNo());

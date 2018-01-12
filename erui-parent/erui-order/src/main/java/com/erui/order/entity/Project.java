@@ -431,14 +431,14 @@ public class Project {
     public static enum projectStatusEnum {
         SUBMIT(1, "未执行"), EXECUTING(2, "正常执行"), DONE(3, "正常完成"), DELAYED_EXECUTION(4, "延期执行"), DELAYED_COMPLETE(5, "延期完成"), UNSHIPPED(6, "正常待发运"),
         DELAYED_UNSHIPPED(7, "延期待发运"), PAUSE(8, "项目暂停"), CANCEL(9, "项目取消");
-        private int code;
+        private Integer code;
         private String msg;
 
-        projectStatusEnum(int code, String msg) {
+        projectStatusEnum(Integer code, String msg) {
             this.code = code;
             this.msg = msg;
         }
-        public int getCode() {
+        public Integer getCode() {
             return code;
         }
 
