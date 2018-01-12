@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,24 +49,26 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "orderInfoForAdd", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderInfoForAdd(@RequestBody Map<String,Integer> map) {
-        Order order = orderService.detail(map.get("orderId"));
-        Map<String, Object> data = new HashMap<>();
-        data.put("orderId", order.getId());
-        data.put("deptId", order.getExecCoId());
-        data.put("deptName", order.getExecCoName());
-        data.put("createUserId", order.getAgentId());
-        data.put("coId", order.getSigningCo());
-        //    data.put("coName",order.getId());
-        data.put("goodsList", order.getGoodsList());
-        return new Result<>(data);
+    public Result<Object> orderInfoForAdd(@RequestBody Map<String, Integer> map) {
+        if (map.get("orderId")!=null){
+            Order order = orderService.detail(map.get("orderId"));
+            Map<String, Object> data = new HashMap<>();
+            data.put("orderId", order.getId());
+            data.put("deptId", order.getExecCoId());
+            data.put("deptName", order.getExecCoName());
+            data.put("createUserId", order.getAgentId());
+            data.put("coId", order.getSigningCo());
+            //    data.put("coName",order.getId());
+            data.put("goodsList", order.getGoodsList());
+            return new Result<>(data);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
     /**
      * 新增办理出口发货单
      *
      * @param deliverConsign
-     *
      * @return
      */
     @RequestMapping(value = "addDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -86,24 +89,33 @@ public class DeliverConsignController {
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }
+
     /**
      * 获取出口发货单详情
      *
      * @return
      */
     @RequestMapping(value = "queryDeliverConsignDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<DeliverConsign> queryOrderDesc(@RequestBody Map<String,Integer> map) {
-        DeliverConsign deliverConsign = deliverConsignService.findById(map.get("id"));
-        return new Result<>(deliverConsign);
+    public Result<DeliverConsign> queryOrderDesc(@RequestBody Map<String, Integer> map) {
+        if (map.get("id") != null) {
+            DeliverConsign deliverConsign = deliverConsignService.findById(map.get("id"));
+            return new Result<>(deliverConsign);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
+
     /**
      * 获取出口发货单列表
-     *@param map
+     *
+     * @param map
      * @return
      */
     @RequestMapping(value = "queryExportList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<List<DeliverConsign> > queryExportList(@RequestBody Map<String,Integer> map) {
-        List<DeliverConsign> deliverList = deliverConsignService.findByOrderId(map.get("orderId"));
-        return new Result<>(deliverList);
+    public Result<List<DeliverConsign>> queryExportList(@RequestBody Map<String, Integer> map) {
+        if (map.get("orderId") != null) {
+            List<DeliverConsign> deliverList = deliverConsignService.findByOrderId(map.get("orderId"));
+            return new Result<>(deliverList);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 }

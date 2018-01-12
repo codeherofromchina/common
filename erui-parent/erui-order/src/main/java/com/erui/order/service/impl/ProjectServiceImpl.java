@@ -56,6 +56,9 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
         project.copyProjectDesc(projectUpdate);
+        if (project.getProjectStatus() == Project.projectStatusEnum.EXECUTING.getCode().toString()){
+
+        }
         projectUpdate.setProjectStatus(project.getProjectStatus());
         projectUpdate.setUpdateTime(new Date());
         projectDao.saveAndFlush(projectUpdate);
