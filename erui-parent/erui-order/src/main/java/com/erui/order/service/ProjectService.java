@@ -48,7 +48,7 @@ public interface ProjectService {
      *
      * @return
      */
-    List<Project> purchAbleList();
+    List<Project> purchAbleList(List<String> projectNoList);
     /**
      * 根据id查询项目信息
      * @param id

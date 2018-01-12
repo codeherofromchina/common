@@ -2,12 +2,9 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.AttachmentDao;
 import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
-import com.erui.order.service.AttachmentService;
 import com.erui.order.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +20,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -33,6 +31,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectDao projectDao;
+
     @Transactional
     @Override
     public Project findById(Integer id) {
@@ -116,7 +115,7 @@ public class ProjectServiceImpl implements ProjectService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-        for (Project project:pageList){
+        for (Project project : pageList) {
             project.setoId(project.getOrder().getId());
         }
         return pageList;
@@ -124,10 +123,21 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public List<Project> purchAbleList() {
+    public List<Project> purchAbleList(List<String> projectNoList) {
         List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         if (list == null) {
             list = new ArrayList<>();
+        } else if (list != null && projectNoList != null) {
+            // TODO 省略数据库查询，先用程序过滤
+            list = list.stream().filter(project -> {
+                String projectNo = project.getProjectNo();
+                for (String pStr : projectNoList) {
+                    if (projectNo.contains(pStr)) {
+                        return true;
+                    }
+                }
+                return false;
+            }).collect(Collectors.toList());
         }
         return list;
     }

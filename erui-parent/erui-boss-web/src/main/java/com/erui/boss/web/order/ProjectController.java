@@ -5,6 +5,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,21 @@ public class ProjectController {
 
     /**
      * 可以采购的项目列表
+     * @param params {projectNos:"项目号列表"}
      *
      * @return
      */
-    @RequestMapping(value = "purchAbleList", method = RequestMethod.POST)
-    public Result<Object> purchAbleList() {
+    @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> purchAbleList(@RequestBody Map<String,String> params) {
+        String projectNos = params.get("projectNos");
+        List<String> projectNoList = null;
+        if (StringUtils.isNotBlank(projectNos)) {
+            String[] split = projectNos.split(",");
+            projectNoList = Arrays.asList(split);
+        }
 
-        List<Project> projectList = projectService.purchAbleList();
+
+        List<Project> projectList = projectService.purchAbleList(projectNoList);
 
         List<Map<String, Object>> data = projectList.stream().map(project -> {
             Map<String, Object> map = new HashMap<>();
@@ -54,7 +63,6 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "projectManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    @ResponseBody
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
         Page<Project> projectPage = projectService.findByPage(condition);
         for (Project project:projectPage) {
