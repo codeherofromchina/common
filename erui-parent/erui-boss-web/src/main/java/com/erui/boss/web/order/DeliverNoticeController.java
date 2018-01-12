@@ -62,7 +62,7 @@ public class DeliverNoticeController {
         List<DeliverConsign> list= deliverConsignService.querExitInformMessage(intTemp);
             Map<String,Object> data = new HashMap<>();
             List<Goods> goodsList = new ArrayList<>();  //商品信息
-            List<String> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
+            List<DeliverConsign> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
             List<String> tradeTermsList = new ArrayList<>();  //贸易术语
             List<String> toPlaceList = new ArrayList<>();  //目的地
             List<String>  transportTypeList = new ArrayList<>();  //运输方式
@@ -71,7 +71,10 @@ public class DeliverNoticeController {
             List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
             for (DeliverConsign deliverConsign : list){
-                deliverConsignNoList.add(deliverConsign.getDeliverConsignNo());
+                DeliverConsign deliverConsignS = new DeliverConsign();
+                deliverConsignS.setId(deliverConsign.getId());
+                deliverConsignS.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
+                deliverConsignNoList.add(deliverConsignS);
                 Set<Attachment> attachmentSet = deliverConsign.getAttachmentSet();
                 for (Attachment attachment : attachmentSet){
                     dcAttachmentSetList.add(attachment);//出口通知单附件
@@ -141,7 +144,7 @@ public class DeliverNoticeController {
         DeliverNotice page = deliverNoticeService.exitRequisitionQuery(deliverNotice.getId());
 
         List<Goods> goodsList = new ArrayList<>();  //商品信息
-        List<String> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
+        List<DeliverConsign> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
         List<String> tradeTermsList = new ArrayList<>();  //贸易术语
         List<String> toPlaceList = new ArrayList<>();  //目的地
         List<String>  transportTypeList = new ArrayList<>();  //运输方式
@@ -155,7 +158,10 @@ public class DeliverNoticeController {
             for (Attachment attachment : attachmentSet){
                 dcAttachmentSetList.add(attachment);//出口通知单附件
             }
-            deliverConsignNoList.add(deliverConsign.getDeliverConsignNo());
+            DeliverConsign deliverConsignS = new DeliverConsign();
+            deliverConsignS.setId(deliverConsign.getId());
+            deliverConsignS.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
+            deliverConsignNoList.add(deliverConsignS);
             Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                     Goods goods = deliverConsignGoods.getGoods();
