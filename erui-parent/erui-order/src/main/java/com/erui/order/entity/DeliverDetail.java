@@ -126,7 +126,7 @@ public class DeliverDetail {
     private Integer logisticsUserId;    //物流经办人
 
     @Column(name = "logistics_user_name")
-    private Integer logisticsUserName;    //物流经办人名称
+    private String logisticsUserName;    //物流经办人名称
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "logistics_date")
@@ -232,11 +232,11 @@ public class DeliverDetail {
         this.carrierCo = carrierCo;
     }
 
-    public Integer getLogisticsUserName() {
+    public String getLogisticsUserName() {
         return logisticsUserName;
     }
 
-    public void setLogisticsUserName(Integer logisticsUserName) {
+    public void setLogisticsUserName(String logisticsUserName) {
         this.logisticsUserName = logisticsUserName;
     }
 
