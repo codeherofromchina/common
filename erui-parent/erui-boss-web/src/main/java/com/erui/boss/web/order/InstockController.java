@@ -85,12 +85,15 @@ public class InstockController {
     /**
      * 入库详情信息
      *
-     * @param id 入库信息ID
+     * @param instocks 入库信息ID
      * @return
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id") Integer id) {
-        Instock instock = instockService.detail(id);
+    public Result<Object> detail(@RequestBody Instock instocks) {
+        if(instocks == null || instocks.getId() == null){
+            return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
+        }
+        Instock instock = instockService.detail(instocks.getId());
         if (instock == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
