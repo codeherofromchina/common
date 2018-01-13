@@ -76,6 +76,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         // 基本信息设置
         inspectApply.setInspectApplyNo(RandomStringUtils.randomAlphanumeric(32));
+        inspectApply.setDepartment(purch.getDepartment()); // 下发部门
+        inspectApply.setPurchaseName(purch.getAgentName()); // 采购经办人
+        inspectApply.setSupplierName(purch.getSupplierName()); // 采购商
         inspectApply.setPurch(purch);
         inspectApply.setPurchNo(purch.getPurchNo());
         inspectApply.setMaster(true);
@@ -166,9 +169,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
 
         // 处理基本信息
-        dbInspectApply.setDepartment(inspectApply.getDepartment());
-        dbInspectApply.setPurchaseName(inspectApply.getPurchaseName());
-        dbInspectApply.setSupplierName(inspectApply.getSupplierName());
+        //dbInspectApply.setDepartment(inspectApply.getDepartment());
+        //dbInspectApply.setPurchaseName(inspectApply.getPurchaseName());
+        //dbInspectApply.setSupplierName(inspectApply.getSupplierName());
         dbInspectApply.setAbroadCoName(inspectApply.getAbroadCoName());
         dbInspectApply.setInspectDate(inspectApply.getInspectDate());
         dbInspectApply.setDirect(inspectApply.getDirect() != null ? inspectApply.getDirect().booleanValue() : false);
