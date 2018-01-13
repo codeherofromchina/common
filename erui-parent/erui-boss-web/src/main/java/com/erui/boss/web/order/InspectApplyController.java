@@ -39,6 +39,9 @@ public class InspectApplyController {
      */
     @RequestMapping("listByParch")
     public Result<Object> listByParch(@RequestBody InspectApply inspectApply) {
+        if(inspectApply == null || inspectApply.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(inspectApply.getId());
         if (inspectApplyList != null) {
             // 转换数据
@@ -60,6 +63,9 @@ public class InspectApplyController {
      */
     @RequestMapping("detail")
     public Result<Object> detail(@RequestBody InspectApply inspectApplys) {
+        if(inspectApplys == null || inspectApplys.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         InspectApply inspectApply = inspectApplyService.findDetail(inspectApplys.getId());
         if (inspectApply != null) {
             // 数据转换
@@ -119,6 +125,9 @@ public class InspectApplyController {
      */
     @RequestMapping("history")
     public Result<Object> history(@RequestBody InspectApply inspectApply) {
+        if(inspectApply == null || inspectApply.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         // 查询多次相同报检提交的报检单
         InspectApply masterInspectApply = inspectApplyService.findById(inspectApply.getId());
         if (masterInspectApply != null && masterInspectApply.isMaster()) {

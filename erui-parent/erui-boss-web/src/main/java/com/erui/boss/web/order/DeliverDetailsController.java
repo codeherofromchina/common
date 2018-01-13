@@ -63,6 +63,9 @@ public class DeliverDetailsController {
 
     @RequestMapping(value = "outboundDetailsPage", method = RequestMethod.POST)
     public Result<Object> outboundDetailsPage(@RequestBody DeliverDetail deliverDetails){
+        if(deliverDetails == null || deliverDetails.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         DeliverDetail deliverDetail = deliverDetailService.findDetailById(deliverDetails.getId());
         Map<String, Object> data = new HashMap<>();
         // 出库基本信息
@@ -114,6 +117,9 @@ public class DeliverDetailsController {
 
     @RequestMapping(value = "outboundDetails", method = RequestMethod.POST)
     public Result<Object> outboundDetails(@RequestBody DeliverDetail deliverDetails){
+        if(deliverDetails == null || deliverDetails.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         DeliverDetail deliverDetail = deliverDetailService.findDetailById(deliverDetails.getId());
         Map<String, Object> data = new HashMap<>();
         // 出库基本信息

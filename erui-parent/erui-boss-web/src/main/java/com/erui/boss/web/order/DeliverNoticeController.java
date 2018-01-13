@@ -141,6 +141,9 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "exitRequisitionQuery", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> exitRequisitionQuery(@RequestBody DeliverNotice deliverNotice) {
+        if(deliverNotice == null || deliverNotice.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         DeliverNotice page = deliverNoticeService.exitRequisitionQuery(deliverNotice.getId());
 
         List<Goods> goodsList = new ArrayList<>();  //商品信息

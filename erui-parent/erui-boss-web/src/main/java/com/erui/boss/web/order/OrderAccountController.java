@@ -2,6 +2,7 @@ package com.erui.boss.web.order;
 
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
 import com.erui.order.requestVo.OrderAcciuntAdd;
@@ -52,6 +53,9 @@ public class OrderAccountController {
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+        if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         orderAccountService.delGatheringRecord(orderAcciuntAdd.getId());
         return new Result<>();
     }
@@ -64,6 +68,9 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "addGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+        if(orderAcciuntAdd == null ){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         OrderAccount orderAccount = new OrderAccount();
         Order order = new Order();
         order.setId(orderAcciuntAdd.getOrderId());
@@ -86,6 +93,9 @@ public class OrderAccountController {
      */
     @RequestMapping(value="findById", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> findById(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+        if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         OrderAccount orderAccount = orderAccountService.findById(orderAcciuntAdd.getId());
         orderAccount.setOrder(null);
         return new Result<>(orderAccount);
@@ -110,6 +120,9 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "endGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount){
+        if(orderAccount == null || orderAccount.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         orderAccountService.endGatheringRecord(orderAccount.getId());
         return new Result<>();
     }
@@ -122,6 +135,9 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "gatheringMessage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> gatheringMessage(Order order){
+        if(order == null || order.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
        Order orderbyId= orderAccountService.gatheringMessage(order.getId());
         return new Result<>(orderbyId);
     }

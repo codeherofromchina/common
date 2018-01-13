@@ -57,6 +57,9 @@ public class DeliverDetailwController {
      */
     @RequestMapping(value = "logisticsMoveFollow", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> logisticsMoveFollow(@RequestBody DeliverW deliverW){
+        if(deliverW == null || deliverW.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         DeliverDetail deliverDetail =deliverDetailService.logisticsMoveFollow(deliverW.getId());
         if (deliverDetail == null) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -150,6 +153,9 @@ public class DeliverDetailwController {
      */
     @RequestMapping(value = "queryLogisticsTrace", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryLogisticsTrace(@RequestBody DeliverW deliverW){
+        if(deliverW == null || deliverW.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
         DeliverDetail deliverDetail =deliverDetailService.queryLogisticsTrace(deliverW.getId());
 
             if(deliverDetail!=null){
