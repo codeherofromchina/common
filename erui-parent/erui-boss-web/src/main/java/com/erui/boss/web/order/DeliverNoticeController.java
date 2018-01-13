@@ -205,13 +205,16 @@ public class DeliverNoticeController {
      * @return
      */
     @RequestMapping(value = "queryExitAdvice")
-    public Result<Object> queryExitAdvice() {
-        List<DeliverConsign> list =deliverConsignService.queryExitAdvice();
-        list.parallelStream().forEach( v -> {
+    public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
+        List<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice.getId());
+        if(list != null){
+            list.parallelStream().forEach( v -> {
                 v.setAttachmentSet(null);
                 v.setDeliverConsignGoodsSet(null);
-        });
-        return new Result<>(list);
+            });
+            return new Result<>(list);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
 

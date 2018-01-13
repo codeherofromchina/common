@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.dao.DeliverConsignDao;
+import com.erui.order.dao.DeliverNoticeDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.*;
@@ -30,6 +31,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private GoodsDao goodsDao;
+
+    @Autowired
+    private DeliverNoticeDao deliverNoticeDao;
 
     @Transactional
     @Override
@@ -169,9 +173,27 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * @return
      */
     @Override
-    public List<DeliverConsign> queryExitAdvice() {
-        List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);
-        return lsit;
+    public List<DeliverConsign> queryExitAdvice(Integer id) {
+        if(id == null){
+            List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);
+            return lsit;
+        }else{
+            List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);  //获取未选择
+            DeliverNotice one = deliverNoticeDao.findOne(id);
+            Set<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
+            Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
+            int i=0;
+            for (DeliverConsign deliverConsign :deliverConsigns){
+                arr[i]=(deliverConsign.getId());
+                i++;
+            }
+            List<DeliverConsign> lists= deliverConsignDao.findByIdIn(arr);
+            for (DeliverConsign deliverConsign :lists){
+                lsit.add(deliverConsign);
+            }
+            return lsit;
+        }
+
     }
 
 

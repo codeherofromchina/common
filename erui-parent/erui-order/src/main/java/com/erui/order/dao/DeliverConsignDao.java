@@ -1,11 +1,8 @@
 package com.erui.order.dao;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.DeliverConsign;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,4 +18,5 @@ public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Seriali
 
     List<DeliverConsign> findByStatusAndDeliverYn(int i, int i1);
 
+    List<DeliverConsign> findByIdIn(Integer[] arr);
 }
