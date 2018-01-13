@@ -34,12 +34,12 @@ public class InspectApplyController {
     /**
      * 获取采购纬度的报检单信息列表
      *
-     * @param parchId 采购ID
+     * @param inspectApply 采购ID
      * @return
      */
     @RequestMapping("listByParch")
-    public Result<Object> listByParch(@RequestParam(name = "parchId", required = true) Integer parchId) {
-        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(parchId);
+    public Result<Object> listByParch(@RequestBody InspectApply inspectApply) {
+        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(inspectApply.getId());
         if (inspectApplyList != null) {
             // 转换数据
             List<Map<String, Object>> data = inspectApplyList.stream().map(vo -> {
@@ -55,12 +55,12 @@ public class InspectApplyController {
     /**
      * 获取报检单信息详情
      *
-     * @param id 报检单ID
+     * @param inspectApplys 报检单ID
      * @return
      */
     @RequestMapping("detail")
-    public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
-        InspectApply inspectApply = inspectApplyService.findDetail(id);
+    public Result<Object> detail(@RequestBody InspectApply inspectApplys) {
+        InspectApply inspectApply = inspectApplyService.findDetail(inspectApplys.getId());
         if (inspectApply != null) {
             // 数据转换
             Map<String, Object> data = new HashMap<>();
@@ -114,13 +114,13 @@ public class InspectApplyController {
     /**
      * 到货报检单历史记录
      *
-     * @param id 报检单ID
+     * @param inspectApply 报检单ID
      * @return
      */
     @RequestMapping("history")
-    public Result<Object> history(@RequestParam(name = "id", required = true) Integer id) {
+    public Result<Object> history(@RequestBody InspectApply inspectApply) {
         // 查询多次相同报检提交的报检单
-        InspectApply masterInspectApply = inspectApplyService.findById(id);
+        InspectApply masterInspectApply = inspectApplyService.findById(inspectApply.getId());
         if (masterInspectApply != null && masterInspectApply.isMaster()) {
 
             List<InspectApply> list = inspectApplyService.findByParentId(masterInspectApply.getId());
