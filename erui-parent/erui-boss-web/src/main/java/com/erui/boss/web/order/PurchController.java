@@ -28,6 +28,33 @@ public class PurchController {
     @Autowired
     private ProjectService projectService;
 
+
+    /**
+     * 根据订单id查询(进行中/已完成)采购列表
+     *
+     * @param params {orderId:"订单ID"}
+     * @return
+     */
+    @RequestMapping(value = "listByOrderId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> listByOrderId(@RequestBody Map<String, Integer> params) {
+
+        List<Map<String, Object>> data = null;
+        Integer orderId = params.get("orderId");
+        if (orderId != null && orderId > 0) {
+            try {
+                data = purchService.listByOrderId(orderId);
+            } catch (Exception e) {
+                logger.error("错误", e);
+                return new Result<>(ResultStatusEnum.FAIL);
+            }
+        } else {
+            data = new ArrayList<>();
+        }
+
+
+        return new Result<>(data);
+    }
+
     /**
      * 获取采购单列表
      *
@@ -102,7 +129,7 @@ public class PurchController {
      * @param purch {id:采购ID}
      * @return
      */
-    @RequestMapping(value = "detail", method = RequestMethod.POST ,produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> detail(@RequestBody Purch purch) {
         if (purch == null || purch.getId() == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);

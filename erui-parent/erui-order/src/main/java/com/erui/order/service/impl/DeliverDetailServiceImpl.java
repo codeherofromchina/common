@@ -50,7 +50,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Override
     public Page<DeliverDetail> listByPage(DeliverDetailVo condition) {
-        PageRequest request = new PageRequest(condition.getPage()-1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
@@ -86,7 +86,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @param deliverDetailVo
      * @return
      */
-   @Override
+    @Override
     @Transactional
     public boolean save(DeliverDetailVo deliverDetailVo) throws Exception {
         DeliverDetail deliverDetail = null;
@@ -117,7 +117,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional
     public Page<DeliverDetail> outboundManage(DeliverD deliverD) {
-        PageRequest request = new PageRequest(deliverD.getPage()-1, deliverD.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(deliverD.getPage() - 1, deliverD.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
@@ -131,29 +131,29 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
                 //根据销售合同号   根据项目号
-                if (StringUtil.isNotBlank(deliverD.getContractNo()) || StringUtil.isNotBlank(deliverD.getProjectNo())){
+                if (StringUtil.isNotBlank(deliverD.getContractNo()) || StringUtil.isNotBlank(deliverD.getProjectNo())) {
                     Join<DeliverDetail, DeliverNotice> deliverNotice = root.join("deliverNotice");
                     Join<DeliverNotice, DeliverConsign> deliverConsigns = deliverNotice.join("deliverConsigns");
                     Join<DeliverConsign, Order> order = deliverConsigns.join("order");
-                    if(StringUtil.isNotBlank(deliverD.getContractNo())){
-                        list.add(cb.like(order.get("contractNo").as(String.class),"%" + deliverD.getContractNo() + "%"));
+                    if (StringUtil.isNotBlank(deliverD.getContractNo())) {
+                        list.add(cb.like(order.get("contractNo").as(String.class), "%" + deliverD.getContractNo() + "%"));
                     }
-                    if(StringUtil.isNotBlank(deliverD.getProjectNo())){
+                    if (StringUtil.isNotBlank(deliverD.getProjectNo())) {
                         Join<Order, Project> project = order.join("project");
-                        list.add(cb.like(project.get("projectNo").as(String.class),"%" + deliverD.getProjectNo() + "%"));
+                        list.add(cb.like(project.get("projectNo").as(String.class), "%" + deliverD.getProjectNo() + "%"));
                     }
                 }
                 //根据开单日期
-                if(deliverD.getBillingDate()!=null){
+                if (deliverD.getBillingDate() != null) {
                     list.add(cb.equal(root.get("BillingDate").as(Date.class), deliverD.getBillingDate()));
                 }
                 //根据放行日期
-                if(deliverD.getReleaseDate() != null){
-                    list.add(cb.equal(root.get("releaseDate").as(Date.class),deliverD.getReleaseDate()));
+                if (deliverD.getReleaseDate() != null) {
+                    list.add(cb.equal(root.get("releaseDate").as(Date.class), deliverD.getReleaseDate()));
                 }
                 //根据仓库经办人
-                if(deliverD.getWareHouseman() != null){
-                    list.add(cb.equal(root.get("wareHouseman").as(Integer.class),deliverD.getWareHouseman()));
+                if (deliverD.getWareHouseman() != null) {
+                    list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -163,17 +163,17 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
         if (page.hasContent()) {
-            for(DeliverDetail notice : page.getContent()){
-                List<String>  contractNos = new ArrayList<String>();    //销售合同号
-                List<String>  projectNos = new ArrayList<String>();     //项目号
+            for (DeliverDetail notice : page.getContent()) {
+                List<String> contractNos = new ArrayList<String>();    //销售合同号
+                List<String> projectNos = new ArrayList<String>();     //项目号
                 Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns){
+                for (DeliverConsign deliverConsign : deliverConsigns) {
                     Order order = deliverConsign.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
-                        projectNos.add(order.getProject().getProjectNo()); //项目号
+                    projectNos.add(order.getProject().getProjectNo()); //项目号
                 }
-                notice.setContractNo(StringUtils.join(contractNos,","));
-                notice.setProjectNo(StringUtils.join(projectNos,","));
+                notice.setContractNo(StringUtils.join(contractNos, ","));
+                notice.setProjectNo(StringUtils.join(projectNos, ","));
             }
         }
 
@@ -181,16 +181,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     }
 
 
-
-
     /**
      * 物流跟踪管理
-     *
      */
     @Override
     @Transactional
     public Page<DeliverDetail> logisticsTraceManage(DeliverW deliverW) {
-        PageRequest request = new PageRequest(deliverW.getPage()-1, deliverW.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(deliverW.getPage() - 1, deliverW.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
@@ -198,42 +195,41 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 List<Predicate> list = new ArrayList<>();
                 // 根据产品放行单号查询
                 if (StringUtil.isNotBlank(deliverW.getDeliverDetailNo())) {
-                    list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + deliverW.getDeliverDetailNo()+ "%"));
+                    list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + deliverW.getDeliverDetailNo() + "%"));
                 }
                 //根据销售合同号
-                if (StringUtil.isNotBlank(deliverW.getContractNo())){
+                if (StringUtil.isNotBlank(deliverW.getContractNo())) {
                     Join<DeliverDetail, DeliverNotice> deliverNotice = root.join("deliverNotice");
                     Join<DeliverNotice, DeliverConsign> deliverConsigns = deliverNotice.join("deliverConsigns");
                     Join<DeliverConsign, Order> order = deliverConsigns.join("order");
 
-                    list.add(cb.like(order.get("contractNo").as(String.class),"%" + deliverW.getContractNo() + "%"));
+                    list.add(cb.like(order.get("contractNo").as(String.class), "%" + deliverW.getContractNo() + "%"));
 
                 }
                 //根据放行日期
-                if(deliverW.getReleaseDate() != null){
-                    list.add(cb.equal(root.get("releaseDate").as(Date.class),deliverW.getReleaseDate()));
+                if (deliverW.getReleaseDate() != null) {
+                    list.add(cb.equal(root.get("releaseDate").as(Date.class), deliverW.getReleaseDate()));
                 }
                 //根据物流经办人
-                if(deliverW.getLogisticsUserId() != null){
-                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class),deliverW.getLogisticsUserId()));
+                if (deliverW.getLogisticsUserId() != null) {
+                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUserId()));
                 }
                 //根据经办日期
-                if(deliverW.getLogisticsDate() != null){
-                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class),deliverW.getLogisticsDate()));
+                if (deliverW.getLogisticsDate() != null) {
+                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsDate()));
                 }
                 //根据状态
-                if(deliverW.getStatus() != null){
-                    if(deliverW.getStatus()== 2){
+                if (deliverW.getStatus() != null) {
+                    if (deliverW.getStatus() == 2) {
                       /*  list.add(cb.equal(root.get("status").as(Integer.class),deliverW.getStatus()));*/
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class),6));
-                    }else if (deliverW.getStatus()== 1){
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class),3));
-                        list.add(cb.lessThan(root.get("status").as(Integer.class),7));
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));
+                    } else if (deliverW.getStatus() == 1) {
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 3));
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 7));
                     }
-                }else{
-                    list.add(cb.greaterThan(root.get("status").as(Integer.class),3));
+                } else {
+                    list.add(cb.greaterThan(root.get("status").as(Integer.class), 3));
                 }
-
 
 
                 Predicate[] predicates = new Predicate[list.size()];
@@ -244,21 +240,19 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
         if (page.hasContent()) {
-            for(DeliverDetail notice:page.getContent()){
-                List<String>  contractNos = new ArrayList<String>();    //销售合同号
+            for (DeliverDetail notice : page.getContent()) {
+                List<String> contractNos = new ArrayList<String>();    //销售合同号
                 Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns){
+                for (DeliverConsign deliverConsign : deliverConsigns) {
                     Order order = deliverConsign.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
                 }
-                notice.setContractNo(StringUtils.join(contractNos,","));
+                notice.setContractNo(StringUtils.join(contractNos, ","));
             }
         }
 
         return page;
     }
-
-
 
 
     /**
@@ -272,48 +266,48 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
 
-        if(one == null){
+        if (one == null) {
             return false;
         }
-        try{
+        try {
             //开单日期
-            if(deliverDetail.getBillingDate() !=null){
+            if (deliverDetail.getBillingDate() != null) {
                 one.setBillingDate(deliverDetail.getBillingDate());
             }
             //承运单位名称
-            if(StringUtil.isNotBlank(deliverDetail.getCarrierCo())){
+            if (StringUtil.isNotBlank(deliverDetail.getCarrierCo())) {
                 one.setCarrierCo(deliverDetail.getCarrierCo());
             }
             //司机姓名
-            if(StringUtil.isNotBlank(deliverDetail.getDriver())){
+            if (StringUtil.isNotBlank(deliverDetail.getDriver())) {
                 one.setDriver(deliverDetail.getDriver());
             }
             //车牌号码
-            if(StringUtil.isNotBlank(deliverDetail.getPlateNo())){
+            if (StringUtil.isNotBlank(deliverDetail.getPlateNo())) {
                 one.setPlateNo(deliverDetail.getPlateNo());
             }
             //取货日期
-            if(deliverDetail.getPickupDate()!=null){
+            if (deliverDetail.getPickupDate() != null) {
                 one.setPickupDate(deliverDetail.getPickupDate());
             }
             //联系电话
-            if(StringUtil.isNotBlank(deliverDetail.getContactTel())){
+            if (StringUtil.isNotBlank(deliverDetail.getContactTel())) {
                 one.setContactTel(deliverDetail.getContactTel());
             }
             //仓库经办人
-            if(deliverDetail.getWareHouseman() != null){
+            if (deliverDetail.getWareHouseman() != null) {
                 one.setWareHouseman(deliverDetail.getWareHouseman());
             }
             //发运日期
-            if(deliverDetail.getSendDate()!=null){
+            if (deliverDetail.getSendDate() != null) {
                 one.setSendDate(deliverDetail.getSendDate());
             }
             //发运人员
-            if(deliverDetail.getSender() != null){
+            if (deliverDetail.getSender() != null) {
                 one.setSender(deliverDetail.getSender());
             }
             //协办/复核人
-            if(deliverDetail.getReviewer() != null){
+            if (deliverDetail.getReviewer() != null) {
                 one.setReviewer(deliverDetail.getReviewer());
             }
 
@@ -325,7 +319,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 return "仓储物流部".equals(attachment.getGroup());
             }).collect(Collectors.toList());
 
-            List<Attachment> attachmentList =new ArrayList(one.getAttachmentList());
+            List<Attachment> attachmentList = new ArrayList(one.getAttachmentList());
 
             List<Attachment> attachmentList02 = new ArrayList<>();
             Iterator<Attachment> iterator = attachmentList.iterator();
@@ -345,8 +339,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverDetailDao.saveAndFlush(one);
 
             return true;
-        }catch (Exception e){
-            return  false;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -354,7 +348,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     /**
      * 物流动态跟踪 - 物流信息
      *
-     * @param id    物流数据id
+     * @param id 物流数据id
      * @return
      */
     @Override
@@ -363,15 +357,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail one = deliverDetailDao.findOne(id);
         one.getDeliverConsignGoodsList().size();
         one.getAttachmentList().size();
-        Set<DeliverConsign> deliverConsigns =one.getDeliverNotice().getDeliverConsigns();
-        for (DeliverConsign deliverConsign : deliverConsigns){
+        Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+        for (DeliverConsign deliverConsign : deliverConsigns) {
             deliverConsign.getDeliverConsignGoodsSet().size();
             Order order = deliverConsign.getOrder();
             order.getGoodsList().size();
         }
-        if (one.getLogisticsUserId() != null){
+        if (one.getLogisticsUserId() != null) {
             one.setLogisticsUserId(5);
-        }else{
+        } else {
             one.setLogisticsUserId(4);
         }
         return one;
@@ -389,63 +383,63 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public void logisticsActionAddOrSave(DeliverDetail deliverDetail) {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         //物流经办人
-        if(deliverDetail.getLogisticsUserId() != null && deliverDetail.getStatus()== 4){
-                one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
+        if (deliverDetail.getLogisticsUserId() != null && deliverDetail.getStatus() == 4) {
+            one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
         }
         //经办日期
-        if(deliverDetail.getLogisticsDate() != null){
+        if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
         }
         //下发订舱时间
-        if(deliverDetail.getBookingTime() != null){
+        if (deliverDetail.getBookingTime() != null) {
             one.setBookingTime(deliverDetail.getBookingTime());
         }
         //物流发票号
-        if(StringUtil.isNotBlank(deliverDetail.getLogiInvoiceNo())){
+        if (StringUtil.isNotBlank(deliverDetail.getLogiInvoiceNo())) {
             one.setLogiInvoiceNo(deliverDetail.getLogiInvoiceNo());
         }
         //通知市场箱单时间
-        if(deliverDetail.getPackingTime() != null){
+        if (deliverDetail.getPackingTime() != null) {
             one.setPackingTime(deliverDetail.getPackingTime());
         }
         //离厂时间          --
-        if(deliverDetail.getLeaveFactory() != null){
+        if (deliverDetail.getLeaveFactory() != null) {
             one.setLeaveFactory(deliverDetail.getLeaveFactory());
         }
         //船期或航班
-        if(deliverDetail.getSailingDate() != null){
+        if (deliverDetail.getSailingDate() != null) {
             one.setSailingDate(deliverDetail.getSailingDate());
         }
         //报关放行时间
-        if(deliverDetail.getCustomsClearance()!=null){
+        if (deliverDetail.getCustomsClearance() != null) {
             one.setCustomsClearance(deliverDetail.getCustomsClearance());
         }
         //实际离港时间
-        if(deliverDetail.getLeavePortTime() != null){
+        if (deliverDetail.getLeavePortTime() != null) {
             one.setLeavePortTime(deliverDetail.getLeavePortTime());
         }
         //预计抵达时间
-        if(deliverDetail.getArrivalPortTime() != null){
+        if (deliverDetail.getArrivalPortTime() != null) {
             one.setArrivalPortTime(deliverDetail.getArrivalPortTime());
         }
         //动态描述
-        if(StringUtil.isNotBlank(deliverDetail.getLogs())){
+        if (StringUtil.isNotBlank(deliverDetail.getLogs())) {
             one.setLogs(deliverDetail.getLogs());
         }
         //备注
-        if(StringUtil.isNotBlank(deliverDetail.getRemarks())){
+        if (StringUtil.isNotBlank(deliverDetail.getRemarks())) {
             one.setRemarks(deliverDetail.getRemarks());
         }
         //实际创建时间
-            if (deliverDetail.getStatus() == 4) {
-                one.setAccomplishDate(new Date());
-            }
+        if (deliverDetail.getStatus() == 4) {
+            one.setAccomplishDate(new Date());
+        }
         // 只接受国际物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "国际物流部".equals(attachment.getGroup());
         }).collect(Collectors.toList());
 
-        List<Attachment> attachmentList =new ArrayList(one.getAttachmentList());
+        List<Attachment> attachmentList = new ArrayList(one.getAttachmentList());
 
         List<Attachment> attachmentList02 = new ArrayList<>();
         Iterator<Attachment> iterator = attachmentList.iterator();
@@ -468,18 +462,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     /**
      * 物流管理 - 查看页面
      *
-     * @param id    物流数据id
+     * @param id 物流数据id
      * @return
      */
     @Override
     @Transactional
     public DeliverDetail queryLogisticsTrace(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
-        if(one.getStatus() == 7){
+        if (one.getStatus() == 7) {
             one.getDeliverConsignGoodsList().size();
             one.getAttachmentList().size();
-            Set<DeliverConsign> deliverConsigns =one.getDeliverNotice().getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns){
+            Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+            for (DeliverConsign deliverConsign : deliverConsigns) {
                 deliverConsign.getDeliverConsignGoodsSet().size();
                 Order order = deliverConsign.getOrder();
                 order.getGoodsList().size();
@@ -507,7 +501,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional
     public Page<Map<String, Object>> listQualityByPage(Map<String, String> condition, int pageNum, int pageSize) {
-        PageRequest request = new PageRequest(pageNum-1, pageSize, Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(pageNum - 1, pageSize, Sort.Direction.DESC, "id");
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
             public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -534,8 +528,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 // 销售合同号 、 项目号查询
                 String contractNo = condition.get("contractNo");
                 String projectNo = condition.get("projectNo");
-                // TODO 这里待处理这两项查询
-
+                List<DeliverDetail> deliverDetails = findDeliverDetailIdsByContractNoAndProjectNo(contractNo, projectNo);
+                CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                if (deliverDetails != null && deliverDetails.size() > 0) {
+                    for (DeliverDetail detail : deliverDetails) {
+                        idIn.value(detail.getId());
+                    }
+                    list.add(idIn);
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -576,6 +576,51 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         PageImpl<Map<String, Object>> resultPage = new PageImpl<Map<String, Object>>(list, request, page.getTotalElements());
 
         return resultPage;
+    }
+
+
+    /**
+     * 根据销售合同和项目号查询
+     *
+     * @param contractNos
+     * @param projectNos
+     * @return
+     */
+    private List<DeliverDetail> findDeliverDetailIdsByContractNoAndProjectNo(String contractNos, String projectNos) {
+        List<DeliverDetail> result = null;
+        if (StringUtils.isNotBlank(contractNos) || StringUtils.isNotBlank(projectNos)) {
+            result = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
+                @Override
+                public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+
+                    Join<DeliverDetail, DeliverConsignGoods> deliverConsignGoods = root.join("deliverConsignGoodsList");
+                    Join<DeliverConsignGoods, Goods> goods = deliverConsignGoods.join("goods");
+                    // 根据销售号过滤
+                    if (StringUtils.isNotBlank(contractNos)) {
+                        String[] split = contractNos.split(",");
+                        for (String contractNo : split) {
+                            list.add(cb.equal(goods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                        }
+                    }
+
+                    // 根据项目号过滤
+                    if (StringUtils.isNotBlank(projectNos)) {
+                        String[] split = projectNos.split(",");
+                        for (String projectNo : split) {
+                            list.add(cb.equal(goods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                        }
+                    }
+
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            });
+        }
+
+        return result;
     }
 
     /**

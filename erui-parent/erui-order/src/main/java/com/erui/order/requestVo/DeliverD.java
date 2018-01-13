@@ -15,7 +15,7 @@ public class DeliverD {
 
     private String projectNo;    //项目号
 
-    private Date BillingDate;   //开单日期
+    private Date billingDate;   //开单日期
 
     private Date releaseDate; //放行日期
 
@@ -42,7 +42,7 @@ public class DeliverD {
     }
 
     public Date getBillingDate() {
-        return BillingDate;
+        return billingDate;
     }
 
     public Date getReleaseDate() {
@@ -70,7 +70,7 @@ public class DeliverD {
     }
 
     public void setBillingDate(Date billingDate) {
-        BillingDate = billingDate;
+        this.billingDate = billingDate;
     }
 
     public void setReleaseDate(Date releaseDate) {

@@ -4,6 +4,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
+import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -39,6 +40,8 @@ public class PurchServiceImpl implements PurchService {
     private PurchPaymentDao purchPaymentDao;
     @Autowired
     private AttachmentDao attachmentDao;
+    @Autowired
+    private OrderDao orderDao;
     @Autowired
     private AttachmentService attachmentService;
 
@@ -86,6 +89,67 @@ public class PurchServiceImpl implements PurchService {
         Purch puch = purchDao.findOne(id);
         puch.getPurchGoodsList().size(); //获取采购商品信息
         return puch;
+    }
+
+    /**
+     * 根据订单id查询(进行中/已完成)采购列表
+     *
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    public List<Map<String, Object>> listByOrderId(Integer orderId) throws Exception {
+        Order order = orderDao.findOne(orderId);
+        if (order == null) {
+            throw new Exception("不存在的订单");
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        List<Purch> list = purchDao.findAll(new Specification<Purch>() {
+            @Override
+            public Predicate toPredicate(Root<Purch> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> list = new ArrayList<>();
+                Join<Purch, Project> projectJoin = root.join("projects");
+                Join<Project, Order> orderJoin = projectJoin.join("order");
+                list.add(criteriaBuilder.equal(orderJoin.get("id").as(Integer.class), orderId));
+
+                // (进行中/已完成)
+                list.add(criteriaBuilder.notEqual(root.get("status").as(Integer.class), Purch.StatusEnum.READY));
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return criteriaBuilder.and(predicates);
+            }
+        });
+
+        if (list != null && list.size() > 0) {
+            Set<Integer> idSet = new HashSet<>();
+            for (Purch purch : list) {
+                Integer id = purch.getId();
+                if (idSet.contains(id)) {
+                    continue;
+                }
+                idSet.add(id);
+                Map<String, Object> map = new HashMap<>();
+
+
+                List<String> contractNoList = new ArrayList<>();
+                List<String> projectNoList = new ArrayList<>();
+                purch.getProjects().stream().forEach(project -> {
+                    projectNoList.add(project.getProjectNo());
+                    contractNoList.add(project.getContractNo());
+                });
+                map.put("id", purch.getId());
+                map.put("projectNos", StringUtils.join(projectNoList, ","));
+                map.put("contractNos", StringUtils.join(contractNoList, ","));
+                map.put("agentName", purch.getAgentName());
+                map.put("agentId", purch.getAgentId());
+                map.put("signingDate", purch.getSigningDate());
+
+                result.add(map);
+            }
+        }
+        return result;
     }
 
 
