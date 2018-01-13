@@ -125,6 +125,9 @@ public class DeliverDetail {
     @Column(name = "logistics_user_id")
     private Integer logisticsUserId;    //物流经办人
 
+    @Column(name = "logistics_user_name")
+    private Integer logisticsUserName;    //物流经办人名称
+
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "logistics_date")
     private Date logisticsDate; //物流经办时间
@@ -227,6 +230,14 @@ public class DeliverDetail {
 
     public void setCarrierCo(String carrierCo) {
         this.carrierCo = carrierCo;
+    }
+
+    public Integer getLogisticsUserName() {
+        return logisticsUserName;
+    }
+
+    public void setLogisticsUserName(Integer logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
     }
 
     public String getDriver() {

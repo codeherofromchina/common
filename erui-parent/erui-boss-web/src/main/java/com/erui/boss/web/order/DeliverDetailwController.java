@@ -102,7 +102,8 @@ public class DeliverDetailwController {
                 }
             }
             map.put("id",deliverDetail.getId());    //id
-            map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人
+            map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人id
+            map.put("logisticsUserName",deliverDetail.getLogisticsUserName());  //物流经办人名字
             map.put("logisticsDate",sdf.format(deliverDetail.getLogisticsDate()));      //经办日期
             map.put("tradeTermsList",tradeTermsList);    //贸易术语
             map.put("fromPlaceList",fromPlaceList);   //货物起运地
@@ -198,7 +199,8 @@ public class DeliverDetailwController {
                     }
                 }
                 map.put("id",deliverDetail.getId());    //id
-                map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人
+                map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人id
+                map.put("logisticsUserName",deliverDetail.getLogisticsUserName());  //物流经办人名字
                 map.put("logisticsDate",sdf.format(deliverDetail.getLogisticsDate()));      //经办日期
                 map.put("tradeTermsList",tradeTermsList);    //贸易术语
                 map.put("fromPlaceList",fromPlaceList);   //货物起运地
