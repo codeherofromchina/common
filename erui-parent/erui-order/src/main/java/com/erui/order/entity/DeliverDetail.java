@@ -198,7 +198,7 @@ public class DeliverDetail {
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonIgnore
+    /*@JsonIgnore*/
     private List<Attachment> attachmentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
