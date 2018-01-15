@@ -117,6 +117,7 @@ public class InspectReportController {
             Map<String, Object> map = new HashedMap();
             map.put("id", vo.getId());
             map.put("gId", goods.getId());
+            map.put("sku", goods.getSku());
             map.put("contractNo", goods.getContractNo());
             map.put("projectNo", goods.getProjectNo());
             map.put("proType", goods.getProType());
