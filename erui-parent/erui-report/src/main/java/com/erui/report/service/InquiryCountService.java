@@ -84,6 +84,11 @@ public interface InquiryCountService {
      * @return
      */
      List<InquiryAreaVO> selectAllAreaAndCountryList() ;
+	/**
+     * 查询所有询单中的所有大区和城市列表（
+     * @return
+     */
+     List<InquiryAreaVO> selectAllAreaAndOrgList() ;
 
 	/**
 	 * 获取询单数据汇总
@@ -109,7 +114,7 @@ public interface InquiryCountService {
 	 * @param endDate
 	 * @return  {"total":'总询单数量--Long',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
+	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,String[] quotes);
 
 	/**
 	 * 询订单趋势图数据
@@ -125,7 +130,7 @@ public interface InquiryCountService {
 	 * @param endTime
 	 * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
 	 */
-    List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime);
+    List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,String[] quotes);
 
 	/**
 	 * 按照转入日期区间统计事业部的平均报价时间

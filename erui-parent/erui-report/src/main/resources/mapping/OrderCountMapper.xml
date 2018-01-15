@@ -248,6 +248,11 @@
   <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
     select order_area as area,exe_company as country from order_count group by order_area,exe_company HAVING  order_area IS  NOT  NULL
   </select>
+
+  <!--查询所有销售大区和事业部列表-->
+  <select id="selectAllAreaAndOrgList" resultType="java.util.Map" >
+    select order_area as area,organization as org from order_count group by order_area,organization HAVING  order_area IS  NOT  NULL
+  </select>
   
   <!-- 查询订单中的数量汇总数据 -->
   <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.OrderCountExample" >

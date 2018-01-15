@@ -50,6 +50,11 @@ public interface OrderCountMapper {
      * @return Map<String, String> -> {'area':'大区名称','country':'城市名称'}
      */
 	List<Map<String, String>> selectAllAreaAndCountryList();
+    /**
+     * 查询订单的所有大区和事业部列表
+     * @return Map<String, String> -> {'area':'大区名称','country':'事业部名称'}
+     */
+	List<Map<String, String>> selectAllAreaAndOrgList();
 
 	/**
 	 * 查询订单的数量汇总

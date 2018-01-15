@@ -62,6 +62,11 @@ public interface InquiryCountMapper {
      * @return	Map<String,String> -> {'area':'大区名称','country':'城市名称'}
      */
     List<Map<String,String>>  selectAllAreaAndCountryList();
+    /**
+     * 查询询单的所有大区和城市列表
+     * @return	Map<String,String> -> {'area':'大区名称','org':'事业部名称'}
+     */
+    List<Map<String,String>>  selectAllAreaAndOrgList();
 
     /**
      * 查询询单的数量汇总数据

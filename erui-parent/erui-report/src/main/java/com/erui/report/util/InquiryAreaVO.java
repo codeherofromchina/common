@@ -14,6 +14,8 @@ public class InquiryAreaVO {
 	private String areaName;
 	// 国家列表
 	private Set<String> countries;
+	// 事业部列表
+	private Set<String> orgs;
 
 	public String getAreaName() {
 		return areaName;
@@ -34,4 +36,13 @@ public class InquiryAreaVO {
 		countries.add(country);
 	}
 
+	public Set<String> getOrgs() {
+		return orgs;
+	}
+	public void pushOrg(String org) {
+		if (orgs == null) {
+			orgs = new HashSet<>();
+		}
+		orgs.add(org);
+	}
 }

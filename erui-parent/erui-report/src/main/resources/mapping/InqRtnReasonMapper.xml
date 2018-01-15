@@ -3,8 +3,12 @@
 <mapper namespace="com.erui.report.dao.InqRtnReasonMapper" >
   <resultMap id="BaseResultMap" type="com.erui.report.model.InqRtnReason" >
     <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="inquiry_num" property="inquiryNum" jdbcType="VARCHAR" />
-    <result column="teturn_season" property="teturnSeason" jdbcType="VARCHAR" />
+    <result column="quotation_num" property="quotationNum" jdbcType="VARCHAR" />
+    <result column="rollin_time" property="rollinTime" jdbcType="TIMESTAMP" />
+    <result column="inquiry_unit" property="inquiryUnit" jdbcType="VARCHAR" />
+    <result column="inquiry_area" property="inquiryArea" jdbcType="VARCHAR" />
+    <result column="organization" property="organization" jdbcType="VARCHAR" />
+    <result column="return_season" property="returnSeason" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -65,8 +69,44 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, inquiry_num, teturn_season
+    id, quotation_num, rollin_time, inquiry_unit, inquiry_area, organization, return_season
   </sql>
+  <select id="selectCountGroupByRtnSeason" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
+    select
+    COUNT(1) AS total,COUNT(DISTINCT(quotation_num)) AS inqCount, return_season  AS reason
+    from inq_rtn_reason
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY return_season HAVING return_season IS  NOT  NULL
+  </select>
+  <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
+    select
+    COUNT(1) AS total,inquiry_area AS area, return_season  AS reason
+    from inq_rtn_reason
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY inquiry_area ,return_season HAVING inquiry_area  IS NOT NULL AND return_season IS NOT NULL
+  </select>
+  <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
+    select
+    COUNT(1) AS total,organization AS org, return_season  AS reason
+    from inq_rtn_reason
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+      GROUP BY organization ,return_season HAVING organization  IS NOT NULL AND return_season IS NOT NULL
+  </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
     <if test="distinct" >
@@ -98,10 +138,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.InqRtnReason" >
-    insert into inq_rtn_reason (id, inquiry_num, teturn_season
-      )
-    values (#{id,jdbcType=BIGINT}, #{inquiryNum,jdbcType=VARCHAR}, #{teturnSeason,jdbcType=VARCHAR}
-      )
+    insert into inq_rtn_reason (id, quotation_num, rollin_time, 
+      inquiry_unit, inquiry_area, organization, 
+      return_season)
+    values (#{id,jdbcType=BIGINT}, #{quotationNum,jdbcType=VARCHAR}, #{rollinTime,jdbcType=TIMESTAMP}, 
+      #{inquiryUnit,jdbcType=VARCHAR}, #{inquiryArea,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, 
+      #{returnSeason,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.InqRtnReason" >
     insert into inq_rtn_reason
@@ -109,22 +151,46 @@
       <if test="id != null" >
         id,
       </if>
-      <if test="inquiryNum != null" >
-        inquiry_num,
+      <if test="quotationNum != null" >
+        quotation_num,
       </if>
-      <if test="teturnSeason != null" >
-        teturn_season,
+      <if test="rollinTime != null" >
+        rollin_time,
+      </if>
+      <if test="inquiryUnit != null" >
+        inquiry_unit,
+      </if>
+      <if test="inquiryArea != null" >
+        inquiry_area,
+      </if>
+      <if test="organization != null" >
+        organization,
+      </if>
+      <if test="returnSeason != null" >
+        return_season,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         #{id,jdbcType=BIGINT},
       </if>
-      <if test="inquiryNum != null" >
-        #{inquiryNum,jdbcType=VARCHAR},
+      <if test="quotationNum != null" >
+        #{quotationNum,jdbcType=VARCHAR},
       </if>
-      <if test="teturnSeason != null" >
-        #{teturnSeason,jdbcType=VARCHAR},
+      <if test="rollinTime != null" >
+        #{rollinTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inquiryUnit != null" >
+        #{inquiryUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryArea != null" >
+        #{inquiryArea,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null" >
+        #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="returnSeason != null" >
+        #{returnSeason,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -140,11 +206,23 @@
       <if test="record.id != null" >
         id = #{record.id,jdbcType=BIGINT},
       </if>
-      <if test="record.inquiryNum != null" >
-        inquiry_num = #{record.inquiryNum,jdbcType=VARCHAR},
+      <if test="record.quotationNum != null" >
+        quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
       </if>
-      <if test="record.teturnSeason != null" >
-        teturn_season = #{record.teturnSeason,jdbcType=VARCHAR},
+      <if test="record.rollinTime != null" >
+        rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.inquiryUnit != null" >
+        inquiry_unit = #{record.inquiryUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inquiryArea != null" >
+        inquiry_area = #{record.inquiryArea,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organization != null" >
+        organization = #{record.organization,jdbcType=VARCHAR},
+      </if>
+      <if test="record.returnSeason != null" >
+        return_season = #{record.returnSeason,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null" >
@@ -154,8 +232,12 @@
   <update id="updateByExample" parameterType="map" >
     update inq_rtn_reason
     set id = #{record.id,jdbcType=BIGINT},
-      inquiry_num = #{record.inquiryNum,jdbcType=VARCHAR},
-      teturn_season = #{record.teturnSeason,jdbcType=VARCHAR}
+      quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
+      rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
+      inquiry_unit = #{record.inquiryUnit,jdbcType=VARCHAR},
+      inquiry_area = #{record.inquiryArea,jdbcType=VARCHAR},
+      organization = #{record.organization,jdbcType=VARCHAR},
+      return_season = #{record.returnSeason,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -163,19 +245,35 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.InqRtnReason" >
     update inq_rtn_reason
     <set >
-      <if test="inquiryNum != null" >
-        inquiry_num = #{inquiryNum,jdbcType=VARCHAR},
+      <if test="quotationNum != null" >
+        quotation_num = #{quotationNum,jdbcType=VARCHAR},
       </if>
-      <if test="teturnSeason != null" >
-        teturn_season = #{teturnSeason,jdbcType=VARCHAR},
+      <if test="rollinTime != null" >
+        rollin_time = #{rollinTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inquiryUnit != null" >
+        inquiry_unit = #{inquiryUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryArea != null" >
+        inquiry_area = #{inquiryArea,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null" >
+        organization = #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="returnSeason != null" >
+        return_season = #{returnSeason,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.InqRtnReason" >
     update inq_rtn_reason
-    set inquiry_num = #{inquiryNum,jdbcType=VARCHAR},
-      teturn_season = #{teturnSeason,jdbcType=VARCHAR}
+    set quotation_num = #{quotationNum,jdbcType=VARCHAR},
+      rollin_time = #{rollinTime,jdbcType=TIMESTAMP},
+      inquiry_unit = #{inquiryUnit,jdbcType=VARCHAR},
+      inquiry_area = #{inquiryArea,jdbcType=VARCHAR},
+      organization = #{organization,jdbcType=VARCHAR},
+      return_season = #{returnSeason,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

@@ -508,8 +508,29 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<Map<String, String>> orderAreaAndCountryList = orderCountMapper.selectAllAreaAndCountryList();
 
         // 数据转换
-        coverAreaAndCountryData(result, areaAndCountryList);
-        coverAreaAndCountryData(result, orderAreaAndCountryList);
+        coverAreaAndCountryData(result, areaAndCountryList,"country");
+        coverAreaAndCountryData(result, orderAreaAndCountryList,"country");
+
+        return result;
+    }
+    /**
+     * 查询所有询单中的所有大区和事业部列表（大区1 <-> n事业部）
+     *
+     * @return
+     */
+    @Override
+    public List<InquiryAreaVO> selectAllAreaAndOrgList() {
+        List<InquiryAreaVO> result = new ArrayList<>();
+        // 查询所有询单的大区和事业部信息 {'area':'大区名称','org':'事业部名称'}
+        List<Map<String, String>> areaAndOrgList = readMapper.selectAllAreaAndOrgList();
+
+        // 查询所有订单的大区和国家信息 {'area':'大区名称','country':'城市名称'}
+        OrderCountMapper orderCountMapper = readerSession.getMapper(OrderCountMapper.class);
+        List<Map<String, String>> orderAreaAndOrgList = orderCountMapper.selectAllAreaAndOrgList();
+
+        // 数据转换
+        coverAreaAndCountryData(result, areaAndOrgList,"org");
+        coverAreaAndCountryData(result, orderAreaAndOrgList,"org");
 
         return result;
     }
@@ -520,7 +541,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @param list
      * @param areaAndCountryList
      */
-    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList) {
+    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList,String typeName) {
         if (areaAndCountryList != null && areaAndCountryList.size() > 0) {
 
             Map<String, InquiryAreaVO> map = list.parallelStream()
@@ -537,7 +558,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     list.add(vo);
                     map.put(area, vo);
                 }
-                vo.pushCountry(data.get("country"));
+                if(typeName.equals("country")) {
+                    vo.pushCountry(data.get("country"));
+                }
+                if(typeName.equals("org")){
+                    vo.pushOrg(data.get("org"));
+                }
             });
         }
     }
@@ -670,7 +696,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate) {
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startDate != null) {
@@ -678,6 +704,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
+        }
+        if(quotes!=null&&quotes.length>0){
+            criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
         List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
         if (result == null) {
@@ -764,7 +793,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
      */
     @Override
-    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime) {
+    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -772,6 +801,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
+        }
+        if(quotes!=null&&quotes.length>0){
+            criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
         criteria.andInquiryAreaIsNotNull();
         List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
