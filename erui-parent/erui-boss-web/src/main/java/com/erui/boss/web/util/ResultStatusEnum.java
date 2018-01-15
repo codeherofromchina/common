@@ -27,8 +27,8 @@ public enum ResultStatusEnum {
     //-----------daqu----------------
     AREA_NOT_EXIST(20, "不存在的大区"),
     ////// ----
-    PAGE_ERROR(21, "页码必须不能小于1");
-
+    PAGE_ERROR(21, "页码必须不能小于1"),
+    DUPLICATE_ERROR(22,"值不唯一");
     private int code;
     private String msg;
 
@@ -36,6 +36,7 @@ public enum ResultStatusEnum {
         this.code = code;
         this.msg = msg;
     }
+
 
     public int getCode() {
         return code;
