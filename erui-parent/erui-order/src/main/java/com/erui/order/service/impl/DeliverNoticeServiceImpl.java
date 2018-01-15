@@ -247,9 +247,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 if(deliverNotice.getSenderId() != null){
                     one.setSenderId(deliverNotice.getSenderId());
                 }
-                if(deliverNotice.getSenderName() != null){
-                    one.setSenderName(deliverNotice.getSenderName());
-                }
                 if(StringUtil.isNotBlank(deliverNotice.getSenderName())){
                     one.setSenderName(deliverNotice.getSenderName());
                 }
@@ -258,6 +255,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 }
                 if(deliverNotice.getDeliveryDate() != null){
                     one.setDeliveryDate(deliverNotice.getDeliveryDate());
+                }
+                if(deliverNotice.getNumers() != null){
+                    one.setNumers(deliverNotice.getNumers());
+                }
+                if(StringUtil.isNotBlank(deliverNotice.getPrepareReq())){
+                    one.setPrepareReq(deliverNotice.getPrepareReq());
+                }
+                if (StringUtil.isNotBlank(deliverNotice.getPackageReq())){
+                    one.setPackageReq(deliverNotice.getPackageReq());
+                }
+                if(deliverNotice.getSendDate() != null){
+                    one.setSendDate(deliverNotice.getSendDate());
                 }
                 one.setStatus(deliverNotice.getStatus());
 
