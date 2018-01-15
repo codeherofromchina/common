@@ -58,7 +58,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
      */
     @Override
     @Transactional
-    public Page<DeliverNotice> listByPage(DeliverNotice condition) {
+    public Page<DeliverNotice> listByPage(DeliverNotice condition) throws Exception {
         PageRequest request = new PageRequest(condition.getPage()-1, condition.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverNotice> page = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
@@ -100,9 +100,20 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 List<String>  contractNos = new ArrayList<String>();
 
                 Set<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
+                if (deliverConsignSet.size() == 0){
+                    throw new Exception("无出口发货通知单关系");
+                }
                 for (DeliverConsign dc : deliverConsignSet) {
-                    deliverConsignNos.add(dc.getDeliverConsignNo());
-                    contractNos.add(dc.getOrder().getContractNo());
+                    String deliverConsignNo = dc.getDeliverConsignNo();
+                    if (StringUtil.isNotBlank(deliverConsignNo)){
+                        throw new Exception("无出口通知单号");
+                    }
+                    deliverConsignNos.add(deliverConsignNo);
+                    Order order = dc.getOrder();
+                    if (order == null){
+                        throw new Exception("无订单关系");
+                    }
+                    contractNos.add(order.getContractNo());
                 }
                 notice.setDeliverConsignNo(StringUtils.join(deliverConsignNos,","));
                 notice.setContractNo(StringUtils.join(contractNos,","));

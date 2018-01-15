@@ -130,6 +130,7 @@ public class InstockServiceImpl implements InstockService {
 
                 map.put("instockDate", instock.getInstockDate() != null?new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()):null);
                 map.put("status", instock.getStatus());
+                map.put("uname", instock.getUname());
 
                 list.add(map);
             }

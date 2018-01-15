@@ -23,7 +23,7 @@ public interface DeliverConsignService {
      * @param deliverNoticeId  看货通知单号  字符串
      * @return
      */
-    List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeId);
+    List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeId) throws Exception;
 
 
     /**
