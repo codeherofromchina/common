@@ -51,6 +51,8 @@ public class InspectReportServiceImpl implements InspectReportService {
         if (inspectReport != null) {
             inspectReport.getAttachments().size();
             inspectReport.getInspectGoodsList().size();
+            InspectApply inspectApply = inspectReport.getInspectApply();
+            inspectReport.setPurchNo(inspectApply.getPurchNo());
         }
 
         return inspectReport;

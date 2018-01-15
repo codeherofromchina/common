@@ -31,7 +31,6 @@ public class InspectReportController {
     @Autowired
     private InspectReportService inspectReportService;
 
-
     /**
      * 获取质检报告单列表
      *
@@ -77,7 +76,7 @@ public class InspectReportController {
      * @return
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> detail(@RequestBody Map<String,Integer> params) {
+    public Result<Object> detail(@RequestBody Map<String, Integer> params) {
         Integer id = params.get("id");
         if (id == null || id <= 0) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
@@ -107,6 +106,8 @@ public class InspectReportController {
         data.put("reportRemarks", inspectReport.getReportRemarks());
         // 整改意见
         data.put("msg", inspectReport.getMsg());
+        // 采购号
+        data.put("purchNo", inspectReport.getPurchNo());
         // 附件
         data.put("attachments", inspectReport.getAttachments());
         // 商品列表信息
@@ -117,6 +118,8 @@ public class InspectReportController {
             Map<String, Object> map = new HashedMap();
             map.put("id", vo.getId());
             map.put("gId", goods.getId());
+            map.put("sku", goods.getSku());
+            map.put("purchNo", inspectReport.getPurchNo());
             map.put("contractNo", goods.getContractNo());
             map.put("projectNo", goods.getProjectNo());
             map.put("proType", goods.getProType());
@@ -146,7 +149,7 @@ public class InspectReportController {
      * @return
      */
     @RequestMapping(value = "history", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> history(@RequestBody Map<String,Integer> params) {
+    public Result<Object> history(@RequestBody Map<String, Integer> params) {
         Integer id = params.get("id");
         if (id == null || id <= 0) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
