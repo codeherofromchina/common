@@ -1,12 +1,8 @@
 package com.erui.order.requestVo;
 
 import com.erui.order.entity.Attachment;
-import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -81,10 +77,10 @@ public class AddOrderVo {
     private String grantType;
 
     //是否预投
-    private Boolean isPreinvest = false;
+    private Boolean preinvest = false;
 
     //是否融资
-    private Boolean isFinancing = false;
+    private Boolean financing = false;
 
     //贸易术语
     private String tradeTerms;
@@ -171,6 +167,22 @@ public class AddOrderVo {
         this.id = id;
     }
 
+    public Boolean getPreinvest() {
+        return preinvest;
+    }
+
+    public void setPreinvest(Boolean preinvest) {
+        this.preinvest = preinvest;
+    }
+
+    public Boolean getFinancing() {
+        return financing;
+    }
+
+    public void setFinancing(Boolean financing) {
+        this.financing = financing;
+    }
+
     public String getContractNo() {
         return contractNo;
     }
@@ -219,6 +231,14 @@ public class AddOrderVo {
         this.inquiryNo = inquiryNo;
     }
 
+    public Boolean getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Boolean orderType) {
+        this.orderType = orderType;
+    }
+
     public String getOrderSource() {
         return orderSource;
     }
@@ -243,13 +263,14 @@ public class AddOrderVo {
         this.deliveryDate = deliveryDate;
     }
 
-
     public String getSigningCo() {
         return signingCo;
     }
+
     public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
     }
+
     public Integer getAgentId() {
         return agentId;
     }
@@ -298,6 +319,14 @@ public class AddOrderVo {
         this.crmCode = crmCode;
     }
 
+    public Boolean getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(Boolean customerType) {
+        this.customerType = customerType;
+    }
+
     public String getPerLiableRepay() {
         return perLiableRepay;
     }
@@ -329,6 +358,7 @@ public class AddOrderVo {
     public void setGrantType(String grantType) {
         this.grantType = grantType;
     }
+
 
     public String getTradeTerms() {
         return tradeTerms;
@@ -418,42 +448,6 @@ public class AddOrderVo {
         this.taxBearing = taxBearing;
     }
 
-    public Boolean getOrderType() {
-        return orderType;
-    }
-
-    public AddOrderVo setOrderType(Boolean orderType) {
-        this.orderType = orderType;
-        return this;
-    }
-
-    public Boolean getCustomerType() {
-        return customerType;
-    }
-
-    public AddOrderVo setCustomerType(Boolean customerType) {
-        this.customerType = customerType;
-        return this;
-    }
-
-    public Boolean getPreinvest() {
-        return isPreinvest;
-    }
-
-    public AddOrderVo setPreinvest(Boolean preinvest) {
-        isPreinvest = preinvest;
-        return this;
-    }
-
-    public Boolean getFinancing() {
-        return isFinancing;
-    }
-
-    public AddOrderVo setFinancing(Boolean financing) {
-        isFinancing = financing;
-        return this;
-    }
-
     public String getPaymentModeBn() {
         return paymentModeBn;
     }
@@ -510,30 +504,6 @@ public class AddOrderVo {
         this.customerContext = customerContext;
     }
 
-    public List<Attachment> getAttachDesc() {
-        return attachDesc;
-    }
-
-    public void setAttachDesc(List<Attachment> attachDesc) {
-        this.attachDesc = attachDesc;
-    }
-
-    public List<PGoods> getGoodDesc() {
-        return goodDesc;
-    }
-
-    public void setGoodDesc(List<PGoods> goodDesc) {
-        this.goodDesc = goodDesc;
-    }
-
-    public List<OrderPayment> getContractDesc() {
-        return contractDesc;
-    }
-
-    public void setContractDesc(List<OrderPayment> contractDesc) {
-        this.contractDesc = contractDesc;
-    }
-
     public String getExecCoName() {
         return execCoName;
     }
@@ -556,6 +526,30 @@ public class AddOrderVo {
 
     public void setBusinessUnitName(String businessUnitName) {
         this.businessUnitName = businessUnitName;
+    }
+
+    public List<Attachment> getAttachDesc() {
+        return attachDesc;
+    }
+
+    public void setAttachDesc(List<Attachment> attachDesc) {
+        this.attachDesc = attachDesc;
+    }
+
+    public List<PGoods> getGoodDesc() {
+        return goodDesc;
+    }
+
+    public void setGoodDesc(List<PGoods> goodDesc) {
+        this.goodDesc = goodDesc;
+    }
+
+    public List<OrderPayment> getContractDesc() {
+        return contractDesc;
+    }
+
+    public void setContractDesc(List<OrderPayment> contractDesc) {
+        this.contractDesc = contractDesc;
     }
 
     public void copyBaseInfoTo(Order order) {
@@ -583,10 +577,10 @@ public class AddOrderVo {
         order.setPerLiableRepay(this.perLiableRepay);
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
-     //   order.setTechnicalIdDept(this.technicalIdDept);
+        //   order.setTechnicalIdDept(this.technicalIdDept);
         order.setGrantType(this.grantType);
-        order.setIsPreinvest(this.isPreinvest);
-        order.setIsFinancing(this.isFinancing);
+        order.setPreinvest(this.preinvest);
+        order.setFinancing(this.financing);
         order.setTradeTerms(this.tradeTerms);
         order.setTransportType(this.transportType);
         order.setFromCountry(this.fromCountry);

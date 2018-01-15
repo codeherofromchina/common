@@ -38,7 +38,7 @@ public class Order {
     private String inquiryNo;
 
     @Column(name = "order_type")
-    private boolean orderType = true;
+    private Boolean orderType = true;
 
     @Column(name = "order_source")
     private String orderSource;
@@ -72,7 +72,7 @@ public class Order {
     private String crmCode;
 
     @Column(name = "customer_type")
-    private boolean customerType;
+    private Boolean customerType;
 
     @Column(name = "per_liable_repay")
     private String perLiableRepay;
@@ -88,11 +88,11 @@ public class Order {
     @Column(name = "grant_type")
     private String grantType;
 
-    @Column(name = "is_preinvest")
-    private boolean isPreinvest = false;
+    @Column(name = "preinvest")
+    private Boolean preinvest = false;
 
-    @Column(name = "is_financing")
-    private boolean isFinancing = false;
+    @Column(name = "financing")
+    private Boolean financing = false;
 
     @Column(name = "trade_terms")
     private String tradeTerms;
@@ -145,7 +145,7 @@ public class Order {
     private Date createTime;
 
     @Column(name = "deliver_consign_c")
-    private boolean deliverConsignC = true;
+    private Boolean deliverConsignC = true;
 
     @Column(name = "create_user_id")
     private Integer createUserId;
@@ -167,7 +167,7 @@ public class Order {
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -179,7 +179,7 @@ public class Order {
     @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
-   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
     @Column(name = "delivery_requires")
@@ -204,10 +204,29 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.ALL},mappedBy = "order")
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
 
+    public Boolean getPreinvest() {
+        return preinvest;
+    }
+
+    public void setPreinvest(Boolean preinvest) {
+        this.preinvest = preinvest;
+    }
+
+    public Boolean getFinancing() {
+        return financing;
+    }
+
+    public void setFinancing(Boolean financing) {
+        this.financing = financing;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
 
     public String getExecCoName() {
         return execCoName;
@@ -228,6 +247,7 @@ public class Order {
     public void setDistributionDeptName(String distributionDeptName) {
         this.distributionDeptName = distributionDeptName;
     }
+
     public String getBusinessUnitName() {
         return businessUnitName;
     }
@@ -254,13 +274,6 @@ public class Order {
         this.inquiryNo = inquiryNo;
     }
 
-    public boolean isOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(boolean orderType) {
-        this.orderType = orderType;
-    }
 
     public String getOrderSource() {
         if (orderSource == null)
@@ -270,38 +283,6 @@ public class Order {
 
     public void setOrderSource(String orderSource) {
         this.orderSource = orderSource;
-    }
-
-    public boolean isCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(boolean customerType) {
-        this.customerType = customerType;
-    }
-
-    public boolean isPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setPreinvest(boolean preinvest) {
-        isPreinvest = preinvest;
-    }
-
-    public boolean isFinancing() {
-        return isFinancing;
-    }
-
-    public void setFinancing(boolean financing) {
-        isFinancing = financing;
-    }
-
-    public boolean isDeliverConsignC() {
-        return deliverConsignC;
-    }
-
-    public void setDeliverConsignC(boolean deliverConsignC) {
-        this.deliverConsignC = deliverConsignC;
     }
 
     public Integer getId() {
@@ -474,22 +455,6 @@ public class Order {
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
-    }
-
-    public Boolean getIsPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setIsPreinvest(Boolean isPreinvest) {
-        this.isPreinvest = isPreinvest;
-    }
-
-    public Boolean getIsFinancing() {
-        return isFinancing;
-    }
-
-    public void setIsFinancing(Boolean isFinancing) {
-        this.isFinancing = isFinancing;
     }
 
     public int getPage() {
