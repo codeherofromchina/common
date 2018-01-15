@@ -73,11 +73,17 @@ public class InspectReportController {
     /**
      * 查看质检单详情信息
      *
-     * @param id
+     * @param params {"id":"质检单ID"}
      * @return
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id") Integer id) {
+    public Result<Object> detail(@RequestBody Map<String,Integer> params) {
+        Integer id = params.get("id");
+        if (id == null || id <= 0) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+
+
         InspectReport inspectReport = inspectReportService.detail(id);
         if (inspectReport == null) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -136,11 +142,15 @@ public class InspectReportController {
     /**
      * 保存质检单
      *
-     * @param id 质检单ID
+     * @param params {"id":质检单ID}
      * @return
      */
     @RequestMapping(value = "history", method = RequestMethod.POST)
-    public Result<Object> history(@RequestParam(name = "id") Integer id) {
+    public Result<Object> history(@RequestBody Map<String,Integer> params) {
+        Integer id = params.get("id");
+        if (id == null || id <= 0) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
 
         List<InspectReport> list = inspectReportService.history(id);
         if (list == null) {
