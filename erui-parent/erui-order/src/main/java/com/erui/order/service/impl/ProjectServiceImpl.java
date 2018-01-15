@@ -6,6 +6,7 @@ import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -135,7 +136,7 @@ public class ProjectServiceImpl implements ProjectService {
             list = list.stream().filter(project -> {
                 String projectNo = project.getProjectNo();
                 for (String pStr : projectNoList) {
-                    if (projectNo.contains(pStr)) {
+                    if (StringUtils.contains(projectNo,pStr)) {
                         return true;
                     }
                 }

@@ -168,6 +168,8 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
             projectAdd.setProjectStatus("SUBMIT");
+            projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
+            projectAdd.setPurchDone(Boolean.FALSE);
             projectDao.save(projectAdd);
         }
         return true;

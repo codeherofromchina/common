@@ -409,7 +409,7 @@ public class Project {
      * 是否已经创建采购申请单枚举类
      */
     public static enum PurchReqCreateEnum {
-        NOT_CREATE(0, "未创建"), CREATED(1, "已创建"), SUBMITED(2, "已提交");
+        NOT_CREATE(1, "未创建"), CREATED(2, "已创建"), SUBMITED(3, "已提交");
 
         private int code;
         private String msg;
