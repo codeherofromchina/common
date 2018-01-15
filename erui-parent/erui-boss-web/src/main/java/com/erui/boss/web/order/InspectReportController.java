@@ -76,7 +76,7 @@ public class InspectReportController {
      * @param params {"id":"质检单ID"}
      * @return
      */
-    @RequestMapping(value = "detail", method = RequestMethod.POST)
+    @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> detail(@RequestBody Map<String,Integer> params) {
         Integer id = params.get("id");
         if (id == null || id <= 0) {
@@ -145,7 +145,7 @@ public class InspectReportController {
      * @param params {"id":质检单ID}
      * @return
      */
-    @RequestMapping(value = "history", method = RequestMethod.POST)
+    @RequestMapping(value = "history", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> history(@RequestBody Map<String,Integer> params) {
         Integer id = params.get("id");
         if (id == null || id <= 0) {

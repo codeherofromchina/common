@@ -114,7 +114,7 @@ public class PurchServiceImpl implements PurchService {
                 list.add(criteriaBuilder.equal(orderJoin.get("id").as(Integer.class), orderId));
 
                 // (进行中/已完成)
-                list.add(criteriaBuilder.notEqual(root.get("status").as(Integer.class), Purch.StatusEnum.READY));
+                list.add(criteriaBuilder.notEqual(root.get("status").as(Integer.class), Purch.StatusEnum.READY.getCode()));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
