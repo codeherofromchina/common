@@ -620,4 +620,56 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         }
         return list;
     }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseCustGroupByCustCategory(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectRePurchaseCustGroupByCustCategory(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustCountGroupByCustCategory(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectCustCountGroupByCustCategory(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectDataGroupByArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectDataGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectDataGroupByOrg(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectDataGroupByOrg(example);
+    }
 }

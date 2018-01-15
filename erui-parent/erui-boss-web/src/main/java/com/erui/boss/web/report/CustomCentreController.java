@@ -6,11 +6,14 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.service.*;
 import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -885,17 +888,10 @@ public class CustomCentreController {
 
         List<InquiryAreaVO> arayList = inquiryService.selectAllAreaAndOrgList();
         if (StringUtils.isNotBlank(areaName)) {
-            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(areaName))
+            List<InquiryAreaVO> ll = arayList.stream().filter(vo -> vo.getAreaName().equals(areaName))
                     .collect(Collectors.toList());
             if (ll.size() > 0) {
-                List<String> orgList = new ArrayList<>();
-                Set<String> orgs = ll.get(0).getOrgs();
-                for (String org : orgs) {
-                    if (org != null) {
-                        orgList.add(org);
-                    }
-                }
-                result.setData(orgList);
+                result.setData(ll.get(0).getOrgs());
             } else {
                 return result.setStatus(ResultStatusEnum.AREA_NOT_EXIST);
             }
@@ -946,11 +942,13 @@ public class CustomCentreController {
         List<Map<String, Object>> rejectData = inquiryService.selectRejectCount(startTime, endTime);
         if (rejectData != null && rejectData.size() > 0) {
             Map<String, Object> data = rejectData.get(0);
-            if (data.get("sumCount") != null) {
-                rejectCount = Integer.parseInt(data.get("sumCount").toString());
-            }
-            if (data.get("avgCount") != null) {
-                avgRejectCount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("avgCount").toString()), 1d);
+            if (data != null) {
+                if (data.get("sumCount") != null) {
+                    rejectCount = Integer.parseInt(data.get("sumCount").toString());
+                }
+                if (data.get("avgCount") != null) {
+                    avgRejectCount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("avgCount").toString()), 1d);
+                }
             }
         }
         Map<String, Object> returnData = new HashMap<>();
@@ -981,7 +979,7 @@ public class CustomCentreController {
         int totalQuotingCount = noQuoteInqCount + quotingInqCount;
         double quotingProportion = 0d;
         if (inqCount > 0) {
-            quotingProportion = RateUtil.intChainRateTwo(totalQuotingCount, inqCount);
+            quotingProportion = RateUtil.intChainRate(totalQuotingCount, inqCount);
         }
         Map<String, Object> quotingData = new HashMap<>();
         quotingData.put("noQuoteInqCount", noQuoteInqCount);
@@ -1022,7 +1020,7 @@ public class CustomCentreController {
 
         String[] quotes = null;
         Integer[] quoteCounts = null;
-        if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {
+        if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {//已退回
             quotes = new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()};
             List<Map<String, Object>> rtnSeasonList = this.inqRtnReasonService.selectCountGroupByRtnSeason(startTime, endTime, null, null);
             if (rtnSeasonList != null && rtnSeasonList.size() > 0) {
@@ -1060,10 +1058,10 @@ public class CustomCentreController {
         List<Map<String, Object>> orgDataList = this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime, quotes);
         List<String> areas = new ArrayList<>();
         List<Integer> areaCounts = new ArrayList<>();
-        List<Double> areaProportion = new ArrayList<>();
+        List<Map<String, Object>> areaTableList = new ArrayList<>();
         List<String> orgs = new ArrayList<>();
         List<Integer> orgCounts = new ArrayList<>();
-        List<Double> orgProportion = new ArrayList<>();
+        List<Map<String, Object>> orgTableList = new ArrayList<>();
         Integer totalCount = 0;
         if (areaDataList != null && areaDataList.size() > 0) {
             totalCount = areaDataList.stream().map(m -> {
@@ -1075,8 +1073,13 @@ public class CustomCentreController {
             }).reduce(0, (a, b) -> a + b);
             if (areaCounts.size() > 0) {
                 if (totalCount > 0) {
-                    for (Integer count : areaCounts) {
-                        areaProportion.add(RateUtil.intChainRateTwo(count, totalCount));
+                    for (int i = 0; i < areaCounts.size(); i++) {
+                        double areaPro = RateUtil.intChainRateTwo(areaCounts.get(i), totalCount);
+                        Map<String, Object> areadata = new HashMap<>();
+                        areadata.put("areaProportion", areaPro);
+                        areadata.put("areaCount", areaCounts.get(i));
+                        areadata.put("area", areas.get(i));
+                        areaTableList.add(areadata);
                     }
                 }
             }
@@ -1088,27 +1091,32 @@ public class CustomCentreController {
                 orgs.add(org);
                 orgCounts.add(count);
             }
-            if (orgCounts.size() > 0) {
+            if (orgCounts.size() > 0 && orgs.size() == orgCounts.size()) {
                 if (totalCount > 0) {
-                    for (Integer count : orgCounts) {
-                        orgProportion.add(RateUtil.intChainRateTwo(count, totalCount));
+                    for (int i = 0; i < orgCounts.size(); i++) {
+                        double orgPro = RateUtil.intChainRateTwo(orgCounts.get(i), totalCount);
+                        Map<String, Object> orgdata = new HashMap<>();
+                        orgdata.put("orgProportion", orgPro);
+                        orgdata.put("orgCount", orgCounts.get(i));
+                        orgdata.put("org", orgs.get(i));
+                        orgTableList.add(orgdata);
                     }
                 }
             }
         }
-
-
+        //封装table 数据
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("orgTable", orgTableList);
+        tableData.put("areaTable", areaTableList);
+        inqDetailPievo.setTableData(tableData);
         inqDetailPievo.setQuoteStatus(quoteStatus);
         if (!quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {
-
             inqDetailPievo.setQuotingQuoteList(quotes);
         }
         inqDetailPievo.setAreaList(areas.toArray(new String[areas.size()]));
         inqDetailPievo.setAreaCountList(areaCounts.toArray(new Integer[areaCounts.size()]));
-        inqDetailPievo.setAreaProportionList(areaProportion.toArray(new Double[areaProportion.size()]));
         inqDetailPievo.setOrgList(orgs.toArray(new String[orgs.size()]));
         inqDetailPievo.setOrgCountList(orgCounts.toArray(new Integer[orgCounts.size()]));
-        inqDetailPievo.setOrgProportionList(orgProportion.toArray(new Double[orgProportion.size()]));
         return result.setData(inqDetailPievo);
 
     }
@@ -1145,7 +1153,15 @@ public class CustomCentreController {
                 m.put("totalProportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
             }
         });
-        return result.setData(dataList);
+        List<String> reasons = dataList.stream().map(m -> m.get("reason").toString()).collect(Collectors.toList());
+        List<String> totals = dataList.stream().map(m -> m.get("total").toString()).collect(Collectors.toList());
+        Map<String,Object> pieData=new HashMap<>();
+        Map<String,Object> data=new HashMap<>();
+        pieData.put("reasons",reasons);
+        pieData.put("counts",totals);
+        data.put("tableData",dataList);
+        data.put("pieData",pieData);
+        return result.setData(data);
     }
 
     /**
@@ -1169,80 +1185,117 @@ public class CustomCentreController {
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeasonAndArea(startTime, endTime);
         List<Map<String, Object>> orgdataList = inqRtnReasonService.selectCountGroupByRtnSeasonAndOrg(startTime, endTime);
+        Map<String, Map<String, Object>> areaData = new HashMap<>();
+        Map<String, Map<String, Object>> orgData = new HashMap<>();
         Integer totalCount = dataList.stream().map(m -> {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
         }).reduce(0, (a, b) -> a + b);
-        List<String> reasons = new ArrayList<>();
-        Map<String, Object> targets = new HashMap<>();
-        Set<String> areas = new HashSet<>();
-        Set<String> orgs = new HashSet<>();
-        reasons.add("项目澄清");
-        reasons.add("非事业部业务范围");
-        reasons.add("无供应渠道");
-        reasons.add("系统问题");
-        reasons.add("其他");
         dataList.stream().forEach(m -> {
             if (totalCount != null && totalCount > 0) {
-                m.put("totalProportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
-                areas.add(String.valueOf(m.get("area")));
+                if (!areaData.containsKey(m.get("area").toString())) {
+                    Map<String, Object> mm = new HashMap<>();
+                    mm.put("area", m.get("area").toString());
+                    String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                    mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    mm.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
+                    areaData.put(String.valueOf(m.get("area")), mm);
+                } else {
+                    Map<String, Object> areaMap = areaData.get(m.get("area").toString());
+                    String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                    areaMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    areaMap.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
+                }
             }
         });
+        Integer orgTotalCount = orgdataList.stream().map(m -> {
+            Integer total = Integer.valueOf(m.get("total").toString());
+            return total;
+        }).reduce(0, (a, b) -> a + b);
         orgdataList.stream().forEach(m -> {
-            if (totalCount != null && totalCount > 0) {
-                m.put("totalProportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
-                orgs.add(String.valueOf(m.get("org")));
+            if (orgTotalCount != null && orgTotalCount > 0) {
+                if (!orgData.containsKey(m.get("org").toString())) {
+                    Map<String, Object> mm = new HashMap<>();
+                    mm.put("org", m.get("org").toString());
+                    String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                    mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    mm.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), orgTotalCount));
+                    orgData.put(String.valueOf(m.get("area")), mm);
+                } else {
+                    Map<String, Object> orgMap = orgData.get(m.get("org").toString());
+                    String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                    orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    orgMap.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), orgTotalCount));
+                }
             }
         });
-        List<RtnDetailVo> areaDetailVos = new ArrayList<>();
-        List<RtnDetailVo> orgDetailVos = new ArrayList<>();
-        for (String area : areas) {
-            RtnDetailVo detailVo = new RtnDetailVo();
-            detailVo.setArea(area);
-            Integer[] counts = new Integer[]{0, 0, 0, 0, 0};
-            Double[] proportions = new Double[]{0d, 0d, 0d, 0d, 0d};
-            for (Map<String, Object> m : dataList) {
-                String area2 = String.valueOf(m.get("area"));
-                if (area.equals(area2)) {
-                    String reason = String.valueOf(m.get("reason"));
-                    for (int i = 0; i < reasons.size(); i++) {
-                        if (reason.equals(reasons.get(i))) {
-                            counts[i] = Integer.parseInt(m.get("total").toString());
-                            proportions[i] = Double.parseDouble(m.get("totalProportion").toString());
-                            detailVo.setReasonProportions(proportions);
-                            detailVo.setRtnCounts(counts);
-                        }
-                    }
-                }
-            }
-            areaDetailVos.add(detailVo);
+        List<Map<String, Object>> org = new ArrayList<>();
+        List<Map<String, Object>> areas = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Object>> entry : orgData.entrySet()) {
+            Map<String, Object> ll = entry.getValue();
+            Map<String, Object> odata = addNoReasonData(ll);
+            org.add(odata);
         }
-        for (String org : orgs) {
-            RtnDetailVo vo = new RtnDetailVo();
-            vo.setOrg(org);
-            Integer[] counts = new Integer[]{0, 0, 0, 0, 0};
-            Double[] proportions = new Double[]{0d, 0d, 0d, 0d, 0d};
-            for (Map<String, Object> m : orgdataList) {
-                String org2 = String.valueOf(m.get("org"));
-                if (org.equals(org2)) {
-                    String reason = m.get("reason").toString();
-                    for (int i = 0; i < reasons.size(); i++) {
-                        if (reason.equals(reasons.get(i))) {
-                            counts[i] = Integer.valueOf(m.get("total").toString());
-                            proportions[i] = Double.parseDouble(m.get("totalProportion").toString());
-                            vo.setReasonProportions(proportions);
-                            vo.setRtnCounts(counts);
-                        }
-                    }
-                }
-            }
-            orgDetailVos.add(vo);
+        for (Map.Entry<String, Map<String, Object>> entry : areaData.entrySet()) {
+            Map<String, Object> ll = entry.getValue();
+            Map<String, Object> adata = addNoReasonData(ll);
+            areas.add(adata);
         }
         Map<String, Object> data = new HashMap<>();
-        data.put("reasons", reasons);
-        data.put("areaList", areaDetailVos);
-        data.put("orgList", orgDetailVos);
+        data.put("orgData", org);
+        data.put("areaData", areas);
         return result.setData(data);
+
+    }
+
+    //获取退回原因的英文名
+    private String getReasonEn(String reason) {
+        if (StringUtils.isNotEmpty(reason)) {
+            if (reason.equals(InqRtnSeasonEnum.NOT_ORG.getCh())) {
+                return InqRtnSeasonEnum.NOT_ORG.getEn();
+            }
+            if (reason.equals(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
+                return InqRtnSeasonEnum.NOT_SUPPLY.getEn();
+            }
+            if (reason.equals(InqRtnSeasonEnum.OTHER.getCh())) {
+                return InqRtnSeasonEnum.OTHER.getEn();
+            }
+            if (reason.equals(InqRtnSeasonEnum.PROJECT_CLEAR.getCh())) {
+                return InqRtnSeasonEnum.PROJECT_CLEAR.getEn();
+            }
+            if (reason.equals(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
+                return InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn();
+            }
+        }
+        return null;
+    }
+
+    //添加没有原因的数据
+    private Map<String, Object> addNoReasonData(Map<String, Object> map) {
+        if (MapUtils.isNotEmpty(map)) {
+            if (!map.containsKey(InqRtnSeasonEnum.NOT_ORG.getEn())) {
+                map.put(InqRtnSeasonEnum.NOT_ORG.getEn(), 0);
+                map.put(InqRtnSeasonEnum.NOT_ORG.getEn() + "Proportion", 0d);
+            }
+            if (!map.containsKey(InqRtnSeasonEnum.NOT_SUPPLY.getEn())) {
+                map.put(InqRtnSeasonEnum.NOT_SUPPLY.getEn(), 0);
+                map.put(InqRtnSeasonEnum.NOT_SUPPLY.getEn() + "Proportion", 0d);
+            }
+            if (!map.containsKey(InqRtnSeasonEnum.OTHER.getEn())) {
+                map.put(InqRtnSeasonEnum.OTHER.getEn(), 0);
+                map.put(InqRtnSeasonEnum.OTHER.getEn() + "Proportion", 0d);
+            }
+            if (!map.containsKey(InqRtnSeasonEnum.PROJECT_CLEAR.getEn())) {
+                map.put(InqRtnSeasonEnum.PROJECT_CLEAR.getEn(), 0);
+                map.put(InqRtnSeasonEnum.PROJECT_CLEAR.getEn() + "Proportion", 0d);
+            }
+            if (!map.containsKey(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn())) {
+                map.put(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn(), 0);
+                map.put(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn() + "Proportion", 0d);
+            }
+            return map;
+        }
+        return null;
     }
 
     /**
@@ -1269,16 +1322,151 @@ public class CustomCentreController {
         int count = orderService.orderCountByTime(startTime, endTime, null, null, null);
         double amount = orderService.orderAmountByTime(startTime, endTime, null);
         Double target = targetService.selectTargetAmountByCondition(null, null, null, null);
-        Double profitRate=orderService.selectProfitRate(startTime,endTime);
+        Double profitRate = orderService.selectProfitRate(startTime, endTime);
         //油气/非油气的复购率
-        Double RePurchaseRate=0.3;
-        Map<String,Object> data=new HashMap<>();
-        data.put("ordCount",count);
-        data.put("ordAmmount",RateUtil.doubleChainRateTwo(amount,1d));
-        data.put("targetAmmount",RateUtil.doubleChainRateTwo(target,1d));
-        data.put("profitRate",RateUtil.doubleChainRateTwo(profitRate,1d));
-        data.put("oilRePurchaseRate",RateUtil.doubleChainRateTwo(RePurchaseRate,1d));
-        data.put("notOilRePurchaseRate",RateUtil.doubleChainRateTwo(RePurchaseRate,1d));
+        Double oilRePurRate = 0d;
+        Double notOilRePurRate = 0d;
+        int oilCount = 0, notOilCount = 0, reOilCount = 0, reNotOilCount = 0;
+        List<Map<String, Object>> ReList = orderService.selectRePurchaseCustGroupByCustCategory(startTime, endTime);
+        List<Map<String, Object>> totalList = orderService.selectCustCountGroupByCustCategory(startTime, endTime);
+        if (ReList != null && ReList.size() > 0) {
+            for (Map<String, Object> m : ReList) {
+                if (m != null) {
+                    String oil = m.get("oil").toString();
+                    Integer custCount = Integer.valueOf(m.get("custCount").toString());
+                    if ("油气".equals(oil) && custCount != null) {
+                        reOilCount = custCount;
+                    }
+                    if ("非油气".equals(oil) && custCount != null) {
+                        reNotOilCount = custCount;
+                    }
+                }
+            }
+        }
+        if (CollectionUtils.isNotEmpty(totalList)) {
+            for (Map<String, Object> m : totalList) {
+                String oil = String.valueOf(m.get("oil"));
+                Integer custCount = Integer.valueOf(m.get("custCount").toString());
+                if ("油气".equals(oil) && custCount != null) {
+                    oilCount = custCount;
+                }
+                if ("非油气".equals(oil) && custCount != null) {
+                    notOilCount = custCount;
+                }
+            }
+
+        }
+        if (oilCount > 0) {
+            oilRePurRate = RateUtil.intChainRateTwo(reOilCount, oilCount);
+        }
+        if (notOilCount > 0) {
+            notOilRePurRate = RateUtil.intChainRateTwo(reNotOilCount, notOilCount);
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("ordCount", count);
+        data.put("ordAmmount", RateUtil.doubleChainRateTwo(amount, 1d));
+        data.put("targetAmmount", RateUtil.doubleChainRateTwo(target, 1d));
+        if (profitRate != null) {
+            data.put("profitRate", RateUtil.doubleChainRateTwo(profitRate, 1d));
+        } else {
+            data.put("profitRate", 0d);
+        }
+        data.put("oilRePurchaseRate", oilRePurRate);
+        data.put("notOilRePurchaseRate", notOilRePurRate);
         return result.setData(data);
     }
+
+    /**
+     * 客户中心-订单详细分析: 区域和事业部明细
+     *
+     * @param map 大区
+     *            <p>
+     *            城市
+     * @return
+     */
+    @RequestMapping(value = "/ordDetailAreaAndOrgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
+    @ResponseBody
+    public Object ordDetailAreaAndOrgDetail(@RequestBody Map<String, Object> map) throws Exception {
+        Result<Object> result = new Result<>();
+        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
+            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
+            return result;
+        }
+        //开始时间
+        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
+        //截止时间
+        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        List<Map<String, Object>> areaDataList = orderService.selectDataGroupByArea(startTime, endTime);//各地区数量和金额
+        List<Map<String, Object>> orgDataList = orderService.selectDataGroupByOrg(startTime, endTime);//各事业部数量和金额
+        List<Map<String, Object>> areaTargets = targetService.selectTargetGroupByArea();//各地区年度指标
+        List<Map<String, Object>> orgTargets = targetService.selectTargetGroupByOrg();//各地区年度指标
+        //组装饼图的数据
+        List<String> areas = new ArrayList<>();
+        List<Integer> areaCounts = new ArrayList<>();
+        List<String> orgs = new ArrayList<>();
+        List<Integer> orgCounts = new ArrayList<>();
+        Integer areaTotalCount = null;
+        Integer orgTotalCount = null;
+        if (CollectionUtils.isNotEmpty(areaDataList)) {
+            areaTotalCount = areaDataList.stream().map(m -> {
+                String area = String.valueOf(m.get("area"));
+                int areaCount = Integer.valueOf(m.get("areaCount").toString());
+                areas.add(area);
+                areaCounts.add(areaCount);
+                return areaCount;
+            }).reduce(0, (a, b) -> a + b);
+            for (Map<String, Object> data : areaDataList) {
+                String area = data.get("areaCount").toString();
+                int areaCount = Integer.getInteger(data.get("areaCount").toString());
+                if (areaTotalCount != null && areaTotalCount > 0) {
+                    data.put("proportion", RateUtil.intChainRateTwo(areaCount, areaTotalCount));
+                } else {
+                    data.put("proportion", 0d);
+                }
+                //地区指标
+                for (Map<String, Object> m : areaTargets) {
+                    if (area.equals(m.get("area"))) {
+                        data.put("target", RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("ammount").toString()), 1d));
+                    }
+                }
+                if (!data.containsKey("target")) {
+                    data.put("target", 0d);
+                }
+            }
+
+        }
+        if (CollectionUtils.isNotEmpty(orgDataList)) {
+            orgTotalCount = orgDataList.stream().map(m -> {
+                String org = String.valueOf(m.get("org"));
+                int orgCount = Integer.valueOf(m.get("orgCount").toString());
+                orgs.add(org);
+                orgCounts.add(orgCount);
+                return orgCount;
+            }).reduce(0, (a, b) -> a + b);
+            for (Map<String, Object> data : orgDataList) {
+                String org = String.valueOf(data.get("org"));
+                int orgCount = Integer.getInteger(data.get("orgCount").toString());
+                if (orgTotalCount != null && orgTotalCount > 0) {
+                    data.put("proportion", RateUtil.intChainRateTwo(orgCount, orgTotalCount));
+                } else {
+                    data.put("proportion", 0d);
+                }
+                //事业部指标
+                for (Map<String, Object> m : orgTargets) {
+                    if (org.equals(m.get("org"))) {
+                        data.put("target", RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("ammount").toString()), 1d));
+                    }
+                }
+                if (!data.containsKey("target")) {
+                    data.put("target", 0d);
+                }
+            }
+        }
+        //组装表格的数据
+
+        return result;
+    }
+
+
 }

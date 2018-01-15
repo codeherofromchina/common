@@ -78,4 +78,32 @@ public interface OrderCountService {
 	 * @return {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"area":'区域--String'}
 	 */
     List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupArea(Date startTime, Date endTime);
+	/**
+	 * 查询油气非油气的复购客户数量
+	 * @param startTime
+	 * @param endTime
+	 * @return {"oil":'油气非油气',"custCount":'客户数量'}
+	 */
+	List<Map<String,Object>>  selectRePurchaseCustGroupByCustCategory(Date startTime, Date endTime);
+	/**
+	 * 查询油气非油气的客户数量
+	 * @param startTime
+	 * @param endTime
+	 * @return {"oil":'油气非油气',"custCount":'客户数量'}
+	 */
+	List<Map<String,Object>>  selectCustCountGroupByCustCategory(Date startTime, Date endTime);
+	/**
+	 * 查询各地区的订单数量和金额
+	 * @param startTime
+	 * @param endTime
+	 * @return {"area":'地区',"ordCount":'订单数量',"ordAmmount":'订单金额'}
+	 */
+	List<Map<String, Object>> selectDataGroupByArea(Date startTime, Date endTime);
+	/**
+	 * 查询各事业部的订单数量和金额
+	 * @param startTime
+	 * @param endTime
+	 * @return {"org":'事业部',"ordCount":'订单数量',"ordAmmount":'订单金额'}
+	 */
+	List<Map<String, Object>> selectDataGroupByOrg(Date startTime, Date endTime);
 }

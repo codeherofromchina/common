@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.Target;
 import com.erui.report.model.TargetExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface TargetMapper {
@@ -29,4 +31,8 @@ public interface TargetMapper {
     int updateByPrimaryKey(Target record);
 
     Double selectTargetAmountByCondition(TargetExample example);
+    //查询各事业部的年度指标
+    List<Map<String,Object>> selectTargetGroupByOrg();
+    //查询各地区的年度指标
+    List<Map<String,Object>> selectTargetGroupByArea();
 }

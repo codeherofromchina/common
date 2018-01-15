@@ -6,6 +6,9 @@ import com.erui.report.model.TargetExample;
 import com.erui.report.service.TargetService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class TargetServiceImpl extends  BaseService<TargetMapper> implements TargetService {
 
@@ -27,5 +30,15 @@ public class TargetServiceImpl extends  BaseService<TargetMapper> implements Tar
             criteria.andOrgnizationEqualTo(org);
         }
         return readMapper.selectTargetAmountByCondition(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectTargetGroupByOrg() {
+        return readMapper.selectTargetGroupByOrg();
+    }
+
+    @Override
+    public List<Map<String, Object>> selectTargetGroupByArea() {
+        return readMapper.selectTargetGroupByArea();
     }
 }

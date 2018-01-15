@@ -72,6 +72,21 @@
   <sql id="Base_Column_List" >
     id, target_status, area, country, orgnization, target_moth, target_ammount, target_count
   </sql>
+  <select id="selectTargetGroupByOrg" resultType="java.util.Map">
+    select
+    SUM(IFNULL(target_ammount,0)) AS  ammount,
+    orgnization as org
+    from target
+    GROUP  BY  orgnization HAVING orgnization IS  NOT  NULL
+  </select>
+
+  <select id="selectTargetGroupByArea" resultType="java.util.Map" >
+    select
+    SUM(IFNULL(target_ammount,0)) AS  ammount,
+    area AS  area
+    from target
+   GROUP  BY  area HAVING  area IS  NOT  NULL
+  </select>
   <select id="selectTargetAmountByCondition" resultType="java.lang.Double" parameterType="com.erui.report.model.TargetExample" >
     select
     SUM(IFNULL(target_ammount,0)) AS  ammount
@@ -83,6 +98,7 @@
       order by ${orderByClause}
     </if>
   </select>
+
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.TargetExample" >
     select
     <if test="distinct" >

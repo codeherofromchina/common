@@ -216,6 +216,34 @@
     GROUP BY
     category HAVING  category IS  NOT  NULL
   </select>
+  <select id="selectDataGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordAmmount,
+    COUNT(*) AS ordCount,
+    order_area AS  area
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  order_area HAVING  order_area IS  NOT  NULL
+  </select>
+  <select id="selectDataGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordAmmount,
+    COUNT(*) AS ordCount,
+    organization AS  org
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  organization HAVING  organization IS  NOT  NULL
+  </select>
   <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
     SELECT
     COUNT(1) AS orderCount,
@@ -293,7 +321,88 @@
     </if>
     group by order_area
   </select>
-  
+
+    <!-- 查询油气非油气的复购客户数量 -->
+    <select id="selectRePurchaseCustGroupByCustCategory" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+      SELECT
+      COUNT(*) AS custCount,
+      cust_category AS oil
+      FROM
+      (
+      SELECT
+      COUNT(1),
+      `cust_description`,
+      `cust_category`
+      FROM
+      order_count
+      <if test="_parameter != null" >
+        <include refid="Example_Where_Clause" />
+      </if>
+      GROUP BY
+      cust_description,
+      cust_category
+      HAVING
+      cust_description IS NOT NULL
+      AND cust_category IS NOT NULL
+      AND COUNT(1) > 1
+      ) AS inq
+      GROUP BY
+      oil;
+    </select>
+    <!--查询各地区的复购客户数量 -->
+    <select id="selectRePurchaseCustGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+        SELECT
+        COUNT(*) AS custCount,
+        order_area AS area
+        FROM
+        (
+        SELECT
+        COUNT(1),
+        `cust_description`,
+        `order_area`
+        FROM
+        order_count
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        GROUP BY
+        cust_description,
+        order_area
+        HAVING
+        cust_description IS NOT NULL
+        AND order_area IS NOT NULL
+        AND COUNT(1) > 1
+        ) AS inq
+        GROUP BY
+        area;
+    </select>
+    <!-- 查询油气非油气的客户数量-->
+  <select id="selectCustCountGroupByCustCategory" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    cust_category AS oil
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `cust_category`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    cust_category
+    HAVING
+    cust_description IS NOT NULL
+    AND cust_category IS NOT NULL
+    ) AS inq
+    GROUP BY
+    oil;
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from order_count
     where id = #{id,jdbcType=BIGINT}

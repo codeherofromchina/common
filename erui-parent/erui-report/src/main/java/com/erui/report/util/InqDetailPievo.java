@@ -1,6 +1,8 @@
 package com.erui.report.util;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 /*
 * 客户中心-询单详细分析-询单明细饼图vo
@@ -15,10 +17,16 @@ public class InqDetailPievo {
     private  Integer[] quotingQuoteCountList;//说明数量列表
     private  String[] orgList;//事业部列表
     private  Integer[] orgCountList;//事业部数量列表
-    private  Double[] orgProportionList;//事业部数量列表
     private  String[] areaList;//地区列表
     private  Integer[] areaCountList;//地区数量列表
-    private  Double[] areaProportionList;//地区数量列表
+    private Map<String,Object> tableData;
+    public Map<String, Object> getTableData() {
+        return tableData;
+    }
+
+    public void setTableData(Map<String, Object> tableData) {
+        this.tableData = tableData;
+    }
 
     public String getQuoteStatus() {
         return quoteStatus;
@@ -26,22 +34,6 @@ public class InqDetailPievo {
 
     public void setQuoteStatus(String quoteStatus) {
         this.quoteStatus = quoteStatus;
-    }
-
-    public Double[] getOrgProportionList() {
-        return orgProportionList;
-    }
-
-    public void setOrgProportionList(Double[] orgProportionList) {
-        this.orgProportionList = orgProportionList;
-    }
-
-    public Double[] getAreaProportionList() {
-        return areaProportionList;
-    }
-
-    public void setAreaProportionList(Double[] areaProportionList) {
-        this.areaProportionList = areaProportionList;
     }
 
     public String[] getRtnDescrList() {

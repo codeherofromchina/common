@@ -87,5 +87,29 @@ public interface OrderCountMapper {
      * @return {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"area":'区域--String'}
      */
     List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupArea(OrderCountExample example);
+    /**
+     * 查询油气非油气的复购客户数量
+     * @param example
+     * @return {"oil":'油气非油气',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectRePurchaseCustGroupByCustCategory(OrderCountExample example);
+    /**
+     * 查询油气非油气的客户数量
+     * @param example
+     * @return {"oil":'油气非油气',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectCustCountGroupByCustCategory(OrderCountExample example);
+    /**
+     * 查询各地区的订单数量和金额
+     * @param example
+     * @return {"area":'地区',"ordCount":'订单数量',"ordAmmount":'订单金额'}
+     */
+    List<Map<String, Object>> selectDataGroupByArea(OrderCountExample example);
+    /**
+     * 查询各事业部的订单数量和金额
+     * @param example
+     * @return {"org":'事业部',"ordCount":'订单数量',"ordAmmount":'订单金额'}
+     */
+    List<Map<String, Object>> selectDataGroupByOrg(OrderCountExample example);
 
 }
