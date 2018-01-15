@@ -65,11 +65,17 @@ public class DeliverDetail {
     @Column(name = "ware_houseman")
     private Integer wareHouseman;   //仓库经办人
 
+    @Column(name = "ware_houseman_name")
+    private String wareHousemanName;   //仓库经办人姓名
+
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "send_date")
     private Date sendDate;  ///发运日期
 
     private Integer sender; //发运人员
+
+    @Column(name="sender_name")
+    private String senderName; //发运人员姓名
 
     private Integer reviewer;   //协办/复核人
 
@@ -100,16 +106,28 @@ public class DeliverDetail {
     @Column(name = "release_uid")
     private Integer releaseUid; //最终放行人
 
+    @Column(name = "release_name")
+    private String releaseName; //最终放行人姓名
+
     @Column(name = "quality_leader_id")
     private Integer qualityLeaderId;    //质量分管领导
 
+    @Column(name = "quality_leader_name")
+    private String qualityleaderName;    //质量分管领导姓名
+
     private Integer applicant;  //特殊放行申请人
+
+    @Column(name = "applicant_name")
+    private String applicantName;  //特殊放行申请人姓名
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "applicant_date")
     private Date applicantDate; //特殊放行申请日期
 
     private Integer approver;   //批准人
+
+    @Column(name = "approver_name")
+    private String approverName;   //批准人姓名
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "approval_date")
@@ -214,6 +232,54 @@ public class DeliverDetail {
     public String getProductDischargedNo() {
         return productDischargedNo;
     }*/
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public void setReleaseName(String releaseName) {
+        this.releaseName = releaseName;
+    }
+
+    public void setQualityleaderName(String qualityleaderName) {
+        this.qualityleaderName = qualityleaderName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public void setApproverName(String approverName) {
+        this.approverName = approverName;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public String getReleaseName() {
+        return releaseName;
+    }
+
+    public String getQualityleaderName() {
+        return qualityleaderName;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public String getApproverName() {
+        return approverName;
+    }
 
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;
