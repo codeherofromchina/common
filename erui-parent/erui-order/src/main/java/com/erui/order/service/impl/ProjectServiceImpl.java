@@ -2,7 +2,9 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
+import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
@@ -32,6 +34,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectDao projectDao;
+    @Autowired
+    private OrderDao orderDao;
 
     @Transactional
     @Override
@@ -57,12 +61,17 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
         project.copyProjectDesc(projectUpdate);
-        if (project.getProjectStatus() == Project.projectStatusEnum.EXECUTING.getCode().toString()){
+        if (project.getProjectStatus() == Project.projectStatusEnum.EXECUTING.getCode().toString()) {
 
         }
         projectUpdate.setProjectStatus(project.getProjectStatus());
         projectUpdate.setUpdateTime(new Date());
-        projectDao.saveAndFlush(projectUpdate);
+        Project project1 = projectDao.saveAndFlush(projectUpdate);
+        if (StringUtils.equals(project1.getProjectStatus(), "EXECUTING")) {
+            Order order = project1.getOrder();
+            order.setStatus(3);
+            orderDao.save(order);
+        }
         return true;
     }
 
@@ -136,7 +145,7 @@ public class ProjectServiceImpl implements ProjectService {
             list = list.stream().filter(project -> {
                 String projectNo = project.getProjectNo();
                 for (String pStr : projectNoList) {
-                    if (StringUtils.contains(projectNo,pStr)) {
+                    if (StringUtils.contains(projectNo, pStr)) {
                         return true;
                     }
                 }

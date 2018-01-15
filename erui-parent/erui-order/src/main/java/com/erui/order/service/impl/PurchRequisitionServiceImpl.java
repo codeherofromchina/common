@@ -82,7 +82,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         });
         purchRequisitionUpdate.setGoodsList(list);
         purchRequisitionUpdate.setStatus(purchRequisition.getStatus());
-        purchRequisitionDao.save(purchRequisitionUpdate);
+        PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionUpdate);
+        if (purchRequisition1.getStatus()==2){
+            Project project1 = purchRequisition1.getProject();
+            project1.setPurchReqCreate(Project.PurchReqCreateEnum.CREATED.getCode());
+            projectDao.save(project1);
+        }
         return true;
     }
 
@@ -126,7 +131,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         });
         purchRequisitionAdd.setGoodsList(list);
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
-        purchRequisitionDao.save(purchRequisitionAdd);
+        PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
+        if (purchRequisition1.getStatus()==2){
+            Project project1 = purchRequisition1.getProject();
+            project1.setPurchReqCreate(Project.PurchReqCreateEnum.CREATED.getCode());
+            projectDao.save(project1);
+        }
         return true;
     }
 }
