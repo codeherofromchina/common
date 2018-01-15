@@ -2,10 +2,7 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.DeliverConsignGoods;
-import com.erui.order.entity.DeliverDetail;
-import com.erui.order.entity.DeliverNotice;
-import com.erui.order.entity.Goods;
+import com.erui.order.entity.*;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.service.DeliverDetailService;
 import org.slf4j.Logger;
@@ -14,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -101,6 +96,20 @@ public class DeliverDetailsController {
         }
 
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
+
+        //附件信息
+        List<Attachment> attachmentList = new ArrayList(deliverDetail.getAttachmentList());
+        List<Attachment> attachmentList02 = new ArrayList<>();
+        Iterator<Attachment> iterator = attachmentList.iterator();
+        while (iterator.hasNext()) {
+            Attachment next = iterator.next();
+
+            if (!"仓储物流部".equals(next.getGroup())) {
+                attachmentList02.add(next);
+                iterator.remove();
+            }
+        }
+        deliverNoticeInfo.put("attachmentList", attachmentList);
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
@@ -155,6 +164,20 @@ public class DeliverDetailsController {
         }
 
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
+
+        //附件信息
+        List<Attachment> attachmentList = new ArrayList(deliverDetail.getAttachmentList());
+        List<Attachment> attachmentList02 = new ArrayList<>();
+        Iterator<Attachment> iterator = attachmentList.iterator();
+        while (iterator.hasNext()) {
+            Attachment next = iterator.next();
+
+            if (!"仓储物流部".equals(next.getGroup())) {
+                attachmentList02.add(next);
+                iterator.remove();
+            }
+        }
+        deliverNoticeInfo.put("attachmentList", attachmentList);
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
