@@ -6,15 +6,14 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
-import org.apache.commons.lang3.StringUtils;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 
@@ -84,7 +83,11 @@ public class OrderController {
             }
         } catch (Exception ex) {
             logger.error("订单操作失败：{}", addOrderVo, ex);
+            if (ex instanceof DataIntegrityViolationException){
+                return new Result<>(ResultStatusEnum.DUPLICATE_ERROR);
+            }
         }
+
         return new Result<>(ResultStatusEnum.FAIL);
     }
 
