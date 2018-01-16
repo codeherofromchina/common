@@ -34,6 +34,12 @@ public class DeliverDetail {
     @Transient
     private String projectNo;
 
+    @Transient
+    private String prepareReq;  //备货要求
+
+    @Transient
+    private String packageReq;  //包装要求
+
 /*
     @Column(name = "product_discharged_no")
     private String productDischargedNo;    //产品放行单号*/
@@ -521,6 +527,22 @@ public class DeliverDetail {
 
     public void setApprovalDate(Date approvalDate) {
         this.approvalDate = approvalDate;
+    }
+
+    public String getPrepareReq() {
+        return prepareReq;
+    }
+
+    public void setPrepareReq(String prepareReq) {
+        this.prepareReq = prepareReq;
+    }
+
+    public void setPackageReq(String packageReq) {
+        this.packageReq = packageReq;
+    }
+
+    public String getPackageReq() {
+        return packageReq;
     }
 
     public String getOpinion() {

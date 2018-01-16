@@ -311,6 +311,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 one.setReviewer(deliverDetail.getReviewer());
             }
 
+            DeliverNotice deliverNotice = one.getDeliverNotice();
+            if (StringUtil.isNotBlank(deliverDetail.getPackageReq())){
+                deliverNotice.setPackageReq(deliverDetail.getPackageReq());
+            }
+            if(StringUtil.isNotBlank(deliverDetail.getPrepareReq())){
+                deliverNotice.setPrepareReq(deliverDetail.getPrepareReq());
+            }
+
             //状态
             one.setStatus(deliverDetail.getStatus());
 
