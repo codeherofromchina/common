@@ -85,6 +85,9 @@ public class DeliverDetail {
 
     private Integer reviewer;   //协办/复核人
 
+    @Column(name = "reviewer_name")
+    private String reviewerName;    //协办/复核人名字
+
     @Column(name = "goods_chk_status")
     private String goodsChkStatus;  //实物检验结论
 
@@ -238,6 +241,14 @@ public class DeliverDetail {
     public String getProductDischargedNo() {
         return productDischargedNo;
     }*/
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
 
     public void setWareHousemanName(String wareHousemanName) {
         this.wareHousemanName = wareHousemanName;
