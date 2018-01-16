@@ -298,17 +298,29 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if (deliverDetail.getWareHouseman() != null) {
                 one.setWareHouseman(deliverDetail.getWareHouseman());
             }
+            //仓库经办人姓名
+            if(StringUtil.isNotBlank(deliverDetail.getWareHousemanName())){
+                one.setWareHousemanName(deliverDetail.getWareHousemanName());
+            }
             //发运日期
             if (deliverDetail.getSendDate() != null) {
                 one.setSendDate(deliverDetail.getSendDate());
             }
-            //发运人员
+            //发运人员id
             if (deliverDetail.getSender() != null) {
                 one.setSender(deliverDetail.getSender());
+            }
+            //发运人员姓名
+            if(StringUtil.isNotBlank(deliverDetail.getSenderName())){
+                one.setSenderName(deliverDetail.getSenderName());
             }
             //协办/复核人
             if (deliverDetail.getReviewer() != null) {
                 one.setReviewer(deliverDetail.getReviewer());
+            }
+            //协办/复核人名字
+            if(StringUtil.isNotBlank(deliverDetail.getReviewerName())){
+                one.setReviewerName(deliverDetail.getReviewerName());
             }
 
             DeliverNotice deliverNotice = one.getDeliverNotice();
