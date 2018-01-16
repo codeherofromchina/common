@@ -105,7 +105,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 }
                 for (DeliverConsign dc : deliverConsignSet) {
                     String deliverConsignNo = dc.getDeliverConsignNo();
-                    if (StringUtil.isNotBlank(deliverConsignNo)){
+                    if (!StringUtil.isNotBlank(deliverConsignNo)){
                         throw new Exception("无出口通知单号");
                     }
                     deliverConsignNos.add(deliverConsignNo);
