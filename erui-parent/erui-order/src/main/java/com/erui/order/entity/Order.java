@@ -682,4 +682,23 @@ public class Order {
         this.customerContext = customerContext;
     }
 
+
+    public static enum StatusEnum{
+        INIT(1,"待确认"),UNEXECUTED(2,"未执行"),EXECUTING(3,"执行中"),DONE(4,"完成");
+
+        public int code;
+        public String msg;
+        StatusEnum(int code,String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
 }

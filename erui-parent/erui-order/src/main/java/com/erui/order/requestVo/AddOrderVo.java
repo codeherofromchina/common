@@ -602,4 +602,6 @@ public class AddOrderVo {
         order.setExecCoName(this.execCoName);
         order.setDistributionDeptName(this.distributionDeptName);
     }
+
+
 }

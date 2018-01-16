@@ -429,16 +429,19 @@ public class Project {
     }
 
     public static enum projectStatusEnum {
-        SUBMIT(1, "未执行"), EXECUTING(2, "正常执行"), DONE(3, "正常完成"), DELAYED_EXECUTION(4, "延期执行"), DELAYED_COMPLETE(5, "延期完成"), UNSHIPPED(6, "正常待发运"),
-        DELAYED_UNSHIPPED(7, "延期待发运"), PAUSE(8, "项目暂停"), CANCEL(9, "项目取消");
-        private Integer code;
+        DRAFT("DRAFT", "待确认"), SUBMIT("SUBMIT", "未执行"),
+        EXECUTING("EXECUTING", "正常执行"), DONE("DONE", "正常完成"), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行"),
+        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成"), UNSHIPPED("UNSHIPPED", "正常待发运"),
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运"), PAUSE("PAUSE", "项目暂停"), CANCEL("CANCEL", "项目取消");
+        private String code;
         private String msg;
 
-        projectStatusEnum(Integer code, String msg) {
+        projectStatusEnum(String code, String msg) {
             this.code = code;
             this.msg = msg;
         }
-        public Integer getCode() {
+
+        public String getCode() {
             return code;
         }
 

@@ -2,6 +2,7 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.*;
@@ -34,9 +35,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderDao orderDao;
     @Autowired
+    private GoodsDao goodsDao;
+    @Autowired
     private ProjectDao projectDao;
     @Autowired
     private AttachmentService attachmentService;
+
     @Override
     @Transactional
     public Order findById(Integer id) {
@@ -133,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
         }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
-      //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
+        //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
@@ -159,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         Order orderUpdate = orderDao.saveAndFlush(order);
-        if (addOrderVo.getStatus() != 1) {
+        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -167,10 +171,17 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
-            projectAdd.setProjectStatus("SUBMIT");
+            projectAdd.setProjectStatus(Project.projectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setPurchDone(Boolean.FALSE);
-            projectDao.save(projectAdd);
+            Project project2 = projectDao.save(projectAdd);
+            // 设置商品的项目信息
+            List<Goods> goodsList1 = orderUpdate.getGoodsList();
+            goodsList1.parallelStream().forEach(goods1 -> {
+                goods1.setProject(project2);
+                goods1.setProjectNo(project2.getProjectNo());
+            });
+            goodsDao.save(goodsList1);
         }
         return true;
     }
@@ -261,8 +272,10 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
-        if (addOrderVo.getStatus() != 1) {
+        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            // 订单提交时推送项目信息
             Project project = new Project();
+            project.setProjectNo(UUID.randomUUID().toString());
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
             project.setExecCoName(order1.getExecCoName());
@@ -272,7 +285,14 @@ public class OrderServiceImpl implements OrderService {
             project.setProjectStatus("SUBMIT");
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setPurchDone(Boolean.FALSE);
-            projectDao.save(project);
+            Project project2 = projectDao.save(project);
+            // 设置商品的项目信息
+            List<Goods> goodsList1 = order1.getGoodsList();
+            goodsList1.parallelStream().forEach(goods1 -> {
+                goods1.setProject(project2);
+                goods1.setProjectNo(project2.getProjectNo());
+            });
+            goodsDao.save(goodsList1);
         }
         return true;
     }
