@@ -31,6 +31,9 @@ public class PurchRequisition {
     @Column(name = "contract_no")
     private String contractNo;
 
+    @Column(name = "project_no")
+    private String projectNo;
+
     @Column(name = "pm_uid")
     private Integer pmUid;
 
@@ -104,6 +107,14 @@ public class PurchRequisition {
 
     public void setProId(Integer proId) {
         this.proId = proId;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 
     public String getContractNo() {
