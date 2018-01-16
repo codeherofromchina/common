@@ -180,9 +180,6 @@ public class InstockServiceImpl implements InstockService {
     public boolean save(Instock instock) throws Exception {
 
         Instock dbInstock = instockDao.findOne(instock.getId());
-        if (dbInstock == null || dbInstock.getStatus() == Instock.StatusEnum.SUBMITED.getStatus()) {
-            return false;
-        }
 
         // 保存基本信息
         dbInstock.setUid(instock.getUid());
