@@ -357,6 +357,7 @@ public class PurchServiceImpl implements PurchService {
         Map<Integer, PurchPayment> collect = dbPurch.getPurchPaymentList().parallelStream().collect(Collectors.toMap(PurchPayment::getId, vo -> vo));
         List<PurchPayment> paymentList = purch.getPurchPaymentList().parallelStream().filter(vo -> {
             Integer payId = vo.getId();
+            // 过滤掉可能是其他采购信息的结算方式
             return payId == null || collect.containsKey(payId);
         }).map(payment -> {
             Integer paymentId = payment.getId();
@@ -386,6 +387,7 @@ public class PurchServiceImpl implements PurchService {
 
         // 数据库现在的采购商品信息
         Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
+
         Set<Integer> existId = new HashSet<>();
 
         // 处理参数中的采购商品信息
@@ -395,7 +397,7 @@ public class PurchServiceImpl implements PurchService {
                 Goods goods = goodsDao.findOne(pg.getgId());
                 // 已采购数量
                 Integer purchasedNum = goods.getPurchasedNum();
-                if (goods == null || goods.getExchanged() || purchasedNum >= goods.getContractGoodsNum()) {
+                if ( goods.getExchanged() || purchasedNum >= goods.getContractGoodsNum()) {
                     // 商品的采购已经大于了合同数量
                     return false;
                 }

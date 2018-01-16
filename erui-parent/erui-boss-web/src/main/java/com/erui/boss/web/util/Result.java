@@ -2,6 +2,7 @@ package com.erui.boss.web.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 统一返回的结果集合
@@ -44,8 +45,11 @@ public class Result<T> {
 		this.code = code;
 	}
 
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public Result<T> setMsg(String msg) {
+		if (StringUtils.isNotBlank(msg)) {
+			this.msg = msg;
+		}
+		return this;
 	}
 
 	public T getData() {
