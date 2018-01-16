@@ -403,7 +403,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public void logisticsActionAddOrSave(DeliverDetail deliverDetail) {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         //物流经办人
-        if (deliverDetail.getLogisticsUserId() != null && deliverDetail.getStatus() == 4) {
+        if (deliverDetail.getLogisticsUserId() != null) {
             one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
         }
         //物流经办人姓名
@@ -457,6 +457,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //实际创建时间
         if (deliverDetail.getStatus() == 4) {
             one.setAccomplishDate(new Date());
+        }
+
+        if (deliverDetail.getStatus() != null){
+            one.setStatus(deliverDetail.getStatus());
         }
         // 只接受国际物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
