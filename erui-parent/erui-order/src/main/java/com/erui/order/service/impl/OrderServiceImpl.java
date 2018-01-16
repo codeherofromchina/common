@@ -143,10 +143,14 @@ public class OrderServiceImpl implements OrderService {
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
+        Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         for (PGoods pGoods : pGoodsList) {
-            goods = new Goods();
+            if (pGoods.getId() == null) {
+                goods = new Goods();
+            } else {
+                goods =dbGoodsMap.remove(pGoods.getId());
+            }
             //    goods.setSeq(pGoods.getSeq());
-            goods.setId(pGoods.getId());
             goods.setSku(pGoods.getSku());
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -167,7 +171,7 @@ public class OrderServiceImpl implements OrderService {
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
-
+        goodsDao.delete(dbGoodsMap.values());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         Order orderUpdate = orderDao.saveAndFlush(order);
@@ -179,7 +183,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
-            projectAdd.setProjectStatus(Project.projectStatusEnum.SUBMIT.getCode());
+            projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setPurchDone(Boolean.FALSE);
             Project project2 = projectDao.save(projectAdd);

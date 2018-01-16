@@ -77,21 +77,12 @@ public class PurchRequisitionController {
         if (StringUtils.isBlank(purchRequisition.getProjectNo()) || StringUtils.equals(purchRequisition.getProjectNo(), "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("项目号不能为空");
-        } else if (purchRequisition.getPmUid() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("项目经办人不能为空");
-        } else if (purchRequisition.getDepartment() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("下发部门不能为空");
         } else if (purchRequisition.getSubmitDate() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("下发时间不能为空");
         } else if (StringUtils.isBlank(purchRequisition.getTradeMethod()) || StringUtils.equals(purchRequisition.getTradeMethod(), "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("贸易方式不能为空");
-        } else if (StringUtils.isBlank(purchRequisition.getTransModeBn()) || StringUtils.equals(purchRequisition.getTransModeBn(), "")) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("贸易术语不能为空");
         } else if (StringUtils.isBlank(purchRequisition.getDeliveryPlace()) || StringUtils.equals(purchRequisition.getDeliveryPlace(), "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("交货地点不能为空");
@@ -108,7 +99,7 @@ public class PurchRequisitionController {
                 }
             } catch (Exception ex) {
                 logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
-                if (ex instanceof DataIntegrityViolationException){
+                if (ex instanceof DataIntegrityViolationException) {
                     result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
                     result.setMsg("已存在项目");
                     return result;
