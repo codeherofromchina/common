@@ -32,10 +32,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private GoodsDao goodsDao;
     @Autowired
     private AttachmentService attachmentService;
+
     @Transactional
     @Override
-    public PurchRequisition findById(Integer id,Integer orderId) {
-        PurchRequisition purchRequisition = purchRequisitionDao.findByIdOrOrderId(id,orderId);
+    public PurchRequisition findById(Integer id, Integer orderId) {
+        PurchRequisition purchRequisition = purchRequisitionDao.findByIdOrOrderId(id, orderId);
         if (purchRequisition != null) {
             purchRequisition.setProId(purchRequisition.getProject().getId());
             purchRequisition.getGoodsList().size();
@@ -83,9 +84,9 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionUpdate.setGoodsList(list);
         purchRequisitionUpdate.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionUpdate);
-        if (purchRequisition1.getStatus()==2){
+        if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
-            project1.setPurchReqCreate(Project.PurchReqCreateEnum.CREATED.getCode());
+            project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             projectDao.save(project1);
         }
         return true;
@@ -127,14 +128,14 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             goods.setTechAudit(dcGoods.getTechAudit());
             goods.setTechRequire(dcGoods.getTechRequire());
             goodsDao.save(goods);
-           list.add(goods);
+            list.add(goods);
         });
         purchRequisitionAdd.setGoodsList(list);
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
-        if (purchRequisition1.getStatus()==2){
+        if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
-            project1.setPurchReqCreate(Project.PurchReqCreateEnum.CREATED.getCode());
+            project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             projectDao.save(project1);
         }
         return true;

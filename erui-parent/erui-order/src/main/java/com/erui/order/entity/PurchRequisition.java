@@ -10,52 +10,52 @@ import java.util.*;
  * 采购申请单
  */
 @Entity
-@Table(name="purch_requisition")
+@Table(name = "purch_requisition")
 public class PurchRequisition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="order_id")
+    @Column(name = "order_id")
     private Integer orderId;
     /**
      * 项目
      */
     @OneToOne
-    @JoinColumn(name="project_id")
+    @JoinColumn(name = "project_id")
     @JsonIgnore
     private Project project;
 
     @Transient
     private Integer proId;
-    @Column(name="contract_no")
+    @Column(name = "contract_no")
     private String contractNo;
 
-    @Column(name="pm_uid")
+    @Column(name = "pm_uid")
     private Integer pmUid;
 
     private Integer department;
 
-    @Column(name="submit_date")
+    @Column(name = "submit_date")
     private Date submitDate;
 
-    @Column(name="trade_method")
+    @Column(name = "trade_method")
     private String tradeMethod;
 
-    @Column(name="trans_mode_bn")
+    @Column(name = "trans_mode_bn")
     private String transModeBn;
 
-    @Column(name="factory_send")
+    @Column(name = "factory_send")
     private boolean factorySend = false;
 
-    @Column(name="delivery_place")
+    @Column(name = "delivery_place")
     private String deliveryPlace;
 
     private String requirements;
 
     private Integer status;
 
-    @Column(name="create_time")
+    @Column(name = "create_time")
     @JsonIgnore
     private Date createTime;
 
@@ -68,7 +68,7 @@ public class PurchRequisition {
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_goods",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "goods_id"))
@@ -216,5 +216,26 @@ public class PurchRequisition {
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
+    }
+
+
+    public static enum StatusEnum {
+        SAVED(1, "保存"), SUBMITED(2, "提交");
+
+        public int code;
+        public String msg;
+
+        StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
     }
 }
