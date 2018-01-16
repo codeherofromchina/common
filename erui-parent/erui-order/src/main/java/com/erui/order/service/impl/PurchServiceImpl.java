@@ -269,7 +269,6 @@ public class PurchServiceImpl implements PurchService {
         Date now = new Date();
 
         // 设置基础数据
-        purch.setPurchNo(RandomStringUtils.randomAlphabetic(32));
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
