@@ -58,8 +58,8 @@ public class InstockController {
     public Result<Object> save(@RequestBody Instock instock) {
 
         boolean continueFlag = true;
-        Instock.StatusEnum statusEnum = Instock.StatusEnum.formStatus(instock.getStatus());
-        if (!(statusEnum == Instock.StatusEnum.SAVED || statusEnum == Instock.StatusEnum.SUBMITED)) {
+        Integer status = instock.getStatus();
+        if (!(status ==2  || status ==3 )) {
             continueFlag = false;
         }
 
