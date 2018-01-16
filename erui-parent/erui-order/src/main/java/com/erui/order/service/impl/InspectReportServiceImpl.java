@@ -226,7 +226,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
             applyGoods.setSamples(paramApplyGoods.getSamples());
             applyGoods.setUnqualified(paramApplyGoods.getUnqualified());
-            applyGoods.setUnqualifiedDesc(applyGoods.getUnqualifiedDesc());
+            applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             if (applyGoods.getUnqualified() > 0) {
                 hegeFlag = false;
             }
