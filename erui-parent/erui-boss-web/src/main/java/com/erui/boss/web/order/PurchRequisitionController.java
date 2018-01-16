@@ -10,6 +10,7 @@ import com.erui.order.entity.Project;
 import com.erui.order.entity.PurchRequisition;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchRequisitionService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +51,11 @@ public class PurchRequisitionController {
     @RequestMapping(value = "addPurchDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) {
         Project project = projectService.findDesc(proMap.get("proId"));
-        if (project!=null){
+        if (project != null) {
             Map<String, Object> map = new HashMap<>();
             map.put("pmUid", project.getManagerUid());
-            map.put("contractNo",project.getContractNo());
-            map.put("sendDeptId",project.getSendDeptId());
+            map.put("contractNo", project.getContractNo());
+            map.put("sendDeptId", project.getSendDeptId());
             map.put("transModeBn", project.getOrder().getTradeTerms());
             map.put("goodList", project.getOrder().getGoodsList());
             return new Result<>(map);
@@ -71,7 +72,11 @@ public class PurchRequisitionController {
      */
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition) {
-        // TODO 参数检查略过,检查采购数量必须大于（如果存在替换商品则可以等于0）0
+        Result<Object> result = new Result<>();
+        if (StringUtils.isBlank(purchRequisition.getProjectNo()) ||StringUtils.equals(purchRequisition.getProjectNo(),"")) {
+            result.setData(ResultStatusEnum.FAIL);
+            result.setMsg("项目号为空");
+        }
         try {
             boolean flag = false;
             if (purchRequisition.getId() != null) {
@@ -80,11 +85,11 @@ public class PurchRequisitionController {
                 flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
             }
             if (flag) {
-                return new Result<>();
+                return result;
             }
         } catch (Exception ex) {
             logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return result;
     }
 }
