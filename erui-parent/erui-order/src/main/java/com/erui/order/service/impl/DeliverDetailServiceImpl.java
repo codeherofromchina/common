@@ -386,6 +386,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverDetail.getLogisticsUserId() != null && deliverDetail.getStatus() == 4) {
             one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
         }
+        //物流经办人姓名
+        if(StringUtil.isNotBlank(deliverDetail.getLogisticsUserName())){
+            one.setLogisticsUserName(deliverDetail.getLogisticsUserName());
+        }
         //经办日期
         if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
