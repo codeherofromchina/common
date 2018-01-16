@@ -1148,20 +1148,80 @@ public class CustomCentreController {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
         }).reduce(0, (a, b) -> a + b);
+
         dataList.stream().forEach(m -> {
             if (totalCount != null && totalCount > 0) {
                 m.put("totalProportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
             }
         });
+        //原因排序
+        List<Map<String, Object>> tableData = reasonDataListSort(dataList);
         List<String> reasons = dataList.stream().map(m -> m.get("reason").toString()).collect(Collectors.toList());
         List<String> totals = dataList.stream().map(m -> m.get("total").toString()).collect(Collectors.toList());
-        Map<String,Object> pieData=new HashMap<>();
-        Map<String,Object> data=new HashMap<>();
-        pieData.put("reasons",reasons);
-        pieData.put("counts",totals);
-        data.put("tableData",dataList);
-        data.put("pieData",pieData);
+        Map<String, Object> pieData = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        pieData.put("reasons", reasons);
+        pieData.put("counts", totals);
+        data.put("tableData", tableData);
+        data.put("pieData", pieData);
         return result.setData(data);
+    }
+
+    //给退回原因顺序排序
+    private List<Map<String, Object>> reasonDataListSort(List<Map<String, Object>> dataList) {
+        Map<String, Map<String, Object>> dataMap = dataList.parallelStream().collect(Collectors.toMap(v -> String.valueOf(v.get("reason")), v -> v));
+        List<Map<String, Object>> tableData = new ArrayList<>();
+        if (dataMap.containsKey(InqRtnSeasonEnum.PROJECT_CLEAR.getCh())) {
+            Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.PROJECT_CLEAR.getCh());
+            tableData.add(m1);
+        } else {
+            Map<String, Object> mm = new HashMap<>();
+            mm.put("reason", InqRtnSeasonEnum.PROJECT_CLEAR.getCh());
+            mm.put("total", 0);
+            mm.put("inqCount", 0);
+            mm.put("totalProportion", 0d);
+        }
+        if (dataMap.containsKey(InqRtnSeasonEnum.NOT_ORG.getCh())) {
+            Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.NOT_ORG.getCh());
+            tableData.add(m1);
+        } else {
+            Map<String, Object> mm = new HashMap<>();
+            mm.put("reason", InqRtnSeasonEnum.NOT_ORG.getCh());
+            mm.put("total", 0);
+            mm.put("inqCount", 0);
+            mm.put("totalProportion", 0d);
+        }
+        if (dataMap.containsKey(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
+            Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.NOT_SUPPLY.getCh());
+            tableData.add(m1);
+        } else {
+            Map<String, Object> mm = new HashMap<>();
+            mm.put("reason", InqRtnSeasonEnum.NOT_SUPPLY.getCh());
+            mm.put("total", 0);
+            mm.put("inqCount", 0);
+            mm.put("totalProportion", 0d);
+        }
+        if (dataMap.containsKey(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
+            Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh());
+            tableData.add(m1);
+        } else {
+            Map<String, Object> mm = new HashMap<>();
+            mm.put("reason", InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh());
+            mm.put("total", 0);
+            mm.put("inqCount", 0);
+            mm.put("totalProportion", 0d);
+        }
+        if (dataMap.containsKey(InqRtnSeasonEnum.OTHER.getCh())) {
+            Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.OTHER.getCh());
+            tableData.add(m1);
+        } else {
+            Map<String, Object> mm = new HashMap<>();
+            mm.put("reason", InqRtnSeasonEnum.OTHER.getCh());
+            mm.put("total", 0);
+            mm.put("inqCount", 0);
+            mm.put("totalProportion", 0d);
+        }
+        return tableData;
     }
 
     /**
