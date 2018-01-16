@@ -58,6 +58,7 @@ public class PurchRequisitionController {
             map.put("transModeBn", project.getOrder().getTradeTerms());
             map.put("goodList", project.getOrder().getGoodsList());
             return new Result<>(map);
+
         }
         return new Result<>(ResultStatusEnum.DATA_NULL.DATA_NULL);
     }
@@ -70,7 +71,6 @@ public class PurchRequisitionController {
      */
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition) {
-
         // TODO 参数检查略过,检查采购数量必须大于（如果存在替换商品则可以等于0）0
         try {
             boolean flag = false;

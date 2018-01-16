@@ -58,6 +58,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionUpdate.setContractNo(purchRequisition.getContractNo());
        /* purchRequisitionUpdate.setDepartment(project.getSendDeptId());
         purchRequisitionUpdate.setPmUid(project.getManagerUid());*/
+        purchRequisitionUpdate.setProjectNo(purchRequisition.getProjectNo());
         purchRequisitionUpdate.setSubmitDate(purchRequisition.getSubmitDate());
         purchRequisitionUpdate.setTradeMethod(purchRequisition.getTradeMethod());
         purchRequisitionUpdate.setTransModeBn(project.getOrder().getTradeTerms());
@@ -87,6 +88,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
+            project1.setProjectNo(purchRequisition1.getProjectNo());
             projectDao.save(project1);
         }
         return true;
@@ -105,6 +107,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setProject(project);
         purchRequisitionAdd.setDepartment(project.getOrder().getTechnicalId());
         purchRequisitionAdd.setPmUid(project.getManagerUid());
+        purchRequisitionAdd.setProjectNo(purchRequisition.getProjectNo());
         purchRequisitionAdd.setSubmitDate(purchRequisition.getSubmitDate());
         purchRequisitionAdd.setTradeMethod(purchRequisition.getTradeMethod());
         purchRequisitionAdd.setTransModeBn(project.getOrder().getTradeTerms());
@@ -135,6 +138,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
+            project1.setProjectNo(purchRequisition1.getProjectNo());
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             projectDao.save(project1);
         }
