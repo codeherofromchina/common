@@ -1151,7 +1151,7 @@ public class CustomCentreController {
 
         dataList.stream().forEach(m -> {
             if (totalCount != null && totalCount > 0) {
-                m.put("totalProportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
+                m.put("totalProportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
             }
         });
         //原因排序
@@ -1180,6 +1180,7 @@ public class CustomCentreController {
             mm.put("total", 0);
             mm.put("inqCount", 0);
             mm.put("totalProportion", 0d);
+            tableData.add(mm);
         }
         if (dataMap.containsKey(InqRtnSeasonEnum.NOT_ORG.getCh())) {
             Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.NOT_ORG.getCh());
@@ -1190,6 +1191,7 @@ public class CustomCentreController {
             mm.put("total", 0);
             mm.put("inqCount", 0);
             mm.put("totalProportion", 0d);
+            tableData.add(mm);
         }
         if (dataMap.containsKey(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
             Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.NOT_SUPPLY.getCh());
@@ -1200,6 +1202,7 @@ public class CustomCentreController {
             mm.put("total", 0);
             mm.put("inqCount", 0);
             mm.put("totalProportion", 0d);
+            tableData.add(mm);
         }
         if (dataMap.containsKey(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
             Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh());
@@ -1210,6 +1213,7 @@ public class CustomCentreController {
             mm.put("total", 0);
             mm.put("inqCount", 0);
             mm.put("totalProportion", 0d);
+            tableData.add(mm);
         }
         if (dataMap.containsKey(InqRtnSeasonEnum.OTHER.getCh())) {
             Map<String, Object> m1 = dataMap.get(InqRtnSeasonEnum.OTHER.getCh());
@@ -1220,6 +1224,7 @@ public class CustomCentreController {
             mm.put("total", 0);
             mm.put("inqCount", 0);
             mm.put("totalProportion", 0d);
+            tableData.add(mm);
         }
         return tableData;
     }
@@ -1258,13 +1263,13 @@ public class CustomCentreController {
                     mm.put("area", m.get("area").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    mm.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
+                    mm.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
                     areaData.put(String.valueOf(m.get("area")), mm);
                 } else {
                     Map<String, Object> areaMap = areaData.get(m.get("area").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     areaMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    areaMap.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), totalCount));
+                    areaMap.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
                 }
             }
         });
@@ -1279,13 +1284,13 @@ public class CustomCentreController {
                     mm.put("org", m.get("org").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    mm.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), orgTotalCount));
+                    mm.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), orgTotalCount));
                     orgData.put(String.valueOf(m.get("area")), mm);
                 } else {
                     Map<String, Object> orgMap = orgData.get(m.get("org").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    orgMap.put(reasonEn + "Proportion", RateUtil.intChainRateTwo(Integer.valueOf(m.get("total").toString()), orgTotalCount));
+                    orgMap.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), orgTotalCount));
                 }
             }
         });
