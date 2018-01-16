@@ -199,15 +199,17 @@ public class InspectReportController {
     public Result<Object> save(@RequestBody InspectReport inspectReport) {
 
         // TODO 验证参数需完善
+        String errorMsg = null;
         try {
             if (inspectReportService.save(inspectReport)) {
                 return new Result<>();
             }
         } catch (Exception e) {
+            errorMsg = e.getMessage();
             logger.error("异常错误", e);
         }
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
 

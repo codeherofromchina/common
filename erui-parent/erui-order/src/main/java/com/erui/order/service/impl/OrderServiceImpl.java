@@ -158,6 +158,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setBrand(pGoods.getBrand());
             goods.setContractNo(order.getContractNo());
             goods.setPurchasedNum(0);
+            goods.setPrePurchsedNum(0);
             goods.setInspectNum(0);
             goods.setInstockNum(0);
             goods.setOutstockApplyNum(0);
@@ -166,6 +167,7 @@ public class OrderServiceImpl implements OrderService {
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
+
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         Order orderUpdate = orderDao.saveAndFlush(order);
@@ -262,6 +264,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setBrand(pGoods.getBrand());
             goods.setContractNo(order.getContractNo());
             goods.setPurchasedNum(0);
+            goods.setPrePurchsedNum(0);
             goods.setInstockNum(0);
             goods.setInspectNum(0);
             goods.setOutstockApplyNum(0);

@@ -90,8 +90,14 @@ public class Goods {
     @Column(name = "tech_audit")
     private String techAudit;
 
+    // 已采购数量
     @Column(name = "purchased_num")
     private Integer purchasedNum;
+    // 预采购数量
+    @Column(name = "pre_purchased_num")
+    private Integer prePurchsedNum;
+
+
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
@@ -330,6 +336,14 @@ public class Goods {
 
     public void setPurchasedNum(Integer purchasedNum) {
         this.purchasedNum = purchasedNum;
+    }
+
+    public Integer getPrePurchsedNum() {
+        return prePurchsedNum;
+    }
+
+    public void setPrePurchsedNum(Integer prePurchsedNum) {
+        this.prePurchsedNum = prePurchsedNum;
     }
 
     public Integer getInstockNum() {

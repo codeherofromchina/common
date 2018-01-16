@@ -34,6 +34,12 @@ public class DeliverDetail {
     @Transient
     private String projectNo;
 
+    @Transient
+    private String prepareReq;  //备货要求
+
+    @Transient
+    private String packageReq;  //包装要求
+
 /*
     @Column(name = "product_discharged_no")
     private String productDischargedNo;    //产品放行单号*/
@@ -78,6 +84,9 @@ public class DeliverDetail {
     private String senderName; //发运人员姓名
 
     private Integer reviewer;   //协办/复核人
+
+    @Column(name = "reviewer_name")
+    private String reviewerName;    //协办/复核人名字
 
     @Column(name = "goods_chk_status")
     private String goodsChkStatus;  //实物检验结论
@@ -232,6 +241,14 @@ public class DeliverDetail {
     public String getProductDischargedNo() {
         return productDischargedNo;
     }*/
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
 
     public void setWareHousemanName(String wareHousemanName) {
         this.wareHousemanName = wareHousemanName;
@@ -521,6 +538,22 @@ public class DeliverDetail {
 
     public void setApprovalDate(Date approvalDate) {
         this.approvalDate = approvalDate;
+    }
+
+    public String getPrepareReq() {
+        return prepareReq;
+    }
+
+    public void setPrepareReq(String prepareReq) {
+        this.prepareReq = prepareReq;
+    }
+
+    public void setPackageReq(String packageReq) {
+        this.packageReq = packageReq;
+    }
+
+    public String getPackageReq() {
+        return packageReq;
     }
 
     public String getOpinion() {
