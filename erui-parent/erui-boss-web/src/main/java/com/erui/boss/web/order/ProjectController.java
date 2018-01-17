@@ -69,12 +69,6 @@ public class ProjectController {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);
         }
         Page<Project> projectPage = projectService.findByPage(condition);
-        for (Project project : projectPage) {
-          /*  project.getOrder().setAttachmentSet(null);
-            project.getOrder().setOrderPayments(null);
-            project.getOrder().setGoodsList(null);*/
-            //  project.setPurchRequisition(null);
-        }
         if (projectPage != null) {
             return new Result<>(projectPage);
         }
@@ -132,6 +126,8 @@ public class ProjectController {
         }
         Project project = projectService.findByIdOrOrderId(map.get("id"), map.get("orderId"));
         if (project!=null){
+            //project.getPurchRequisition().getAttachmentSet();
+            project.getOrder().getGoodsList();
             return new Result<>(project);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);

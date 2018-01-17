@@ -121,9 +121,230 @@ public class Goods {
     private Integer instockNum;
     @Column(name = "outstock_apply_num")
     private Integer outstockApplyNum;
+    //已发货数量
     @Column(name = "outstock_num")
     private Integer outstockNum;
+    /*项目sku执行跟踪需要*/
+    //项目开始日期
+    @Column(name = "start_date")
+    private Date startDate;
+    //执行单约定交付日期
+    @Column(name = "delivery_date")
+    private Date deliveryDate;
+    //合同变更后到货日期
+    @Column(name = "pur_chg_date")
+    private Date purChgDate;
+    //采购合同签订日期
+    @Column(name = "signing_date")
+    private Date signingDate;
+    //采购经办人
+    @Column(name = "agent_id")
+    private Integer agentId;
+    //合同约定到货日期
+    @Column(name = "arrival_date")
+    private Date arrivalDate;
+    //报检日期
+    @Column(name = "inspect_date")
+    private Date inspectDate;
+    //检验员
+    @Column(name = "check_user_id")
+    private Integer checkUerId;
+    //检验日期
+    @Column(name = "check_date")
+    private Date checkDate;
+    //仓库经办人
+    private Integer uid;
+    //入库日期
+    @Column(name = "instock_date")
+    private Date instockDate;
+    //放行日期
+    @Column(name = "release_date")
+    private Date releaseDate;
+    //发送看货通知日期
+    @Column(name = "send_date")
+    private Date sendDate;
+    //订舱人
+    @Column(name = "sender_id")
+    private Integer senderId;
+    //订舱日期
+    @Column(name = "booking_time")
+    private Date bookingTime;
+    //船期或航班
+    @Column(name = "sailing_date")
+    private Date sailingDate;
+    //报关放行时间
+    @Column(name = "customs_clearance")
+    private Date customsClearance;
+    //实际离港时间
+    @Column(name = "leave_port_time")
+    private Date leavePortTime;
+    //预计抵达时间
+    @Column(name = "arrival_port_time")
+    private Date arrivalPortTime;
+    //实际完成日期
+    @Column(name = "accomplish_date")
+    private Date accomplishDate;
 
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(Date deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public Date getPurChgDate() {
+        return purChgDate;
+    }
+
+    public void setPurChgDate(Date purChgDate) {
+        this.purChgDate = purChgDate;
+    }
+
+    public Date getSigningDate() {
+        return signingDate;
+    }
+
+    public void setSigningDate(Date signingDate) {
+        this.signingDate = signingDate;
+    }
+
+    public Integer getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(Integer agentId) {
+        this.agentId = agentId;
+    }
+
+    public Date getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    public Date getInspectDate() {
+        return inspectDate;
+    }
+
+    public void setInspectDate(Date inspectDate) {
+        this.inspectDate = inspectDate;
+    }
+
+    public Integer getCheckUerId() {
+        return checkUerId;
+    }
+
+    public void setCheckUerId(Integer checkUerId) {
+        this.checkUerId = checkUerId;
+    }
+
+    public Date getCheckDate() {
+        return checkDate;
+    }
+
+    public void setCheckDate(Date checkDate) {
+        this.checkDate = checkDate;
+    }
+
+    public Integer getUid() {
+        return uid;
+    }
+
+    public void setUid(Integer uid) {
+        this.uid = uid;
+    }
+
+    public Date getInstockDate() {
+        return instockDate;
+    }
+
+    public void setInstockDate(Date instockDate) {
+        this.instockDate = instockDate;
+    }
+
+    public Date getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(Date releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public Date getSendDate() {
+        return sendDate;
+    }
+
+    public void setSendDate(Date sendDate) {
+        this.sendDate = sendDate;
+    }
+
+    public Integer getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(Integer senderId) {
+        this.senderId = senderId;
+    }
+
+    public Date getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(Date bookingTime) {
+        this.bookingTime = bookingTime;
+    }
+
+    public Date getSailingDate() {
+        return sailingDate;
+    }
+
+    public void setSailingDate(Date sailingDate) {
+        this.sailingDate = sailingDate;
+    }
+
+    public Date getCustomsClearance() {
+        return customsClearance;
+    }
+
+    public void setCustomsClearance(Date customsClearance) {
+        this.customsClearance = customsClearance;
+    }
+
+    public Date getLeavePortTime() {
+        return leavePortTime;
+    }
+
+    public void setLeavePortTime(Date leavePortTime) {
+        this.leavePortTime = leavePortTime;
+    }
+
+    public Date getArrivalPortTime() {
+        return arrivalPortTime;
+    }
+
+    public void setArrivalPortTime(Date arrivalPortTime) {
+        this.arrivalPortTime = arrivalPortTime;
+    }
+
+    public Date getAccomplishDate() {
+        return accomplishDate;
+    }
+
+    public void setAccomplishDate(Date accomplishDate) {
+        this.accomplishDate = accomplishDate;
+    }
 
     public Integer getInspectNum() {
         return inspectNum;

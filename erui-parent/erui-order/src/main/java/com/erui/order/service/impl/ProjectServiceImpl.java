@@ -56,8 +56,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return projects;
     }
-
-
     @Transactional
     @Override
     public boolean updateProject(Project project) {
@@ -68,6 +66,12 @@ public class ProjectServiceImpl implements ProjectService {
         Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         if (statusEnum == Project.ProjectStatusEnum.EXECUTING) {
             Order order = projectUpdate.getOrder();
+            order.getGoodsList().forEach(gd -> {
+                        gd.setStartDate(projectUpdate.getStartDate());
+                        gd.setDeliveryDate(projectUpdate.getDeliveryDate());
+                        gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                    }
+            );
             order.setStatus(3);
         }
         projectDao.saveAndFlush(projectUpdate);
@@ -77,7 +81,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC,"id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
         Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -173,6 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Project findByIdOrOrderId(Integer id, Integer orderId) {
         Project project = projectDao.findByIdOrOrderId(id, orderId);
         if (project != null) {
+            project.getOrder().getGoodsList().size();
             return project;
         }
         return null;

@@ -5,6 +5,7 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.DeliverConsignDao;
 import com.erui.order.dao.DeliverDetailDao;
 import com.erui.order.dao.DeliverNoticeDao;
+import com.erui.order.dao.GoodsDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
@@ -41,6 +42,9 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
     @Autowired
     private DeliverDetailDao deliverDetailDao;
+
+    @Autowired
+    private GoodsDao goodsDao;
 
 
     @Override
@@ -135,6 +139,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverConsign.setId(Integer.parseInt(s));
             list.add(deliverConsign);
             DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
+            //发送看货通知日期
+            for (Goods goods : one.getOrder().getGoodsList()) {
+                Goods one1 = goodsDao.findOne(goods.getId());
+                one1.setSendDate(deliverNotice.getSendDate());
+                goodsDao.save(one1);
+            };
             one.setDeliverYn(2);
             deliverConsignDao.saveAndFlush(one);
         }
