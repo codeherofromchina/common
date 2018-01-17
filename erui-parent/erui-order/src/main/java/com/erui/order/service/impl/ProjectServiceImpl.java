@@ -4,6 +4,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
@@ -139,7 +140,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (list == null) {
             list = new ArrayList<>();
         } else if (list != null && projectNoList != null) {
-            // TODO 省略数据库查询，先用程序过滤
+            // 用程序过滤
             list = list.stream().filter(project -> {
                 String projectNo = project.getProjectNo();
                 for (String pStr : projectNoList) {
@@ -148,6 +149,10 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                 }
                 return false;
+            }).filter(project -> {
+                List<Goods> goodsList = project.getGoodsList();
+                // 存在还可以采购的商品
+                return goodsList.parallelStream().anyMatch(goods -> {return goods.getPrePurchsedNum() < goods.getContractGoodsNum();});
             }).collect(Collectors.toList());
         }
         return list;

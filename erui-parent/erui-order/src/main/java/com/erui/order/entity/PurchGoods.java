@@ -37,7 +37,8 @@ public class PurchGoods {
     @JsonIgnore
     private Purch purch;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    // 务必没有修改goods权限的能力
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
     private Goods goods;
     /**

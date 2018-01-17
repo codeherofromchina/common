@@ -50,7 +50,7 @@ public class GoodsController {
         List<Goods> goodsList = goodsService.findByProjectIds(ids);
         // 数据过滤并转换
         List<Map<String, Object>> data = goodsList.stream().filter(goods -> {
-            return goods.getPurchasedNum() < goods.getContractGoodsNum();
+            return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
         }).map(goods -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", goods.getId()); // 商品ID
