@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * 订单-项目信息
@@ -117,7 +116,6 @@ public class Project {
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
-    @JsonIgnore
     private List<Goods> goodsList = new ArrayList<>();
 
     public Integer getId() {

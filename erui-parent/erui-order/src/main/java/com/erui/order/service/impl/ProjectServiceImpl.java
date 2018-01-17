@@ -177,7 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Project findByIdOrOrderId(Integer id, Integer orderId) {
         Project project = projectDao.findByIdOrOrderId(id, orderId);
         if (project != null) {
-            project.getOrder().getGoodsList().size();
+            project.getGoodsList().size();
             return project;
         }
         return null;
