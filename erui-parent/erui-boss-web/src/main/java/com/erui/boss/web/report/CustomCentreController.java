@@ -804,22 +804,37 @@ public class CustomCentreController {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
-        //int inqTotalCount = inquiryService.inquiryCountByTime(startTime, endTime, "", 0, 0, "", "");
-        //Double inqTotalAmount = inquiryService.inquiryAmountByTime(startTime, endTime, "");
-        //int ordTotalCount = orderService.orderCountByTime(startTime, endTime, "", "", "");
-        //Double ordTotalAmount = orderService.orderAmountByTime(startTime, endTime, "");
         int inqTotalCount = 0;
         int ordTotalCount = 0;
         BigDecimal inqTotalAmount = BigDecimal.ZERO;
         BigDecimal ordTotalAmount = BigDecimal.ZERO;
 
-        //  List<CateDetailVo> inqList = this.inquiryService.selectInqDetailByCategory(startTime, endTime);
         List<CateDetailVo> inqList = inquirySKUService.selectSKUDetailByCategory(startTime, endTime);
         List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
+        //1.饼图数据 inqCateCount,category
+        List<String> inqCateList=new ArrayList<>();
+        List<String> ordCateList=new ArrayList<>();
+        List<Integer> inqCountList=new ArrayList<>();
+        List<Integer> ordCountList=new ArrayList<>();
+        inqList.stream().forEach(vo->{
+            inqCateList.add(vo.getCategory());
+            inqCountList.add(vo.getInqCateCount());
+        });
+        ordList.stream().forEach(vo->{
+            ordCateList.add(vo.getCategory());
+            ordCountList.add(vo.getOrdCateCount());
+        });
+        Map<String,Object> inqPie=new HashMap<>();
+        Map<String,Object> ordPie=new HashMap<>();
+        inqPie.put("categoryList",inqCateList);
+        inqPie.put("countList",inqCateList);
+        ordPie.put("categoryList",ordCateList);
+        ordPie.put("countList",ordCountList);
+
+        //2.品类明细数据
         Map<String, CateDetailVo> ordMap = new HashMap<>();
         Map<String, CateDetailVo> inqMap = new HashMap<>();
         final Set<String> category = new HashSet<>();
-
         if (ordList != null) {
             for (CateDetailVo vo : ordList) {
                 String category1 = vo.getCategory();
@@ -844,7 +859,7 @@ public class CustomCentreController {
             }
         }
 
-        List<CateDetailVo> data = new ArrayList<>();
+        List<CateDetailVo> cateDetailList = new ArrayList<>();
         for (String c : category) {
             CateDetailVo vo = new CateDetailVo();
             vo.setCategory(c);
@@ -880,16 +895,21 @@ public class CustomCentreController {
                 vo.setOrdCatePrice(0d);
                 vo.setOrdAmountProportion(0d);
             }
-            data.add(vo);
+            cateDetailList.add(vo);
         }
 
 
-        data.sort((vo1, vo2) -> {
+        cateDetailList.sort((vo1, vo2) -> {
             int count1 = vo2.getInqCateCount() + vo2.getOrdCateCount();
             int count2 = vo1.getInqCateCount() + vo1.getOrdCateCount();
 
             return count1 - count2;
         });
+        Map<String,Object> data=new HashMap<>();
+        data.put("inqPie",inqPie);
+        data.put("ordPie",ordPie);
+        data.put("cateDetail",cateDetailList);
+
         result.setStatus(ResultStatusEnum.SUCCESS);
         result.setData(data);
         return result;
