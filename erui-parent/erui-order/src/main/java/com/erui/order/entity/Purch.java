@@ -115,6 +115,8 @@ public class Purch {
     @JsonIgnore
     private Date deleteTime;
 
+    // 是否报检完成 true：完成  false：未完成
+    private Boolean inspected;
 
     private String remarks;
 
@@ -380,6 +382,14 @@ public class Purch {
 
     public Date getDeleteTime() {
         return deleteTime;
+    }
+
+    public Boolean getInspected() {
+        return inspected;
+    }
+
+    public void setInspected(Boolean inspected) {
+        this.inspected = inspected;
     }
 
     public void setDeleteTime(Date deleteTime) {

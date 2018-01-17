@@ -29,6 +29,7 @@ public class InspectApplyGoods {
     @JoinColumn(name = "goods_id")
     private Goods goods;
 
+    // 务必没有任何增删改的权限
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "purch_goods_id")
     private PurchGoods purchGoods;

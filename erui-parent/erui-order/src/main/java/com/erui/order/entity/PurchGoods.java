@@ -62,6 +62,10 @@ public class PurchGoods {
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
+    // 预报检数量，报检保存就修改此数量
+    @Column(name = "pre_inspect_num")
+    private Integer preInspectNum;
+
     // 检验合格商品数量
     @Column(name = "good_num")
     private Integer goodNum;
@@ -184,6 +188,14 @@ public class PurchGoods {
 
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
+    }
+
+    public Integer getPreInspectNum() {
+        return preInspectNum;
+    }
+
+    public void setPreInspectNum(Integer preInspectNum) {
+        this.preInspectNum = preInspectNum;
     }
 
     public Integer getGoodNum() {

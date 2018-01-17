@@ -34,15 +34,16 @@ public class InspectApplyController {
     /**
      * 获取采购纬度的报检单信息列表
      *
-     * @param inspectApply 采购ID
+     * @param params {"purchId":"采购ID"}
      * @return
      */
     @RequestMapping("listByParch")
-    public Result<Object> listByParch(@RequestBody InspectApply inspectApply) {
-        if(inspectApply == null || inspectApply.getId() == null){
-            return new Result<>(ResultStatusEnum.FAIL);
+    public Result<Object> listByParch(@RequestBody Map<String, Integer> params) {
+        Integer purchId = params.get("purchId");
+        if (purchId == null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("采购主键为空");
         }
-        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(inspectApply.getId());
+        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(purchId);
         if (inspectApplyList != null) {
             // 转换数据
             List<Map<String, Object>> data = inspectApplyList.stream().map(vo -> {
@@ -58,15 +59,16 @@ public class InspectApplyController {
     /**
      * 获取报检单信息详情
      *
-     * @param inspectApplys 报检单ID
+     * @param params {"id":"报检单ID"}
      * @return
      */
     @RequestMapping("detail")
-    public Result<Object> detail(@RequestBody InspectApply inspectApplys) {
-        if(inspectApplys == null || inspectApplys.getId() == null){
-            return new Result<>(ResultStatusEnum.FAIL);
+    public Result<Object> detail(@RequestBody Map<String, Integer> params) {
+        Integer id = params.get("id");
+        if (id == null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("缺少参数");
         }
-        InspectApply inspectApply = inspectApplyService.findDetail(inspectApplys.getId());
+        InspectApply inspectApply = inspectApplyService.findDetail(id);
         if (inspectApply != null) {
             // 数据转换
             Map<String, Object> data = new HashMap<>();
@@ -125,7 +127,7 @@ public class InspectApplyController {
      */
     @RequestMapping("history")
     public Result<Object> history(@RequestBody InspectApply inspectApply) {
-        if(inspectApply == null || inspectApply.getId() == null){
+        if (inspectApply == null || inspectApply.getId() == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
         // 查询多次相同报检提交的报检单

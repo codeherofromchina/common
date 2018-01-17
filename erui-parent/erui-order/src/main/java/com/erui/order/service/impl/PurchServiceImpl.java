@@ -218,7 +218,15 @@ public class PurchServiceImpl implements PurchService {
 
         if (page.hasContent()) {
             page.getContent().parallelStream().forEach(vo -> {
-                vo.getProjects().size();
+                List<String> projectNoList = new ArrayList<>();
+                List<String> contractNoList = new ArrayList<>();
+                vo.getProjects().stream().forEach(project -> {
+                    projectNoList.add(project.getProjectNo());
+                    contractNoList.add(project.getContractNo());
+                });
+                vo.setProjectNos(StringUtils.join(projectNoList, ","));
+                vo.setContractNos(StringUtils.join(contractNoList, ","));
+                vo.getPurchGoodsList().size();
             });
         }
 
@@ -492,7 +500,7 @@ public class PurchServiceImpl implements PurchService {
                 int purchaseNum = purchGoods.getPurchaseNum();
                 Goods goods = purchGoods.getGoods();
                 // 从数据库查询一次做修改
-                if (goods.getParentId() != null ) {
+                if (goods.getParentId() != null) {
                     goods = goodsDao.findOne(goods.getParentId());
                 } else {
                     goods = goodsDao.findOne(goods.getId());
@@ -555,6 +563,7 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setPurchaseNum(purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0);
         newPurchGoods.setExchanged(false);
         newPurchGoods.setInspectNum(0); // 设置已报检数量
+        newPurchGoods.setPreInspectNum(0); // 设置预报检数量
         newPurchGoods.setGoodNum(0);
         // 计算含税价格和不含税单价以及总价款
         String currencyBn = purch.getCurrencyBn();
@@ -644,6 +653,7 @@ public class PurchServiceImpl implements PurchService {
         // 总价款
         son.setTotalPrice(purchasePrice.multiply(new BigDecimal(purchaseNum.intValue())));
         son.setInspectNum(0);
+        son.setPreInspectNum(0);
         son.setGoodNum(0);
         son.setCreateTime(new Date());
     }

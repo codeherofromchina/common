@@ -72,15 +72,17 @@ public class PurchController {
             purchPage.getContent().forEach(vo -> {
                 vo.setAttachments(null);
                 vo.setPurchPaymentList(null);
+
+                if (vo.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+                    if (vo.getPurchGoodsList().parallelStream().anyMatch(purchGoods -> {
+                        return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
+                    })) {
+                        vo.setInspected(Boolean.FALSE);
+                    } else {
+                        vo.setInspected(Boolean.TRUE);
+                    }
+                }
                 vo.setPurchGoodsList(null);
-                List<String> projectNoList = new ArrayList<>();
-                List<String> contractNoList = new ArrayList<>();
-                vo.getProjects().stream().forEach(project -> {
-                    projectNoList.add(project.getProjectNo());
-                    contractNoList.add(project.getContractNo());
-                });
-                vo.setProjectNos(StringUtils.join(projectNoList, ","));
-                vo.setContractNos(StringUtils.join(contractNoList, ","));
             });
         }
         return new Result<>(purchPage);
