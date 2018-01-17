@@ -48,7 +48,7 @@ public class DeliverNotice {
     private Set<DeliverConsign> deliverConsigns = new HashSet<>();
 
     @Column(name = "sender_id")
-    private Integer senderId;
+    private Integer senderId;   //下单人
 
     @Transient
     private String deliverConsignIds;   //出口通知单id
@@ -60,7 +60,7 @@ public class DeliverNotice {
     private String senderName;
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "send_date")
+    @Column(name = "send_date") //下单日期
     private Date sendDate;
     @Column(name = "trade_terms")
     private String tradeTerms;

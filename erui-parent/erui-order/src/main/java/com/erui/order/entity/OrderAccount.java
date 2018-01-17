@@ -41,7 +41,7 @@ public class OrderAccount {
     private BigDecimal goodsPrice;  //发货金额
 
     @Column(name = "deliver_date")
-    private Date deliverDate;
+    private Date deliverDate;   //发货时间
 
     @Column(name = "create_user_id")
     private Integer createUserId;   //创建人

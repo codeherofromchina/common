@@ -263,16 +263,21 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      */
     @Override
     @Transactional
-    public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) {
+    public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (one == null) {
-            return false;
+            throw new Exception("查询不到出库信息");
         }
-        try {
             //开单日期
-            if (deliverDetail.getBillingDate() != null) {
-                one.setBillingDate(deliverDetail.getBillingDate());
+            if (one.getBillingDate()==null){
+                if (deliverDetail.getBillingDate() == null) {
+                    throw new Exception("开单日期不能为空");
+                }
+            }else{
+                if (deliverDetail.getBillingDate() != null) {
+                    one.setBillingDate(deliverDetail.getBillingDate());
+                }
             }
             //承运单位名称
             if (StringUtil.isNotBlank(deliverDetail.getCarrierCo())) {
@@ -359,9 +364,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverDetailDao.saveAndFlush(one);
 
             return true;
-        } catch (Exception e) {
-            return false;
-        }
+
     }
 
 

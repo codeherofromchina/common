@@ -92,7 +92,7 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    boolean outboundSaveOrAdd(DeliverDetail deliverDetail);
+    boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception;
 
 
     /**
