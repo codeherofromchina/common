@@ -38,7 +38,7 @@ public class Instock {
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "instock_date")
-    private Date instockDate;
+    private Date instockDate;   //入库日期
 
     private Integer status;
 

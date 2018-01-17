@@ -39,11 +39,18 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundManage(@RequestBody DeliverD deliverD){
+        Result<Object> result = new Result<>();
         int page = deliverD.getPage();
         if (page < 1) {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);
         }
-        Page<DeliverDetail> deliverDetail=deliverDetailService.outboundManage(deliverD);
+        Page<DeliverDetail> deliverDetail=null;
+        try {
+            deliverDetail=deliverDetailService.outboundManage(deliverD);
+        }catch (Exception e){
+            String message = e.getMessage();
+            return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
+        }
         return new Result<>(deliverDetail);
     }
 
@@ -198,6 +205,7 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail){
+        String message =null;
         try {
             boolean flag = false;
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
@@ -205,9 +213,10 @@ public class DeliverDetailsController {
                 return new Result<>();
             }
         } catch (Exception ex) {
+            message=ex.getMessage();
             logger.error("出库详情页操作失败：{}", deliverDetail, ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
     }
 
 

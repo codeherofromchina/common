@@ -154,22 +154,21 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Transactional
     public List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeNos) throws Exception {
             List<DeliverConsign> page = deliverConsignDao.findByIdInAndStatus(deliverNoticeNos, 3);
-
             for (DeliverConsign deliverConsign : page){
                 deliverConsign.getOrder().getId();
                 deliverConsign.getAttachmentSet().size();
                 Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                 if(deliverConsignGoodsSet.size()==0){
-                    throw new Exception("无出口发货通知单商品信息");
+                    throw new Exception("出口通知单号号"+deliverConsign.getDeliverConsignNo()+"无出口发货通知单商品信息");
                 }
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                     Goods goods = deliverConsignGoods.getGoods();
                     if(goods == null){
-                        throw new Exception("无商品信息");
+                        throw new Exception("出口发货通知单号"+deliverConsign.getDeliverConsignNo()+"无商品信息");
                     }
                     Project project = goods.getProject();
                     if(project == null){
-                        throw new Exception("无项目信息");
+                        throw new Exception("出口发货通知单号"+deliverConsign.getDeliverConsignNo()+"无项目信息");
                     }
                     project.getId();
                 }

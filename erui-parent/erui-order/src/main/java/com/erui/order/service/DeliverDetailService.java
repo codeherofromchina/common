@@ -53,7 +53,7 @@ public interface DeliverDetailService {
      * @param deliverD
      * @return
      */
-    Page<DeliverDetail> outboundManage(DeliverD deliverD);
+    Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception;
 
     /**
      * 分页查询出库质检列表
@@ -92,7 +92,7 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    boolean outboundSaveOrAdd(DeliverDetail deliverDetail);
+    boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception;
 
 
     /**
