@@ -427,6 +427,19 @@ public class Project {
         public String getMsg() {
             return msg;
         }
+
+
+        public static PurchReqCreateEnum valueOfCode(Integer code) {
+            if (code != null) {
+                int codeInt = code.intValue();
+                for (PurchReqCreateEnum reqEnum : PurchReqCreateEnum.values()) {
+                    if (codeInt == reqEnum.getCode()) {
+                        return reqEnum;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
     public static enum ProjectStatusEnum {

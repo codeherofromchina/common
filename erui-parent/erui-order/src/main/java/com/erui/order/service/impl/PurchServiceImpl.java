@@ -290,12 +290,20 @@ public class PurchServiceImpl implements PurchService {
         List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             Goods goods = goodsDao.findOne(purchGoods.getgId());
-            if (goods == null || goods.getExchanged() || goods.getPurchasedNum() >= goods.getContractGoodsNum()) {
-                // 商品的采购已经大于了合同数量
-                return false;
+            if (goods == null || goods.getExchanged()) {
+                throw new Exception("商品不存在");
+            }
+            // 预采购数量已经大于等于合同数量，则不能再采购
+            if (goods.getPrePurchsedNum() >= goods.getContractGoodsNum()) {
+                throw new Exception("商品采购数量已超合同数");
             }
 
             Project project = goods.getProject();
+            // 必须是已创建采购申请单并未完成采购的项目
+            if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
+                throw new Exception("项目必须提交采购申请");
+            }
+
             purchGoodsList.add(purchGoods);
             projectSet.add(project);
             // 处理新增的采购商品
@@ -309,14 +317,15 @@ public class PurchServiceImpl implements PurchService {
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(purchaseNum);
-                updateGoods.add(goods);
             }
+            // 增加预采购数量
+            goods.setPrePurchsedNum(purchaseNum + goods.getPrePurchsedNum());
+
+            updateGoods.add(goods);
         }
 
-        if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            // 如果是提交，则更新商品的已采购数量
-            goodsDao.save(updateGoods);
-        }
+        // 修改商品的预采购数量和采购数量
+        goodsDao.save(updateGoods);
 
         purch.setPurchGoodsList(purchGoodsList);
         purch.setProjects(new ArrayList<>(projectSet));
@@ -397,7 +406,7 @@ public class PurchServiceImpl implements PurchService {
                 Goods goods = goodsDao.findOne(pg.getgId());
                 // 已采购数量
                 Integer purchasedNum = goods.getPurchasedNum();
-                if ( goods.getExchanged() || purchasedNum >= goods.getContractGoodsNum()) {
+                if (goods.getExchanged() || purchasedNum >= goods.getContractGoodsNum()) {
                     // 商品的采购已经大于了合同数量
                     return false;
                 }
@@ -519,18 +528,22 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setGoodNum(0);
         // 计算含税价格和不含税单价以及总价款
         String currencyBn = purch.getCurrencyBn();
-        if (newPurchGoods.getPurchasePrice() == null || newPurchGoods.getPurchaseNum() == null) {
-            throw new Exception("商品的采购价格和数量错误");
+        if (newPurchGoods.getPurchaseNum() > 0) {
+            // 只有商品采购数量不为空才计算价格等
+            if (newPurchGoods.getPurchasePrice() == null) {
+                // 有采购数量，但采购价格为空，则错误
+                throw new Exception("商品的采购价格错误");
+            }
+            if ("人民币".equals(currencyBn)) {
+                // 人民币是默认含税价格
+                newPurchGoods.setTaxPrice(newPurchGoods.getPurchasePrice());
+                newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice().divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));
+            } else {
+                newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice());
+            }
+            // 总价款
+            newPurchGoods.setTotalPrice(newPurchGoods.getPurchasePrice().multiply(new BigDecimal(newPurchGoods.getPurchaseNum().intValue())));
         }
-        if ("人民币".equals(currencyBn)) {
-            // 人民币是默认含税价格
-            newPurchGoods.setTaxPrice(newPurchGoods.getPurchasePrice());
-            newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice().divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));
-        } else {
-            newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice());
-        }
-        // 总价款
-        newPurchGoods.setTotalPrice(newPurchGoods.getPurchasePrice().multiply(new BigDecimal(newPurchGoods.getPurchaseNum().intValue())));
         newPurchGoods.setCreateTime(new Date());
 
         // 查看是否存在替换商品
@@ -538,6 +551,8 @@ public class PurchServiceImpl implements PurchService {
         if (son != null) {
             // 处理替换商品
             handleExchangedPurchGoods(project, goods, purch, newPurchGoods, son);
+        } else if (newPurchGoods.getPurchaseNum() <= 0) {
+            throw new Exception("采购数量不能为0");
         }
         return son;
     }
@@ -552,6 +567,7 @@ public class PurchServiceImpl implements PurchService {
 
         //  插入替换后的新商品
         Goods sonGoods = son.getGoods();
+        sonGoods.setParentId(beforeGoods.getId());
         sonGoods.setExchanged(true);
         sonGoods.setOrder(beforeGoods.getOrder());
         sonGoods.setProject(project);
@@ -559,6 +575,7 @@ public class PurchServiceImpl implements PurchService {
         sonGoods.setProjectNo(projectNo);
         sonGoods.setContractGoodsNum(0);
         sonGoods.setPurchasedNum(0);
+        sonGoods.setPrePurchsedNum(0);
         sonGoods.setInspectNum(0);
         sonGoods.setInstockNum(0);
         sonGoods.setOutstockApplyNum(0);
@@ -568,27 +585,34 @@ public class PurchServiceImpl implements PurchService {
 
         // 处理替换后的采购信息
         son.setProject(project);
+        son.setProjectNo(projectNo);
         son.setParent(beforePurchGoods);
         son.setContractNo(contractNo);
-        son.setProjectNo(projectNo);
+
         son.setPurch(purch);
         son.setGoods(sonGoods);
         son.setExchanged(true);
 
+        Integer purchaseNum = son.getPurchaseNum();
+        if (purchaseNum == null || purchaseNum <= 0) {
+            throw new Exception("商品采购数量错误");
+        }
         // 计算含税价格和不含税单价以及总价款
         String currencyBn = purch.getCurrencyBn();
-        if (son.getPurchasePrice() == null || son.getPurchaseNum() == null) {
-            throw new Exception("商品的采购价格和数量错误");
+        BigDecimal purchasePrice = son.getPurchasePrice();
+        if (purchasePrice == null || purchasePrice.compareTo(BigDecimal.ZERO) != 1) {
+            // 采购价格为空或小于0
+            throw new Exception("商品的采购价格错误");
         }
         if ("人民币".equals(currencyBn)) {
             // 人民币是默认含税价格
-            son.setTaxPrice(son.getPurchasePrice());
-            son.setNonTaxPrice(son.getPurchasePrice().divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));
+            son.setTaxPrice(purchasePrice);
+            son.setNonTaxPrice(purchasePrice.divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));
         } else {
-            son.setNonTaxPrice(son.getPurchasePrice());
+            son.setNonTaxPrice(purchasePrice);
         }
         // 总价款
-        son.setTotalPrice(son.getPurchasePrice().multiply(new BigDecimal(son.getPurchaseNum().intValue())));
+        son.setTotalPrice(purchasePrice.multiply(new BigDecimal(purchaseNum.intValue())));
         son.setInspectNum(0);
         son.setGoodNum(0);
         son.setCreateTime(new Date());
