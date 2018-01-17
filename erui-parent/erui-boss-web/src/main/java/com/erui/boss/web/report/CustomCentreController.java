@@ -827,7 +827,7 @@ public class CustomCentreController {
         Map<String,Object> inqPie=new HashMap<>();
         Map<String,Object> ordPie=new HashMap<>();
         inqPie.put("categoryList",inqCateList);
-        inqPie.put("countList",inqCateList);
+        inqPie.put("countList",inqCountList);
         ordPie.put("categoryList",ordCateList);
         ordPie.put("countList",ordCountList);
 
