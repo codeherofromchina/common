@@ -6,6 +6,7 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.DeliverNoticeService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,20 +133,39 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "exitRequisitionSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice) {
+        Result<Object> result = new Result<>();
         try {
             boolean flag = false;
             if (deliverNotice.getId()!= null) {
                 flag = deliverNoticeService.updateexitRequisition(deliverNotice);
             } else {
-                flag = deliverNoticeService.addexitRequisition(deliverNotice);
+                if(StringUtil.isBlank(deliverNotice.getSenderName())|| StringUtils.equals(deliverNotice.getSenderName(), "")){
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("下单人名称不能为空");
+                    return result;
+                }
+                 else if(deliverNotice.getSendDate() == null){
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("下单日期不能为空");
+                    return result;
+                }
+                else if(StringUtil.isBlank(deliverNotice.getDeliverConsignIds())|| StringUtils.equals(deliverNotice.getDeliverConsignIds(), "")){
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("出口通知单不能为空");
+                    return result;
+                }else{
+                    flag = deliverNoticeService.addexitRequisition(deliverNotice);
+                }
             }
             if (flag) {
                 return new Result<>();
             }
         } catch (Exception ex) {
-            logger.error("订单操作失败：{}", deliverNotice, ex);
+            logger.error("看货通知详情操作失败：{}", deliverNotice, ex);
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("看货通知详情操作失败");
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return result;
     }
 
 

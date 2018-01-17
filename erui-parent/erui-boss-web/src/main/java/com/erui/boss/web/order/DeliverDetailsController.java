@@ -198,6 +198,7 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail){
+        String message =null;
         try {
             boolean flag = false;
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
@@ -205,9 +206,10 @@ public class DeliverDetailsController {
                 return new Result<>();
             }
         } catch (Exception ex) {
+            message=ex.getMessage();
             logger.error("出库详情页操作失败：{}", deliverDetail, ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
     }
 
 
