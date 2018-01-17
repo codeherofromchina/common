@@ -70,6 +70,7 @@ public class OrderController {
      */
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addOrder(@RequestBody AddOrderVo addOrderVo) {
+        Result<Object> result = new Result<>();
         // TODO参数检查略过
         try {
             boolean flag = false;
@@ -84,7 +85,9 @@ public class OrderController {
         } catch (Exception ex) {
             logger.error("订单操作失败：{}", addOrderVo, ex);
             if (ex instanceof DataIntegrityViolationException){
-                return new Result<>(ResultStatusEnum.DUPLICATE_ERROR);
+                result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
+                result.setMsg("销售合同号已存在");
+                return result;
             }
         }
 
