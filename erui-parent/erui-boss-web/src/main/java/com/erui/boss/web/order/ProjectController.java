@@ -29,12 +29,12 @@ public class ProjectController {
 
     /**
      * 可以采购的项目列表
-     * @param params {projectNos:"项目号列表"}
      *
+     * @param params {projectNos:"项目号列表"}
      * @return
      */
     @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> purchAbleList(@RequestBody Map<String,String> params) {
+    public Result<Object> purchAbleList(@RequestBody Map<String, String> params) {
         String projectNos = params.get("projectNos");
         List<String> projectNoList = null;
         if (StringUtils.isNotBlank(projectNos)) {
@@ -121,11 +121,14 @@ public class ProjectController {
      */
     @RequestMapping(value = "queryByIdOrOrderId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Project> queryByIdOrOrderId(@RequestBody Map<String, Integer> map) {
-        if (map.get("id")==null&&map.get("orderId")==null){
+        if (map.get("id") == null && map.get("orderId") == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
         Project project = projectService.findByIdOrOrderId(map.get("id"), map.get("orderId"));
-        if (project!=null){
+        if (project != null) {
+            if (project.getPurchRequisition() != null) {
+                project.getPurchRequisition().setGoodsList(null);
+            }
             return new Result<>(project);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
