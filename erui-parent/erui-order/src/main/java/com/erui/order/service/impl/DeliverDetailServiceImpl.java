@@ -116,7 +116,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      */
     @Override
     @Transactional
-    public Page<DeliverDetail> outboundManage(DeliverD deliverD) {
+    public Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception {
         PageRequest request = new PageRequest(deliverD.getPage() - 1, deliverD.getRows(), Sort.Direction.DESC, "id");
 
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
@@ -166,11 +166,25 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             for (DeliverDetail notice : page.getContent()) {
                 List<String> contractNos = new ArrayList<String>();    //销售合同号
                 List<String> projectNos = new ArrayList<String>();     //项目号
-                Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
+                DeliverNotice deliverNotice = notice.getDeliverNotice();
+                if(deliverNotice==null){
+                    throw new Exception("产品放行单号:"+notice.getDeliverDetailNo()+" 无看货通知单关系");
+                }
+                Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+                if(deliverConsigns.size() == 0){
+                    throw new Exception("看货通知单号:"+deliverNotice.getDeliverConsignNo()+" 无出口发货通知单关系");
+                }
                 for (DeliverConsign deliverConsign : deliverConsigns) {
                     Order order = deliverConsign.getOrder();
+                    if(order == null){
+                        throw new Exception("出口发货通知单号："+deliverConsign.getDeliverConsignNo()+" 缺少订单关系");
+                    }
                     contractNos.add(order.getContractNo());  //销售合同号
-                    projectNos.add(order.getProject().getProjectNo()); //项目号
+                    Project project = order.getProject();
+                    if(project == null){
+                        throw new Exception("订单："+order.getContractNo()+" 号缺少项目信息");
+                    }
+                    projectNos.add(project.getProjectNo()); //项目号
                 }
                 notice.setContractNo(StringUtils.join(contractNos, ","));
                 notice.setProjectNo(StringUtils.join(projectNos, ","));
@@ -263,16 +277,21 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      */
     @Override
     @Transactional
-    public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) {
+    public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (one == null) {
-            return false;
+            throw new Exception("查询不到出库信息");
         }
-        try {
             //开单日期
-            if (deliverDetail.getBillingDate() != null) {
-                one.setBillingDate(deliverDetail.getBillingDate());
+            if (one.getBillingDate()==null){
+                if (deliverDetail.getBillingDate() == null) {
+                    throw new Exception("开单日期不能为空");
+                }
+            }else{
+                if (deliverDetail.getBillingDate() != null) {
+                    one.setBillingDate(deliverDetail.getBillingDate());
+                }
             }
             //承运单位名称
             if (StringUtil.isNotBlank(deliverDetail.getCarrierCo())) {
@@ -359,9 +378,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverDetailDao.saveAndFlush(one);
 
             return true;
-        } catch (Exception e) {
-            return false;
-        }
+
     }
 
 
@@ -676,11 +693,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         dbDeliverDetail.setCheckDept(deliverDetail.getCheckDept());
         dbDeliverDetail.setCheckDate(deliverDetail.getCheckDate());
         dbDeliverDetail.setReleaseUid(deliverDetail.getReleaseUid());
+        dbDeliverDetail.setReleaseName(deliverDetail.getReleaseName());
         dbDeliverDetail.setReleaseDate(deliverDetail.getReleaseDate());
         dbDeliverDetail.setQualityLeaderId(deliverDetail.getQualityLeaderId());
+        dbDeliverDetail.setQualityleaderName(deliverDetail.getQualityleaderName());
         dbDeliverDetail.setApplicant(deliverDetail.getApplicant());
+        dbDeliverDetail.setApplicantName(deliverDetail.getApplicantName());
         dbDeliverDetail.setApplicantDate(deliverDetail.getApplicantDate());
         dbDeliverDetail.setApprover(deliverDetail.getApprover());
+        dbDeliverDetail.setApproverName(deliverDetail.getApproverName());
         dbDeliverDetail.setApprovalDate(deliverDetail.getApprovalDate());
         dbDeliverDetail.setReason(deliverDetail.getReason());
         dbDeliverDetail.setOpinion(deliverDetail.getOpinion());

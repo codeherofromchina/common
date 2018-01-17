@@ -56,29 +56,35 @@ public class InstockController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Instock instock) {
-
+        Result<Object> result = new Result<>();
         boolean continueFlag = true;
         Integer status = instock.getStatus();
         if (!(status ==2  || status ==3 )) {
-            continueFlag = false;
-        }
-
-        if (instock.getId() == null || instock.getId() <= 0) {
-            continueFlag = false;
-        }
-
-        if (continueFlag) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("入库信息状态错误");
+        }else if (instock.getId() == null || instock.getId() <= 0) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("入库信息id不能为空");
+        }else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("仓库经办人名字不能为空");
+        }else if (instock.getInstockDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("入库日期不能为空");
+        }else{
             try {
                 if (instockService.save(instock)) {
                     return new Result<>();
                 }
             } catch (Exception ex) {
                 logger.error("异常错误", ex);
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg(ex.toString());
             }
         }
 
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return result;
     }
 
 

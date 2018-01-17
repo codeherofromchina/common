@@ -98,7 +98,7 @@ public class DeliverDetail {
     private Integer checkerUid; //检验工程师 ID
 
     // 检验工程师名称
-    @Column(name = "checker_uname")
+    @Column(name = "checker_name")
     private String checkerName;
 
     @Column(name = "check_dept")
