@@ -54,7 +54,7 @@ public class DeliverNoticeController {
     }
 
     /**
-     * 根据出口发货通知单 查询信息
+     * 看货通知信息 - 根据出口发货通知单 查询信息
      * @param map  看货通知单号  数组
      * @return
      */
@@ -118,10 +118,11 @@ public class DeliverNoticeController {
                 data.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
 
                 return new Result<>(data);
+
         } catch (Exception e) {
-            logger.error("异常错误", e);
+            logger.error("根据出口发货通知单查询信息 - 异常错误", e.getMessage());
+            return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
         }
-        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
 

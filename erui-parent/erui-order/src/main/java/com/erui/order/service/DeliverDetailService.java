@@ -53,7 +53,7 @@ public interface DeliverDetailService {
      * @param deliverD
      * @return
      */
-    Page<DeliverDetail> outboundManage(DeliverD deliverD);
+    Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception;
 
     /**
      * 分页查询出库质检列表
