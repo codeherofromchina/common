@@ -240,7 +240,7 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 订单提交时推送项目信息
             Project project = new Project();
-            project.setProjectNo(UUID.randomUUID().toString());
+            //project.setProjectNo(UUID.randomUUID().toString());
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
             project.setExecCoName(order1.getExecCoName());

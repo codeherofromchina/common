@@ -30,7 +30,6 @@ public class Project {
     @Transient
     private Integer oId;
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
-    @JsonIgnore
     private PurchRequisition purchRequisition;
 
     @Column(name = "contract_no")
