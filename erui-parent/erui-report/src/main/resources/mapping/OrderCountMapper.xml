@@ -216,6 +216,24 @@
     GROUP BY
     category HAVING  category IS  NOT  NULL
   </select>
+  <!--查询订单品类明细数据-->
+  <select id="selecOrdDetailGroupByCategory"  resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordAmmount,
+    COUNT(1) AS ordCount,
+    pro_category AS itemClass,
+    IFNULL(sum(IFNULL(pre_profit,0)),0)/COUNT(1) AS  profit
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY
+    itemClass HAVING  itemClass IS  NOT  NULL
+  </select>
   <select id="selectDataGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
     SUM(project_account) AS ordAmmount,
@@ -322,6 +340,22 @@
     group by order_area
   </select>
 
+    <!-- 查询客户复购数据明细 -->
+    <select id="selectRePurchaseDetail" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+      SELECT
+      COUNT(1) buyCount,
+      `cust_description` custName
+      FROM
+      order_count
+      <if test="_parameter != null" >
+        <include refid="Example_Where_Clause" />
+      </if>
+      GROUP BY
+      cust_description
+      HAVING
+      cust_description IS NOT NULL
+
+    </select>
     <!-- 查询油气非油气的复购客户数量 -->
     <select id="selectRePurchaseCustGroupByCustCategory" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
       SELECT
@@ -349,33 +383,7 @@
       GROUP BY
       oil;
     </select>
-    <!--查询各地区的复购客户数量 -->
-    <select id="selectRePurchaseCustGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
-        SELECT
-        COUNT(*) AS custCount,
-        order_area AS area
-        FROM
-        (
-        SELECT
-        COUNT(1),
-        `cust_description`,
-        `order_area`
-        FROM
-        order_count
-        <if test="_parameter != null" >
-            <include refid="Example_Where_Clause" />
-        </if>
-        GROUP BY
-        cust_description,
-        order_area
-        HAVING
-        cust_description IS NOT NULL
-        AND order_area IS NOT NULL
-        AND COUNT(1) > 1
-        ) AS inq
-        GROUP BY
-        area;
-    </select>
+
     <!-- 查询油气非油气的客户数量-->
   <select id="selectCustCountGroupByCustCategory" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
     SELECT
@@ -402,7 +410,112 @@
     GROUP BY
     oil;
   </select>
-
+  <!--查询各地区的复购客户数量 -->
+  <select id="selectRePurchaseCustGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    order_area AS area
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `order_area`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    order_area
+    HAVING
+    cust_description IS NOT NULL
+    AND order_area IS NOT NULL
+    AND COUNT(1) > 1
+    ) AS inq
+    GROUP BY
+    area;
+  </select>
+  <!--查询各地区的客户数量 -->
+  <select id="selectCustCountGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    order_area AS area
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `order_area`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    order_area
+    HAVING
+    cust_description IS NOT NULL
+    AND order_area IS NOT NULL
+    ) AS inq
+    GROUP BY
+    area;
+  </select>
+  <!--查询各事业部的复购客户数量 -->
+  <select id="selectRePurchaseCustGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    organization AS org
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `organization`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    organization
+    HAVING
+    cust_description IS NOT NULL
+    AND organization IS NOT NULL
+    AND COUNT(1) > 1
+    ) AS inq
+    GROUP BY
+    org;
+  </select>
+  <!--查询各事业部的客户数量 -->
+  <select id="selectCustCountGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    organization AS org
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `organization`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    organization
+    HAVING
+    cust_description IS NOT NULL
+    AND organization IS NOT NULL
+    ) AS inq
+    GROUP BY
+    org;
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from order_count
     where id = #{id,jdbcType=BIGINT}

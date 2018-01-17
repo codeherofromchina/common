@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CateDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -622,6 +623,25 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     }
 
     @Override
+    public List<Map<String, Object>> selectRePurchaseDetail(Date startTime, Date endTime, Object area,Object isOil) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        if(area!=null&&!String.valueOf(area).equals("")){
+            criteria.andOrderAreaEqualTo(area.toString());
+        }
+        if(isOil!=null&&!String.valueOf(isOil).equals("")){
+            criteria.andCustCategoryEqualTo(isOil.toString());
+        }
+        return readMapper.selectRePurchaseDetail(example);
+    }
+
+    @Override
     public List<Map<String, Object>> selectRePurchaseCustGroupByCustCategory(Date startTime, Date endTime) {
         OrderCountExample example = new OrderCountExample();
         Criteria criteria = example.createCriteria();
@@ -645,6 +665,58 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             criteria.andProjectStartLessThan(endTime);
         }
         return readMapper.selectCustCountGroupByCustCategory(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseCustGroupByArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectRePurchaseCustGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustCountGroupByArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectCustCountGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseCustGroupByOrg(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectRePurchaseCustGroupByOrg(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustCountGroupByOrg(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectCustCountGroupByOrg(example);
     }
 
     @Override
@@ -672,4 +744,18 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         }
         return readMapper.selectDataGroupByOrg(example);
     }
+
+    @Override
+    public List<Map<String, Object>> selecOrdDetailGroupByCategory(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selecOrdDetailGroupByCategory(example);
+    }
+
 }
