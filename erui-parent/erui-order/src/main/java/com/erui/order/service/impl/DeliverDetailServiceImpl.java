@@ -298,17 +298,29 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if (deliverDetail.getWareHouseman() != null) {
                 one.setWareHouseman(deliverDetail.getWareHouseman());
             }
+            //仓库经办人姓名
+            if(StringUtil.isNotBlank(deliverDetail.getWareHousemanName())){
+                one.setWareHousemanName(deliverDetail.getWareHousemanName());
+            }
             //发运日期
             if (deliverDetail.getSendDate() != null) {
                 one.setSendDate(deliverDetail.getSendDate());
             }
-            //发运人员
+            //发运人员id
             if (deliverDetail.getSender() != null) {
                 one.setSender(deliverDetail.getSender());
+            }
+            //发运人员姓名
+            if(StringUtil.isNotBlank(deliverDetail.getSenderName())){
+                one.setSenderName(deliverDetail.getSenderName());
             }
             //协办/复核人
             if (deliverDetail.getReviewer() != null) {
                 one.setReviewer(deliverDetail.getReviewer());
+            }
+            //协办/复核人名字
+            if(StringUtil.isNotBlank(deliverDetail.getReviewerName())){
+                one.setReviewerName(deliverDetail.getReviewerName());
             }
 
             DeliverNotice deliverNotice = one.getDeliverNotice();
@@ -391,7 +403,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public void logisticsActionAddOrSave(DeliverDetail deliverDetail) {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         //物流经办人
-        if (deliverDetail.getLogisticsUserId() != null && deliverDetail.getStatus() == 4) {
+        if (deliverDetail.getLogisticsUserId() != null) {
             one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
         }
         //物流经办人姓名
@@ -445,6 +457,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //实际创建时间
         if (deliverDetail.getStatus() == 4) {
             one.setAccomplishDate(new Date());
+        }
+
+        if (deliverDetail.getStatus() != null){
+            one.setStatus(deliverDetail.getStatus());
         }
         // 只接受国际物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {

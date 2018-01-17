@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -441,7 +442,7 @@ public class Project {
         }
     }
 
-    public static enum projectStatusEnum {
+    public static enum ProjectStatusEnum {
         DRAFT("DRAFT", "待确认"), SUBMIT("SUBMIT", "未执行"),
         EXECUTING("EXECUTING", "正常执行"), DONE("DONE", "正常完成"), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行"),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成"), UNSHIPPED("UNSHIPPED", "正常待发运"),
@@ -449,7 +450,7 @@ public class Project {
         private String code;
         private String msg;
 
-        projectStatusEnum(String code, String msg) {
+        ProjectStatusEnum(String code, String msg) {
             this.code = code;
             this.msg = msg;
         }
@@ -460,6 +461,20 @@ public class Project {
 
         public String getMsg() {
             return msg;
+        }
+
+
+        public static ProjectStatusEnum fromCode(String code) {
+            if (StringUtils.isNotBlank(code)) {
+                for (ProjectStatusEnum statusEnum : ProjectStatusEnum.values()) {
+                    if (statusEnum.getCode().equals(code)) {
+                        return statusEnum;
+
+                    }
+                }
+            }
+            return null;
+
         }
     }
 

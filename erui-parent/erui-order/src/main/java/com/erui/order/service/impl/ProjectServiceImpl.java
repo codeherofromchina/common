@@ -62,17 +62,14 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
         project.copyProjectDesc(projectUpdate);
-        if (project.getProjectStatus() == Project.projectStatusEnum.EXECUTING.getCode().toString()) {
-
-        }
         projectUpdate.setProjectStatus(project.getProjectStatus());
         projectUpdate.setUpdateTime(new Date());
-        Project project1 = projectDao.saveAndFlush(projectUpdate);
-        if (StringUtils.equals(project1.getProjectStatus(), "EXECUTING")) {
-            Order order = project1.getOrder();
+        Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
+        if (statusEnum == Project.ProjectStatusEnum.EXECUTING) {
+            Order order = projectUpdate.getOrder();
             order.setStatus(3);
-            orderDao.save(order);
         }
+        projectDao.saveAndFlush(projectUpdate);
         return true;
     }
 

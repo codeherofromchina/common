@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class PurchRequisitionController {
             return new Result<>(map);
 
         }
-        return new Result<>(ResultStatusEnum.DATA_NULL.DATA_NULL);
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
     /**
@@ -73,22 +74,37 @@ public class PurchRequisitionController {
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition) {
         Result<Object> result = new Result<>();
-        if (StringUtils.isBlank(purchRequisition.getProjectNo()) ||StringUtils.equals(purchRequisition.getProjectNo(),"")) {
-            result.setData(ResultStatusEnum.FAIL);
-            result.setMsg("项目号为空");
-        }
-        try {
-            boolean flag = false;
-            if (purchRequisition.getId() != null) {
-                flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
-            } else {
-                flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
+        if (StringUtils.isBlank(purchRequisition.getProjectNo()) || StringUtils.equals(purchRequisition.getProjectNo(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("项目号不能为空");
+        } else if (purchRequisition.getSubmitDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("下发时间不能为空");
+        } else if (StringUtils.isBlank(purchRequisition.getTradeMethod()) || StringUtils.equals(purchRequisition.getTradeMethod(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("贸易方式不能为空");
+        } else if (StringUtils.isBlank(purchRequisition.getDeliveryPlace()) || StringUtils.equals(purchRequisition.getDeliveryPlace(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("交货地点不能为空");
+        } else {
+            try {
+                boolean flag = false;
+                if (purchRequisition.getId() != null) {
+                    flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
+                } else {
+                    flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
+                }
+                if (flag) {
+                    return result;
+                }
+            } catch (Exception ex) {
+                logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
+                if (ex instanceof DataIntegrityViolationException) {
+                    result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
+                    result.setMsg("已存在项目");
+                    return result;
+                }
             }
-            if (flag) {
-                return result;
-            }
-        } catch (Exception ex) {
-            logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
         }
         return result;
     }
