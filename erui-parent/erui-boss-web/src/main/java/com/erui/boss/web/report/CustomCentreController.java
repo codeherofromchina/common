@@ -357,7 +357,11 @@ public class CustomCentreController {
         int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
                 0, 0, "", "");//询单取消数量
+        int rtnCount = inquiryService.inquiryCountByTime(startDate, endDate,
+                new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()},
+                0, 0, "", "");//询单取消数量
         int totalCount = quotedCount + quotingCount + cancelCount;
+        int totalInqCount = quotedCount + quotingCount + cancelCount+rtnCount;
         Double quotedInquiryRate = null;
         Double quotingInquiryRate = null;
         Double cancelInquiryRate = null;
@@ -368,7 +372,35 @@ public class CustomCentreController {
         }
 
         //获取询单退回原因分析数据
+        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startDate, startDate, null, null);
+        List<Map<String, Object>> tableData = getRtnTable(dataList);
 
+        //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
+        int totalRtnInqCount=0;
+        int totalRtnCount=0;
+        Double avgRtnCount=0d;
+        Double rtnInqProportion=0d;
+        if(CollectionUtils.isNotEmpty(dataList)){
+            for (Map<String,Object> m:dataList) {
+                if(m.get("total")!=null){
+                    totalRtnCount+= Integer.parseInt(m.get("total").toString());//退回次数
+                }
+                if(m.get("inqCount")!=null){
+                    totalRtnInqCount+=Integer.parseInt(m.get("inqCount").toString());//退回询单数
+                }
+            }
+        }
+        if(totalRtnInqCount>0){
+            avgRtnCount=RateUtil.intChainRateTwo(totalRtnCount,totalRtnInqCount);
+        }
+        if(totalInqCount>0){
+            rtnInqProportion=RateUtil.intChainRateTwo(totalRtnInqCount,totalInqCount);
+        }
+        Map<String,Object> rtnSummary=new HashMap<>();
+        rtnSummary.put("totalRtnInqCount",totalRtnInqCount);
+        rtnSummary.put("totalRtnCount",totalRtnCount);
+        rtnSummary.put("avgRtnCount",avgRtnCount);
+        rtnSummary.put("rtnInqProportion",rtnInqProportion);
         //组装数据
         HashMap<String, Object> data = new HashMap<>();
         HashMap<String, Object> inquiryDetailMap = new HashMap<>();
@@ -378,9 +410,10 @@ public class CustomCentreController {
         inquiryDetailMap.put("quotedInquiryRate", quotedInquiryRate);
         inquiryDetailMap.put("quotingInquiryRate", quotingInquiryRate);
         inquiryDetailMap.put("cancelInquiryRate", cancelInquiryRate);
-        data.put("quoteTable",inquiryDetailMap);
-
-        return new Result<>(inquiryDetailMap);
+        data.put("quoteSummary",inquiryDetailMap);
+        data.put("rtnTable",tableData);
+        data.put("rtnSummary",rtnSummary);
+        return new Result<>(data);
     }
 
     // 询单时间分布分析
@@ -1149,6 +1182,20 @@ public class CustomCentreController {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startTime, endTime, map.get("area"), map.get("org"));
+        List<Map<String, Object>> tableData = getRtnTable(dataList);
+        List<String> reasons = dataList.stream().map(m -> m.get("reason").toString()).collect(Collectors.toList());
+        List<String> totals = dataList.stream().map(m -> m.get("total").toString()).collect(Collectors.toList());
+        Map<String, Object> pieData = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        pieData.put("reasons", reasons);
+        pieData.put("counts", totals);
+        data.put("tableData", tableData);
+        data.put("pieData", pieData);
+        return result.setData(data);
+    }
+
+    //处理结果获取退回表格数据
+    public List<Map<String,Object>>  getRtnTable(List<Map<String, Object>> dataList){
         Integer totalCount = dataList.stream().map(m -> {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
@@ -1161,17 +1208,8 @@ public class CustomCentreController {
         });
         //原因排序
         List<Map<String, Object>> tableData = reasonDataListSort(dataList);
-        List<String> reasons = dataList.stream().map(m -> m.get("reason").toString()).collect(Collectors.toList());
-        List<String> totals = dataList.stream().map(m -> m.get("total").toString()).collect(Collectors.toList());
-        Map<String, Object> pieData = new HashMap<>();
-        Map<String, Object> data = new HashMap<>();
-        pieData.put("reasons", reasons);
-        pieData.put("counts", totals);
-        data.put("tableData", tableData);
-        data.put("pieData", pieData);
-        return result.setData(data);
+        return  tableData;
     }
-
     //给退回原因顺序排序
     private List<Map<String, Object>> reasonDataListSort(List<Map<String, Object>> dataList) {
         Map<String, Map<String, Object>> dataMap = dataList.parallelStream().collect(Collectors.toMap(v -> String.valueOf(v.get("reason")), v -> v));
