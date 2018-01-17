@@ -47,7 +47,7 @@ public class DeliverDetailController {
     @RequestMapping(value = "listQuality", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> listQuality(@RequestBody Map<String, String> condition) {
         int pageNum = InstockController.getStrNumber(condition.get("page"), InstockController.DEFAULT_PAGE);
-        int pageSize = InstockController.getStrNumber(condition.get("pageSize"), InstockController.DEFAULT_PAGESIZE);
+        int pageSize = InstockController.getStrNumber(condition.get("rows"), InstockController.DEFAULT_PAGESIZE);
 
         Page<Map<String, Object>> data = deliverDetailService.listQualityByPage(condition, pageNum, pageSize);
 

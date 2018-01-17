@@ -31,6 +31,7 @@ public class Goods {
     @JsonIgnore
     private Project project;
 
+    // 是否是替换的商品  true :采购替换商品  false:原商品
     private Boolean exchanged;
 
     @Column(name = "contract_no")
@@ -73,12 +74,26 @@ public class Goods {
 
 
     private String model;
+    /**
+     * 订单合同商品数量
+     */
     @Column(name = "contract_goods_num")
     private Integer contractGoodsNum;
+    /**
+     * 客户描述
+     */
     @Column(name = "client_desc")
     private String clientDesc;
+
+    /**
+     * 要求采购到货日期
+     */
     @Column(name = "require_purchase_date")
     private Date requirePurchaseDate;
+
+    /**
+     * 技术要求和使用条件
+     */
     @Column(name = "tech_require")
     private String techRequire;
     @Column(name = "check_type")

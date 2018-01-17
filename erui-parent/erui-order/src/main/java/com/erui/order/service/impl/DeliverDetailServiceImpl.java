@@ -660,11 +660,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         dbDeliverDetail.setCheckDept(deliverDetail.getCheckDept());
         dbDeliverDetail.setCheckDate(deliverDetail.getCheckDate());
         dbDeliverDetail.setReleaseUid(deliverDetail.getReleaseUid());
+        dbDeliverDetail.setReleaseName(deliverDetail.getReleaseName());
         dbDeliverDetail.setReleaseDate(deliverDetail.getReleaseDate());
         dbDeliverDetail.setQualityLeaderId(deliverDetail.getQualityLeaderId());
+        dbDeliverDetail.setQualityleaderName(deliverDetail.getQualityleaderName());
         dbDeliverDetail.setApplicant(deliverDetail.getApplicant());
+        dbDeliverDetail.setApplicantName(deliverDetail.getApplicantName());
         dbDeliverDetail.setApplicantDate(deliverDetail.getApplicantDate());
         dbDeliverDetail.setApprover(deliverDetail.getApprover());
+        dbDeliverDetail.setApproverName(deliverDetail.getApproverName());
         dbDeliverDetail.setApprovalDate(deliverDetail.getApprovalDate());
         dbDeliverDetail.setReason(deliverDetail.getReason());
         dbDeliverDetail.setOpinion(deliverDetail.getOpinion());
