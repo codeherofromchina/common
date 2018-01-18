@@ -147,10 +147,11 @@ public class OrderServiceImpl implements OrderService {
         for (PGoods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
+                goods.setOrder(order);
             } else {
                 goods =dbGoodsMap.remove(pGoods.getId());
             }
-            //    goods.setSeq(pGoods.getSeq());
+            //goods.setSeq(pGoods.getSeq());
             goods.setSku(pGoods.getSku());
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
