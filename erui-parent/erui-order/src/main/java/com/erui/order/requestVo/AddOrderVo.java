@@ -29,7 +29,7 @@ public class AddOrderVo {
     private String inquiryNo;
 
     //订单类型
-    private Boolean orderType = true;
+    private Integer orderType;
 
     //订单来源
     private String orderSource;
@@ -61,7 +61,7 @@ public class AddOrderVo {
     private String crmCode;
 
     //客户类型
-    private Boolean customerType;
+    private Integer customerType;
 
     //汇款责任人
     private String perLiableRepay;
@@ -231,11 +231,11 @@ public class AddOrderVo {
         this.inquiryNo = inquiryNo;
     }
 
-    public Boolean getOrderType() {
+    public Integer getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
 
@@ -319,11 +319,11 @@ public class AddOrderVo {
         this.crmCode = crmCode;
     }
 
-    public Boolean getCustomerType() {
+    public Integer getCustomerType() {
         return customerType;
     }
 
-    public void setCustomerType(Boolean customerType) {
+    public void setCustomerType(Integer customerType) {
         this.customerType = customerType;
     }
 

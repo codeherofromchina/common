@@ -94,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据订单类型
                 if (condition.isOrderType() != null) {
-                    list.add(cb.equal(root.get("orderType"), condition.isOrderType()));
+                    list.add(cb.equal(root.get("orderType").as(Integer.class), condition.getOrderType()));
                 }
                 //根据汇款状态
                 if (condition.getPayStatus() != null) {
@@ -181,6 +181,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setContractNo(orderUpdate.getContractNo());
+            projectAdd.setBusinessUid(orderUpdate.getBusinessUnitId());
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
@@ -244,6 +245,7 @@ public class OrderServiceImpl implements OrderService {
             //project.setProjectNo(UUID.randomUUID().toString());
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
+            project.setBusinessUid(order1.getBusinessUnitId());
             project.setExecCoName(order1.getExecCoName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setDistributionDeptName(order1.getDistributionDeptName());
