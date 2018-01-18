@@ -15,7 +15,6 @@ import java.util.*;
  */
 @Entity
 @Table(name = "purch")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Purch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
