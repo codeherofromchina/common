@@ -604,10 +604,13 @@ public class CustomCentreController {
             String org = String.valueOf(map.get("organization"));
             String standardOrg = getStandardOrg(org);
             BigDecimal avg1 = (BigDecimal) map.get("avgNeedTime");
+            Long tota1 = (Long) map.get("total");
             if(aaMap.containsKey(standardOrg)){
                 Map<String, Object> m2 = aaMap.get(standardOrg);
                 BigDecimal avg2 = (BigDecimal) m2.get("avgNeedTime");
-                m2.put("avgNeedTime",new BigDecimal(avg1.intValue()+avg2.intValue()));
+                Long tota2 = (Long) m2.get("total");
+                Double avgNTime=RateUtil.doubleChainRateTwo(avg1.intValue()*tota1+avg2.intValue()*tota2,tota1+tota2);
+                m2.put("avgNeedTime",new BigDecimal(avgNTime));
             }else {
                 map.put("organization",standardOrg);
                 aaMap.put(standardOrg,map);

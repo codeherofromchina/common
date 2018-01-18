@@ -367,7 +367,7 @@
   </select>
 
   <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime
+    SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime,COUNT(1) AS  total
     FROM erui_report.inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
