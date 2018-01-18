@@ -186,11 +186,16 @@ public class PurchServiceImpl implements PurchService {
                 }
 
                 // 根据项目号和销售合同号查询
-                Set<Purch> purchSet = findByProjectNoAndContractNo(condition.getProjectNos(), condition.getContractNos());
-                CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
-                if (purchSet != null && purchSet.size() > 0) {
-                    for (Purch p : purchSet) {
-                        idIn.value(p.getId());
+                if (!(StringUtils.isBlank(condition.getProjectNos()) && StringUtils.isBlank(condition.getContractNos()))) {
+                    Set<Purch> purchSet = findByProjectNoAndContractNo(condition.getProjectNos(), condition.getContractNos());
+                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                    if (purchSet != null && purchSet.size() > 0) {
+                        for (Purch p : purchSet) {
+                            idIn.value(p.getId());
+                        }
+                    } else {
+                        // 查找失败
+                        idIn.value(-1);
                     }
                     list.add(idIn);
                 }
@@ -204,9 +209,6 @@ public class PurchServiceImpl implements PurchService {
                 if (statusEnum != null) {
                     list.add(cb.equal(root.get("status").as(Integer.class), statusEnum.getCode()));
                 }
-
-                // 连接查询项目信息，应该fetch
-                //Join<Object, Object> projectsJoin = root.join("projects");
 
 
                 Predicate[] predicates = new Predicate[list.size()];
@@ -236,30 +238,28 @@ public class PurchServiceImpl implements PurchService {
     // 根据销售号和项目号查询采购列表信息
     private Set<Purch> findByProjectNoAndContractNo(String projectNo, String contractNo) {
         Set<Purch> result = null;
-        if (!(StringUtils.isBlank(projectNo) && StringUtils.isBlank(contractNo))) {
-            List<Purch> list = purchDao.findAll(new Specification<Purch>() {
-                @Override
-                public Predicate toPredicate(Root<Purch> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    List<Predicate> list = new ArrayList<>();
-                    Join<Purch, Project> projects = root.join("projects");
-                    if (StringUtils.isNotBlank(projectNo)) {
-                        list.add(cb.equal(projects.get("projectNo").as(String.class), "%" + projectNo + "%"));
-                    }
-
-                    if (StringUtils.isNotBlank(contractNo)) {
-                        list.add(cb.equal(projects.get("contractNo").as(String.class), "%" + contractNo + "%"));
-                    }
-
-                    Predicate[] predicates = new Predicate[list.size()];
-                    predicates = list.toArray(predicates);
-                    return cb.and(predicates);
+        List<Purch> list = purchDao.findAll(new Specification<Purch>() {
+            @Override
+            public Predicate toPredicate(Root<Purch> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                Join<Purch, Project> projects = root.join("projects");
+                if (StringUtils.isNotBlank(projectNo)) {
+                    list.add(cb.equal(projects.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-            });
-            if (list != null && list.size() > 0) {
-                result = new HashSet<>(list);
-            }
 
+                if (StringUtils.isNotBlank(contractNo)) {
+                    list.add(cb.equal(projects.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        });
+        if (list != null && list.size() > 0) {
+            result = new HashSet<>(list);
         }
+
 
 
         return result;
@@ -325,6 +325,7 @@ public class PurchServiceImpl implements PurchService {
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(purchaseNum);
+                setGoodsTraceData(goods,purch);
             }
             // 增加预采购数量
             goods.setPrePurchsedNum(purchaseNum + goods.getPrePurchsedNum());
@@ -345,6 +346,23 @@ public class PurchServiceImpl implements PurchService {
         checkProjectPurchDone(projectIds);
 
         return true;
+    }
+
+
+    private void setGoodsTraceData(Goods goods,Purch purch) {
+        // 完善商品的项目执行跟踪信息 (只设置第一次的信息)
+        if (goods.getPurChgDate() == null ) {
+            goods.setPurChgDate(purch.getPurChgDate());
+        }
+        if (goods.getSigningDate() == null ) {
+            goods.setSigningDate(purch.getSigningDate());
+        }
+        if (goods.getAgentId() == null) {
+            goods.setAgentId(purch.getAgentId());
+        }
+        if (goods.getArrivalDate() == null) {
+            goods.setArrivalDate(purch.getArrivalDate());
+        }
     }
 
 
@@ -443,6 +461,8 @@ public class PurchServiceImpl implements PurchService {
                 if (purch.getStatus() == Purch.StatusEnum.DONE.getCode()) {
                     // 更新已采购数量
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchasedNum);
+                    // 设置商品的项目跟踪信息
+                    setGoodsTraceData(goods,purch);
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchasedNum);
                 goodsDao.save(goods);
@@ -516,6 +536,8 @@ public class PurchServiceImpl implements PurchService {
                 // 提交则修改商品的已采购数量
                 if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                    // 设置商品的项目跟踪信息
+                    setGoodsTraceData(goods,purch);
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);

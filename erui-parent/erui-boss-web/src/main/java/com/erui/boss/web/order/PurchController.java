@@ -74,7 +74,7 @@ public class PurchController {
                 vo.setPurchPaymentList(null);
 
                 if (vo.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-                    if (vo.getPurchGoodsList().parallelStream().anyMatch(purchGoods -> {
+                    if (vo.getPurchGoodsList().stream().anyMatch(purchGoods -> {
                         return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
                     })) {
                         vo.setInspected(Boolean.FALSE);
