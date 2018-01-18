@@ -569,14 +569,77 @@ public class CustomCentreController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]x`
 
-        ///查询给定时间的事业部询单数量
-        List<Map<String, Object>> inquiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate, null);
+        //1查询给定时间的事业部询单数量
+        List<Map<String, Object>> quiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate, null);
         // 查询给定时间段的事业部订单数量和金额
-        List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
+        List<Map<String, Object>> derList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
         //查询给定时间段的事业部平均报价时间
-        List<Map<String, Object>> avgNeedTimeList = inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(startDate, endDate);
+        List<Map<String, Object>> NeedTimeList = inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(startDate, endDate);
 
-        // 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
+        //2.整理数据成标准的事业部数据
+        List<Map<String,Object>> inquiryList=new ArrayList<>();
+        Map<String, Map<String,Object>> iiMap=new HashMap<>();
+        quiryList.stream().forEach(map -> {
+            String organization = String.valueOf(map.get("organization"));
+            String standardOrg = getStandardOrg(organization);
+            Long total = (Long) map.get("total");
+            if(iiMap.containsKey(standardOrg)){
+                Map<String, Object> m2 = iiMap.get(standardOrg);
+                Long tota2 = (Long) m2.get("total");
+                m2.put("total",tota2+total);
+            }else {
+                map.put("organization",standardOrg);
+                iiMap.put(standardOrg,map);
+            }
+        });
+        if(iiMap.size()>0) {
+            for (String key : iiMap.keySet()) {
+                inquiryList.add(iiMap.get(key));
+            }
+        }
+        //询单平均报价时间数据
+        List<Map<String,Object>> avgNeedTimeList=new ArrayList<>();
+        Map<String, Map<String,Object>> aaMap=new HashMap<>();
+        NeedTimeList.stream().forEach(map -> {
+            String org = String.valueOf(map.get("organization"));
+            String standardOrg = getStandardOrg(org);
+            BigDecimal avg1 = (BigDecimal) map.get("avgNeedTime");
+            if(aaMap.containsKey(standardOrg)){
+                Map<String, Object> m2 = aaMap.get(standardOrg);
+                BigDecimal avg2 = (BigDecimal) m2.get("avgNeedTime");
+                m2.put("avgNeedTime",new BigDecimal(avg1.intValue()+avg2.intValue()));
+            }else {
+                map.put("organization",standardOrg);
+                aaMap.put(standardOrg,map);
+            }
+        });
+        if(aaMap.size()>0) {
+            for (String key : aaMap.keySet()) {
+                avgNeedTimeList.add(aaMap.get(key));
+            }
+        }
+        //订单数据
+        List<Map<String,Object>> orderList=new ArrayList<>();
+        Map<String, Map<String,Object>> ooMap=new HashMap<>();
+        derList.stream().forEach(map -> {
+            String org = String.valueOf(map.get("organization"));
+            String standardOrg = getStandardOrg(org);
+            Long total = (Long) map.get("totalNum");
+            if(ooMap.containsKey(standardOrg)){
+                Map<String, Object> m2 = ooMap.get(standardOrg);
+                Long total2 = (Long) map.get("totalNum");
+                m2.put("totalNum",total+total2);
+            }else {
+                map.put("organization",standardOrg);
+                ooMap.put(standardOrg,map);
+            }
+        });
+        if(ooMap.size()>0) {
+            for (String key : ooMap.keySet()) {
+                orderList.add(ooMap.get(key));
+            }
+        }
+        //3 所有事业部(这里都是辅助变量，下面构建表格数据要使用)
         Set<String> organizations = new HashSet<>();
         Integer inquiryCount = 0;
         Integer orderCount = 0;
@@ -587,6 +650,7 @@ public class CustomCentreController {
         // 询单事业部和总询单数
         inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
+            String standardOrg = getStandardOrg(organization);
             Long total = (Long) m.get("total");
             inquiryMap.put(organization, m);
             organizations.add(organization);
@@ -686,6 +750,35 @@ public class CustomCentreController {
         return new Result<>(data);
     }
 
+    //获取标准的事业部名称
+    private  String getStandardOrg(String org){
+        if(StringUtils.isNotBlank(org)) {
+            if (org.contains(OrgStatusEnum.ERUI.getMessage())) {
+                return OrgStatusEnum.ERUI.getMessage();
+            } else if (org.contains(OrgStatusEnum.WEFIC.getMessage())) {
+                return OrgStatusEnum.WEFIC.getMessage();
+            } else if (org.contains(OrgStatusEnum.YOUTIAN.getMessage())) {
+                return OrgStatusEnum.YOUTIAN.getMessage();
+            } else if (org.contains(OrgStatusEnum.YOUZENG.getMessage())) {
+                return OrgStatusEnum.YOUZENG.getMessage();
+            } else if (org.contains(OrgStatusEnum.ZUANHUANG.getMessage())) {
+                return OrgStatusEnum.ZUANHUANG.getMessage();
+            } else if (org.contains(OrgStatusEnum.KANGSAIDE.getMessage())) {
+                return OrgStatusEnum.KANGSAIDE.getMessage();
+            } else if (org.contains(OrgStatusEnum.DONGSHI.getMessage())) {
+                return OrgStatusEnum.DONGSHI.getMessage();
+            } else if (org.contains(OrgStatusEnum.YOUFU.getMessage())) {
+                return OrgStatusEnum.YOUFU.getMessage();
+            } else if (org.contains(OrgStatusEnum.KANGBORUI.getMessage())) {
+                return OrgStatusEnum.KANGBORUI.getMessage();
+            } else if (org.contains(OrgStatusEnum.TIANRANQI.getMessage())) {
+                return OrgStatusEnum.TIANRANQI.getMessage();
+            } else {
+                return OrgStatusEnum.OTHER.getMessage();
+            }
+        }
+        return  org;
+    }
 
     // 区域明细对比
     @ResponseBody
