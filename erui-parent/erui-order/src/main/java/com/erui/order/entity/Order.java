@@ -38,14 +38,14 @@ public class Order {
     private String inquiryNo;
 
     @Column(name = "order_type")
-    private Boolean orderType = true;
+    private Integer orderType;
 
     @Column(name = "order_source")
     private String orderSource;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -72,7 +72,7 @@ public class Order {
     private String crmCode;
 
     @Column(name = "customer_type")
-    private Boolean customerType;
+    private Integer customerType;
 
     @Column(name = "per_liable_repay")
     private String perLiableRepay;
@@ -149,13 +149,13 @@ public class Order {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @Column(name = "delete_time")
     private Date deleteTime;
 
@@ -336,11 +336,11 @@ public class Order {
         this.logiQuoteNo = logiQuoteNo;
     }
 
-    public Boolean getOrderType() {
+    public Integer getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
 
@@ -409,11 +409,11 @@ public class Order {
         this.crmCode = crmCode;
     }
 
-    public Boolean getCustomerType() {
+    public Integer getCustomerType() {
         return customerType;
     }
 
-    public void setCustomerType(Boolean customerType) {
+    public void setCustomerType(Integer customerType) {
         this.customerType = customerType;
     }
 
