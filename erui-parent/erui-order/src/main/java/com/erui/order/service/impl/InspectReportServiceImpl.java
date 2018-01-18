@@ -185,14 +185,14 @@ public class InspectReportServiceImpl implements InspectReportService {
     public boolean save(InspectReport inspectReport) throws Exception {
         InspectReport dbInspectReport = inspectReportDao.findOne(inspectReport.getId());
         if (dbInspectReport == null) {
-            return false;
+            throw new Exception("质检单不存在");
         }
         InspectReport.StatusEnum statusEnum = InspectReport.StatusEnum.fromCode(inspectReport.getStatus());
         if (statusEnum == null || statusEnum == InspectReport.StatusEnum.INIT) {
-            return false;
+            throw new Exception("状态提交错误");
         }
         if (dbInspectReport.getStatus() == InspectReport.StatusEnum.DONE.getCode()) {
-            return false;
+            throw new Exception("质检单已提交，不可修改");
         }
 
         // 处理基本数据

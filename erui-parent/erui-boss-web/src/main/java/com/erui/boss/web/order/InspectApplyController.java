@@ -82,6 +82,7 @@ public class InspectApplyController {
             data.put("outCheck", inspectApply.getOutCheck());
             data.put("remark", inspectApply.getRemark());
             data.put("attachmentList", inspectApply.getAttachmentList());
+            data.put("status", inspectApply.getStatus());
 
             List<Map<String, Object>> inspectApplyGoodsList = new ArrayList<>();
             for (InspectApplyGoods vo : inspectApply.getInspectApplyGoodsList()) {
