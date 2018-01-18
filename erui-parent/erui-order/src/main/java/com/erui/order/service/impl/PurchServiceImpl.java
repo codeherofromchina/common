@@ -244,11 +244,10 @@ public class PurchServiceImpl implements PurchService {
                 List<Predicate> list = new ArrayList<>();
                 Join<Purch, Project> projects = root.join("projects");
                 if (StringUtils.isNotBlank(projectNo)) {
-                    list.add(cb.equal(projects.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                    list.add(cb.like(projects.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-
                 if (StringUtils.isNotBlank(contractNo)) {
-                    list.add(cb.equal(projects.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                    list.add(cb.like(projects.get("contractNo").as(String.class), "%" + contractNo + "%"));
                 }
 
                 Predicate[] predicates = new Predicate[list.size()];
@@ -259,9 +258,6 @@ public class PurchServiceImpl implements PurchService {
         if (list != null && list.size() > 0) {
             result = new HashSet<>(list);
         }
-
-
-
         return result;
     }
 
