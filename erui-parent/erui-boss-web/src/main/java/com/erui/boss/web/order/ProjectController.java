@@ -29,12 +29,12 @@ public class ProjectController {
 
     /**
      * 可以采购的项目列表
-     * @param params {projectNos:"项目号列表"}
      *
+     * @param params {projectNos:"项目号列表"}
      * @return
      */
     @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> purchAbleList(@RequestBody Map<String,String> params) {
+    public Result<Object> purchAbleList(@RequestBody Map<String, String> params) {
         String projectNos = params.get("projectNos");
         List<String> projectNoList = null;
         if (StringUtils.isNotBlank(projectNos)) {
@@ -83,17 +83,63 @@ public class ProjectController {
      */
     @RequestMapping(value = "handleProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> handleProject(@RequestBody Project project) {
+        Result<Object> result = new Result<>();
         // TODO参数检查略过
-        try {
-            boolean flag = false;
-            flag = projectService.updateProject(project);
-            if (flag) {
-                return new Result<>();
+        if (project.getStartDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("项目开始日期不能为空");
+        } else if (project.getProjectName() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("项目名称不能为空");
+        } else if (project.getDeliveryDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("执行单约定交付日期不能为空");
+        } else if (project.getDeliveryDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("执行单约定交付日期不能为空");
+        } else if (project.getProfit() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("利润额不能为空");
+        } else if (project.getProfitPercent() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("初步利润不能为空");
+        } else if (project.getHasManager() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("有无项目经理不能为空");
+        } else if (project.getRequirePurchaseDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("要求采购到货日期不能为空");
+        } else if (StringUtils.isBlank(project.getProjectStatus()) || StringUtils.equals(project.getProjectStatus(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("项目状态不能为空");
+        } else if (project.getPurchaseUid() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("采购经办人不能为空");
+        } else if (project.getQualityUid() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("品控经办人不能为空");
+        } else if (project.getBusinessUid() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("商务技术经办人不能为空");
+        } else if (project.getLogisticsUid() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("国际物流经办人不能为空");
+        } else if (project.getWarehouseUid() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("仓库经办人不能为空");
+        } else {
+            try {
+                boolean flag = false;
+                flag = projectService.updateProject(project);
+                if (flag) {
+                    return new Result<>();
+                }
+            } catch (Exception ex) {
+                logger.error("办理订单操作失败：{}", project, ex);
             }
-        } catch (Exception ex) {
-            logger.error("办理订单操作失败：{}", project, ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return result;
+
     }
 
     /**
@@ -121,13 +167,14 @@ public class ProjectController {
      */
     @RequestMapping(value = "queryByIdOrOrderId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Project> queryByIdOrOrderId(@RequestBody Map<String, Integer> map) {
-        if (map.get("id")==null&&map.get("orderId")==null){
+        if (map.get("id") == null && map.get("orderId") == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
         Project project = projectService.findByIdOrOrderId(map.get("id"), map.get("orderId"));
-        if (project!=null){
-            //project.getPurchRequisition().getAttachmentSet();
-            project.getOrder().getGoodsList();
+        if (project != null) {
+            if (project.getPurchRequisition() != null) {
+                project.getPurchRequisition().setGoodsList(null);
+            }
             return new Result<>(project);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
