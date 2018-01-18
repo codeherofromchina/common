@@ -16,6 +16,9 @@ public class DeliverDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name="pack_total")
+    private Integer packTotal;
+
     // 产品放行单号,自动生成
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
@@ -234,7 +237,15 @@ public class DeliverDetail {
         this.id = id;
     }
 
-  /*  public void setProductDischargedNo(String productDischargedNo) {
+    public Integer getPackTotal() {
+        return packTotal;
+    }
+
+    public void setPackTotal(Integer packTotal) {
+        this.packTotal = packTotal;
+    }
+
+    /*  public void setProductDischargedNo(String productDischargedNo) {
         this.productDischargedNo = productDischargedNo;
     }
 

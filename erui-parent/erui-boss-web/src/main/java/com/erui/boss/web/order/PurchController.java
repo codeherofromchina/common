@@ -104,6 +104,7 @@ public class PurchController {
         if (statusEnum != Purch.StatusEnum.BEING && statusEnum != Purch.StatusEnum.READY) {
             continueFlag = false;
         }
+        String errorMsg = null;
 
         if (continueFlag) {
             try {
@@ -118,10 +119,11 @@ public class PurchController {
                 }
             } catch (Exception ex) {
                 logger.error("采购单操作失败：{}", purch, ex);
+                errorMsg = ex.getMessage();
             }
         }
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
 
