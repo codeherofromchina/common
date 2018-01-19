@@ -135,7 +135,7 @@ public class ProjectController {
                     return new Result<>();
                 }
             } catch (Exception ex) {
-                logger.error("办理订单操作失败：{}", project, ex);
+                logger.error("办理项目操作失败：{}", project, ex);
             }
         }
         return result;
