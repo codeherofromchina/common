@@ -58,6 +58,7 @@
         </property>
     </bean>
 
+
     <jpa:repositories base-package="com.erui.order.dao"
                       transaction-manager-ref="transactionManager"
                       entity-manager-factory-ref="entityManagerFactory" ></jpa:repositories>

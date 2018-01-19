@@ -334,6 +334,7 @@ public class PurchServiceImpl implements PurchService {
 
         purch.setPurchGoodsList(purchGoodsList);
         purch.setProjects(new ArrayList<>(projectSet));
+        purch.setInspected(Boolean.FALSE);
 
         // 保存采购单
         purchDao.save(purch);
@@ -642,7 +643,7 @@ public class PurchServiceImpl implements PurchService {
 
         // 处理替换后的采购信息
         son.setProject(project);
-        son.setProjectNo(projectNo);
+        son.setProjectNo(beforePurchGoods.getProjectNo());
         son.setParent(beforePurchGoods);
         son.setContractNo(contractNo);
 

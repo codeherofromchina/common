@@ -198,7 +198,7 @@ public class InspectReportController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody InspectReport inspectReport) {
 
-        // TODO 验证参数需完善
+
         String errorMsg = null;
         try {
             if (inspectReportService.save(inspectReport)) {

@@ -9,6 +9,7 @@ import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -64,7 +65,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * @param inspectApply
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(InspectApply inspectApply) throws Exception {
 
         Purch purch = purchDao.findOne(inspectApply.getpId());
@@ -102,20 +103,16 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 处理报检商品信息
         for (InspectApplyGoods iaGoods : inspectApply.getInspectApplyGoodsList()) {
             PurchGoods purchGoods = purchGoodsMap.get(iaGoods.getPurchGid());
-            PurchGoods parentPurchGoods = purchGoods.getParent();
-            if (parentPurchGoods == null) {
-                parentPurchGoods = purchGoods;
-            }
             Goods goods = purchGoods.getGoods();
 
             iaGoods.setId(null);
             iaGoods.setInspectApply(inspectApply);
             iaGoods.setGoods(goods);
             iaGoods.setPurchGoods(purchGoods);
-            iaGoods.setPurchaseNum(parentPurchGoods.getPurchaseNum());
+            iaGoods.setPurchaseNum(purchGoods.getPurchaseNum());
             // 报检数量
             Integer inspectNum = iaGoods.getInspectNum();
-            if (inspectNum == null || inspectNum <= 0 || parentPurchGoods.getPurchaseNum() - parentPurchGoods.getPreInspectNum() < inspectNum) {
+            if (inspectNum == null || inspectNum <= 0 || purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum() < inspectNum) {
                 throw new Exception("报检数量错误");
             }
             iaGoods.setSamples(0);
@@ -125,7 +122,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
-                parentPurchGoods.setInspectNum(parentPurchGoods.getInspectNum() + iaGoods.getInspectNum());
+                purchGoods.setInspectNum(purchGoods.getInspectNum() + iaGoods.getInspectNum());
 
                 // 修改商品的已报检数量
                 Goods parentGoods = null;
@@ -138,15 +135,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 parentGoods.setInspectNum(parentGoods.getInspectNum() + iaGoods.getInspectNum());
                 if (directInstockGoods) {
                     // 增加采购商品检验合格数量
-                    parentPurchGoods.setGoodNum(parentPurchGoods.getGoodNum() + iaGoods.getInspectNum());
+                    purchGoods.setGoodNum(purchGoods.getGoodNum() + iaGoods.getInspectNum());
                     // 厂家发货且不检查，则增加商品的已入库数量
                     parentGoods.setInstockNum(parentGoods.getInstockNum() + iaGoods.getInspectNum());
                 }
                 goodsDao.save(parentGoods);
             }
             // 设置预报检商品数量
-            parentPurchGoods.setPreInspectNum(iaGoods.getInspectNum());
-            purchGoodsDao.save(parentPurchGoods);
+            purchGoods.setPreInspectNum(iaGoods.getInspectNum());
+            purchGoodsDao.save(purchGoods);
         }
         // 保存报检单信息
         inspectApplyDao.save(inspectApply);

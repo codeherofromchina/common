@@ -216,6 +216,7 @@ public class InspectApplyController {
             continueFlag = false;
         }
 
+        String errMsg = null;
         if (continueFlag) {
 
             try {
@@ -236,11 +237,12 @@ public class InspectApplyController {
                     return new Result<>();
                 }
             } catch (Exception ex) {
+                errMsg = ex.getMessage();
                 logger.error("异常报错", ex);
             }
         }
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 
 }
