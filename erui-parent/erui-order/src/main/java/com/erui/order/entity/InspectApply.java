@@ -83,6 +83,9 @@ public class InspectApply {
     //质检申请单状态 0：未编辑 1：保存/草稿  2：已提交 3：合格 4:未合格
     private Integer status;
 
+    @Column(name="pub_status")
+    private Integer pubStatus;
+
     // 整改意见
     private String msg;
     // 下一条的整改意见，临时存储
@@ -249,6 +252,14 @@ public class InspectApply {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getPubStatus() {
+        return pubStatus;
+    }
+
+    public void setPubStatus(Integer pubStatus) {
+        this.pubStatus = pubStatus;
     }
 
     public String getMsg() {

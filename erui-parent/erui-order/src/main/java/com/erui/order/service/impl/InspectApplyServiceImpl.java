@@ -76,6 +76,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         // 基本信息设置
         inspectApply.setInspectApplyNo(RandomStringUtils.randomAlphanumeric(32));
+        inspectApply.setPubStatus(inspectApply.getStatus());
         inspectApply.setDepartment(purch.getDepartment()); // 下发部门
         inspectApply.setPurchaseName(purch.getAgentName()); // 采购经办人
         inspectApply.setSupplierName(purch.getSupplierName()); // 采购商
@@ -180,6 +181,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         dbInspectApply.setOutCheck(inspectApply.getOutCheck() != null ? inspectApply.getOutCheck() : true);
         dbInspectApply.setRemark(inspectApply.getRemark());
         dbInspectApply.setStatus(inspectApply.getStatus());
+        dbInspectApply.setPubStatus(inspectApply.getStatus()); // 设置父报检单的全局状态
 
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(
@@ -344,6 +346,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 主报检单的报检数量+1
         parentInspectApply.setNum(parentInspectApply.getNum() + 1);
         parentInspectApply.setHistory(true);
+        parentInspectApply.setPubStatus(InspectApply.StatusEnum.SUBMITED.getCode()); // 设置全局状态为审核中
         inspectApplyDao.save(parentInspectApply);
 
         // 获取是第几次报检
