@@ -72,17 +72,7 @@ public class InspectApplyController {
         if (inspectApply != null) {
             // 数据转换
             Map<String, Object> data = new HashMap<>();
-            data.put("id", inspectApply.getId());
-            data.put("department", inspectApply.getDepartment());
-            data.put("purchaseName", inspectApply.getPurchaseName());
-            data.put("supplierName", inspectApply.getSupplierName());
-            data.put("abroadCoName", inspectApply.getAbroadCoName());
-            data.put("inspectDate", inspectApply.getInspectDate());
-            data.put("direct", inspectApply.getDirect());
-            data.put("outCheck", inspectApply.getOutCheck());
-            data.put("msg", inspectApply.getMsg());
-            data.put("remark", inspectApply.getRemark());
-            data.put("attachmentList", inspectApply.getAttachmentList());
+
 
             List<Map<String, Object>> inspectApplyGoodsList = new ArrayList<>();
             for (InspectApplyGoods vo : inspectApply.getInspectApplyGoodsList()) {
@@ -110,7 +100,6 @@ public class InspectApplyController {
                 map.put("height", vo.getHeight());
                 map.put("lwh", vo.getLwh());
                 map.put("purchaseRemark", purchGoods.getPurchaseRemark());
-
                 inspectApplyGoodsList.add(map);
             }
             data.put("inspectApplyGoodsList", inspectApplyGoodsList);
