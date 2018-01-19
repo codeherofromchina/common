@@ -3,6 +3,7 @@ package com.erui.order.service.impl;
 import com.erui.order.dao.AttachmentDao;
 import com.erui.order.entity.Attachment;
 import com.erui.order.service.AttachmentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +42,12 @@ public class AttachmentServiceImpl implements AttachmentService {
             if (attId == null) {
                 attachment.setCreateTime(new Date());
                 attachment.setDeleteFlag(false);
-                attachment.setUserId(userId);
-                attachment.setUserName(userName);
+                if (userId != null) {
+                    attachment.setUserId(userId);
+                }
+                if (StringUtils.isNotBlank(userName)) {
+                    attachment.setUserName(userName);
+                }
             } else {
                 Attachment attachment1 = attachmentMap2.remove(attId);
                 attachment.setCreateTime(attachment1.getCreateTime());

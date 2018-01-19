@@ -315,20 +315,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         InspectApply newInspectApply = new InspectApply();
 
         // 判断每个商品的报检数量是否等于最后一次报检不合格数量
-        Map<Integer, InspectApplyGoods> inspectApplyGoodsMap = lastInspectApply.getInspectApplyGoodsList().parallelStream()
-                .filter(vo -> vo.getUnqualified() > 0).collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo));
+        List<InspectApplyGoods> inspectApplyGoodsList = lastInspectApply.getInspectApplyGoodsList();
+//        Map<Integer, InspectApplyGoods> inspectApplyGoodsMap = lastInspectApply.getInspectApplyGoodsList().parallelStream()
+//                .filter(vo -> vo.getUnqualified() > 0).collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo));
         List<InspectApplyGoods> goodsDataList = new ArrayList<>();
-        for (InspectApplyGoods inspectApplyGoods : inspectApply.getInspectApplyGoodsList()) {
-            Integer id = inspectApplyGoods.getId();
-            InspectApplyGoods applyGoods = inspectApplyGoodsMap.get(id);
+        for (InspectApplyGoods applyGoods : inspectApplyGoodsList) {
 
-            if (applyGoods == null) {
-                return false;
-            }
-
-            if (applyGoods.getUnqualified() != inspectApplyGoods.getInspectNum()) {
-                return false;
-            }
+            InspectApplyGoods inspectApplyGoods = new InspectApplyGoods();
 
             inspectApplyGoods.setId(null);
             inspectApplyGoods.setInspectApply(newInspectApply);
@@ -337,6 +330,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApplyGoods.setPurchGoods(applyGoods.getPurchGoods());
             inspectApplyGoods.setHeight(applyGoods.getHeight());
             inspectApplyGoods.setLwh(inspectApplyGoods.getLwh());
+            inspectApplyGoods.setInspectNum(applyGoods.getUnqualified());
             inspectApplyGoods.setSamples(0);
             inspectApplyGoods.setUnqualified(0);
             inspectApplyGoods.setInstockNum(0);
@@ -345,9 +339,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             goodsDataList.add(inspectApplyGoods);
         }
 
-        if (inspectApplyGoodsMap.size() != goodsDataList.size()) {
-            return false;
-        }
 
         // 检验完毕，做正式操作
         // 主报检单的报检数量+1
@@ -386,7 +377,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         newInspectApply.setInspectApplyGoodsList(goodsDataList);
 
-        inspectApplyDao.save(newInspectApply);
+        newInspectApply = inspectApplyDao.save(newInspectApply);
 
         // 推送数据到入库质检中
         pushDataToInspectReport(newInspectApply);
