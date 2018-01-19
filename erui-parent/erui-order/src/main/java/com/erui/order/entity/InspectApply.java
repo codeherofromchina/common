@@ -86,6 +86,7 @@ public class InspectApply {
     // 整改意见
     private String msg;
     // 下一条的整改意见，临时存储
+    @Column(name = "tmp_msg")
     private String tmpMsg;
 
     // 是否存在历史记录
