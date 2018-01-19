@@ -46,10 +46,13 @@ public class CustomCentreController {
     @Autowired
     private TargetService targetService;
     @Autowired
-    private DataServiceImpl DataServiceImpl;
+    private DataServiceImpl dataServiceImpl;
     private static DecimalFormat df = new DecimalFormat("0.00");
 
-
+    @RequestMapping("/data")
+    public void data() throws Exception {
+        dataServiceImpl.totalData();
+    }
     /*
      * 询单总览
      * */
@@ -249,10 +252,6 @@ public class CustomCentreController {
         return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
     }
 
-    @RequestMapping("/data")
-    public void data() throws Exception {
-        //DataServiceImpl.totalData();
-    }
 
     /*
      * 订单总览
@@ -360,7 +359,7 @@ public class CustomCentreController {
                 0, 0, "", "");//询单取消数量
         int rtnCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()},
-                0, 0, "", "");//询单取消数量
+                0, 0, "", "");//询单退回数量
         int totalCount = quotedCount + quotingCount + cancelCount;
         int totalInqCount = quotedCount + quotingCount + cancelCount + rtnCount;
         Double quotedInquiryRate = null;
@@ -373,7 +372,7 @@ public class CustomCentreController {
         }
 
         //获取询单退回原因分析数据
-        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startDate, startDate, null, null);
+        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startDate, endDate, null, null);
         List<Map<String, Object>> tableData = getRtnTable(dataList);
 
         //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
@@ -1182,7 +1181,7 @@ public class CustomCentreController {
 
         double rtnInqProportion = 0d;
         if (inqCount > 0) {
-            rtnInqProportion = RateUtil.intChainRateTwo(rtnInqCount, inqCount);
+            rtnInqProportion = RateUtil.intChainRate(rtnInqCount, inqCount);
         }
         //退回次数和平均退回次数
         int rejectCount = 0;//退回次数
@@ -1212,7 +1211,7 @@ public class CustomCentreController {
         int totalFinishCount = finishedInqCount + quotedInqCount;
         double finishProportion = 0d;
         if (inqCount > 0) {
-            finishProportion = RateUtil.intChainRateTwo(totalFinishCount, inqCount);
+            finishProportion = RateUtil.intChainRate(totalFinishCount, inqCount);
         }
         Map<String, Object> finishedData = new HashMap<>();
         finishedData.put("finishedInqCount", finishedInqCount);

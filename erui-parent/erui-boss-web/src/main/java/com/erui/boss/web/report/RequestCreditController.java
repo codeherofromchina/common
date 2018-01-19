@@ -730,7 +730,7 @@ public class RequestCreditController {
         if(areaAmounts!=null&&areaAmounts.size()>0){
             for (Double amount:areaAmounts) {
                 if(totalAmount>0){
-                    proportions.add(RateUtil.doubleChainRateTwo(amount,totalAmount));
+                    proportions.add(RateUtil.doubleChainRate(amount,totalAmount));
                 }
             }
         }

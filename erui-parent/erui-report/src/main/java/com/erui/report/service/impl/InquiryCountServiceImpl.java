@@ -15,10 +15,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.encrypt.MD5;
+import com.erui.report.dao.InqRtnReasonMapper;
 import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.*;
 import com.erui.report.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
@@ -471,7 +473,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     // 根据时间查询询单列表
     @Override
-    public List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes,String area ,String country) {
+    public List<InquiryCount> selectListByTime(Date startTime, Date endTime, String[] quotes, String area, String country) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -480,13 +482,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        if(quotes!=null&&quotes.length>0){
+        if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
-        if(StringUtil.isNotBlank(area)){
+        if (StringUtil.isNotBlank(area)) {
             criteria.andInquiryAreaEqualTo(area);
         }
-        if(StringUtil.isNotBlank(country)){
+        if (StringUtil.isNotBlank(country)) {
             criteria.andInquiryUnitEqualTo(country);
         }
         return readMapper.selectByExample(example);
@@ -508,11 +510,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<Map<String, String>> orderAreaAndCountryList = orderCountMapper.selectAllAreaAndCountryList();
 
         // 数据转换
-        coverAreaAndCountryData(result, areaAndCountryList,"country");
-        coverAreaAndCountryData(result, orderAreaAndCountryList,"country");
+        coverAreaAndCountryData(result, areaAndCountryList, "country");
+        coverAreaAndCountryData(result, orderAreaAndCountryList, "country");
 
         return result;
     }
+
     /**
      * 查询所有询单中的所有大区和事业部列表（大区1 <-> n事业部）
      *
@@ -529,8 +532,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<Map<String, String>> orderAreaAndOrgList = orderCountMapper.selectAllAreaAndOrgList();
 
         // 数据转换
-        coverAreaAndCountryData(result, areaAndOrgList,"org");
-        coverAreaAndCountryData(result, orderAreaAndOrgList,"org");
+        coverAreaAndCountryData(result, areaAndOrgList, "org");
+        coverAreaAndCountryData(result, orderAreaAndOrgList, "org");
 
         return result;
     }
@@ -541,7 +544,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @param list
      * @param areaAndCountryList
      */
-    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList,String typeName) {
+    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList, String typeName) {
         if (areaAndCountryList != null && areaAndCountryList.size() > 0) {
 
             Map<String, InquiryAreaVO> map = list.parallelStream()
@@ -558,10 +561,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     list.add(vo);
                     map.put(area, vo);
                 }
-                if(typeName.equals("country")) {
+                if (typeName.equals("country")) {
                     vo.pushCountry(data.get("country"));
                 }
-                if(typeName.equals("org")){
+                if (typeName.equals("org")) {
                     vo.pushOrg(data.get("org"));
                 }
             });
@@ -569,7 +572,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     // // 根据时间统计询单金额
-    public Double inquiryAmountByTime(Date startTime, Date endTime, String area,String country,String[] quotedStatus) {
+    public Double inquiryAmountByTime(Date startTime, Date endTime, String area, String country, String[] quotedStatus) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -696,7 +699,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,String[] quotes) {
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate, String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startDate != null) {
@@ -705,7 +708,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
         }
-        if(quotes!=null&&quotes.length>0){
+        if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
         List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
@@ -793,7 +796,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
      */
     @Override
-    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,String[] quotes) {
+    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime, String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -802,7 +805,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        if(quotes!=null&&quotes.length>0){
+        if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
         criteria.andInquiryAreaIsNotNull();
@@ -851,8 +854,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 String dataJson = data.toString();
                 List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
                 if (list != null && list.size() > 0) {
-                    List<InquiryCount> inquiryCounts = new ArrayList<>();
-                    List<InquiryCount> updateCounts = new ArrayList<>();
                     List<InquirySku> inquiryCates = new ArrayList<>();
 
                     for (Map<String, Object> map : list) {
@@ -865,9 +866,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         Object total_quote_price = map.get("total_quote_price");//报价总金额
                         Object quote_time = map.get("quote_time");//报价用时
                         Object quote_status = map.get("quote_status");//报价
+                        Object reject_count = map.get("reject_count");//退回次数
+                        Object reject_reason = map.get("reject_reason");//退回原因
                         Object other = map.get("other");//询单商品数据
                         InquiryCount inquiryCount = new InquiryCount();
-                        List<InquiryCount> inqList =null;
+                        List<InquiryCount> inqList = null;
                         if (created_at != null) {
                             inquiryCount.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
                         }
@@ -888,11 +891,14 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                         }
                         if (quote_time != null) {
                             double quote = Double.parseDouble(quote_time.toString());//秒
-                            double hour =( quote / 60) / 60;
+                            double hour = (quote / 60) / 60;
                             inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
                         }
                         if (quote_status != null) {
                             inquiryCount.setQuotedStatus(quote_status.toString());
+                        }
+                        if (reject_count != null) {
+                            inquiryCount.setReturnCount(Integer.parseInt(reject_count.toString()));
                         }
                         if (serial_no != null) {
 
@@ -900,19 +906,52 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                             InquiryCountExample example = new InquiryCountExample();
                             Criteria criteria = example.createCriteria();
                             criteria.andQuotationNumEqualTo(serial_no.toString());
-                             inqList = readMapper.selectByExample(example);//查询询单列表
+                            inqList = readMapper.selectByExample(example);//查询询单列表
                             if (inqList != null && inqList.size() == 1) {
                                 inquiryCount.setId(inqList.get(0).getId());
-//                                updateCounts.add(inquiryCount);
+                                // updateCounts.add(inquiryCount);
                                 mapper.updateByPrimaryKey(inquiryCount);
+                                Integer returnCount = inqList.get(0).getReturnCount();
+                                if (returnCount != null && returnCount > 0) {
+                                    InqRtnReasonExample inqRtnReasonExample = new InqRtnReasonExample();
+                                    InqRtnReasonExample.Criteria rtnCriteria = inqRtnReasonExample.createCriteria();
+                                    rtnCriteria.andQuotationNumEqualTo(serial_no.toString());
+                                    InqRtnReasonMapper rtnMapper = readerSession.getMapper(InqRtnReasonMapper.class);
+                                    rtnMapper.deleteByExample(inqRtnReasonExample);
+                                }
                             } else if (inqList != null && inqList.size() > 1) {
                                 continue;
                             } else {
-//                                inquiryCounts.add(inquiryCount);
+                                //  inquiryCounts.add(inquiryCount);
                                 mapper.insertSelective(inquiryCount);
                             }
                         }
-
+                        if (reject_reason != null) {
+                            List<String> reasons = JSON.parseArray(reject_reason.toString(), String.class);
+                            if (reasons != null && reasons.size() > 0) {
+                                for (String rtn : reasons) { //退回原因
+                                    InqRtnReason rtnReason = new InqRtnReason();
+                                    if (serial_no != null) {
+                                        rtnReason.setQuotationNum(serial_no.toString());
+                                    }
+                                    if (created_at != null) {
+                                        rtnReason.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                                    }
+                                    if (country_name != null) {
+                                        rtnReason.setInquiryUnit(country_name.toString());
+                                    }
+                                    if (area_name != null) {
+                                        rtnReason.setInquiryArea(area_name.toString());
+                                    }
+                                    if (org_name != null) {
+                                        rtnReason.setOrganization(org_name.toString());
+                                    }
+                                    rtnReason.setReturnSeason(rtn);
+                                    InqRtnReasonMapper rtnMapper = writerSession.getMapper(InqRtnReasonMapper.class);
+                                    rtnMapper.insertSelective(rtnReason);
+                                }
+                            }
+                        }
                         if (other != null) {
                             List<HashMap> cateList = JSON.parseArray(other.toString(), HashMap.class);
                             if (cateList != null && cateList.size() > 0) {
@@ -947,7 +986,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     }
                                     if (serial_no != null) {
                                         inquirySku.setQuotationNum(serial_no.toString());
-                                        if(inqList!=null&&inqList.size()>0){
+                                        if (inqList != null && inqList.size() > 0) {
                                             InquirySkuExample skuExample = new InquirySkuExample();
                                             InquirySkuExample.Criteria criteria = skuExample.createCriteria();
                                             criteria.andQuotationNumEqualTo(serial_no.toString());
@@ -975,7 +1014,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 //                        }
 //                    }
                     if (inquiryCates != null && inquiryCates.size() > 0) {
-                        for (InquirySku inqSKU:inquiryCates ) {
+                        for (InquirySku inqSKU : inquiryCates) {
                             skuWriteMapper.insertSelective(inqSKU);
                         }
                     }
@@ -1015,10 +1054,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     public List<Map<String, Object>> selectRejectCount(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
-        if(startTime!=null){
+        if (startTime != null) {
             criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
         }
-        if(endTime!=null){
+        if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
         criteria.andQuotedStatusIn(Arrays.asList(new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()}));

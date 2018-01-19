@@ -89,7 +89,7 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
             oc.setProCategory(strArr[14]);
             if (strArr[15] != null) {
                 try {
-                    oc.setOrderCount(new BigDecimal(strArr[14]).intValue());
+                    oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
