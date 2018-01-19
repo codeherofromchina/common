@@ -85,6 +85,8 @@ public class InspectApply {
 
     // 整改意见
     private String msg;
+    // 下一条的整改意见，临时存储
+    private String tmpMsg;
 
     // 是否存在历史记录
     private Boolean history = false;
@@ -254,6 +256,14 @@ public class InspectApply {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public String getTmpMsg() {
+        return tmpMsg;
+    }
+
+    public void setTmpMsg(String tmpMsg) {
+        this.tmpMsg = tmpMsg;
     }
 
     public void setHistory(boolean history) {

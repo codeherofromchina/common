@@ -296,11 +296,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      */
     @Override
     @Transactional
-    public boolean againApply(InspectApply inspectApply) {
+    public boolean againApply(InspectApply inspectApply) throws Exception {
 
         InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
-        if (lastInspectApply == null || lastInspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
-            return false; // 不存在原来的报检单或当期报检单没有未合格产品，返回错误
+        if (lastInspectApply == null) {
+            throw new Exception("不存在的报检单");
+        }
+        if (lastInspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
+            throw new Exception("当期报检单没有未合格产品");
         }
 
         InspectApply parentInspectApply = lastInspectApply.getParent(); // 主报检单
@@ -446,4 +449,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     }
 
+    @Override
+    @Transactional
+    public void fullTmpMsg(Integer id, String tmpMsg) {
+        InspectApply one = inspectApplyDao.findOne(id);
+        one.setTmpMsg(tmpMsg);
+        inspectApplyDao.save(one);
+    }
 }

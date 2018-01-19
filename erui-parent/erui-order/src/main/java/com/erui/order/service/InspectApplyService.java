@@ -41,7 +41,7 @@ public interface InspectApplyService {
      * @param inspectApply
      * @return
      */
-    boolean againApply(InspectApply inspectApply);
+    boolean againApply(InspectApply inspectApply) throws Exception;
 
     /**
      * 根据父报检单获取下面的报检单
@@ -56,4 +56,11 @@ public interface InspectApplyService {
      * @return
      */
     InspectApply findDetail(Integer id);
+
+    /**
+     * 完善临时整改意见
+     * @param id
+     * @param tmpMsg
+     */
+    void fullTmpMsg(Integer id, String tmpMsg);
 }

@@ -2,11 +2,13 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.Goods;
 import com.erui.order.entity.InspectApply;
 import com.erui.order.entity.InspectApplyGoods;
 import com.erui.order.entity.PurchGoods;
 import com.erui.order.service.InspectApplyService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,6 +165,32 @@ public class InspectApplyController {
         map.put("status", inspectApply.getStatus()); // 质检结果
         map.put("history", inspectApply.isHistory()); // 是否存在历史记录
         return map;
+    }
+
+
+    /**
+     * 完善报检单的整改意见
+     * @param inspectApply
+     * @return
+     */
+    @RequestMapping(value = "fullMsg", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> fullMsg(@RequestBody InspectApply inspectApply) {
+        Integer id = inspectApply.getId();
+        InspectApply dbIA = null;
+        if (id != null ) {
+            dbIA = inspectApplyService.findById(id);
+        }
+        if (dbIA == null || dbIA.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("报检单信息不存在或状态错误");
+        }
+        if (StringUtils.isBlank(inspectApply.getMsg())){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("整改意见不可空");
+        }
+        inspectApplyService.fullTmpMsg(id,inspectApply.getMsg());
+
+
+
+        return new Result<>();
     }
 
 
