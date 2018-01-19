@@ -246,7 +246,6 @@ public class PurchServiceImpl implements PurchService {
                 if (StringUtils.isNotBlank(projectNo)) {
                     list.add(cb.like(projects.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-
                 if (StringUtils.isNotBlank(contractNo)) {
                     list.add(cb.like(projects.get("contractNo").as(String.class), "%" + contractNo + "%"));
                 }
@@ -259,9 +258,6 @@ public class PurchServiceImpl implements PurchService {
         if (list != null && list.size() > 0) {
             result = new HashSet<>(list);
         }
-
-
-
         return result;
     }
 

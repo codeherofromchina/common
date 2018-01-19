@@ -80,6 +80,7 @@ public class InspectApplyController {
             data.put("inspectDate", inspectApply.getInspectDate());
             data.put("direct", inspectApply.getDirect());
             data.put("outCheck", inspectApply.getOutCheck());
+            data.put("msg", inspectApply.getMsg());
             data.put("remark", inspectApply.getRemark());
             data.put("attachmentList", inspectApply.getAttachmentList());
             data.put("status", inspectApply.getStatus());
