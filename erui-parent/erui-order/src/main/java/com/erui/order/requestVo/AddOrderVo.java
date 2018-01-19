@@ -3,6 +3,7 @@ package com.erui.order.requestVo;
 import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -53,7 +54,7 @@ public class AddOrderVo {
     private String region;
 
     //分销部
-   // private String distributionDeptId;
+    // private String distributionDeptId;
     //国家
     private String country;
 
@@ -71,8 +72,8 @@ public class AddOrderVo {
 
     //商务技术经办人
     private Integer technicalId;
-   /* //商务技术经办人部门
-    private String technicalIdDept;*/
+    /* //商务技术经办人部门
+     private String technicalIdDept;*/
     //授信类型
     private String grantType;
 
@@ -122,9 +123,9 @@ public class AddOrderVo {
     private BigDecimal qualityFunds;
 
     /**
-     * 收款状态 0:未付款 1:部分付款 2:收款完成
+     * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
-    private Integer payStatus;
+    private Integer payStatus = 1;
     //订单状态
     private Integer status;
 
