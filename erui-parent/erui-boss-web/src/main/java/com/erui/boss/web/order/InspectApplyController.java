@@ -146,8 +146,6 @@ public class InspectApplyController {
             List<Map<String, Object>> data = list.parallelStream().map(vo -> {
                 return coverInspectApply2Map(vo);
             }).collect(Collectors.toList());
-
-
             return new Result<>(data);
         }
         return new Result<>(ResultStatusEnum.FAIL);

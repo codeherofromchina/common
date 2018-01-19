@@ -41,7 +41,7 @@ public interface OrderService {
      * @param addOrderVo
      * @return
      */
-    boolean addOrder(AddOrderVo addOrderVo);
+    boolean addOrder(AddOrderVo addOrderVo) throws Exception;
 
     Order detail(Integer orderId);
 }

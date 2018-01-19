@@ -181,9 +181,9 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setContractNo(orderUpdate.getContractNo());
-            projectAdd.setBusinessUid(orderUpdate.getBusinessUnitId());
-            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
-            projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
+            projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
+            projectAdd.setExecCoName(orderUpdate.getExecCoName());
+            projectAdd.setBusinessUnitName(orderUpdate.getTechnicalId().toString());
             projectAdd.setRegion(orderUpdate.getRegion());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
@@ -202,13 +202,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public boolean addOrder(AddOrderVo addOrderVo) {
+    public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
+        if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0){
+            throw new Exception("销售合同号已存在");
+        }
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
-
         List<Goods> goodsList = new ArrayList<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
@@ -245,9 +247,9 @@ public class OrderServiceImpl implements OrderService {
             //project.setProjectNo(UUID.randomUUID().toString());
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
-            project.setBusinessUid(order1.getBusinessUnitId());
+            project.setBusinessUid(order1.getTechnicalId());
             project.setExecCoName(order1.getExecCoName());
-            project.setBusinessUnitName(order1.getBusinessUnitName());
+            project.setBusinessUnitName(order1.getTechnicalId().toString());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
             project.setProjectStatus("SUBMIT");
