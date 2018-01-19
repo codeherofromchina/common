@@ -143,7 +143,7 @@ public class InspectReportController {
 
 
     /**
-     * 保存质检单
+     * 质检单历史记录
      *
      * @param params {"id":质检单ID}
      * @return

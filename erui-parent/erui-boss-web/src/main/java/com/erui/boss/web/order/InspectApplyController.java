@@ -87,6 +87,7 @@ public class InspectApplyController {
             data.put("remark", inspectApply.getRemark());
             data.put("attachmentList", inspectApply.getAttachmentList());
             data.put("status", inspectApply.getStatus());
+            data.put("pubStatus", inspectApply.getPubStatus());
 
             List<Map<String, Object>> inspectApplyGoodsList = new ArrayList<>();
             for (InspectApplyGoods vo : inspectApply.getInspectApplyGoodsList()) {
@@ -162,6 +163,7 @@ public class InspectApplyController {
         map.put("inspectDate", inspectApply.getInspectDate()); // 报检日期
         map.put("num", inspectApply.getNum()); //报检次数
         map.put("status", inspectApply.getStatus()); // 质检结果
+        map.put("pubStatus", inspectApply.getPubStatus()); // 全局质检结果
         map.put("history", inspectApply.isHistory()); // 是否存在历史记录
         return map;
     }
@@ -169,6 +171,7 @@ public class InspectApplyController {
 
     /**
      * 完善报检单的整改意见
+     *
      * @param inspectApply
      * @return
      */
@@ -176,17 +179,16 @@ public class InspectApplyController {
     public Result<Object> fullMsg(@RequestBody InspectApply inspectApply) {
         Integer id = inspectApply.getId();
         InspectApply dbIA = null;
-        if (id != null ) {
+        if (id != null) {
             dbIA = inspectApplyService.findById(id);
         }
         if (dbIA == null || dbIA.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("报检单信息不存在或状态错误");
         }
-        if (StringUtils.isBlank(inspectApply.getMsg())){
+        if (StringUtils.isBlank(inspectApply.getMsg())) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("整改意见不可空");
         }
-        inspectApplyService.fullTmpMsg(id,inspectApply.getMsg());
-
+        inspectApplyService.fullTmpMsg(id, inspectApply.getMsg());
 
 
         return new Result<>();
@@ -208,7 +210,7 @@ public class InspectApplyController {
         if (statusEnum == null || (statusEnum != InspectApply.StatusEnum.SAVED && statusEnum != InspectApply.StatusEnum.SUBMITED && statusEnum != InspectApply.StatusEnum.NO_EDIT)) {
             continueFlag = false;
         }
-        if (inspectApply.getInspectApplyGoodsList() == null || inspectApply.getInspectApplyGoodsList().size() <= 0) {
+        if (statusEnum != InspectApply.StatusEnum.NO_EDIT && (inspectApply.getInspectApplyGoodsList() == null || inspectApply.getInspectApplyGoodsList().size() <= 0)) {
             continueFlag = false;
         }
 
