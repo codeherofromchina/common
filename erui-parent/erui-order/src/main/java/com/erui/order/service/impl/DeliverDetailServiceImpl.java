@@ -287,10 +287,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if (one.getBillingDate()==null){
                 if (deliverDetail.getBillingDate() == null) {
                     throw new Exception("开单日期不能为空");
-                }
-            }else{
-                if (deliverDetail.getBillingDate() != null) {
-                    one.setBillingDate(deliverDetail.getBillingDate());
+                }else{
+                    if (deliverDetail.getBillingDate() != null) {
+                        one.setBillingDate(deliverDetail.getBillingDate());
+                    }
                 }
             }
             //承运单位名称
