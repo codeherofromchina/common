@@ -425,8 +425,13 @@ public class CustomCentreController {
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
         //1.计算订单汇总数据
         Map<String, Object> ordSummary = new HashMap<>();
-        double targetAmount = targetService.selectTargetAmountByCondition(null, null, null, null);//指标
-        double finishedAmount = orderService.orderAmountByTime(null, endDate, null);//累计完成金额
+        List<Map<String, Object>> targetMaps = targetService.selectTargetGroupByOrg();
+        double targetAmount = targetMaps.stream().map(map -> {
+            double ammount = Double.parseDouble(map.get("ammount").toString());
+            return ammount;
+        }).reduce(0d,(a,b)->a+b);//指标 万美元
+        double fAmount = orderService.orderAmountByTime(null, endDate, null);//累计完成金额
+        double finishedAmount=RateUtil.doubleChainRateTwo(fAmount,10000d);//万美元
         double finishRate = 0d;//完成率
         if (targetAmount > 0) {
             finishRate = RateUtil.doubleChainRate(finishedAmount, targetAmount);
@@ -471,7 +476,7 @@ public class CustomCentreController {
             if (areaTargetMap.containsKey(area)) {
                 Map<String, Object> m = areaTargetMap.get(area);
                 double ammount = Double.parseDouble(m.get("ammount").toString());
-                areaUnfinisheds.add(RateUtil.doubleChainRateTwo(ammount - oAmount,1d));
+                areaUnfinisheds.add(RateUtil.doubleChainRateTwo(ammount*10000 - oAmount,1d));
             } else {
                 areaUnfinisheds.add(RateUtil.doubleChainRateTwo(-oAmount,1d));
             }
@@ -484,7 +489,7 @@ public class CustomCentreController {
             if (orgTargetMap.containsKey(org)) {
                 Map<String, Object> m = orgTargetMap.get(org);
                 double ammount = Double.parseDouble(m.get("ammount").toString());
-                orgUnfinisheds.add(RateUtil.doubleChainRateTwo(ammount - oAmount,1d));
+                orgUnfinisheds.add(RateUtil.doubleChainRateTwo(ammount*10000 - oAmount,1d));
             } else {
                 orgUnfinisheds.add(RateUtil.doubleChainRateTwo(-oAmount,1d));
             }
@@ -1711,7 +1716,7 @@ public class CustomCentreController {
         }
         Map<String, Object> data = new HashMap<>();
         data.put("ordCount", count);
-        data.put("ordAmmount", RateUtil.doubleChainRateTwo(amount, 1d));
+        data.put("ordAmmount", RateUtil.doubleChainRateTwo(amount, 10000d));//保留单位 万美元
         data.put("targetAmmount", RateUtil.doubleChainRateTwo(target, 1d));
         if (profitRate != null) {
             data.put("profitRate", RateUtil.doubleChainRateTwo(profitRate, 1d));
@@ -1840,7 +1845,7 @@ public class CustomCentreController {
                 Double ordAmmount = Double.parseDouble(data.get("ordAmmount").toString());//金额保留两位小数
                 data.put("ordAmmount", RateUtil.doubleChainRateTwo(ordAmmount, 1d));
                 if (orgTotalCount != null && orgTotalCount > 0) {
-                    data.put("proportion", RateUtil.intChainRateTwo(orgCount, orgTotalCount));
+                    data.put("proportion", RateUtil.intChainRate(orgCount, orgTotalCount));
                 } else {
                     data.put("proportion", 0d);
                 }
