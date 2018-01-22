@@ -113,13 +113,17 @@ public class InstockServiceImpl implements InstockService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
                 map.put("inspectApplyNo", instock.getInspectApplyNo());
-                List<String> ContractNoList = new ArrayList<>();
-                List<String> projectNoList = new ArrayList<>();
+                Set<String> ContractNoList = new HashSet<>();
+                Set<String> projectNoList = new HashSet<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
                 instockGoodsList.stream().forEach(instockGoods -> {
-                    ContractNoList.add(instockGoods.getContractNo());
-                    projectNoList.add(instockGoods.getProjectNo());
+                    if (StringUtil.isNotBlank(instockGoods.getContractNo())){
+                        ContractNoList.add(instockGoods.getContractNo());
+                    }
+                    if (StringUtil.isNotBlank(instockGoods.getProjectNo())){
+                        projectNoList.add(instockGoods.getProjectNo());
+                    }
                 });
                 map.put("contractNos", StringUtils.join(ContractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
