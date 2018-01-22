@@ -139,10 +139,11 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverConsign.setId(Integer.parseInt(s));
             list.add(deliverConsign);
             DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
-            //发送看货通知日期
+
             for (Goods goods : one.getOrder().getGoodsList()) {
                 Goods one1 = goodsDao.findOne(goods.getId());
-                one1.setSendDate(deliverNotice.getSendDate());
+                one1.setSendDate(deliverNotice.getSendDate());//发送看货通知日期
+                one1.setSenderId(deliverNotice.getSenderId());//订舱人id
                 goodsDao.save(one1);
             };
             one.setDeliverYn(2);
