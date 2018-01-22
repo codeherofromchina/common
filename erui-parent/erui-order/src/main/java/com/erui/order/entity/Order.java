@@ -137,7 +137,7 @@ public class Order {
      * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
     @Column(name = "pay_status")
-    private Integer payStatus;
+    private Integer payStatus = 1;
 
     private Integer status;
     @JsonFormat(pattern = "yyyy-MM-dd")
