@@ -186,7 +186,7 @@ public class Instock {
     }
 
     public static enum StatusEnum {
-        INIT(0, "未编辑"), SAVED(1, "保存"), SUBMITED(2, "提交");
+        INIT(1, "未编辑"), SAVED(2, "保存"), SUBMITED(3, "提交");
         private int status;
         private String msg;
 
