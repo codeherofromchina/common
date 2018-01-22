@@ -376,7 +376,6 @@ public class CustomCentreController {
         List<Map<String, Object>> tableData = getRtnTable(dataList);
 
         //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
-        int totalRtnInqCount = 0;
         int totalRtnCount = 0;
         Double avgRtnCount = 0d;
         Double rtnInqProportion = 0d;
@@ -385,19 +384,16 @@ public class CustomCentreController {
                 if (m.get("total") != null) {
                     totalRtnCount += Integer.parseInt(m.get("total").toString());//退回次数
                 }
-                if (m.get("inqCount") != null) {
-                    totalRtnInqCount += Integer.parseInt(m.get("inqCount").toString());//退回询单数
-                }
             }
         }
-        if (totalRtnInqCount > 0) {
-            avgRtnCount = RateUtil.intChainRateTwo(totalRtnCount, totalRtnInqCount);
+        if (rtnCount > 0) {
+            avgRtnCount = RateUtil.intChainRateTwo(totalRtnCount, rtnCount);
         }
         if (totalInqCount > 0) {
-            rtnInqProportion = RateUtil.intChainRateTwo(totalRtnInqCount, totalInqCount);
+            rtnInqProportion = RateUtil.intChainRate(rtnCount, totalInqCount);
         }
         Map<String, Object> rtnSummary = new HashMap<>();
-        rtnSummary.put("totalRtnInqCount", totalRtnInqCount);
+        rtnSummary.put("totalRtnInqCount", rtnCount);
         rtnSummary.put("totalRtnCount", totalRtnCount);
         rtnSummary.put("avgRtnCount", avgRtnCount);
         rtnSummary.put("rtnInqProportion", rtnInqProportion);

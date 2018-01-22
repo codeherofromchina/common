@@ -946,7 +946,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                                     if (org_name != null) {
                                         rtnReason.setOrganization(org_name.toString());
                                     }
-                                    rtnReason.setReturnSeason(rtn);
+                                    if(StringUtil.isNotBlank(rtn)) {
+                                        rtnReason.setReturnSeason(rtn);
+                                    }else {
+                                        rtnReason.setReturnSeason("其他");
+                                    }
                                     InqRtnReasonMapper rtnMapper = writerSession.getMapper(InqRtnReasonMapper.class);
                                     rtnMapper.insertSelective(rtnReason);
                                 }
