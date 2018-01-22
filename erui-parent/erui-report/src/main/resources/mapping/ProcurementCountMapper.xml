@@ -136,6 +136,20 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <select id="selectArea" resultType="map">
+    SELECT area FROM procurement_count GROUP BY area HAVING  area IS  NOT  NULL
+  </select>
+  <select id="selectCountry" resultType="map" parameterType="com.erui.report.model.ProcurementCountExample">
+    SELECT DISTINCT country FROM procurement_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />

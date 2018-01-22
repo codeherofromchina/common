@@ -19,6 +19,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,6 +41,39 @@ public class ProcurementCotroller {
 
     @Autowired
     private ProcurementCountService procurementService;
+
+    /**
+     * @Author:SHIGS
+     * @Description 查询销售区域
+     * @Date:19:39 2017/10/30
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "queryArea", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object queryArea() {
+        Map<String, Object> areaMap = procurementService.selectArea();
+        Result<Map<String, Object>> result = new Result<>(areaMap);
+        return result;
+    }
+
+    /**
+     * @Author:SHIGS
+     * @Description 根据销售区域查询国家
+     * @Date:19:40 2017/10/30
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "queryCoutry", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object queryCoutry(@RequestBody Map<String, Object> map) throws Exception {
+        if (!map.containsKey("area")) {
+            throw new MissingServletRequestParameterException("area", "String");
+        }
+        Map<String, Object> areaCountry = procurementService.selectCountry(map.get("area").toString());
+        Result<Map<String, Object>> result = new Result<>(areaCountry);
+        return result;
+    }
+
+
     /**
      *采购总览
      * @param map

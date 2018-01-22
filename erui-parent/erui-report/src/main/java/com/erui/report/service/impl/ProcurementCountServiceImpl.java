@@ -25,6 +25,36 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         implements ProcurementCountService {
     private final static Logger logger = LoggerFactory.getLogger(ProcurementCountServiceImpl.class);
 
+    @Override
+    public Map<String, Object> selectArea() {
+        List<Map> areaMap = readMapper.selectArea();
+        List<String> areaList = new ArrayList<>();
+        for (Map map : areaMap) {
+            String area = map.get("area").toString();
+            areaList.add(area);
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("area", areaList);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> selectCountry(String area) {
+        ProcurementCountExample requestCreditExample = new ProcurementCountExample();
+        if(StringUtil.isNotBlank(area)) {
+            requestCreditExample.createCriteria().andAreaEqualTo(area);
+        }
+        List<Map> areaCountry = readMapper.selectCountry(requestCreditExample);
+        List<String> countryList = new ArrayList<>();
+        for (Map map2 : areaCountry) {
+            String country = map2.get("country").toString();
+            countryList.add(country);
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("country", countryList);
+        return result;
+    }
+
     /**
      * 具体采购数据的导入实现
      */

@@ -16,6 +16,16 @@ import com.erui.report.util.InquiryAreaVO;
  */
 public interface ProcurementCountService {
 	/**
+	 * 查询 大区列表
+	 * @return  map
+	 */
+	Map<String, Object> selectArea();
+	/**
+	 * 根据大区查询国家
+	 * @param area
+	 */
+	Map<String, Object> selectCountry(String area);
+	/**
 	 * 导入外部数据到采购信息中
 	 * @param datas
 	 * @param testOnly	true:只检测数据  false:插入正式库

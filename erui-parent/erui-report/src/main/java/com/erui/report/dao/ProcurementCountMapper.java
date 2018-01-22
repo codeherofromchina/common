@@ -32,6 +32,9 @@ public interface ProcurementCountMapper {
     
     void truncateTable();
 
+    List<Map> selectCountry(ProcurementCountExample example);
+    List<Map> selectArea();
+
     List<Map<String, Object>> selectProcurPandent(ProcurementCountExample example);
     List<Map<String,Object>>  selectProcurTrend(ProcurementCountExample example);
     List<Map<String, String>> selectAllAreaAndCountryList();
