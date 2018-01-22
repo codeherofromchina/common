@@ -138,7 +138,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
             }
         }
         Map<String,Object> datas=new HashMap<>();
-        String[] types={"采购申请单","签约合同","签约金额"};
+        String[] types={"采购申请单","签约合同","合同金额"};
         if(queryType.equals(types[0])){
             datas.put("legend",types[0]);
             datas.put("xAxis",dates);
