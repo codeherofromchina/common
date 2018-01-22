@@ -189,14 +189,13 @@ public class PurchController {
                 map.put("brand", goods.getBrand());
                 map.put("model", goods.getModel());
                 map.put("purchaseNum", vo.getPurchaseNum());
-                map.put("hasInspectNum", vo.getInspectNum());
-                map.put("inspectNum", vo.getPurchaseNum() - vo.getInspectNum()); // 报检数量
+                map.put("hasInspectNum", vo.getPreInspectNum());
+                map.put("inspectNum", vo.getPurchaseNum() - vo.getPreInspectNum()); // 报检数量
                 map.put("unit", goods.getUnit());
                 map.put("nonTaxPrice", vo.getNonTaxPrice());
                 map.put("taxPrice", vo.getTaxPrice());
                 map.put("totalPrice", vo.getTotalPrice());
                 map.put("purchaseRemark", vo.getPurchaseRemark());
-
                 return map;
             }).collect(Collectors.toList());
             data.put("goodsList", list);

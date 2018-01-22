@@ -76,7 +76,7 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    boolean saveQuality(DeliverDetail deliverDetail);
+    boolean saveQuality(DeliverDetail deliverDetail) throws Exception;
 
     /**
      * 物流跟踪管理

@@ -601,17 +601,17 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() : DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT.getStatusCode()); // 状态
                 map.put("checkDept", deliverDetail.getCheckDept()); // 质检部门
 
-                List<String> ContractNoList = new ArrayList<>();
+                List<String> contractNoList = new ArrayList<>();
                 List<String> projectNoList = new ArrayList<>();
                 // 销售合同号 和 项目号
                 List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
 
                 deliverConsignGoodsList.stream().forEach(deliverConsignGoods -> {
                     Goods goods = deliverConsignGoods.getGoods();
-                    ContractNoList.add(goods.getContractNo());
+                    contractNoList.add(goods.getContractNo());
                     projectNoList.add(goods.getProjectNo());
                 });
-                map.put("contractNos", StringUtils.join(ContractNoList, ","));
+                map.put("contractNos", StringUtils.join(contractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
 
 
@@ -675,14 +675,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
-    public boolean saveQuality(DeliverDetail deliverDetail) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveQuality(DeliverDetail deliverDetail) throws Exception{
         DeliverDetail dbDeliverDetail = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (dbDeliverDetail == null ||
                 (dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() &&
                         dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SUBMITED_OUTSTOCK.getStatusCode())) {
-            return false;
+            throw new Exception("入库质检当前状态不可修改");
         }
 
         // 复制基本信息
@@ -705,6 +705,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         dbDeliverDetail.setApprovalDate(deliverDetail.getApprovalDate());
         dbDeliverDetail.setReason(deliverDetail.getReason());
         dbDeliverDetail.setOpinion(deliverDetail.getOpinion());
+        dbDeliverDetail.setStatus(deliverDetail.getStatus());
 
         // 只接受品控部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
