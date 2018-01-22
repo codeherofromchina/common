@@ -24,7 +24,7 @@ public class OrderListCondition {
     //框架协议号
     private String frameworkNo;
     //订单类型
-    private Boolean orderType;
+    private Integer orderType;
     //款项状态
     private Integer payStatus;
     //订单状态
@@ -36,10 +36,6 @@ public class OrderListCondition {
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
-
-    public Boolean getOrderType() {
-        return orderType;
-    }
 
     public String getContractNo() {
         return contractNo;
@@ -97,11 +93,11 @@ public class OrderListCondition {
         this.crmCode = crmCode;
     }
 
-    public Boolean isOrderType() {
+    public Integer getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
 

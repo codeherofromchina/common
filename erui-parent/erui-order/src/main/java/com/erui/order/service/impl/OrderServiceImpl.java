@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
                 }
                 //根据订单类型
-                if (condition.isOrderType() != null) {
+                if (condition.getOrderType() != null) {
                     list.add(cb.equal(root.get("orderType").as(Integer.class), condition.getOrderType()));
                 }
                 //根据汇款状态

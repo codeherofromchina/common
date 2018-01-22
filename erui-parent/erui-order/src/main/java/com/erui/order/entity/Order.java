@@ -42,10 +42,10 @@ public class Order {
 
     @Column(name = "order_source")
     private String orderSource;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -140,7 +140,7 @@ public class Order {
     private Integer payStatus;
 
     private Integer status;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -149,13 +149,13 @@ public class Order {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delete_time")
     private Date deleteTime;
 
