@@ -48,15 +48,20 @@ public class InspectReportController {
                 inspectReport.setPurchNo(inspectApply.getPurchNo());
 
 
-                // 销售合同号
+                // 销售合同号,保持顺序用list
                 List<String> contractNoList = new ArrayList<String>();
-                // 项目号
+                // 项目号,保持顺序用list
                 List<String> projectNoList = new ArrayList<String>();
                 inspectReport.getInspectGoodsList().forEach(vo -> {
                     Goods goods = vo.getGoods();
-
-                    contractNoList.add(goods.getContractNo());
-                    projectNoList.add(goods.getProjectNo());
+                    String contractNo = goods.getContractNo();
+                    String projectNo = goods.getProjectNo();
+                    if (!contractNoList.contains(contractNo)) {
+                        contractNoList.add(contractNo);
+                    }
+                    if (!projectNoList.contains(projectNo)) {
+                        projectNoList.add(projectNo);
+                    }
                 });
                 inspectReport.setContractNo(StringUtils.join(contractNoList, ","));
                 inspectReport.setProjectNo(StringUtils.join(projectNoList, ","));

@@ -142,7 +142,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 goodsDao.save(parentGoods);
             }
             // 设置预报检商品数量
-            purchGoods.setPreInspectNum(iaGoods.getInspectNum());
+            purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + iaGoods.getInspectNum());
             purchGoodsDao.save(purchGoods);
         }
         // 保存报检单信息
@@ -219,7 +219,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             }
             // 报检数量大于采购数量
             Integer inspectNum = applyGoods.getInspectNum();
-            if (inspectNum == null || inspectNum <= 0 || inspectNum > parentPurchGoods.getPurchaseNum() - parentPurchGoods.getPreInspectNum()) {
+            if (inspectNum == null || inspectNum <= 0 || inspectNum > parentPurchGoods.getPurchaseNum() - parentPurchGoods.getPreInspectNum() - oldInspectNum) {
                 throw new Exception("报检数量错误");
             }
 

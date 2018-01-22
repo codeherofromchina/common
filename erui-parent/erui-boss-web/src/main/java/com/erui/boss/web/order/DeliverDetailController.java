@@ -65,12 +65,15 @@ public class DeliverDetailController {
     @RequestMapping(value = "saveQuality", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> saveQuality(@RequestBody DeliverDetail deliverDetail) {
         boolean continueFlag = true;
+        String errMsg = null;
         if (deliverDetail.getId() == null || deliverDetail.getId() <= 0) {
             continueFlag = false;
+            errMsg = "出库质检不存在";
         }
         DeliverDetail.StatusEnum statusEnum = DeliverDetail.StatusEnum.fromStatusCode(deliverDetail.getStatus());
         if (statusEnum != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT && statusEnum != DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT) {
             continueFlag = false;
+            errMsg = "出库质检参数状态不正确";
         }
 
         if (continueFlag) {
@@ -79,11 +82,12 @@ public class DeliverDetailController {
                     return new Result<>();
                 }
             } catch (Exception ex) {
+                errMsg = ex.getMessage();
                 logger.error("异常错误", ex);
             }
         }
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
 
     }
 
