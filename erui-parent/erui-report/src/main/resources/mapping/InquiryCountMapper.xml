@@ -263,7 +263,7 @@
   <select id="selectAllAreaAndOrgList" resultType="java.util.Map" >
     select inquiry_area as area,organization as org
     from inquiry_count
-    group by inquiry_area,organization  HAVING  inquiry_area IS  NOT  NULL
+    group by inquiry_area,organization  HAVING  inquiry_area IS  NOT  NULL AND  organization IS  NOT  NULL
   </select>
   <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT  COUNT(1) as proCountTotal FROM inquiry_count

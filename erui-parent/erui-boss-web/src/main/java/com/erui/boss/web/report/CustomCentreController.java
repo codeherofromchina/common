@@ -1719,7 +1719,7 @@ public class CustomCentreController {
         data.put("ordAmmount", RateUtil.doubleChainRateTwo(amount, 10000d));//保留单位 万美元
         data.put("targetAmmount", RateUtil.doubleChainRateTwo(target, 1d));
         if (profitRate != null) {
-            data.put("profitRate", RateUtil.doubleChainRateTwo(profitRate, 1d));
+            data.put("profitRate", RateUtil.doubleChainRate(profitRate, 1d));
         } else {
             data.put("profitRate", 0d);
         }
