@@ -151,11 +151,11 @@ public class InstockServiceImpl implements InstockService {
                     List<Predicate> list = new ArrayList<>();
                     Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
                     if (StringUtils.isNotBlank(projectNo)) {
-                        list.add(cb.equal(instockGoods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                        list.add(cb.like(instockGoods.get("projectNo").as(String.class), "%" + projectNo + "%"));
                     }
 
                     if (StringUtils.isNotBlank(contractNo)) {
-                        list.add(cb.equal(instockGoods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                        list.add(cb.like(instockGoods.get("contractNo").as(String.class), "%" + contractNo + "%"));
                     }
 
                     Predicate[] predicates = new Predicate[list.size()];
