@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ import com.erui.report.util.ImportDataResponse;
 public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMapper>
         implements ProcurementCountService {
     private final static Logger logger = LoggerFactory.getLogger(ProcurementCountServiceImpl.class);
-
+    private static DecimalFormat df = new DecimalFormat("0.00");
     @Override
     public Map<String, Object> selectArea() {
         List<Map> areaMap = readMapper.selectArea();
@@ -283,9 +284,9 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         dataList.add(procurementCount);
         dataList.add(signingContractCount);
         dataList.add(signingContractAmount);
-        xList.add("采购申请单数量-占比"+ RateUtil.doubleChainRateTwo(proProportion * 100, 1) + "%");
-        xList.add("签约合同数-占比"+ RateUtil.doubleChainRateTwo(signCountProportion * 100, 1) + "%");
-        xList.add("签约合同金额-占比"+ RateUtil.doubleChainRateTwo(signAmountProportion * 100, 1) + "%");
+        xList.add("采购申请单数量-占比"+df.format(proProportion * 100) + "%");
+        xList.add("签约合同数-占比"+ df.format(signCountProportion * 100) + "%");
+        xList.add("签约合同金额-占比"+ df.format(signAmountProportion * 100) + "%");
         Map<String,Object> data=new HashMap<>();
         data.put("yAxis", dataList);
         data.put("xAxis", xList);
