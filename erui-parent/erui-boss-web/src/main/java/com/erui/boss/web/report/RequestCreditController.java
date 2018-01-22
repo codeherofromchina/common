@@ -580,10 +580,10 @@ public class RequestCreditController {
         if (TotalNextMothReceive > 0) {
             nextProportion = RateUtil.doubleChainRate(nextMothReceive, TotalNextMothReceive);
         }
-        xAxis.add("应收金额-占比" + RateUtil.doubleChainRateTwo(totalProportion * 100, 1) + "%");
-        xAxis.add("已收金额-占比" + RateUtil.doubleChainRateTwo(backProportion * 100, 1) + "%");
-        xAxis.add("应收未收-占比" + RateUtil.doubleChainRateTwo(receiveProportion * 100, 1) + "%");
-        xAxis.add("下月应收-占比" + RateUtil.doubleChainRateTwo(nextProportion * 100, 1) + "%");
+        xAxis.add("应收金额-占比" + df.format(totalProportion * 100)+ "%");
+        xAxis.add("已收金额-占比" +df.format(backProportion * 100) + "%");
+        xAxis.add("应收未收-占比" +df.format(receiveProportion * 100)+ "%");
+        xAxis.add("下月应收-占比" +df.format(nextProportion * 100) + "%");
         Map<String, Object> data = new HashMap<>();
         data.put("yAxis", yAxis);
         data.put("xAxis", xAxis);
