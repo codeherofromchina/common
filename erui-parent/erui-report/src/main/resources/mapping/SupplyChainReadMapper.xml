@@ -102,7 +102,7 @@
   </select>
 
   <select id="selectStart" resultType="java.util.Date">
-    SELECT create_at FROM supply_chain_read ORDER BY create_at ASC LIMIT 1
+    SELECT create_at FROM supply_chain_read WHERE create_at IS NOT NULL  ORDER BY create_at ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
     SELECT create_at FROM supply_chain_read ORDER BY create_at DESC LIMIT 1

@@ -32,7 +32,7 @@ public class TotalTimeController {
     @Autowired
     private RequestCreditService requestCreditService;
     @Autowired
-    private SupplyChainService supplyChainReadService;
+    private SupplyChainReadService supplyChainReadService;
 
     @RequestMapping(value = "totalTime", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody

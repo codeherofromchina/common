@@ -82,7 +82,7 @@
     china_count, foreign_count, new_count, group_transfer_in, group_transfer_out, dimission_count
   </sql>
     <select id="selectStart" resultType="java.util.Date">
-    SELECT create_at FROM `hr_count` ORDER BY create_at ASC LIMIT 1
+    SELECT create_at FROM `hr_count` WHERE create_at IS NOT NULL ORDER BY create_at ASC LIMIT 1
   </select>
     <select id="selectEnd" resultType="java.util.Date" parameterType="com.erui.report.model.HrCountExample">
         SELECT create_at FROM `hr_count`

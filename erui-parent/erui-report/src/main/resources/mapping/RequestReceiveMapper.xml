@@ -1,185 +1,192 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.erui.report.dao.RequestReceiveMapper" >
-  <resultMap id="BaseResultMap" type="com.erui.report.model.RequestReceive" >
-    <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="serial_num" property="serialNum" jdbcType="VARCHAR" />
-    <result column="order_num" property="orderNum" jdbcType="VARCHAR" />
-    <result column="sales_main_company" property="salesMainCompany" jdbcType="VARCHAR" />
-    <result column="sales_area" property="salesArea" jdbcType="VARCHAR" />
-    <result column="sales_country" property="salesCountry" jdbcType="VARCHAR" />
-    <result column="organization" property="organization" jdbcType="VARCHAR" />
-    <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
-    <result column="export_pro_name" property="exportProName" jdbcType="VARCHAR" />
-    <result column="trade_terms" property="tradeTerms" jdbcType="VARCHAR" />
-    <result column="create_at" property="createAt" jdbcType="TIMESTAMP" />
-    <result column="order_amount" property="orderAmount" jdbcType="DECIMAL" />
-    <result column="credit_currency" property="creditCurrency" jdbcType="VARCHAR" />
-    <result column="receive_amount" property="receiveAmount" jdbcType="DECIMAL" />
-    <result column="back_response_person" property="backResponsePerson" jdbcType="VARCHAR" />
-    <result column="next_back_date" property="nextBackDate" jdbcType="TIMESTAMP" />
-    <result column="back_date" property="backDate" jdbcType="TIMESTAMP" />
-    <result column="back_amount" property="backAmount" jdbcType="DECIMAL" />
-    <result column="other_amount" property="otherAmount" jdbcType="DECIMAL" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+<mapper namespace="com.erui.report.dao.RequestReceiveMapper">
+    <resultMap id="BaseResultMap" type="com.erui.report.model.RequestReceive">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="serial_num" property="serialNum" jdbcType="VARCHAR"/>
+        <result column="order_num" property="orderNum" jdbcType="VARCHAR"/>
+        <result column="sales_main_company" property="salesMainCompany" jdbcType="VARCHAR"/>
+        <result column="sales_area" property="salesArea" jdbcType="VARCHAR"/>
+        <result column="sales_country" property="salesCountry" jdbcType="VARCHAR"/>
+        <result column="organization" property="organization" jdbcType="VARCHAR"/>
+        <result column="customer_code" property="customerCode" jdbcType="VARCHAR"/>
+        <result column="export_pro_name" property="exportProName" jdbcType="VARCHAR"/>
+        <result column="trade_terms" property="tradeTerms" jdbcType="VARCHAR"/>
+        <result column="create_at" property="createAt" jdbcType="TIMESTAMP"/>
+        <result column="order_amount" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="credit_currency" property="creditCurrency" jdbcType="VARCHAR"/>
+        <result column="receive_amount" property="receiveAmount" jdbcType="DECIMAL"/>
+        <result column="back_response_person" property="backResponsePerson" jdbcType="VARCHAR"/>
+        <result column="next_back_date" property="nextBackDate" jdbcType="TIMESTAMP"/>
+        <result column="back_date" property="backDate" jdbcType="TIMESTAMP"/>
+        <result column="back_amount" property="backAmount" jdbcType="DECIMAL"/>
+        <result column="other_amount" property="otherAmount" jdbcType="DECIMAL"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
     id, serial_num, order_num, sales_main_company, sales_area, sales_country, organization, 
     customer_code, export_pro_name, trade_terms, create_at, order_amount, credit_currency, 
     receive_amount, back_response_person, next_back_date, back_date, back_amount, other_amount
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.RequestReceiveExample" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-    <!--根据条件查询回款金额-->
-    <select id="selectBackAmount" resultType="java.lang.Double" parameterType="com.erui.report.model.RequestReceiveExample" >
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.RequestReceiveExample">
         select
-      IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount
-        from request_receive
-        <if test="_parameter != null" >
-            <include refid="Example_Where_Clause" />
+        <if test="distinct">
+            distinct
         </if>
-        <if test="orderByClause != null" >
+        <include refid="Base_Column_List"/>
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <!--根据条件查询回款金额-->
+    <select id="selectBackAmount" resultType="java.lang.Double"
+            parameterType="com.erui.report.model.RequestReceiveExample">
+        select
+        IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
             order by ${orderByClause}
         </if>
     </select>
 
-  <!--查询各区域的回款金额-->
-  <select id="selectBackAmountGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
-    select
-    IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount , sales_area AS  area
-    from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP  BY  sales_area HAVING  sales_area IS  NOT  NULL
-  </select>
-  <!--查询各主体公司的回款金额-->
-  <select id="selectBackAmountGroupByCompany" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
-    select
-    IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,sales_main_company AS  company
-    from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP  BY  sales_main_company HAVING  sales_main_company IS  NOT  NULL
-  </select>
-  <!--查询各事业部的回款金额-->
-  <select id="selectBackAmoutGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
-    select
-    IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,organization AS  org
-    from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP  BY  organization HAVING  organization IS  NOT  NULL
-  </select>
-  <!--查询每天回款金额 列表-->
-  <select id="selectBackAmountGroupByBackDate" resultType="java.util.Map" parameterType="com.erui.report.model.RequestReceiveExample" >
-    SELECT  IFNULL(SUM(IFNULL(back_amount,0)),0) AS  backAmount ,DATE_FORMAT(back_date,'%Y-%m-%d') AS backDate
-    from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP  BY  backDate HAVING  backDate IS  NOT  NULL
-  </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
-    <include refid="Base_Column_List" />
-    from request_receive
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <!--查询各区域的回款金额-->
+    <select id="selectBackAmountGroupByArea" resultType="java.util.Map"
+            parameterType="com.erui.report.model.RequestReceiveExample">
+        select
+        IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount , sales_area AS area
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        GROUP BY sales_area HAVING sales_area IS NOT NULL
+    </select>
+    <!--查询各主体公司的回款金额-->
+    <select id="selectBackAmountGroupByCompany" resultType="java.util.Map"
+            parameterType="com.erui.report.model.RequestReceiveExample">
+        select
+        IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,sales_main_company AS company
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        GROUP BY sales_main_company HAVING sales_main_company IS NOT NULL
+    </select>
+    <!--查询各事业部的回款金额-->
+    <select id="selectBackAmoutGroupByOrg" resultType="java.util.Map"
+            parameterType="com.erui.report.model.RequestReceiveExample">
+        select
+        IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,organization AS org
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        GROUP BY organization HAVING organization IS NOT NULL
+    </select>
+    <!--查询每天回款金额 列表-->
+    <select id="selectBackAmountGroupByBackDate" resultType="java.util.Map"
+            parameterType="com.erui.report.model.RequestReceiveExample">
+        SELECT IFNULL(SUM(IFNULL(back_amount,0)),0) AS backAmount ,DATE_FORMAT(back_date,'%Y-%m-%d') AS backDate
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        GROUP BY backDate HAVING backDate IS NOT NULL
+    </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from request_receive
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from request_receive
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="com.erui.report.model.RequestReceiveExample" >
-    delete from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="com.erui.report.model.RequestReceive" >
+    <delete id="deleteByExample" parameterType="com.erui.report.model.RequestReceiveExample">
+        delete from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.erui.report.model.RequestReceive">
     insert into request_receive (id, serial_num, order_num, 
       sales_main_company, sales_area, sales_country, 
       organization, customer_code, export_pro_name, 
@@ -195,284 +202,285 @@
       #{nextBackDate,jdbcType=TIMESTAMP}, #{backDate,jdbcType=TIMESTAMP}, #{backAmount,jdbcType=DECIMAL}, 
       #{otherAmount,jdbcType=DECIMAL})
   </insert>
-  <insert id="insertSelective" parameterType="com.erui.report.model.RequestReceive" >
-    insert into request_receive
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="serialNum != null" >
-        serial_num,
-      </if>
-      <if test="orderNum != null" >
-        order_num,
-      </if>
-      <if test="salesMainCompany != null" >
-        sales_main_company,
-      </if>
-      <if test="salesArea != null" >
-        sales_area,
-      </if>
-      <if test="salesCountry != null" >
-        sales_country,
-      </if>
-      <if test="organization != null" >
-        organization,
-      </if>
-      <if test="customerCode != null" >
-        customer_code,
-      </if>
-      <if test="exportProName != null" >
-        export_pro_name,
-      </if>
-      <if test="tradeTerms != null" >
-        trade_terms,
-      </if>
-      <if test="createAt != null" >
-        create_at,
-      </if>
-      <if test="orderAmount != null" >
-        order_amount,
-      </if>
-      <if test="creditCurrency != null" >
-        credit_currency,
-      </if>
-      <if test="receiveAmount != null" >
-        receive_amount,
-      </if>
-      <if test="backResponsePerson != null" >
-        back_response_person,
-      </if>
-      <if test="nextBackDate != null" >
-        next_back_date,
-      </if>
-      <if test="backDate != null" >
-        back_date,
-      </if>
-      <if test="backAmount != null" >
-        back_amount,
-      </if>
-      <if test="otherAmount != null" >
-        other_amount,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=BIGINT},
-      </if>
-      <if test="serialNum != null" >
-        #{serialNum,jdbcType=VARCHAR},
-      </if>
-      <if test="orderNum != null" >
-        #{orderNum,jdbcType=VARCHAR},
-      </if>
-      <if test="salesMainCompany != null" >
-        #{salesMainCompany,jdbcType=VARCHAR},
-      </if>
-      <if test="salesArea != null" >
-        #{salesArea,jdbcType=VARCHAR},
-      </if>
-      <if test="salesCountry != null" >
-        #{salesCountry,jdbcType=VARCHAR},
-      </if>
-      <if test="organization != null" >
-        #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="customerCode != null" >
-        #{customerCode,jdbcType=VARCHAR},
-      </if>
-      <if test="exportProName != null" >
-        #{exportProName,jdbcType=VARCHAR},
-      </if>
-      <if test="tradeTerms != null" >
-        #{tradeTerms,jdbcType=VARCHAR},
-      </if>
-      <if test="createAt != null" >
-        #{createAt,jdbcType=TIMESTAMP},
-      </if>
-      <if test="orderAmount != null" >
-        #{orderAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="creditCurrency != null" >
-        #{creditCurrency,jdbcType=VARCHAR},
-      </if>
-      <if test="receiveAmount != null" >
-        #{receiveAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="backResponsePerson != null" >
-        #{backResponsePerson,jdbcType=VARCHAR},
-      </if>
-      <if test="nextBackDate != null" >
-        #{nextBackDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="backDate != null" >
-        #{backDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="backAmount != null" >
-        #{backAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="otherAmount != null" >
-        #{otherAmount,jdbcType=DECIMAL},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="com.erui.report.model.RequestReceiveExample" resultType="java.lang.Integer" >
-    select count(*) from request_receive
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map" >
-    update request_receive
-    <set >
-      <if test="record.id != null" >
-        id = #{record.id,jdbcType=BIGINT},
-      </if>
-      <if test="record.serialNum != null" >
+    <insert id="insertSelective" parameterType="com.erui.report.model.RequestReceive">
+        insert into request_receive
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="serialNum != null">
+                serial_num,
+            </if>
+            <if test="orderNum != null">
+                order_num,
+            </if>
+            <if test="salesMainCompany != null">
+                sales_main_company,
+            </if>
+            <if test="salesArea != null">
+                sales_area,
+            </if>
+            <if test="salesCountry != null">
+                sales_country,
+            </if>
+            <if test="organization != null">
+                organization,
+            </if>
+            <if test="customerCode != null">
+                customer_code,
+            </if>
+            <if test="exportProName != null">
+                export_pro_name,
+            </if>
+            <if test="tradeTerms != null">
+                trade_terms,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="orderAmount != null">
+                order_amount,
+            </if>
+            <if test="creditCurrency != null">
+                credit_currency,
+            </if>
+            <if test="receiveAmount != null">
+                receive_amount,
+            </if>
+            <if test="backResponsePerson != null">
+                back_response_person,
+            </if>
+            <if test="nextBackDate != null">
+                next_back_date,
+            </if>
+            <if test="backDate != null">
+                back_date,
+            </if>
+            <if test="backAmount != null">
+                back_amount,
+            </if>
+            <if test="otherAmount != null">
+                other_amount,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="serialNum != null">
+                #{serialNum,jdbcType=VARCHAR},
+            </if>
+            <if test="orderNum != null">
+                #{orderNum,jdbcType=VARCHAR},
+            </if>
+            <if test="salesMainCompany != null">
+                #{salesMainCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="salesArea != null">
+                #{salesArea,jdbcType=VARCHAR},
+            </if>
+            <if test="salesCountry != null">
+                #{salesCountry,jdbcType=VARCHAR},
+            </if>
+            <if test="organization != null">
+                #{organization,jdbcType=VARCHAR},
+            </if>
+            <if test="customerCode != null">
+                #{customerCode,jdbcType=VARCHAR},
+            </if>
+            <if test="exportProName != null">
+                #{exportProName,jdbcType=VARCHAR},
+            </if>
+            <if test="tradeTerms != null">
+                #{tradeTerms,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderAmount != null">
+                #{orderAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="creditCurrency != null">
+                #{creditCurrency,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveAmount != null">
+                #{receiveAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="backResponsePerson != null">
+                #{backResponsePerson,jdbcType=VARCHAR},
+            </if>
+            <if test="nextBackDate != null">
+                #{nextBackDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="backDate != null">
+                #{backDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="backAmount != null">
+                #{backAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="otherAmount != null">
+                #{otherAmount,jdbcType=DECIMAL},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.erui.report.model.RequestReceiveExample"
+            resultType="java.lang.Integer">
+        select count(*) from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update request_receive
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.serialNum != null">
+                serial_num = #{record.serialNum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.orderNum != null">
+                order_num = #{record.orderNum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.salesMainCompany != null">
+                sales_main_company = #{record.salesMainCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="record.salesArea != null">
+                sales_area = #{record.salesArea,jdbcType=VARCHAR},
+            </if>
+            <if test="record.salesCountry != null">
+                sales_country = #{record.salesCountry,jdbcType=VARCHAR},
+            </if>
+            <if test="record.organization != null">
+                organization = #{record.organization,jdbcType=VARCHAR},
+            </if>
+            <if test="record.customerCode != null">
+                customer_code = #{record.customerCode,jdbcType=VARCHAR},
+            </if>
+            <if test="record.exportProName != null">
+                export_pro_name = #{record.exportProName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.tradeTerms != null">
+                trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createAt != null">
+                create_at = #{record.createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.orderAmount != null">
+                order_amount = #{record.orderAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="record.creditCurrency != null">
+                credit_currency = #{record.creditCurrency,jdbcType=VARCHAR},
+            </if>
+            <if test="record.receiveAmount != null">
+                receive_amount = #{record.receiveAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="record.backResponsePerson != null">
+                back_response_person = #{record.backResponsePerson,jdbcType=VARCHAR},
+            </if>
+            <if test="record.nextBackDate != null">
+                next_back_date = #{record.nextBackDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.backDate != null">
+                back_date = #{record.backDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.backAmount != null">
+                back_amount = #{record.backAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="record.otherAmount != null">
+                other_amount = #{record.otherAmount,jdbcType=DECIMAL},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update request_receive
+        set id = #{record.id,jdbcType=BIGINT},
         serial_num = #{record.serialNum,jdbcType=VARCHAR},
-      </if>
-      <if test="record.orderNum != null" >
         order_num = #{record.orderNum,jdbcType=VARCHAR},
-      </if>
-      <if test="record.salesMainCompany != null" >
         sales_main_company = #{record.salesMainCompany,jdbcType=VARCHAR},
-      </if>
-      <if test="record.salesArea != null" >
         sales_area = #{record.salesArea,jdbcType=VARCHAR},
-      </if>
-      <if test="record.salesCountry != null" >
         sales_country = #{record.salesCountry,jdbcType=VARCHAR},
-      </if>
-      <if test="record.organization != null" >
         organization = #{record.organization,jdbcType=VARCHAR},
-      </if>
-      <if test="record.customerCode != null" >
         customer_code = #{record.customerCode,jdbcType=VARCHAR},
-      </if>
-      <if test="record.exportProName != null" >
         export_pro_name = #{record.exportProName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.tradeTerms != null" >
         trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createAt != null" >
         create_at = #{record.createAt,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.orderAmount != null" >
         order_amount = #{record.orderAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="record.creditCurrency != null" >
         credit_currency = #{record.creditCurrency,jdbcType=VARCHAR},
-      </if>
-      <if test="record.receiveAmount != null" >
         receive_amount = #{record.receiveAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="record.backResponsePerson != null" >
         back_response_person = #{record.backResponsePerson,jdbcType=VARCHAR},
-      </if>
-      <if test="record.nextBackDate != null" >
         next_back_date = #{record.nextBackDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.backDate != null" >
         back_date = #{record.backDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.backAmount != null" >
         back_amount = #{record.backAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="record.otherAmount != null" >
-        other_amount = #{record.otherAmount,jdbcType=DECIMAL},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update request_receive
-    set id = #{record.id,jdbcType=BIGINT},
-      serial_num = #{record.serialNum,jdbcType=VARCHAR},
-      order_num = #{record.orderNum,jdbcType=VARCHAR},
-      sales_main_company = #{record.salesMainCompany,jdbcType=VARCHAR},
-      sales_area = #{record.salesArea,jdbcType=VARCHAR},
-      sales_country = #{record.salesCountry,jdbcType=VARCHAR},
-      organization = #{record.organization,jdbcType=VARCHAR},
-      customer_code = #{record.customerCode,jdbcType=VARCHAR},
-      export_pro_name = #{record.exportProName,jdbcType=VARCHAR},
-      trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
-      create_at = #{record.createAt,jdbcType=TIMESTAMP},
-      order_amount = #{record.orderAmount,jdbcType=DECIMAL},
-      credit_currency = #{record.creditCurrency,jdbcType=VARCHAR},
-      receive_amount = #{record.receiveAmount,jdbcType=DECIMAL},
-      back_response_person = #{record.backResponsePerson,jdbcType=VARCHAR},
-      next_back_date = #{record.nextBackDate,jdbcType=TIMESTAMP},
-      back_date = #{record.backDate,jdbcType=TIMESTAMP},
-      back_amount = #{record.backAmount,jdbcType=DECIMAL},
-      other_amount = #{record.otherAmount,jdbcType=DECIMAL}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.RequestReceive" >
-    update request_receive
-    <set >
-      <if test="serialNum != null" >
-        serial_num = #{serialNum,jdbcType=VARCHAR},
-      </if>
-      <if test="orderNum != null" >
-        order_num = #{orderNum,jdbcType=VARCHAR},
-      </if>
-      <if test="salesMainCompany != null" >
-        sales_main_company = #{salesMainCompany,jdbcType=VARCHAR},
-      </if>
-      <if test="salesArea != null" >
-        sales_area = #{salesArea,jdbcType=VARCHAR},
-      </if>
-      <if test="salesCountry != null" >
-        sales_country = #{salesCountry,jdbcType=VARCHAR},
-      </if>
-      <if test="organization != null" >
-        organization = #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="customerCode != null" >
-        customer_code = #{customerCode,jdbcType=VARCHAR},
-      </if>
-      <if test="exportProName != null" >
-        export_pro_name = #{exportProName,jdbcType=VARCHAR},
-      </if>
-      <if test="tradeTerms != null" >
-        trade_terms = #{tradeTerms,jdbcType=VARCHAR},
-      </if>
-      <if test="createAt != null" >
-        create_at = #{createAt,jdbcType=TIMESTAMP},
-      </if>
-      <if test="orderAmount != null" >
-        order_amount = #{orderAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="creditCurrency != null" >
-        credit_currency = #{creditCurrency,jdbcType=VARCHAR},
-      </if>
-      <if test="receiveAmount != null" >
-        receive_amount = #{receiveAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="backResponsePerson != null" >
-        back_response_person = #{backResponsePerson,jdbcType=VARCHAR},
-      </if>
-      <if test="nextBackDate != null" >
-        next_back_date = #{nextBackDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="backDate != null" >
-        back_date = #{backDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="backAmount != null" >
-        back_amount = #{backAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="otherAmount != null" >
-        other_amount = #{otherAmount,jdbcType=DECIMAL},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.RequestReceive" >
+        other_amount = #{record.otherAmount,jdbcType=DECIMAL}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.RequestReceive">
+        update request_receive
+        <set>
+            <if test="serialNum != null">
+                serial_num = #{serialNum,jdbcType=VARCHAR},
+            </if>
+            <if test="orderNum != null">
+                order_num = #{orderNum,jdbcType=VARCHAR},
+            </if>
+            <if test="salesMainCompany != null">
+                sales_main_company = #{salesMainCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="salesArea != null">
+                sales_area = #{salesArea,jdbcType=VARCHAR},
+            </if>
+            <if test="salesCountry != null">
+                sales_country = #{salesCountry,jdbcType=VARCHAR},
+            </if>
+            <if test="organization != null">
+                organization = #{organization,jdbcType=VARCHAR},
+            </if>
+            <if test="customerCode != null">
+                customer_code = #{customerCode,jdbcType=VARCHAR},
+            </if>
+            <if test="exportProName != null">
+                export_pro_name = #{exportProName,jdbcType=VARCHAR},
+            </if>
+            <if test="tradeTerms != null">
+                trade_terms = #{tradeTerms,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderAmount != null">
+                order_amount = #{orderAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="creditCurrency != null">
+                credit_currency = #{creditCurrency,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveAmount != null">
+                receive_amount = #{receiveAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="backResponsePerson != null">
+                back_response_person = #{backResponsePerson,jdbcType=VARCHAR},
+            </if>
+            <if test="nextBackDate != null">
+                next_back_date = #{nextBackDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="backDate != null">
+                back_date = #{backDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="backAmount != null">
+                back_amount = #{backAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="otherAmount != null">
+                other_amount = #{otherAmount,jdbcType=DECIMAL},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.erui.report.model.RequestReceive">
     update request_receive
     set serial_num = #{serialNum,jdbcType=VARCHAR},
       order_num = #{orderNum,jdbcType=VARCHAR},
@@ -494,7 +502,7 @@
       other_amount = #{otherAmount,jdbcType=DECIMAL}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="truncateTable">
+    <update id="truncateTable">
       truncate TABLE  request_receive
   </update>
 </mapper>

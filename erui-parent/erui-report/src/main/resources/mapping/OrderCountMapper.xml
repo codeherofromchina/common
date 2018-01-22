@@ -170,7 +170,7 @@
     GROUP BY TO_DAYS(project_start)
   </select>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT project_start FROM order_count ORDER BY project_start ASC LIMIT 1
+    SELECT project_start FROM order_count WHERE project_start IS NOT NULL ORDER BY project_start ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
     SELECT project_start FROM order_count ORDER BY project_start DESC LIMIT 1

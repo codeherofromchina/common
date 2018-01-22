@@ -187,7 +187,7 @@
     is_success_order, lose_order_category, lose_order_cause
   </sql>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT rollin_time FROM inquiry_count ORDER BY rollin_time ASC LIMIT 1
+    SELECT rollin_time FROM inquiry_count WHERE rollin_time IS NOT NULL ORDER BY rollin_time ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
     SELECT rollin_time FROM inquiry_count ORDER BY rollin_time DESC LIMIT 1
