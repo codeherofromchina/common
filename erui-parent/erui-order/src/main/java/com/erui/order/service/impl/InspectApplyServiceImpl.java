@@ -161,7 +161,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectApply inspectApply) throws Exception {
         InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (dbInspectApply == null || dbInspectApply.getStatus() != InspectApply.StatusEnum.SAVED.getCode()) {
@@ -294,7 +294,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean againApply(InspectApply inspectApply) throws Exception {
 
         InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
@@ -396,7 +396,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public InspectApply findDetail(Integer id) {
         InspectApply inspectApply = inspectApplyDao.findOne(id);
         if (inspectApply != null) {
@@ -441,7 +441,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void fullTmpMsg(Integer id, String tmpMsg) {
         InspectApply one = inspectApplyDao.findOne(id);
         one.setTmpMsg(tmpMsg);
