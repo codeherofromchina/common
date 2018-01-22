@@ -145,7 +145,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 //根据开单日期
                 if (deliverD.getBillingDate() != null) {
-                    list.add(cb.equal(root.get("BillingDate").as(Date.class), deliverD.getBillingDate()));
+                    list.add(cb.equal(root.get("billingDate").as(Date.class), deliverD.getBillingDate()));
                 }
                 //根据放行日期
                 if (deliverD.getReleaseDate() != null) {
