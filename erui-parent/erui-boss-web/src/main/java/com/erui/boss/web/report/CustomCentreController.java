@@ -1512,13 +1512,11 @@ public class CustomCentreController {
                     mm.put("area", m.get("area").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    mm.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
                     areaData.put(String.valueOf(m.get("area")), mm);
                 } else {
                     Map<String, Object> areaMap = areaData.get(m.get("area").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     areaMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    areaMap.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
                 }
             }
         });
@@ -1533,13 +1531,11 @@ public class CustomCentreController {
                     mm.put("org", m.get("org").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    mm.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), orgTotalCount));
                     orgData.put(String.valueOf(m.get("area")), mm);
                 } else {
                     Map<String, Object> orgMap = orgData.get(m.get("org").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    orgMap.put(reasonEn + "Proportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), orgTotalCount));
                 }
             }
         });
@@ -1587,24 +1583,61 @@ public class CustomCentreController {
     //添加没有原因的数据
     private Map<String, Object> addNoReasonData(Map<String, Object> map) {
         if (MapUtils.isNotEmpty(map)) {
+            int total=0;
             if (!map.containsKey(InqRtnSeasonEnum.NOT_ORG.getEn())) {
                 map.put(InqRtnSeasonEnum.NOT_ORG.getEn(), 0);
                 map.put(InqRtnSeasonEnum.NOT_ORG.getEn() + "Proportion", 0d);
+            }else {
+                total+=Integer.parseInt(map.get(InqRtnSeasonEnum.NOT_ORG.getEn()).toString());
             }
             if (!map.containsKey(InqRtnSeasonEnum.NOT_SUPPLY.getEn())) {
                 map.put(InqRtnSeasonEnum.NOT_SUPPLY.getEn(), 0);
                 map.put(InqRtnSeasonEnum.NOT_SUPPLY.getEn() + "Proportion", 0d);
+            }else {
+                total+=Integer.parseInt(map.get(InqRtnSeasonEnum.NOT_SUPPLY.getEn()).toString());
             }
             if (!map.containsKey(InqRtnSeasonEnum.OTHER.getEn())) {
                 map.put(InqRtnSeasonEnum.OTHER.getEn(), 0);
                 map.put(InqRtnSeasonEnum.OTHER.getEn() + "Proportion", 0d);
+            }else {
+                total+=Integer.parseInt(map.get(InqRtnSeasonEnum.OTHER.getEn()).toString());
             }
             if (!map.containsKey(InqRtnSeasonEnum.PROJECT_CLEAR.getEn())) {
                 map.put(InqRtnSeasonEnum.PROJECT_CLEAR.getEn(), 0);
                 map.put(InqRtnSeasonEnum.PROJECT_CLEAR.getEn() + "Proportion", 0d);
+            }else {
+                total+=Integer.parseInt(map.get(InqRtnSeasonEnum.PROJECT_CLEAR.getEn()).toString());
             }
             if (!map.containsKey(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn())) {
                 map.put(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn(), 0);
+                map.put(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn() + "Proportion", 0d);
+            }else {
+                total+=Integer.parseInt(map.get(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn()).toString());
+            }
+
+            if(!map.containsKey(InqRtnSeasonEnum.NOT_ORG.getEn() + "Proportion")&&total>0){
+                map.put(InqRtnSeasonEnum.NOT_ORG.getEn() + "Proportion", RateUtil.intChainRate(Integer.parseInt(map.get(InqRtnSeasonEnum.NOT_ORG.getEn()).toString()),total));
+            }else {
+                map.put(InqRtnSeasonEnum.NOT_ORG.getEn() + "Proportion", 0d);
+            }
+            if(!map.containsKey(InqRtnSeasonEnum.NOT_SUPPLY.getEn() + "Proportion")&&total>0){
+                map.put(InqRtnSeasonEnum.NOT_SUPPLY.getEn() + "Proportion", RateUtil.intChainRate(Integer.parseInt(map.get(InqRtnSeasonEnum.NOT_SUPPLY.getEn()).toString()),total));
+            }else {
+                map.put(InqRtnSeasonEnum.NOT_SUPPLY.getEn() + "Proportion", 0d);
+            }
+            if(!map.containsKey(InqRtnSeasonEnum.OTHER.getEn() + "Proportion")&&total>0){
+                map.put(InqRtnSeasonEnum.OTHER.getEn() + "Proportion", RateUtil.intChainRate(Integer.parseInt(map.get(InqRtnSeasonEnum.OTHER.getEn()).toString()),total));
+            }else {
+                map.put(InqRtnSeasonEnum.OTHER.getEn() + "Proportion", 0d);
+            }
+            if(!map.containsKey(InqRtnSeasonEnum.PROJECT_CLEAR.getEn() + "Proportion")&&total>0){
+                map.put(InqRtnSeasonEnum.PROJECT_CLEAR.getEn() + "Proportion", RateUtil.intChainRate(Integer.parseInt(map.get(InqRtnSeasonEnum.PROJECT_CLEAR.getEn()).toString()),total));
+            }else {
+                map.put(InqRtnSeasonEnum.PROJECT_CLEAR.getEn() + "Proportion", 0d);
+            }
+            if(!map.containsKey(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn() + "Proportion")&&total>0){
+                map.put(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn() + "Proportion", RateUtil.intChainRate(Integer.parseInt(map.get(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn()).toString()),total));
+            }else {
                 map.put(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn() + "Proportion", 0d);
             }
             return map;
