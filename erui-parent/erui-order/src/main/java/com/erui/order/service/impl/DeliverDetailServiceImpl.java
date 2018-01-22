@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -341,6 +342,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if(StringUtil.isNotBlank(deliverDetail.getReviewerName())){
                 one.setReviewerName(deliverDetail.getReviewerName());
             }
+            //总包装件数
+            if(deliverDetail.getPackTotal() != null){
+                one.setPackTotal(deliverDetail.getPackTotal());
+            }
 
             DeliverNotice deliverNotice = one.getDeliverNotice();
             if (StringUtil.isNotBlank(deliverDetail.getPackageReq())){
@@ -431,10 +436,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
         }
-        //下发订舱时间
-        if (deliverDetail.getBookingTime() != null) {
-            one.setBookingTime(deliverDetail.getBookingTime());
-        }
         //物流发票号
         if (StringUtil.isNotBlank(deliverDetail.getLogiInvoiceNo())) {
             one.setLogiInvoiceNo(deliverDetail.getLogiInvoiceNo());
@@ -447,22 +448,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverDetail.getLeaveFactory() != null) {
             one.setLeaveFactory(deliverDetail.getLeaveFactory());
         }
-        //船期或航班
-        if (deliverDetail.getSailingDate() != null) {
-            one.setSailingDate(deliverDetail.getSailingDate());
-        }
-        //报关放行时间
-        if (deliverDetail.getCustomsClearance() != null) {
-            one.setCustomsClearance(deliverDetail.getCustomsClearance());
-        }
-        //实际离港时间
-        if (deliverDetail.getLeavePortTime() != null) {
-            one.setLeavePortTime(deliverDetail.getLeavePortTime());
-        }
-        //预计抵达时间
-        if (deliverDetail.getArrivalPortTime() != null) {
-            one.setArrivalPortTime(deliverDetail.getArrivalPortTime());
-        }
+
         //动态描述
         if (StringUtil.isNotBlank(deliverDetail.getLogs())) {
             one.setLogs(deliverDetail.getLogs());
@@ -475,10 +461,47 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverDetail.getStatus() == 4) {
             one.setAccomplishDate(new Date());
         }
-
         if (deliverDetail.getStatus() != null){
             one.setStatus(deliverDetail.getStatus());
         }
+
+        List<DeliverConsignGoods> deliverConsignGoodsList = one.getDeliverConsignGoodsList();
+        for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList){
+            Goods goods = deliverConsignGoods.getGoods();
+            //下发订舱时间
+            if (deliverDetail.getBookingTime() != null) {
+                one.setBookingTime(deliverDetail.getBookingTime());//下发订舱时间
+                goods.setBookingTime(deliverDetail.getBookingTime());//订舱日期
+            }
+            //船期或航班
+            if (deliverDetail.getSailingDate() != null) {
+                one.setSailingDate(deliverDetail.getSailingDate());//船期或航班
+                goods.setSailingDate(deliverDetail.getSailingDate());//船期或航班
+            }
+            //报关放行时间
+            if (deliverDetail.getCustomsClearance() != null) {
+                one.setCustomsClearance(deliverDetail.getCustomsClearance());//报关放行时间
+                goods.setCustomsClearance(deliverDetail.getCustomsClearance());//报关放行时间
+            }
+            //实际离港时间
+            if (deliverDetail.getLeavePortTime() != null) {
+                one.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
+                goods.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
+            }
+            //预计抵达时间
+            if (deliverDetail.getArrivalPortTime() != null) {
+                one.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
+                goods.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
+            }
+            if (deliverDetail.getStatus() == 7){
+                goods.setAccomplishDate(new Date());
+            }
+
+
+
+        }
+
+
         // 只接受国际物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "国际物流部".equals(attachment.getGroup());

@@ -75,6 +75,7 @@ public class InspectApplyController {
             // 数据转换
             Map<String, Object> data = new HashMap<>();
             data.put("id", inspectApply.getId());
+            data.put("purchNo", inspectApply.getPurchNo());
             data.put("department", inspectApply.getDepartment());
             data.put("purchaseName", inspectApply.getPurchaseName());
             data.put("supplierName", inspectApply.getSupplierName());

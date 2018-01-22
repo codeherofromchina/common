@@ -140,6 +140,11 @@ public class DeliverNoticeController {
             if (deliverNotice.getId()!= null) {
                 flag = deliverNoticeService.updateexitRequisition(deliverNotice);
             } else {
+                if(deliverNotice.getSenderId() == null){
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("下单人id不能为空");
+                    return result;
+                }
                 if(StringUtil.isBlank(deliverNotice.getSenderName())|| StringUtils.equals(deliverNotice.getSenderName(), "")){
                     result.setCode(ResultStatusEnum.FAIL.getCode());
                     result.setMsg("下单人名称不能为空");

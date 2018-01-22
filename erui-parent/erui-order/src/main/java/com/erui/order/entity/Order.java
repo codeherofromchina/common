@@ -41,7 +41,8 @@ public class Order {
     private Integer orderType;
 
     @Column(name = "order_source")
-    private String orderSource;
+    private Integer orderSource;
+
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
@@ -275,13 +276,11 @@ public class Order {
     }
 
 
-    public String getOrderSource() {
-        if (orderSource == null)
-            setOrderSource("");
+    public Integer getOrderSource() {
         return orderSource;
     }
 
-    public void setOrderSource(String orderSource) {
+    public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
     }
 

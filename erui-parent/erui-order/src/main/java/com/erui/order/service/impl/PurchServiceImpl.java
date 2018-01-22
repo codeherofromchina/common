@@ -219,7 +219,7 @@ public class PurchServiceImpl implements PurchService {
 
 
         if (page.hasContent()) {
-            page.getContent().parallelStream().forEach(vo -> {
+            page.getContent().stream().forEach(vo -> {
                 List<String> projectNoList = new ArrayList<>();
                 List<String> contractNoList = new ArrayList<>();
                 vo.getProjects().stream().forEach(project -> {

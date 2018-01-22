@@ -23,8 +23,7 @@ public class DeliverDetail {
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
 
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
@@ -217,7 +216,7 @@ public class DeliverDetail {
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
-    @JsonIgnore
+    /*@JsonIgnore*/
     private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
 
 

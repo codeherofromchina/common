@@ -33,7 +33,7 @@ public class AddOrderVo {
     private Integer orderType;
 
     //订单来源
-    private String orderSource;
+    private Integer orderSource;
 
     //订单签订日期
     private Date signingDate;
@@ -243,11 +243,11 @@ public class AddOrderVo {
         this.orderType = orderType;
     }
 
-    public String getOrderSource() {
+    public Integer getOrderSource() {
         return orderSource;
     }
 
-    public void setOrderSource(String orderSource) {
+    public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
     }
 

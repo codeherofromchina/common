@@ -148,7 +148,7 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
         deliverNoticeInfo.put("tradeTerms", deliverNotice.getTradeTerms()); // 贸易术语
         deliverNoticeInfo.put("toPlace", deliverNotice.getToPlace()); // 目的港
-        deliverNoticeInfo.put("numers", deliverNotice.getNumers()); // 总包装件数
+        deliverNoticeInfo.put("numers", deliverDetail.getPackTotal()); // 总包装件数
         deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
 

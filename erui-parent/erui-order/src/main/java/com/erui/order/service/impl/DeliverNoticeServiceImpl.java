@@ -132,6 +132,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     public boolean addexitRequisition(DeliverNotice deliverNotice) {
 
         String[] split = deliverNotice.getDeliverConsignIds().split(",");
+
+        List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
         DeliverConsign deliverConsign = null;
         Set<DeliverConsign> list = new HashSet<DeliverConsign>();
         for (String s :split){
@@ -139,10 +141,16 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverConsign.setId(Integer.parseInt(s));
             list.add(deliverConsign);
             DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
-            //发送看货通知日期
+
+            Set<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
+            for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
+                deliverConsignGoodsLists.add(deliverConsignGoods);
+            }
+
             for (Goods goods : one.getOrder().getGoodsList()) {
                 Goods one1 = goodsDao.findOne(goods.getId());
-                one1.setSendDate(deliverNotice.getSendDate());
+                one1.setSendDate(deliverNotice.getSendDate());//发送看货通知日期
+                one1.setSenderId(deliverNotice.getSenderId());//订舱人id
                 goodsDao.save(one1);
             };
             one.setDeliverYn(2);
@@ -229,6 +237,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }else{
                 deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
             }
+            deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
+            deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
             deliverDetailDao.saveAndFlush(deliverDetail);
         }
         return true;

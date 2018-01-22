@@ -165,6 +165,7 @@ public class PurchController {
             // 整合数据
             Map<String, Object> data = new HashMap<>();
             data.put("purchId", purch.getId());
+            data.put("purchNo", purch.getPurchNo()); // 采购号
             data.put("purchaseId", purch.getAgentId()); // 采购经办人ID
             data.put("purchaseName", purch.getAgentName()); // 采购经办人名称
             data.put("supplierId", purch.getSupplierId()); // 供应商ID
