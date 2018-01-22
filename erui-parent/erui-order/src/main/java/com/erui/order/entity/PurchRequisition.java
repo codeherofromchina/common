@@ -58,9 +58,6 @@ public class PurchRequisition {
 
     private Integer status;
 
-    @Column(name = "create_time")
-    @JsonIgnore
-    private Date createTime;
 
     private String remarks;
     //
@@ -197,13 +194,6 @@ public class PurchRequisition {
         this.status = status;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
 
     public String getRemarks() {
         return remarks;

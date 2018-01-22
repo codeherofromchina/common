@@ -143,16 +143,19 @@ public class ProjectServiceImpl implements ProjectService {
         List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         if (list == null) {
             list = new ArrayList<>();
-        } else if (list != null && projectNoList != null) {
+        } else {
             // 用程序过滤
             list = list.stream().filter(project -> {
-                String projectNo = project.getProjectNo();
-                for (String pStr : projectNoList) {
-                    if (StringUtils.contains(projectNo, pStr)) {
-                        return true;
+                if (projectNoList != null && projectNoList.size() > 0) {
+                    String projectNo = project.getProjectNo();
+                    for (String pStr : projectNoList) {
+                        if (StringUtils.contains(projectNo, pStr)) {
+                            return true;
+                        }
                     }
+                    return false;
                 }
-                return false;
+                return true;
             }).filter(project -> {
                 List<Goods> goodsList = project.getGoodsList();
                 // 存在还可以采购的商品
