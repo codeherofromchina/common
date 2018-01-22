@@ -735,11 +735,11 @@ public class DeliverDetail {
     }
 
     /**
-     * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人完整 5：完善物流状态中 6：项目完结',
+     * 出库到物流的状态1：出库保存/草稿 2：出库提交 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结
      */
     public static enum StatusEnum {
-        SAVED_OUTSTOCK(0, "出库保存"), SUBMITED_OUTSTOCK(1, "出库提交"), SAVED_OUT_INSPECT(2, "出库质检保存"),
-        SUBMITED_OUT_INSPECT(3, "出库质检提交"), PROCESS_LOGI_PERSON(4, "物流人完整"), PROCESS_LOGI(5, "完善物流状态中"), DONE_PROJECT(6, "项目完结");
+        SAVED_OUTSTOCK(1, "出库保存"), SUBMITED_OUTSTOCK(2, "出库提交"), SAVED_OUT_INSPECT(3, "出库质检保存"),
+        SUBMITED_OUT_INSPECT(4, "出库质检提交"), PROCESS_LOGI_PERSON(5, "确认出库"), PROCESS_LOGI(6, "完善物流状态中"), DONE_PROJECT(7, "项目完结");
 
         private int statusCode;
         private String statusMsg;
