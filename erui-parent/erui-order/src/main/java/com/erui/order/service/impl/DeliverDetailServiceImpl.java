@@ -342,6 +342,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if(StringUtil.isNotBlank(deliverDetail.getReviewerName())){
                 one.setReviewerName(deliverDetail.getReviewerName());
             }
+            //总包装件数
+            if(deliverDetail.getPackTotal() != null){
+                one.setPackTotal(deliverDetail.getPackTotal());
+            }
 
             DeliverNotice deliverNotice = one.getDeliverNotice();
             if (StringUtil.isNotBlank(deliverDetail.getPackageReq())){

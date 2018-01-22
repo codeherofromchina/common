@@ -23,7 +23,8 @@ public class DeliverNotice {
      */
     @Column(name = "deliver_notice_no")
     private String deliverNoticeNo;
-
+    @OneToOne(mappedBy = "deliverNotice", fetch = FetchType.LAZY)
+    private DeliverDetail deliverDetail;
     // 销售合同号
     @Transient
     private String contractNo;
