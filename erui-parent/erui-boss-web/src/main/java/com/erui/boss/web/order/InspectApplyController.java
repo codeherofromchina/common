@@ -224,7 +224,13 @@ public class InspectApplyController {
                         flag = inspectApplyService.save(inspectApply);
                     } else {
                         // 插入新报检单操作
-                        flag = inspectApplyService.insert(inspectApply);
+                        Integer purchId = inspectApply.getpId();
+                        if (purchId == null || purchId <= 0) {
+                            flag = false;
+                            errMsg = "采购ID参数不能为空";
+                        } else {
+                            flag = inspectApplyService.insert(inspectApply);
+                        }
                     }
                 } else {
                     // 此处将NO_EDIT临时使用为重新报检状态
