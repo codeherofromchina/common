@@ -219,7 +219,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             }
             // 报检数量大于采购数量
             Integer inspectNum = applyGoods.getInspectNum();
-            if (inspectNum == null || inspectNum <= 0 || inspectNum > parentPurchGoods.getPurchaseNum() - parentPurchGoods.getPreInspectNum()) {
+            if (inspectNum == null || inspectNum <= 0 || inspectNum > parentPurchGoods.getPurchaseNum() - parentPurchGoods.getPreInspectNum() - oldInspectNum) {
                 throw new Exception("报检数量错误");
             }
 

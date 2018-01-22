@@ -675,14 +675,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
-    public boolean saveQuality(DeliverDetail deliverDetail) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveQuality(DeliverDetail deliverDetail) throws Exception{
         DeliverDetail dbDeliverDetail = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (dbDeliverDetail == null ||
                 (dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() &&
                         dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SUBMITED_OUTSTOCK.getStatusCode())) {
-            return false;
+            throw new Exception("入库质检当前状态不可修改");
         }
 
         // 复制基本信息
@@ -705,6 +705,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         dbDeliverDetail.setApprovalDate(deliverDetail.getApprovalDate());
         dbDeliverDetail.setReason(deliverDetail.getReason());
         dbDeliverDetail.setOpinion(deliverDetail.getOpinion());
+        dbDeliverDetail.setStatus(deliverDetail.getStatus());
 
         // 只接受品控部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {

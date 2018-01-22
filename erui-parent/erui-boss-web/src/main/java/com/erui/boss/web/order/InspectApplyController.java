@@ -106,7 +106,7 @@ public class InspectApplyController {
                 map.put("brand", goods.getBrand());
                 map.put("model", goods.getModel());
                 map.put("purchaseNum", purchGoods.getPurchaseNum());
-                map.put("hasInspectNum", purchGoods.getPurchaseNum() - purchGoods.getInspectNum());
+                map.put("hasInspectNum", purchGoods.getPreInspectNum()); // 已报检数量
                 map.put("inspectNum", vo.getInspectNum()); // 报检数量
                 map.put("unit", goods.getUnit());
                 map.put("nonTaxPrice", purchGoods.getNonTaxPrice());
