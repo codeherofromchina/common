@@ -238,11 +238,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                       /*  list.add(cb.equal(root.get("status").as(Integer.class),deliverW.getStatus()));*/
                         list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));
                     } else if (deliverW.getStatus() == 1) {
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 3));
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 7));
                     }
                 } else {
-                    list.add(cb.greaterThan(root.get("status").as(Integer.class), 3));
+                    list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
                 }
 
 
@@ -471,7 +471,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (StringUtil.isNotBlank(deliverDetail.getRemarks())) {
             one.setRemarks(deliverDetail.getRemarks());
         }
-        //实际创建时间
+        //实际创建时间 TODO
         if (deliverDetail.getStatus() == 4) {
             one.setAccomplishDate(new Date());
         }

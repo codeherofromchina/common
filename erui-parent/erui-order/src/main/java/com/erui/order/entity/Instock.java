@@ -40,7 +40,7 @@ public class Instock {
     @Column(name = "instock_date")
     private Date instockDate;   //入库日期
 
-    private Integer status;
+    private Integer status = 1;
 
     private String remarks;
 
