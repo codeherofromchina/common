@@ -85,21 +85,10 @@ public class ProjectController {
     public Result<Object> handleProject(@RequestBody Project project) {
         Result<Object> result = new Result<>();
         // TODO参数检查略过
-        if (project.getProjectStatus() == Project.ProjectStatusEnum.SUBMIT.getCode()) {
-            try {
-                boolean flag = false;
-                flag = projectService.updateProject(project);
-                if (flag) {
-                    return new Result<>();
-                }
-            } catch (Exception ex) {
-                logger.error("办理项目操作失败：{}", project, ex);
-            }
-        } else if (project.getProjectStatus() == Project.ProjectStatusEnum.EXECUTING.getCode()) {
             if (project.getStartDate() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("项目开始日期不能为空");
-            } else if (project.getProjectName() == null) {
+            } else if (StringUtils.isBlank(project.getProjectName()) ||StringUtils.equals(project.getProjectName(),"") ) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("项目名称不能为空");
             } else if (project.getDeliveryDate() == null) {
@@ -149,7 +138,6 @@ public class ProjectController {
                     logger.error("办理项目操作失败：{}", project, ex);
                 }
             }
-        }
         return result;
 
     }
