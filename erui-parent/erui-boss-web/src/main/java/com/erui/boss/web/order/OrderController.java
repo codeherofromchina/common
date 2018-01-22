@@ -3,6 +3,7 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.Order;
+import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
@@ -16,6 +17,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -94,9 +97,9 @@ public class OrderController {
                 } catch (Exception ex) {
                     logger.error("订单操作失败：{}", addOrderVo, ex);
                     if (ex instanceof DataIntegrityViolationException) {
-                            result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
-                            result.setMsg("数据校验异常");
-                            return result;
+                        result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
+                        result.setMsg("数据校验异常");
+                        return result;
                     }
                     result.setCode(ResultStatusEnum.FAIL.getCode());
                     result.setMsg(ex.getMessage());
@@ -207,5 +210,22 @@ public class OrderController {
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
         Order order = orderService.findById(map.get("id"));
         return new Result<>(order);
+    }
+
+    /**
+     * 获取订单跟踪
+     *
+     * @return
+     */
+    @RequestMapping(value = "queryOrderLog", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> queryOrderLog(@RequestBody Map<String, Integer> map) {
+        Result<Object> result = new Result<>();
+        List<Map> logList = orderService.OrderLog(map.get("orderId"));
+        if (logList.size() < 1) {
+            result.setCode(ResultStatusEnum.DATA_NULL.getCode());
+            result.setMsg(ResultStatusEnum.DATA_NULL.getMsg());
+            return result;
+        }
+        return new Result<>(logList);
     }
 }

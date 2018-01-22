@@ -4,6 +4,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
+import com.erui.order.dao.OrderLogDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import javax.validation.constraints.Null;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderDao orderDao;
+    @Autowired
+    OrderLogDao orderLogDao;
     @Autowired
     private GoodsDao goodsDao;
     @Autowired
@@ -55,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(final OrderListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC,"id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -149,7 +153,7 @@ public class OrderServiceImpl implements OrderService {
                 goods = new Goods();
                 goods.setOrder(order);
             } else {
-                goods =dbGoodsMap.remove(pGoods.getId());
+                goods = dbGoodsMap.remove(pGoods.getId());
             }
             //goods.setSeq(pGoods.getSeq());
             goods.setSku(pGoods.getSku());
@@ -204,7 +208,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
-        if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0){
+        if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
         }
         Order order = new Order();
@@ -242,6 +246,14 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
+        OrderLog orderLog = new OrderLog();
+        if (order1 != null) {
+            orderLog.setOrder(order1);
+            orderLog.setLogType(OrderLog.LogTypeEnum.CREATEORDER.getCode());
+            orderLog.setCreateTime(new Date());
+            orderLog.setCreateId(order1.getCreateUserId());
+            orderLogDao.save(orderLog);
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 订单提交时推送项目信息
             Project project = new Project();
@@ -277,6 +289,58 @@ public class OrderServiceImpl implements OrderService {
             order.getGoodsList().size();
         }
         return order;
+    }
+
+    @Override
+    public List<Map> OrderLog(Integer orderId) {
+        List<OrderLog> orderLog = orderLogDao.findByOrderId(orderId);
+        Map<String,String> logMap = null;
+        List<Map> logList = new ArrayList<>();
+        if (orderLog.size() > 0) {
+            Map<Integer, Date> collect = orderLog.parallelStream().collect(Collectors.toMap(OrderLog::getLogType, vo -> vo.getCreateTime()));
+            if (collect.containsKey(OrderLog.LogTypeEnum.CREATEORDER.getCode())){
+            logMap = new HashMap<>();
+            logMap.put("time",collect.get(OrderLog.LogTypeEnum.CREATEORDER.getCode()).toString());
+            logMap.put("logPoint",OrderLog.LogTypeEnum.CREATEORDER.getMsg());
+            logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.GOODIN.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.GOODIN.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.GOODIN.getMsg());
+                logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.GOODOUT.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.GOODOUT.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.GOODOUT.getMsg());
+                logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.SHIPDATE.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.SHIPDATE.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.SHIPDATE.getMsg());
+                logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.CLEARANCETIME.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.CLEARANCETIME.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.CLEARANCETIME.getMsg());
+                logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.SAILINGTIME.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.SAILINGTIME.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.SAILINGTIME.getMsg());
+                logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.ARRIVALTIME.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.ARRIVALTIME.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.ARRIVALTIME.getMsg());
+                logList.add(logMap);
+            }else if (collect.containsKey(OrderLog.LogTypeEnum.DELIVERYDONE.getCode())){
+                logMap = new HashMap<>();
+                logMap.put("time",collect.get(OrderLog.LogTypeEnum.DELIVERYDONE.getCode()).toString());
+                logMap.put("logPoint",OrderLog.LogTypeEnum.DELIVERYDONE.getMsg());
+                logList.add(logMap);
+            }
+        }
+        return logList;
     }
 
 

@@ -100,4 +100,23 @@ public class OrderLog {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+    public static enum LogTypeEnum{
+        CREATEORDER(1,"创建订单"),GOODIN(2,"商品入库"),GOODOUT(3,"商品出库"),SHIPDATE(4,"船期/航班"),
+        CLEARANCETIME(5,"报关放行时间"),SAILINGTIME(6,"实际离港时间"), ARRIVALTIME(7,"预计抵达时间"),DELIVERYDONE(8,"交收完成"),OTHER(8,"交收完成");
+
+        public int code;
+        public String msg;
+        LogTypeEnum(int code,String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
 }

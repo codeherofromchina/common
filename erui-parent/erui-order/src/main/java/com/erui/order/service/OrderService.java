@@ -2,10 +2,15 @@ package com.erui.order.service;
 
 
 import com.erui.order.entity.Order;
+import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 订单业务类
@@ -42,6 +47,16 @@ public interface OrderService {
      * @return
      */
     boolean addOrder(AddOrderVo addOrderVo) throws Exception;
-
+    /**
+     * 订单详情
+     * @param orderId
+     * @return
+     */
     Order detail(Integer orderId);
+    /**
+     * 订单日志
+     * @param orderId
+     * @return
+     */
+    List<Map> OrderLog(Integer orderId);
 }
