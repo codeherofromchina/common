@@ -196,7 +196,6 @@ public class PurchController {
                 map.put("taxPrice", vo.getTaxPrice());
                 map.put("totalPrice", vo.getTotalPrice());
                 map.put("purchaseRemark", vo.getPurchaseRemark());
-
                 return map;
             }).collect(Collectors.toList());
             data.put("goodsList", list);

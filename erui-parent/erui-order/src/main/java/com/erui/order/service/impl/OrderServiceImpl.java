@@ -131,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public boolean updateOrder(AddOrderVo addOrderVo) {
+    public boolean updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
             return false;
@@ -185,6 +185,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUnitName(orderUpdate.getTechnicalId().toString());
             projectAdd.setRegion(orderUpdate.getRegion());
+            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setPurchDone(Boolean.FALSE);
@@ -252,7 +253,8 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessUnitName(order1.getTechnicalId().toString());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
-            project.setProjectStatus("SUBMIT");
+            project.setDistributionDeptName(order1.getDistributionDeptName());
+            project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setPurchDone(Boolean.FALSE);
             Project project2 = projectDao.save(project);
