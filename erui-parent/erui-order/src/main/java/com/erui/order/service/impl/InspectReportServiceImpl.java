@@ -79,7 +79,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                     list.add(cb.like(root.get("inspectApplyNo").as(String.class), "%" + condition.getInspectApplyNo() + "%"));
                 }
 
-
                 Join<InspectReport, InspectApply> inspectApply = root.join("inspectApply");
                 list.add(cb.equal(inspectApply.get("master").as(Boolean.class), Boolean.TRUE)); // 只查询主质检单
 

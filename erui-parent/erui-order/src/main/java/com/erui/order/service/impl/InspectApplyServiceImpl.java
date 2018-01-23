@@ -428,6 +428,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             parentInspectReport.setCheckTimes(parent.getNum());
             inspectReportDao.save(parentInspectReport);
             report.setCheckTimes(parent.getNum());
+            // 取父级的质检人和质检部门
+            report.setCheckDeptId(parentInspectReport.getCheckDeptId());
+            report.setCheckDeptName(parentInspectReport.getCheckDeptName());
+            report.setCheckUserId(parentInspectReport.getCheckUserId());
+            report.setCheckUserName(parentInspectReport.getCheckUserName());
         }
         report.setProcess(true);
         report.setMsg(inspectApply.getMsg());
