@@ -98,7 +98,7 @@ public class OrderAccountController {
         }else{
             order.setId(orderAcciuntAdd.getOrderId());
             orderAccount.setId(null);
-            orderAcciuntAdd.getDesc();   //描述
+            orderAccount.setDesc(orderAcciuntAdd.getDesc());   //描述
             orderAccount.setMoney(orderAcciuntAdd.getMoney());  //回款金额
             orderAccount.setPaymentDate(orderAcciuntAdd.getPaymentDate());  //回款时间
             orderAccount.setGoodsPrice(orderAcciuntAdd.getGoodsPrice());    //发货金额
