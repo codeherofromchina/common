@@ -121,9 +121,12 @@ public class InstockServiceImpl implements InstockService {
                     if (StringUtil.isNotBlank(instockGoods.getContractNo())){
                         ContractNoList.add(instockGoods.getContractNo());
                     }
-                    if (StringUtil.isNotBlank(instockGoods.getProjectNo())){
-                        projectNoList.add(instockGoods.getProjectNo());
+                    Goods goods = instockGoods.getInspectApplyGoods().getPurchGoods().getGoods();
+
+                    if (StringUtil.isNotBlank(goods.getProjectNo())){
+                        projectNoList.add(goods.getProjectNo());
                     }
+
                 });
                 map.put("contractNos", StringUtils.join(ContractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
@@ -194,6 +197,7 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setCurrentUserId(instock.getCurrentUserId());
         dbInstock.setCurrentUserName(instock.getCurrentUserName());
         dbInstock.setStatus(instock.getStatus());
+        dbInstock.setDepartment(instock.getDepartment());
 
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());

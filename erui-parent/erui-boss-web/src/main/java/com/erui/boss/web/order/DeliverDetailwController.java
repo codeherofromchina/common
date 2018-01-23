@@ -104,7 +104,7 @@ public class DeliverDetailwController {
             map.put("id",deliverDetail.getId());    //id
             map.put("logisticsUserId",deliverDetail.getLogisticsUserId());  //物流经办人id
             map.put("logisticsUserName",deliverDetail.getLogisticsUserName());  //物流经办人名字
-            map.put("logisticsDate",sdf.format(deliverDetail.getLogisticsDate()));      //经办日期
+            map.put("logisticsDate",deliverDetail.getLogisticsDate());      //经办日期
             map.put("tradeTermsList",tradeTermsList);    //贸易术语
             map.put("fromPlaceList",fromPlaceList);   //货物起运地
             map.put("fromPortList",fromPortList);  //起运港
@@ -112,14 +112,14 @@ public class DeliverDetailwController {
             map.put("toPortList",toPortList);    //目的港
             map.put("toPlaceList",toPlaceList);    //目的地
             map.put("goodsList",goodsList);    //商品信息
-            map.put("bookingTime",sdf.format(deliverDetail.getBookingTime()));   //下发订舱时间
+            map.put("bookingTime",deliverDetail.getBookingTime());   //下发订舱时间
             map.put("logiInvoiceNo",deliverDetail.getLogiInvoiceNo());   //物流发票号
-            map.put("packingTime",sdf.format(deliverDetail.getPackingTime()));   //通知市场箱单时间
-            map.put("leaveFactory",sdf.format(deliverDetail.getLeaveFactory()));   //离厂时间
-            map.put("sailingDate",sdf.format(deliverDetail.getSailingDate()));   //船期或航班
-            map.put("customsClearance",sdf.format(deliverDetail.getCustomsClearance()));   //报关放行时间
-            map.put("leavePortTime",sdf.format(deliverDetail.getLeavePortTime()));   //实际离港时间
-            map.put("arrivalPortTime",sdf.format(deliverDetail.getArrivalPortTime()));   //预计抵达时间
+            map.put("packingTime",deliverDetail.getPackingTime());   //通知市场箱单时间
+            map.put("leaveFactory",deliverDetail.getLeaveFactory());   //离厂时间
+            map.put("sailingDate",deliverDetail.getSailingDate());   //船期或航班
+            map.put("customsClearance",deliverDetail.getCustomsClearance());   //报关放行时间
+            map.put("leavePortTime",deliverDetail.getLeavePortTime());   //实际离港时间
+            map.put("arrivalPortTime",deliverDetail.getArrivalPortTime());   //预计抵达时间
             map.put("logs",deliverDetail.getLogs());   //动态描述
             map.put("remarks",deliverDetail.getRemarks());   //备注
             map.put("status",deliverDetail.getStatus());    //状态

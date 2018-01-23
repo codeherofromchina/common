@@ -256,6 +256,8 @@ public class OrderServiceImpl implements OrderService {
             // 订单提交时推送项目信息
             Project project = new Project();
             //project.setProjectNo(UUID.randomUUID().toString());
+
+
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
             project.setBusinessUid(order1.getTechnicalId());
