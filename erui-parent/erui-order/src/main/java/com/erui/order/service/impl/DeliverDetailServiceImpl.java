@@ -620,8 +620,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 map.put("deliverDetailNo", deliverDetail.getDeliverDetailNo()); // 产品放行单号
                 map.put("checkerName", deliverDetail.getCheckerName()); // 检验员
                 map.put("checkDate", deliverDetail.getCheckDate()); // 检验日期
-                map.put("status", deliverDetail.getStatus() == DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() ?
-                        DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() : DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT.getStatusCode()); // 状态
+                map.put("status", deliverDetail.getStatus()); // 状态
                 map.put("checkDept", deliverDetail.getCheckDept()); // 质检部门
 
                 List<String> contractNoList = new ArrayList<>();
