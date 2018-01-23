@@ -13,6 +13,9 @@ import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.OrderService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +37,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
  */
 @Service
 public class OrderServiceImpl implements OrderService {
-
+    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private OrderDao orderDao;
     @Autowired
@@ -279,6 +282,29 @@ public class OrderServiceImpl implements OrderService {
             goodsDao.save(goodsList1);
         }
         return true;
+    }
+
+    /**
+     * @param logType 操作类型，见OrderLog.LogTypeEnum
+     * @param orderId 订单ID
+     * @param operato 可空，操作内容
+     * @param goodsId 可空，商品ID
+     */
+    @Transactional
+    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId) {
+        OrderLog orderLog = new OrderLog();
+        try {
+            orderLog.setOrder(orderDao.findOne(orderId));
+            orderLog.setLogType(OrderLog.LogTypeEnum.CREATEORDER.getCode());
+            orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
+            orderLog.setCreateTime(new Date());
+            orderLog.setOrdersGoodsId(goodsId);
+            orderLogDao.save(orderLog);
+        } catch (Exception ex) {
+            logger.error("日志记录失败 {}", orderLog.toString());
+            logger.error("错误", ex);
+            ex.printStackTrace();
+        }
     }
 
     @Override
