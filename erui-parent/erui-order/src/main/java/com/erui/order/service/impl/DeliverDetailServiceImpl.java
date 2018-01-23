@@ -591,7 +591,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     }
                 }
 
-                list.add(cb.greaterThan(root.get("status").as(Integer.class), DeliverDetail.StatusEnum.SUBMITED_OUTSTOCK.getStatusCode()));
+                list.add(cb.greaterThan(root.get("status").as(Integer.class), DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode()));
 
                 // 销售合同号 、 项目号查询
                 String contractNo = condition.get("contractNo");
