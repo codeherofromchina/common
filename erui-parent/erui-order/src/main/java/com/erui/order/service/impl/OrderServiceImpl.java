@@ -292,55 +292,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Map> OrderLog(Integer orderId) {
-        List<OrderLog> orderLog = orderLogDao.findByOrderId(orderId);
-        Map<String,String> logMap = null;
-        List<Map> logList = new ArrayList<>();
-        if (orderLog.size() > 0) {
-            Map<Integer, Date> collect = orderLog.parallelStream().collect(Collectors.toMap(OrderLog::getLogType, vo -> vo.getCreateTime()));
-            if (collect.containsKey(OrderLog.LogTypeEnum.CREATEORDER.getCode())){
-            logMap = new HashMap<>();
-            logMap.put("time",collect.get(OrderLog.LogTypeEnum.CREATEORDER.getCode()).toString());
-            logMap.put("logPoint",OrderLog.LogTypeEnum.CREATEORDER.getMsg());
-            logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.GOODIN.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.GOODIN.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.GOODIN.getMsg());
-                logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.GOODOUT.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.GOODOUT.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.GOODOUT.getMsg());
-                logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.SHIPDATE.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.SHIPDATE.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.SHIPDATE.getMsg());
-                logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.CLEARANCETIME.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.CLEARANCETIME.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.CLEARANCETIME.getMsg());
-                logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.SAILINGTIME.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.SAILINGTIME.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.SAILINGTIME.getMsg());
-                logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.ARRIVALTIME.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.ARRIVALTIME.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.ARRIVALTIME.getMsg());
-                logList.add(logMap);
-            }else if (collect.containsKey(OrderLog.LogTypeEnum.DELIVERYDONE.getCode())){
-                logMap = new HashMap<>();
-                logMap.put("time",collect.get(OrderLog.LogTypeEnum.DELIVERYDONE.getCode()).toString());
-                logMap.put("logPoint",OrderLog.LogTypeEnum.DELIVERYDONE.getMsg());
-                logList.add(logMap);
-            }
+    public List<OrderLog> orderLog(Integer orderId) {
+        List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
+        if (orderLog == null) {
+            orderLog = new ArrayList<>();
+        } else {
+            orderLog = orderLog.stream().filter(log -> {
+                if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
+                    return false;
+                }
+                return true;
+            }).collect(Collectors.toList());
         }
-        return logList;
+        return orderLog;
     }
 
 

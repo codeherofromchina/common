@@ -219,12 +219,9 @@ public class OrderController {
      */
     @RequestMapping(value = "queryOrderLog", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryOrderLog(@RequestBody Map<String, Integer> map) {
-        Result<Object> result = new Result<>();
-        List<Map> logList = orderService.OrderLog(map.get("orderId"));
-        if (logList.size() < 1) {
-            result.setCode(ResultStatusEnum.DATA_NULL.getCode());
-            result.setMsg(ResultStatusEnum.DATA_NULL.getMsg());
-            return result;
+        List<OrderLog> logList = orderService.orderLog(map.get("orderId"));
+        if (logList.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(logList);
     }

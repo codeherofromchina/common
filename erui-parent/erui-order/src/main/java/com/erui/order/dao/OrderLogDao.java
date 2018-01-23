@@ -14,7 +14,7 @@ import java.util.List;
  * Created by wangxiaodan on 2017/12/11.
  */
 public interface OrderLogDao extends JpaRepository<OrderLog, Serializable>, JpaSpecificationExecutor<OrderLog>  {
-    List<OrderLog> findByOrderId(Integer orderId);
+    List<OrderLog> findByOrderIdOrderByCreateTimeDesc(Integer orderId);
    /* List<Order> findByIdIn(Integer[] ids);
     @Query(value = "select count(t1) from Order t1 where t1.contractNo = :contractNo")
     Long countByContractNo(@Param("contractNo") String contractNo);*/

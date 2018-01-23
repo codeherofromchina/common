@@ -58,5 +58,5 @@ public interface OrderService {
      * @param orderId
      * @return
      */
-    List<Map> OrderLog(Integer orderId);
+    List<OrderLog> orderLog(Integer orderId);
 }

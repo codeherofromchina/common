@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -15,6 +17,7 @@ public class OrderLog {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     /**
@@ -102,7 +105,7 @@ public class OrderLog {
     }
     public static enum LogTypeEnum{
         CREATEORDER(1,"创建订单"),GOODIN(2,"商品入库"),GOODOUT(3,"商品出库"),SHIPDATE(4,"船期/航班"),
-        CLEARANCETIME(5,"报关放行时间"),SAILINGTIME(6,"实际离港时间"), ARRIVALTIME(7,"预计抵达时间"),DELIVERYDONE(8,"交收完成"),OTHER(8,"交收完成");
+        CLEARANCETIME(5,"报关放行时间"),SAILINGTIME(6,"实际离港时间"), ARRIVALTIME(7,"预计抵达时间"),DELIVERYDONE(8,"交收完成"),OTHER(9,"其他");
 
         public int code;
         public String msg;
