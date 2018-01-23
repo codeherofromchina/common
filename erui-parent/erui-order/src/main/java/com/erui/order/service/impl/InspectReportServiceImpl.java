@@ -65,7 +65,7 @@ public class InspectReportServiceImpl implements InspectReportService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<InspectReport> listByPage(InspectReport condition) {
 
         PageRequest request = new PageRequest(condition.getPage()-1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
@@ -128,7 +128,23 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 获取报检单和商品信息
             page.getContent().parallelStream().forEach(inspectReport -> {
                 inspectReport.getInspectApply().getPurchNo();
-                inspectReport.getInspectGoodsList().size();
+                // 销售合同号,保持顺序用list
+                List<String> contractNoList = new ArrayList<String>();
+                // 项目号,保持顺序用list
+                List<String> projectNoList = new ArrayList<String>();
+                inspectReport.getInspectGoodsList().forEach(vo -> {
+                    Goods goods = vo.getGoods();
+                    String contractNo = goods.getContractNo();
+                    String projectNo = goods.getProjectNo();
+                    if (!contractNoList.contains(contractNo)) {
+                        contractNoList.add(contractNo);
+                    }
+                    if (!projectNoList.contains(projectNo)) {
+                        projectNoList.add(projectNo);
+                    }
+                });
+                inspectReport.setContractNo(StringUtils.join(contractNoList, ","));
+                inspectReport.setProjectNo(StringUtils.join(projectNoList, ","));
             });
         }
 
