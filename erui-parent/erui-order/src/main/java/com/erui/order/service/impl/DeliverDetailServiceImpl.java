@@ -504,7 +504,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 goods.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
             }
             if (deliverDetail.getStatus() == 7){
-                goods.setAccomplishDate(new Date());
+                one.setAccomplishDate(new Date());
             }
 
 
@@ -559,6 +559,17 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             return one;
         }
         return null;
+    }
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息
+     * @param deliverDetailNo
+     * @return
+     */
+    @Override
+    public DeliverDetail queryByDeliverDetailNo(String deliverDetailNo) {
+        DeliverDetail deliverDetail=deliverDetailDao.findByDeliverDetailNo(deliverDetailNo);
+        return deliverDetail;
     }
 
 
