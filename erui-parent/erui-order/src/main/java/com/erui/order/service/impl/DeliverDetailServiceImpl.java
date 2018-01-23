@@ -40,9 +40,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     private DeliverDetailDao deliverDetailDao;
 
-
     @Autowired
     private AttachmentServiceImpl attachmentService;
+
+    @Autowired
+    private OrderServiceImpl orderService;
+
+
 
     @Override
     public DeliverDetail findById(Integer id) {
@@ -357,6 +361,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             //状态
             one.setStatus(deliverDetail.getStatus());
+            if (deliverDetail.getStatus() == 5){
+                Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+                for (DeliverConsign deliverConsign : deliverConsigns){
+                    orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);    //推送商品出库
+                }
+            }
 
             // 只接受仓储物流部的附件
             List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {

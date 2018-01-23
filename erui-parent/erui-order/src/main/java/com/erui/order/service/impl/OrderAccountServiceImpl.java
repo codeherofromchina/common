@@ -6,6 +6,7 @@ import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
@@ -34,6 +35,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     private OrderDao orderDao;
+
+    @Autowired
+    private OrderServiceImpl orderService;
 
     /**
      * 根据id 查询订单收款信息(单条)
@@ -88,6 +92,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
+        orderService.addLog(OrderLog.LogTypeEnum.ADVANCE,order.getId(),orderAccount.getDesc(),null);    //推送收到预付款
     }
 
 
@@ -133,6 +138,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
+        orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE,order.getId(),null,null);    //推送全部交收完成
     }
 
 
