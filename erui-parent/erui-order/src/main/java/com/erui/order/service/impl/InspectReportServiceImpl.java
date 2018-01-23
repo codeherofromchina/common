@@ -82,11 +82,15 @@ public class InspectReportServiceImpl implements InspectReportService {
                 Join<InspectReport, InspectApply> inspectApply = root.join("inspectApply");
                 list.add(cb.equal(inspectApply.get("master").as(Boolean.class), Boolean.TRUE)); // 只查询主质检单
 
-                Set<InspectApply> inspectApplySet = findByProjectNoAndContractNo(condition.getProjectNo(), condition.getContractNo());
-                if (inspectApplySet != null && inspectApplySet.size() > 0) {
+                if (!(StringUtils.isBlank(condition.getProjectNo()) && StringUtils.isBlank(condition.getContractNo()))) {
                     CriteriaBuilder.In<Object> idIn = cb.in(inspectApply.get("id"));
-                    for (InspectApply p : inspectApplySet) {
-                        idIn.value(p.getId());
+                    Set<InspectApply> inspectApplySet = findByProjectNoAndContractNo(condition.getProjectNo(), condition.getContractNo());
+                    if (inspectApplySet != null && inspectApplySet.size() > 0) {
+                        for (InspectApply p : inspectApplySet) {
+                            idIn.value(p.getId());
+                        }
+                    } else {
+                        idIn.value(-1);
                     }
                     list.add(idIn);
                 }
@@ -182,6 +186,9 @@ public class InspectReportServiceImpl implements InspectReportService {
                     return cb.and(predicates);
                 }
             });
+            if (list != null) {
+                result = new HashSet<>(list);
+            }
         }
 
 
