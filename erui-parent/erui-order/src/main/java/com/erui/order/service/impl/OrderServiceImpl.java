@@ -249,13 +249,8 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
-        OrderLog orderLog = new OrderLog();
         if (order1 != null) {
-            orderLog.setOrder(order1);
-            orderLog.setLogType(OrderLog.LogTypeEnum.CREATEORDER.getCode());
-            orderLog.setCreateTime(new Date());
-            orderLog.setCreateId(order1.getCreateUserId());
-            orderLogDao.save(orderLog);
+           addLog(OrderLog.LogTypeEnum.CREATEORDER,order1.getId(),null,null);
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 订单提交时推送项目信息
