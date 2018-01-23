@@ -125,7 +125,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         }, request);
         if (page.hasContent()) {
             // 获取报检单和商品信息
-            page.getContent().parallelStream().forEach(inspectReport -> {
+            page.getContent().stream().forEach(inspectReport -> {
                 inspectReport.getInspectApply().getPurchNo();
                 // 销售合同号,保持顺序用list
                 List<String> contractNoList = new ArrayList<String>();

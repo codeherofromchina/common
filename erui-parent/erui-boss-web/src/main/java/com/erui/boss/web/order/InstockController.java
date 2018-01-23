@@ -59,28 +59,40 @@ public class InstockController {
         Result<Object> result = new Result<>();
         boolean continueFlag = true;
         Integer status = instock.getStatus();
-        if (!(status ==2  || status ==3 )) {
+        if (status ==3){
+            if(instock.getId() == null || instock.getId() <= 0) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("入库信息id不能为空");
+            }else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("仓库经办人名字不能为空");
+            }else if (instock.getInstockDate() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("入库日期不能为空");
+            }else{
+                try {
+                    if (instockService.save(instock)) {
+                        return new Result<>();
+                    }
+                } catch (Exception ex) {
+                    logger.error("异常错误", ex);
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg(ex.toString());
+                }
+            }
+        }else if (status ==2) {
+                try {
+                    if (instockService.save(instock)) {
+                        return new Result<>();
+                    }
+                } catch (Exception ex) {
+                    logger.error("异常错误", ex);
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg(ex.toString());
+                }
+        }else{
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("入库信息状态错误");
-        }else if (instock.getId() == null || instock.getId() <= 0) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("入库信息id不能为空");
-        }else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("仓库经办人名字不能为空");
-        }else if (instock.getInstockDate() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("入库日期不能为空");
-        }else{
-            try {
-                if (instockService.save(instock)) {
-                    return new Result<>();
-                }
-            } catch (Exception ex) {
-                logger.error("异常错误", ex);
-                result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg(ex.toString());
-            }
         }
 
 
@@ -110,6 +122,7 @@ public class InstockController {
         data.put("uname", instock.getUname());
         data.put("instockDate", instock.getInstockDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()) : null);
         data.put("remarks", instock.getRemarks());
+        data.put("department", instock.getDepartment());
         data.put("attachmentList", instock.getAttachmentList());
 
         // 商品信息数据转换
