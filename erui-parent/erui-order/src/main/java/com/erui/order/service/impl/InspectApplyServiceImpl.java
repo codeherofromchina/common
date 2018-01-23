@@ -418,13 +418,16 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setInspectApplyNo(inspectApply.getInspectApplyNo());
         report.setReportFirst(inspectApply.isMaster());
         report.setSupplierName(inspectApply.getSupplierName());
-        report.setCheckTimes(1);
-        if (!inspectApply.isMaster()) {
+
+        if (inspectApply.isMaster()) {
+            report.setCheckTimes(1);
+        } else {
             // 设置父质检的报检次数
             InspectApply parent = inspectApply.getParent();
             InspectReport parentInspectReport = inspectReportDao.findByInspectApplyId(parent.getId());
             parentInspectReport.setCheckTimes(parent.getNum());
             inspectReportDao.save(parentInspectReport);
+            report.setCheckTimes(parent.getNum());
         }
         report.setProcess(true);
         report.setMsg(inspectApply.getMsg());
