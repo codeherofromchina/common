@@ -121,9 +121,12 @@ public class InstockServiceImpl implements InstockService {
                     if (StringUtil.isNotBlank(instockGoods.getContractNo())){
                         ContractNoList.add(instockGoods.getContractNo());
                     }
-                    if (StringUtil.isNotBlank(instockGoods.getProjectNo())){
-                        projectNoList.add(instockGoods.getProjectNo());
+                    Goods goods = instockGoods.getInspectApplyGoods().getPurchGoods().getGoods();
+
+                    if (StringUtil.isNotBlank(goods.getProjectNo())){
+                        projectNoList.add(goods.getProjectNo());
                     }
+
                 });
                 map.put("contractNos", StringUtils.join(ContractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
