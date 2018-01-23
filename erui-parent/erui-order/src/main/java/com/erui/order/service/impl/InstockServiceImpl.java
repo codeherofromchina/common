@@ -194,6 +194,7 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setCurrentUserId(instock.getCurrentUserId());
         dbInstock.setCurrentUserName(instock.getCurrentUserName());
         dbInstock.setStatus(instock.getStatus());
+        dbInstock.setDepartment(instock.getDepartment());
 
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
