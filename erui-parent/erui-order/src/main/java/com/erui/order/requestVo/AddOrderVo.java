@@ -172,6 +172,8 @@ public class AddOrderVo {
     }
 
     public Integer getPreinvest() {
+
+
         return preinvest;
     }
 
