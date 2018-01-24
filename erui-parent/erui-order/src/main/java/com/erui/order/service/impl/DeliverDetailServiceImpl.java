@@ -3,6 +3,8 @@ package com.erui.order.service.impl;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.DeliverDetailDao;
+import com.erui.order.dao.OrderDao;
+import com.erui.order.dao.OrderLogDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.DeliverD;
@@ -46,7 +48,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     private OrderServiceImpl orderService;
 
+    @Autowired
+    private OrderDao orderDao;
 
+    @Autowired
+    OrderLogDao orderLogDao;
 
     @Override
     public DeliverDetail findById(Integer id) {
@@ -364,7 +370,22 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if (deliverDetail.getStatus() == 5){
                 Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
-                    orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);    //推送商品出库
+                    //推送商品出库
+                   /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
+
+                    OrderLog orderLog = new OrderLog();
+                    try {
+                        orderLog.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
+                        orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
+                        orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
+                        orderLog.setCreateTime(new Date());
+                        orderLog.setOrdersGoodsId(null);
+                        orderLogDao.save(orderLog);
+                    } catch (Exception ex) {
+                        logger.error("日志记录失败 {}", orderLog.toString());
+                        logger.error("错误", ex);
+                        ex.printStackTrace();
+                    }
                 }
             }
 

@@ -4,12 +4,16 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
+import com.erui.order.dao.OrderLogDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +33,7 @@ import java.util.*;
  */
 @Service
 public class OrderAccountServiceImpl implements OrderAccountService {
+    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Autowired
     private OrderAccountDao orderAccountDao;
@@ -38,6 +43,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     private OrderServiceImpl orderService;
+
+
+    @Autowired
+    OrderLogDao orderLogDao;
 
     /**
      * 根据id 查询订单收款信息(单条)
@@ -92,7 +101,22 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
-        orderService.addLog(OrderLog.LogTypeEnum.ADVANCE,order.getId(),orderAccount.getDesc(),null);    //推送收到预付款
+
+       //推送收到预付款
+        OrderLog orderLog = new OrderLog();
+        try {
+            orderLog.setOrder(orderDao.findOne(order.getId()));
+            orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()));
+            orderLog.setCreateTime(new Date());
+            orderLog.setOrdersGoodsId(null);
+            orderLogDao.save(orderLog);
+        } catch (Exception ex) {
+            logger.error("日志记录失败 {}", orderLog.toString());
+            logger.error("错误", ex);
+            ex.printStackTrace();
+        }
+
     }
 
 
