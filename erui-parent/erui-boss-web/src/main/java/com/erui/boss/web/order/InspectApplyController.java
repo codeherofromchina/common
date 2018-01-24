@@ -109,6 +109,13 @@ public class InspectApplyController {
                 map.put("purchaseNum", purchGoods.getPurchaseNum());
                 map.put("hasInspectNum", purchGoods.getPreInspectNum()); // 已报检数量
                 map.put("inspectNum", vo.getInspectNum()); // 报检数量
+                if (inspectApply.getStatus() > InspectApply.StatusEnum.SUBMITED.getCode()) {
+                    // 质检中的数据
+                    map.put("samples", vo.getSamples()); // 抽样数
+                    map.put("unqualified", vo.getUnqualified()); // 不合格数
+                    map.put("unqualifiedDesc", vo.getUnqualifiedDesc()); // 不合格描述
+                    map.put("conclusion", vo.getUnqualified() >0 ?"不合格":"合格"); // 商品质检结果结论
+                }
                 map.put("unit", goods.getUnit());
                 map.put("nonTaxPrice", purchGoods.getNonTaxPrice());
                 map.put("taxPrice", purchGoods.getTaxPrice());
@@ -123,7 +130,7 @@ public class InspectApplyController {
 
             return new Result<>(data);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg("不存在的报检单");
     }
 
     /**

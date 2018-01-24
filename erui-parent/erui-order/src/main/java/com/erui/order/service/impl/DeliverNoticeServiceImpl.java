@@ -246,7 +246,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
             deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
-            DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
+            deliverDetailDao.saveAndFlush(deliverDetail);
 
             //  订单执行跟踪   推送运单号
             OrderLog orderLog = new OrderLog();
@@ -278,7 +278,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             return false;
         }
            try {
-                if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
+
+               List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
+               Set<DeliverConsign> deliverConsigns1 = one.getDeliverConsigns();
+               for (DeliverConsign deliverConsign :deliverConsigns1){
+                   Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                   for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
+                       deliverConsignGoodsLists.add(deliverConsignGoods);
+                   }
+               }
+
+
+               if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
                     one.setContractNo(deliverNotice.getContractNo());
                 }
                 if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
@@ -369,6 +380,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     }else{
                         deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
                     }
+                    deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
+                    deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
 
@@ -380,6 +393,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         try {
                             orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
                             orderLog.setOperation(deliverDetail.getDeliverDetailNo());
+                            orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.code);
                             orderLog.setCreateTime(new Date());
                             orderLogDao.save(orderLog);
                         } catch (Exception ex) {
