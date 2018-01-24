@@ -292,7 +292,7 @@ public class OrderServiceImpl implements OrderService {
         OrderLog orderLog = new OrderLog();
         try {
             orderLog.setOrder(orderDao.findOne(orderId));
-            orderLog.setLogType(OrderLog.LogTypeEnum.CREATEORDER.getCode());
+            orderLog.setLogType(logType.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
             orderLog.setCreateTime(new Date());
             orderLog.setOrdersGoodsId(goodsId);
