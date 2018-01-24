@@ -97,6 +97,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignAdd.setDeliverYn(deliverConsign.getDeliverYn());
         deliverConsignAdd.setRemarks(deliverConsign.getRemarks());
+        deliverConsignAdd.setCreateTime(new Date());
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
         deliverConsignAdd.setAttachmentSet(deliverConsign.getAttachmentSet());

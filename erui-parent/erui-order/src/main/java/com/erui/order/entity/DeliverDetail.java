@@ -205,6 +205,9 @@ public class DeliverDetail {
     @Column(name="create_user_name")
     private String createUserName;//创建人姓名
 
+    @Column(name = "confirm_the_goods")
+    private Date confirmTheGoods;   //确认收货
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
@@ -312,6 +315,13 @@ public class DeliverDetail {
         return deliverNotice;
     }
 
+    public Date getConfirmTheGoods() {
+        return confirmTheGoods;
+    }
+
+    public void setConfirmTheGoods(Date confirmTheGoods) {
+        this.confirmTheGoods = confirmTheGoods;
+    }
 
     public void setDeliverNotice(DeliverNotice deliverNotice) {
         this.deliverNotice = deliverNotice;

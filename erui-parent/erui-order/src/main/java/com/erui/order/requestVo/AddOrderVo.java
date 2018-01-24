@@ -78,10 +78,10 @@ public class AddOrderVo {
     private String grantType;
 
     //是否预投
-    private Boolean preinvest = false;
+    private Integer preinvest;
 
     //是否融资
-    private Boolean financing = false;
+    private Integer financing;
 
     //贸易术语
     private String tradeTerms;
@@ -171,19 +171,19 @@ public class AddOrderVo {
         this.id = id;
     }
 
-    public Boolean getPreinvest() {
+    public Integer getPreinvest() {
         return preinvest;
     }
 
-    public void setPreinvest(Boolean preinvest) {
+    public void setPreinvest(Integer preinvest) {
         this.preinvest = preinvest;
     }
 
-    public Boolean getFinancing() {
+    public Integer getFinancing() {
         return financing;
     }
 
-    public void setFinancing(Boolean financing) {
+    public void setFinancing(Integer financing) {
         this.financing = financing;
     }
 

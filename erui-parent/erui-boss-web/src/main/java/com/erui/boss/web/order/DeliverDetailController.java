@@ -2,6 +2,7 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsignGoods;
 import com.erui.order.entity.DeliverDetail;
 import com.erui.order.entity.DeliverNotice;
@@ -146,6 +147,62 @@ public class DeliverDetailController {
 
 
         return new Result<>(data);
+    }
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息
+     * @param DeliverDetails
+     * @return
+     */
+    @RequestMapping(value = "/queryByDeliverDetailNo", method = RequestMethod.POST)
+    public Result<Object> queryByDeliverDetailNo(@RequestBody Map<String, String> DeliverDetails) {
+        String errMsg = null;
+        if(StringUtil.isEmpty(DeliverDetails.get("deliverDetailNo"))){
+            errMsg = "运单号不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+
+        DeliverDetail deliverDetail=deliverDetailService.queryByDeliverDetailNo(DeliverDetails.get("deliverDetailNo"));
+        if (deliverDetail == null){
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+
+        Map<String, Object> goodsInfoMap = new HashMap<>();
+        goodsInfoMap.put("deliverDetailNo",deliverDetail.getDeliverDetailNo()); //运单号
+        goodsInfoMap.put("bookingTime",deliverDetail.getBookingTime()); //下发订舱时间
+        goodsInfoMap.put("packingTime",deliverDetail.getPackingTime()); //通知市场箱单时间
+        goodsInfoMap.put("leaveFactory",deliverDetail.getLeaveFactory()); //离厂时间
+        goodsInfoMap.put("sailingDate",deliverDetail.getSailingDate()); //船期或航班
+        goodsInfoMap.put("customsClearance",deliverDetail.getCustomsClearance()); //报关放行时间
+        goodsInfoMap.put("leavePortTime",deliverDetail.getLeavePortTime()); //实际离港时间
+        goodsInfoMap.put("arrivalPortTime",deliverDetail.getArrivalPortTime()); //预计抵达时间
+        goodsInfoMap.put("accomplishDate",deliverDetail.getAccomplishDate()); //商品已到达目的地
+        goodsInfoMap.put("confirmTheGoods",deliverDetail.getConfirmTheGoods()); //确认收货
+        return new Result<>(goodsInfoMap);
+
+    }
+
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息   确认收货
+     * @param deliverDetail
+     * @return
+     */
+    @RequestMapping(value = "/confirmTheGoodsByDeliverDetailNo", method = RequestMethod.POST)
+    public Result<Object> confirmTheGoodsByDeliverDetailNo(@RequestBody DeliverDetail deliverDetail) {
+        String errMsg = null;
+        if(StringUtil.isEmpty(deliverDetail.getDeliverDetailNo())){
+            errMsg = "运单号不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+        if(deliverDetail.getConfirmTheGoods() == null){
+            errMsg = "确认收货时间不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+
+        deliverDetailService.confirmTheGoodsByDeliverDetailNo(deliverDetail);
+        return new Result<>();
+
     }
 
 

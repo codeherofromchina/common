@@ -119,4 +119,20 @@ public interface DeliverDetailService {
      * @return
      */
     DeliverDetail queryLogisticsTrace(Integer id);
+
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息
+     * @param deliverDetailNo
+     * @return
+     */
+    DeliverDetail queryByDeliverDetailNo(String deliverDetailNo);
+
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息   确认收货
+     * @param deliverDetail
+     * @return
+     */
+    void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail);
 }
