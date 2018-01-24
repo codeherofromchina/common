@@ -122,6 +122,7 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
 
         //附件信息
+        //仓储物流部
         List<Attachment> attachmentList = new ArrayList(deliverDetail.getAttachmentList());
         List<Attachment> attachmentList02 = new ArrayList<>();
         Iterator<Attachment> iterator = attachmentList.iterator();
@@ -133,7 +134,20 @@ public class DeliverDetailsController {
                 iterator.remove();
             }
         }
-        deliverNoticeInfo.put("attachmentList", attachmentList);
+
+        //品控部
+        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
+        Iterator<Attachment> iterator3 = attachmentList03.iterator();
+        while (iterator3.hasNext()) {
+            Attachment next = iterator3.next();
+
+            if (!"品控部".equals(next.getGroup())) {
+                iterator3.remove();
+            }
+        }
+
+        deliverNoticeInfo.put("attachmentList2", attachmentList03);    //品控部
+        deliverNoticeInfo.put("attachmentList", attachmentList);    //仓储物流部
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
@@ -198,12 +212,26 @@ public class DeliverDetailsController {
         while (iterator.hasNext()) {
             Attachment next = iterator.next();
 
+            //仓储物流部
             if (!"仓储物流部".equals(next.getGroup())) {
                 attachmentList02.add(next);
                 iterator.remove();
             }
         }
+
+        //品控部
+        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
+        Iterator<Attachment> iterator3 = attachmentList03.iterator();
+        while (iterator3.hasNext()) {
+            Attachment next = iterator3.next();
+
+            if (!"品控部".equals(next.getGroup())) {
+                iterator3.remove();
+            }
+        }
+
         deliverNoticeInfo.put("attachmentList", attachmentList);
+        deliverNoticeInfo.put("attachmentList2", attachmentList03);    //仓储物流部
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
