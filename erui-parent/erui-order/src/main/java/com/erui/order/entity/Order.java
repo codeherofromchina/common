@@ -90,10 +90,10 @@ public class Order {
     private String grantType;
 
     @Column(name = "preinvest")
-    private Boolean preinvest = false;
+    private Integer preinvest;
 
     @Column(name = "financing")
-    private Boolean financing = false;
+    private Integer financing;
 
     @Column(name = "trade_terms")
     private String tradeTerms;
@@ -209,19 +209,19 @@ public class Order {
     @JsonIgnore
     private Project project;
 
-    public Boolean getPreinvest() {
+    public Integer getPreinvest() {
         return preinvest;
     }
 
-    public void setPreinvest(Boolean preinvest) {
+    public void setPreinvest(Integer preinvest) {
         this.preinvest = preinvest;
     }
 
-    public Boolean getFinancing() {
+    public Integer getFinancing() {
         return financing;
     }
 
-    public void setFinancing(Boolean financing) {
+    public void setFinancing(Integer financing) {
         this.financing = financing;
     }
 
