@@ -95,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
                 }
-                //根据crm客户代码查询
+                //根据框架协议号查询
                 if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
                     list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
                 }
