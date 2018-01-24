@@ -2,16 +2,15 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.DeliverConsignDao;
-import com.erui.order.dao.DeliverDetailDao;
-import com.erui.order.dao.DeliverNoticeDao;
-import com.erui.order.dao.GoodsDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverNoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +31,8 @@ import static java.lang.System.out;
 @Service
 public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
+    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
     @Autowired
@@ -46,6 +47,11 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     @Autowired
     private GoodsDao goodsDao;
 
+    @Autowired
+    OrderLogDao orderLogDao;
+
+    @Autowired
+    OrderDao orderDao;
 
     @Override
     public DeliverNotice findById(Integer id) {
@@ -197,7 +203,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
         deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
-        deliverNoticeDao.saveAndFlush(deliverNotice);
+        DeliverNotice deliverNotice1=deliverNoticeDao.saveAndFlush(deliverNotice);
 
         //推送到出库管理
         if (deliverNotice.getStatus() == 2){
@@ -237,9 +243,27 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }else{
                 deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
             }
+
             deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
-            deliverDetailDao.saveAndFlush(deliverDetail);
+            DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
+
+            //  订单执行跟踪   推送运单号
+            OrderLog orderLog = new OrderLog();
+            Set<DeliverConsign> deliverConsigns = deliverNotice1.getDeliverConsigns();
+            for (DeliverConsign deliverConsign1 : deliverConsigns){
+                try {
+                    orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
+                    orderLog.setOperation(deliverDetail.getDeliverDetailNo());
+                    orderLog.setCreateTime(new Date());
+                    orderLogDao.save(orderLog);
+                } catch (Exception ex) {
+                    logger.error("日志记录失败 {}", orderLog.toString());
+                    logger.error("错误", ex);
+                    ex.printStackTrace();
+                }
+            }
+
         }
         return true;
     }
@@ -346,6 +370,26 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
                     }
                     deliverDetailDao.saveAndFlush(deliverDetail);
+
+
+
+                    //  订单执行跟踪   推送运单号
+                    OrderLog orderLog = new OrderLog();
+                    Set<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
+                    for (DeliverConsign deliverConsign1 : deliverConsigns){
+                        try {
+                            orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
+                            orderLog.setOperation(deliverDetail.getDeliverDetailNo());
+                            orderLog.setCreateTime(new Date());
+                            orderLogDao.save(orderLog);
+                        } catch (Exception ex) {
+                            logger.error("日志记录失败 {}", orderLog.toString());
+                            logger.error("错误", ex);
+                            ex.printStackTrace();
+                        }
+                    }
+
+
                 }
 
                 return true;
