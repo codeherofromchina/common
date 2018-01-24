@@ -380,6 +380,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         try {
                             orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
                             orderLog.setOperation(deliverDetail.getDeliverDetailNo());
+                            orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.code);
                             orderLog.setCreateTime(new Date());
                             orderLogDao.save(orderLog);
                         } catch (Exception ex) {
