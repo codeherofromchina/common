@@ -80,11 +80,11 @@ public class DeliverDetailsController {
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
         Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
-        List<String> toPlacList = null;
-        List<String> tradeTermsList = null;
+        Set<String> toPlacList = null;
+        Set<String> tradeTermsList = null;
         if (deliverConsigns.size() != 0){
-            toPlacList = new ArrayList<>();
-            tradeTermsList = new ArrayList<>();
+            toPlacList = new HashSet<>();
+            tradeTermsList = new HashSet<>();
             for (DeliverConsign deliverConsign :deliverConsigns){
                 toPlacList.add(deliverConsign.getOrder().getToPlace()); // 目的港
                 tradeTermsList.add(deliverConsign.getOrder().getTradeTerms());  // 贸易术语
