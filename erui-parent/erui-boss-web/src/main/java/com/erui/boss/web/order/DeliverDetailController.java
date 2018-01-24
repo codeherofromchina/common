@@ -155,7 +155,7 @@ public class DeliverDetailController {
      * @return
      */
     @RequestMapping(value = "/queryByDeliverDetailNo", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestBody Map<String, String> DeliverDetails) {
+    public Result<Object> queryByDeliverDetailNo(@RequestBody Map<String, String> DeliverDetails) {
         String errMsg = null;
         if(StringUtil.isEmpty(DeliverDetails.get("deliverDetailNo"))){
             errMsg = "运单号不能为空";
@@ -179,6 +179,29 @@ public class DeliverDetailController {
         goodsInfoMap.put("accomplishDate",deliverDetail.getAccomplishDate()); //商品已到达目的地
         goodsInfoMap.put("confirmTheGoods",deliverDetail.getConfirmTheGoods()); //确认收货
         return new Result<>(goodsInfoMap);
+
+    }
+
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息   确认收货
+     * @param deliverDetail
+     * @return
+     */
+    @RequestMapping(value = "/confirmTheGoodsByDeliverDetailNo", method = RequestMethod.POST)
+    public Result<Object> confirmTheGoodsByDeliverDetailNo(@RequestBody DeliverDetail deliverDetail) {
+        String errMsg = null;
+        if(StringUtil.isEmpty(deliverDetail.getDeliverDetailNo())){
+            errMsg = "运单号不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+        if(deliverDetail.getConfirmTheGoods() == null){
+            errMsg = "确认收货时间不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+
+        deliverDetailService.confirmTheGoodsByDeliverDetailNo(deliverDetail);
+        return new Result<>();
 
     }
 

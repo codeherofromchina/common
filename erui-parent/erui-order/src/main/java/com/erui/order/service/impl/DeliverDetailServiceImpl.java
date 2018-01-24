@@ -574,6 +574,20 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
     /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息   确认收货
+     * @param deliverDetail
+     * @return
+     */
+    @Override
+    @Transactional
+    public void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail) {
+        DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getDeliverDetailNo());
+        one.setConfirmTheGoods(deliverDetail.getConfirmTheGoods());
+        deliverDetailDao.saveAndFlush(one);
+    }
+
+
+    /**
      * 分页查询出库质检列表
      *
      * @param condition {
