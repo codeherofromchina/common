@@ -158,6 +158,9 @@ public class OrderServiceImpl implements OrderService {
                 goods.setOrder(order);
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
+                if (goods == null){
+                    throw new Exception("不存在的商品标识");
+                }
             }
             //goods.setSeq(pGoods.getSeq());
             goods.setSku(pGoods.getSku());
@@ -191,12 +194,13 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setContractNo(orderUpdate.getContractNo());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
-            projectAdd.setBusinessUnitName(orderUpdate.getTechnicalId().toString());
+            projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setPurchDone(Boolean.FALSE);
+            projectAdd.setCreateTime(new Date());
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -257,19 +261,18 @@ public class OrderServiceImpl implements OrderService {
             // 订单提交时推送项目信息
             Project project = new Project();
             //project.setProjectNo(UUID.randomUUID().toString());
-
-
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
             project.setBusinessUid(order1.getTechnicalId());
             project.setExecCoName(order1.getExecCoName());
-            project.setBusinessUnitName(order1.getTechnicalId().toString());
+            project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setPurchDone(Boolean.FALSE);
+            project.setCreateTime(new Date());
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();

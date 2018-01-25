@@ -5,14 +5,17 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.service.DeliverDetailService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -75,10 +78,22 @@ public class DeliverDetailsController {
         DeliverNotice deliverNotice = deliverDetail.getDeliverNotice();
 
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
-        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("tradeTerms", deliverNotice.getTradeTerms()); // 贸易术语
-        deliverNoticeInfo.put("toPlace", deliverNotice.getToPlace()); // 目的港
+
+        Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+        Set<String> toPlacList = null;
+        Set<String> tradeTermsList = null;
+        if (deliverConsigns.size() != 0){
+            toPlacList = new HashSet<>();
+            tradeTermsList = new HashSet<>();
+            for (DeliverConsign deliverConsign :deliverConsigns){
+                toPlacList.add(deliverConsign.getOrder().getToPlace()); // 目的港
+                tradeTermsList.add(deliverConsign.getOrder().getTradeTerms());  // 贸易术语
+            }
+        }
+        deliverNoticeInfo.put("toPlace",StringUtils.join(toPlacList, ",")); // 目的港
+        deliverNoticeInfo.put("tradeTerms",StringUtils.join(tradeTermsList, ",")); // 贸易术语
         deliverNoticeInfo.put("numers", deliverNotice.getNumers()); // 总包装件数
+        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
         deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
 
@@ -107,6 +122,7 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
 
         //附件信息
+        //仓储物流部
         List<Attachment> attachmentList = new ArrayList(deliverDetail.getAttachmentList());
         List<Attachment> attachmentList02 = new ArrayList<>();
         Iterator<Attachment> iterator = attachmentList.iterator();
@@ -118,7 +134,20 @@ public class DeliverDetailsController {
                 iterator.remove();
             }
         }
-        deliverNoticeInfo.put("attachmentList", attachmentList);
+
+        //品控部
+        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
+        Iterator<Attachment> iterator3 = attachmentList03.iterator();
+        while (iterator3.hasNext()) {
+            Attachment next = iterator3.next();
+
+            if (!"品控部".equals(next.getGroup())) {
+                iterator3.remove();
+            }
+        }
+
+        deliverNoticeInfo.put("attachmentList2", attachmentList03);    //品控部
+        deliverNoticeInfo.put("attachmentList", attachmentList);    //仓储物流部
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
@@ -183,12 +212,26 @@ public class DeliverDetailsController {
         while (iterator.hasNext()) {
             Attachment next = iterator.next();
 
+            //仓储物流部
             if (!"仓储物流部".equals(next.getGroup())) {
                 attachmentList02.add(next);
                 iterator.remove();
             }
         }
+
+        //品控部
+        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
+        Iterator<Attachment> iterator3 = attachmentList03.iterator();
+        while (iterator3.hasNext()) {
+            Attachment next = iterator3.next();
+
+            if (!"品控部".equals(next.getGroup())) {
+                iterator3.remove();
+            }
+        }
+
         deliverNoticeInfo.put("attachmentList", attachmentList);
+        deliverNoticeInfo.put("attachmentList2", attachmentList03);    //仓储物流部
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
