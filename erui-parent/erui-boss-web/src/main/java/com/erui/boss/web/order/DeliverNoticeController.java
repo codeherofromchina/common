@@ -104,7 +104,7 @@ public class DeliverNoticeController {
                     Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                         Goods goods = deliverConsignGoods.getGoods();
-                 //       goods.setSendNum(deliverConsignGoods.getSendNum());
+                       goods.setSendNum(deliverConsignGoods.getSendNum());
                         goodsList.add(goods);
                     }
                 }
@@ -211,7 +211,7 @@ public class DeliverNoticeController {
                 Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                         Goods goods = deliverConsignGoods.getGoods();
-                     //   goods.setSendNum(deliverConsignGoods.getSendNum());
+                        goods.setSendNum(deliverConsignGoods.getSendNum());
                         goodsList.add(goods);
                     }
                 Order order = deliverConsign.getOrder();

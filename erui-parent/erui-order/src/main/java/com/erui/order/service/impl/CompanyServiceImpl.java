@@ -32,14 +32,14 @@ public class CompanyServiceImpl implements CompanyService {
     private CompanyDao companyDao;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Company findById(Integer id) {
         Company companyDaoOne = companyDao.findOne(id);
         companyDaoOne.getDeptSet().size();
         return companyDaoOne;
     }
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Company> findAll(String name) {
         List<Company> companyList = companyDao.findAll(new Specification<Company>() {
             @Override

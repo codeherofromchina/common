@@ -55,6 +55,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public OrderAccount findById(Integer id) {
         return orderAccountDao.findOne(id);
     }
@@ -67,9 +68,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public List<OrderAccount> queryGatheringRecordAll(Integer id) {
 
-        return orderAccountDao.findByOrderIdAndDelYn(id,1);
+        return orderAccountDao.findByOrderIdAndDelYn(id, 1);
     }
 
 
@@ -79,6 +81,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param id 收款信息id
      */
     @Override
+    @Transactional
     public void delGatheringRecord(Integer id) {
         OrderAccount orderAccounts = orderAccountDao.findOne(id);
         orderAccounts.setDelYn(0);
@@ -93,6 +96,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addGatheringRecord(OrderAccount orderAccount) {
       /*orderAccount.setPaymentDate(new Date());*/   //测试放开
         orderAccount.setCreateTime(new Date());
@@ -102,7 +106,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
 
-       //推送收到预付款
+        //推送收到预付款
         OrderLog orderLog = new OrderLog();
         try {
             orderLog.setOrder(orderDao.findOne(order.getId()));
@@ -127,6 +131,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional
     public void updateGatheringRecord(OrderAcciuntAdd orderAccount) {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId());
         if (orderAccount.getDesc() != null) {
@@ -158,11 +163,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional
     public void endGatheringRecord(Integer id) {
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
-        orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE,order.getId(),null,null);    //推送全部交收完成
+        orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成
     }
 
 
@@ -173,6 +179,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public Order gatheringMessage(Integer id) {
         Order order = orderDao.findOne(id);  //查询订单信息
 
@@ -208,10 +215,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param condition
      * @return
      */
- @Override
- @Transactional
+    @Override
+    @Transactional(readOnly = true)
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage()-1, condition.getRows(), null);
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), null);
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -240,6 +247,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
+                list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
                 //
 
                 Predicate[] predicates = new Predicate[list.size()];

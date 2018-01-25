@@ -51,6 +51,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     OrderDao orderDao;
 
     @Override
+    @Transactional(readOnly = true)
     public DeliverNotice findById(Integer id) {
         return deliverNoticeDao.findOne(id);
     }
@@ -64,7 +65,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<DeliverNotice> listByPage(DeliverNotice condition) throws Exception {
         PageRequest request = new PageRequest(condition.getPage()-1, condition.getRows(), Sort.Direction.DESC, "id");
 
@@ -132,6 +133,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
     //添加
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean addexitRequisition(DeliverNotice deliverNotice) {
 
         String[] split = deliverNotice.getDeliverConsignIds().split(",");
@@ -196,11 +198,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
              }
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
-            if(attachmentlist.size() != 0){
-                deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
-            }
-            DeliverNotice deliverNotice1=deliverNoticeDao.saveAndFlush(deliverNotice);
-
+        deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
+        DeliverNotice deliverNotice1=deliverNoticeDao.saveAndFlush(deliverNotice);
 
         //推送到出库管理
         if (deliverNotice.getStatus() == 2){
@@ -243,7 +242,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
             deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
-            deliverDetailDao.saveAndFlush(deliverDetail);
+            DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
 
             //  订单执行跟踪   推送运单号
             OrderLog orderLog = new OrderLog();
@@ -268,25 +267,14 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         //编辑/保存
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateexitRequisition(DeliverNotice deliverNotice) {
         DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
         if(one == null){
             return false;
         }
            try {
-
-               List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
-               Set<DeliverConsign> deliverConsigns1 = one.getDeliverConsigns();
-               for (DeliverConsign deliverConsign :deliverConsigns1){
-                   Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                   for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
-                       deliverConsignGoodsLists.add(deliverConsignGoods);
-                   }
-               }
-
-
-               if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
+                if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
                     one.setContractNo(deliverNotice.getContractNo());
                 }
                 if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
@@ -377,8 +365,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     }else{
                         deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
                     }
-                    deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
-                    deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
 
@@ -390,7 +376,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         try {
                             orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
                             orderLog.setOperation(deliverDetail.getDeliverDetailNo());
-                            orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.code);
                             orderLog.setCreateTime(new Date());
                             orderLogDao.save(orderLog);
                         } catch (Exception ex) {
@@ -418,7 +403,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public DeliverNotice exitRequisitionQuery(Integer id) {
        DeliverNotice deliverNotice= deliverNoticeDao.findOne(id);
         deliverNotice.getDeliverConsigns().size();

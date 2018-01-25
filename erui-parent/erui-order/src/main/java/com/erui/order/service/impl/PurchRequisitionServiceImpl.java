@@ -33,7 +33,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Autowired
     private AttachmentService attachmentService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public PurchRequisition findById(Integer id, Integer orderId) {
         PurchRequisition purchRequisition = purchRequisitionDao.findByIdOrOrderId(id, orderId);

@@ -58,7 +58,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Purch findDetailInfo(Integer id) {
         if (id != null && id > 0) {
             Purch puch = purchDao.findOne(id);
@@ -84,7 +84,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Purch findPurchAndGoodsInfo(Integer id) {
         Purch puch = purchDao.findOne(id);
         puch.getPurchGoodsList().size(); //获取采购商品信息
@@ -98,6 +98,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      * @throws Exception
      */
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> listByOrderId(Integer orderId) throws Exception {
         Order order = orderDao.findOne(orderId);
         if (order == null) {
@@ -160,7 +161,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<Purch> findByPage(final Purch condition) {
         PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "id");
 
@@ -268,7 +269,7 @@ public class PurchServiceImpl implements PurchService {
      * @param purch
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(Purch purch) throws Exception {
         Date now = new Date();
 
@@ -370,7 +371,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Purch purch) throws Exception {
 
         Purch dbPurch = purchDao.findOne(purch.getId());

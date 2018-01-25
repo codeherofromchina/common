@@ -40,13 +40,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private OrderDao orderDao;
 
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
     public Project findById(Integer id) {
         return projectDao.findOne(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> findByIds(List<Integer> ids) {
         List<Project> projects = null;
         if (ids != null && ids.size() > 0) {
