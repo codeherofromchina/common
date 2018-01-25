@@ -46,7 +46,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return null;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) {
         Project project = projectDao.findOne(purchRequisition.getProId());
@@ -95,7 +95,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return true;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean insertPurchRequisition(PurchRequisition purchRequisition) {
         Project project = projectDao.findOne(purchRequisition.getProId());

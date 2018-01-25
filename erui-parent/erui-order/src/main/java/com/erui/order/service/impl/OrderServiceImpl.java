@@ -137,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
@@ -157,8 +157,9 @@ public class OrderServiceImpl implements OrderService {
                 goods.setOrder(order);
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
-                if (goods == null)
-                throw new Exception("不存在的商品标识");
+                if (goods == null){
+                    throw new Exception("不存在的商品标识");
+                }
             }
             //goods.setSeq(pGoods.getSeq());
             goods.setSku(pGoods.getSku());
@@ -212,7 +213,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
@@ -259,8 +260,6 @@ public class OrderServiceImpl implements OrderService {
             // 订单提交时推送项目信息
             Project project = new Project();
             //project.setProjectNo(UUID.randomUUID().toString());
-
-
             project.setOrder(order1);
             project.setContractNo(order1.getContractNo());
             project.setBusinessUid(order1.getTechnicalId());

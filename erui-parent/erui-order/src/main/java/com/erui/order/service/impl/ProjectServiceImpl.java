@@ -56,7 +56,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return projects;
     }
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
