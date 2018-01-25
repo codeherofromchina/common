@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
     private AttachmentService attachmentService;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Order findById(Integer id) {
         Order order = orderDao.findOne(id);
         order.getGoodsList().size();
@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Page<Order> findByPage(final OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
@@ -124,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Integer[] ids) {
         List<Order> orderList = orderDao.findByIdIn(ids);
         List<Order> collect = orderList.parallelStream()
@@ -137,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
@@ -209,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
@@ -305,7 +306,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Order detail(Integer orderId) {
         Order order = orderDao.findOne(orderId);
         if (order != null) {
@@ -315,6 +316,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderLog> orderLog(Integer orderId) {
         List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
         if (orderLog == null) {

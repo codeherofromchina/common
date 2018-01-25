@@ -55,11 +55,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     OrderLogDao orderLogDao;
 
     @Override
+    @Transactional(readOnly = true)
     public DeliverDetail findById(Integer id) {
         return deliverDetailDao.findOne(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<DeliverDetail> listByPage(DeliverDetailVo condition) {
         PageRequest request = new PageRequest(condition.getPage() - 1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
 
@@ -77,12 +79,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }
         }, request);
 
-
         return page;
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public DeliverDetail findDetailById(Integer id) {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         deliverDetail.getDeliverNotice().getId();
@@ -92,13 +93,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     }
 
     /**
-     * TODO
      *
      * @param deliverDetailVo
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean save(DeliverDetailVo deliverDetailVo) throws Exception {
         DeliverDetail deliverDetail = null;
         Integer deliverDetailId = deliverDetailVo.getId();
@@ -126,7 +126,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception {
         PageRequest request = new PageRequest(deliverD.getPage() - 1, deliverD.getRows(), Sort.Direction.DESC, "id");
 
@@ -210,7 +210,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * 物流跟踪管理
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<DeliverDetail> logisticsTraceManage(DeliverW deliverW) {
         PageRequest request = new PageRequest(deliverW.getPage() - 1, deliverW.getRows(), Sort.Direction.DESC, "id");
 
@@ -287,7 +287,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
 
@@ -425,7 +425,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public DeliverDetail logisticsMoveFollow(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
         one.getDeliverConsignGoodsList().size();
@@ -452,7 +452,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void logisticsActionAddOrSave(DeliverDetail deliverDetail) {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         //物流经办人
@@ -565,7 +565,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public DeliverDetail queryLogisticsTrace(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
         if (one.getStatus() == 7) {
@@ -588,6 +588,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public DeliverDetail queryByDeliverDetailNo(String deliverDetailNo) {
         DeliverDetail deliverDetail=deliverDetailDao.findByDeliverDetailNo(deliverDetailNo);
         return deliverDetail;
@@ -600,7 +601,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail) {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getDeliverDetailNo());
         one.setConfirmTheGoods(deliverDetail.getConfirmTheGoods());
@@ -623,7 +624,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<Map<String, Object>> listQualityByPage(Map<String, String> condition, int pageNum, int pageSize) {
         PageRequest request = new PageRequest(pageNum - 1, pageSize, Sort.Direction.DESC, "id");
         Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
@@ -709,6 +710,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @param projectNos
      * @return
      */
+    @Transactional(readOnly = true)
     private List<DeliverDetail> findDeliverDetailIdsByContractNoAndProjectNo(String contractNos, String projectNos) {
         List<DeliverDetail> result = null;
         if (StringUtils.isNotBlank(contractNos) || StringUtils.isNotBlank(projectNos)) {

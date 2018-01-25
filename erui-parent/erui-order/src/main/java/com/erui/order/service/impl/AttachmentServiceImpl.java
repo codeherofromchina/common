@@ -24,7 +24,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private AttachmentDao attachmentDao;
 
     // 处理附件信息
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public List<Attachment> handleParamAttachment(List<Attachment> existAttachments, List<Attachment> paramsAttachments, Integer userId, String userName) {
 
         Map<Integer, Attachment> attachmentMap = new HashMap<>();

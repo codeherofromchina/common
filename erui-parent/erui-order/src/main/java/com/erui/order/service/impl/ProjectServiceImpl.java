@@ -39,13 +39,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private OrderDao orderDao;
 
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
     public Project findById(Integer id) {
         return projectDao.findOne(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> findByIds(List<Integer> ids) {
         List<Project> projects = null;
         if (ids != null && ids.size() > 0) {
@@ -56,7 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return projects;
     }
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
@@ -78,7 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
         return true;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
@@ -139,6 +140,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> purchAbleList(List<String> projectNoList) {
         List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         if (list == null) {
@@ -165,7 +167,7 @@ public class ProjectServiceImpl implements ProjectService {
         return list;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Project findDesc(Integer id) {
         Project project = projectDao.findOne(id);
@@ -175,7 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
         return project;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Project findByIdOrOrderId(Integer id, Integer orderId) {
         Project project = projectDao.findByIdOrOrderId(id, orderId);

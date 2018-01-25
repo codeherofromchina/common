@@ -37,11 +37,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportDao inspectReportDao;
 
     @Override
+    @Transactional(readOnly = true)
     public InspectApply findById(Integer id) {
         return inspectApplyDao.findOne(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<InspectApply> findMasterListByParchId(Integer purchId) {
         Purch purch = purchDao.findOne(purchId);
         if (purch != null &&
@@ -452,7 +454,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void fullTmpMsg(Integer id, String tmpMsg) {
         InspectApply one = inspectApplyDao.findOne(id);
         one.setTmpMsg(tmpMsg);

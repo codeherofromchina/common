@@ -47,6 +47,7 @@ public class InstockServiceImpl implements InstockService {
     private InspectApplyGoodsDao inspectApplyGoodsDao;
 
     @Override
+    @Transactional(readOnly = true)
     public Instock findById(Integer id) {
         return instockDao.findOne(id);
     }
@@ -60,7 +61,7 @@ public class InstockServiceImpl implements InstockService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<Map<String, Object>> listByPage(Map<String, String> condition, int pageNum, int pageSize) {
         PageRequest request = new PageRequest(pageNum, pageSize, Sort.Direction.DESC, "id");
 
@@ -183,7 +184,7 @@ public class InstockServiceImpl implements InstockService {
 
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean save(Instock instock) throws Exception {
 
         Instock dbInstock = instockDao.findOne(instock.getId());
@@ -249,7 +250,7 @@ public class InstockServiceImpl implements InstockService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Instock detail(Integer id) {
         Instock instock = instockDao.findOne(id);
         instock.getAttachmentList().size();

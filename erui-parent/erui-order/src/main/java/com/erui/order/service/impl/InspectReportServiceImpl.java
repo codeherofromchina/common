@@ -39,13 +39,13 @@ public class InspectReportServiceImpl implements InspectReportService {
     private PurchGoodsDao purchGoodsDao;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public InspectReport findById(Integer id) {
         return inspectReportDao.findOne(id);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public InspectReport detail(Integer id) {
         InspectReport inspectReport = inspectReportDao.findOne(id);
         if (inspectReport != null) {
@@ -203,7 +203,7 @@ public class InspectReportServiceImpl implements InspectReportService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectReport inspectReport) throws Exception {
         InspectReport dbInspectReport = inspectReportDao.findOne(inspectReport.getId());
         if (dbInspectReport == null) {
@@ -348,7 +348,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<InspectReport> history(Integer id) {
         List<InspectReport> result = null;
         InspectReport inspectReport = inspectReportDao.findOne(id);

@@ -35,8 +35,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
 
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
     public DeliverConsign findById(Integer id) {
         DeliverConsign deliverConsign = deliverConsignDao.findOne(id);
         if (deliverConsign != null) {
@@ -46,8 +46,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return deliverConsign;
     }
 
-    @Transactional
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = deliverConsignDao.findOne(deliverConsign.getId());
@@ -81,8 +81,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return true;
     }
 
-    @Transactional
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean addDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
@@ -119,6 +119,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DeliverConsign> findByOrderId(Integer orderId) {
         List<DeliverConsign> deliverConsignList = deliverConsignDao.findByOrderId(orderId);
         for (DeliverConsign deliverConsign:deliverConsignList){
@@ -152,7 +153,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeNos) throws Exception {
             List<DeliverConsign> page = deliverConsignDao.findByIdInAndStatus(deliverNoticeNos, 3);
             for (DeliverConsign deliverConsign : page){
@@ -185,6 +186,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public List<DeliverConsign> queryExitAdvice(Integer id) {
         if(id == null){
             List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);
