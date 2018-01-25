@@ -9,7 +9,6 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.service.*;
-import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -45,14 +44,8 @@ public class CustomCentreController {
     private InqRtnReasonService inqRtnReasonService;
     @Autowired
     private TargetService targetService;
-    @Autowired
-    private DataServiceImpl dataServiceImpl;
     private static DecimalFormat df = new DecimalFormat("0.00");
 
-    @RequestMapping("/data")
-    public void data() throws Exception {
-        dataServiceImpl.totalData();
-    }
     /*
      * 询单总览
      * */

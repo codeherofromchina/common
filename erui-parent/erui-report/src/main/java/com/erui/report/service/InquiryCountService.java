@@ -1,6 +1,7 @@
 package com.erui.report.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -141,10 +142,9 @@ public interface InquiryCountService {
 	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate);
 	/**
 	 * 从boss读取询单数据
-	 * @param startTime
-	 * @param endTime
+	 * @param list
 	 */
-	void inquiryData(String startTime,String endTime)throws  Exception;
+	void inquiryData( List<HashMap> list)throws  Exception;
 	/**
 	 * 获取询单退回的次数和平均次数
 	 * @param startTime

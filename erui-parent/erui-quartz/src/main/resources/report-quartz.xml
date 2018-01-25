@@ -11,15 +11,15 @@
 	<!--<bean id="dataService" class="com.erui.report.service.impl.DataServiceImpl"></bean>-->
       
     <bean id="sysncPowerJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-         <property name="targetObject" ref="dataService"/>
-         <property name="targetMethod" value="supplyChainData"/>
+         <property name="targetObject" ref="reportQuartz"/>
+         <property name="targetMethod" value="getSupplyChainRead"/>
          <property name="concurrent" value="false"/>
     </bean>
      
     <bean id="sysncPowerCronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" >
           <property name="jobDetail" ref="sysncPowerJob"/>
           <property name="cronExpression">
-              <value>0 10 1 * * ?</value>
+              <value>0 18 14 * * ?</value>
           </property>
     </bean>
 	

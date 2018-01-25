@@ -3,19 +3,11 @@ package com.erui.boss.web.report;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.report.model.CateDetailVo;
-import com.erui.report.model.InquiryCount;
 import com.erui.report.model.ProcurementCount;
-import com.erui.report.service.InquiryCountService;
-import com.erui.report.service.InquirySKUService;
-import com.erui.report.service.OrderCountService;
 import com.erui.report.service.ProcurementCountService;
-import com.erui.report.service.impl.DataServiceImpl;
 import com.erui.report.util.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,7 +65,8 @@ public class ProcurementCotroller {
 
 
     /**
-     *采购总览
+     * 采购总览
+     *
      * @param map
      * @return
      */
@@ -96,8 +87,8 @@ public class ProcurementCotroller {
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
         //查询采购数据
-        List<Map<String,Object>> dataList=procurementService.selectProcurPandent(startTime,endTime);
-        if(dataList!=null&&dataList.size()>0) {
+        List<Map<String, Object>> dataList = procurementService.selectProcurPandent(startTime, endTime);
+        if (dataList != null && dataList.size() > 0) {
             return result.setData(dataList.get(0));
         }
         return result.setStatus(ResultStatusEnum.DATA_NULL);
@@ -105,7 +96,8 @@ public class ProcurementCotroller {
     }
 
     /**
-     *采购趋势图
+     * 采购趋势图
+     *
      * @param map
      * @return
      */
@@ -115,7 +107,7 @@ public class ProcurementCotroller {
 
         Result<Object> result = new Result<>();
 
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")|| !map.containsKey("queryType")) {
+        if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("queryType")) {
             result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
             return result;
         }
@@ -124,7 +116,7 @@ public class ProcurementCotroller {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        Map<String,Object> trendData=this.procurementService.procurementTrend(startTime,endTime,map.get("queryType").toString());
+        Map<String, Object> trendData = this.procurementService.procurementTrend(startTime, endTime, map.get("queryType").toString());
         return result.setData(trendData);
 
     }
@@ -158,7 +150,8 @@ public class ProcurementCotroller {
     }
 
     /**
-     *采购区域明细
+     * 采购区域明细
+     *
      * @param map
      * @return
      */
@@ -168,7 +161,7 @@ public class ProcurementCotroller {
 
         Result<Object> result = new Result<>();
 
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")|| !map.containsKey("area")) {
+        if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area")) {
             result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
             return result;
         }
@@ -177,13 +170,14 @@ public class ProcurementCotroller {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        Map<String ,Object>  dataMap=this.procurementService.selectAreaDetailData(startTime,endTime,map.get("area").toString(),map.get("country"));
+        Map<String, Object> dataMap = this.procurementService.selectAreaDetailData(startTime, endTime, map.get("area").toString(), map.get("country"));
         return result.setData(dataMap);
 
     }
 
     /**
-     *采购分类明细
+     * 采购分类明细
+     *
      * @param map
      * @return
      */
@@ -207,36 +201,36 @@ public class ProcurementCotroller {
         List<ProcurementCount> datas = procurementService.selectCategoryDetail(startTime, endTime);
         List<ProcurementCount> chainDatas = procurementService.selectCategoryDetail(chainTime, startTime);
         Map<String, ProcurementCount> chainCateMap = chainDatas.parallelStream().collect(Collectors.toMap(vo -> vo.getCategory(), vo -> vo));
-        List<Map<String,Object>> cates=new ArrayList<>();
-        if(datas!=null&&datas.size()>0) {
+        List<Map<String, Object>> cates = new ArrayList<>();
+        if (datas != null && datas.size() > 0) {
             for (ProcurementCount procureCout : datas) {
-                Map<String,Object> cate=new HashMap<>();
-                double planChainRate=0d;
-                double executeChainRate=0d;
-                double ammountChainRate=0d;
-                cate.put("itemClass",procureCout.getCategory());
-                cate.put("planCount",procureCout.getPlanNum());
-                cate.put("executeCount",procureCout.getExecuteNum());
-                cate.put("ammout",procureCout.getAmmount());
-                if (chainCateMap.containsKey(procureCout.getCategory())){
+                Map<String, Object> cate = new HashMap<>();
+                double planChainRate = 0d;
+                double executeChainRate = 0d;
+                double ammountChainRate = 0d;
+                cate.put("itemClass", procureCout.getCategory());
+                cate.put("planCount", procureCout.getPlanNum());
+                cate.put("executeCount", procureCout.getExecuteNum());
+                cate.put("ammout", procureCout.getAmmount());
+                if (chainCateMap.containsKey(procureCout.getCategory())) {
                     ProcurementCount p1 = chainCateMap.get(procureCout.getCategory());
-                    int planNum =Integer.parseInt(p1.getPlanNum()) ;
+                    int planNum = Integer.parseInt(p1.getPlanNum());
                     int executeNum = Integer.parseInt(p1.getExecuteNum());
                     BigDecimal mm = p1.getAmmount();
                     double ammount = Double.parseDouble(mm.toString());
-                    if(planNum>0){
-                        planChainRate= RateUtil.intChainRateTwo(Integer.parseInt(procureCout.getPlanNum())-planNum,planNum);
+                    if (planNum > 0) {
+                        planChainRate = RateUtil.intChainRateTwo(Integer.parseInt(procureCout.getPlanNum()) - planNum, planNum);
                     }
-                    if(executeNum>0){
-                        executeChainRate=RateUtil.intChainRateTwo(Integer.parseInt(procureCout.getExecuteNum())-executeNum,executeNum);
+                    if (executeNum > 0) {
+                        executeChainRate = RateUtil.intChainRateTwo(Integer.parseInt(procureCout.getExecuteNum()) - executeNum, executeNum);
                     }
-                    if(ammount>0){
-                        ammountChainRate=RateUtil.doubleChainRateTwo( Double.parseDouble(procureCout.getAmmount().toString())-ammount,ammount);
+                    if (ammount > 0) {
+                        ammountChainRate = RateUtil.doubleChainRateTwo(Double.parseDouble(procureCout.getAmmount().toString()) - ammount, ammount);
                     }
                 }
-                cate.put("planChainRate",planChainRate);
-                cate.put("executeChainRate",executeChainRate);
-                cate.put("ammountChainRate",ammountChainRate);
+                cate.put("planChainRate", planChainRate);
+                cate.put("executeChainRate", executeChainRate);
+                cate.put("ammountChainRate", ammountChainRate);
 
                 cates.add(cate);
             }
