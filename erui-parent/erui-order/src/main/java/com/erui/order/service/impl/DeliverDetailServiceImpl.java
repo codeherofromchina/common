@@ -241,7 +241,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 //根据经办日期
                 if (deliverW.getLogisticsDate() != null) {
-                    list.add(cb.equal(root.get("logisticsDate").as(Integer.class), deliverW.getLogisticsDate()));
+                    list.add(cb.equal(root.get("logisticsDate").as(Date.class), deliverW.getLogisticsDate()));
                 }
                 //根据状态
                 if (deliverW.getStatus() != null) {
