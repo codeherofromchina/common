@@ -295,14 +295,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             throw new Exception("查询不到出库信息");
         }
             //开单日期
-            if (one.getBillingDate()==null){
-                if (deliverDetail.getBillingDate() == null) {
-                    throw new Exception("开单日期不能为空");
-                }else{
-                    if (deliverDetail.getBillingDate() != null) {
-                        one.setBillingDate(deliverDetail.getBillingDate());
-                    }
-                }
+            if (deliverDetail.getBillingDate() != null) {
+                one.setBillingDate(deliverDetail.getBillingDate());
             }
             //承运单位名称
             if (StringUtil.isNotBlank(deliverDetail.getCarrierCo())) {
