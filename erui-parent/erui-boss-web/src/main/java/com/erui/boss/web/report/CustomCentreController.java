@@ -6,6 +6,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
 import com.erui.report.service.*;
@@ -350,11 +351,8 @@ public class CustomCentreController {
         int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
                 0, 0, "", "");//询单取消数量
-        int rtnCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()},
-                0, 0, "", "");//询单退回数量
+        int rtnCount = inquiryService.selectInqRtnCountByTime(startDate,endDate);//询单退回数量
         int totalCount = quotedCount + quotingCount + cancelCount;
-        int totalInqCount = quotedCount + quotingCount + cancelCount + rtnCount;
         Double quotedInquiryRate = null;
         Double quotingInquiryRate = null;
         Double cancelInquiryRate = null;
@@ -382,8 +380,8 @@ public class CustomCentreController {
         if (rtnCount > 0) {
             avgRtnCount = RateUtil.intChainRateTwo(totalRtnCount, rtnCount);
         }
-        if (totalInqCount > 0) {
-            rtnInqProportion = RateUtil.intChainRate(rtnCount, totalInqCount);
+        if (totalCount > 0) {
+            rtnInqProportion = RateUtil.intChainRate(rtnCount, totalCount);
         }
         Map<String, Object> rtnSummary = new HashMap<>();
         rtnSummary.put("totalRtnInqCount", rtnCount);
@@ -1169,8 +1167,8 @@ public class CustomCentreController {
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
 //       1 处理退回询单的数据
-        String[] quotes = {QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()};
-        int rtnInqCount = inquiryService.inquiryCountByTime(startTime, endTime, quotes, 0, 0, null, null);//已退回询单数
+
+        int rtnInqCount = inquiryService.selectInqRtnCountByTime(startTime,endTime);//已退回询单数
         int inqCount = inquiryService.inquiryCountByTime(startTime, endTime, null, 0, 0, null, null);//总询单数
 
         double rtnInqProportion = 0d;
@@ -1262,7 +1260,6 @@ public class CustomCentreController {
         String[] quotes = null;
         Integer[] quoteCounts = null;
         if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {//已退回
-            quotes = new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()};
             List<Map<String, Object>> rtnSeasonList = this.inqRtnReasonService.selectCountGroupByRtnSeason(startTime, endTime, null, null);
             if (rtnSeasonList != null && rtnSeasonList.size() > 0) {
                 List<String> reasons = new ArrayList<>();
@@ -1276,7 +1273,7 @@ public class CustomCentreController {
                 inqDetailPievo.setRtnDescrList(reasons.toArray(new String[reasons.size()]));
                 inqDetailPievo.setRtnDecrCountList(reasonCounts.toArray(new Integer[reasonCounts.size()]));
             }
-        } else if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus())) {
+        } else if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus())) {//已完成
             quotes = new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
                     QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
             List<InquiryCount> finishList = inquiryService.selectListByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()}, null, null);
@@ -1284,7 +1281,7 @@ public class CustomCentreController {
             quoteCounts = new Integer[]{finishList.size(), quotedList.size()};
             inqDetailPievo.setFinishQuoteList(quotes);
             inqDetailPievo.setFinishQuoteCountList(quoteCounts);
-        } else if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus())) {
+        } else if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus())) {//报价中
             quotes = new String[]{QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus(),
                     QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus()};
             List<InquiryCount> quotingList = inquiryService.selectListByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()}, null, null);
@@ -1295,6 +1292,7 @@ public class CustomCentreController {
 
         }
 
+        //根据状态获取各大区和事业部的询单数据
         List<Map<String, Object>> areaDataList = this.inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startTime, endTime, quotes);
         List<Map<String, Object>> orgDataList = this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime, quotes);
         List<String> areas = new ArrayList<>();
@@ -1534,25 +1532,30 @@ public class CustomCentreController {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
         }).reduce(0, (a, b) -> a + b);
-        orgdataList.stream().forEach(m -> {
+        for (Map<String,Object> m:orgdataList ) {
             if (orgTotalCount != null && orgTotalCount > 0) {
                 if (!orgData.containsKey(m.get("org").toString())) {
                     Map<String, Object> mm = new HashMap<>();
                     mm.put("org", m.get("org").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                     mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    orgData.put(String.valueOf(m.get("area")), mm);
+                    orgData.put(String.valueOf(m.get("org")), mm);
                 } else {
                     Map<String, Object> orgMap = orgData.get(m.get("org").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
-                    orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    if (StringUtil.isNotBlank(reasonEn)) {
+                        orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    }
                 }
             }
-        });
+        }
         List<Map<String, Object>> org = new ArrayList<>();
         for (Map.Entry<String, Map<String, Object>> entry : orgData.entrySet()) {
             Map<String, Object> ll = entry.getValue();
             Map<String, Object> odata = addNoReasonData(ll);
+            if(odata.containsKey(null)) {
+                odata.remove(null);
+            }
             org.add(odata);
         }
 
@@ -1566,24 +1569,21 @@ public class CustomCentreController {
 
     //获取退回原因的英文名
     private String getReasonEn(String reason) {
-        if (StringUtils.isNotEmpty(reason)) {
+
             if (reason.equals(InqRtnSeasonEnum.NOT_ORG.getCh())) {
                 return InqRtnSeasonEnum.NOT_ORG.getEn();
-            }
-            if (reason.equals(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
+            }else if (reason.equals(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
                 return InqRtnSeasonEnum.NOT_SUPPLY.getEn();
-            }
-            if (reason.equals(InqRtnSeasonEnum.OTHER.getCh())) {
+            }else if (reason.equals(InqRtnSeasonEnum.OTHER.getCh())) {
+                return InqRtnSeasonEnum.OTHER.getEn();
+            }else if (reason.equals(InqRtnSeasonEnum.PROJECT_CLEAR.getCh())) {
+                return InqRtnSeasonEnum.PROJECT_CLEAR.getEn();
+            }else if (reason.equals(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
+                return InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn();
+            }else {
                 return InqRtnSeasonEnum.OTHER.getEn();
             }
-            if (reason.equals(InqRtnSeasonEnum.PROJECT_CLEAR.getCh())) {
-                return InqRtnSeasonEnum.PROJECT_CLEAR.getEn();
-            }
-            if (reason.equals(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
-                return InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn();
-            }
-        }
-        return null;
+
     }
 
     //添加没有原因的数据

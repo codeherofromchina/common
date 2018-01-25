@@ -710,6 +710,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
+        }else{
+            criteria.andReturnCountGreaterThanOrEqualTo(1);//退回询单条件
         }
         List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
         if (result == null) {
@@ -1016,30 +1018,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
 
-    /**
-     * 获取PutMethod
-     */
-    HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        HttpPut method = new HttpPut(url);
-        // method.getParams().setParameter("http.socket.timeout", 3000);
-        //组装请求json
-        JSONObject jsonObject = new JSONObject();
-        Map<String, Object> input = new HashMap<>();
-        input.put("lang", "zh");
-        input.put("creat_at_start", startTime);
-        input.put("creat_at_end", endTime);
-        String inputStr = om.writeValueAsString(input);
-        System.out.println("===============" + inputStr);
-        String sign = MD5.encode(key + inputStr);
-        System.out.println(sign + "=====");
-        jsonObject.put("sign", sign);
-        jsonObject.put("input", inputStr);
-        StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
-        method.setEntity(entity);
-        return method;
-    }
-
     @Override
     public List<Map<String, Object>> selectRejectCount(Date startTime, Date endTime) {
         InquiryCountExample example = new InquiryCountExample();
@@ -1050,7 +1028,21 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        criteria.andQuotedStatusIn(Arrays.asList(new String[]{QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus()}));
+        criteria.andReturnCountGreaterThanOrEqualTo(1);
         return readMapper.selectRejectCount(example);
+    }
+
+    @Override
+    public int selectInqRtnCountByTime(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        criteria.andReturnCountGreaterThanOrEqualTo(1);
+        return readMapper.selectInqRtnCountByTime(example);
     }
 }

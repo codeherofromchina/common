@@ -118,4 +118,10 @@ public interface InquiryCountMapper {
      * @return
      */
     List<Map<String, Object>> selectRejectCount(InquiryCountExample example);
+    /**
+     * 退回询单数量
+     * @param example
+     * @return
+     */
+    int selectInqRtnCountByTime(InquiryCountExample example);
 }

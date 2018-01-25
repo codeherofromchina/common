@@ -217,6 +217,20 @@
       order by ${orderByClause}
     </if>
   </select>
+
+    <!--退回询单数量-->
+    <select id="selectInqRtnCountByTime" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+        SELECT  COUNT(1)
+        FROM inquiry_count
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+    </select>
+
+
   <!--询单趋势图-->
   <select id="inqTrendByTime" resultType="map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT COUNT(1) as count ,FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
@@ -252,7 +266,7 @@
       order by ${orderByClause}
     </if>
   </select>
-  
+
   <!--查询所有销售大区和国家列表列表-->
   <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
     select inquiry_area as area,inquiry_unit as country
@@ -311,12 +325,12 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from inquiry_count
     where id = #{id,jdbcType=BIGINT}
   </select>
-  
+
   <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
     select
 	    count(1) as total,
@@ -333,8 +347,8 @@
       order by ${orderByClause}
     </if>
   </select>
-  
-  
+
+
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
     select t.pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from
 		(
@@ -343,7 +357,7 @@
       			<include refid="orderCount_alias_Example_Where_Clause" />
     		</if>
     		group by pro_category
-			union all 
+			union all
 			select pro_category,count(1) as xdCount,0 as ddCount from inquiry_count
 			<if test="inquiryCountExample != null" >
       			<include refid="inquiry_alias_Example_Where_Clause" />
@@ -380,9 +394,9 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
-    group by inquiry_area
+    group by inquiry_area HAVING  inquiry_area IS  NOT  NULL
   </select>
-  
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from inquiry_count
     where id = #{id,jdbcType=BIGINT}

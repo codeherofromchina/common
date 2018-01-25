@@ -151,4 +151,10 @@ public interface InquiryCountService {
 	 * @param endTime
 	 */
 	List<Map<String,Object>> selectRejectCount(Date startTime, Date endTime);
+	/**
+	 * 获取退回询单数
+	 * @param startTime
+	 * @param endTime
+	 */
+	int selectInqRtnCountByTime(Date startTime, Date endTime);
 }
