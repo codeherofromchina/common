@@ -1,10 +1,8 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -52,8 +50,9 @@ public class Goods {
     private String nameZh;
 
 
-  /*  @Column(name = "send_num")
-    private Integer sendNum;    //本批次发货数量*/
+   /* @Column(name = "send_num")*/
+    @Transient
+    private Integer sendNum;    //本批次发货数量
 
     private String unit;
 
@@ -606,4 +605,11 @@ public class Goods {
         this.outstockNum = outstockNum;
     }
 
+    public Integer getSendNum() {
+        return sendNum;
+    }
+
+    public void setSendNum(Integer sendNum) {
+        this.sendNum = sendNum;
+    }
 }
