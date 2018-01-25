@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -56,14 +57,17 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return projects;
     }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) {
         Project projectUpdate = projectDao.findOne(project.getId());
         project.copyProjectDesc(projectUpdate);
-        projectUpdate.setProjectStatus(project.getProjectStatus());
         projectUpdate.setUpdateTime(new Date());
         Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
+        if (statusEnum != Project.ProjectStatusEnum.SUBMIT) {
+            projectUpdate.setProjectStatus(project.getProjectStatus());
+        }
         if (statusEnum == Project.ProjectStatusEnum.EXECUTING) {
             Order order = projectUpdate.getOrder();
             order.getGoodsList().forEach(gd -> {
@@ -78,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService {
         return true;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
@@ -139,6 +143,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> purchAbleList(List<String> projectNoList) {
         List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         if (list == null) {
@@ -159,13 +164,15 @@ public class ProjectServiceImpl implements ProjectService {
             }).filter(project -> {
                 List<Goods> goodsList = project.getGoodsList();
                 // 存在还可以采购的商品
-                return goodsList.parallelStream().anyMatch(goods -> {return goods.getPrePurchsedNum() < goods.getContractGoodsNum();});
+                return goodsList.parallelStream().anyMatch(goods -> {
+                    return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
+                });
             }).collect(Collectors.toList());
         }
         return list;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Project findDesc(Integer id) {
         Project project = projectDao.findOne(id);
@@ -175,7 +182,7 @@ public class ProjectServiceImpl implements ProjectService {
         return project;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Project findByIdOrOrderId(Integer id, Integer orderId) {
         Project project = projectDao.findByIdOrOrderId(id, orderId);

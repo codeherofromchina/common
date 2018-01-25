@@ -80,8 +80,8 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
                 }
                 //根据市场经办人查询
-                if (StringUtil.isNotBlank(condition.getAgentName())) {
-                    list.add(cb.like(root.get("agentName").as(String.class), "%" + condition.getAgentName() + "%"));
+                if (condition.getAgentId() != null) {
+                    list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                 }
                 //根据订单签订时间查询
                 if (condition.getSigningDate() != null) {
@@ -157,7 +157,7 @@ public class OrderServiceImpl implements OrderService {
                 goods.setOrder(order);
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
-                if (goods == null){
+                if (goods == null) {
                     throw new Exception("不存在的商品标识");
                 }
             }
@@ -254,7 +254,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
         if (order1 != null) {
-           addLog(OrderLog.LogTypeEnum.CREATEORDER,order1.getId(),null,null);
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null);
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 订单提交时推送项目信息
@@ -267,7 +267,6 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
-            project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setPurchDone(Boolean.FALSE);

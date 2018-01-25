@@ -1,5 +1,7 @@
 package com.erui.order.service.impl;
+
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.DeliverConsignDao;
 import com.erui.order.dao.DeliverNoticeDao;
 import com.erui.order.dao.GoodsDao;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -70,11 +73,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             //Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
             dcGoods.setGoods(goods);
             dcGoods.setCreateTime(new Date());
-            if (deliverConsign.getStatus() == 3){
+            if (deliverConsign.getStatus() == 3) {
                 goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
             }
         });
-        if (deliverConsign.getStatus() == 3){
+        if (deliverConsign.getStatus() == 3) {
             goodsDao.save(goodsList.values());
         }
         deliverConsignDao.saveAndFlush(deliverConsignUpdate);
@@ -86,7 +89,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public boolean addDeliverConsign(DeliverConsign deliverConsign) {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
-        deliverConsignAdd.setDeliverConsignNo("CKFH"+DateUtil.format("yyyyMM",new Date())+"");
+        String deliverConsignNo = deliverConsignDao.findDeliverConsignNo();
+        String deliverConsignNostring = deliverConsignNo.substring(deliverConsignNo.length()-4,deliverConsignNo.length());
+        deliverConsignAdd.setDeliverConsignNo("CKFH" + DateUtil.format("yyyyMM", new Date()) + StringUtil.SerialNumber(4,1,deliverConsignNostring));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
         deliverConsignAdd.setDeptId(order.getExecCoId());
@@ -107,11 +112,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Goods goods = goodsList.get(gid);
             dcGoods.setGoods(goods);
             dcGoods.setCreateTime(new Date());
-            if (deliverConsign.getStatus() == 3){
+            if (deliverConsign.getStatus() == 3) {
                 goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
             }
         });
-        if (deliverConsign.getStatus() == 3){
+        if (deliverConsign.getStatus() == 3) {
             goodsDao.save(goodsList.values());
         }
         deliverConsignDao.save(deliverConsignAdd);
@@ -121,7 +126,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     public List<DeliverConsign> findByOrderId(Integer orderId) {
         List<DeliverConsign> deliverConsignList = deliverConsignDao.findByOrderId(orderId);
-        for (DeliverConsign deliverConsign:deliverConsignList){
+        for (DeliverConsign deliverConsign : deliverConsignList) {
             deliverConsign.getId();
             deliverConsign.getCoId();
             deliverConsign.getDeliverConsignNo();
@@ -154,59 +159,57 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     @Transactional
     public List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeNos) throws Exception {
-            List<DeliverConsign> page = deliverConsignDao.findByIdInAndStatus(deliverNoticeNos, 3);
-            for (DeliverConsign deliverConsign : page){
-                deliverConsign.getOrder().getId();
-                deliverConsign.getAttachmentSet().size();
-                Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                if(deliverConsignGoodsSet.size()==0){
-                    throw new Exception("出口通知单号号"+deliverConsign.getDeliverConsignNo()+"无出口发货通知单商品信息");
-                }
-                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                    Goods goods = deliverConsignGoods.getGoods();
-                    if(goods == null){
-                        throw new Exception("出口发货通知单号"+deliverConsign.getDeliverConsignNo()+"无商品信息");
-                    }
-                    Project project = goods.getProject();
-                    if(project == null){
-                        throw new Exception("出口发货通知单号"+deliverConsign.getDeliverConsignNo()+"无项目信息");
-                    }
-                    project.getId();
-                }
+        List<DeliverConsign> page = deliverConsignDao.findByIdInAndStatus(deliverNoticeNos, 3);
+        for (DeliverConsign deliverConsign : page) {
+            deliverConsign.getOrder().getId();
+            deliverConsign.getAttachmentSet().size();
+            Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            if (deliverConsignGoodsSet.size() == 0) {
+                throw new Exception("出口通知单号号" + deliverConsign.getDeliverConsignNo() + "无出口发货通知单商品信息");
             }
-            return page;
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
+                Goods goods = deliverConsignGoods.getGoods();
+                if (goods == null) {
+                    throw new Exception("出口发货通知单号" + deliverConsign.getDeliverConsignNo() + "无商品信息");
+                }
+                Project project = goods.getProject();
+                if (project == null) {
+                    throw new Exception("出口发货通知单号" + deliverConsign.getDeliverConsignNo() + "无项目信息");
+                }
+                project.getId();
+            }
+        }
+        return page;
 
     }
 
 
-
     /**
      * 看货通知管理   查询出口发货通知单
+     *
      * @return
      */
     @Override
     public List<DeliverConsign> queryExitAdvice(Integer id) {
-        if(id == null){
-            List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);
+        if (id == null) {
+            List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYn(3, 1);
             return lsit;
-        }else{
-            List<DeliverConsign> lsit=deliverConsignDao.findByStatusAndDeliverYn(3,1);  //获取未选择
+        } else {
+            List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYn(3, 1);  //获取未选择
             DeliverNotice one = deliverNoticeDao.findOne(id);
             Set<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
             Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
-            int i=0;
-            for (DeliverConsign deliverConsign :deliverConsigns){
-                arr[i]=(deliverConsign.getId());
+            int i = 0;
+            for (DeliverConsign deliverConsign : deliverConsigns) {
+                arr[i] = (deliverConsign.getId());
                 i++;
             }
-            List<DeliverConsign> lists= deliverConsignDao.findByIdIn(arr);
-            for (DeliverConsign deliverConsign :lists){
+            List<DeliverConsign> lists = deliverConsignDao.findByIdIn(arr);
+            for (DeliverConsign deliverConsign : lists) {
                 lsit.add(deliverConsign);
             }
             return lsit;
         }
 
     }
-
-
 }

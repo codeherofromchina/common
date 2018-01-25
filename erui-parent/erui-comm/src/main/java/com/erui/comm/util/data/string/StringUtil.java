@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -590,5 +591,89 @@ public class StringUtil {
 		}
 		return true;
 	}
-	
+	/**
+	 * @DESCRIPTION 生成自增四位流水号
+	 * </summary>
+	 * @author SHIGS
+	 * @return
+	 * @Date 2015年8月6日
+	 */
+	public static String SerialNumber(int len, Integer i, String driver) {
+		String dr = "";
+		AtomicInteger z = new AtomicInteger(i);
+		z.getAndIncrement();
+		if (z.toString().length() > (len - (driver != null ? driver.length() : 0))) {
+			dr = driverCheck(driver, len);
+			if (dr.equals(".N")) {//如超出限定长度并字母都为Z的时候，限定长度加1，dr重新开始，默认为空
+				len++;
+				dr = "";
+			} else {
+				z.set(1);
+			}
+		} else {
+			dr = driver;
+		}
+
+		if (dr.length() == len) {
+			return dr;
+		} else {
+			//System.out.println(String.format("%0" + (len - dr.length()) + "d", z.intValue()) + dr);
+			return String.format("%0" + (len - dr.length()) + "d", z.intValue()) + dr;
+		}
+
+	}
+	/**
+	 * 字母有效检查
+	 * 1.检查字母是否都为Z
+	 * 2.检查字母长度
+	 *
+	 * @param driver
+	 * @param len
+	 * @return
+	 */
+	private static String driverCheck(String driver, int len) {
+		char[] charArray = driver.toCharArray();
+		AtomicInteger z = new AtomicInteger(0);
+
+		for (char c : charArray) {
+			if (c == 'Z') {
+				z.getAndIncrement();
+			}
+		}
+
+		if (z.intValue() == driver.length() && z.intValue() == len) {//如所有字母都为Z，并且长度达到限定长度，返回.N
+			return ".N";
+		} else if (z.intValue() == driver.length() && z.intValue() < len) {//如果所有字母都为Z，但长度未达到限定长度，则在调用字母递增方法之前加入@用以递增A
+			return driver("@" + driver);
+		} else {//以上两个条件都不满足，则直接递增
+			return driver(driver);
+		}
+	}
+
+	/**
+	 * 字母递增
+	 *
+	 * @param driver
+	 * @return
+	 */
+	private static String driver(String driver) {
+		if (driver != null && driver.length() > 0) {
+			char[] charArray = driver.toCharArray();
+			AtomicInteger z = new AtomicInteger(0);
+			for (int i = charArray.length - 1; i > -1; i--) {
+				if (charArray[i] == 'Z') {
+					z.set(z.incrementAndGet());
+				} else {
+					if (z.intValue() > 0 || i == charArray.length - 1) {
+						AtomicInteger atomic = new AtomicInteger(charArray[i]);
+						charArray[i] = (char) atomic.incrementAndGet();
+						z.set(0);
+					}
+				}
+			}
+			return String.valueOf(charArray);
+		} else {
+			return "A";
+		}
+	}
 }

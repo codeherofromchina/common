@@ -13,6 +13,8 @@ public class OrderListCondition {
     private String poNo;
     //询单号
     private String inquiryNo;
+    //市场经办人id
+    private Integer agentId;
     //市场经办人
     private String agentName;
     //订单签约日期
@@ -37,6 +39,13 @@ public class OrderListCondition {
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
 
+    public Integer getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(Integer agentId) {
+        this.agentId = agentId;
+    }
     public String getContractNo() {
         return contractNo;
     }

@@ -334,7 +334,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApplyGoods.setUnqualified(0);
             inspectApplyGoods.setInstockNum(0);
             inspectApplyGoods.setCreateTime(new Date());
-
             goodsDataList.add(inspectApplyGoods);
         }
 

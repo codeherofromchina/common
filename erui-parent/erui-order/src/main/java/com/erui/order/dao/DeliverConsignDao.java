@@ -20,4 +20,8 @@ public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Seriali
     List<DeliverConsign> findByStatusAndDeliverYn(int i, int i1);
 
     List<DeliverConsign> findByIdIn(Integer[] arr);
+
+    @Query(value = "SELECT deliver_consign_no FROM deliver_consign ORDER BY id DESC LIMIT 1",nativeQuery=true)
+    String findDeliverConsignNo();
 }
+
