@@ -157,6 +157,7 @@ public class OrderServiceImpl implements OrderService {
                 goods.setOrder(order);
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
+                if (goods == null)
                 throw new Exception("不存在的商品标识");
             }
             //goods.setSeq(pGoods.getSeq());
