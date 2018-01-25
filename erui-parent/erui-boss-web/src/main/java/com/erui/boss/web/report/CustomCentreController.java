@@ -1673,7 +1673,11 @@ public class CustomCentreController {
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         int count = orderService.orderCountByTime(startTime, endTime, null, null, null);
         double amount = orderService.orderAmountByTime(startTime, endTime, null);
-        Double target = targetService.selectTargetAmountByCondition(null, null, null, null);
+        List<Map<String, Object>> targetMaps = targetService.selectTargetGroupByOrg();
+        double target = targetMaps.stream().map(m -> {
+            double ammount = Double.parseDouble(m.get("ammount").toString());
+            return ammount;
+        }).reduce(0d,(a,b)->a+b);//指标 万美元
         Double profitRate = orderService.selectProfitRate(startTime, endTime);
         //油气/非油气的复购率
         Double oilRePurRate = 0d;
@@ -1717,7 +1721,7 @@ public class CustomCentreController {
         Map<String, Object> data = new HashMap<>();
         data.put("ordCount", count);
         data.put("ordAmmount", RateUtil.doubleChainRateTwo(amount, 10000d));//保留单位 万美元
-        data.put("targetAmmount", RateUtil.doubleChainRateTwo(target, 1d));
+        data.put("targetAmmount", RateUtil.doubleChainRateTwo(target, 1d));//万美元
         if (profitRate != null) {
             data.put("profitRate", RateUtil.doubleChainRate(profitRate, 1d));
         } else {
