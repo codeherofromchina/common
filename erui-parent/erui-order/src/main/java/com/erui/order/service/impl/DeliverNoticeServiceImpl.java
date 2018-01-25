@@ -8,7 +8,6 @@ import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverNoticeService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static java.lang.System.out;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -140,13 +137,10 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         String[] split = deliverNotice.getDeliverConsignIds().split(",");
 
         List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
-        DeliverConsign deliverConsign = null;
         Set<DeliverConsign> list = new HashSet<DeliverConsign>();
         for (String s :split){
-            deliverConsign = new DeliverConsign();
-            deliverConsign.setId(Integer.parseInt(s));
-            list.add(deliverConsign);
             DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
+            list.add(one);
 
             Set<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
             for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
@@ -202,8 +196,11 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
              }
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
-        deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
-        DeliverNotice deliverNotice1=deliverNoticeDao.saveAndFlush(deliverNotice);
+            if(attachmentlist.size() != 0){
+                deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
+            }
+            DeliverNotice deliverNotice1=deliverNoticeDao.saveAndFlush(deliverNotice);
+
 
         //推送到出库管理
         if (deliverNotice.getStatus() == 2){
