@@ -1495,10 +1495,9 @@ public class CustomCentreController {
         //截止时间
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        //1.获取各大区的数据
         List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeasonAndArea(startTime, endTime);
-        List<Map<String, Object>> orgdataList = inqRtnReasonService.selectCountGroupByRtnSeasonAndOrg(startTime, endTime);
         Map<String, Map<String, Object>> areaData = new HashMap<>();
-        Map<String, Map<String, Object>> orgData = new HashMap<>();
         Integer totalCount = dataList.stream().map(m -> {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
@@ -1518,6 +1517,19 @@ public class CustomCentreController {
                 }
             }
         });
+        List<Map<String, Object>> areas = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Object>> entry : areaData.entrySet()) {
+            Map<String, Object> ll = entry.getValue();
+            Map<String, Object> adata = addNoReasonData(ll);
+            if(adata.containsKey(null)) {
+                adata.remove(null);
+            }
+            areas.add(adata);
+        }
+
+        //2.获取各事业部数据
+        List<Map<String, Object>> orgdataList = inqRtnReasonService.selectCountGroupByRtnSeasonAndOrg(startTime, endTime);
+        Map<String, Map<String, Object>> orgData = new HashMap<>();
         Integer orgTotalCount = orgdataList.stream().map(m -> {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
@@ -1538,17 +1550,13 @@ public class CustomCentreController {
             }
         });
         List<Map<String, Object>> org = new ArrayList<>();
-        List<Map<String, Object>> areas = new ArrayList<>();
         for (Map.Entry<String, Map<String, Object>> entry : orgData.entrySet()) {
             Map<String, Object> ll = entry.getValue();
             Map<String, Object> odata = addNoReasonData(ll);
             org.add(odata);
         }
-        for (Map.Entry<String, Map<String, Object>> entry : areaData.entrySet()) {
-            Map<String, Object> ll = entry.getValue();
-            Map<String, Object> adata = addNoReasonData(ll);
-            areas.add(adata);
-        }
+
+        //封装数据
         Map<String, Object> data = new HashMap<>();
         data.put("orgData", org);
         data.put("areaData", areas);
