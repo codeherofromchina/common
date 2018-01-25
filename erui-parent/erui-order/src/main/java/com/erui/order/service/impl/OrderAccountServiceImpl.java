@@ -247,6 +247,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
+                list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
                 //
 
                 Predicate[] predicates = new Predicate[list.size()];
