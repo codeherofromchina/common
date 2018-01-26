@@ -114,7 +114,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
             /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("outboundRemark", goods.getOutboundRemark()); // 出库备注 TODO
+            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
             goodsInfoList.add(goodsInfoMap);
         }
@@ -198,7 +198,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
             /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("outboundRemark", goods.getOutboundRemark()); // 出库备注 TODO
+            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
             goodsInfoList.add(goodsInfoMap);
         }
