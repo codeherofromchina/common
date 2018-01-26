@@ -183,9 +183,6 @@ public class Goods {
     //实际完成日期
     @Column(name = "accomplish_date")
     private Date accomplishDate;
-    //出库备注
-    @Column(name = "outbound_remark")
-    private Date outboundRemark;
 
 
     public Date getStartDate() {
@@ -616,11 +613,5 @@ public class Goods {
         this.sendNum = sendNum;
     }
 
-    public Date getOutboundRemark() {
-        return outboundRemark;
-    }
 
-    public void setOutboundRemark(Date outboundRemark) {
-        this.outboundRemark = outboundRemark;
-    }
 }

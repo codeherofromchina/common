@@ -126,6 +126,7 @@ public class DeliverDetailController {
             Goods goods = deliverConsignGoods.getGoods();
 
             Map<String, Object> goodsInfoMap = new HashMap<>();
+            goodsInfoMap.put("id", deliverConsignGoods.getId());
             goodsInfoMap.put("goodsId", goods.getId());
             goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
             goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
@@ -137,7 +138,7 @@ public class DeliverDetailController {
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
             goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("remark", ""); // 备注 TODO
+            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库质检商品备注
 
             goodsInfoList.add(goodsInfoMap);
         }

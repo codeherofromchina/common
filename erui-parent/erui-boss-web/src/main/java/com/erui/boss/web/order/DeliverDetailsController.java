@@ -103,6 +103,7 @@ public class DeliverDetailsController {
             Goods goods = deliverConsignGoods.getGoods();
 
             Map<String, Object> goodsInfoMap = new HashMap<>();
+            goodsInfoMap.put("id", deliverConsignGoods.getId());
             goodsInfoMap.put("goodsId", goods.getId());
             goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
             goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
@@ -114,7 +115,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
             /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("outboundRemark", goods.getOutboundRemark()); // 出库备注 TODO
+            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
             goodsInfoList.add(goodsInfoMap);
         }
@@ -187,6 +188,7 @@ public class DeliverDetailsController {
             Goods goods = deliverConsignGoods.getGoods();
 
             Map<String, Object> goodsInfoMap = new HashMap<>();
+            goodsInfoMap.put("id", deliverConsignGoods.getId());
             goodsInfoMap.put("goodsId", goods.getId());
             goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
             goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
@@ -198,7 +200,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
             /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("outboundRemark", goods.getOutboundRemark()); // 出库备注 TODO
+            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
             goodsInfoList.add(goodsInfoMap);
         }
