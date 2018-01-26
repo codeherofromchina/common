@@ -123,10 +123,10 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
                 String executeNum = pc.getExecuteNum();
                 BigDecimal ammount = pc.getAmmount();
                 if (StringUtil.isNotBlank(planNum)) {
-                    sumDataMap.put("planNum", sumDataMap.get("planNum").add(new BigDecimal(1)));// 采购申请单数量
+                    sumDataMap.put("planNum", sumDataMap.get("planNum").add(BigDecimal.ONE));// 采购申请单数量
                 }
                 if(StringUtil.isNotBlank(executeNum)){
-                    sumDataMap.put("executeNum", sumDataMap.get("executeNum").add(new BigDecimal(1)));// 签约合同数量
+                    sumDataMap.put("executeNum", sumDataMap.get("executeNum").add(BigDecimal.ONE));// 签约合同数量
                 }
                 if(ammount!=null){
                     sumDataMap.put("executeAmount", sumDataMap.get("executeAmount").add(ammount));// 签约金额
