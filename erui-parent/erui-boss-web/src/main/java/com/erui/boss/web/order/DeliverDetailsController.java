@@ -103,6 +103,7 @@ public class DeliverDetailsController {
             Goods goods = deliverConsignGoods.getGoods();
 
             Map<String, Object> goodsInfoMap = new HashMap<>();
+            goodsInfoMap.put("id", deliverConsignGoods.getId());
             goodsInfoMap.put("goodsId", goods.getId());
             goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
             goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
