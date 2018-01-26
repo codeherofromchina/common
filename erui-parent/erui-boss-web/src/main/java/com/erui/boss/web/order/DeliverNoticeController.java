@@ -79,7 +79,7 @@ public class DeliverNoticeController {
                 List<String> tradeTermsList = new ArrayList<>();  //贸易术语
                 List<String> toPlaceList = new ArrayList<>();  //目的地
                 List<String>  transportTypeList = new ArrayList<>();  //运输方式
-                List<String>  agentNameList = new ArrayList<>();  //商务技术经办人名字
+                List<Integer>  agentNameList = new ArrayList<>();  //商务技术经办人名字
                 List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
                 List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
@@ -96,7 +96,7 @@ public class DeliverNoticeController {
                     tradeTermsList.add(order1.getTradeTerms());
                     toPlaceList.add(order1.getToPlace());
                     transportTypeList.add(order1.getTransportType());
-                    agentNameList.add(order1.getAgentName());
+                    agentNameList.add(order1.getTechnicalId());
                     deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order1.getProject().getDeliveryDate()));
                     order1.setAttachmentSet(null);
                     order1.setGoodsList(null);
@@ -194,7 +194,7 @@ public class DeliverNoticeController {
             List<String> tradeTermsList = new ArrayList<>();  //贸易术语
             List<String> toPlaceList = new ArrayList<>();  //目的地
             List<String>  transportTypeList = new ArrayList<>();  //运输方式
-            List<String>  agentNameList = new ArrayList<>();  //商务技术经办人名字
+            List<Integer>  agentNameList = new ArrayList<>();  //商务技术经办人名字
             List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
             List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
@@ -218,7 +218,7 @@ public class DeliverNoticeController {
                 tradeTermsList.add( order.getTradeTerms());
                 toPlaceList.add(order.getToPlace());
                 transportTypeList.add(order.getTransportType());
-                agentNameList.add(order.getAgentName());
+                agentNameList.add(order.getTechnicalId());
                 deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order.getProject().getDeliveryDate()));
             }
             Map<String,Object>  map = new HashMap<>();
