@@ -113,7 +113,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("model", goods.getModel()); // 规格型号
             goodsInfoMap.put("unit", goods.getUnit()); // 单位
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
-            /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
+            goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
             goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
@@ -262,10 +262,21 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail){
+        Result<Object> result = new Result<>();
         String message =null;
         try {
             boolean flag = false;
+            if (deliverDetail.getBillingDate() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("开单日期不能为空");
+                return result;
+            }else if (deliverDetail.getPackTotal() == null){
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("总包装件数不能为空");
+                return result;
+            }else{
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
+            }
             if (flag) {
                 return new Result<>();
             }
