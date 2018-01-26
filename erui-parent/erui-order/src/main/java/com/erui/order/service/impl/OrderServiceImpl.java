@@ -119,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-                if (country.length > 0) {
+                if (country != null) {
                     list.add(root.get("country").in(country));
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
