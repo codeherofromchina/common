@@ -32,9 +32,19 @@ public class ProjectListCondition {
     private Date exeChgDate;
     //项目状态
     private String projectStatus;
+    //国家查询
+    private String country;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     public Integer getId() {
         return id;

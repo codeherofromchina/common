@@ -70,6 +70,10 @@ public class ProjectController {
         }
         Page<Project> projectPage = projectService.findByPage(condition);
         if (projectPage != null) {
+            for (Project project : projectPage) {
+                project.setGoodsList(null);
+                project.setPurchRequisition(null);
+            }
             return new Result<>(projectPage);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);

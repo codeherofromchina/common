@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by wangxiaodan on 2017/12/11.
  */
-public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpecificationExecutor {
+public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpecificationExecutor<Project> {
     List<Project> findByPurchReqCreateAndPurchDone(Integer purchReqCreate, Boolean b);
 
     /**

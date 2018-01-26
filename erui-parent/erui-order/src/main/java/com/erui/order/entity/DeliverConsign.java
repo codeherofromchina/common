@@ -50,6 +50,8 @@ public class DeliverConsign {
     private Integer createUserId;
     @Column(name = "create_time")
     private Date createTime;
+    private String country;
+    private String region;
     private String remarks;
     //出口通知单附件
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -62,6 +64,22 @@ public class DeliverConsign {
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
 
     public String getExecCoName() {
         return execCoName;

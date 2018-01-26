@@ -48,7 +48,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         return deliverConsign;
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
@@ -102,6 +101,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignAdd.setDeliverYn(deliverConsign.getDeliverYn());
         deliverConsignAdd.setRemarks(deliverConsign.getRemarks());
+        deliverConsignAdd.setCountry(order.getCountry());
+        deliverConsignAdd.setRegion(order.getRegion());
         deliverConsignAdd.setCreateTime(new Date());
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
