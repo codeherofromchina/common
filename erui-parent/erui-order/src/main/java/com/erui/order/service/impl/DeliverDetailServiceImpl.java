@@ -166,6 +166,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverD.getWareHouseman() != null) {
                     list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
                 }
+                //根据出库状态   status    1:办理   2：查看
+                if (deliverD.getStatus() != null) {
+                    if(deliverD.getStatus() == 1){
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 5));
+                    }else if(deliverD.getStatus() == 2){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
+                    }
+                }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
