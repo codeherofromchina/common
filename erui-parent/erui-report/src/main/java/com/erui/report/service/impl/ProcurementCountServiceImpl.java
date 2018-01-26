@@ -76,7 +76,8 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         sumDataMap.put("planNum",BigDecimal.ZERO); // 采购申请单数量
         sumDataMap.put("executeNum", BigDecimal.ZERO);// 签约合同数量
         sumDataMap.put("executeAmount", BigDecimal.ZERO);// 签约合同金额
-        int pCount=0,eCount=0;
+
+
         for (int index = 0; index < size; index++) {
             int cellIndex = index + 2;
             String[] strArr = datas.get(index);
