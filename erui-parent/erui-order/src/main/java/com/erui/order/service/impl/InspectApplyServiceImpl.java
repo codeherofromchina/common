@@ -311,6 +311,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (parentInspectApply == null) {
             parentInspectApply = lastInspectApply;
         }
+        // 如果最后一次报检不是上级报检单，则修改上次报检的pubStatus =UNQUALIFIED
+        if (parentInspectApply != lastInspectApply) {
+            lastInspectApply.setPubStatus(InspectApply.StatusEnum.UNQUALIFIED.getCode());
+            inspectApplyDao.save(lastInspectApply);
+        }
 
         // 声明要插入的报检单
         InspectApply newInspectApply = new InspectApply();
@@ -344,7 +349,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 主报检单的报检数量+1
         parentInspectApply.setNum(parentInspectApply.getNum() + 1);
         parentInspectApply.setHistory(true);
-        parentInspectApply.setPubStatus(InspectApply.StatusEnum.SUBMITED.getCode()); // 设置全局状态为审核中
+        parentInspectApply.setPubStatus(InspectApply.StatusEnum.UNQUALIFIED.getCode()); // 设置全局状态为不合格，等待审核
         inspectApplyDao.save(parentInspectApply);
 
         // 获取是第几次报检
@@ -459,4 +464,19 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         one.setTmpMsg(tmpMsg);
         inspectApplyDao.save(one);
     }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public InspectApply findSonFailDetail(Integer parentId) {
+
+        InspectApply inspectApply = inspectApplyDao.findByParentIdAndPubStatusAndStatus(parentId, InspectApply.StatusEnum.SUBMITED.getCode(), InspectApply.StatusEnum.UNQUALIFIED.getCode());
+        if (inspectApply != null) {
+            inspectApply.getAttachmentList().size();
+            inspectApply.getInspectApplyGoodsList().size();
+        }
+
+        return inspectApply;
+    }
+
 }

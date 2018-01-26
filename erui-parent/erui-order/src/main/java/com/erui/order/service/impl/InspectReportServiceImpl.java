@@ -286,12 +286,12 @@ public class InspectReportServiceImpl implements InspectReportService {
 
             InspectApply parent = inspectApply.getParent();
             if (parent != null) {
-                parent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
+                parent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.SUBMITED.getCode());
                 inspectApplyDao.save(parent);
             }
 
             inspectApply.setStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
-            inspectApply.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
+            inspectApply.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.SUBMITED.getCode());
 
             inspectApplyDao.save(inspectApply);
         }
