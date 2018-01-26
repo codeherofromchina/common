@@ -166,6 +166,20 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverD.getWareHouseman() != null) {
                     list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
                 }
+                //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
+                if (deliverD.getStatus() != null) {
+                    if(deliverD.getStatus() == 1){
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 2)); //未质检
+                    }else if(deliverD.getStatus() == 2){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));//质检中
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 4));
+                    }else if(deliverD.getStatus() == 3){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 3));//质检完成
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 5));
+                    }else if(deliverD.getStatus() == 4){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));//已出库
+                    }
+                }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
@@ -681,8 +695,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 deliverConsignGoodsList.stream().forEach(deliverConsignGoods -> {
                     Goods goods = deliverConsignGoods.getGoods();
-                    contractNoList.add(goods.getContractNo());
-                    projectNoList.add(goods.getProjectNo());
+                    String contractNo = goods.getContractNo();
+                    String projectNo = goods.getProjectNo();
+                    if (StringUtils.isNotBlank(contractNo) && !contractNoList.contains(contractNo)) {
+                        contractNoList.add(goods.getContractNo());
+                    }
+                    if (StringUtils.isNotBlank(projectNo) && !projectNoList.contains(projectNo)) {
+                        projectNoList.add(projectNo);
+                    }
                 });
                 map.put("contractNos", StringUtils.join(contractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));

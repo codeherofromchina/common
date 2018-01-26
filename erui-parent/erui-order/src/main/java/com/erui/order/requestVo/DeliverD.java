@@ -21,6 +21,8 @@ public class DeliverD {
 
     private Integer wareHouseman;   //仓库经办人
 
+    private Integer status;   //仓库出库管理状态
+
     private Integer page;
 
     private Integer rows;
@@ -89,4 +91,11 @@ public class DeliverD {
         this.rows = rows;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 }
