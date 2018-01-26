@@ -48,6 +48,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         return deliverConsign;
     }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
@@ -70,10 +71,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Goods goods = goodsList.get(gid);
             //商品需增加发货数量 = 要修改的数量-原发货数量
             //Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
-            dcGoods.setGoods(goods);
-            dcGoods.setCreateTime(new Date());
-            if (deliverConsign.getStatus() == 3) {
-                goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+            if (goods.getOutstockNum() < goods.getContractGoodsNum()) {
+                dcGoods.setGoods(goods);
+                dcGoods.setCreateTime(new Date());
+                if (deliverConsign.getStatus() == 3){
+                    goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+                }
             }
         });
         if (deliverConsign.getStatus() == 3) {
@@ -89,8 +92,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         String deliverConsignNo = deliverConsignDao.findDeliverConsignNo();
-        String deliverConsignNostring = deliverConsignNo.substring(deliverConsignNo.length()-4,deliverConsignNo.length());
-        deliverConsignAdd.setDeliverConsignNo("CKFH" + DateUtil.format("yyyyMM", new Date()) + StringUtil.SerialNumber(4,1,deliverConsignNostring));
+        String deliverConsignNostring = deliverConsignNo.substring(deliverConsignNo.length() - 4, deliverConsignNo.length());
+        deliverConsignAdd.setDeliverConsignNo("CKFH" + DateUtil.format("yyyyMM", new Date()) + StringUtil.SerialNumber(4, 1, deliverConsignNostring));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
         deliverConsignAdd.setDeptId(order.getExecCoId());
@@ -111,10 +114,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.getDeliverConsignGoodsSet().parallelStream().forEach(dcGoods -> {
             Integer gid = dcGoods.getgId();
             Goods goods = goodsList.get(gid);
-            dcGoods.setGoods(goods);
-            dcGoods.setCreateTime(new Date());
-            if (deliverConsign.getStatus() == 3) {
-                goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+            if (goods.getOutstockNum() < goods.getContractGoodsNum()) {
+                dcGoods.setGoods(goods);
+                dcGoods.setCreateTime(new Date());
+                if (deliverConsign.getStatus() == 3) {
+                    goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+                }
             }
         });
         if (deliverConsign.getStatus() == 3) {

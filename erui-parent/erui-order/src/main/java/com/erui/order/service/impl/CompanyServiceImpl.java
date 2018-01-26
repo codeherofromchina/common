@@ -40,14 +40,14 @@ public class CompanyServiceImpl implements CompanyService {
     }
     @Override
     @Transactional(readOnly = true)
-    public List<Company> findAll(String name) {
+    public List<Company> findAll(String areaBn) {
         List<Company> companyList = companyDao.findAll(new Specification<Company>() {
             @Override
             public Predicate toPredicate(Root<Company> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
                 // 根据销售同号模糊查询
-                if (StringUtil.isNotBlank(name)) {
-                    list.add(cb.like(root.get("name").as(String.class), "%" + name + "%"));
+                if (StringUtil.isNotBlank(areaBn)) {
+                    list.add(cb.equal(root.get("areaBn").as(String.class), areaBn));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
