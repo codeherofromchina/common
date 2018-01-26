@@ -24,8 +24,10 @@ public class Company {
      * 分公司名称
      */
     private String name;
-
-    @Column(name="create_time")
+    //所属地区
+    @Column(name="area_bn",insertable=false,updatable=false)
+    private String areaBn;
+    @Column(name = "create_time")
     private Date createTime;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -36,11 +38,17 @@ public class Company {
         return id;
     }
 
-/*
     public void setId(Integer id) {
         this.id = id;
     }
-*/
+
+    public String getAreaBn() {
+        return areaBn;
+    }
+
+    public void setAreaBn(String areaBn) {
+        this.areaBn = areaBn;
+    }
 
     public Area getArea() {
         return area;

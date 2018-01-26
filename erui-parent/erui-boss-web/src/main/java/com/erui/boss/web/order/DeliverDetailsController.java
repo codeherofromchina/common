@@ -86,7 +86,7 @@ public class DeliverDetailsController {
             toPlacList = new HashSet<>();
             tradeTermsList = new HashSet<>();
             for (DeliverConsign deliverConsign :deliverConsigns){
-                toPlacList.add(deliverConsign.getOrder().getToPlace()); // 目的港
+                toPlacList.add(deliverConsign.getOrder().getToPort()); // 目的港
                 tradeTermsList.add(deliverConsign.getOrder().getTradeTerms());  // 贸易术语
             }
         }
@@ -103,6 +103,7 @@ public class DeliverDetailsController {
             Goods goods = deliverConsignGoods.getGoods();
 
             Map<String, Object> goodsInfoMap = new HashMap<>();
+            goodsInfoMap.put("id", deliverConsignGoods.getId());
             goodsInfoMap.put("goodsId", goods.getId());
             goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
             goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
@@ -174,10 +175,22 @@ public class DeliverDetailsController {
         DeliverNotice deliverNotice = deliverDetail.getDeliverNotice();
 
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
-        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("tradeTerms", deliverNotice.getTradeTerms()); // 贸易术语
-        deliverNoticeInfo.put("toPlace", deliverNotice.getToPlace()); // 目的港
+
+        Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+        Set<String> toPlacList = null;
+        Set<String> tradeTermsList = null;
+        if (deliverConsigns.size() != 0){
+            toPlacList = new HashSet<>();
+            tradeTermsList = new HashSet<>();
+            for (DeliverConsign deliverConsign :deliverConsigns){
+                toPlacList.add(deliverConsign.getOrder().getToPort()); // 目的港
+                tradeTermsList.add(deliverConsign.getOrder().getTradeTerms());  // 贸易术语
+            }
+        }
+        deliverNoticeInfo.put("toPlace",StringUtils.join(toPlacList, ",")); // 目的港
+        deliverNoticeInfo.put("tradeTerms",StringUtils.join(tradeTermsList, ",")); // 贸易术语
         deliverNoticeInfo.put("numers", deliverDetail.getPackTotal()); // 总包装件数
+        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
         deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
 

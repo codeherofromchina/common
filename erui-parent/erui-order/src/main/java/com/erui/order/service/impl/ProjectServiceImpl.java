@@ -147,8 +147,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return pageList;
     }
-
-
     @Override
     @Transactional(readOnly = true)
     public List<Project> purchAbleList(List<String> projectNoList) {

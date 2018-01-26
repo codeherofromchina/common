@@ -32,7 +32,7 @@ public class Area {
     private Character deletedFlag;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="area_bn")
+    @JoinColumn(name="area_bn",insertable=false,updatable=false)
     private Set<Company> companySet = new HashSet<>();
 
     public Integer getId() {

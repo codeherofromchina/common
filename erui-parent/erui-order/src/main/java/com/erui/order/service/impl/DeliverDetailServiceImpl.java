@@ -2,6 +2,7 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.DeliverConsignGoodsDao;
 import com.erui.order.dao.DeliverDetailDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
@@ -10,9 +11,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
-import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverDetailService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +51,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Autowired
     OrderLogDao orderLogDao;
+
+    @Autowired
+    DeliverConsignGoodsDao deliverConsignGoodsDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -303,6 +304,17 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception {
+
+        //商品备注
+        List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+        if (deliverConsignGoodsList.size() != 0){
+            for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList){
+                DeliverConsignGoods one = deliverConsignGoodsDao.findOne(deliverConsignGoods.getId());
+                one.setOutboundRemark(deliverConsignGoods.getOutboundRemark());
+                deliverConsignGoodsDao.saveAndFlush(one);
+            }
+        }
+
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (one == null) {
@@ -725,7 +737,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Transactional(readOnly = true)
-    private List<DeliverDetail> findDeliverDetailIdsByContractNoAndProjectNo(String contractNos, String projectNos) {
+    public List<DeliverDetail> findDeliverDetailIdsByContractNoAndProjectNo(String contractNos, String projectNos) {
         List<DeliverDetail> result = null;
         if (StringUtils.isNotBlank(contractNos) || StringUtils.isNotBlank(projectNos)) {
             result = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
