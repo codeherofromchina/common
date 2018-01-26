@@ -33,6 +33,9 @@ public class DeliverNotice {
     private String deliverConsignNo;
 
     @Transient
+    private String country;     //国家查询
+
+    @Transient
     private int page = 0;
     @Transient
     private int rows = 50;
@@ -314,5 +317,17 @@ public class DeliverNotice {
 
     public void setAttachmentSet(Set<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
+    }
+
+    public DeliverDetail getDeliverDetail() {
+        return deliverDetail;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCountry() {
+        return country;
     }
 }

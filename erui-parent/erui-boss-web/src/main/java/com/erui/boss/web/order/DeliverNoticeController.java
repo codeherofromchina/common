@@ -253,7 +253,7 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "queryExitAdvice")
     public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
-        List<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice.getId());
+        List<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
         if(list != null){
             list.parallelStream().forEach( v -> {
                 v.setAttachmentSet(null);

@@ -1,8 +1,8 @@
 package com.erui.order.service;
 
 import com.erui.order.entity.DeliverConsign;
+import com.erui.order.entity.DeliverNotice;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public interface DeliverConsignService {
      * 看货通知管理   查询出口发货通知单
      * @return
      */
-    List<DeliverConsign> queryExitAdvice(Integer id);
+    List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice);
 
 
 
