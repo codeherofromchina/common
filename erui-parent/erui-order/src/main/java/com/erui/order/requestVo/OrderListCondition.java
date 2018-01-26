@@ -35,9 +35,19 @@ public class OrderListCondition {
     private String orderSource;
     //订单来源
     private Boolean deleteFlag;
+    //区域国家
+    private String country;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     public Integer getAgentId() {
         return agentId;

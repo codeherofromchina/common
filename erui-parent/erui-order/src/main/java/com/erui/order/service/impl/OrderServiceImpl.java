@@ -114,6 +114,14 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getOrderSource())) {
                     list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
                 }
+                //根据区域所在国家查询
+                String[] country = null;
+                if (StringUtils.isNotBlank(condition.getCountry())) {
+                    country = condition.getCountry().split(",");
+                }
+                if (country != null) {
+                    list.add(root.get("country").in(country));
+                }
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
