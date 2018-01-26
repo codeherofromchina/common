@@ -681,8 +681,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 deliverConsignGoodsList.stream().forEach(deliverConsignGoods -> {
                     Goods goods = deliverConsignGoods.getGoods();
-                    contractNoList.add(goods.getContractNo());
-                    projectNoList.add(goods.getProjectNo());
+                    String contractNo = goods.getContractNo();
+                    String projectNo = goods.getProjectNo();
+                    if (StringUtils.isNotBlank(contractNo) && !contractNoList.contains(contractNo)) {
+                        contractNoList.add(goods.getContractNo());
+                    }
+                    if (StringUtils.isNotBlank(projectNo) && !projectNoList.contains(projectNo)) {
+                        projectNoList.add(projectNo);
+                    }
                 });
                 map.put("contractNos", StringUtils.join(contractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
