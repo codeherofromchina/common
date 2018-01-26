@@ -19,7 +19,7 @@
     <bean id="sysncPowerCronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" >
           <property name="jobDetail" ref="sysncPowerJob"/>
           <property name="cronExpression">
-              <value>0 50 16 * * ?</value>
+              <value>0 10 1 * * ?</value>
           </property>
     </bean>
 	

@@ -6,10 +6,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.ProcurementCountExample;
 import com.erui.report.util.InquiryAreaVO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -68,6 +70,13 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         if (!testOnly) {
             writeMapper.truncateTable();
         }
+
+        // 用于计算询单导入时的统计数据
+        Map<String, BigDecimal> sumDataMap = new HashMap<>();
+        sumDataMap.put("planNum",BigDecimal.ZERO); // 采购申请单数量
+        sumDataMap.put("executeNum", BigDecimal.ZERO);// 签约合同数量
+        sumDataMap.put("executeAmount", BigDecimal.ZERO);// 签约合同金额
+        int pCount=0,eCount=0;
         for (int index = 0; index < size; index++) {
             int cellIndex = index + 2;
             String[] strArr = datas.get(index);
@@ -107,8 +116,26 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
                 response.pushFailItem(ExcelUploadTypeEnum.PROCUREMENT_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+
+            // 根据日期判断是否需要统计
+            if (NewDateUtil.inSaturdayWeek(pc.getAssignTime())) {
+                String planNum = pc.getPlanNum();
+                String executeNum = pc.getExecuteNum();
+                BigDecimal ammount = pc.getAmmount();
+                if (StringUtil.isNotBlank(planNum)) {
+                    sumDataMap.put("planNum", sumDataMap.get("planNum").add(new BigDecimal(1)));// 采购申请单数量
+                }
+                if(StringUtil.isNotBlank(executeNum)){
+                    sumDataMap.put("executeNum", sumDataMap.get("executeNum").add(new BigDecimal(1)));// 签约合同数量
+                }
+                if(ammount!=null){
+                    sumDataMap.put("executeAmount", sumDataMap.get("executeAmount").add(ammount));// 签约金额
+                }
+            }
             response.incrSuccess();
         }
+
+        response.setSumMap(sumDataMap);
         response.setDone(true);
 
         return response;
