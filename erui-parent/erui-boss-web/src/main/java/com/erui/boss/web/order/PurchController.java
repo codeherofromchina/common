@@ -171,6 +171,7 @@ public class PurchController {
             data.put("supplierId", purch.getSupplierId()); // 供应商ID
             data.put("supplierName", purch.getSupplierName()); // 供应商名称
             data.put("department", purch.getDepartment()); // 下发部门
+            data.put("currencyBn", purch.getCurrencyBn()); // 币种
 
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
             List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
@@ -195,6 +196,7 @@ public class PurchController {
                 map.put("unit", goods.getUnit());
                 map.put("nonTaxPrice", vo.getNonTaxPrice());
                 map.put("taxPrice", vo.getTaxPrice());
+                map.put("purchasePrice", vo.getPurchasePrice());
                 map.put("totalPrice", vo.getTotalPrice());
                 map.put("purchaseRemark", vo.getPurchaseRemark());
                 return map;
