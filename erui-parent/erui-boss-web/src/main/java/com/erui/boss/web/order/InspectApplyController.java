@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -138,7 +139,8 @@ public class InspectApplyController {
             map.put("unit", goods.getUnit());
             map.put("nonTaxPrice", purchGoods.getNonTaxPrice());
             map.put("taxPrice", purchGoods.getTaxPrice());
-            map.put("totalPrice", purchGoods.getTotalPrice());
+            map.put("purchasePrice", purchGoods.getPurchasePrice());
+            map.put("totalPrice", purchGoods.getPurchasePrice().multiply(new BigDecimal(vo.getInspectNum().intValue())));
             map.put("height", vo.getHeight());
             map.put("lwh", vo.getLwh());
             map.put("purchaseRemark", purchGoods.getPurchaseRemark());
