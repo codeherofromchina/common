@@ -196,7 +196,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if(deliverNotice==null){
                     throw new Exception("产品放行单号:"+notice.getDeliverDetailNo()+" 无看货通知单关系");
                 }
-                Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+                List<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
                 if(deliverConsigns.size() == 0){
                     throw new Exception("看货通知单号:"+deliverNotice.getDeliverConsignNo()+" 无出口发货通知单关系");
                 }
@@ -282,7 +282,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (page.hasContent()) {
             for (DeliverDetail notice : page.getContent()) {
                 List<String> contractNos = new ArrayList<String>();    //销售合同号
-                Set<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
+                List<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns) {
                     Order order = deliverConsign.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
@@ -388,7 +388,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //状态
             one.setStatus(deliverDetail.getStatus());
             if (deliverDetail.getStatus() == 5){
-                Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+                List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
                     //推送商品出库
                    /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
@@ -450,7 +450,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail one = deliverDetailDao.findOne(id);
         one.getDeliverConsignGoodsList().size();
         one.getAttachmentList().size();
-        Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+        List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns) {
             deliverConsign.getDeliverConsignGoodsSet().size();
             Order order = deliverConsign.getOrder();
@@ -591,7 +591,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (one.getStatus() == 7) {
             one.getDeliverConsignGoodsList().size();
             one.getAttachmentList().size();
-            Set<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+            List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns) {
                 deliverConsign.getDeliverConsignGoodsSet().size();
                 Order order = deliverConsign.getOrder();
