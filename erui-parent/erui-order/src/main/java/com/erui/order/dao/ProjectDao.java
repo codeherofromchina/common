@@ -4,6 +4,7 @@ import com.erui.order.entity.Area;
 import com.erui.order.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.io.Serializable;
@@ -30,4 +31,12 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
      * @return
      */
     Project findByIdOrOrderId(@Param(value = "id") Integer id, @Param(value = "orderId") Integer orderId);
+    /**
+     * 判断项目名称是否重复
+     *
+     * @param projectName
+     * @return Long
+     */
+    @Query(value = "select count(t1) from Project t1 where t1.projectName= :projectName")
+    Long countByProjectName(@Param("projectName")String projectName);
 }

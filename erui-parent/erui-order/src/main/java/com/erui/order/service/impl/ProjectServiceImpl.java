@@ -59,8 +59,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateProject(Project project) {
+    public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
+        if (projectDao.countByProjectName(project.getContractNo()) > 0) {
+            throw new Exception("项目名称已存在");
+        }
         project.copyProjectDesc(projectUpdate);
         projectUpdate.setUpdateTime(new Date());
         Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
