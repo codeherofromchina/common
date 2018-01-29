@@ -131,7 +131,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             criteria2.andBackDateLessThan(nextMonthEndTime);
         }
         if (startTime != null) {
-            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+          //  criteria.andBackDateGreaterThanOrEqualTo(startTime);
             criteria1.andBackDateGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {

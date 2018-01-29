@@ -227,7 +227,7 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //1.应收未收 \ 已收、应收账款、下周未收、下月未收
-        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
         double totalAmount = receive + backAmount;
         double weekReceive = requestCreditService.selectReceive(nextWeekStartTime, nextWeekEndTime, null, null, null, null);
@@ -238,7 +238,7 @@ public class RequestCreditController {
         Date weekchainTime = DateUtil.sometimeCalendar(nextWeekStartTime, d);//下周环比时间
         int d2 = DateUtil.getDayBetween(nextMonthStartTime, nextMonthEndTime);
         Date mothchainTime = DateUtil.sometimeCalendar(nextMonthStartTime, d2);//下月环比时间
-        double chainReceive = requestCreditService.selectReceive(chainTime, startTime, null, null, null, null);
+        double chainReceive = requestCreditService.selectReceive(null, startTime, null, null, null, null);
         double chainBackAmount = receiveService.selectBackAmount(chainTime, startTime, null, null, null, null);
         double chainTotalAmount = chainReceive + chainBackAmount;
         double chainWeekReceive = requestCreditService.selectReceive(weekchainTime, nextWeekStartTime, null, null, null, null);
@@ -427,7 +427,7 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
         //应收,已收应收,未收总量
 //        Map mapTotal = requestCreditService.selectRequestTotal(startTime, endTime);
-        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
         double totalAmount = receive + backAmount;
           Map<String,Double>  mapTotal = new HashMap();
@@ -458,7 +458,7 @@ public class RequestCreditController {
 
         //根据区域或者国家
 //        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime, endTime, map.get("area").toString(), country);
-        double ra = requestCreditService.selectReceive(startTime, endTime, null, null, map.get("area").toString(), country);
+        double ra = requestCreditService.selectReceive(null, endTime, null, null, map.get("area").toString(), country);
         double received = receiveService.selectBackAmount(startTime, endTime, null, null, map.get("area").toString(), country);
         double oa = ra + received;
           Map<String,Double>  mapCount = new HashMap();
@@ -544,7 +544,7 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //应收余额
-        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"), null, null);
+        double receive = this.requestCreditService.selectReceive(null, endDate, map.get("company"), map.get("org"), null, null);
         //回款金额
         double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), null, null);
         //应收金额
@@ -552,7 +552,7 @@ public class RequestCreditController {
         //获取下月应收
         double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"),null,null);
         //集团 余额、回款金额、应收金额、下月应收
-        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null, null, null);
+        double totalReceive = this.requestCreditService.selectReceive(null, endDate, null, null, null, null);
         double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
         double totalAmount=totalReceive+TotalBackAmount;
         double TotalNextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, null, null, null, null);
@@ -607,15 +607,15 @@ public class RequestCreditController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
         //区域应收账款明细
-        List<Map<String, Object>> areaReceiveList = this.requestCreditService.selectReceiveGroupByArea(startDate, endDate);
+        List<Map<String, Object>> areaReceiveList = this.requestCreditService.selectReceiveGroupByArea(null, endDate);
         List<Map<String, Object>> areaBackList = receiveService.selectBackAmountGroupByArea(startDate, endDate);
         Map<String, Object> areaResult = this.getOrderAmountDetail(startDate,endDate,areaReceiveList, areaBackList, 1);
         //主体公司应收账款明细
-        List<Map<String, Object>> companyReceiveList = this.requestCreditService.selectReceiveGroupByCompany(startDate, endDate);
+        List<Map<String, Object>> companyReceiveList = this.requestCreditService.selectReceiveGroupByCompany(null, endDate);
         List<Map<String, Object>> companyBackList = receiveService.selectBackAmountGroupByCompany(startDate, endDate);
         Map<String, Object> companyResult = this.getOrderAmountDetail(startDate,endDate,companyReceiveList, companyBackList, 2);
         //主体公司应收账款明细
-        List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(startDate, endDate);
+        List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(null, endDate);
         List<Map<String, Object>> orgpanyBackList = receiveService.selectBackAmountGroupByOrg(startDate, endDate);
         Map<String, Object> orgResult = this.getOrderAmountDetail(startDate,endDate,orgReceiveList, orgpanyBackList, 3);
         Map<String, Object> data = new HashMap<>();
@@ -632,7 +632,7 @@ public class RequestCreditController {
      * @modified By
      */
     private Map<String, Object> getOrderAmountDetail(Date startTime,Date endTime,List<Map<String, Object>> receiveList, List<Map<String, Object>> backList, int type) {
-        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
         double totalAmount = receive + backAmount;
         List<String> areas = new ArrayList<>();
