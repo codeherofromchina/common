@@ -47,7 +47,7 @@ public class CompanyController {
         if (!map.containsKey("areaBn")) {
             map.put("areaBn", "");
         }
-        List<Company> companyList = companyService.findAll(map.get("areaBn"));
+        List<Company> companyList = companyService.findAll(map.get("areaBn"),map.get("name"));
         companyList.parallelStream().forEach(vo -> {
             vo.setDeptSet(null);
             vo.setArea(null);
