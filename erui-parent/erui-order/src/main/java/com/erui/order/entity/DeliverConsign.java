@@ -1,7 +1,6 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;

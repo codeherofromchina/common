@@ -198,7 +198,7 @@ public class DeliverNoticeController {
             List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
             List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
-            Set<DeliverConsign> deliverConsigns = page.getDeliverConsigns();
+            List<DeliverConsign> deliverConsigns = page.getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns){
                 Set<Attachment> attachmentSet = deliverConsign.getAttachmentSet();
                 for (Attachment attachment : attachmentSet){

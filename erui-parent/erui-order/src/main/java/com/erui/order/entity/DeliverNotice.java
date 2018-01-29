@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 看货通知单
@@ -49,7 +47,7 @@ public class DeliverNotice {
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
     @JsonIgnore
-    private Set<DeliverConsign> deliverConsigns = new HashSet<>();
+    private List<DeliverConsign> deliverConsigns = new ArrayList<>();
 
     @Column(name = "sender_id")
     private Integer senderId;   //下单人
@@ -175,12 +173,16 @@ public class DeliverNotice {
         return status;
     }
 
-    public Set<DeliverConsign> getDeliverConsigns() {
+    public List<DeliverConsign> getDeliverConsigns() {
         return deliverConsigns;
     }
 
-    public void setDeliverConsigns(Set<DeliverConsign> deliverConsigns) {
+    public void setDeliverConsigns(List<DeliverConsign> deliverConsigns) {
         this.deliverConsigns = deliverConsigns;
+    }
+
+    public void setDeliverDetail(DeliverDetail deliverDetail) {
+        this.deliverDetail = deliverDetail;
     }
 
     public Integer getSenderId() {

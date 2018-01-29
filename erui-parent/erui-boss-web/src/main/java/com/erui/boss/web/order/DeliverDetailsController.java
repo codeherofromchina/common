@@ -79,7 +79,7 @@ public class DeliverDetailsController {
 
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
-        Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+        List<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
         Set<String> toPlacList = null;
         Set<String> tradeTermsList = null;
         if (deliverConsigns.size() != 0){
@@ -176,7 +176,7 @@ public class DeliverDetailsController {
 
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
-        Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+        List<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
         Set<String> toPlacList = null;
         Set<String> tradeTermsList = null;
         if (deliverConsigns.size() != 0){
