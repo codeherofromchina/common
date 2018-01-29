@@ -90,8 +90,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         String deliverConsignNo = deliverConsignDao.findDeliverConsignNo();
-        String deliverConsignNostring = deliverConsignNo.substring(deliverConsignNo.length() - 4, deliverConsignNo.length());
-        deliverConsignAdd.setDeliverConsignNo("CKFH" + DateUtil.format("yyyyMM", new Date()) + StringUtil.SerialNumber(4, 1, deliverConsignNostring));
+        deliverConsignAdd.setDeliverConsignNo(StringUtil.genDeliverConsignNo(deliverConsignNo));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
         deliverConsignAdd.setDeptId(order.getExecCoId());
@@ -168,7 +167,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         for (DeliverConsign deliverConsign : page) {
             deliverConsign.getOrder().getId();
             deliverConsign.getAttachmentSet().size();
-            Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
             if (deliverConsignGoodsSet.size() == 0) {
                 throw new Exception("出口通知单号号" + deliverConsign.getDeliverConsignNo() + "无出口发货通知单商品信息");
             }
