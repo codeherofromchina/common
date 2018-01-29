@@ -101,7 +101,7 @@ public class DeliverNoticeController {
                     order1.setAttachmentSet(null);
                     order1.setGoodsList(null);
                     order1.setOrderPayments(null);
-                    Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                    List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                         Goods goods = deliverConsignGoods.getGoods();
                        goods.setSendNum(deliverConsignGoods.getSendNum());
@@ -208,7 +208,7 @@ public class DeliverNoticeController {
                 deliverConsignS.setId(deliverConsign.getId());
                 deliverConsignS.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
                 deliverConsignNoList.add(deliverConsignS);
-                Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                         Goods goods = deliverConsignGoods.getGoods();
                         goods.setSendNum(deliverConsignGoods.getSendNum());

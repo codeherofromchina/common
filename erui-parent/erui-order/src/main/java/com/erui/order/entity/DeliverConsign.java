@@ -1,13 +1,10 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 出口发货通知单
@@ -63,7 +60,7 @@ public class DeliverConsign {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
+    private List<DeliverConsignGoods> deliverConsignGoodsSet = new ArrayList<>();
 
     public String getCountry() {
         return country;
@@ -209,11 +206,11 @@ public class DeliverConsign {
         this.attachmentSet = attachmentSet;
     }
 
-    public Set<DeliverConsignGoods> getDeliverConsignGoodsSet() {
+    public List<DeliverConsignGoods> getDeliverConsignGoodsSet() {
         return deliverConsignGoodsSet;
     }
 
-    public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
+    public void setDeliverConsignGoodsSet(List<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
     }
 }

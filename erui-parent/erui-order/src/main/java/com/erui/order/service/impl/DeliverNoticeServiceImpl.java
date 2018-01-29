@@ -144,7 +144,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
             list.add(one);
 
-            Set<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
             for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
                 deliverConsignGoodsLists.add(deliverConsignGoods);
             }

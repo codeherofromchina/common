@@ -168,7 +168,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         for (DeliverConsign deliverConsign : page) {
             deliverConsign.getOrder().getId();
             deliverConsign.getAttachmentSet().size();
-            Set<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
             if (deliverConsignGoodsSet.size() == 0) {
                 throw new Exception("出口通知单号号" + deliverConsign.getDeliverConsignNo() + "无出口发货通知单商品信息");
             }
@@ -197,6 +197,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     @Transactional(readOnly = true)
     public List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
+
         if (deliverNotice.getId() == null) {
             if (StringUtil.isNotBlank(deliverNotice.getCountry())){
                 List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountry(3, 1,deliverNotice.getCountry());
