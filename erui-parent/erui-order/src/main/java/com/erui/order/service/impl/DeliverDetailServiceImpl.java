@@ -376,6 +376,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if(deliverDetail.getPackTotal() != null){
                 one.setPackTotal(deliverDetail.getPackTotal());
             }
+            //经办部门
+            if(StringUtil.isNotBlank(deliverDetail.getHandleDepartment())){
+                one.setHandleDepartment(deliverDetail.getHandleDepartment());
+            }
 
             DeliverNotice deliverNotice = one.getDeliverNotice();
             if (StringUtil.isNotBlank(deliverDetail.getPackageReq())){
