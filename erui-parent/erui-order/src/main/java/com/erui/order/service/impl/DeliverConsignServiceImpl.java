@@ -1,6 +1,5 @@
 package com.erui.order.service.impl;
 
-import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.DeliverConsignDao;
 import com.erui.order.dao.DeliverNoticeDao;
