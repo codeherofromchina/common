@@ -3,14 +3,16 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.*;
-import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverW;
 import com.erui.order.service.DeliverDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -78,7 +80,7 @@ public class DeliverDetailwController {
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
                 sb.append(deliverConsignGoods.getPackRequire());
             }
-            Set<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
+            List<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns){
                 Order order = deliverConsign.getOrder();
                 tradeTermsList.add(order.getTradeTerms());
@@ -175,7 +177,7 @@ public class DeliverDetailwController {
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
                     sb.append(deliverConsignGoods.getPackRequire());
                 }
-                Set<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
+                List<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
                 for (DeliverConsign deliverConsign : deliverConsigns){
                     Order order = deliverConsign.getOrder();
                     tradeTermsList.add(order.getTradeTerms());

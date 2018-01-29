@@ -107,7 +107,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 List<String>  deliverConsignNos = new ArrayList<String>();
                 List<String>  contractNos = new ArrayList<String>();
 
-                Set<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
+                List<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
                 if (deliverConsignSet.size() == 0){
                     throw new Exception("无出口发货通知单关系");
                 }
@@ -139,12 +139,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         String[] split = deliverNotice.getDeliverConsignIds().split(",");
 
         List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
-        Set<DeliverConsign> list = new HashSet<DeliverConsign>();
+        List<DeliverConsign> list = new ArrayList<DeliverConsign>();
         for (String s :split){
             DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
             list.add(one);
 
-            Set<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
             for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
                 deliverConsignGoodsLists.add(deliverConsignGoods);
             }
@@ -246,7 +246,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
             //  订单执行跟踪   推送运单号
             OrderLog orderLog = new OrderLog();
-            Set<DeliverConsign> deliverConsigns = deliverNotice1.getDeliverConsigns();
+            List<DeliverConsign> deliverConsigns = deliverNotice1.getDeliverConsigns();
             for (DeliverConsign deliverConsign1 : deliverConsigns){
                 try {
                     orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
@@ -278,7 +278,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     one.setContractNo(deliverNotice.getContractNo());
                 }
                 if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
-                    Set<DeliverConsign> deliverConsigns = one.getDeliverConsigns(); //已存在的关联关系
+                    List<DeliverConsign> deliverConsigns = one.getDeliverConsigns(); //已存在的关联关系
                     for (DeliverConsign deliverConsign : deliverConsigns){
                         DeliverConsign ones = deliverConsignDao.findOne(deliverConsign.getId());    //改变出口单状态
                         ones.setDeliverYn(1);
@@ -286,7 +286,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     }
                     String[] split = deliverNotice.getDeliverConsignIds().split(",");    //选中的关联关系
                     DeliverConsign deliverConsign = null;
-                    Set<DeliverConsign> list = new HashSet<DeliverConsign>();
+                    List<DeliverConsign> list = new ArrayList<DeliverConsign>();
                     for (String s :split){
                         list.add(deliverConsignDao.findOne(Integer.parseInt(s)));
                         DeliverConsign ones = deliverConsignDao.findOne(Integer.parseInt(s));   //改变出口单状态
@@ -371,7 +371,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
                     //  订单执行跟踪   推送运单号
                     OrderLog orderLog = new OrderLog();
-                    Set<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
+                    List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
                     for (DeliverConsign deliverConsign1 : deliverConsigns){
                         try {
                             orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));

@@ -79,14 +79,14 @@ public class DeliverDetailsController {
 
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
-        Set<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+        List<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
         Set<String> toPlacList = null;
         Set<String> tradeTermsList = null;
         if (deliverConsigns.size() != 0){
             toPlacList = new HashSet<>();
             tradeTermsList = new HashSet<>();
             for (DeliverConsign deliverConsign :deliverConsigns){
-                toPlacList.add(deliverConsign.getOrder().getToPlace()); // 目的港
+                toPlacList.add(deliverConsign.getOrder().getToPort()); // 目的港
                 tradeTermsList.add(deliverConsign.getOrder().getTradeTerms());  // 贸易术语
             }
         }
@@ -113,7 +113,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("model", goods.getModel()); // 规格型号
             goodsInfoMap.put("unit", goods.getUnit()); // 单位
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
-            /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
+            goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
             goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
@@ -175,10 +175,22 @@ public class DeliverDetailsController {
         DeliverNotice deliverNotice = deliverDetail.getDeliverNotice();
 
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
-        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("tradeTerms", deliverNotice.getTradeTerms()); // 贸易术语
-        deliverNoticeInfo.put("toPlace", deliverNotice.getToPlace()); // 目的港
+
+        List<DeliverConsign> deliverConsigns = deliverNotice.getDeliverConsigns();
+        Set<String> toPlacList = null;
+        Set<String> tradeTermsList = null;
+        if (deliverConsigns.size() != 0){
+            toPlacList = new HashSet<>();
+            tradeTermsList = new HashSet<>();
+            for (DeliverConsign deliverConsign :deliverConsigns){
+                toPlacList.add(deliverConsign.getOrder().getToPort()); // 目的港
+                tradeTermsList.add(deliverConsign.getOrder().getTradeTerms());  // 贸易术语
+            }
+        }
+        deliverNoticeInfo.put("toPlace",StringUtils.join(toPlacList, ",")); // 目的港
+        deliverNoticeInfo.put("tradeTerms",StringUtils.join(tradeTermsList, ",")); // 贸易术语
         deliverNoticeInfo.put("numers", deliverDetail.getPackTotal()); // 总包装件数
+        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
         deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
 
@@ -198,7 +210,7 @@ public class DeliverDetailsController {
             goodsInfoMap.put("model", goods.getModel()); // 规格型号
             goodsInfoMap.put("unit", goods.getUnit()); // 单位
             goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
-            /*goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求*/
+            goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
             goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
             goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
 
@@ -250,10 +262,21 @@ public class DeliverDetailsController {
      */
     @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail){
+        Result<Object> result = new Result<>();
         String message =null;
         try {
             boolean flag = false;
+            if (deliverDetail.getBillingDate() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("开单日期不能为空");
+                return result;
+            }else if (deliverDetail.getPackTotal() == null){
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("总包装件数不能为空");
+                return result;
+            }else{
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
+            }
             if (flag) {
                 return new Result<>();
             }

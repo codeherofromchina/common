@@ -63,4 +63,11 @@ public interface InspectApplyService {
      * @param tmpMsg
      */
     void fullTmpMsg(Integer id, String tmpMsg);
+
+    /**
+     * 通过父质检单ID，查找子最后一次质检失败的报检单
+     * @param parentId
+     * @return
+     */
+    InspectApply findSonFailDetail(Integer parentId);
 }
