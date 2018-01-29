@@ -199,15 +199,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         if (deliverNotice.getId() == null) {
             if (StringUtil.isNotBlank(deliverNotice.getCountry())){
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountry(3, 1,deliverNotice.getCountry());
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1,deliverNotice.getCountry(),deliverNotice.getDeliverConsignNo());
                 return lsit;
             }else{
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYn(3, 1);
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1,deliverNotice.getDeliverConsignNo());
                 return lsit;
             }
         } else {
             if (StringUtil.isNotBlank(deliverNotice.getCountry())){
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountry(3, 1,deliverNotice.getCountry()); //获取未选择
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1,deliverNotice.getCountry(),deliverNotice.getDeliverConsignNo()); //获取未选择
                 DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
                 List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
                 Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
@@ -222,7 +222,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
                 return lsit;
             }else{
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYn(3, 1);  //获取未选择
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1,deliverNotice.getDeliverConsignNo());  //获取未选择
                 DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
                 List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
                 Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
@@ -241,4 +241,5 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
 
     }
+
 }

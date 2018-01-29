@@ -17,13 +17,13 @@ public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Seriali
 
     List<DeliverConsign> findByIdInAndStatus(Integer[] deliverNoticeNos, Integer s);
 
-    List<DeliverConsign> findByStatusAndDeliverYn(int i, int i1);
-
     List<DeliverConsign> findByIdIn(Integer[] arr);
 
     @Query(value = "SELECT deliver_consign_no FROM deliver_consign ORDER BY id DESC LIMIT 1",nativeQuery=true)
     String findDeliverConsignNo();
 
-    List<DeliverConsign> findByStatusAndDeliverYnAndCountry(int i, int i1, String country);
+    List<DeliverConsign> findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(int i, int i1, String country, String deliverConsignNo);
+
+    List<DeliverConsign> findByStatusAndDeliverYnAndDeliverConsignNo(int i, int i1, String deliverConsignNo);
 }
 
