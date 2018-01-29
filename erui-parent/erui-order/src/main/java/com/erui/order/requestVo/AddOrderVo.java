@@ -64,7 +64,7 @@ public class AddOrderVo {
     //客户类型
     private Integer customerType;
 
-    //汇款责任人
+    //回款责任人
     private String perLiableRepay;
 
     //事业部
