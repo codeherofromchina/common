@@ -501,7 +501,7 @@ public class PurchServiceImpl implements PurchService {
                     if (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1) {
                         throw new Exception("商品的采购价格错误");
                     }
-                    if ("人民币".equals(currencyBn)) {
+                    if ("CNY".equals(currencyBn)) {
                         // 人民币是默认含税价格
                         purchGoods.setTaxPrice(purchGoods.getPurchasePrice());
                         purchGoods.setNonTaxPrice(purchGoods.getPurchasePrice().divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));
@@ -593,7 +593,8 @@ public class PurchServiceImpl implements PurchService {
                 // 有采购数量，但采购价格为空，则错误
                 throw new Exception("商品的采购价格错误");
             }
-            if ("人民币".equals(currencyBn)) {
+            // 人民币币种默认是含税价格
+            if ("CNY".equals(currencyBn)) {
                 // 人民币是默认含税价格
                 newPurchGoods.setTaxPrice(newPurchGoods.getPurchasePrice());
                 newPurchGoods.setNonTaxPrice(newPurchGoods.getPurchasePrice().divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));
@@ -663,7 +664,8 @@ public class PurchServiceImpl implements PurchService {
             // 采购价格为空或小于0
             throw new Exception("商品的采购价格错误");
         }
-        if ("人民币".equals(currencyBn)) {
+        // 人民币默认是含税价格
+        if ("CNY".equals(currencyBn)) {
             // 人民币是默认含税价格
             son.setTaxPrice(purchasePrice);
             son.setNonTaxPrice(purchasePrice.divide(new BigDecimal("1.17"), 4, BigDecimal.ROUND_DOWN));

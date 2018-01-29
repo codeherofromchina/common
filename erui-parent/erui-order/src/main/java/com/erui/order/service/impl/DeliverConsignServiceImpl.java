@@ -89,8 +89,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         String deliverConsignNo = deliverConsignDao.findDeliverConsignNo();
-        String deliverConsignNostring = deliverConsignNo.substring(deliverConsignNo.length() - 4, deliverConsignNo.length());
-        deliverConsignAdd.setDeliverConsignNo("CKFH" + DateUtil.format("yyyyMM", new Date()) + StringUtil.SerialNumber(4, 1, deliverConsignNostring));
+        deliverConsignAdd.setDeliverConsignNo(StringUtil.genDeliverConsignNo(deliverConsignNo));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
         deliverConsignAdd.setDeptId(order.getExecCoId());
