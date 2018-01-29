@@ -461,6 +461,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     @Override
     public List<String> selectOrgList() {
         InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andOrganizationIsNotNull();
         return readMapper.selectOrgListByExample(example);
     }
 

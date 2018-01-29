@@ -1143,6 +1143,18 @@ public class CustomCentreController {
     }
 
     /**
+     * 客户中心-询单详细分析：所有事业部列表
+     *
+     * @return
+     */
+    @RequestMapping("/orgList")
+    @ResponseBody
+    public Object orgList() {
+        Result<Object> result = new Result<>();
+        List<String> orgList=inquiryService.selectOrgList();
+        return result.setData(orgList);
+    }
+    /**
      * 客户中心-询单详细分析: 询单状态总览
      *
      * @param map 大区
