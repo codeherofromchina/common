@@ -147,6 +147,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + iaGoods.getInspectNum());
             purchGoodsDao.save(purchGoods);
         }
+        if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && directInstockGoods) {
+            // 厂家直接发货且是提交，则直接设置为合格状态
+            inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+        }
         // 保存报检单信息
         inspectApplyDao.save(inspectApply);
         // 推送数据到入库质检中
