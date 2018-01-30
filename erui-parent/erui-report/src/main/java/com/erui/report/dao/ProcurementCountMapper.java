@@ -31,12 +31,40 @@ public interface ProcurementCountMapper {
     int updateByPrimaryKey(ProcurementCount record);
     
     void truncateTable();
-
+    /**
+     * 查询国家列表
+     */
     List<Map> selectCountry(ProcurementCountExample example);
+    /**
+     * 查询大区列表
+     */
     List<Map> selectArea();
-
-    List<Map<String, Object>> selectProcurPandent(ProcurementCountExample example);
-    List<Map<String,Object>>  selectProcurTrend(ProcurementCountExample example);
+    /**
+     * 获取采购申请单数量
+     */
+    int selectPlanCount(ProcurementCountExample example);
+    /**
+     * 获取签约合同数量和金额
+     */
+    List<Map<String, Object>> selectExecutePandent(ProcurementCountExample example);
+    /**
+     * 获取趋势图 签约合同数量和金额
+     */
+    List<Map<String,Object>>  selectExecuteDataTrend(ProcurementCountExample example);
+    /**
+     * 获取趋势图 计划采购单数量
+     */
+    List<Map<String,Object>>  selectPlanDataTrend(ProcurementCountExample example);
+    /**
+     * 获取所有国家和所属大区
+     */
     List<Map<String, String>> selectAllAreaAndCountryList();
-    List<ProcurementCount>  selectCategoryDetail(ProcurementCountExample example);
+    /**
+     * 获取各分类的签约合同数量和金额
+     */
+    List<ProcurementCount>  selectCategoryExecuteData(ProcurementCountExample example);
+    /**
+     * 获取分类计划采购单数量
+     */
+    List<ProcurementCount>  selectCategoryPlanData(ProcurementCountExample example);
 }

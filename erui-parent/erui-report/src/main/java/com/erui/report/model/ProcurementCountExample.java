@@ -226,6 +226,66 @@ public class ProcurementCountExample {
             return (Criteria) this;
         }
 
+        public Criteria andExecuteTimeIsNull() {
+            addCriterion("execute_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeIsNotNull() {
+            addCriterion("execute_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeEqualTo(Date value) {
+            addCriterion("execute_time =", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeNotEqualTo(Date value) {
+            addCriterion("execute_time <>", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeGreaterThan(Date value) {
+            addCriterion("execute_time >", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("execute_time >=", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeLessThan(Date value) {
+            addCriterion("execute_time <", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeLessThanOrEqualTo(Date value) {
+            addCriterion("execute_time <=", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeIn(List<Date> values) {
+            addCriterion("execute_time in", values, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeNotIn(List<Date> values) {
+            addCriterion("execute_time not in", values, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeBetween(Date value1, Date value2) {
+            addCriterion("execute_time between", value1, value2, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeNotBetween(Date value1, Date value2) {
+            addCriterion("execute_time not between", value1, value2, "executeTime");
+            return (Criteria) this;
+        }
+
         public Criteria andPlanNumIsNull() {
             addCriterion("plan_num is null");
             return (Criteria) this;
