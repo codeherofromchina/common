@@ -141,6 +141,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     // 厂家发货且不检查，则增加商品的已入库数量
                     parentGoods.setInstockNum(parentGoods.getInstockNum() + iaGoods.getInspectNum());
                 }
+
+                // 设置商品的报检日期
+                if (parentGoods.getInspectDate() != null) {
+                    parentGoods.setInspectDate(inspectApply.getInspectDate());
+                }
+
                 goodsDao.save(parentGoods);
             }
             // 设置预报检商品数量
@@ -248,6 +254,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     parentPurchGoods.setGoodNum(parentPurchGoods.getGoodNum() + applyGoods.getInspectNum());
                     // 厂家发货且不检查，则增加商品的已入库数量
                     parentGoods.setInstockNum(parentGoods.getInstockNum() + applyGoods.getInspectNum());
+                }
+
+                if (parentGoods.getInspectDate() == null) {
+                    parentGoods.setInspectDate(dbInspectApply.getInspectDate());
                 }
                 goodsDao.save(parentGoods);
 
