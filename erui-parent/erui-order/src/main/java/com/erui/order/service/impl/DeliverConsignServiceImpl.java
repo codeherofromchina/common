@@ -70,7 +70,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if (goods.getOutstockNum() < goods.getContractGoodsNum()) {
                 dcGoods.setGoods(goods);
                 dcGoods.setCreateTime(new Date());
-                if (deliverConsign.getStatus() == 3){
+                if (deliverConsign.getStatus() == 3) {
                     goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
                 }
             }
@@ -138,15 +138,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.getCreateUserId();
             deliverConsign.setDeliverConsignGoodsSet(null);
             deliverConsign.setAttachmentSet(null);
-           /* DeliverConsign deliverConsign2 = new DeliverConsign();
-            deliverConsign2.setId(deliverConsign.getoId());
-            deliverConsign2.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
-            deliverConsign2.setDeptId(deliverConsign.getDeptId());
-            deliverConsign2.setWriteDate(deliverConsign.getWriteDate());
-            deliverConsign2.setStatus(deliverConsign.getStatus());
-            deliverConsign2.setCoId(deliverConsign.getCoId());
-            deliverConsign2.setCreateUserId(deliverConsign.getCreateUserId());*/
-
         }
         return deliverConsignList;
     }
@@ -196,16 +187,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
 
         if (deliverNotice.getId() == null) {
-            if (StringUtil.isNotBlank(deliverNotice.getCountry())){
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1,deliverNotice.getCountry(),deliverNotice.getDeliverConsignNo());
+            if (StringUtil.isNotBlank(deliverNotice.getCountry())) {
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1, deliverNotice.getCountry(), deliverNotice.getDeliverConsignNo());
                 return lsit;
-            }else{
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1,deliverNotice.getDeliverConsignNo());
+            } else {
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1, deliverNotice.getDeliverConsignNo());
                 return lsit;
             }
         } else {
-            if (StringUtil.isNotBlank(deliverNotice.getCountry())){
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1,deliverNotice.getCountry(),deliverNotice.getDeliverConsignNo()); //获取未选择
+            if (StringUtil.isNotBlank(deliverNotice.getCountry())) {
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1, deliverNotice.getCountry(), deliverNotice.getDeliverConsignNo()); //获取未选择
                 DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
                 List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
                 Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
@@ -219,8 +210,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     lsit.add(deliverConsign);
                 }
                 return lsit;
-            }else{
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1,deliverNotice.getDeliverConsignNo());  //获取未选择
+            } else {
+                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1, deliverNotice.getDeliverConsignNo());  //获取未选择
                 DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
                 List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
                 Integer[] arr = new Integer[deliverConsigns.size()];    //获取id

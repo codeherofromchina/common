@@ -201,6 +201,18 @@ public class ProjectController {
                     result.setMsg(ex.getMessage());
                 }
             }
+        }else {
+            try {
+                boolean flag = false;
+                flag = projectService.updateProject(project);
+                if (flag) {
+                    return result;
+                }
+            } catch (Exception ex) {
+                logger.error("办理项目操作失败：{}", project, ex);
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg(ex.getMessage());
+            }
         }
         return result;
 
