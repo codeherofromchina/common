@@ -69,8 +69,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         if (statusEnum != Project.ProjectStatusEnum.SUBMIT) {
             projectUpdate.setProjectStatus(project.getProjectStatus());
-        }
-        if (statusEnum == Project.ProjectStatusEnum.EXECUTING) {
+        } else if (statusEnum == Project.ProjectStatusEnum.EXECUTING) {
             Order order = projectUpdate.getOrder();
             order.getGoodsList().forEach(gd -> {
                         gd.setStartDate(projectUpdate.getStartDate());
@@ -79,6 +78,8 @@ public class ProjectServiceImpl implements ProjectService {
                     }
             );
             order.setStatus(3);
+        } else {
+            projectUpdate.setProjectStatus(project.getProjectStatus());
         }
         projectDao.saveAndFlush(projectUpdate);
         return true;
@@ -150,6 +151,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return pageList;
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<Project> purchAbleList(List<String> projectNoList) {
