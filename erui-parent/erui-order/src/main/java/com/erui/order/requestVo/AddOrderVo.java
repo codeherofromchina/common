@@ -154,7 +154,8 @@ public class AddOrderVo {
 
     //事业部
     private String businessUnitName;
-
+    //获取人
+    private Integer acquireId;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -162,6 +163,14 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getAcquireId() {
+        return acquireId;
+    }
+
+    public void setAcquireId(Integer acquireId) {
+        this.acquireId = acquireId;
+    }
 
     public Integer getId() {
         return id;
@@ -607,6 +616,7 @@ public class AddOrderVo {
         order.setBusinessUnitName(this.businessUnitName);
         order.setExecCoName(this.execCoName);
         order.setDistributionDeptName(this.distributionDeptName);
+        order.setAcquireId(this.acquireId);
     }
 
 

@@ -194,7 +194,8 @@ public class Order {
 
     @Column(name = "business_unit_name")
     private String businessUnitName;
-
+    @Column(name = "acquire_id")
+    private Integer acquireId;
     @Transient
     private int page = 0;
 
@@ -208,6 +209,14 @@ public class Order {
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
+
+    public Integer getAcquireId() {
+        return acquireId;
+    }
+
+    public void setAcquireId(Integer acquireId) {
+        this.acquireId = acquireId;
+    }
 
     public Integer getPreinvest() {
         return preinvest;
