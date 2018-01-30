@@ -175,7 +175,10 @@ public class OrderController {
             } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn()) || StringUtils.equals(addOrderVo.getPaymentModeBn(), "")) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("收款方式不能为空");
-            } else {
+            } else if (addOrderVo.getGoodDesc().isEmpty()){
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("商品不能为空");
+            }else {
                 try {
                     boolean flag = false;
                     if (addOrderVo.getId() != null) {
