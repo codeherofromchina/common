@@ -2,11 +2,7 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.InspectApply;
-import com.erui.order.entity.InspectApplyGoods;
-import com.erui.order.entity.PurchGoods;
+import com.erui.order.entity.*;
 import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -105,6 +101,7 @@ public class InspectApplyController {
         data.put("outCheck", inspectApply.getOutCheck());
         data.put("msg", inspectApply.getMsg());
         data.put("tmpMsg", inspectApply.getTmpMsg());
+        data.put("inspectDate", inspectApply.getInspectDate());
         data.put("remark", inspectApply.getRemark());
         data.put("attachmentList", inspectApply.getAttachmentList());
         data.put("status", inspectApply.getStatus());
@@ -113,6 +110,7 @@ public class InspectApplyController {
         List<Map<String, Object>> inspectApplyGoodsList = new ArrayList<>();
         for (InspectApplyGoods vo : inspectApply.getInspectApplyGoodsList()) {
             Goods goods = vo.getGoods();
+            Order order = goods.getOrder();
             PurchGoods purchGoods = vo.getPurchGoods();
             Map<String, Object> map = new HashMap<>();
             map.put("id", vo.getId());
@@ -126,6 +124,7 @@ public class InspectApplyController {
             map.put("nameZh", goods.getNameZh());
             map.put("brand", goods.getBrand());
             map.put("model", goods.getModel());
+            map.put("execCoName", order.getExecCoName()); // 执行分公司
             map.put("purchaseNum", purchGoods.getPurchaseNum());
             map.put("hasInspectNum", purchGoods.getPreInspectNum()); // 已报检数量
             map.put("inspectNum", vo.getInspectNum()); // 报检数量

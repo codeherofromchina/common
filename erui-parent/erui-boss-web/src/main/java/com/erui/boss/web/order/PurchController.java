@@ -180,6 +180,7 @@ public class PurchController {
             }).map(vo -> {
                 Map<String, Object> map = new HashMap<>();
                 Goods goods = vo.getGoods();
+                Order order = goods.getOrder();
                 map.put("id", goods.getId());
                 map.put("purchGid", vo.getId());
                 map.put("contractNo", goods.getContractNo());
@@ -190,6 +191,7 @@ public class PurchController {
                 map.put("nameZh", goods.getNameZh());
                 map.put("brand", goods.getBrand());
                 map.put("model", goods.getModel());
+                map.put("execCoName", order.getExecCoName()); // 执行分公司
                 map.put("purchaseNum", vo.getPurchaseNum());
                 map.put("hasInspectNum", vo.getPreInspectNum());
                 map.put("inspectNum", vo.getPurchaseNum() - vo.getPreInspectNum()); // 报检数量

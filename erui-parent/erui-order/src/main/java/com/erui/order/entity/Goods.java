@@ -19,7 +19,7 @@ public class Goods {
     @Column(name = "parent_id")
     private Integer parentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
