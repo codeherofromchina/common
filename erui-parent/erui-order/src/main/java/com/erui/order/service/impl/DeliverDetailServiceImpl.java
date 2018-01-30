@@ -258,14 +258,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverW.getLogisticsDate() != null) {
                     list.add(cb.equal(root.get("logisticsDate").as(Date.class), deliverW.getLogisticsDate()));
                 }
-                //根据状态
+                //根据状态    status:  1:执行中  6       2：已完成 7      3：待执行 5
                 if (deliverW.getStatus() != null) {
                     if (deliverW.getStatus() == 2) {
-                      /*  list.add(cb.equal(root.get("status").as(Integer.class),deliverW.getStatus()));*/
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));
+                        list.add(cb.equal(root.get("status").as(Integer.class),7));
+                        /*  list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));*/
                     } else if (deliverW.getStatus() == 1) {
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
-                        list.add(cb.lessThan(root.get("status").as(Integer.class), 7));
+                        list.add(cb.equal(root.get("status").as(Integer.class),6));
+                      /*  list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 7));*/
+                    }else if(deliverW.getStatus() == 3){
+                        list.add(cb.equal(root.get("status").as(Integer.class),5));
+                        /*list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));*/
                     }
                 } else {
                     list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
