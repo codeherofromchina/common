@@ -61,10 +61,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
-        if (projectDao.countByProjectName(project.getProjectName()) > 0) {
+        long nameCount = projectDao.countByProjectName(project.getProjectName());
+       /* if (nameCount > 0) {
             throw new Exception("项目名称已存在");
+        }*/
+        if (project.getProjectStatus().equals("SUBMIT") && project.getProjectStatus().equals("HASMANAGER") && project.getProjectStatus().equals("EXECUTING")) {
+            project.copyProjectDesc(projectUpdate);
         }
-        project.copyProjectDesc(projectUpdate);
         projectUpdate.setUpdateTime(new Date());
         Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         if (statusEnum != Project.ProjectStatusEnum.SUBMIT) {
@@ -78,10 +81,8 @@ public class ProjectServiceImpl implements ProjectService {
                     }
             );
             order.setStatus(3);
-        } else {
-            projectUpdate.setProjectStatus(project.getProjectStatus());
         }
-        projectDao.saveAndFlush(projectUpdate);
+        projectDao.save(projectUpdate);
         return true;
     }
 
