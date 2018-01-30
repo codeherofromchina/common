@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.PGoods;
@@ -78,7 +79,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         final Date now = new Date();
 
         // 基本信息设置
-        inspectApply.setInspectApplyNo(RandomStringUtils.randomAlphanumeric(32));
         inspectApply.setPubStatus(inspectApply.getStatus());
         inspectApply.setDepartment(purch.getDepartment()); // 下发部门
         inspectApply.setPurchaseName(purch.getAgentName()); // 采购经办人
@@ -151,6 +151,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             // 厂家直接发货且是提交，则直接设置为合格状态
             inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
         }
+        // 设置报检单号
+        String lastApplyNo = inspectApplyDao.findLastApplyNo();
+        inspectApply.setInspectApplyNo(StringUtil.genInsepctApplyNo(lastApplyNo));
         // 保存报检单信息
         inspectApplyDao.save(inspectApply);
         // 推送数据到入库质检中

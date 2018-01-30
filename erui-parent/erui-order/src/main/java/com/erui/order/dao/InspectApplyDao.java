@@ -3,6 +3,7 @@ package com.erui.order.dao;
 import com.erui.order.entity.InspectApply;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
 import java.util.List;
@@ -26,4 +27,7 @@ public interface InspectApplyDao extends JpaRepository<InspectApply, Serializabl
     List<InspectApply> findByParentIdOrderByIdAsc(Integer id);
 
     InspectApply findByParentIdAndPubStatusAndStatus(Integer parentId, int pubStatus, int status);
+
+    @Query(value = "select t.inspect_apply_no from inspect_apply t order by t.id desc LIMIT 1",nativeQuery = true)
+    String findLastApplyNo();
 }
