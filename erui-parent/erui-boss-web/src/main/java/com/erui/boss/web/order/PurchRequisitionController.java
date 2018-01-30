@@ -38,7 +38,7 @@ public class PurchRequisitionController {
         PurchRequisition purchRequisition = purchRequisitionService.findById(map.get("id"), map.get("orderId"));
         if (purchRequisition != null) {
             purchRequisition.setProject(null);
-            purchRequisition.getGoodsList().iterator().next().setOrder(null);
+            //purchRequisition.getGoodsList().iterator().next().setOrder(null);
             return new Result<>(purchRequisition);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
