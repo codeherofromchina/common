@@ -34,6 +34,8 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Autowired
     private PurchDao purchDao;
     @Autowired
+    private GoodsDao goodsDao;
+    @Autowired
     private InstockDao instockDao;
     @Autowired
     private PurchGoodsDao purchGoodsDao;
@@ -263,6 +265,16 @@ public class InspectReportServiceImpl implements InspectReportService {
                 PurchGoods purchGoods = applyGoods.getPurchGoods();
                 purchGoods.setGoodNum(purchGoods.getGoodNum() + qualifiedNum);
                 purchGoodsDao.save(purchGoods);
+
+                Goods goods = purchGoods.getGoods();
+                if (goods.getCheckUerId() == null) {
+                    goods.setCheckUerId(dbInspectReport.getCheckUserId());
+                }
+                if (goods.getCheckDate() == null) {
+                    goods.setCheckDate(dbInspectReport.getCheckDate());
+                }
+
+                goodsDao.save(goods);
             }
         }
 

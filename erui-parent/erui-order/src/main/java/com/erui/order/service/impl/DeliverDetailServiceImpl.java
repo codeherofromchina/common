@@ -2,10 +2,7 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.DeliverConsignGoodsDao;
-import com.erui.order.dao.DeliverDetailDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.DeliverD;
@@ -54,6 +51,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Autowired
     DeliverConsignGoodsDao deliverConsignGoodsDao;
+
+    @Autowired
+    GoodsDao goodsDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -258,14 +258,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverW.getLogisticsDate() != null) {
                     list.add(cb.equal(root.get("logisticsDate").as(Date.class), deliverW.getLogisticsDate()));
                 }
-                //根据状态
+                //根据状态    status:   1：待执行 5     2:执行中  6       3：已完成 7
                 if (deliverW.getStatus() != null) {
-                    if (deliverW.getStatus() == 2) {
-                      /*  list.add(cb.equal(root.get("status").as(Integer.class),deliverW.getStatus()));*/
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));
-                    } else if (deliverW.getStatus() == 1) {
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
-                        list.add(cb.lessThan(root.get("status").as(Integer.class), 7));
+                    if (deliverW.getStatus() == 1) {
+                        list.add(cb.equal(root.get("status").as(Integer.class),5));
+                        /*  list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));*/
+                    } else if (deliverW.getStatus() == 2) {
+                        list.add(cb.equal(root.get("status").as(Integer.class),6));
+                      /*  list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 7));*/
+                    }else if(deliverW.getStatus() == 3){
+                        list.add(cb.equal(root.get("status").as(Integer.class),7));
+                        /*list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));*/
                     }
                 } else {
                     list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
@@ -549,7 +553,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 goods.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
             }
             if (deliverDetail.getStatus() == 7){
-                one.setAccomplishDate(new Date());
+                Date date = new Date();
+                one.setAccomplishDate(date);
+                List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+                for (DeliverConsignGoods deliverConsignGoodss :deliverConsignGoodsList1){
+                    Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId());
+                    one1.setAccomplishDate(date);
+                    goodsDao.saveAndFlush(one1);
+                }
+
             }
 
 

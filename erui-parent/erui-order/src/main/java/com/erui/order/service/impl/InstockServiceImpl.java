@@ -3,12 +3,10 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
-import com.erui.order.service.AreaService;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InstockService;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +18,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -200,13 +197,21 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setStatus(instock.getStatus());
         dbInstock.setDepartment(instock.getDepartment());
 
+        List<InstockGoods> instockGoodsList = dbInstock.getInstockGoodsList();
+        for (InstockGoods instockGoods : instockGoodsList){
+            Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
+            one.setInstockDate(dbInstock.getInstockDate());
+            goodsDao.saveAndFlush(one);
+        }
+
+
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
         dbInstock.setAttachmentList(attachments);
 
 
         // 处理商品信息
-        Map<Integer, InstockGoods> instockGoodsMap = dbInstock.getInstockGoodsList().parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
+        Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
             if (instockGoods.getInstockNum() == null || StringUtils.isBlank(instockGoods.getInstockStock())) {
                 return false;

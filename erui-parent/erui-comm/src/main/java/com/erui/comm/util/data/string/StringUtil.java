@@ -614,6 +614,24 @@ public class StringUtil {
         return true;
     }
 
+    public static String genInsepctApplyNo(String oldInspectApplyNo) {
+            String prefix = "ERJ" + DateUtil.format("yyyy", new Date());
+            String beginNumStr = "0001";
+            if (StringUtils.isNotBlank(oldInspectApplyNo) && oldInspectApplyNo.length() == 11 &&
+                    (oldInspectApplyNo.substring(0, 7).compareTo(prefix) >= 0 )) {
+                String seq = oldInspectApplyNo.substring(3);
+                long seqLong = Long.parseLong(seq);
+                seqLong += 1;
+                // 末尾从0001开始
+                if (seqLong % 10000 == 0) {
+                    seqLong += 1;
+                }
+                return "ERJ" + String.valueOf(seqLong);
+            }
+            return prefix + beginNumStr;
+
+    }
+
     // 生成
     public static String genDeliverConsignNo(String oldDeliverConsignNo) {
         String prefix = "CKFH" + DateUtil.format("yyyyMM", new Date());
@@ -719,5 +737,6 @@ public class StringUtil {
             return "A";
         }
     }
+
 
 }
