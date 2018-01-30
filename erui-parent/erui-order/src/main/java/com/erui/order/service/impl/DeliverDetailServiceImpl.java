@@ -2,10 +2,7 @@ package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.DeliverConsignGoodsDao;
-import com.erui.order.dao.DeliverDetailDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.DeliverD;
@@ -54,6 +51,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Autowired
     DeliverConsignGoodsDao deliverConsignGoodsDao;
+
+    @Autowired
+    GoodsDao goodsDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -553,7 +553,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 goods.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
             }
             if (deliverDetail.getStatus() == 7){
-                one.setAccomplishDate(new Date());
+                Date date = new Date();
+                one.setAccomplishDate(date);
+                List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+                for (DeliverConsignGoods deliverConsignGoodss :deliverConsignGoodsList1){
+                    Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId());
+                    one1.setAccomplishDate(date);
+                    goodsDao.saveAndFlush(one1);
+                }
+
             }
 
 
