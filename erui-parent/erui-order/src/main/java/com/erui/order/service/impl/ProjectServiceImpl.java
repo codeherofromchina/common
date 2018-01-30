@@ -61,7 +61,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
-        if (projectDao.countByProjectName(project.getContractNo()) > 0) {
+        if (projectDao.countByProjectName(project.getProjectName()) > 0) {
             throw new Exception("项目名称已存在");
         }
         project.copyProjectDesc(projectUpdate);
