@@ -99,7 +99,7 @@ public class ProjectController {
             } catch (Exception ex) {
                 logger.error("办理项目操作失败：{}", project, ex);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg("办理项目操作失败：{}");
+                result.setMsg(ex.getMessage());
             }
         } else if (StringUtils.equals(project.getProjectStatus(), "HASMANAGER")) {
             if (project.getStartDate() == null) {
@@ -142,7 +142,7 @@ public class ProjectController {
                 } catch (Exception ex) {
                     logger.error("办理项目操作失败：{}", project, ex);
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("办理项目操作失败：{}");
+                    result.setMsg(ex.getMessage());
                 }
             }
         } else if (StringUtils.equals(project.getProjectStatus(), "EXECUTING")) {
@@ -198,7 +198,7 @@ public class ProjectController {
                 } catch (Exception ex) {
                     logger.error("办理项目操作失败：{}", project, ex);
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("办理项目操作失败：{}");
+                    result.setMsg(ex.getMessage());
                 }
             }
         }
