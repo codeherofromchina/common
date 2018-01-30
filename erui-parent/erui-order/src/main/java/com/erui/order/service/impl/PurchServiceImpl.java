@@ -273,6 +273,11 @@ public class PurchServiceImpl implements PurchService {
     public boolean insert(Purch purch) throws Exception {
         Date now = new Date();
 
+        Long count = purchDao.findCountByPurchNo(purch.getPurchNo());
+        if (count != null && count > 0) {
+            throw new Exception("采购合同号已经存在");
+        }
+
         // 设置基础数据
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));

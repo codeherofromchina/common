@@ -98,13 +98,19 @@ public class PurchController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Purch purch) {
         boolean continueFlag = true;
+        String errorMsg = null;
         // 状态检查
         Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
         // 不是提交也不是保存
         if (statusEnum != Purch.StatusEnum.BEING && statusEnum != Purch.StatusEnum.READY) {
             continueFlag = false;
         }
-        String errorMsg = null;
+        // 查看采购号是否存在
+        if (StringUtils.isBlank(purch.getPurchNo())) {
+            continueFlag = false;
+            errorMsg = "采购合同号不能为空";
+        }
+
 
         if (continueFlag) {
             try {
