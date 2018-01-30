@@ -71,7 +71,7 @@ public class InspectApplyController {
         if (inspectApply == null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("不存在的报检单");
         }
-        if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && inspectApply.getPubStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
+        if (inspectApply.getStatus() == InspectApply.StatusEnum.UNQUALIFIED.getCode() && inspectApply.getPubStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
             if (inspectApply.isHistory()) {
                 // 返回子报检失败信息重新质检
                 inspectApply = inspectApplyService.findSonFailDetail(id);
