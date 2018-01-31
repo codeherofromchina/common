@@ -65,7 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
        /* if (nameCount > 0) {
             throw new Exception("项目名称已存在");
         }*/
-        if (project.getProjectStatus().equals("SUBMIT") && project.getProjectStatus().equals("HASMANAGER") && project.getProjectStatus().equals("EXECUTING")) {
+        if (project.getProjectStatus().equals("SUBMIT") || project.getProjectStatus().equals("HASMANAGER") || project.getProjectStatus().equals("EXECUTING")) {
             project.copyProjectDesc(projectUpdate);
         }
         projectUpdate.setUpdateTime(new Date());
