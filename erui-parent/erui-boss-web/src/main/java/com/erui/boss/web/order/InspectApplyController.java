@@ -134,12 +134,6 @@ public class InspectApplyController {
                 map.put("unqualified", vo.getUnqualified()); // 不合格数
                 map.put("unqualifiedDesc", vo.getUnqualifiedDesc()); // 不合格描述
                 map.put("conclusion", vo.getUnqualified() > 0 ? "不合格" : "合格"); // 商品质检结果结论
-            } else {
-                // 随意设置的值
-                map.put("samples", -1); // 抽样数
-                map.put("unqualified", -1); // 不合格数
-                map.put("unqualifiedDesc", "--"); // 不合格描述
-                map.put("conclusion", "--"); // 商品质检结果结论
             }
             map.put("unit", goods.getUnit());
             map.put("nonTaxPrice", purchGoods.getNonTaxPrice());

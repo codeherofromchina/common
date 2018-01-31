@@ -6,8 +6,10 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
 import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.*;
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
+import com.erui.order.entity.OrderLog;
+import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
@@ -24,13 +26,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
-import javax.validation.constraints.Null;
-import java.lang.reflect.Array;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 /**
  * Created by wangxiaodan on 2017/12/11.

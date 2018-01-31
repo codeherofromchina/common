@@ -2,18 +2,26 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.*;
+import com.erui.order.entity.Goods;
+import com.erui.order.entity.Order;
+import com.erui.order.entity.Purch;
+import com.erui.order.entity.PurchGoods;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -189,9 +197,8 @@ public class PurchController {
             } else {
                 data.put("inspected",Boolean.TRUE);
             }
-            List<Map<String, Object>> list = null;
             if (!(Boolean) data.get("inspected")) {
-                list = purchGoodsList.stream().filter(vo -> {
+                List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
                     // 只要已报检数量小于采购数量的商品显示
                     return vo.getInspectNum() < vo.getPurchaseNum();
                 }).map(vo -> {
@@ -220,11 +227,8 @@ public class PurchController {
                     map.put("purchaseRemark", vo.getPurchaseRemark());
                     return map;
                 }).collect(Collectors.toList());
-            } else {
-                list = new ArrayList<>();
+                data.put("goodsList", list);
             }
-            data.put("goodsList", list);
-
 
             return new Result<>(data);
         }
