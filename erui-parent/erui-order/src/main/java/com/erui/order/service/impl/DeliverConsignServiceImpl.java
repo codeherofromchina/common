@@ -7,6 +7,7 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
+import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,10 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +32,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private OrderDao orderDao;
-
+    @Autowired
+    private OrderService orderService;
     @Autowired
     private GoodsDao goodsDao;
 
@@ -54,7 +53,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateDeliverConsign(DeliverConsign deliverConsign) {
+    public boolean updateDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = deliverConsignDao.findOne(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
@@ -66,32 +65,55 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignUpdate.setRemarks(deliverConsign.getRemarks());
         deliverConsignUpdate.setStatus(deliverConsign.getStatus());
-        deliverConsignUpdate.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
+
         deliverConsignUpdate.setAttachmentSet(deliverConsign.getAttachmentSet());
+        Map<Integer, DeliverConsignGoods> oldDcGoodsMap = deliverConsignUpdate.getDeliverConsignGoodsSet().parallelStream().collect(Collectors.toMap(DeliverConsignGoods::getId, vo -> vo));
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        deliverConsign.getDeliverConsignGoodsSet().parallelStream().forEach(dcGoods -> {
+        Set<Integer> orderIds = new HashSet<>();
+        for (DeliverConsignGoods dcGoods : deliverConsign.getDeliverConsignGoodsSet()) {
+            DeliverConsignGoods deliverConsignGoods = oldDcGoodsMap.remove(dcGoods.getId());
+            int oldSendNum = 0;
+            if (deliverConsignGoods == null) {
+                dcGoods.setId(null);
+            } else {
+                oldSendNum = deliverConsignGoods.getSendNum();
+            }
             Integer gid = dcGoods.getgId();
             Goods goods = goodsList.get(gid);
             //商品需增加发货数量 = 要修改的数量-原发货数量
             //Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
-            if (goods.getOutstockNum() < goods.getContractGoodsNum()) {
+            if (goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum() < goods.getContractGoodsNum()) {
                 dcGoods.setGoods(goods);
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
                     goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+                    orderIds.add(goods.getOrder().getId());
                 }
+                goods.setOutstockApplyNum(goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum());
+                goodsDao.save(goods);
+            } else {
+                throw new Exception("发货总数量超过合同数量");
             }
-        });
-        if (deliverConsign.getStatus() == 3) {
-            goodsDao.save(goodsList.values());
         }
+        deliverConsignUpdate.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
+        // 被删除的发货通知单商品
+        for (DeliverConsignGoods dcGoods : oldDcGoodsMap.values()) {
+            Goods goods = dcGoods.getGoods();
+            goods.setOutstockApplyNum(goods.getOutstockApplyNum() - dcGoods.getSendNum());
+            goodsDao.save(goods);
+        }
+//        goodsDao.save(goodsList.values());
         deliverConsignDao.saveAndFlush(deliverConsignUpdate);
+        if (deliverConsign.getStatus() == 3) {
+            orderService.updateOrderDeliverConsignC(orderIds);
+        }
         return true;
     }
 
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addDeliverConsign(DeliverConsign deliverConsign) {
+    public boolean addDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         String deliverConsignNo = deliverConsignDao.findDeliverConsignNo();
@@ -113,21 +135,27 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
         deliverConsignAdd.setAttachmentSet(deliverConsign.getAttachmentSet());
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        deliverConsign.getDeliverConsignGoodsSet().parallelStream().forEach(dcGoods -> {
+        Set<Integer> orderIds = new HashSet<>();
+        for (DeliverConsignGoods dcGoods : deliverConsign.getDeliverConsignGoodsSet()) {
             Integer gid = dcGoods.getgId();
             Goods goods = goodsList.get(gid);
-            if (goods.getOutstockNum() < goods.getContractGoodsNum()) {
+            if (goods.getOutstockApplyNum() + dcGoods.getSendNum() <= goods.getContractGoodsNum()) {
                 dcGoods.setGoods(goods);
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
                     goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
+                    orderIds.add(goods.getOrder().getId());
                 }
+                goods.setOutstockApplyNum(goods.getOutstockApplyNum() + dcGoods.getSendNum());
+                goodsDao.save(goods);
+            } else {
+                throw new Exception("发货总数量超过合同数量");
             }
-        });
-        if (deliverConsign.getStatus() == 3) {
-            goodsDao.save(goodsList.values());
         }
         deliverConsignDao.save(deliverConsignAdd);
+        if (deliverConsign.getStatus() == 3) {
+            orderService.updateOrderDeliverConsignC(orderIds);
+        }
         return true;
     }
 
