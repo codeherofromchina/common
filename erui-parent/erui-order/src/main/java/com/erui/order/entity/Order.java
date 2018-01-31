@@ -126,7 +126,7 @@ public class Order {
     private String currencyBn;
 
     @Column(name = "tax_bearing")
-    private Boolean taxBearing;
+    private Integer taxBearing;
 
     @Column(name = "payment_mode_bn")
     private String paymentModeBn;
@@ -553,11 +553,11 @@ public class Order {
         this.currencyBn = currencyBn;
     }
 
-    public Boolean getTaxBearing() {
+    public Integer getTaxBearing() {
         return taxBearing;
     }
 
-    public void setTaxBearing(Boolean taxBearing) {
+    public void setTaxBearing(Integer taxBearing) {
         this.taxBearing = taxBearing;
     }
 
