@@ -102,7 +102,7 @@ public class OrderController {
                         return result;
                     }
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg(ResultStatusEnum.FAIL.getMsg());
+                    result.setMsg(ex.getMessage());
                 }
             }
         } else if (addOrderVo.getStatus() == 2) {
@@ -200,7 +200,7 @@ public class OrderController {
                         return result;
                     }
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg(ResultStatusEnum.FAIL.getMsg());
+                    result.setMsg(ex.getMessage());
                 }
             }
         }
