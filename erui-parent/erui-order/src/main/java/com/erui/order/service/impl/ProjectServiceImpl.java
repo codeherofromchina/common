@@ -72,7 +72,8 @@ public class ProjectServiceImpl implements ProjectService {
         Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         if (statusEnum != Project.ProjectStatusEnum.SUBMIT) {
             projectUpdate.setProjectStatus(project.getProjectStatus());
-        } else if (statusEnum == Project.ProjectStatusEnum.EXECUTING) {
+        }
+        if (statusEnum.equals(Project.ProjectStatusEnum.EXECUTING) ) {
             Order order = projectUpdate.getOrder();
             order.getGoodsList().forEach(gd -> {
                         gd.setStartDate(projectUpdate.getStartDate());
