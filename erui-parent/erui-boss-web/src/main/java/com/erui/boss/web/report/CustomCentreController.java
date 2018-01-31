@@ -338,8 +338,6 @@ public class CustomCentreController {
             return new Result<>(ResultStatusEnum.FAIL);
         }
 //        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
-
-
         int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate,
                 new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
                 0, 0, "", "");//已完成询单数量
@@ -1403,7 +1401,6 @@ public class CustomCentreController {
     @ResponseBody
     public Object inqDetailRtnPie(@RequestBody Map<String, Object> map) throws Exception {
         Result<Object> result = new Result<>();
-        InqDetailPievo inqDetailPievo = new InqDetailPievo();
         if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area")) {
             result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
             return result;
@@ -1510,7 +1507,7 @@ public class CustomCentreController {
      * @param map
      * @return
      */
-    @RequestMapping(value = "/inqDetailRtnDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
+        @RequestMapping(value = "/inqDetailRtnDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
     public Object inqDetailRtnDetail(@RequestBody Map<String, Object> map) throws Exception {
         Result<Object> result = new Result<>();
@@ -1563,17 +1560,22 @@ public class CustomCentreController {
         }).reduce(0, (a, b) -> a + b);
         for (Map<String, Object> m : orgdataList) {
             if (orgTotalCount != null && orgTotalCount > 0) {
-                if (!orgData.containsKey(m.get("org").toString())) {
+                String standardOrg = getStandardOrg(m.get("org").toString());
+                String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                if (!orgData.containsKey(standardOrg)) {
                     Map<String, Object> mm = new HashMap<>();
-                    mm.put("org", m.get("org").toString());
-                    String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                    mm.put("org", standardOrg);
                     mm.put(reasonEn, Integer.valueOf(m.get("total").toString()));
-                    orgData.put(String.valueOf(m.get("org")), mm);
+                    orgData.put(standardOrg, mm);
                 } else {
-                    Map<String, Object> orgMap = orgData.get(m.get("org").toString());
-                    String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
+                    Map<String, Object> orgMap = orgData.get(standardOrg);
                     if (StringUtil.isNotBlank(reasonEn)) {
-                        orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                        if(orgMap.containsKey(reasonEn)) {
+                            int total = Integer.parseInt(orgMap.get(reasonEn).toString());
+                            orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()) + total);
+                        }else {
+                            orgMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                        }
                     }
                 }
             }
