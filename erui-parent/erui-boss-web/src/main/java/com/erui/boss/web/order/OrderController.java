@@ -97,12 +97,12 @@ public class OrderController {
                 } catch (Exception ex) {
                     logger.error("订单操作失败：{}", addOrderVo, ex);
                     if (ex instanceof DataIntegrityViolationException) {
-                        result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
-                        result.setMsg("数据校验异常");
+                        result.setCode(ResultStatusEnum.FAIL.getCode());
+                        result.setMsg(ex.getMessage());
                         return result;
                     }
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg(ResultStatusEnum.FAIL.getMsg());
+                    result.setMsg(ex.getMessage());
                 }
             }
         } else if (addOrderVo.getStatus() == 2) {
@@ -196,11 +196,11 @@ public class OrderController {
                     logger.error("订单操作失败：{}", addOrderVo, ex);
                     if (ex instanceof DataIntegrityViolationException) {
                         result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
-                        result.setMsg("数据校验异常");
+                        result.setMsg(ex.getMessage());
                         return result;
                     }
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg(ResultStatusEnum.FAIL.getMsg());
+                    result.setMsg(ex.getMessage());
                 }
             }
         }

@@ -112,6 +112,7 @@ public class Project {
     private String businessUnitName;
 
     private String region;
+    private String country;
     private String remarks;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -124,6 +125,14 @@ public class Project {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public Order getOrder() {
