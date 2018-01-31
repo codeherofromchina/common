@@ -189,8 +189,9 @@ public class PurchController {
             } else {
                 data.put("inspected",Boolean.TRUE);
             }
+            List<Map<String, Object>> list = null;
             if (!(Boolean) data.get("inspected")) {
-                List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
+                list = purchGoodsList.stream().filter(vo -> {
                     // 只要已报检数量小于采购数量的商品显示
                     return vo.getInspectNum() < vo.getPurchaseNum();
                 }).map(vo -> {
@@ -219,8 +220,11 @@ public class PurchController {
                     map.put("purchaseRemark", vo.getPurchaseRemark());
                     return map;
                 }).collect(Collectors.toList());
-                data.put("goodsList", list);
+            } else {
+                list = new ArrayList<>();
             }
+            data.put("goodsList", list);
+
 
             return new Result<>(data);
         }
