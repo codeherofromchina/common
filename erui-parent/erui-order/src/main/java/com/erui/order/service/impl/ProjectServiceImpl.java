@@ -10,14 +10,12 @@ import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.annotation.SuppressAjWarnings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
@@ -65,7 +63,7 @@ public class ProjectServiceImpl implements ProjectService {
        /* if (nameCount > 0) {
             throw new Exception("项目名称已存在");
         }*/
-        if (project.getProjectStatus().equals("SUBMIT") && project.getProjectStatus().equals("HASMANAGER") && project.getProjectStatus().equals("EXECUTING")) {
+        if (project.getProjectStatus().equals("SUBMIT") || project.getProjectStatus().equals("HASMANAGER") || project.getProjectStatus().equals("EXECUTING")) {
             project.copyProjectDesc(projectUpdate);
         }
         projectUpdate.setUpdateTime(new Date());

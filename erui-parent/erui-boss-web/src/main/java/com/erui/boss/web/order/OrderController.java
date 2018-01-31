@@ -7,9 +7,7 @@ import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -215,6 +212,14 @@ public class OrderController {
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
         Order order = orderService.findById(map.get("id"));
+        if (order != null) {
+            if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo ->  vo.getOutstockApplyNum() < vo.getContractGoodsNum());
+                order.setDeliverConsignC(flag);
+            } else {
+                order.setDeliverConsignC(Boolean.FALSE);
+            }
+        }
         return new Result<>(order);
     }
 

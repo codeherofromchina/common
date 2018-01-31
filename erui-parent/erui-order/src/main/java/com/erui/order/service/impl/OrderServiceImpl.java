@@ -6,8 +6,10 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
 import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.*;
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
+import com.erui.order.entity.OrderLog;
+import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
@@ -24,13 +26,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
-import javax.validation.constraints.Null;
-import java.lang.reflect.Array;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -128,6 +129,23 @@ public class OrderServiceImpl implements OrderService {
                 return cb.and(predicates);
             }
         }, pageRequest);
+
+        if (pageList.hasContent()) {
+            pageList.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods ->  goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    vo.setDeliverConsignC(flag);
+                } else {
+                    vo.setDeliverConsignC(Boolean.FALSE);
+                }
+                vo.setGoodsList(null);
+            });
+        }
+
+
+
         return pageList;
     }
 
@@ -256,7 +274,6 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockNum(0);
             goods.setExchanged(false);
             goodsList.add(goods);
-
         }
         order.setGoodsList(goodsList);
         order.setOrderPayments(addOrderVo.getContractDesc());
@@ -345,4 +362,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Override
+    public void updateOrderDeliverConsignC(Set<Integer> orderId) {
+        if (orderId!= null && orderId.size() > 0) {
+            List<Order> orderList = new ArrayList<>();
+            for (Integer id : orderId) {
+                Order order = orderDao.findOne(id);
+                boolean flag = order.getGoodsList().parallelStream().allMatch(vo -> vo.getContractGoodsNum() == vo.getOutstockNum());
+                if (flag) {
+                    order.setDeliverConsignC(Boolean.FALSE);
+                    orderList.add(order);
+                }
+            }
+            orderDao.save(orderList);
+        }
+    }
 }

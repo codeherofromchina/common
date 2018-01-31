@@ -114,7 +114,7 @@ public class AddOrderVo {
     private String currencyBn;
 
     //是否含税
-    private Boolean taxBearing;
+    private Integer taxBearing;
 
     //收款方式
     private String paymentModeBn;
@@ -455,11 +455,11 @@ public class AddOrderVo {
         this.currencyBn = currencyBn;
     }
 
-    public Boolean getTaxBearing() {
+    public Integer getTaxBearing() {
         return taxBearing;
     }
 
-    public void setTaxBearing(Boolean taxBearing) {
+    public void setTaxBearing(Integer taxBearing) {
         this.taxBearing = taxBearing;
     }
 
