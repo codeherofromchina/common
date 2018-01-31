@@ -7,10 +7,17 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -185,42 +192,32 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     @Transactional(readOnly = true)
     public List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
+        List<DeliverConsign> page = deliverConsignDao.findAll(new Specification<DeliverConsign>() {
+            @Override
+            public Predicate toPredicate(Root<DeliverConsign> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 根据国家查询
+                String[] country = null;
+                if (StringUtils.isNotBlank(deliverNotice.getCountry())) {
+                    country = deliverNotice.getCountry().split(",");
+                }
+                if (country != null) {
+                    list.add(root.get("country").in(country));
+                }
+                // 根据出口通知单号
+                if (StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
+                    list.add(cb.equal(root.get("deliverConsignNo").as(String.class), deliverNotice.getDeliverConsignNo()));
+                }
+                list.add(cb.equal(root.get("status").as(Integer.class), 3));    //已提交
+                list.add(cb.equal(root.get("deliverYn").as(Integer.class), 1)); //未删除
 
-        if (deliverNotice.getId() == null) {
-            if (StringUtil.isNotBlank(deliverNotice.getCountry()) && StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1, deliverNotice.getCountry(), deliverNotice.getDeliverConsignNo());
-                return lsit;
-            }else if(StringUtil.isNotBlank(deliverNotice.getCountry()) || StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
-                if(StringUtil.isNotBlank(deliverNotice.getCountry())){
-                    List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountry(3, 1, deliverNotice.getCountry());
-                    return lsit;
-                }else if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
-                    List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1, deliverNotice.getDeliverConsignNo());
-                    return lsit;
-                }
-            } else {
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1, deliverNotice.getDeliverConsignNo());
-                return lsit;
-            }
-        } else {
-            if (StringUtil.isNotBlank(deliverNotice.getCountry()) && StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(3, 1, deliverNotice.getCountry(), deliverNotice.getDeliverConsignNo()); //获取未选择
-                DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
-                List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
-                Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
-                int i = 0;
-                for (DeliverConsign deliverConsign : deliverConsigns) {
-                    arr[i] = (deliverConsign.getId());
-                    i++;
-                }
-                List<DeliverConsign> lists = deliverConsignDao.findByIdIn(arr);
-                for (DeliverConsign deliverConsign : lists) {
-                    lsit.add(deliverConsign);
-                }
-                return lsit;
-            }else if(StringUtil.isNotBlank(deliverNotice.getCountry()) || StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
-                if(StringUtil.isNotBlank(deliverNotice.getCountry())){
-                    List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndCountry(3, 1, deliverNotice.getCountry());
+
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+
+                Predicate result = cb.and(predicates);
+                if (deliverNotice.getId() != null) {
                     DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
                     List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
                     Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
@@ -229,46 +226,17 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         arr[i] = (deliverConsign.getId());
                         i++;
                     }
-                    List<DeliverConsign> lists = deliverConsignDao.findByIdIn(arr);
-                    for (DeliverConsign deliverConsign : lists) {
-                        lsit.add(deliverConsign);
-                    }
-                    return lsit;
-                }else if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
-                    List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1, deliverNotice.getDeliverConsignNo());
-                    DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
-                    List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
-                    Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
-                    int i = 0;
-                    for (DeliverConsign deliverConsign : deliverConsigns) {
-                        arr[i] = (deliverConsign.getId());
-                        i++;
-                    }
-                    List<DeliverConsign> lists = deliverConsignDao.findByIdIn(arr);
-                    for (DeliverConsign deliverConsign : lists) {
-                        lsit.add(deliverConsign);
-                    }
-                    return lsit;
+                    return cb.or(result,root.get("id").in(arr));
+                } else {
+                   return result;
                 }
-            } else {
-                List<DeliverConsign> lsit = deliverConsignDao.findByStatusAndDeliverYnAndDeliverConsignNo(3, 1, deliverNotice.getDeliverConsignNo());  //获取未选择
-                DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
-                List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
-                Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
-                int i = 0;
-                for (DeliverConsign deliverConsign : deliverConsigns) {
-                    arr[i] = (deliverConsign.getId());
-                    i++;
-                }
-                List<DeliverConsign> lists = deliverConsignDao.findByIdIn(arr);
-                for (DeliverConsign deliverConsign : lists) {
-                    lsit.add(deliverConsign);
-                }
-                return lsit;
-            }
 
-        }
-return null;
-    }
+            }
+        });
+
+        return page;
+
+}
+
 
 }
