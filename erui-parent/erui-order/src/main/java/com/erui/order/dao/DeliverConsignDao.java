@@ -25,5 +25,7 @@ public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Seriali
     List<DeliverConsign> findByStatusAndDeliverYnAndCountryAndDeliverConsignNo(int i, int i1, String country, String deliverConsignNo);
 
     List<DeliverConsign> findByStatusAndDeliverYnAndDeliverConsignNo(int i, int i1, String deliverConsignNo);
+
+    List<DeliverConsign> findByStatusAndDeliverYnAndCountry(int i, int i1, String country);
 }
 

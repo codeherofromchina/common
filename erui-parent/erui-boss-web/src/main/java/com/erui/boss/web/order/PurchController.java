@@ -5,6 +5,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.*;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,36 +181,50 @@ public class PurchController {
             data.put("currencyBn", purch.getCurrencyBn()); // 币种
 
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
-            List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
-                // 只要已报检数量小于采购数量的商品显示
-                return vo.getInspectNum() < vo.getPurchaseNum();
-            }).map(vo -> {
-                Map<String, Object> map = new HashMap<>();
-                Goods goods = vo.getGoods();
-                Order order = goods.getOrder();
-                map.put("id", goods.getId());
-                map.put("purchGid", vo.getId());
-                map.put("contractNo", goods.getContractNo());
-                map.put("projectNo", goods.getProjectNo());
-                map.put("sku", goods.getSku());
-                map.put("proType", goods.getProType());
-                map.put("nameEn", goods.getNameEn());
-                map.put("nameZh", goods.getNameZh());
-                map.put("brand", goods.getBrand());
-                map.put("model", goods.getModel());
-                map.put("execCoName", order.getExecCoName()); // 执行分公司
-                map.put("purchaseNum", vo.getPurchaseNum());
-                map.put("hasInspectNum", vo.getPreInspectNum());
-                map.put("inspectNum", vo.getPurchaseNum() - vo.getPreInspectNum()); // 报检数量
-                map.put("unit", goods.getUnit());
-                map.put("nonTaxPrice", vo.getNonTaxPrice());
-                map.put("taxPrice", vo.getTaxPrice());
-                map.put("purchasePrice", vo.getPurchasePrice());
-                map.put("totalPrice", vo.getTotalPrice());
-                map.put("purchaseRemark", vo.getPurchaseRemark());
-                return map;
-            }).collect(Collectors.toList());
+
+            if (purchGoodsList.stream().anyMatch(purchGoods -> {
+                return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
+            })) {
+                data.put("inspected",Boolean.FALSE);
+            } else {
+                data.put("inspected",Boolean.TRUE);
+            }
+            List<Map<String, Object>> list = null;
+            if (!(Boolean) data.get("inspected")) {
+                list = purchGoodsList.stream().filter(vo -> {
+                    // 只要已报检数量小于采购数量的商品显示
+                    return vo.getInspectNum() < vo.getPurchaseNum();
+                }).map(vo -> {
+                    Map<String, Object> map = new HashMap<>();
+                    Goods goods = vo.getGoods();
+                    Order order = goods.getOrder();
+                    map.put("id", goods.getId());
+                    map.put("purchGid", vo.getId());
+                    map.put("contractNo", goods.getContractNo());
+                    map.put("projectNo", goods.getProjectNo());
+                    map.put("sku", goods.getSku());
+                    map.put("proType", goods.getProType());
+                    map.put("nameEn", goods.getNameEn());
+                    map.put("nameZh", goods.getNameZh());
+                    map.put("brand", goods.getBrand());
+                    map.put("model", goods.getModel());
+                    map.put("execCoName", order.getExecCoName()); // 执行分公司
+                    map.put("purchaseNum", vo.getPurchaseNum());
+                    map.put("hasInspectNum", vo.getPreInspectNum());
+                    map.put("inspectNum", vo.getPurchaseNum() - vo.getPreInspectNum()); // 报检数量
+                    map.put("unit", goods.getUnit());
+                    map.put("nonTaxPrice", vo.getNonTaxPrice());
+                    map.put("taxPrice", vo.getTaxPrice());
+                    map.put("purchasePrice", vo.getPurchasePrice());
+                    map.put("totalPrice", vo.getTotalPrice());
+                    map.put("purchaseRemark", vo.getPurchaseRemark());
+                    return map;
+                }).collect(Collectors.toList());
+            } else {
+                list = new ArrayList<>();
+            }
             data.put("goodsList", list);
+
 
             return new Result<>(data);
         }
