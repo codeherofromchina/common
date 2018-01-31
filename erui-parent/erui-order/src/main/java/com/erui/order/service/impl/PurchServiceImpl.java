@@ -141,6 +141,7 @@ public class PurchServiceImpl implements PurchService {
                     contractNoList.add(project.getContractNo());
                 });
                 map.put("id", purch.getId());
+                map.put("purchNo", purch.getPurchNo());
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
                 map.put("contractNos", StringUtils.join(contractNoList, ","));
                 map.put("agentName", purch.getAgentName());
