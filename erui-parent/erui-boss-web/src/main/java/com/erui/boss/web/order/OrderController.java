@@ -44,13 +44,7 @@ public class OrderController {
             return new Result<>(ResultStatusEnum.FAIL);
         }
         Page<Order> orderPage = orderService.findByPage(condition);
-        if (orderPage.hasContent()) {
-            orderPage.getContent().forEach(vo -> {
-                vo.setAttachmentSet(null);
-                vo.setOrderPayments(null);
-                vo.setGoodsList(null);
-            });
-        }
+
         return new Result<>(orderPage);
     }
 
@@ -215,6 +209,14 @@ public class OrderController {
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
         Order order = orderService.findById(map.get("id"));
+        if (order != null) {
+            if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo ->  vo.getOutstockApplyNum() < vo.getContractGoodsNum());
+                order.setDeliverConsignC(flag);
+            } else {
+                order.setDeliverConsignC(Boolean.FALSE);
+            }
+        }
         return new Result<>(order);
     }
 

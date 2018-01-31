@@ -40,7 +40,7 @@ public interface DeliverConsignService {
      * @param deliverConsign
      * @return
      */
-    boolean updateDeliverConsign(DeliverConsign deliverConsign);
+    boolean updateDeliverConsign(DeliverConsign deliverConsign) throws Exception;
 
     /**
      * 新增出口发货通知单
@@ -48,7 +48,7 @@ public interface DeliverConsignService {
      * @param deliverConsign
      * @return
      */
-    boolean addDeliverConsign(DeliverConsign deliverConsign);
+    boolean addDeliverConsign(DeliverConsign deliverConsign) throws Exception;
     /**
      * 根据订单id查找出口发货通知单
      *

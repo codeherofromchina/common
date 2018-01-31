@@ -128,6 +128,23 @@ public class OrderServiceImpl implements OrderService {
                 return cb.and(predicates);
             }
         }, pageRequest);
+
+        if (pageList.hasContent()) {
+            pageList.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods ->  goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    vo.setDeliverConsignC(flag);
+                } else {
+                    vo.setDeliverConsignC(Boolean.FALSE);
+                }
+                vo.setGoodsList(null);
+            });
+        }
+
+
+
         return pageList;
     }
 
@@ -256,7 +273,6 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockNum(0);
             goods.setExchanged(false);
             goodsList.add(goods);
-
         }
         order.setGoodsList(goodsList);
         order.setOrderPayments(addOrderVo.getContractDesc());
@@ -345,4 +361,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Override
+    public void updateOrderDeliverConsignC(Set<Integer> orderId) {
+        if (orderId!= null && orderId.size() > 0) {
+            List<Order> orderList = new ArrayList<>();
+            for (Integer id : orderId) {
+                Order order = orderDao.findOne(id);
+                boolean flag = order.getGoodsList().parallelStream().allMatch(vo -> vo.getContractGoodsNum() == vo.getOutstockNum());
+                if (flag) {
+                    order.setDeliverConsignC(Boolean.FALSE);
+                    orderList.add(order);
+                }
+            }
+            orderDao.save(orderList);
+        }
+    }
 }

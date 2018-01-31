@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 订单业务类
@@ -59,4 +60,7 @@ public interface OrderService {
      * @return
      */
     List<OrderLog> orderLog(Integer orderId);
+
+
+    void updateOrderDeliverConsignC(Set<Integer> orderId);
 }
