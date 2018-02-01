@@ -83,8 +83,16 @@ public class InstockServiceImpl implements InstockService {
                     }
                 }
                 // 仓库经办人
-                if (StringUtil.isNotBlank(condition.get("name"))) {
-                    list.add(cb.like(root.get("uname").as(String.class), "%" + condition.get("name") + "%"));
+                if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
+
+                    int wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
+
+                    Join<Instock,InspectReport> inspectReportRoot = root.join("inspectReport");
+                    Join<InspectReport,InspectApply> inspectApplyRoot = inspectReportRoot.join("inspectApply");
+                    Join<InspectApply, Purch> purchRoot = inspectApplyRoot.join("purch");
+                    Join<Project, Project> projectRoot = purchRoot.join("projects");
+                    list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), wareHouseman));
+
                 }
 
                 // 销售合同号 、 项目号查询
