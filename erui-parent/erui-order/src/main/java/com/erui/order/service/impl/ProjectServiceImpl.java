@@ -60,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
         Integer proNameId = projectDao.findIdByProjectName(project.getProjectName());
-        if (proNameId!= null && proNameId.intValue() != project.getId()) {
+        if (proNameId!= null && proNameId != project.getId()) {
             throw new Exception("项目名称已存在");
         }
         if (project.getProjectStatus().equals("SUBMIT") || project.getProjectStatus().equals("HASMANAGER") || project.getProjectStatus().equals("EXECUTING")) {
