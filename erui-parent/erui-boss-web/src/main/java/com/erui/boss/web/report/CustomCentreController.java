@@ -1169,7 +1169,7 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/inqDetailQuotePandent", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailQuotePandent(@RequestBody Map<String, String> map) throws Exception {
+    public Object inqDetailQuotePandent(@RequestBody Map<String, String> map){
 
         Result<Object> result = new Result<>();
 
@@ -1192,17 +1192,17 @@ public class CustomCentreController {
         //退回次数和平均退回次数
         int rejectCount = 0;//退回次数
         double avgRejectCount = 0d;//平均退回次数
-        List<Map<String, Object>> rejectData = inquiryService.selectRejectCount(startTime, endTime);
-        if (rejectData != null && rejectData.size() > 0) {
-            Map<String, Object> data = rejectData.get(0);
-            if (data != null) {
-                if (data.get("sumCount") != null) {
-                    rejectCount = Integer.parseInt(data.get("sumCount").toString());
-                }
-                if (data.get("avgCount") != null) {
-                    avgRejectCount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("avgCount").toString()), 1d);
+
+        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startTime, startTime, null, null);
+        if (CollectionUtils.isNotEmpty(dataList)) {
+            for (Map<String, Object> m : dataList) {
+                if (m.get("total") != null) {
+                    rejectCount += Integer.parseInt(m.get("total").toString());//退回次数
                 }
             }
+        }
+        if (rtnInqCount > 0) {
+            avgRejectCount = RateUtil.intChainRateTwo(rejectCount, rtnInqCount);
         }
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("rtnInqCount", rtnInqCount);
@@ -1256,7 +1256,7 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/inqDetailPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailPie(@RequestBody Map<String, String> map) throws Exception {
+    public Object inqDetailPie(@RequestBody Map<String, String> map){
 
         Result<Object> result = new Result<>();
         InqDetailPievo inqDetailPievo = new InqDetailPievo();
@@ -1515,7 +1515,7 @@ public class CustomCentreController {
      */
         @RequestMapping(value = "/inqDetailRtnDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailRtnDetail(@RequestBody Map<String, String> map) throws Exception {
+    public Object inqDetailRtnDetail(@RequestBody Map<String, String> map){
         Result<Object> result = new Result<>();
             // 获取参数并转换成时间格式
             Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
@@ -1696,7 +1696,7 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailPandent", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailPandent(@RequestBody Map<String, String> map) throws Exception {
+    public Object ordDetailPandent(@RequestBody Map<String, String> map)  {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
         Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
@@ -1775,7 +1775,7 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailAreaAndOrgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailAreaAndOrgDetail(@RequestBody Map<String, String> map) throws Exception {
+    public Object ordDetailAreaAndOrgDetail(@RequestBody Map<String, String> map)  {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
         Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
@@ -1959,7 +1959,7 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailItemClassDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailItemClassDetail(@RequestBody Map<String, String> map) throws Exception {
+    public Object ordDetailItemClassDetail(@RequestBody Map<String, String> map) {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
         Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
@@ -1993,7 +1993,7 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailRePurchaseDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailRePurchaseDetail(@RequestBody Map<String, String> map) throws Exception {
+    public Object ordDetailRePurchaseDetail(@RequestBody Map<String, String> map)  {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
         Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
