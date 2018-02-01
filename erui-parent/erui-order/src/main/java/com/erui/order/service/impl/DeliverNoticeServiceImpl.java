@@ -373,6 +373,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     }else{
                         deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
                     }
+
+                    deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
 
