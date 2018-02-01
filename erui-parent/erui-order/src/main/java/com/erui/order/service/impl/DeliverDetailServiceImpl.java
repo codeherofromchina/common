@@ -169,7 +169,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
                     Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
                     Join<Order, Project> projectRoot = orderRoot.join("project");
-                    list.add(cb.equal(root.get("warehouseUid").as(Integer.class), deliverD.getWareHouseman()));
+                    list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), deliverD.getWareHouseman()));
                 }
                 //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
                 if (deliverD.getStatus() != null) {
@@ -264,7 +264,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
                     Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
                     Join<Order, Project> projectRoot = orderRoot.join("project");
-                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUid()));
+                    list.add(cb.equal(projectRoot.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUid()));
                 }
                 //根据经办日期
                 if (deliverW.getLogisticsDate() != null) {
