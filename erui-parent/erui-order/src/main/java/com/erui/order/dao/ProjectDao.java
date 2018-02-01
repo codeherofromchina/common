@@ -16,6 +16,9 @@ import java.util.List;
 public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpecificationExecutor<Project> {
     List<Project> findByPurchReqCreateAndPurchDone(Integer purchReqCreate, Boolean b);
 
+
+    List<Project> findByPurchReqCreateAndPurchDoneAndPurchaseUid(Integer purchReqCreate, Boolean b,Integer purchaseUid);
+
     /**
      * 根据项目ID查找项目列表
      *
