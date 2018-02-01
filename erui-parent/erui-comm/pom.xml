@@ -102,11 +102,13 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.6.3</version>
         </dependency>
+		<!--
 		<dependency>
 			<groupId>com.erui</groupId>
 			<artifactId>erui-sso-client</artifactId>
 			<version>1.0</version>
 		</dependency>
+		-->
     </dependencies>
 
 	<repositories>
