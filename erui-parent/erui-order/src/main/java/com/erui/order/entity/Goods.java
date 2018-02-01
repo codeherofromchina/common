@@ -119,10 +119,10 @@ public class Goods {
     @Column(name = "instock_num")
     private Integer instockNum;
     @Column(name = "outstock_apply_num")
-    private Integer outstockApplyNum;
+    private Integer outstockApplyNum = 0;
     //已发货数量
     @Column(name = "outstock_num")
-    private Integer outstockNum;
+    private Integer outstockNum = 0;
     /*项目sku执行跟踪需要*/
     //项目开始日期
     @Column(name = "start_date")

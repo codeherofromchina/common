@@ -82,7 +82,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Goods goods = goodsList.get(gid);
             //商品需增加发货数量 = 要修改的数量-原发货数量
             //Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
-            if (goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum() < goods.getContractGoodsNum()) {
+            if (goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum() <= goods.getContractGoodsNum()) {
                 dcGoods.setGoods(goods);
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
