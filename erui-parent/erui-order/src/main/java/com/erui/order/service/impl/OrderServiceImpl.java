@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
                 vo.setAttachmentSet(null);
                 vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
-                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods ->  goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                     vo.setDeliverConsignC(flag);
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
@@ -143,7 +143,6 @@ public class OrderServiceImpl implements OrderService {
                 vo.setGoodsList(null);
             });
         }
-
 
 
         return pageList;
@@ -343,7 +342,12 @@ public class OrderServiceImpl implements OrderService {
         }
         return order;
     }
-
+     /**
+      * @Author:SHIGS
+      * @Description订单日志
+      * @Date:11:30 2018/1/20
+      * @modified By
+      */
     @Override
     @Transactional(readOnly = true)
     public List<OrderLog> orderLog(Integer orderId) {
@@ -352,19 +356,24 @@ public class OrderServiceImpl implements OrderService {
             orderLog = new ArrayList<>();
         } else {
             orderLog = orderLog.stream().filter(log -> {
-                if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
+               /* if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
                     return false;
-                }
+                }*/
                 return true;
             }).collect(Collectors.toList());
         }
         return orderLog;
     }
 
-
+     /**
+      * @Author:SHIGS
+      * @Description 订单商品已发货完成后改为不可再次生成出口发货单标识
+      * @Date:11:29 2018/2/1
+      * @modified By
+      */
     @Override
     public void updateOrderDeliverConsignC(Set<Integer> orderId) {
-        if (orderId!= null && orderId.size() > 0) {
+        if (orderId != null && orderId.size() > 0) {
             List<Order> orderList = new ArrayList<>();
             for (Integer id : orderId) {
                 Order order = orderDao.findOne(id);

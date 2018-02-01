@@ -50,7 +50,7 @@ public class Goods {
     private String nameZh;
 
 
-   /* @Column(name = "send_num")*/
+    /* @Column(name = "send_num")*/
     @Transient
     private Integer sendNum;    //本批次发货数量
 
@@ -65,11 +65,9 @@ public class Goods {
     private String packRequire;  //包装要求
 
 
-
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "goods")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "goods")
     @JsonIgnore
     private List<DeliverConsignGoods> deliverConsignGoodsList;
-
 
 
     private String model;

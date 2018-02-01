@@ -49,16 +49,20 @@ public interface ProjectService {
      * @return
      */
     List<Project> purchAbleList(List<String> projectNoList);
+
     /**
      * 根据id查询项目信息
+     *
      * @param id
      * @return
      */
     Project findDesc(Integer id);
+
     /**
      * 根据项目ID和订单id查找项目列表
+     *
      * @param
      * @return
      */
-    Project findByIdOrOrderId(Integer id,Integer orderId);
+    Project findByIdOrOrderId(Integer id, Integer orderId);
 }
