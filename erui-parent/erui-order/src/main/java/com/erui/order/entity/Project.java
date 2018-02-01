@@ -79,6 +79,9 @@ public class Project {
     @Column(name = "quality_uid")
     private Integer qualityUid;
 
+    @Column(name="quality_name")
+    private String qualityName;
+
     @Column(name = "business_uid")
     private Integer businessUid;
 
@@ -295,6 +298,14 @@ public class Project {
         this.businessUid = businessUid;
     }
 
+    public String getQualityName() {
+        return qualityName;
+    }
+
+    public void setQualityName(String qualityName) {
+        this.qualityName = qualityName;
+    }
+
     public Integer getManagerUid() {
         return managerUid;
     }
@@ -414,6 +425,7 @@ public class Project {
         project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setQualityUid(this.qualityUid);
+        project.setQualityName(this.qualityName);
         project.setBusinessUid(this.businessUid);
         project.setManagerUid(this.managerUid);
         project.setLogisticsUid(this.logisticsUid);

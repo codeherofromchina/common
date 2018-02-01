@@ -467,6 +467,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         if (inspectApply.isMaster()) {
             report.setCheckTimes(1);
+            List<Project> projects = inspectApply.getPurch().getProjects();
+            if (projects != null && projects.size() > 0) {
+                report.setCheckUserId(projects.get(0).getQualityUid());
+                report.setCheckUserName(projects.get(0).getQualityName());
+            }
         } else {
             // 设置父质检的报检次数
             InspectApply parent = inspectApply.getParent();

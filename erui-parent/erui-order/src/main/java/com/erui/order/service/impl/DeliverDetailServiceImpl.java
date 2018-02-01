@@ -687,6 +687,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (StringUtil.isNotBlank(condition.get("checkerName"))) {
                     list.add(cb.like(root.get("checkerName").as(String.class), "%" + condition.get("checkerName") + "%"));
                 }
+                // 检验员ID精确查询
+                String checkerUid = condition.get("checkerUid");
+                if (StringUtil.isNotBlank(checkerUid) && StringUtils.isNumeric(checkerUid)) {
+                    list.add(cb.equal(root.get("checkerUid").as(Integer.class), Integer.parseInt(checkerUid)));
+                }
                 // 根据检验日期查询
                 if (StringUtil.isNotBlank(condition.get("checkDate"))) {
                     try {
