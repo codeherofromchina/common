@@ -327,7 +327,7 @@ public class PurchServiceImpl implements PurchService {
             }
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
-                goods.setPurchasedNum(purchaseNum);
+                goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                 setGoodsTraceData(goods,purch);
             }
             // 增加预采购数量

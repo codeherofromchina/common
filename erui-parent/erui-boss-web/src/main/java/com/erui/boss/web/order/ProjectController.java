@@ -42,8 +42,10 @@ public class ProjectController {
             projectNoList = Arrays.asList(split);
         }
 
+        String purchaseUid = params.get("purchaseUid");
 
-        List<Project> projectList = projectService.purchAbleList(projectNoList);
+
+        List<Project> projectList = projectService.purchAbleList(projectNoList,purchaseUid);
 
         List<Map<String, Object>> data = projectList.stream().map(project -> {
             Map<String, Object> map = new HashMap<>();

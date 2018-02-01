@@ -48,7 +48,7 @@ public interface ProjectService {
      *
      * @return
      */
-    List<Project> purchAbleList(List<String> projectNoList);
+    List<Project> purchAbleList(List<String> projectNoList,String purchaseUid) throws Exception;
 
     /**
      * 根据id查询项目信息

@@ -154,8 +154,18 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Project> purchAbleList(List<String> projectNoList) {
-        List<Project> list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
+    public List<Project> purchAbleList(List<String> projectNoList,String purchaseUid) throws Exception {
+        List<Project> list = null;
+        if (StringUtils.isBlank(purchaseUid)) {
+            list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
+        } else {
+            if (!StringUtils.isNumeric(purchaseUid)) {
+                throw new Exception("采购经办人参数错误");
+            }
+            list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE,Integer.parseInt(purchaseUid));
+        }
+
+
         if (list == null) {
             list = new ArrayList<>();
         } else {
