@@ -898,6 +898,19 @@ public class CustomCentreController {
         List<String> ordCateList = new ArrayList<>();
         List<Integer> inqCountList = new ArrayList<>();
         List<Integer> ordCountList = new ArrayList<>();
+        //排序
+        inqList.sort(new Comparator<CateDetailVo>() {
+            @Override
+            public int compare(CateDetailVo o1, CateDetailVo o2) {
+                return o2.getInqCateCount()-o1.getInqCateCount();
+            }
+        });
+        ordList.sort(new Comparator<CateDetailVo>() {
+            @Override
+            public int compare(CateDetailVo o1, CateDetailVo o2) {
+                return o2.getOrdCateCount()-o1.getOrdCateCount();
+            }
+        });
         inqList.stream().forEach(vo -> {
             inqCateList.add(vo.getCategory());
             inqCountList.add(vo.getInqCateCount());
