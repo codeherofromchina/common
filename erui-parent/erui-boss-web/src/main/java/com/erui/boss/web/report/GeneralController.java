@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.*;
 import com.erui.report.util.InqOrdTrendVo;
@@ -172,18 +173,13 @@ public class GeneralController {
     // 询单/订单趋势
     @ResponseBody
     @RequestMapping(value = "/inquiryOrderTrend", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object tendencyChart(@RequestBody(required = true) Map<String, Object> map) throws Exception {
-        if (!map.containsKey("startTime")) {
-            throw new MissingServletRequestParameterException("startTime", "String");
+    public Object tendencyChart(@RequestBody(required = true) Map<String, String> map) throws Exception {
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        if (!map.containsKey("endTime")) {
-            throw new MissingServletRequestParameterException("endTime", "String");
-        }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-        //截止时间
-        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         InqOrdTrendVo trendVo = inquiryService.inqOrdTrend(startTime, endTime);
         Map<String, Object> datas = new HashMap<>();
         datas.put("xAxis", trendVo.getDate());
