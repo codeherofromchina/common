@@ -1193,7 +1193,7 @@ public class CustomCentreController {
         int rejectCount = 0;//退回次数
         double avgRejectCount = 0d;//平均退回次数
 
-        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startTime, startTime, null, null);
+        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startTime, endTime, null, null);
         if (CollectionUtils.isNotEmpty(dataList)) {
             for (Map<String, Object> m : dataList) {
                 if (m.get("total") != null) {
