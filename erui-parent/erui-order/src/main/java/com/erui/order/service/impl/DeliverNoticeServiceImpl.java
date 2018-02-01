@@ -250,6 +250,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             for (DeliverConsign deliverConsign1 : deliverConsigns){
                 try {
                     orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
+                    orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
                     orderLog.setOperation(deliverDetail.getDeliverDetailNo());
                     orderLog.setCreateTime(new Date());
                     orderLogDao.save(orderLog);
