@@ -6,6 +6,7 @@ import com.erui.order.dao.DeliverNoticeDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.*;
+import com.erui.order.entity.Order;
 import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
@@ -14,10 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -232,6 +230,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 if (country != null) {
                     list.add(root.get("country").in(country));
                 }
+
+                //根据下单人（国际物流经办人）
+                if(deliverNotice.getSenderId() != null){
+                    Join<DeliverConsign, Order> orderRoot = root.join("order");
+                    Join<Order, Project> projectRoot = orderRoot.join("project");
+                    list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),deliverNotice.getSenderId()));
+                }
+
                 // 根据出口通知单号
                 if (StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
                     list.add(cb.equal(root.get("deliverConsignNo").as(String.class), deliverNotice.getDeliverConsignNo()));

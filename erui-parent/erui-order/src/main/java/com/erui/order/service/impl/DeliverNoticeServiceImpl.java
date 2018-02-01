@@ -88,6 +88,13 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         list.add(cb.like(orderRoot.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                     }
                 }
+                //根据下单人（国际物流经办人）
+                if(condition.getSenderId() != null){
+                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = root.join("deliverConsigns");
+                    Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
+                    Join<Order, Project> projectRoot = orderRoot.join("project");
+                    list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),condition.getSenderId()));
+                }
                 // 根据下单人查询
                 if (condition.getSenderId() != null) {
                     list.add(cb.equal(root.get("senderId").as(Integer.class), condition.getSenderId()));
@@ -376,6 +383,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     for (DeliverConsign deliverConsign1 : deliverConsigns){
                         try {
                             orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
+                            orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
                             orderLog.setOperation(deliverDetail.getDeliverDetailNo());
                             orderLog.setCreateTime(new Date());
                             orderLogDao.save(orderLog);

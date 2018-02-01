@@ -28,6 +28,6 @@ public interface InspectApplyDao extends JpaRepository<InspectApply, Serializabl
 
     InspectApply findByParentIdAndPubStatusAndStatus(Integer parentId, int pubStatus, int status);
 
-    @Query(value = "select t.inspect_apply_no from inspect_apply t order by t.id desc LIMIT 1",nativeQuery = true)
+    @Query(value = "select t.inspect_apply_no from inspect_apply t where master = 1 order by t.inspect_apply_no desc LIMIT 1",nativeQuery = true)
     String findLastApplyNo();
 }
