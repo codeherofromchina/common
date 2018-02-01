@@ -874,17 +874,14 @@ public class CustomCentreController {
     // 品类明细
     @ResponseBody
     @RequestMapping(value = "/catesDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object catesDetail(@RequestBody Map<String, Object> map) throws Exception {
+    public Object catesDetail(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
-
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
-        }
         //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+            return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
+        }
 
         int inqTotalCount = 0;
         int ordTotalCount = 0;
@@ -1172,18 +1169,16 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/inqDetailQuotePandent", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailQuotePandent(@RequestBody Map<String, Object> map) throws Exception {
+    public Object inqDetailQuotePandent(@RequestBody Map<String, String> map) throws Exception {
 
         Result<Object> result = new Result<>();
 
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
 
 //       1 处理退回询单的数据
 
@@ -1261,19 +1256,19 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/inqDetailPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailPie(@RequestBody Map<String, Object> map) throws Exception {
+    public Object inqDetailPie(@RequestBody Map<String, String> map) throws Exception {
 
         Result<Object> result = new Result<>();
         InqDetailPievo inqDetailPievo = new InqDetailPievo();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("quoteStatus")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("quoteStatus")) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        String quoteStatus = map.get("quoteStatus").toString();
+
+        String quoteStatus = map.get("quoteStatus");
 
         //1.获取报价状态中各状态数据  如 报价中 ： 未报价 、报价中
         String[] quotes = null;
@@ -1412,16 +1407,14 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/inqDetailRtnPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailRtnPie(@RequestBody Map<String, Object> map) throws Exception {
+    public Object inqDetailRtnPie(@RequestBody Map<String, String> map) {
         Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime") || !map.containsKey("area")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
         List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(startTime, endTime, map.get("area"), map.get("org"));
         List<Map<String, Object>> tableData = getRtnTable(dataList);
         List<String> reasons = dataList.stream().map(m -> m.get("reason").toString()).collect(Collectors.toList());
@@ -1522,16 +1515,14 @@ public class CustomCentreController {
      */
         @RequestMapping(value = "/inqDetailRtnDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailRtnDetail(@RequestBody Map<String, Object> map) throws Exception {
+    public Object inqDetailRtnDetail(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
-        }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
+            // 获取参数并转换成时间格式
+            Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+            Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+            if (startTime == null || endTime == null || startTime.after(endTime)) {
+                return new Result<>(ResultStatusEnum.FAIL);
+            }
         //1.获取各大区的数据
         List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeasonAndArea(startTime, endTime);
         Map<String, Map<String, Object>> areaData = new HashMap<>();
@@ -1705,16 +1696,14 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailPandent", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailPandent(@RequestBody Map<String, Object> map) throws Exception {
+    public Object ordDetailPandent(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
         int count = orderService.orderCountByTime(startTime, endTime, null, null, null);
         double amount = orderService.orderAmountByTime(startTime, endTime, null);
         List<Map<String, Object>> targetMaps = targetService.selectTargetGroupByOrg();
@@ -1786,16 +1775,14 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailAreaAndOrgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailAreaAndOrgDetail(@RequestBody Map<String, Object> map) throws Exception {
+    public Object ordDetailAreaAndOrgDetail(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
         //1.获取各事业部相关数据
         List<Map<String, Object>> orgTargets = targetService.selectTargetGroupByOrg();//各事业部年度指标
         List<Map<String, Object>> orgDataList = orderService.selectDataGroupByOrg(startTime, endTime);//各事业部数量和金额
@@ -1972,16 +1959,14 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailItemClassDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailItemClassDetail(@RequestBody Map<String, Object> map) throws Exception {
+    public Object ordDetailItemClassDetail(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
         List<Map<String, Object>> ordList = orderService.selecOrdDetailGroupByCategory(startTime, endTime);
         Integer totalOrdCount = ordList.stream().map(vo -> {
             int ordCount = Integer.parseInt(vo.get("ordCount").toString());
@@ -2008,16 +1993,14 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/ordDetailRePurchaseDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object ordDetailRePurchaseDetail(@RequestBody Map<String, Object> map) throws Exception {
+    public Object ordDetailRePurchaseDetail(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            return result;
+        // 获取参数并转换成时间格式
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
+            return new Result<>(ResultStatusEnum.FAIL);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd HH:mm:ss");
-        //截止时间
-        Date endTime = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd HH:mm:ss");
 
         List<Map<String, Object>> maps = this.orderService.selectRePurchaseDetail(startTime, endTime, map.get("area"), map.get("isOil"));
         //buyCount custName
