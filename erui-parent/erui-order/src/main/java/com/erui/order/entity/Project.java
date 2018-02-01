@@ -420,7 +420,9 @@ public class Project {
         project.setWarehouseUid(this.warehouseUid);
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
-        project.setProjectStatus(this.projectStatus);
+        if (!this.getProjectStatus().equals("SUBMIT")){
+            project.setProjectStatus(this.projectStatus);
+        }
         return true;
     }
 
