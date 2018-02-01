@@ -14,6 +14,8 @@ public class DeliverW {
 
     private Integer logisticsUserId;    //物流经办人
 
+    private Integer logisticsUid;    //国际物流经办人
+
     private Date logisticsDate; //物流经办时间
 
     private Integer status ; //状态
@@ -94,5 +96,13 @@ public class DeliverW {
 
     public Integer getRows() {
         return rows;
+    }
+
+    public Integer getLogisticsUid() {
+        return logisticsUid;
+    }
+
+    public void setLogisticsUid(Integer logisticsUid) {
+        this.logisticsUid = logisticsUid;
     }
 }

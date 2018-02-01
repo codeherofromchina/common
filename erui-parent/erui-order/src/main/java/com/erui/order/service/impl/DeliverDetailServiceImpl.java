@@ -254,6 +254,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverW.getLogisticsUserId() != null) {
                     list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUserId()));
                 }
+                //国际物流经办人(当前登录人id)
+                if (deliverW.getLogisticsUid() != null) {
+                    Join<DeliverDetail, DeliverNotice> deliverDetailRoot = root.join("deliverNotice");
+                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
+                    Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
+                    Join<Order, Project> projectRoot = orderRoot.join("project");
+                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUid()));
+                }
                 //根据经办日期
                 if (deliverW.getLogisticsDate() != null) {
                     list.add(cb.equal(root.get("logisticsDate").as(Date.class), deliverW.getLogisticsDate()));
