@@ -329,6 +329,12 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
+            List<Project> projects = dbInspectReport.getInspectApply().getPurch().getProjects();
+            if (projects != null && projects.size() > 0) {
+                instock.setUid(projects.get(0).getWarehouseUid());
+                instock.setUname(projects.get(0).getWarehouseName());
+            }
+
             instock.setInspectApplyNo(dbInspectReport.getInspectApplyNo()); // 报检单号
             instock.setSupplierName(dbInspectReport.getInspectApply().getPurch().getSupplierName()); // 供应商
             instock.setStatus(Instock.StatusEnum.INIT.getStatus());

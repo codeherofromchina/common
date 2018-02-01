@@ -94,6 +94,10 @@ public class Project {
     @Column(name = "warehouse_uid")
     private Integer warehouseUid;
 
+
+    @Column(name = "warehouse_name")
+    private String warehouseName;
+
     @Column(name = "create_user_id")
     private Integer createUserId;
 
@@ -328,6 +332,14 @@ public class Project {
 
     public void setWarehouseUid(Integer warehouseUid) {
         this.warehouseUid = warehouseUid;
+    }
+
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
     }
 
     public Integer getCreateUserId() {
