@@ -88,20 +88,8 @@ public class ProjectController {
     @RequestMapping(value = "handleProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> handleProject(@RequestBody Project project) {
         Result<Object> result = new Result<>();
-        // TODO参数检查略过
-        if (StringUtils.equals(project.getProjectStatus(), "SUBMIT")) {
-            try {
-                boolean flag = false;
-                flag = projectService.updateProject(project);
-                if (flag) {
-                    return result;
-                }
-            } catch (Exception ex) {
-                logger.error("办理项目操作失败：{}", project, ex);
-                result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg(ex.getMessage());
-            }
-        } else if (StringUtils.equals(project.getProjectStatus(), "HASMANAGER")) {
+        Project proStatus = projectService.findById(project.getId());
+        if (StringUtils.equals(proStatus.getProjectStatus(), "SUBMIT")) {
             if (project.getStartDate() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("项目开始日期不能为空");
@@ -145,7 +133,7 @@ public class ProjectController {
                     result.setMsg(ex.getMessage());
                 }
             }
-        } else if (StringUtils.equals(project.getProjectStatus(), "EXECUTING")) {
+        } else if (StringUtils.equals(proStatus.getProjectStatus(), "HASMANAGER") && StringUtils.equals(project.getProjectStatus(), "EXECUTING")) {
             if (project.getStartDate() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("项目开始日期不能为空");
@@ -201,7 +189,7 @@ public class ProjectController {
                     result.setMsg(ex.getMessage());
                 }
             }
-        }else {
+        } else {
             try {
                 boolean flag = false;
                 flag = projectService.updateProject(project);

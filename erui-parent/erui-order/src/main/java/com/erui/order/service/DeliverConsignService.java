@@ -20,7 +20,8 @@ public interface DeliverConsignService {
 
     /**
      * 根据出口发货通知单 查询信息
-     * @param deliverNoticeId  看货通知单号  字符串
+     *
+     * @param deliverNoticeId 看货通知单号  字符串
      * @return
      */
     List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeId) throws Exception;
@@ -28,10 +29,10 @@ public interface DeliverConsignService {
 
     /**
      * 看货通知管理   查询出口发货通知单
+     *
      * @return
      */
     List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice);
-
 
 
     /**
@@ -49,6 +50,7 @@ public interface DeliverConsignService {
      * @return
      */
     boolean addDeliverConsign(DeliverConsign deliverConsign) throws Exception;
+
     /**
      * 根据订单id查找出口发货通知单
      *

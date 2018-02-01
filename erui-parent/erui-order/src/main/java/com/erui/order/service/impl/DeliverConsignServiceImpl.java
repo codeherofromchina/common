@@ -82,7 +82,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Goods goods = goodsList.get(gid);
             //商品需增加发货数量 = 要修改的数量-原发货数量
             //Integer outStockNum = dcGoods.getSendNum() - goods.getOutstockNum();
-            if (goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum() < goods.getContractGoodsNum()) {
+            if (goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum() <= goods.getContractGoodsNum()) {
                 dcGoods.setGoods(goods);
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
@@ -240,7 +240,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 list.add(cb.equal(root.get("deliverYn").as(Integer.class), 1)); //未删除
 
 
-
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
 
@@ -254,9 +253,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         arr[i] = (deliverConsign.getId());
                         i++;
                     }
-                    return cb.or(result,root.get("id").in(arr));
+                    return cb.or(result, root.get("id").in(arr));
                 } else {
-                   return result;
+                    return result;
                 }
 
             }
@@ -264,7 +263,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         return page;
 
-}
+    }
 
 
 }

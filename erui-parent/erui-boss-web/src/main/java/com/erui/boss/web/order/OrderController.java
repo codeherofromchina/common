@@ -59,9 +59,6 @@ public class OrderController {
      */
     @RequestMapping(value = "deleteOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderDelete(@RequestBody Map<String, Integer[]> ids) {
-      /*  Integer id = map.get("ids");
-        Integer [] ids = new Integer[1];
-        ids[0] = id;*/
         orderService.deleteOrder(ids.get("ids"));
         return new Result<>();
     }
@@ -214,7 +211,7 @@ public class OrderController {
         Order order = orderService.findById(map.get("id"));
         if (order != null) {
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
-                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo ->  vo.getOutstockApplyNum() < vo.getContractGoodsNum());
+                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
                 order.setDeliverConsignC(flag);
             } else {
                 order.setDeliverConsignC(Boolean.FALSE);
