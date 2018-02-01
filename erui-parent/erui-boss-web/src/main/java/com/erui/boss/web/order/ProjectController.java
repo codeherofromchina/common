@@ -45,18 +45,27 @@ public class ProjectController {
         String purchaseUid = params.get("purchaseUid");
 
 
-        List<Project> projectList = projectService.purchAbleList(projectNoList,purchaseUid);
+        List<Project> projectList = null;
+        String errMsg = null;
+        try {
+            projectList = projectService.purchAbleList(projectNoList, purchaseUid);
 
-        List<Map<String, Object>> data = projectList.stream().map(project -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", project.getId());
-            map.put("projectNo", project.getProjectNo());
-            map.put("projectName", project.getProjectName());
 
-            return map;
-        }).collect(Collectors.toList());
+            List<Map<String, Object>> data = projectList.stream().map(project -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", project.getId());
+                map.put("projectNo", project.getProjectNo());
+                map.put("projectName", project.getProjectName());
 
-        return new Result<>(data);
+                return map;
+            }).collect(Collectors.toList());
+            return new Result<>(data);
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+            e.printStackTrace();
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 
     /**
