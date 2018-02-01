@@ -363,7 +363,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //仓库经办人
             if (deliverDetail.getWareHouseman() != null) {
                 one.setWareHouseman(deliverDetail.getWareHouseman());
-            }
+                List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+                for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList1){
+                    Goods goods = deliverConsignGoods.getGoods();
+                    Goods one1 = goodsDao.findOne(goods.getId());
+                    one1.setUid(deliverDetail.getWareHouseman());//推送  仓库经办人  到商品表
+                    goodsDao.save(one1);
+                }
+        }
             //仓库经办人姓名
             if(StringUtil.isNotBlank(deliverDetail.getWareHousemanName())){
                 one.setWareHousemanName(deliverDetail.getWareHousemanName());
@@ -834,6 +841,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         dbDeliverDetail.setReleaseUid(deliverDetail.getReleaseUid());
         dbDeliverDetail.setReleaseName(deliverDetail.getReleaseName());
         dbDeliverDetail.setReleaseDate(deliverDetail.getReleaseDate());
+        if(deliverDetail.getReleaseDate() != null){
+            List<DeliverConsignGoods> deliverConsignGoodsList1 = dbDeliverDetail.getDeliverConsignGoodsList();
+            for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList1){
+                Goods goods = deliverConsignGoods.getGoods();
+                Goods one1 = goodsDao.findOne(goods.getId());
+                one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
+                goodsDao.save(one1);
+            }
+        }
+
         dbDeliverDetail.setQualityLeaderId(deliverDetail.getQualityLeaderId());
         dbDeliverDetail.setQualityleaderName(deliverDetail.getQualityleaderName());
         dbDeliverDetail.setApplicant(deliverDetail.getApplicant());
