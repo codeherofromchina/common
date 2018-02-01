@@ -128,10 +128,10 @@ public class ProjectController {
             } else if (StringUtils.isBlank(project.getProjectStatus()) || StringUtils.equals(project.getProjectStatus(), "")) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("项目状态不能为空");
-            } else if (project.getManagerUid() == null) {
+            }/* else if (project.getManagerUid() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("交付配送中心项目经理不能为空");
-            } else {
+            } */else {
                 try {
                     boolean flag = false;
                     flag = projectService.updateProject(project);
