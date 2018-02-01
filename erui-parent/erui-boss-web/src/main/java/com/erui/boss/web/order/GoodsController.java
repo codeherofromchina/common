@@ -64,6 +64,8 @@ public class GoodsController {
             map.put("brand", goods.getBrand()); //品牌
             map.put("model", goods.getModel()); //规格型号
             map.put("contractGoodsNum", goods.getContractGoodsNum()); //合同数量
+            map.put("prePurchsedNum", goods.getPrePurchsedNum()); //预采购数量（当前锁定数量）
+            map.put("purchasedNum", goods.getPurchasedNum()); //已采购数量
             return map;
         }).collect(Collectors.toList());
 
