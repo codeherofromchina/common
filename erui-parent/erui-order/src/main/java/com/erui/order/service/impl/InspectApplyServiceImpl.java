@@ -165,8 +165,28 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             pushDataToInspectReport(inspectApply);
+        } else if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && directInstockGoods) {
+            //  判断采购是否已经完成并修正
+            checkPurchHasDone(inspectApply.getPurch());
         }
         return true;
+    }
+
+
+    @Transactional
+    private void checkPurchHasDone(Purch purch) {
+        List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
+        boolean doneFlag = true;
+        for (PurchGoods pg : purchGoodsList) {
+            if (pg.getGoodNum() < pg.getPurchaseNum()) {
+                doneFlag = false;
+                break;
+            }
+        }
+        if (doneFlag) {
+            purch.setStatus(Purch.StatusEnum.DONE.getCode());
+            purchDao.save(purch);
+        }
     }
 
     /**
@@ -295,6 +315,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             // 推送数据到入库质检中
             pushDataToInspectReport(dbInspectApply);
+        } else if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && directInstockGoods) {
+            //  判断采购是否已经完成并修正
+            checkPurchHasDone(dbInspectApply.getPurch());
         }
 
         return true;
