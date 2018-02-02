@@ -60,7 +60,8 @@ public class CustomCentreController {
             return new Result<>(ResultStatusEnum.FAIL);
         }
         // 获取需要环比的开始时间
-        Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
+        long differenTime = endDate.getTime() - startDate.getTime();
+        Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
         //当期询单数量和金额
         int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
         double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null, null);
@@ -155,7 +156,9 @@ public class CustomCentreController {
             return new Result<>(ResultStatusEnum.FAIL);
         }
         // 获取需要环比的开始时间
-        Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
+        // 获取需要环比的开始时间
+        long differenTime = endDate.getTime() - startDate.getTime();
+        Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
         String[] quotes = {QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
         //当期报价询单数量和金额
         int count = inquiryService.inquiryCountByTime(startDate, endDate, quotes, 0, 0, "", "");
@@ -257,9 +260,9 @@ public class CustomCentreController {
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-//        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
         // 获取需要环比的开始时间
-        Date rateStartDate = NewDateUtil.getBeforeRateDate(endDate, startDate);
+        long differenTime = endDate.getTime() - startDate.getTime();
+        Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
 
         // 当期订单数量和金额
         int count = orderService.orderCountByTime(startDate, endDate, "", "", "");
@@ -1964,8 +1967,8 @@ public class CustomCentreController {
         // 获取参数并转换成时间格式
         Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
         Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
-        if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
-            return new Result<>(ResultStatusEnum.FAIL);
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+                return new Result<>(ResultStatusEnum.FAIL);
         }
         List<Map<String, Object>> ordList = orderService.selecOrdDetailGroupByCategory(startTime, endTime);
         Integer totalOrdCount = ordList.stream().map(vo -> {

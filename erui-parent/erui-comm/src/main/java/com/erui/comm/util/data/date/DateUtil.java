@@ -2,6 +2,7 @@ package com.erui.comm.util.data.date;
 
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -148,6 +149,25 @@ public class DateUtil {
         return strDate;
     }
 
+    /**
+     * 获取时间前多少毫秒的时间
+     * @param startDate ：当前日期
+     *  @param   msec：毫秒数
+     * @return
+     * @throws
+     * @author lirb
+     * @date 2018年01月02日下午3:59:47
+     */
+    public static Date getBeforTime(Date startDate, long msec) {
+      if(startDate!=null){
+          long time = startDate.getTime();
+          long beforeTime=time-msec;
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTimeInMillis(beforeTime);
+          return calendar.getTime();
+      }
+        return null;
+    }
     /**
      * 获取操作后的日期, 对小时、分、秒操作
      *
@@ -415,9 +435,11 @@ public class DateUtil {
 //        System.out.println(daysBetween);
 //        String week = getWeekOfDate(new Date());
 //        Date weekSix =getWeekSix(6);
-        Date dateAfter = getDateAfter(new Date(), 8);
-        String s = formatDateToString(dateAfter,FULL_FORMAT_STR);
-        System.out.println(s);
+//        Date dateAfter = getDateAfter(new Date(), 8);
+//        String s = formatDateToString(dateAfter,FULL_FORMAT_STR);
+//        Date beforTime = getBeforTime(new Date(), 3600000);
+//        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//        System.out.println(formatter.format(beforTime));
     }
 
     /**
