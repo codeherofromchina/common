@@ -87,7 +87,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         OrderAccount orderAccounts = orderAccountDao.findOne(id);
         orderAccounts.setDelYn(0);
         orderAccountDao.save(orderAccounts);
-        orderLogDao.deleteByOrderAccountId(id);
+        OrderLog byOrderAccountId = orderLogDao.findByOrderAccountId(id);
+        orderLogDao.delete(byOrderAccountId.getId());
     }
 
 

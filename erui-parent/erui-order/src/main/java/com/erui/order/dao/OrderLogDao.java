@@ -13,8 +13,6 @@ import java.util.List;
 public interface OrderLogDao extends JpaRepository<OrderLog, Serializable>, JpaSpecificationExecutor<OrderLog>  {
     List<OrderLog> findByOrderIdOrderByCreateTimeDesc(Integer orderId);
 
-    void deleteByOrderAccountId(Integer id);
-
     OrderLog findByOrderAccountId(Integer id);
    /* List<Order> findByIdIn(Integer[] ids);
     @Query(value = "select count(t1) from Order t1 where t1.contractNo = :contractNo")
