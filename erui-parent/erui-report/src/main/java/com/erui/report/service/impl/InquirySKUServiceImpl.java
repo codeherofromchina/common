@@ -44,6 +44,8 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
         }
         if(inquiryNums!=null&&inquiryNums.size()>0){
             criteria.andQuotationNumIn(inquiryNums);
+        }else {
+           return  new ArrayList<IsOilVo>();
         }
         return readMapper.selectCountGroupByIsOil(e);
     }

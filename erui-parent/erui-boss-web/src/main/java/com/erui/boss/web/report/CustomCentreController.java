@@ -1092,7 +1092,7 @@ public class CustomCentreController {
                 }
             }
         }
-        Map<String, Object> numData = new HashMap<String, Object>();
+        Map<String, Object> numData = new HashMap<>();
 
         String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
         Integer[] yValueArr = new Integer[]{inCount, oil,
