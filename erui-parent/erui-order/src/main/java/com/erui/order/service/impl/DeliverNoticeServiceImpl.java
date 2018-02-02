@@ -386,6 +386,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
                     }
 
+                    //推送仓库经办人   物流经办人
+                    List<DeliverConsign> deliverConsigns1 = deliverNotice.getDeliverConsigns();
+                    if (deliverConsigns1 != null && deliverConsigns1.size() > 0) {
+                        Project project = deliverConsigns1.get(0).getOrder().getProject();
+                        deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
+                        deliverDetail.setWareHousemanName(project.getWarehouseName());    //仓库经办人名字
+                        deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
+                /*deliverDetail.setLogisticsUserName(project.get);   //物流经办人名字*/
+                        deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
+                        deliverDetail.setCheckerName(project.getQualityName()); //  检验工程师名称(品控经办人名称)
+                    }
+
                     deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
