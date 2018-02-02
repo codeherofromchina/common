@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,7 +112,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         try {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()));
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setOrdersGoodsId(null);
             orderLogDao.save(orderLog);
@@ -218,7 +219,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional(readOnly = true)
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), null);
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC,"createTime");
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
