@@ -248,16 +248,25 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
 
             //推送仓库经办人   物流经办人
-            List<DeliverConsign> deliverConsigns1 = deliverNotice.getDeliverConsigns();
-            if (deliverConsigns1 != null && deliverConsigns1.size() > 0) {
-                Project project = deliverConsigns1.get(0).getOrder().getProject();
+            DeliverConsign deliverConsigns1 =  deliverConsignDao.findOne(Integer.parseInt(split[0]));
+            Project project = deliverConsigns1.getOrder().getProject();
+            if(project.getWarehouseUid() != null){
                 deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
+            }
+            if(StringUtil.isNotBlank(project.getWarehouseName())){
                 deliverDetail.setWareHousemanName(project.getWarehouseName());    //仓库经办人名字
+            }
+            if(project.getLogisticsUid() != null){
                 deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
-                /*deliverDetail.setLogisticsUserName(project.get);   //物流经办人名字*/
+            }
+                       /*deliverDetail.setLogisticsUserName(project.get);   //物流经办人名字*/
+            if(project.getQualityUid() != null){
                 deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
+            }
+            if(StringUtil.isNotBlank(project.getQualityName())){
                 deliverDetail.setCheckerName(project.getQualityName()); //  检验工程师名称(品控经办人名称)
             }
+
 
             deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
@@ -293,7 +302,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         if(one == null){
             return false;
         }
-           try {
+        String[] split = null;
+        try {
                 if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
                     one.setContractNo(deliverNotice.getContractNo());
                 }
@@ -304,7 +314,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         ones.setDeliverYn(1);
                         deliverConsignDao.saveAndFlush(ones);
                     }
-                    String[] split = deliverNotice.getDeliverConsignIds().split(",");    //选中的关联关系
+                    split = deliverNotice.getDeliverConsignIds().split(",");    //选中的关联关系
                     DeliverConsign deliverConsign = null;
                     List<DeliverConsign> list = new ArrayList<DeliverConsign>();
                     for (String s :split){
@@ -385,18 +395,25 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     }else{
                         deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
                     }
-
                     //推送仓库经办人   物流经办人
-                    List<DeliverConsign> deliverConsigns1 = deliverNotice.getDeliverConsigns();
-                    if (deliverConsigns1 != null && deliverConsigns1.size() > 0) {
-                        Project project = deliverConsigns1.get(0).getOrder().getProject();
-                        deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
-                        deliverDetail.setWareHousemanName(project.getWarehouseName());    //仓库经办人名字
-                        deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
-                /*deliverDetail.setLogisticsUserName(project.get);   //物流经办人名字*/
-                        deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
-                        deliverDetail.setCheckerName(project.getQualityName()); //  检验工程师名称(品控经办人名称)
-                    }
+                    DeliverConsign deliverConsigns1 =  deliverConsignDao.findOne(Integer.parseInt(split[0]));
+                        Project project = deliverConsigns1.getOrder().getProject();
+                        if(project.getWarehouseUid() != null){
+                            deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
+                        }
+                        if(StringUtil.isNotBlank(project.getWarehouseName())){
+                            deliverDetail.setWareHousemanName(project.getWarehouseName());    //仓库经办人名字
+                        }
+                        if(project.getLogisticsUid() != null){
+                            deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
+                        }
+                       /*deliverDetail.setLogisticsUserName(project.get);   //物流经办人名字*/
+                       if(project.getQualityUid() != null){
+                         deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
+                       }
+                       if(StringUtil.isNotBlank(project.getQualityName())){
+                           deliverDetail.setCheckerName(project.getQualityName()); //  检验工程师名称(品控经办人名称)
+                       }
 
                     deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
                     deliverDetailDao.saveAndFlush(deliverDetail);
