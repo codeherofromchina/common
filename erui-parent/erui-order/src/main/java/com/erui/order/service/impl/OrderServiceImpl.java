@@ -227,6 +227,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
+            projectAdd.setUpdateTime(new Date());
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -298,6 +299,7 @@ public class OrderServiceImpl implements OrderService {
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
+            project.setUpdateTime(new Date());
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
