@@ -165,7 +165,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 //根据仓库经办人
                 if (deliverD.getWareHouseman() != null) {
-                    list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
+                    Join<DeliverDetail, DeliverNotice> deliverDetailRoot = root.join("deliverNotice");
+                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
+                    Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
+                    Join<Order, Project> projectRoot = orderRoot.join("project");
+                    list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), deliverD.getWareHouseman()));
                 }
                 //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
                 if (deliverD.getStatus() != null) {
@@ -253,6 +257,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 //根据物流经办人
                 if (deliverW.getLogisticsUserId() != null) {
                     list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUserId()));
+                }
+                //国际物流经办人(当前登录人id)
+                if (deliverW.getLogisticsUid() != null) {
+                    Join<DeliverDetail, DeliverNotice> deliverDetailRoot = root.join("deliverNotice");
+                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
+                    Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
+                    Join<Order, Project> projectRoot = orderRoot.join("project");
+                    list.add(cb.equal(projectRoot.get("logisticsUserId").as(Integer.class), deliverW.getLogisticsUid()));
                 }
                 //根据经办日期
                 if (deliverW.getLogisticsDate() != null) {
@@ -351,7 +363,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //仓库经办人
             if (deliverDetail.getWareHouseman() != null) {
                 one.setWareHouseman(deliverDetail.getWareHouseman());
-            }
+                List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+                for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList1){
+                    Goods goods = deliverConsignGoods.getGoods();
+                    Goods one1 = goodsDao.findOne(goods.getId());
+                    one1.setUid(deliverDetail.getWareHouseman());//推送  仓库经办人  到商品表
+                    goodsDao.save(one1);
+                }
+        }
             //仓库经办人姓名
             if(StringUtil.isNotBlank(deliverDetail.getWareHousemanName())){
                 one.setWareHousemanName(deliverDetail.getWareHousemanName());
@@ -675,6 +694,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (StringUtil.isNotBlank(condition.get("checkerName"))) {
                     list.add(cb.like(root.get("checkerName").as(String.class), "%" + condition.get("checkerName") + "%"));
                 }
+                // 检验员ID精确查询
+                String checkerUid = condition.get("checkerUid");
+                if (StringUtil.isNotBlank(checkerUid) && StringUtils.isNumeric(checkerUid)) {
+                    list.add(cb.equal(root.get("checkerUid").as(Integer.class), Integer.parseInt(checkerUid)));
+                }
                 // 根据检验日期查询
                 if (StringUtil.isNotBlank(condition.get("checkDate"))) {
                     try {
@@ -817,6 +841,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         dbDeliverDetail.setReleaseUid(deliverDetail.getReleaseUid());
         dbDeliverDetail.setReleaseName(deliverDetail.getReleaseName());
         dbDeliverDetail.setReleaseDate(deliverDetail.getReleaseDate());
+        if(deliverDetail.getReleaseDate() != null){
+            List<DeliverConsignGoods> deliverConsignGoodsList1 = dbDeliverDetail.getDeliverConsignGoodsList();
+            for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList1){
+                Goods goods = deliverConsignGoods.getGoods();
+                Goods one1 = goodsDao.findOne(goods.getId());
+                one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
+                goodsDao.save(one1);
+            }
+        }
+
         dbDeliverDetail.setQualityLeaderId(deliverDetail.getQualityLeaderId());
         dbDeliverDetail.setQualityleaderName(deliverDetail.getQualityleaderName());
         dbDeliverDetail.setApplicant(deliverDetail.getApplicant());

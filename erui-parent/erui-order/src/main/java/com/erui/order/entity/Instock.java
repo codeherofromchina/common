@@ -31,6 +31,7 @@ public class Instock {
     private String supplierName;
     // 仓库经办人ID
     private Integer uid;
+
     // 仓库经办人名称
     private String uname;
     // 下发部门，和仓库经办人管理
