@@ -116,12 +116,6 @@ public class Project {
     //商务技术经办人
     @Column(name = "business_name")
     private String businessName;
-    //品控经办人
-    @Column(name = "quality_name")
-    private String qualityName;
-    //仓库经办人
-    @Column(name = "warehouse_name")
-    private String warehouseName;
     //国际物流经办人
     @Column(name = "logistics_name")
     private String logisticsName;
@@ -148,22 +142,6 @@ public class Project {
 
     public void setBusinessName(String businessName) {
         this.businessName = businessName;
-    }
-
-    public String getQualityName() {
-        return qualityName;
-    }
-
-    public void setQualityName(String qualityName) {
-        this.qualityName = qualityName;
-    }
-
-    public String getWarehouseName() {
-        return warehouseName;
-    }
-
-    public void setWarehouseName(String warehouseName) {
-        this.warehouseName = warehouseName;
     }
 
     public String getLogisticsName() {
