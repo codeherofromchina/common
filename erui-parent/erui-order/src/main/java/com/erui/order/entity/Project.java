@@ -1,11 +1,8 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.*;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.lang3.StringUtils;
-
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -101,16 +98,23 @@ public class Project {
     private Date createTime;
     @Column(name = "exec_co_name")
     private String execCoName;
-
+    //分销部名称
     @Column(name = "distribution_dept_name")
     private String distributionDeptName;
-
+    //下发部门
     @Column(name = "send_dept_id")
     private Integer sendDeptId;
-
     @Column(name = "business_unit_name")
     private String businessUnitName;
-
+    //商务技术经办人
+    @Column(name = "business_name")
+    private String businessName;
+    //品控经办人
+    @Column(name = "quality_name")
+    private String qualityName;
+    //仓库经办人
+    @Column(name = "warehouse_name")
+    private String warehouseName;
     private String region;
     private String country;
     private String remarks;
@@ -125,6 +129,30 @@ public class Project {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getQualityName() {
+        return qualityName;
+    }
+
+    public void setQualityName(String qualityName) {
+        this.qualityName = qualityName;
+    }
+
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
     }
 
     public String getCountry() {
@@ -415,6 +443,9 @@ public class Project {
         project.setPurchaseUid(this.purchaseUid);
         project.setQualityUid(this.qualityUid);
         project.setBusinessUid(this.businessUid);
+        project.setBusinessName(this.businessName);
+        project.setQualityName(this.qualityName);
+        project.setWarehouseName(this.warehouseName);
         project.setManagerUid(this.managerUid);
         project.setLogisticsUid(this.logisticsUid);
         project.setWarehouseUid(this.warehouseUid);

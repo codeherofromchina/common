@@ -63,7 +63,7 @@ public class ProjectServiceImpl implements ProjectService {
        /* if (proNameId!= null && proNameId != project.getId()) {
             throw new Exception("项目名称已存在");
         }*/
-        if (project.getProjectStatus().equals("SUBMIT") || project.getProjectStatus().equals("HASMANAGER") || project.getProjectStatus().equals("EXECUTING")) {
+        if (projectUpdate.getProjectStatus().equals("SUBMIT") || projectUpdate.getProjectStatus().equals("HASMANAGER")) {
             project.copyProjectDesc(projectUpdate);
         }
         projectUpdate.setUpdateTime(new Date());
