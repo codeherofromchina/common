@@ -63,24 +63,28 @@ public class ProjectServiceImpl implements ProjectService {
        /* if (proNameId!= null && proNameId != project.getId()) {
             throw new Exception("项目名称已存在");
         }*/
-        if (projectUpdate.getProjectStatus().equals("SUBMIT") || projectUpdate.getProjectStatus().equals("HASMANAGER")) {
+        Project.ProjectStatusEnum dbStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
+        if (dbStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
+            Project.ProjectStatusEnum pStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
+            if (pStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                new Exception("错误状态值");
+            }
+            projectUpdate.setProjectStatus(pStatusEnum.getCode());
+        } else {
             project.copyProjectDesc(projectUpdate);
+            if (dbStatusEnum.equals(Project.ProjectStatusEnum.EXECUTING)) {
+                Order order = projectUpdate.getOrder();
+                order.getGoodsList().forEach(gd -> {
+                            gd.setStartDate(projectUpdate.getStartDate());
+                            gd.setDeliveryDate(projectUpdate.getDeliveryDate());
+                            gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                        }
+                );
+                order.setStatus(3);
+            }
         }
         projectUpdate.setUpdateTime(new Date());
-        Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
-       /* if (statusEnum != Project.ProjectStatusEnum.SUBMIT) {
-            projectUpdate.setProjectStatus(project.getProjectStatus());
-        }*/
-        if (statusEnum.equals(Project.ProjectStatusEnum.EXECUTING)) {
-            Order order = projectUpdate.getOrder();
-            order.getGoodsList().forEach(gd -> {
-                        gd.setStartDate(projectUpdate.getStartDate());
-                        gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                        gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
-                    }
-            );
-            order.setStatus(3);
-        }
+
         projectDao.save(projectUpdate);
         return true;
     }
@@ -154,7 +158,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Project> purchAbleList(List<String> projectNoList,String purchaseUid) throws Exception {
+    public List<Project> purchAbleList(List<String> projectNoList, String purchaseUid) throws Exception {
         List<Project> list = null;
         if (StringUtils.isBlank(purchaseUid)) {
             list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
@@ -162,7 +166,7 @@ public class ProjectServiceImpl implements ProjectService {
             if (!StringUtils.isNumeric(purchaseUid)) {
                 throw new Exception("采购经办人参数错误");
             }
-            list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE,Integer.parseInt(purchaseUid));
+            list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE, Integer.parseInt(purchaseUid));
         }
 
 

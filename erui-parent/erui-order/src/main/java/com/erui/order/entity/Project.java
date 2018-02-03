@@ -466,9 +466,9 @@ public class Project {
         project.setWarehouseUid(this.warehouseUid);
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
-        if (!this.getProjectStatus().equals("SUBMIT")){
+        //if (!this.getProjectStatus().equals("SUBMIT")){
             project.setProjectStatus(this.projectStatus);
-        }
+        //}
         return true;
     }
 
@@ -509,16 +509,18 @@ public class Project {
     }
 
     public static enum ProjectStatusEnum {
-        HASMANAGER("HASMANAGER", "有项目经理"), SUBMIT("SUBMIT", "未执行"),
-        EXECUTING("EXECUTING", "正常执行"), DONE("DONE", "正常完成"), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行"),
-        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成"), UNSHIPPED("UNSHIPPED", "正常待发运"),
-        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运"), PAUSE("PAUSE", "项目暂停"), CANCEL("CANCEL", "项目取消");
+        HASMANAGER("HASMANAGER", "有项目经理",2), SUBMIT("SUBMIT", "未执行",1),
+        EXECUTING("EXECUTING", "正常执行",3), DONE("DONE", "正常完成",4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行",5),
+        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成",6), UNSHIPPED("UNSHIPPED", "正常待发运",7),
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运",8), PAUSE("PAUSE", "项目暂停",9), CANCEL("CANCEL", "项目取消",10);
         private String code;
         private String msg;
+        private Integer num;
 
-        ProjectStatusEnum(String code, String msg) {
+        ProjectStatusEnum(String code, String msg,Integer num) {
             this.code = code;
             this.msg = msg;
+            this.num = num;
         }
 
         public String getCode() {
@@ -529,7 +531,9 @@ public class Project {
             return msg;
         }
 
-
+        public Integer getNum() {
+            return num;
+        }
         public static ProjectStatusEnum fromCode(String code) {
             if (StringUtils.isNotBlank(code)) {
                 for (ProjectStatusEnum statusEnum : ProjectStatusEnum.values()) {
