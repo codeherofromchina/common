@@ -65,7 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
         }*/
         Project.ProjectStatusEnum dbStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         if (dbStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
-            Project.ProjectStatusEnum pStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
+            Project.ProjectStatusEnum pStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
             if (pStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
                 new Exception("错误状态值");
             }
