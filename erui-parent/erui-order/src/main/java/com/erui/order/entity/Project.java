@@ -115,6 +115,10 @@ public class Project {
     //仓库经办人
     @Column(name = "warehouse_name")
     private String warehouseName;
+    //国际物流经办人
+    @Column(name = "logistics_name")
+    private String logisticsName;
+
     private String region;
     private String country;
     private String remarks;
@@ -153,6 +157,14 @@ public class Project {
 
     public void setWarehouseName(String warehouseName) {
         this.warehouseName = warehouseName;
+    }
+
+    public String getLogisticsName() {
+        return logisticsName;
+    }
+
+    public void setLogisticsName(String logisticsName) {
+        this.logisticsName = logisticsName;
     }
 
     public String getCountry() {
@@ -446,6 +458,7 @@ public class Project {
         project.setBusinessName(this.businessName);
         project.setQualityName(this.qualityName);
         project.setWarehouseName(this.warehouseName);
+        project.setLogisticsName(this.logisticsName);
         project.setManagerUid(this.managerUid);
         project.setLogisticsUid(this.logisticsUid);
         project.setWarehouseUid(this.warehouseUid);
