@@ -339,7 +339,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 if(StringUtil.isNotBlank(deliverNotice.getSenderName())){
                     one.setSenderName(deliverNotice.getSenderName());
                 }
-                if(deliverNotice.getUrgency() != null){
+                if(StringUtil.isNotBlank(deliverNotice.getUrgency())){
                     one.setUrgency(deliverNotice.getUrgency());
                 }
                 if(deliverNotice.getDeliveryDate() != null){
