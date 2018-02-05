@@ -54,8 +54,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -150,8 +150,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/quotePandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Result<Object> quotePandect(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -255,8 +255,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/orderPandect", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     public Object orderPandect(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -335,8 +335,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/inquiryDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     public Object inquiryDetail(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -407,8 +407,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/orderDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     public Object orderDetail(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -505,8 +505,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/inquiryTimeDistrbute", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     public Object inquiryTimeDistrbute(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -552,8 +552,8 @@ public class CustomCentreController {
     @RequestMapping(value = "/busUnitDetail", method = RequestMethod.POST)
     public Object busUnitDetail(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -780,8 +780,8 @@ public class CustomCentreController {
 
         // 获取参数并转换成时间格式
         //开始时间
-        Date startDate = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startDate = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endDate = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
         }
@@ -880,8 +880,8 @@ public class CustomCentreController {
     public Object catesDetail(@RequestBody Map<String, String> map) throws Exception {
         Result<Object> result = new Result<>();
         //开始时间
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
         }
@@ -1177,8 +1177,8 @@ public class CustomCentreController {
         Result<Object> result = new Result<>();
 
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1265,8 +1265,8 @@ public class CustomCentreController {
         InqDetailPievo inqDetailPievo = new InqDetailPievo();
 
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("quoteStatus")) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1413,8 +1413,8 @@ public class CustomCentreController {
     public Object inqDetailRtnPie(@RequestBody Map<String, String> map) {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1521,8 +1521,8 @@ public class CustomCentreController {
     public Object inqDetailRtnDetail(@RequestBody Map<String, String> map){
         Result<Object> result = new Result<>();
             // 获取参数并转换成时间格式
-            Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-            Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+            Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+            Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
             if (startTime == null || endTime == null || startTime.after(endTime)) {
                 return new Result<>(ResultStatusEnum.FAIL);
             }
@@ -1702,8 +1702,8 @@ public class CustomCentreController {
     public Object ordDetailPandent(@RequestBody Map<String, String> map)  {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1781,8 +1781,8 @@ public class CustomCentreController {
     public Object ordDetailAreaAndOrgDetail(@RequestBody Map<String, String> map)  {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1965,8 +1965,8 @@ public class CustomCentreController {
     public Object ordDetailItemClassDetail(@RequestBody Map<String, String> map) {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime)) {
                 return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1999,8 +1999,8 @@ public class CustomCentreController {
     public Object ordDetailRePurchaseDetail(@RequestBody Map<String, String> map)  {
         Result<Object> result = new Result<>();
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
             return new Result<>(ResultStatusEnum.FAIL);
         }

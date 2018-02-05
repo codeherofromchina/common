@@ -84,10 +84,10 @@
     credit_currency, receive_amount, warn_status, back_response_person, back_date
   </sql>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT create_at FROM request_credit ORDER BY create_at ASC LIMIT 1
+    SELECT back_date FROM request_credit ORDER BY create_at ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
-    SELECT create_at FROM request_credit ORDER BY create_at DESC LIMIT 1
+    SELECT back_date FROM request_credit ORDER BY create_at DESC LIMIT 1
   </select>
   <select id="selectTotal" resultType="java.util.Map" parameterType="com.erui.report.model.RequestCredit">
     SELECT SUM(receive_amount) sd,SUM(order_amount) ed FROM `request_credit`;
