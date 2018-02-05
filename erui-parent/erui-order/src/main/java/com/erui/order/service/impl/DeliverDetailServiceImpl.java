@@ -483,11 +483,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             Order order = deliverConsign.getOrder();
             order.getGoodsList().size();
         }
-        if (one.getLogisticsUserId() != null) {
-            one.setLogisticsUserId(5);
-        } else {
-            one.setLogisticsUserId(4);
-        }
+//        if (one.getLogisticsUserId() != null) {
+//            one.setLogisticsUserId(5);
+//        } else {
+//            one.setLogisticsUserId(4);
+//        }
         return one;
     }
 
