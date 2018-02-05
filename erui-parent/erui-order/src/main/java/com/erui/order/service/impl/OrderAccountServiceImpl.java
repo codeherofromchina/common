@@ -213,9 +213,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
 
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
-        BigDecimal sumMoney = BigDecimal.valueOf(0);
-        ;       //汇款金额
+        BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
         BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
+
         int size = byOrderId.size();
         for (int i = 0; i < size; i++) {
             if (byOrderId.get(i).getGoodsPrice() != null) {
@@ -231,6 +231,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
 
+       // 应收账款余额=发货金额-回款金额-其他扣款金额
         order.setReceivableAccountRemaining(subtract);    //应收账款余额
         order.setAttachmentSet(null);
         order.setGoodsList(null);

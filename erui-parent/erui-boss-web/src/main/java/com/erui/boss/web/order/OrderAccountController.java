@@ -179,7 +179,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "gatheringMessage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringMessage(Order order){
+    public Result<Object> gatheringMessage(@RequestBody Order order){
         if(order == null || order.getId() == null){
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
