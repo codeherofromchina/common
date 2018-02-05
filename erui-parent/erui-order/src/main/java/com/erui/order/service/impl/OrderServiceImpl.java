@@ -169,6 +169,9 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             return false;
         }
+        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            checkOrderTradeTermsRelationField(addOrderVo);
+        }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
         //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
@@ -240,11 +243,62 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
+    // 检查和贸易术语相关字段的完整性
+    private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
+        String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
+        String toCountry = addOrderVo.getToCountry(); // 目的国
+        String transportType = addOrderVo.getTransportType(); // 运输方式
+        String toPort = addOrderVo.getToPort(); // 目的港
+        String toPlace = addOrderVo.getToPlace(); // 目的地
+        if (StringUtils.isBlank(tradeTerms)) {
+            throw new Exception("贸易术语不能为空");
+        }
+        if (StringUtils.isBlank(toCountry)) {
+            throw new Exception("目的国不能为空");
+        }
+        switch (tradeTerms) {
+            case "EXW":
+            case "FCA":
+                if (StringUtils.isBlank(transportType)) {
+                    throw new Exception("运输方式不能为空");
+                }
+                break;
+            case "CNF":
+            case "CFR":
+            case "CIF":
+                if (StringUtils.isBlank(toPort)) {
+                    throw new Exception("目的港不能为空");
+                }
+                break;
+            case "CPT":
+            case "CIP":
+                if (StringUtils.isBlank(toPort)) {
+                    throw new Exception("目的港不能为空");
+                }
+                if (StringUtils.isBlank(toPlace)) {
+                    throw new Exception("目的地不能为空");
+                }
+                break;
+            case "DAT":
+            case "DAP":
+            case "DDP":
+                if (StringUtils.isBlank(toPlace)) {
+                    throw new Exception("目的地不能为空");
+                }
+                break;
+            default:
+                throw new Exception("不存在的贸易术语");
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
+        }
+        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            checkOrderTradeTermsRelationField(addOrderVo);
         }
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
@@ -344,12 +398,13 @@ public class OrderServiceImpl implements OrderService {
         }
         return order;
     }
-     /**
-      * @Author:SHIGS
-      * @Description订单日志
-      * @Date:11:30 2018/1/20
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description订单日志
+     * @Date:11:30 2018/1/20
+     * @modified By
+     */
     @Override
     @Transactional(readOnly = true)
     public List<OrderLog> orderLog(Integer orderId) {
@@ -370,12 +425,12 @@ public class OrderServiceImpl implements OrderService {
         return orderLog;
     }
 
-     /**
-      * @Author:SHIGS
-      * @Description 订单商品已发货完成后改为不可再次生成出口发货单标识
-      * @Date:11:29 2018/2/1
-      * @modified By
-      */
+    /**
+     * @Author:SHIGS
+     * @Description 订单商品已发货完成后改为不可再次生成出口发货单标识
+     * @Date:11:29 2018/2/1
+     * @modified By
+     */
     @Override
     public void updateOrderDeliverConsignC(Set<Integer> orderId) {
         if (orderId != null && orderId.size() > 0) {

@@ -128,6 +128,12 @@ public class Goods {
     //执行单约定交付日期
     @Column(name = "delivery_date")
     private Date deliveryDate;
+    // 执行单变更后日期
+    @Column(name = "exe_chg_date")
+    private Date exeChgDate;
+
+
+
     //合同变更后到货日期
     @Column(name = "pur_chg_date")
     private Date purChgDate;
@@ -197,6 +203,14 @@ public class Goods {
 
     public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public Date getExeChgDate() {
+        return exeChgDate;
+    }
+
+    public void setExeChgDate(Date exeChgDate) {
+        this.exeChgDate = exeChgDate;
     }
 
     public Date getPurChgDate() {
