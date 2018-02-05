@@ -90,9 +90,11 @@ public class DeliverDetailwController {
                 toPortList.add(order.getToPort());
                 toPlaceList.add(order.getToPlace());
                 for (Goods goods : order.getGoodsList()){
-                    goods.setRemarks(deliverConsign.getRemarks());     //备注
-                    goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
-                    goodsList.add(goods);
+                    if(goods.getOutstockNum() != 0){        //物流跟踪 商品信息 数量不能为0
+                        goods.setRemarks(deliverConsign.getRemarks());     //备注
+                        goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                        goodsList.add(goods);
+                    }
                 }
             }
             List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
@@ -187,9 +189,11 @@ public class DeliverDetailwController {
                     toPortList.add(order.getToPort());
                     toPlaceList.add(order.getToPlace());
                     for (Goods goods : order.getGoodsList()){
-                        goods.setRemarks(deliverConsign.getRemarks());     //备注
-                        goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
-                        goodsList.add(goods);
+                        if(goods.getOutstockNum() != 0) {        //物流跟踪 商品信息 数量不能为0
+                            goods.setRemarks(deliverConsign.getRemarks());     //备注
+                            goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                            goodsList.add(goods);
+                        }
                     }
                 }
                 List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
