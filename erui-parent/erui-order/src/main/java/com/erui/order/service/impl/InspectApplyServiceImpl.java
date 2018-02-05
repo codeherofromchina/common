@@ -470,7 +470,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
 
         InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), parentInspectApply.getNum()));
-        if (inspectApply == null || inspectApply.getStatus() == InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
+        if (inspectApply == null || inspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
             return null;
         }
         inspectApply.getAttachmentList().size();
