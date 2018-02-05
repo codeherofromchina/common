@@ -1,13 +1,14 @@
 package com.erui.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 订单表
@@ -161,7 +162,7 @@ public class Order {
     private Date deleteTime;
 
     @Column(name = "receivable_account_remaining")
-    private BigDecimal receivableAccountRemaining;
+    private BigDecimal receivableAccountRemaining;  //应收账款余额
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
