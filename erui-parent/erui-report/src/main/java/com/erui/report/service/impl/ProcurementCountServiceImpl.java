@@ -31,6 +31,16 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
     private static DecimalFormat df = new DecimalFormat("0.00");
 
     @Override
+    public Date selectStart() {
+        return this.readMapper.selectStart();
+    }
+
+    @Override
+    public Date selectEnd() {
+        return this.readMapper.selectEnd();
+    }
+
+    @Override
     public Map<String, Object> selectArea() {
         List<Map> areaMap = readMapper.selectArea();
         List<String> areaList = new ArrayList<>();
@@ -216,8 +226,8 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         //获取采购单数量数据
         List<Map<String, Object>> planList = readMapper.selectPlanDataTrend(exeExample);
         //整合数据
-        Map<String, Map<String, Object>> planMap = planList.parallelStream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
-        Map<String, Map<String, Object>> exeMap = exeList.parallelStream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
+        Map<String, Map<String, Object>> planMap = planList.stream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
+        Map<String, Map<String, Object>> exeMap = exeList.stream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
 
         exeList.stream().forEach(map->{
             if(planMap.containsKey(map.get("assignTime").toString())){

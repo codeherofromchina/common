@@ -33,6 +33,8 @@ public class TotalTimeController {
     private RequestCreditService requestCreditService;
     @Autowired
     private SupplyChainReadService supplyChainReadService;
+    @Autowired
+    private ProcurementCountService procurementCountService;
 
     @RequestMapping(value = "totalTime", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
@@ -47,6 +49,8 @@ public class TotalTimeController {
         Date requestEndTime = requestCreditService.selectEnd();
         Date supplyStartTime = supplyChainReadService.selectStart();
         Date supplyEndTime = supplyChainReadService.selectEnd();
+        Date procurStartTime = procurementCountService.selectStart();
+        Date procurEndTime = procurementCountService.selectEnd();
         Date totalStartTime = DateUtil.minTime(hrStartTime, inquiryStartTime, orderStartTime, requestStartTime, supplyStartTime);
         Date totalEndTime = DateUtil.maxTime(hrEndTime, inquiryEndTime, orderEndTime, requestEndTime, supplyEndTime);
         Date customStartTime = DateUtil.minTime(inquiryStartTime,orderStartTime);
@@ -75,6 +79,12 @@ public class TotalTimeController {
         }
         if(supplyEndTime!=null) {
             data.put("supplyEndTime", DateUtil.formatDate2String(supplyEndTime, "yyyy/MM/dd"));
+        }
+        if(procurStartTime!=null) {
+            data.put("procurStartTime", DateUtil.formatDate2String(procurStartTime, "yyyy/MM/dd"));
+        }
+        if(procurEndTime!=null) {
+            data.put("procurEndTime", DateUtil.formatDate2String(procurEndTime, "yyyy/MM/dd"));
         }
         if(totalStartTime!=null) {
             data.put("totalStartTime", DateUtil.formatDate2String(totalStartTime, "yyyy/MM/dd"));

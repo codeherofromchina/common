@@ -2,6 +2,8 @@ package com.erui.report.dao;
 
 import com.erui.report.model.ProcurementCount;
 import com.erui.report.model.ProcurementCountExample;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,14 @@ public interface ProcurementCountMapper {
     int updateByPrimaryKey(ProcurementCount record);
     
     void truncateTable();
+    /**
+     * 查询起始时间
+     */
+    Date selectStart();
+    /**
+     * 查询结束时间
+     */
+    Date selectEnd();
     /**
      * 查询国家列表
      */

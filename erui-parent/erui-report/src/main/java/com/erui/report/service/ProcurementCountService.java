@@ -15,6 +15,17 @@ import com.erui.report.util.InquiryAreaVO;
  *
  */
 public interface ProcurementCountService {
+
+	/**
+	 * 查询 起始时间
+	 * @return Date
+	 */
+	Date selectStart();
+	/**
+	 * 查询 结束时间
+	 * @return  Date
+	 */
+	Date selectEnd();
 	/**
 	 * 查询 大区列表
 	 * @return  map

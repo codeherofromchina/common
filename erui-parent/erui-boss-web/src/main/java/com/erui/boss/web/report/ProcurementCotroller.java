@@ -8,6 +8,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.ProcurementCount;
 import com.erui.report.service.ProcurementCountService;
 import com.erui.report.util.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -196,41 +197,41 @@ public class ProcurementCotroller {
         Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         int days = DateUtil.getDayBetween(startTime, endTime);
-        //环比时段
-        Date chainTime = DateUtil.sometimeCalendar(startTime, days);
+
         List<ProcurementCount> datas = procurementService.selectCategoryDetail(startTime, endTime);
-        List<ProcurementCount> chainDatas = procurementService.selectCategoryDetail(chainTime, startTime);
-        Map<String, ProcurementCount> chainCateMap = chainDatas.parallelStream().collect(Collectors.toMap(vo -> vo.getCategory(), vo -> vo));
+       //获取总的计划单数、总的签约合同数、总的合同金额
+        int totalPlanCount=0,totalExeCount=0;
+        double totalAmount=0d;
+
         List<Map<String, Object>> cates = new ArrayList<>();
         if (datas != null && datas.size() > 0) {
+            for (ProcurementCount pro:datas) {
+                totalPlanCount+=Integer.parseInt(pro.getPlanNum());
+                totalExeCount+=Integer.parseInt(pro.getExecuteNum());
+                totalAmount+=Double.parseDouble(pro.getAmmount().toString());
+            }
             for (ProcurementCount procureCout : datas) {
                 Map<String, Object> cate = new HashMap<>();
-                double planChainRate = 0d;
-                double executeChainRate = 0d;
-                double ammountChainRate = 0d;
                 cate.put("itemClass", procureCout.getCategory());
                 cate.put("planCount", procureCout.getPlanNum());
                 cate.put("executeCount", procureCout.getExecuteNum());
                 cate.put("ammout", procureCout.getAmmount());
-                if (chainCateMap.containsKey(procureCout.getCategory())) {
-                    ProcurementCount p1 = chainCateMap.get(procureCout.getCategory());
-                    int planNum = Integer.parseInt(p1.getPlanNum());
-                    int executeNum = Integer.parseInt(p1.getExecuteNum());
-                    BigDecimal mm = p1.getAmmount();
-                    double ammount = Double.parseDouble(mm.toString());
-                    if (planNum > 0) {
-                        planChainRate = RateUtil.intChainRateTwo(Integer.parseInt(procureCout.getPlanNum()) - planNum, planNum);
-                    }
-                    if (executeNum > 0) {
-                        executeChainRate = RateUtil.intChainRateTwo(Integer.parseInt(procureCout.getExecuteNum()) - executeNum, executeNum);
-                    }
-                    if (ammount > 0) {
-                        ammountChainRate = RateUtil.doubleChainRateTwo(Double.parseDouble(procureCout.getAmmount().toString()) - ammount, ammount);
-                    }
-                }
-                cate.put("planChainRate", planChainRate);
-                cate.put("executeChainRate", executeChainRate);
-                cate.put("ammountChainRate", ammountChainRate);
+                //占比率
+               if(totalPlanCount>0){
+                   cate.put("planChainRate", RateUtil.intChainRate(Integer.parseInt(procureCout.getPlanNum()),totalPlanCount));
+               }else {
+                   cate.put("planChainRate",0d);
+               }
+               if(totalExeCount>0){
+                   cate.put("executeChainRate", RateUtil.intChainRate(Integer.parseInt(procureCout.getExecuteNum()),totalExeCount));
+               }else {
+                   cate.put("executeChainRate",0d);
+               }
+               if(totalAmount>0){
+                   cate.put("ammountChainRate", RateUtil.doubleChainRate(Double.parseDouble(procureCout.getAmmount().toString()),totalAmount));
+               }else {
+                   cate.put("ammountChainRate",0d);
+               }
 
                 cates.add(cate);
             }
