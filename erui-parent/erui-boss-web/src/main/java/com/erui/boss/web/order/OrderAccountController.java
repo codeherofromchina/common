@@ -184,6 +184,9 @@ public class OrderAccountController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
        Order orderbyId= orderAccountService.gatheringMessage(order.getId());
+        orderbyId.setAttachmentSet(null);
+        orderbyId.setGoodsList(null);
+        orderbyId.setOrderPayments(null);
         return new Result<>(orderbyId);
     }
 

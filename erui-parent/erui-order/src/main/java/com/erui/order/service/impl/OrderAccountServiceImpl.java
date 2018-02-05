@@ -84,9 +84,62 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional
     public void delGatheringRecord(Integer id) {
-        OrderAccount orderAccounts = orderAccountDao.findOne(id);
+
+
+        /**
+         ** 逻辑删除收款记录
+         */
+
+        OrderAccount orderAccounts = orderAccountDao.findOne(id);   //查询收款记录
         orderAccounts.setDelYn(0);
-        orderAccountDao.save(orderAccounts);
+        orderAccountDao.save(orderAccounts);        //收款记录  逻辑删除
+
+        /**
+         * 判断是否是收款中状态
+         */
+        Integer id1 = orderAccounts.getOrder().getId();//拿到订单id
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id1);
+        //无收款记录  改变收款状态为  1:未付款      （ 1:未付款 2:部分付款 3:收款完成'）
+        if(byOrderId.size() == 0){
+            Order one = orderDao.findOne(id1);
+            one.setPayStatus(1);
+            orderDao.saveAndFlush(one);
+        }
+
+        /**
+         *  更正应收账款余额
+         */
+        //TODO
+        Order order = orderDao.findOne(id);  //查询订单信息
+
+        List<OrderAccount> byOrderId2 = orderAccountDao.findByOrderId(id);
+
+        BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
+        BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
+        BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
+
+        int size = byOrderId2.size();
+        for (int i = 0; i < size; i++) {
+            if (byOrderId2.get(i).getGoodsPrice() != null) {
+                sumGoodsPrice = sumGoodsPrice.add(byOrderId2.get(i).getGoodsPrice());    //发货金额
+            }
+            if (byOrderId2.get(i).getMoney() != null) {
+                sumMoney = sumMoney.add(byOrderId2.get(i).getMoney());       //回款金额
+            }
+            if (byOrderId2.get(i).getDiscount() != null) {
+                sumDiscount = sumDiscount.add(byOrderId2.get(i).getDiscount());      //其他扣款金额
+            }
+        }
+
+        BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
+
+        // 应收账款余额=发货金额-回款金额-其他扣款金额
+        order.setReceivableAccountRemaining(subtract);    //应收账款余额
+
+
+        /**
+         * //日志记录表
+         */
         OrderLog byOrderAccountId = orderLogDao.findByOrderAccountId(id);
         orderLogDao.delete(byOrderAccountId.getId());
     }
@@ -192,10 +245,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         if(byOrderId.size() == 0){
             throw new Exception("无收款记录");
         }
-        Order order = orderDao.findOne(id);
+  /*      Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
-        orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成
+        orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成*/
     }
 
 
@@ -233,9 +286,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
        // 应收账款余额=发货金额-回款金额-其他扣款金额
         order.setReceivableAccountRemaining(subtract);    //应收账款余额
-        order.setAttachmentSet(null);
-        order.setGoodsList(null);
-        order.setOrderPayments(null);
         return order;
     }
 
