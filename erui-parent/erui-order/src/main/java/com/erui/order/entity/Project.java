@@ -456,7 +456,7 @@ public class Project {
         project.setPurchaseUid(this.purchaseUid);
         project.setQualityUid(this.qualityUid);
         project.setQualityName(this.qualityName);
-        project.setBusinessUid(this.businessUid);
+        //project.setBusinessUid(this.businessUid);
         project.setBusinessName(this.businessName);
         project.setQualityName(this.qualityName);
         project.setWarehouseName(this.warehouseName);

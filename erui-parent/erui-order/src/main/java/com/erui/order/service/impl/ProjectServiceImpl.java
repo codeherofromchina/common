@@ -78,7 +78,6 @@ public class ProjectServiceImpl implements ProjectService {
                 projectUpdate.setPurchaseUid(null);
                 projectUpdate.setQualityName(null);
                 projectUpdate.setQualityUid(null);
-                projectUpdate.setBusinessUid(null);
                 projectUpdate.setLogisticsUid(null);
                 projectUpdate.setWarehouseName(null);
                 projectUpdate.setWarehouseUid(null);
@@ -92,7 +91,6 @@ public class ProjectServiceImpl implements ProjectService {
             projectUpdate.setPurchaseUid(project.getPurchaseUid());
             projectUpdate.setQualityName(project.getQualityName());
             projectUpdate.setQualityUid(project.getQualityUid());
-            projectUpdate.setBusinessUid(project.getBusinessUid());
             projectUpdate.setLogisticsUid(project.getLogisticsUid());
             projectUpdate.setWarehouseName(project.getWarehouseName());
             projectUpdate.setWarehouseUid(project.getWarehouseUid());
