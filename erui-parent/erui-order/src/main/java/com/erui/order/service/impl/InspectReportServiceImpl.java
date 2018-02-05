@@ -375,10 +375,10 @@ public class InspectReportServiceImpl implements InspectReportService {
         if (inspectReport != null && inspectReport.getReportFirst() != null && inspectReport.getReportFirst() && inspectReport.getCheckTimes() > 1) {
             InspectApply inspectApply = inspectReport.getInspectApply();
             Integer parentApplyId = inspectApply.getId();
-            List<InspectApply> childInspectApplyList = inspectApplyDao.findByParentIdOrderByIdAsc(parentApplyId);
+            List<InspectApply> childInspectApplyList = inspectApplyDao.findByParentIdOrderByIdDesc(parentApplyId);
             List<Integer> inspectApplyIds = childInspectApplyList.parallelStream().map(InspectApply::getId).collect(Collectors.toList());
             inspectApplyIds.add(parentApplyId);
-            result = inspectReportDao.findByInspectApplyIdInOrderByIdAsc(inspectApplyIds);
+            result = inspectReportDao.findByInspectApplyIdInOrderByIdDesc(inspectApplyIds);
         }
 
 

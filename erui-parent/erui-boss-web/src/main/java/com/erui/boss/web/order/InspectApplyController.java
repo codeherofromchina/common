@@ -190,7 +190,7 @@ public class InspectApplyController {
         if (masterInspectApply != null && masterInspectApply.isMaster()) {
 
             List<InspectApply> list = inspectApplyService.findByParentId(masterInspectApply.getId());
-            list.add(0, masterInspectApply);
+            list.add(masterInspectApply); // 在最后添加主报检单
 
             List<Map<String, Object>> data = list.parallelStream().map(vo -> {
                 return coverInspectApply2Map(vo);

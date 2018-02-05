@@ -154,7 +154,7 @@ public class InspectReportController {
 
             map.put("id", vo.getId());
             map.put("inspectApplyNo", vo.getInspectApplyNo());
-            map.put("purchNo", vo.getPurchNo());
+            map.put("purchNo", inspectApply.getPurchNo());
             map.put("agentName", purch.getAgentName());
             map.put("supplierName", purch.getSupplierName());
             map.put("inspectDate", inspectApply.getInspectDate());

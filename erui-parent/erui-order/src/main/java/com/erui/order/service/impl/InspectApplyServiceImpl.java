@@ -8,6 +8,7 @@ import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -383,7 +384,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     public List<InspectApply> findByParentId(Integer parentId) {
         // 存在多次报检
-        List<InspectApply> inspectApplyList = inspectApplyDao.findByParentIdOrderByIdAsc(parentId);
+        List<InspectApply> inspectApplyList = inspectApplyDao.findByParentIdOrderByIdDesc(parentId);
         if (inspectApplyList != null) {
             return inspectApplyList;
         }
@@ -463,12 +464,17 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(readOnly = true)
     public InspectApply findSonFailDetail(Integer parentId) {
-
-        InspectApply inspectApply = inspectApplyDao.findByParentIdAndPubStatusAndStatus(parentId, InspectApply.StatusEnum.SUBMITED.getCode(), InspectApply.StatusEnum.UNQUALIFIED.getCode());
-        if (inspectApply != null) {
-            inspectApply.getAttachmentList().size();
-            inspectApply.getInspectApplyGoodsList().size();
+        InspectApply parentInspectApply = inspectApplyDao.findOne(parentId);
+        if (parentInspectApply == null || parentInspectApply.getNum() < 2) {
+            return null;
         }
+
+        InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), parentInspectApply.getNum()));
+        if (inspectApply == null || inspectApply.getStatus() == InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
+            return null;
+        }
+        inspectApply.getAttachmentList().size();
+        inspectApply.getInspectApplyGoodsList().size();
 
         return inspectApply;
     }

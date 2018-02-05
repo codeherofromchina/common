@@ -24,10 +24,17 @@ public interface InspectApplyDao extends JpaRepository<InspectApply, Serializabl
      * @param id
      * @return
      */
-    List<InspectApply> findByParentIdOrderByIdAsc(Integer id);
+    List<InspectApply> findByParentIdOrderByIdDesc(Integer id);
 
     InspectApply findByParentIdAndPubStatusAndStatus(Integer parentId, int pubStatus, int status);
 
     @Query(value = "select t.inspect_apply_no from inspect_apply t where master = 1 order by t.inspect_apply_no desc LIMIT 1",nativeQuery = true)
     String findLastApplyNo();
+
+    /**
+     * 通过报检单号查找报检单
+     * @param inspectApplyNo
+     * @return
+     */
+    InspectApply findByInspectApplyNo(String inspectApplyNo);
 }
