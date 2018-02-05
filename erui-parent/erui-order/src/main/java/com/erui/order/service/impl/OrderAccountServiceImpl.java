@@ -162,9 +162,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         if (orderAccount.getMoney() != null) {
             orderAccounts.setMoney(orderAccount.getMoney());
         }
-        if (orderAccount.getDiscount() != null) {
+        /*if (orderAccount.getDiscount() != null) {*/
             orderAccounts.setDiscount(orderAccount.getDiscount());
-        }
+       /*}*/
         if (orderAccount.getPaymentDate() != null) {
             orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
         }
@@ -219,16 +219,19 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         int size = byOrderId.size();
         for (int i = 0; i < size; i++) {
             if (byOrderId.get(i).getGoodsPrice() != null) {
-                sumGoodsPrice = sumGoodsPrice.add(byOrderId.get(i).getGoodsPrice());
+                sumGoodsPrice = sumGoodsPrice.add(byOrderId.get(i).getGoodsPrice());    //发货金额
             }
             if (byOrderId.get(i).getMoney() != null) {
-                sumMoney = sumMoney.add(byOrderId.get(i).getMoney());
+                sumMoney = sumMoney.add(byOrderId.get(i).getMoney());       //回款金额
             }
             if (byOrderId.get(i).getDiscount() != null) {
-                sumDiscount = sumDiscount.add(byOrderId.get(i).getDiscount());
+                sumDiscount = sumDiscount.add(byOrderId.get(i).getDiscount());      //其他扣款金额
             }
         }
-        order.setReceivableAccountRemaining(sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount));    //应收账款余额
+
+        BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
+
+        order.setReceivableAccountRemaining(subtract);    //应收账款余额
         order.setAttachmentSet(null);
         order.setGoodsList(null);
         order.setOrderPayments(null);
