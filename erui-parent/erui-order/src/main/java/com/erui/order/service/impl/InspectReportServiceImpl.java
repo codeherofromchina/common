@@ -253,7 +253,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (samples == null || samples <= 0) {
                 throw new Exception("抽样数错误");
             }
-            if (unqualified == null || unqualified <= 0 || unqualified > samples) {
+            if (unqualified == null || unqualified < 0 || unqualified > samples) {
                 throw new Exception("不合格数据错误");
             }
             if (unqualified > 0) {
