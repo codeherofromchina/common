@@ -113,6 +113,7 @@ public class PurchController {
         // 不是提交也不是保存
         if (statusEnum != Purch.StatusEnum.BEING && statusEnum != Purch.StatusEnum.READY) {
             continueFlag = false;
+            errorMsg = "数据的状态不正确";
         }
         // 查看采购号是否存在
         if (StringUtils.isBlank(purch.getPurchNo())) {

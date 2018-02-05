@@ -7,7 +7,6 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchService;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -273,20 +272,16 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(Purch purch) throws Exception {
         Date now = new Date();
-
         Long count = purchDao.findCountByPurchNo(purch.getPurchNo());
         if (count != null && count > 0) {
-            throw new Exception("采购合同号已经存在");
+            throw new Exception("采购合同号重复");
         }
-
         // 设置基础数据
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
-        purch.setUpdateTime(now);
-        purch.setDeleteFlag(false);
 
-        // 处理结算方式
+        // 处理结算方式,新增，所以讲所有id设置为null，并添加新增时间
         purch.getPurchPaymentList().parallelStream().forEach(vo -> {
             vo.setId(null);
             vo.setCreateTime(now);
@@ -294,58 +289,58 @@ public class PurchServiceImpl implements PurchService {
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
         purch.setAttachments(attachments);
-
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
         List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
+            // 检查是否传入采购数量或者替换商品
+            Integer purchaseNum = purchGoods.getPurchaseNum(); // 获取采购数量
+            PurchGoods tSon = purchGoods.getSon(); // 获取替换商品
+            if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
+                // 传入的商品没有数量，表示不采购此商品
+                continue;
+            }
+            // 获取要采购的商品
             Goods goods = goodsDao.findOne(purchGoods.getgId());
             if (goods == null || goods.getExchanged()) {
+                // 给定的商品不存在或者是被替换的商品，则错误
                 throw new Exception("商品不存在");
             }
-            // 预采购数量已经大于等于合同数量，则不能再采购
-            if (goods.getPrePurchsedNum() >= goods.getContractGoodsNum()) {
-                throw new Exception("商品采购数量已超合同数");
-            }
-
             Project project = goods.getProject();
             // 必须是已创建采购申请单并未完成采购的项目
             if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                 throw new Exception("项目必须提交采购申请");
             }
-
-            purchGoodsList.add(purchGoods);
+            if (project.getPurchDone()) {
+                throw new Exception("项目采购已完成，不能再次采购");
+            }
             projectSet.add(project);
-            // 处理新增的采购商品
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods);
-
-            Integer purchaseNum = purchGoods.getPurchaseNum();
+            purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
-                purchaseNum += son.getPurchaseNum();
             }
+            int intPurchaseNum = purchGoods.getPurchaseNum();
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
-                goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                setGoodsTraceData(goods,purch);
+                goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
+                // 完善商品的项目执行跟踪信息
+                setGoodsTraceData(goods, purch);
             }
             // 增加预采购数量
-            goods.setPrePurchsedNum(purchaseNum + goods.getPrePurchsedNum());
-
-            updateGoods.add(goods);
+            goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
+            // 直接更新商品，放置循环中存在多次修改同一个商品错误
+            goodsDao.save(goods);
         }
-
-        // 修改商品的预采购数量和采购数量
-        goodsDao.save(updateGoods);
-
+        if (purchGoodsList.size() == 0) {
+            throw new Exception("必须存在要采购的商品");
+        }
         purch.setPurchGoodsList(purchGoodsList);
-        purch.setProjects(new ArrayList<>(projectSet));
-        purch.setInspected(Boolean.FALSE);
-
+        purch.setProjects(projectSet);
         // 保存采购单
         purchDao.save(purch);
-
+        // 检查项目是否已经采购完成
         List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIds);
 
@@ -353,12 +348,12 @@ public class PurchServiceImpl implements PurchService {
     }
 
 
-    private void setGoodsTraceData(Goods goods,Purch purch) {
+    private void setGoodsTraceData(Goods goods, Purch purch) {
         // 完善商品的项目执行跟踪信息 (只设置第一次的信息)
-        if (goods.getPurChgDate() == null ) {
+        if (goods.getPurChgDate() == null) {
             goods.setPurChgDate(purch.getPurChgDate());
         }
-        if (goods.getSigningDate() == null ) {
+        if (goods.getSigningDate() == null) {
             goods.setSigningDate(purch.getSigningDate());
         }
         if (goods.getAgentId() == null) {
@@ -379,20 +374,17 @@ public class PurchServiceImpl implements PurchService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Purch purch) throws Exception {
-
         Purch dbPurch = purchDao.findOne(purch.getId());
         // 之前的采购必须不能为空且未提交状态
-        if (dbPurch == null) {
+        if (dbPurch == null || dbPurch.getDeleteFlag()) {
             throw new Exception("采购信息不存在");
         } else if (dbPurch.getStatus() != Purch.StatusEnum.READY.getCode()) {
             throw new Exception("采购信息已提交不能修改");
         }
         final Date now = new Date();
-
         // 设置基本信息
         dbPurch.setBaseInfo(purch);
         dbPurch.setUpdateTime(now);
-
 
         // 处理结算方式
         Map<Integer, PurchPayment> collect = dbPurch.getPurchPaymentList().parallelStream().collect(Collectors.toMap(PurchPayment::getId, vo -> vo));
@@ -415,78 +407,107 @@ public class PurchServiceImpl implements PurchService {
         if (collect.size() > 0) {
             purchPaymentDao.delete(collect.values());
         }
-
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
         dbPurch.setAttachments(attachmentlist);
-
-
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
-        Set<Project> projectSet = new HashSet<>();
-
+        Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
         // 数据库现在的采购商品信息
         Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
-
         Set<Integer> existId = new HashSet<>();
-
         // 处理参数中的采购商品信息
         for (PurchGoods pg : purch.getPurchGoodsList()) {
             Integer pgId = pg.getId();
             if (pgId == null) { // 新增加的采购商品信息
+                // 检查是否传入采购数量或者替换商品
+                Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
+                PurchGoods tSon = pg.getSon(); // 获取替换商品
+                if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
+                    // 传入的商品没有数量，表示不采购此商品
+                    continue;
+                }
+                // 获取要采购的商品
                 Goods goods = goodsDao.findOne(pg.getgId());
                 if (goods == null || goods.getExchanged()) {
                     throw new Exception("商品不存在");
                 }
-                // 预采购数量
-                Integer prePurchsedNum = goods.getPrePurchsedNum();
-                if (prePurchsedNum >= goods.getContractGoodsNum()) {
-                    // 商品的预采购数量已经大于了合同数量
-                    throw new Exception("商品采购数量已超合同数");
-                }
-
                 Project project = goods.getProject();
+                // 必须是已创建采购申请单并未完成采购的项目
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception("项目必须提交采购申请");
                 }
-
-                purchGoodsList.add(pg);
+                if (project.getPurchDone()) {
+                    throw new Exception("项目采购已完成，不能再次采购");
+                }
                 projectSet.add(project);
                 // 查看是否存在替换商品
                 PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg);
-
-                Integer purchasedNum = pg.getPurchaseNum();
+                purchGoodsList.add(pg);
                 if (son != null) {
                     purchGoodsList.add(son);
-                    purchasedNum += son.getPurchaseNum();
                 }
-
+                Integer intPurchaseNum = pg.getPurchaseNum();
                 // 更新商品的采购数量和预采购数量
                 if (purch.getStatus() == Purch.StatusEnum.DONE.getCode()) {
                     // 更新已采购数量
-                    goods.setPurchasedNum(goods.getPurchasedNum() + purchasedNum);
+                    goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
-                    setGoodsTraceData(goods,purch);
+                    setGoodsTraceData(goods, purch);
                 }
-                goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchasedNum);
+                goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
             } else if (dbPurchGoodsMap.containsKey(pgId)) {
+                Integer paramPurchaseNum = pg.getPurchaseNum();
+                // 验证是删除还是修改，传入的商品采购数量0也作为删除
+                if (paramPurchaseNum == null || paramPurchaseNum <= 0) {
+                    PurchGoods purchGoods = dbPurchGoodsMap.get(pgId);
+                    if (purchGoods.getExchanged()) {
+                        // 是替换后的商品，则直接删除（跳过处理后在循环外删除）
+                        continue;
+                    } else if (pg.getSon() == null) { // 不是替换商品，查看是否存在替换后商品，如果不存在，则删除
+                        PurchGoods sonPurchGoods = purchGoodsDao.findByPurchIdAndParentId(dbPurch.getId(), pgId);
+                        if (sonPurchGoods == null) {
+                            continue;
+                        } else {
+                            // 查找参数中的替换后商品
+                            PurchGoods paramSonPurchGoods = purch.getPurchGoodsList().parallelStream().filter(vo -> {
+                                Integer id = vo.getId();
+                                if (id != null && id.intValue() == sonPurchGoods.getId()) {
+                                    return true;
+                                }
+                                return false;
+                            }).findFirst().get();
+                            if (paramSonPurchGoods == null) {
+                                continue;
+                            }
+                            Integer paramSonPurchaseNum = paramSonPurchGoods.getPurchaseNum();
+                            if (paramSonPurchaseNum == null || paramSonPurchaseNum <= 0) {
+                                continue;
+                            }
+                        }
+                    } else {
+                        Integer purchaseNum = pg.getSon().getPurchaseNum();
+                        if (purchaseNum == null || purchaseNum <= 0) {
+                            continue;
+                        }
+                    }
+                }
                 // 编辑原来的采购商品
                 PurchGoods purchGoods = dbPurchGoodsMap.remove(pgId);
                 existId.add(pgId);
-
                 Project project = purchGoods.getProject();
 
                 boolean hasSon = false;
-                boolean exchanged = purchGoods.getExchanged();
-                if (exchanged) {
+                if (purchGoods.getExchanged()) {
                     // 是替换商品，查看父商品是否存在
-                    Integer pId = purchGoods.getParent().getId();
+                    PurchGoods parentPurchGoods = purchGoods.getParent();
+                    Integer pId = parentPurchGoods.getId();
                     if (!existId.contains(pId)) {
                         // 查找替换前的商品先处理
-                        List<PurchGoods> collect1 = purch.getPurchGoodsList().parallelStream().filter(vo -> vo.getId().intValue() == pId).collect(Collectors.toList());
-                        if (collect1 == null || collect1.size() != 1) {
-                            throw new Exception("父商品信息错误");
+                        PurchGoods paramParentPurchGoods = purch.getPurchGoodsList().parallelStream().filter(vo -> vo.getId().intValue() == pId).findFirst().get();
+                        if (paramParentPurchGoods == null) {
+                            throw new Exception("父采购商品信息不存在");
                         }
                     }
                 } else {
@@ -516,32 +537,23 @@ public class PurchServiceImpl implements PurchService {
                     }
                     // 总价款
                     purchGoods.setTotalPrice(purchGoods.getPurchasePrice().multiply(new BigDecimal(purchGoods.getPurchaseNum().intValue())));
-                } else if (!hasSon) {
-                    throw new Exception("商品数量错误");
                 }
                 purchGoodsList.add(purchGoods);
 
                 int purchaseNum = purchGoods.getPurchaseNum();
-                Goods goods = purchGoods.getGoods();
-                // 从数据库查询一次做修改
-                if (goods.getParentId() != null) {
-                    goods = goodsDao.findOne(goods.getParentId());
-                } else {
-                    goods = goodsDao.findOne(goods.getId());
-                }
+                // 从数据库查询一次商品做修改
+                Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
                 if (hasSon) {
                     // 处理替换商品
                     PurchGoods son = pg.getSon();
                     handleExchangedPurchGoods(project, goods, dbPurch, purchGoods, son);
                     purchGoodsList.add(son);
-                    purchaseNum += son.getPurchaseNum();
                 }
-
                 // 提交则修改商品的已采购数量
                 if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                     // 设置商品的项目跟踪信息
-                    setGoodsTraceData(goods,purch);
+                    setGoodsTraceData(goods, purch);
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);
@@ -549,11 +561,11 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception("不存在的采购商品信息");
             }
         }
-
+        if (purchGoodsList.size() == 0) {
+            throw new Exception("必须存在要采购的商品");
+        }
         dbPurch.setPurchGoodsList(purchGoodsList);
-        dbPurch.setProjects(new ArrayList<>(projectSet));
-
-        List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
+        dbPurch.setProjects(projectSet);
 
         // 删除不关联的商品信息
         if (dbPurchGoodsMap.size() > 0) {
@@ -562,21 +574,30 @@ public class PurchServiceImpl implements PurchService {
             for (PurchGoods pg : values) {
                 Integer purchaseNum = pg.getPurchaseNum();
                 Goods one = goodsDao.findOne(pg.getGoods().getId());
-                one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
-                goodsDao.save(one);
+                if (one.getExchanged()) {
+                    // 是替换后的商品，则将此商品删除，并增加父商品的合同数量
+                    Goods parentOne = goodsDao.findOne(one.getParentId());
+                    parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
+                    goodsDao.save(parentOne);
+                    goodsDao.delete(one);
+                } else {
+                    one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
+                    goodsDao.save(one);
+                }
             }
             purchGoodsDao.delete(values);
         }
+        // 更新采购单
         purchDao.save(dbPurch);
-
         // 检查项目是否已经采购完成
+        List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIdList);
-
         return true;
     }
 
-    // 处理新增采购信息，如果采购信息有替换的商品，则返回替换信息
+    // 处理新增采购信息，如果采购信息有替换的商品，则返回处理后的替换信息
     private PurchGoods handleAddNewPurchGoods(Project project, Purch purch, Goods goods, PurchGoods newPurchGoods) throws Exception {
+        // 设置新采购的基本信息
         String contractNo = project.getContractNo();
         String projectNo = project.getProjectNo();
         newPurchGoods.setId(null);
@@ -586,11 +607,20 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setPurch(purch);
         newPurchGoods.setGoods(goods);
         Integer purchaseNum = newPurchGoods.getPurchaseNum();
-        newPurchGoods.setPurchaseNum(purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0);
+        purchaseNum = purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0;
+        newPurchGoods.setPurchaseNum(purchaseNum);
+        // 判断采购是否超限,预采购数量大于合同数量，则错误
+        if (goods.getPrePurchsedNum() + purchaseNum > goods.getContractGoodsNum()) {
+            throw new Exception("要采购的商品数量超合同数量【sku :" + goods.getSku() + "】");
+        }
+        if (purchaseNum > 0 &&
+                (newPurchGoods.getPurchasePrice() == null || newPurchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
+            throw new Exception("要采购的商品单价错误【sku :" + goods.getSku() + "】");
+        }
         newPurchGoods.setExchanged(false);
         newPurchGoods.setInspectNum(0); // 设置已报检数量
         newPurchGoods.setPreInspectNum(0); // 设置预报检数量
-        newPurchGoods.setGoodNum(0);
+        newPurchGoods.setGoodNum(0); // 设置检验合格商品数量
         // 计算含税价格和不含税单价以及总价款
         String currencyBn = purch.getCurrencyBn();
         if (newPurchGoods.getPurchaseNum() > 0) {
@@ -617,8 +647,6 @@ public class PurchServiceImpl implements PurchService {
         if (son != null) {
             // 处理替换商品
             handleExchangedPurchGoods(project, goods, purch, newPurchGoods, son);
-        } else if (newPurchGoods.getPurchaseNum() <= 0) {
-            throw new Exception("采购数量不能为0");
         }
         return son;
     }
@@ -628,48 +656,65 @@ public class PurchServiceImpl implements PurchService {
      * 处理替换后的商品信息
      */
     private void handleExchangedPurchGoods(Project project, Goods beforeGoods, Purch purch, PurchGoods beforePurchGoods, PurchGoods son) throws Exception {
-        String contractNo = beforeGoods.getContractNo();
-        String projectNo = beforeGoods.getProjectNo();
-
+        Integer purchaseNum = son.getPurchaseNum();
+        // 检查采购数量、采购单价
+        if (purchaseNum == null || purchaseNum <= 0) {
+            throw new Exception("替换商品采购数量错误");
+        }
+        BigDecimal purchasePrice = son.getPurchasePrice();
+        if (purchasePrice == null || purchasePrice.compareTo(BigDecimal.ZERO) != 1) {
+            throw new Exception("替换商品采购单价错误");
+        }
+        // 检查采购数量是否超合同数量
+        if (purchaseNum + beforeGoods.getPrePurchsedNum() > beforeGoods.getContractGoodsNum()) {
+            throw new Exception("替换商品采购超限【父SKU:" + beforeGoods.getSku() + "】");
+        }
         //  插入替换后的新商品
         Goods sonGoods = son.getGoods();
+        if (sonGoods == null) {
+            throw new Exception("替换采购的商品信息不完整【父SKU:" + beforeGoods.getSku() + "】");
+        }
+        /*else if (StringUtils.isAnyBlank(sonGoods.getSku(),sonGoods.getNameEn(),sonGoods.getNameZh())) {
+            throw new Exception("替换采购的商品信息不正确（sku/名称）【父SKU:" + beforeGoods.getSku() + "】");
+        }*/
         sonGoods.setParentId(beforeGoods.getId());
         sonGoods.setExchanged(true);
         sonGoods.setOrder(beforeGoods.getOrder());
         sonGoods.setProject(project);
-        sonGoods.setContractNo(contractNo);
-        sonGoods.setProjectNo(projectNo);
-        sonGoods.setContractGoodsNum(0);
-        sonGoods.setPurchasedNum(0);
-        sonGoods.setPrePurchsedNum(0);
+        sonGoods.setContractNo(beforeGoods.getContractNo());
+        sonGoods.setProjectNo(beforeGoods.getProjectNo());
+        // 设置商品合同数量，同时将父商品的合同数量减少
+        sonGoods.setContractGoodsNum(purchaseNum);
+        beforeGoods.setContractGoodsNum(beforeGoods.getContractGoodsNum() - purchaseNum);
+        // 设置客户需求描述信息
+        sonGoods.setClientDesc(beforeGoods.getClientDesc());
+        // 其他字段
+        sonGoods.setRequirePurchaseDate(beforeGoods.getRequirePurchaseDate());
+        if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            // 如果是提交则设置商品的已采购数量并更新
+            sonGoods.setPurchasedNum(purchaseNum);
+            // 完善商品的项目执行跟踪信息
+            setGoodsTraceData(sonGoods, purch);
+        } else {
+            sonGoods.setPurchasedNum(0);
+        }
+        sonGoods.setPrePurchsedNum(purchaseNum);
         sonGoods.setInspectNum(0);
         sonGoods.setInstockNum(0);
         sonGoods.setOutstockApplyNum(0);
         sonGoods.setOutstockNum(0);
-
         sonGoods = goodsDao.save(sonGoods);
 
         // 处理替换后的采购信息
         son.setProject(project);
-        son.setProjectNo(beforePurchGoods.getProjectNo());
+        son.setProjectNo(project.getProjectNo());
         son.setParent(beforePurchGoods);
-        son.setContractNo(contractNo);
-
+        son.setContractNo(beforeGoods.getContractNo());
         son.setPurch(purch);
         son.setGoods(sonGoods);
         son.setExchanged(true);
-
-        Integer purchaseNum = son.getPurchaseNum();
-        if (purchaseNum == null || purchaseNum <= 0) {
-            throw new Exception("商品采购数量错误");
-        }
         // 计算含税价格和不含税单价以及总价款
         String currencyBn = purch.getCurrencyBn();
-        BigDecimal purchasePrice = son.getPurchasePrice();
-        if (purchasePrice == null || purchasePrice.compareTo(BigDecimal.ZERO) != 1) {
-            // 采购价格为空或小于0
-            throw new Exception("商品的采购价格错误");
-        }
         // 人民币默认是含税价格
         if ("CNY".equals(currencyBn)) {
             // 人民币是默认含税价格
@@ -680,9 +725,9 @@ public class PurchServiceImpl implements PurchService {
         }
         // 总价款
         son.setTotalPrice(purchasePrice.multiply(new BigDecimal(purchaseNum.intValue())));
+        son.setGoodNum(0);
         son.setInspectNum(0);
         son.setPreInspectNum(0);
-        son.setGoodNum(0);
         son.setCreateTime(new Date());
     }
 

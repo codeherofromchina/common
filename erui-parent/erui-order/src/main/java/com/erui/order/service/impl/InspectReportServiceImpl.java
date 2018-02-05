@@ -248,17 +248,24 @@ public class InspectReportServiceImpl implements InspectReportService {
                 throw new Exception("传入质检商品不正确");
             }
 
-            applyGoods.setSamples(paramApplyGoods.getSamples());
-            applyGoods.setUnqualified(paramApplyGoods.getUnqualified());
-            applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
-            if (applyGoods.getUnqualified() > 0) {
+            Integer samples = paramApplyGoods.getSamples();
+            Integer unqualified = paramApplyGoods.getUnqualified();
+            if (samples == null || samples <= 0) {
+                throw new Exception("抽样数错误");
+            }
+            if (unqualified == null || unqualified <= 0 || unqualified > samples) {
+                throw new Exception("不合格数据错误");
+            }
+            if (unqualified > 0) {
                 hegeFlag = false;
             }
-
+            applyGoods.setSamples(samples);
+            applyGoods.setUnqualified(unqualified);
+            applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
                 // 合格数量
-                int qualifiedNum = applyGoods.getInspectNum() - applyGoods.getUnqualified();
+                int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 if (qualifiedNum < 0) {
                     throw new Exception("传入不合格数量参数不正确");
                 }
@@ -273,7 +280,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                 if (goods.getCheckDate() == null) {
                     goods.setCheckDate(dbInspectReport.getCheckDate());
                 }
-
                 goodsDao.save(goods);
             }
         }
@@ -293,21 +299,15 @@ public class InspectReportServiceImpl implements InspectReportService {
                 dbInspectReport.setProcess(true);
             }
 
-
-
-
             InspectApply parent = inspectApply.getParent();
             if (parent != null) {
-                parent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.SUBMITED.getCode());
+                parent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
                 inspectApplyDao.save(parent);
             }
-
             inspectApply.setStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
-            inspectApply.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.SUBMITED.getCode());
-
+            inspectApply.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
             inspectApplyDao.save(inspectApply);
         }
-
         inspectReportDao.save(dbInspectReport);
 
         // 最后判断采购是否完成
@@ -329,10 +329,11 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
-            List<Project> projects = dbInspectReport.getInspectApply().getPurch().getProjects();
+            Set<Project> projects = dbInspectReport.getInspectApply().getPurch().getProjects();
             if (projects != null && projects.size() > 0) {
-                instock.setUid(projects.get(0).getWarehouseUid());
-                instock.setUname(projects.get(0).getWarehouseName());
+                Project project = projects.parallelStream().findFirst().get();
+                instock.setUid(project.getWarehouseUid());
+                instock.setUname(project.getWarehouseName());
             }
 
             instock.setInspectApplyNo(dbInspectReport.getInspectApplyNo()); // 报检单号

@@ -13,5 +13,8 @@ import java.util.List;
 public interface PurchGoodsDao extends JpaRepository<PurchGoods, Serializable> {
     List<PurchGoods> findByPurchId(Integer purchId);
 
-    PurchGoods findByPurchIdAndGoodsId(Integer id, Integer goodsId);
+    PurchGoods findByPurchIdAndGoodsId(Integer purchId, Integer goodsId);
+
+    // 给定采购单和父采购商品，查找替换后的采购商品
+    PurchGoods findByPurchIdAndParentId(Integer purchId, Integer parentId);
 }

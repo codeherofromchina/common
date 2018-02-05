@@ -422,7 +422,7 @@ public class Project {
         this.goodsList = goodsList;
     }
 
-    public boolean copyProjectDesc(Project project) {
+    public boolean copyProjectDescTo(Project project) {
         if (project == null) {
             return false;
         }
@@ -487,14 +487,15 @@ public class Project {
     }
 
     public static enum ProjectStatusEnum {
-        HASMANAGER("HASMANAGER", "有项目经理"), SUBMIT("SUBMIT", "未执行"),
-        EXECUTING("EXECUTING", "正常执行"), DONE("DONE", "正常完成"), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行"),
-        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成"), UNSHIPPED("UNSHIPPED", "正常待发运"),
-        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运"), PAUSE("PAUSE", "项目暂停"), CANCEL("CANCEL", "项目取消");
+        SUBMIT("SUBMIT", "未执行",1),HASMANAGER("HASMANAGER", "有项目经理",2),
+        EXECUTING("EXECUTING", "正常执行",3), DONE("DONE", "正常完成",4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行",5),
+        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成",6), UNSHIPPED("UNSHIPPED", "正常待发运",7),
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运",8), PAUSE("PAUSE", "项目暂停",9), CANCEL("CANCEL", "项目取消",10);
         private String code;
         private String msg;
+        private int seq;
 
-        ProjectStatusEnum(String code, String msg) {
+        ProjectStatusEnum(String code, String msg , int seq) {
             this.code = code;
             this.msg = msg;
         }
@@ -507,6 +508,9 @@ public class Project {
             return msg;
         }
 
+        public int getSeq() {
+            return seq;
+        }
 
         public static ProjectStatusEnum fromCode(String code) {
             if (StringUtils.isNotBlank(code)) {

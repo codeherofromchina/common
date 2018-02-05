@@ -108,14 +108,14 @@ public class Purch {
 
     @Column(name = "delete_flag")
     @JsonIgnore
-    private Boolean deleteFlag;
+    private Boolean deleteFlag = Boolean.FALSE;
 
     @Column(name = "delete_time")
     @JsonIgnore
     private Date deleteTime;
 
     // 是否报检完成 true：完成  false：未完成
-    private Boolean inspected;
+    private Boolean inspected = Boolean.FALSE;
 
     private String remarks;
 
@@ -137,7 +137,7 @@ public class Purch {
             joinColumns = @JoinColumn(name = "purch_id"),
             inverseJoinColumns = @JoinColumn(name = "project_id"))
     @JsonIgnore
-    private List<Project> projects = new ArrayList<>();
+    private Set<Project> projects = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_attach",
@@ -345,6 +345,9 @@ public class Purch {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+        if (this.createTime != null) {
+            this.updateTime = this.createTime;
+        }
     }
 
     public Integer getCreateUserId() {
@@ -427,11 +430,11 @@ public class Purch {
         this.rows = rows;
     }
 
-    public List<Project> getProjects() {
+    public Set<Project> getProjects() {
         return projects;
     }
 
-    public void setProjects(List<Project> projects) {
+    public void setProjects(Set<Project> projects) {
         this.projects = projects;
     }
 

@@ -33,7 +33,8 @@ public class Attachment {
     private String frontDate;
     @Column(name = "delete_flag")
     @JsonIgnore
-    private Boolean deleteFlag;
+    private Boolean deleteFlag = Boolean.FALSE;
+
     @Column(name = "delete_time")
     @JsonIgnore
     private Date deleteTime;

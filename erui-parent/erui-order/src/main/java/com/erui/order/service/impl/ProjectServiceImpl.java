@@ -59,19 +59,49 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
-        //Integer proNameId = projectDao.findIdByProjectName(project.getProjectName());
-       /* if (proNameId!= null && proNameId != project.getId()) {
-            throw new Exception("项目名称已存在");
-        }*/
-        if (project.getProjectStatus().equals("SUBMIT") || project.getProjectStatus().equals("HASMANAGER") || project.getProjectStatus().equals("EXECUTING")) {
-            project.copyProjectDesc(projectUpdate);
+        Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
+        Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
+        // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
+        if (nowProjectStatusEnum.getSeq() >= Project.ProjectStatusEnum.EXECUTING.getSeq()) {
+            if (paramProjectStatusEnum.getSeq() < Project.ProjectStatusEnum.EXECUTING.getSeq()) {
+                throw new Exception("参数状态错误");
+            }
+            projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+        } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
+            // 之前只保存了项目，则流程可以是提交到项目经理和执行
+            if (paramProjectStatusEnum.getSeq() > Project.ProjectStatusEnum.EXECUTING.getSeq()) {
+                throw new Exception("参数状态错误");
+            }
+            project.copyProjectDescTo(projectUpdate);
+            if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                // 提交到项目经理，则项目成员不能设置
+                projectUpdate.setPurchaseUid(null);
+                projectUpdate.setQualityName(null);
+                projectUpdate.setQualityUid(null);
+                projectUpdate.setBusinessUid(null);
+                projectUpdate.setLogisticsUid(null);
+                projectUpdate.setWarehouseName(null);
+                projectUpdate.setWarehouseUid(null);
+            }
+        } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+            // 交付配送中心项目经理只能保存后者执行
+            if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
+                throw new Exception("参数状态错误");
+            }
+            // 只设置项目成员
+            projectUpdate.setPurchaseUid(project.getPurchaseUid());
+            projectUpdate.setQualityName(project.getQualityName());
+            projectUpdate.setQualityUid(project.getQualityUid());
+            projectUpdate.setBusinessUid(project.getBusinessUid());
+            projectUpdate.setLogisticsUid(project.getLogisticsUid());
+            projectUpdate.setWarehouseName(project.getWarehouseName());
+            projectUpdate.setWarehouseUid(project.getWarehouseUid());
+        } else {
+            // 其他分支，错误
+            throw new Exception("项目状态数据错误");
         }
-        projectUpdate.setUpdateTime(new Date());
-        Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
-       /* if (statusEnum != Project.ProjectStatusEnum.SUBMIT) {
-            projectUpdate.setProjectStatus(project.getProjectStatus());
-        }*/
-        if (statusEnum.equals(Project.ProjectStatusEnum.EXECUTING)) {
+        // 操作相关订单信息
+        if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
             Order order = projectUpdate.getOrder();
             order.getGoodsList().forEach(gd -> {
                         gd.setStartDate(projectUpdate.getStartDate());
@@ -80,7 +110,9 @@ public class ProjectServiceImpl implements ProjectService {
                     }
             );
             order.setStatus(3);
+            orderDao.save(order);
         }
+        projectUpdate.setUpdateTime(new Date());
         projectDao.save(projectUpdate);
         return true;
     }
@@ -154,7 +186,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Project> purchAbleList(List<String> projectNoList,String purchaseUid) throws Exception {
+    public List<Project> purchAbleList(List<String> projectNoList, String purchaseUid) throws Exception {
         List<Project> list = null;
         if (StringUtils.isBlank(purchaseUid)) {
             list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
@@ -162,7 +194,7 @@ public class ProjectServiceImpl implements ProjectService {
             if (!StringUtils.isNumeric(purchaseUid)) {
                 throw new Exception("采购经办人参数错误");
             }
-            list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE,Integer.parseInt(purchaseUid));
+            list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE, Integer.parseInt(purchaseUid));
         }
 
 
