@@ -166,7 +166,7 @@ public class OrderAccountController {
             }catch (Exception e){
                 logger.error("(根据id)确认全部收款完成失败：", orderAccount.getId(), e);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg(e.toString());
+                result.setMsg(e.getMessage());
             }
         }
         return result;
