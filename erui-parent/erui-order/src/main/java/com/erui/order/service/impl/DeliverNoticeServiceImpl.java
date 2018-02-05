@@ -307,6 +307,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 if (StringUtil.isNotBlank(deliverNotice.getContractNo())){
                     one.setContractNo(deliverNotice.getContractNo());
                 }
+            List<DeliverConsignGoods> deliverConsignGoodsLists =null; //出库详情 商品
                 if(StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())){
                     List<DeliverConsign> deliverConsigns = one.getDeliverConsigns(); //已存在的关联关系
                     for (DeliverConsign deliverConsign : deliverConsigns){
@@ -315,13 +316,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         deliverConsignDao.saveAndFlush(ones);
                     }
                     split = deliverNotice.getDeliverConsignIds().split(",");    //选中的关联关系
-                    DeliverConsign deliverConsign = null;
                     List<DeliverConsign> list = new ArrayList<DeliverConsign>();
                     for (String s :split){
-                        list.add(deliverConsignDao.findOne(Integer.parseInt(s)));
-                        DeliverConsign ones = deliverConsignDao.findOne(Integer.parseInt(s));   //改变出口单状态
-                        ones.setDeliverYn(2);
-                        deliverConsignDao.saveAndFlush(ones);
+                        DeliverConsign one1 = deliverConsignDao.findOne(Integer.parseInt(s));
+                        deliverConsignGoodsLists = new ArrayList<>();
+                        List<DeliverConsignGoods> deliverConsignGoodsSet = one1.getDeliverConsignGoodsSet();
+                        for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsSet){
+                            deliverConsignGoodsLists.add(deliverConsignGoods);
+                        }
+
+                        list.add(one1);
+                        one1.setDeliverYn(2);   //改变出口单状态
+                        deliverConsignDao.saveAndFlush(one1);
                     }
                     one.setDeliverConsigns(list);
                 }
@@ -416,6 +422,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                        }
 
                     deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
+                    deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
 
