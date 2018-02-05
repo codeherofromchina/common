@@ -353,19 +353,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<OrderLog> orderLog(Integer orderId) {
-        List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
+        List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderId);
         if (orderLog == null) {
             orderLog = new ArrayList<>();
-        } else {
+        }
+        /*
+        else {
             orderLog = orderLog.stream().filter(log -> {
-               /* if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
+                if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
                     return false;
-                }*/
+                }
                 return true;
             }).collect(Collectors.toList());
-
-
         }
+        */
         return orderLog;
     }
 

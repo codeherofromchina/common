@@ -227,7 +227,12 @@ public class OrderController {
      */
     @RequestMapping(value = "queryOrderLog", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryOrderLog(@RequestBody Map<String, Integer> map) {
-        List<OrderLog> logList = orderService.orderLog(map.get("orderId"));
+        Integer orderId = map.get("orderId");
+        Result<Object> result = new Result<>();
+        if (orderId == null || orderId <= 0) {
+            return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
+        }
+        List<OrderLog> logList = orderService.orderLog(orderId);
         if (logList.size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }

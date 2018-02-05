@@ -11,7 +11,7 @@ import java.util.List;
  * Created by wangxiaodan on 2017/12/11.
  */
 public interface OrderLogDao extends JpaRepository<OrderLog, Serializable>, JpaSpecificationExecutor<OrderLog>  {
-    List<OrderLog> findByOrderIdOrderByCreateTimeDesc(Integer orderId);
+    List<OrderLog> findByOrderIdOrderByCreateTimeAsc(Integer orderId);
 
     OrderLog findByOrderAccountId(Integer id);
    /* List<Order> findByIdIn(Integer[] ids);
