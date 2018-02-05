@@ -43,6 +43,9 @@ public class OrderLog {
     @Column(name="create_time")
     private Date createTime;
 
+    @Column(name="order_account_id")
+    private Integer orderAccountId;
+
     public Integer getId() {
         return id;
     }
@@ -105,6 +108,14 @@ public class OrderLog {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getOrderAccountId() {
+        return orderAccountId;
+    }
+
+    public void setOrderAccountId(Integer orderAccountId) {
+        this.orderAccountId = orderAccountId;
     }
 
     @Override

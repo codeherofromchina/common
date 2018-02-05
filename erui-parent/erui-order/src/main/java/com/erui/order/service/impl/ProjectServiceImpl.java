@@ -59,17 +59,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
+
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
         // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
-        if (nowProjectStatusEnum.getSeq() >= Project.ProjectStatusEnum.EXECUTING.getSeq()) {
-            if (paramProjectStatusEnum.getSeq() < Project.ProjectStatusEnum.EXECUTING.getSeq()) {
+        if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
+            if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
                 throw new Exception("参数状态错误");
             }
             projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
         } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
             // 之前只保存了项目，则流程可以是提交到项目经理和执行
-            if (paramProjectStatusEnum.getSeq() > Project.ProjectStatusEnum.EXECUTING.getSeq()) {
+            if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                 throw new Exception("参数状态错误");
             }
             project.copyProjectDescTo(projectUpdate);

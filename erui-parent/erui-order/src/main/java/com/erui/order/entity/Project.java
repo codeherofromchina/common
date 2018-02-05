@@ -1,11 +1,8 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.*;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.lang3.StringUtils;
-
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -108,15 +105,20 @@ public class Project {
     private Date createTime;
     @Column(name = "exec_co_name")
     private String execCoName;
-
+    //分销部名称
     @Column(name = "distribution_dept_name")
     private String distributionDeptName;
-
+    //下发部门
     @Column(name = "send_dept_id")
     private Integer sendDeptId;
-
     @Column(name = "business_unit_name")
     private String businessUnitName;
+    //商务技术经办人
+    @Column(name = "business_name")
+    private String businessName;
+    //国际物流经办人
+    @Column(name = "logistics_name")
+    private String logisticsName;
 
     private String region;
     private String country;
@@ -132,6 +134,22 @@ public class Project {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getLogisticsName() {
+        return logisticsName;
+    }
+
+    public void setLogisticsName(String logisticsName) {
+        this.logisticsName = logisticsName;
     }
 
     public String getCountry() {
@@ -439,6 +457,10 @@ public class Project {
         project.setQualityUid(this.qualityUid);
         project.setQualityName(this.qualityName);
         project.setBusinessUid(this.businessUid);
+        project.setBusinessName(this.businessName);
+        project.setQualityName(this.qualityName);
+        project.setWarehouseName(this.warehouseName);
+        project.setLogisticsName(this.logisticsName);
         project.setManagerUid(this.managerUid);
         project.setLogisticsUid(this.logisticsUid);
         project.setWarehouseUid(this.warehouseUid);
@@ -487,17 +509,21 @@ public class Project {
     }
 
     public static enum ProjectStatusEnum {
+
         SUBMIT("SUBMIT", "未执行",1),HASMANAGER("HASMANAGER", "有项目经理",2),
         EXECUTING("EXECUTING", "正常执行",3), DONE("DONE", "正常完成",4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行",5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成",6), UNSHIPPED("UNSHIPPED", "正常待发运",7),
         DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运",8), PAUSE("PAUSE", "项目暂停",9), CANCEL("CANCEL", "项目取消",10);
         private String code;
         private String msg;
-        private int seq;
 
-        ProjectStatusEnum(String code, String msg , int seq) {
+        private Integer num;
+
+        ProjectStatusEnum(String code, String msg,Integer num) {
+
             this.code = code;
             this.msg = msg;
+            this.num = num;
         }
 
         public String getCode() {
@@ -508,10 +534,9 @@ public class Project {
             return msg;
         }
 
-        public int getSeq() {
-            return seq;
+        public Integer getNum() {
+            return num;
         }
-
         public static ProjectStatusEnum fromCode(String code) {
             if (StringUtils.isNotBlank(code)) {
                 for (ProjectStatusEnum statusEnum : ProjectStatusEnum.values()) {

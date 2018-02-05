@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +87,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         OrderAccount orderAccounts = orderAccountDao.findOne(id);
         orderAccounts.setDelYn(0);
         orderAccountDao.save(orderAccounts);
+        OrderLog byOrderAccountId = orderLogDao.findByOrderAccountId(id);
+        orderLogDao.delete(byOrderAccountId.getId());
     }
 
 
@@ -100,7 +103,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     public void addGatheringRecord(OrderAccount orderAccount) {
       /*orderAccount.setPaymentDate(new Date());*/   //测试放开
         orderAccount.setCreateTime(new Date());
-        orderAccountDao.save(orderAccount);
+        OrderAccount orderAccount1 =orderAccountDao.save(orderAccount);
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
         order.setPayStatus(2);
@@ -111,9 +114,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         try {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()));
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setOrdersGoodsId(null);
+            orderLog.setOrderAccountId(orderAccount1.getId());
             orderLogDao.save(orderLog);
         } catch (Exception ex) {
             logger.error("日志记录失败 {}", orderLog.toString());
@@ -133,7 +137,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional
     public void updateGatheringRecord(OrderAcciuntAdd orderAccount) {
-        OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId());
+        OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId()); //查询收款
+
+        OrderLog orderLog = orderLogDao.findByOrderAccountId(orderAccount.getId()); //查询日志
+
+        String currencyBn = orderAccounts.getOrder().getCurrencyBn();   //金额类型
+        if(StringUtil.isNotBlank(orderAccount.getDesc()) && orderAccount.getMoney() != null  ){
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+currencyBn);
+            orderLogDao.save(orderLog);
+        }else if(StringUtil.isNotBlank(orderAccount.getDesc()) || orderAccount.getMoney() != null){
+            if(StringUtil.isNotBlank(orderAccount.getDesc())){
+                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccounts.getMoney() +" "+currencyBn);
+                orderLogDao.save(orderLog);
+            }else if(orderAccount.getMoney() != null){
+                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccounts.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+currencyBn);
+                orderLogDao.save(orderLog);
+            }
+        }
+
+
         if (orderAccount.getDesc() != null) {
             orderAccounts.setDesc(orderAccount.getDesc());
         }
@@ -164,7 +186,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void endGatheringRecord(Integer id) {
+    public void endGatheringRecord(Integer id) throws Exception {
+
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
+        if(byOrderId.size() == 0){
+            throw new Exception("无收款信息");
+        }
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
@@ -218,7 +245,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional(readOnly = true)
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), null);
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC,"createTime");
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
