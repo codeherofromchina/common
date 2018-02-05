@@ -186,7 +186,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void endGatheringRecord(Integer id) {
+    public void endGatheringRecord(Integer id) throws Exception {
+
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
+        if(byOrderId.size() == 0){
+            throw new Exception("无收款信息");
+        }
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);

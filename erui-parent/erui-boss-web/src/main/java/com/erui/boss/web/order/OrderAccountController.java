@@ -15,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -169,7 +166,7 @@ public class OrderAccountController {
             }catch (Exception e){
                 logger.error("(根据id)确认全部收款完成失败：", orderAccount.getId(), e);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg("确认全部收款完成失败");
+                result.setMsg(e.toString());
             }
         }
         return result;

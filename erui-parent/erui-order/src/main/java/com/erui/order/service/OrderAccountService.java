@@ -55,7 +55,7 @@ public interface OrderAccountService {
      * 确认全部收款完成
      * @return
      */
-    void endGatheringRecord(Integer id);
+    void endGatheringRecord(Integer id) throws  Exception;
 
 
     /**
