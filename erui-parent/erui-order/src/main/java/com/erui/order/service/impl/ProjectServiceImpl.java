@@ -107,6 +107,7 @@ public class ProjectServiceImpl implements ProjectService {
                         gd.setStartDate(projectUpdate.getStartDate());
                         gd.setDeliveryDate(projectUpdate.getDeliveryDate());
                         gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                        gd.setExeChgDate(projectUpdate.getExeChgDate());
                     }
             );
             order.setStatus(Order.StatusEnum.EXECUTING.getCode());

@@ -104,9 +104,9 @@ public class ProjectController {
             } else {
                 errorMsg = "项目状态错误";
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             errorMsg = ex.getMessage();
-            logger.error("异常错误",ex);
+            logger.error("异常错误", ex);
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
@@ -118,10 +118,11 @@ public class ProjectController {
      */
     @RequestMapping(value = "queryProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Project> queryProject(@RequestBody Map<String, Integer> map) {
-        if (map.get("id") == null) {
+        Integer id = map.get("id");
+        if (id == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
-        Project project = projectService.findDesc(map.get("id"));
+        Project project = projectService.findDesc(id);
         if (project != null) {
             return new Result<>(project);
         }

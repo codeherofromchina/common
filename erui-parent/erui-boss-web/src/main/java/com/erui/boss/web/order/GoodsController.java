@@ -66,6 +66,7 @@ public class GoodsController {
             map.put("contractGoodsNum", goods.getContractGoodsNum()); //合同数量
             map.put("prePurchsedNum", goods.getPrePurchsedNum()); //预采购数量（当前锁定数量）
             map.put("purchasedNum", goods.getPurchasedNum()); //已采购数量
+            map.put("purChgDate", goods.getPurChgDate()); //合同变更后到货日期
             return map;
         }).collect(Collectors.toList());
 
