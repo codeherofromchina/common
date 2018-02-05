@@ -190,7 +190,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
         if(byOrderId.size() == 0){
-            throw new Exception("无收款信息");
+            throw new Exception("无收款记录");
         }
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
