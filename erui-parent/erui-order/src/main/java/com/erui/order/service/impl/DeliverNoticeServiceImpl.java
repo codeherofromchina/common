@@ -415,7 +415,9 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                         if(project.getLogisticsUid() != null){
                             deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
                         }
-                       /*deliverDetail.setLogisticsUserName(project.get);   //物流经办人名字*/
+                        if(StringUtil.isNotBlank(project.getLogisticsName())){
+                            deliverDetail.setLogisticsUserName(project.getLogisticsName());   //物流经办人名字
+                        }
                        if(project.getQualityUid() != null){
                          deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
                        }
