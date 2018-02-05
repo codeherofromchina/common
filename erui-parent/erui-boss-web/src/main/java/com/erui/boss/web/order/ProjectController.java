@@ -41,10 +41,7 @@ public class ProjectController {
             String[] split = projectNos.split(",");
             projectNoList = Arrays.asList(split);
         }
-
         String purchaseUid = params.get("purchaseUid");
-
-
         List<Project> projectList = null;
         String errMsg = null;
         try {
@@ -111,7 +108,7 @@ public class ProjectController {
             errorMsg = ex.getMessage();
             logger.error("异常错误",ex);
         }
-        return new Result<>().setMsg(errorMsg);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
     /**

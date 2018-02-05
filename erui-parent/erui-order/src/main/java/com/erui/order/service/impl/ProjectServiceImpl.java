@@ -67,7 +67,6 @@ public class ProjectServiceImpl implements ProjectService {
             if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
                 throw new Exception("参数状态错误");
             }
-            projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
         } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
             // 之前只保存了项目，则流程可以是提交到项目经理和执行
             if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -101,6 +100,8 @@ public class ProjectServiceImpl implements ProjectService {
             // 其他分支，错误
             throw new Exception("项目状态数据错误");
         }
+        // 修改状态
+        projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
         // 操作相关订单信息
         if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
             Order order = projectUpdate.getOrder();
@@ -110,7 +111,7 @@ public class ProjectServiceImpl implements ProjectService {
                         gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
                     }
             );
-            order.setStatus(3);
+            order.setStatus(Order.StatusEnum.EXECUTING.getCode());
             orderDao.save(order);
         }
         projectUpdate.setUpdateTime(new Date());
