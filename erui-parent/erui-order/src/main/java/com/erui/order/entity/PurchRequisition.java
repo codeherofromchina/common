@@ -65,7 +65,7 @@ public class PurchRequisition {
     @JoinTable(name = "purch_requisition_attach",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -203,11 +203,11 @@ public class PurchRequisition {
         this.remarks = remarks;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 

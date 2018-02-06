@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -191,10 +188,15 @@ public class InspectApplyController {
 
             List<InspectApply> list = inspectApplyService.findByParentId(masterInspectApply.getId());
             list.add(masterInspectApply); // 在最后添加主报检单
-
+            // 升序排列（之前是降序，这里做反序操作）
+            Collections.reverse(list);
+            // 处理为页面需要数据
             List<Map<String, Object>> data = list.parallelStream().map(vo -> {
                 return coverInspectApply2Map(vo);
             }).collect(Collectors.toList());
+
+            Collections.reverse(data);
+
             return new Result<>(data);
         }
         return new Result<>(ResultStatusEnum.FAIL);

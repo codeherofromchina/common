@@ -94,6 +94,9 @@ public class ProjectServiceImpl implements ProjectService {
             projectUpdate.setLogisticsUid(project.getLogisticsUid());
             projectUpdate.setWarehouseName(project.getWarehouseName());
             projectUpdate.setWarehouseUid(project.getWarehouseUid());
+            // 修改备注和执行单变更日期
+            projectUpdate.setRemarks(project.getRemarks());
+            projectUpdate.setExeChgDate(project.getExeChgDate());
         } else {
             // 其他分支，错误
             throw new Exception("项目状态数据错误");
