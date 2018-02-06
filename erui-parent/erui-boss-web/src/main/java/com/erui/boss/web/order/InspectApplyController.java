@@ -254,15 +254,19 @@ public class InspectApplyController {
     public Result<Object> save(@RequestBody InspectApply inspectApply) {
         InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
         boolean continueFlag = true;
+        String errMsg = null;
         // 必须是保存、提交、重新报检的一种，这里将NO_EDIT设置为重新报检类型复用
         if (statusEnum == null || (statusEnum != InspectApply.StatusEnum.SAVED && statusEnum != InspectApply.StatusEnum.SUBMITED && statusEnum != InspectApply.StatusEnum.NO_EDIT)) {
             continueFlag = false;
+            errMsg = "状态提交错误";
         }
         // 如果不是重新报检，则必须存在要报检的商品列表
         if (statusEnum != InspectApply.StatusEnum.NO_EDIT && (inspectApply.getInspectApplyGoodsList() == null || inspectApply.getInspectApplyGoodsList().size() <= 0)) {
             continueFlag = false;
+            errMsg = "无商品信息";
         }
-        String errMsg = null;
+
+
         if (continueFlag) {
             try {
                 boolean flag;

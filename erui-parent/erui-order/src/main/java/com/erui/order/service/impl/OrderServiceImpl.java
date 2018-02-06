@@ -170,6 +170,7 @@ public class OrderServiceImpl implements OrderService {
             return false;
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
         }
         addOrderVo.copyBaseInfoTo(order);
@@ -298,6 +299,7 @@ public class OrderServiceImpl implements OrderService {
             throw new Exception("销售合同号已存在");
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
         }
         Order order = new Order();

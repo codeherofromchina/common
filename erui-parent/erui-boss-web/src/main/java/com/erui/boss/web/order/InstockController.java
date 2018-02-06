@@ -40,9 +40,6 @@ public class InstockController {
 
         int page = getStrNumber(condition.get("page"), DEFAULT_PAGE);
         int pageSize = getStrNumber(condition.get("pageSize"), DEFAULT_PAGESIZE);
-        if (page < 1) {
-            return new Result<>(ResultStatusEnum.PAGE_ERROR);
-        }
         Page<Map<String, Object>> data = instockService.listByPage(condition, page - 1, pageSize);
 
         return new Result<>(data);
@@ -59,17 +56,17 @@ public class InstockController {
         Result<Object> result = new Result<>();
         boolean continueFlag = true;
         Integer status = instock.getStatus();
-        if (status ==3){
-            if(instock.getId() == null || instock.getId() <= 0) {
+        if (status == 3) {
+            if (instock.getId() == null || instock.getId() <= 0) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("入库信息id不能为空");
-            }else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
+            } else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("仓库经办人名字不能为空");
-            }else if (instock.getInstockDate() == null) {
+            } else if (instock.getInstockDate() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("入库日期不能为空");
-            }else{
+            } else {
                 try {
                     if (instockService.save(instock)) {
                         return new Result<>();
@@ -80,17 +77,17 @@ public class InstockController {
                     result.setMsg(ex.toString());
                 }
             }
-        }else if (status ==2) {
-                try {
-                    if (instockService.save(instock)) {
-                        return new Result<>();
-                    }
-                } catch (Exception ex) {
-                    logger.error("异常错误", ex);
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg(ex.toString());
+        } else if (status == 2) {
+            try {
+                if (instockService.save(instock)) {
+                    return new Result<>();
                 }
-        }else{
+            } catch (Exception ex) {
+                logger.error("异常错误", ex);
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg(ex.toString());
+            }
+        } else {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("入库信息状态错误");
         }
@@ -108,7 +105,7 @@ public class InstockController {
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST)
     public Result<Object> detail(@RequestBody Instock instocks) {
-        if(instocks == null || instocks.getId() == null){
+        if (instocks == null || instocks.getId() == null) {
             return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
         }
         Instock instock = instockService.detail(instocks.getId());
@@ -165,12 +162,15 @@ public class InstockController {
 
     protected static int getStrNumber(String numStr, int defaultNum) {
         if (StringUtils.isNumeric(numStr)) {
-            return Integer.parseInt(numStr);
+            int num = Integer.parseInt(numStr);
+            if (num > 0) {
+                return num;
+            }
         }
         return defaultNum;
     }
 
-    protected final static int DEFAULT_PAGE = 0;
+    protected final static int DEFAULT_PAGE = 1;
     protected final static int DEFAULT_PAGESIZE = 20;
 
 }

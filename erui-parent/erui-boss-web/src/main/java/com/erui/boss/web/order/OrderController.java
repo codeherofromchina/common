@@ -108,12 +108,6 @@ public class OrderController {
                 result.setMsg("事业部不能为空");
             } else if (addOrderVo.getTechnicalId() == null) {
                 result.setMsg("商务技术经办人不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getTradeTerms())) {
-                result.setMsg("贸易术语不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getTransportType())) {
-                result.setMsg("运输方式不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getToCountry())) {
-                result.setMsg("目的国不能为空");
             } else if (addOrderVo.getGoodDesc().isEmpty()) {
                 result.setMsg("商品不能为空");
             } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
