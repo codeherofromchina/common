@@ -11,6 +11,7 @@
 	</parent>
 
 	<artifactId>erui-comm</artifactId>
+	<version>${project.parent.version}</version>
 
 	<packaging>jar</packaging>
 
