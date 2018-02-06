@@ -363,14 +363,26 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //仓库经办人
             if (deliverDetail.getWareHouseman() != null) {
                 one.setWareHouseman(deliverDetail.getWareHouseman());
-                List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+               /* List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
                 for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList1){
                     Goods goods = deliverConsignGoods.getGoods();
                     Goods one1 = goodsDao.findOne(goods.getId());
                     one1.setUid(deliverDetail.getWareHouseman());//推送  仓库经办人  到商品表
                     goodsDao.save(one1);
+                }*/
+              }
+
+             //推送  仓库经办人  到商品表
+            List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+            for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList1){
+                Project project = deliverConsignGoods.getDeliverConsign().getOrder().getProject();  //获取到订单信息
+                Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());   //查询到商品信息
+                if(project.getWarehouseUid() == null){
+                    one1.setUid(project.getWarehouseUid());//推送  仓库经办人  到商品表
+                    goodsDao.save(one1);
                 }
-        }
+            }
+
             //仓库经办人姓名
             if(StringUtil.isNotBlank(deliverDetail.getWareHousemanName())){
                 one.setWareHousemanName(deliverDetail.getWareHousemanName());
@@ -658,7 +670,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail) {
-        DeliverDetail one = deliverDetailDao.findByDeliverDetailNo(deliverDetail.getDeliverDetailNo());
+        DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getDeliverDetailNo());
         one.setConfirmTheGoods(deliverDetail.getConfirmTheGoods());
         deliverDetailDao.saveAndFlush(one);
     }

@@ -249,7 +249,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
                 // 根据出口通知单号
                 if (StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
-                    list.add(cb.equal(root.get("deliverConsignNo").as(String.class), deliverNotice.getDeliverConsignNo()));
+                    list.add(cb.like(root.get("deliverConsignNo").as(String.class),"%" + deliverNotice.getDeliverConsignNo()+"%" ));
                 }
                 list.add(cb.equal(root.get("status").as(Integer.class), 3));    //已提交
                 list.add(cb.equal(root.get("deliverYn").as(Integer.class), 1)); //未删除
