@@ -390,7 +390,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     public List<InspectApply> findByParentId(Integer parentId) {
         // 存在多次报检
-        List<InspectApply> inspectApplyList = inspectApplyDao.findByParentIdOrderByIdDesc(parentId);
+        List<InspectApply> inspectApplyList = inspectApplyDao.findByParentIdOrderByIdAsc(parentId);
         if (inspectApplyList != null) {
             return inspectApplyList;
         }

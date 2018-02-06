@@ -24,7 +24,7 @@ public interface InspectApplyDao extends JpaRepository<InspectApply, Serializabl
      * @param id
      * @return
      */
-    List<InspectApply> findByParentIdOrderByIdDesc(Integer id);
+    List<InspectApply> findByParentIdOrderByIdAsc(Integer id);
 
     InspectApply findByParentIdAndPubStatusAndStatus(Integer parentId, int pubStatus, int status);
 
