@@ -46,8 +46,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<InspectApply> findMasterListByParchId(Integer purchId) {
-        Purch purch = purchDao.findOne(purchId);
+    public List<InspectApply> findMasterListByPurchaseId(Integer purchaseId) {
+        Purch purch = purchDao.findOne(purchaseId);
         if (purch != null &&
                 (purch.getStatus() == Purch.StatusEnum.DONE.getCode()
                         || purch.getStatus() == Purch.StatusEnum.BEING.getCode())) {
@@ -408,12 +408,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * 向入库质检推送数据
      */
     private void pushDataToInspectReport(InspectApply inspectApply) {
+        // 新建质检信息并完善
         InspectReport report = new InspectReport();
         report.setInspectApply(inspectApply);
         report.setInspectApplyNo(inspectApply.getInspectApplyNo());
         report.setReportFirst(inspectApply.isMaster());
         report.setSupplierName(inspectApply.getSupplierName());
 
+        // 判断是不是第一次报检并设置相应信息
         if (inspectApply.isMaster()) {
             report.setCheckTimes(1);
             Set<Project> projects = inspectApply.getPurch().getProjects();
@@ -441,13 +443,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setCreateTime(new Date());
 
         List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
+        // 设置质检关联到报检商品信息
         inspectApply.getInspectApplyGoodsList().forEach(vo -> {
             InspectApplyGoods iag = new InspectApplyGoods();
             iag.setId(vo.getId());
             inspectApplyGoodsList.add(iag);
         });
         report.setInspectGoodsList(inspectApplyGoodsList);
-
+        // 保存推送的质检信息并等待人工质检
         inspectReportDao.save(report);
 
     }

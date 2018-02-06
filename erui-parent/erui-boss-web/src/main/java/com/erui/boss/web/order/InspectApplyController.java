@@ -42,7 +42,7 @@ public class InspectApplyController {
         if (purchId == null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("采购主键为空");
         }
-        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByParchId(purchId);
+        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByPurchaseId(purchId);
         if (inspectApplyList != null) {
             // 转换数据
             List<Map<String, Object>> data = inspectApplyList.stream().map(vo -> {

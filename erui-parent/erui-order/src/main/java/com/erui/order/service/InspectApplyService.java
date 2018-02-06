@@ -19,7 +19,7 @@ public interface InspectApplyService {
      * @param parchId
      * @return
      */
-    List<InspectApply> findMasterListByParchId(Integer parchId);
+    List<InspectApply> findMasterListByPurchaseId(Integer parchId);
 
 
     /**

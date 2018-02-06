@@ -55,9 +55,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         }
         PurchRequisition purchRequisitionUpdate = purchRequisitionDao.findOne(purchRequisition.getId());
         purchRequisitionUpdate.setProject(project);
-        purchRequisitionUpdate.setContractNo(purchRequisition.getContractNo());
-       /* purchRequisitionUpdate.setDepartment(project.getSendDeptId());
-        purchRequisitionUpdate.setPmUid(project.getManagerUid());*/
         purchRequisitionUpdate.setProjectNo(purchRequisition.getProjectNo());
         purchRequisitionUpdate.setSubmitDate(purchRequisition.getSubmitDate());
         purchRequisitionUpdate.setTradeMethod(purchRequisition.getTradeMethod());
