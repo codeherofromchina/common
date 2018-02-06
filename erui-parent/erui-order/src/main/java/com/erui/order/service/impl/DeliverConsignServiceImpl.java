@@ -114,7 +114,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public boolean addDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
-        String deliverConsignNo = deliverConsignDao.findDeliverConsignNo();
+        // 根据数据库中最后的发货通知单单号重新自动生成
+        String deliverConsignNo = deliverConsignDao.findLaseDeliverConsignNo();
         deliverConsignAdd.setDeliverConsignNo(StringUtil.genDeliverConsignNo(deliverConsignNo));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());

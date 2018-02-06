@@ -73,7 +73,8 @@ public class DeliverConsignController {
      */
     @RequestMapping(value = "addDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addOrder(@RequestBody DeliverConsign deliverConsign) {
-        // TODO参数检查略过
+        // TODO 参数检查略过
+        String errMsg = null;
         try {
             boolean flag = false;
             if (deliverConsign.getId() != null) {
@@ -85,9 +86,10 @@ public class DeliverConsignController {
                 return new Result<>();
             }
         } catch (Exception ex) {
+            errMsg = ex.getMessage();
             logger.error("出口发货通知单操作失败：{}", deliverConsign, ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 
     /**
