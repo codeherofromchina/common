@@ -58,7 +58,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionUpdate.setProjectNo(purchRequisition.getProjectNo());
         purchRequisitionUpdate.setSubmitDate(purchRequisition.getSubmitDate());
         purchRequisitionUpdate.setTradeMethod(purchRequisition.getTradeMethod());
-        purchRequisitionUpdate.setTransModeBn(project.getOrder().getTradeTerms());
         purchRequisitionUpdate.setDeliveryPlace(purchRequisition.getDeliveryPlace());
         purchRequisitionUpdate.setFactorySend(purchRequisition.isFactorySend());
         purchRequisitionUpdate.setRequirements(purchRequisition.getRequirements());

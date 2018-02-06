@@ -98,7 +98,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          * 判断是否是收款中状态
          */
         Integer id1 = orderAccounts.getOrder().getId();//拿到订单id
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id1);
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id1,1);
         //无收款记录  改变收款状态为  1:未付款      （ 1:未付款 2:部分付款 3:收款完成'）
         if(byOrderId.size() == 0){
             Order one = orderDao.findOne(id1);
@@ -109,9 +109,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         /**
          *  更正应收账款余额
          */
-        //TODO
+        /*//TODO
         Order order = orderDao.findOne(id1);  //查询订单信息
-        List<OrderAccount> byOrderId2 = orderAccountDao.findByOrderId(id);  //查询订单收款记录
+        List<OrderAccount> byOrderId2 = orderAccountDao.findByOrderIdAndDelYn(id,1);  //查询订单收款记录
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
         BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
         BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
@@ -134,7 +134,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             order.setReceivableAccountRemaining(BigDecimal.ZERO);
         }
         orderDao.saveAndFlush(order);
-
+*/
 
         /**
          * //日志记录表
@@ -262,7 +262,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     public Order gatheringMessage(Integer id) {
         Order order = orderDao.findOne(id);  //查询订单信息
 
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id,1);
 
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
         BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额

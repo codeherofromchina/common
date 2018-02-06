@@ -2,10 +2,6 @@ package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -59,7 +55,7 @@ public class OrderAccount {
     private Date deleteTime;    //删除时间
 
     @Column(name = "del_yn")
-    private Integer delYn =1;  //删除标识
+    private Integer delYn =1;  //删除标识    0：删除   1：存在'''
 
     public Integer getId() {
         return id;
