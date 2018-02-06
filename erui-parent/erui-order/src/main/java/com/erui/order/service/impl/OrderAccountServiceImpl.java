@@ -109,7 +109,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         /**
          *  更正应收账款余额
          */
-        //TODO
+        /*//TODO
         Order order = orderDao.findOne(id1);  //查询订单信息
         List<OrderAccount> byOrderId2 = orderAccountDao.findByOrderIdAndDelYn(id,1);  //查询订单收款记录
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
@@ -134,7 +134,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             order.setReceivableAccountRemaining(BigDecimal.ZERO);
         }
         orderDao.saveAndFlush(order);
-
+*/
 
         /**
          * //日志记录表
