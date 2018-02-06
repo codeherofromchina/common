@@ -28,10 +28,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     public List<Attachment> handleParamAttachment(List<Attachment> existAttachments, List<Attachment> paramsAttachments, Integer userId, String userName) {
 
         Map<Integer, Attachment> attachmentMap = new HashMap<>();
-        if (existAttachments != null){
+        if (existAttachments != null && existAttachments.size() > 0){
             attachmentMap = existAttachments.parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-        } else {
-            attachmentMap = new HashMap<>();
         }
         Map<Integer, Attachment> attachmentMap2 = attachmentMap;
         List<Attachment> result = paramsAttachments.parallelStream().filter(vo -> {

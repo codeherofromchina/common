@@ -55,7 +55,7 @@ public class DeliverConsign {
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
     //出口通知单商品
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
@@ -198,11 +198,11 @@ public class DeliverConsign {
         this.remarks = remarks;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 

@@ -7,6 +7,7 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private OrderService orderService;
     @Autowired
     private GoodsDao goodsDao;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
@@ -63,8 +66,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignUpdate.setRemarks(deliverConsign.getRemarks());
         deliverConsignUpdate.setStatus(deliverConsign.getStatus());
-
-        deliverConsignUpdate.setAttachmentSet(deliverConsign.getAttachmentSet());
+        // 处理附件
+        List<Attachment> attachments = attachmentService.handleParamAttachment(deliverConsignUpdate.getAttachmentSet(), deliverConsign.getAttachmentSet(), null, null);
+        deliverConsignUpdate.setAttachmentSet(attachments);
+        // 商品信息
         Map<Integer, DeliverConsignGoods> oldDcGoodsMap = deliverConsignUpdate.getDeliverConsignGoodsSet().parallelStream().collect(Collectors.toMap(DeliverConsignGoods::getId, vo -> vo));
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         Set<Integer> orderIds = new HashSet<>();
@@ -132,7 +137,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setCreateTime(new Date());
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
-        deliverConsignAdd.setAttachmentSet(deliverConsign.getAttachmentSet());
+        // 处理附件信息
+        List<Attachment> attachments = attachmentService.handleParamAttachment(null, deliverConsign.getAttachmentSet(), null, null);
+        deliverConsignAdd.setAttachmentSet(attachments);
+        // 处理商品信息
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         Set<Integer> orderIds = new HashSet<>();
         for (DeliverConsignGoods dcGoods : deliverConsign.getDeliverConsignGoodsSet()) {
