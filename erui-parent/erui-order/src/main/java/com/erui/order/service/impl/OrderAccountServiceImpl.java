@@ -244,10 +244,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         if(byOrderId.size() == 0){
             throw new Exception("无收款记录");
         }
-  /*      Order order = orderDao.findOne(id);
+        Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
-        orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成*/
+
+        /*orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成*/
     }
 
 
