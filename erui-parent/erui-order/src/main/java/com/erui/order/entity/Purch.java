@@ -44,8 +44,6 @@ public class Purch {
     @Column(name = "pur_chg_date")
     private Date purChgDate;
 
-    @Column(name = "exe_chg_date")
-    private Date exeChgDate;
 
     // 供应商ID
     @Column(name = "supplier_id")
@@ -224,14 +222,6 @@ public class Purch {
 
     public void setPurChgDate(Date purChgDate) {
         this.purChgDate = purChgDate;
-    }
-
-    public Date getExeChgDate() {
-        return exeChgDate;
-    }
-
-    public void setExeChgDate(Date exeChgDate) {
-        this.exeChgDate = exeChgDate;
     }
 
     public Integer getSupplierId() {
@@ -557,7 +547,6 @@ public class Purch {
         this.setSigningDate(NewDateUtil.getDate(purch.getSigningDate())); //采购合同签订日期
         this.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         this.setPurChgDate(NewDateUtil.getDate(purch.getPurChgDate()));
-        this.setExeChgDate(NewDateUtil.getDate(purch.getExeChgDate()));
         this.setSupplierId(purch.getSupplierId());
         this.setSupplierName(purch.getSupplierName());
         this.setTotalPrice(purch.getTotalPrice());
