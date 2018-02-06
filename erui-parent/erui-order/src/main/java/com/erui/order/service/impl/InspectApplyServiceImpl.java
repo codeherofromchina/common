@@ -139,7 +139,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum);
             purchGoodsDao.save(purchGoods);
         }
-        if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && directInstockGoods) {
+        if (directInstockGoods) {
             // 厂家直接发货且是提交，则直接设置为合格状态
             inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             inspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
@@ -268,6 +268,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 设置报检商品信息
         dbInspectApply.setInspectApplyGoodsList(inspectApplyGoodsList);
+
+        if (directInstockGoods) {
+            // 厂家直接发货且是提交，则直接设置为合格状态
+            dbInspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+            dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+        }
         // 保存报检单
         inspectApplyDao.save(dbInspectApply);
         // 完善提交后的后续操作

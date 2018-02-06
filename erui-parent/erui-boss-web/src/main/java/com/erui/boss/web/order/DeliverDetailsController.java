@@ -65,7 +65,6 @@ public class DeliverDetailsController {
      * @return
      */
     //TODO 掉接口
-
     @RequestMapping(value = "outboundDetailsPage", method = RequestMethod.POST)
     public Result<Object> outboundDetailsPage(@RequestBody DeliverDetail deliverDetails){
         if(deliverDetails == null || deliverDetails.getId() == null){
