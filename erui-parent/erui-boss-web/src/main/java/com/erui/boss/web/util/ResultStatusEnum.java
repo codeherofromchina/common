@@ -6,7 +6,6 @@ import java.util.Map;
 
 
 public enum ResultStatusEnum {
-
     SUCCESS(200, "成功"),
     FAIL(1, "失败"),
     SERVER_ERROR(2, "服务器端异常"),
@@ -29,7 +28,8 @@ public enum ResultStatusEnum {
     AREA_NOT_EXIST(20, "不存在的大区"),
     ////// ----
     PAGE_ERROR(21, "页码必须不能小于1"),
-    DUPLICATE_ERROR(22,"值不唯一");
+    DUPLICATE_ERROR(22,"值不唯一"),
+    COMPANY_NOT_EXIST(23,"公司不存在");
     private int code;
     private String msg;
 
