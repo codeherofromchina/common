@@ -186,10 +186,18 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
             criteria.andBackDateLessThan(endTime);
         }
         if(StringUtils.isNotBlank(company)){
-            criteria.andSalesMainCompanyEqualTo(company);
+            if(company.equals("除易瑞全部")){
+                criteria.andSalesMainCompanyNotLike("%易瑞%");
+            }else {
+                criteria.andSalesMainCompanyEqualTo(company);
+            }
         }
         if(StringUtils.isNotBlank(org)){
-            criteria.andOrganizationEqualTo(org);
+            if(org.equals("除易瑞全部")){
+                criteria.andOrganizationNotLike("%易瑞%");
+            }else {
+                criteria.andOrganizationEqualTo(org);
+            }
         }
         if(StringUtils.isNotBlank(area)){
             criteria.andSalesAreaEqualTo(area);

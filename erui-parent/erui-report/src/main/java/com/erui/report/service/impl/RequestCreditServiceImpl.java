@@ -467,14 +467,14 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         }
         if (StringUtils.isNotEmpty(company)) {
             if(company.equals("除易瑞全部")){
-                criteria.andSalesMainCompanyNotLike("易瑞");
+                criteria.andSalesMainCompanyNotLike("%易瑞%");
             }else {
                 criteria.andSalesMainCompanyEqualTo(company);
             }
         }
         if (StringUtils.isNotEmpty(org)) {
             if(org.equals("除易瑞全部")){
-                criteria.andOrganizationNotLike("易瑞");
+                criteria.andOrganizationNotLike("%易瑞%");
             }else {
                 criteria.andOrganizationEqualTo(org);
             }
