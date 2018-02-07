@@ -4,6 +4,8 @@ import com.erui.report.model.SupplyTrendVo;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public interface SupplyChainReadService {
     /**
@@ -20,7 +22,7 @@ public interface SupplyChainReadService {
      * @modified By
      */
     Date selectEnd();
-    void supplyChainReadData(String  startTime,String endTime) throws Exception;
+    void supplyChainReadData(String startTime,  SupplyChainRead supplyChainRead, List<HashMap> chainCateVoList) throws Exception;
     /**
     * 根据时间获取供应链数据（sku\spu\supplier）
      * return SupplyChainRead

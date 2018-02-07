@@ -18,6 +18,7 @@
         <module>erui-cms</module>
         <module>erui-monitor</module>
         <module>erui-report</module>
+        <module>erui-quartz</module>
     </modules>
     <packaging>pom</packaging>
 

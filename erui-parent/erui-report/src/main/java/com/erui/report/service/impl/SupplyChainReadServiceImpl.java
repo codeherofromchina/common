@@ -2,7 +2,6 @@ package com.erui.report.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.erui.comm.middle.mongo.MongoUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.SupplyChainCategoryMapper;
@@ -30,56 +29,25 @@ import java.util.*;
 public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMapper> implements SupplyChainReadService {
 
 
-    private static final String goodUrl = "http://api.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
-    private static final String productUrl = "http://api.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
-    private static final String supplierUrl = "http://api.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
-    private static final String cateUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
-    private static final String key = "9b2a37b7b606c14d43db538487a148c7";
-    private static ObjectMapper om = new ObjectMapper();
 
     @Override
-    public void supplyChainReadData(String startTime, String endTime) throws Exception {
+    public void supplyChainReadData(String startTime,  SupplyChainRead supplyChainRead, List<HashMap> chainCateVoList) throws Exception {
 
-        MongoUtil.addStaticLog("supplyChainReadData", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPut goodPutMethod = getPutMethod(goodUrl, startTime, endTime);
-        HttpPut productPutMethod = getPutMethod(productUrl, startTime, endTime);
-        HttpPut supplierPutMethod = getPutMethod(supplierUrl, startTime, endTime);
-        HttpPut catePutMethod = getPutMethod(cateUrl, startTime, endTime);
-        CloseableHttpResponse skuResult = client.execute(goodPutMethod);
-        CloseableHttpResponse spuResult = client.execute(productPutMethod);
-        //处理结果
-        SupplyChainRead skuRead = this.handleResult(skuResult, GetDataEnum.SKU_DATA.getCode());
-        SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SPU_DATA.getCode());
-        CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
-        CloseableHttpResponse cateResult = client.execute(catePutMethod);
-        SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SUPPLIER_DATA.getCode());
-        SupplyChainRead supplyChainRead = null;
-        if (skuRead != null || spuRead != null || supplierRead != null) {
-            supplyChainRead = mergeResult(skuRead, spuRead, supplierRead);
-        }
         Date date = DateUtil.parseStringToDate(startTime, DateUtil.FULL_FORMAT_STR);
         SupplyChainReadExample example = new SupplyChainReadExample();
         SupplyChainReadExample.Criteria criteria = example.createCriteria();
         criteria.andCreateAtEqualTo(date);
         List<SupplyChainRead> reads = readMapper.selectByExample(example);
         if (supplyChainRead != null) {
-            supplyChainRead.setCreateAt(date);
-            if (reads == null || reads.size() < 1) {
-                MongoUtil.addStaticLog("supplyChainReadData", "");
-                this.writeMapper.insert(supplyChainRead);
-            }
+                supplyChainRead.setCreateAt(date);
+                if (reads == null || reads.size() < 1) {
+//                MongoUtil.addStaticLog("supplyChainReadData", "");
+                    this.writeMapper.insert(supplyChainRead);
+                }
         }
         if (reads == null || reads.size() < 1) {
             //处理分类的数据
-            JSONObject json = new JSONObject();
-            String cateData = EntityUtils.toString(cateResult.getEntity());
-            JSONObject cateJson = json.parseObject(cateData);
-            int cateCode = (int) cateJson.get("code");
-            if (cateCode == 1) {
                 List<SupplyChainCategory> cateList = new ArrayList<>();
-                String cates = cateJson.get("data").toString();
-                List<HashMap> chainCateVoList = JSON.parseArray(cates, HashMap.class);
                 if (chainCateVoList != null && chainCateVoList.size() > 0) {
                     for (Map<String, Object> map : chainCateVoList) {
                         Object name = map.get("name");
@@ -115,112 +83,6 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
                 }
             }
 
-        }
-    }
-
-
-    /**
-     * 获取PutMethod
-     */
-    HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
-        HttpPut method = new HttpPut(url);
-        // method.getParams().setParameter("http.socket.timeout", 3000);
-        //组装请求json
-        JSONObject jsonObject = new JSONObject();
-        Map<String, Object> input = new HashMap<>();
-        input.put("lang", "zh");
-        input.put("created_at_start", startTime);
-        input.put("created_at_end", endTime);
-        String inputStr = om.writeValueAsString(input);
-        System.out.println("=================" + inputStr);
-        String sign = MD5.encode(key + inputStr);
-        System.out.println(sign + "=====");
-        jsonObject.put("sign", sign);
-        jsonObject.put("input", inputStr);
-        StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
-        method.setEntity(entity);
-        return method;
-    }
-
-    /**
-     * 处理获取的数据结果
-     */
-    SupplyChainRead handleResult(CloseableHttpResponse response, int getDataCode) throws IOException {
-        SupplyChainRead supplyChainRead = new SupplyChainRead();
-        JSONObject json = new JSONObject();
-        String rsultData = EntityUtils.toString(response.getEntity());
-        JSONObject jsonObject = json.parseObject(rsultData);
-        int resultCode = (int) jsonObject.get("code");
-        if (resultCode == 1) {//成功
-            int draft_count = 0;
-            int brand_count = 0;
-            int count = Integer.parseInt(jsonObject.get("count").toString());
-            int checking_count = Integer.parseInt(jsonObject.get("checking_count").toString());
-            int valid_count = Integer.parseInt(jsonObject.get("valid_count").toString());
-            int invalid_count = Integer.parseInt(jsonObject.get("invalid_count").toString());
-            if (getDataCode != GetDataEnum.SUPPLIER_DATA.getCode()) {
-                draft_count = Integer.parseInt(jsonObject.get("draft_count").toString());
-            } else {
-                brand_count = Integer.parseInt(jsonObject.get("brand_count").toString());
-            }
-            System.out.println(count + "====" + draft_count + "====" + checking_count
-                    + "===" + valid_count + "==" + invalid_count);
-            if (getDataCode == GetDataEnum.SKU_DATA.getCode()) {
-                supplyChainRead.setSkuNum(count);//'开发SKU数'
-                supplyChainRead.setAuditSkuNum(checking_count);//'审核中SKU数'
-                supplyChainRead.setRejectSkuNum(invalid_count);//'已驳回SKU数'
-                supplyChainRead.setPassSkuNum(valid_count);//'已通过SKU数'
-                supplyChainRead.setTempoSkuNum(draft_count);//'暂存SKU数'
-                return supplyChainRead;
-            } else if (getDataCode == GetDataEnum.SPU_DATA.getCode()) {
-                supplyChainRead.setSpuNum(count);//'开发SKU数'
-                supplyChainRead.setAuditSpuNum(checking_count);//'审核中SPU数'
-                supplyChainRead.setRejectSpuNum(invalid_count);//'已驳回SPU数'
-                supplyChainRead.setPassSpuNum(valid_count);//'已通过SPU数'
-                supplyChainRead.setTempoSpuNum(draft_count);//'暂存SPU数'
-                return supplyChainRead;
-            } else if (getDataCode == GetDataEnum.SUPPLIER_DATA.getCode()) {
-                supplyChainRead.setSuppliNum(count);//'开发SKU数'
-                supplyChainRead.setAuditSuppliNum(checking_count);//'审核中供应商数'
-                supplyChainRead.setRejectSuppliNum(invalid_count);//'已驳回供应商数'
-                supplyChainRead.setPassSuppliNum(valid_count);//'已通过供应商数'
-                supplyChainRead.setBrandNum(brand_count);
-                return supplyChainRead;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 合并结果
-     */
-    SupplyChainRead mergeResult(SupplyChainRead... supplyChainRead) {
-        SupplyChainRead chainRead = new SupplyChainRead();
-        if (supplyChainRead != null && supplyChainRead.length > 0) {
-            List<SupplyChainRead> reads = Arrays.asList(supplyChainRead);
-            for (SupplyChainRead read : reads) {
-                if (read.getSkuNum() != null) {
-                    chainRead.setSkuNum(read.getSkuNum());//'开发SKU数'
-                    chainRead.setAuditSkuNum(read.getAuditSkuNum());//'审核中SKU数'
-                    chainRead.setRejectSkuNum(read.getRejectSkuNum());//'已驳回SKU数'
-                    chainRead.setPassSkuNum(read.getPassSkuNum());//'已通过SKU数'
-                    chainRead.setTempoSkuNum(read.getTempoSkuNum());//'暂存SKU数'
-                } else if (read.getSpuNum() != null) {
-                    chainRead.setSpuNum(read.getSpuNum());//'开发SKU数'
-                    chainRead.setAuditSpuNum(read.getAuditSpuNum());//'审核中SPU数'
-                    chainRead.setRejectSpuNum(read.getRejectSpuNum());//'已驳回SPU数'
-                    chainRead.setPassSpuNum(read.getPassSpuNum());//'已通过SPU数'
-                    chainRead.setTempoSpuNum(read.getTempoSpuNum());//'暂存SPU数'
-                } else if (read.getSuppliNum() != null) {
-                    chainRead.setSuppliNum(read.getSuppliNum());//'开发SKU数'
-                    chainRead.setAuditSuppliNum(read.getAuditSuppliNum());//'审核中供应商数'
-                    chainRead.setRejectSuppliNum(read.getRejectSuppliNum());//'已驳回供应商数'
-                    chainRead.setPassSuppliNum(read.getPassSuppliNum());//'已通过供应商数'
-                    chainRead.setBrandNum(read.getBrandNum());//供应商品牌数量
-                }
-            }
-        }
-        return chainRead;
     }
 
     @Override
@@ -257,7 +119,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
             Map<String, Map<String, Integer>> dateMap = new HashMap<>();
             Map<String, Integer> datamap;
             for (int i = 0; i < list.size(); i++) {
-                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "yyyy年MM月dd日");
+                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "yyyy-MM-dd");
                 if (dateMap.containsKey(date2)) {
                     Map<String, Integer> map = dateMap.get(date2);
                     Integer sku = map.get("sku");
@@ -278,15 +140,14 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
             }
             for (int i = 0; i < days; i++) {
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
-                String datet2 = DateUtil.format("yyyy年MM月dd日", date);
-                String datet3 = DateUtil.format("MM月dd日", date);
+                String datet2 = DateUtil.format("yyyy-MM-dd", date);
                 if (dateMap.containsKey(datet2)) {
-                    DateTime[i] = (datet3);
+                    DateTime[i] = (datet2);
                     SPUFinishCount[i] = (dateMap.get(datet2).get("spu"));
                     SKUFinishCount[i] = (dateMap.get(datet2).get("sku"));
                     suppliyFinishCount[i] = (dateMap.get(datet2).get("suppliy"));
                 } else {
-                    DateTime[i] = (datet3);
+                    DateTime[i] = (datet2);
                     SPUFinishCount[i] = (0);
                     SKUFinishCount[i] = (0);
                     suppliyFinishCount[i] = (0);
@@ -296,7 +157,7 @@ public class SupplyChainReadServiceImpl extends BaseService<SupplyChainReadMappe
         } else {
             for (int i = 0; i < days; i++) {
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
-                String datet2 = DateUtil.format("MM月dd日", date);
+                String datet2 = DateUtil.format("yyyy-MM-dd", date);
                 DateTime[i] = datet2;
                 suppliyFinishCount[i] = 0;
                 SPUFinishCount[i] = 0;

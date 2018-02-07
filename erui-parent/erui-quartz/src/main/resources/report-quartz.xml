@@ -11,8 +11,8 @@
 	<!--<bean id="dataService" class="com.erui.report.service.impl.DataServiceImpl"></bean>-->
       
     <bean id="sysncPowerJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-         <property name="targetObject" ref="dataService"/>
-         <property name="targetMethod" value="supplyChainData"/>
+         <property name="targetObject" ref="reportQuartz"/>
+         <property name="targetMethod" value="getSupplyChainRead"/>
          <property name="concurrent" value="false"/>
     </bean>
      

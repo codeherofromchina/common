@@ -227,7 +227,7 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //1.应收未收 \ 已收、应收账款、下周未收、下月未收
-        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
         double totalAmount = receive + backAmount;
         double weekReceive = requestCreditService.selectReceive(nextWeekStartTime, nextWeekEndTime, null, null, null, null);
@@ -238,7 +238,7 @@ public class RequestCreditController {
         Date weekchainTime = DateUtil.sometimeCalendar(nextWeekStartTime, d);//下周环比时间
         int d2 = DateUtil.getDayBetween(nextMonthStartTime, nextMonthEndTime);
         Date mothchainTime = DateUtil.sometimeCalendar(nextMonthStartTime, d2);//下月环比时间
-        double chainReceive = requestCreditService.selectReceive(chainTime, startTime, null, null, null, null);
+        double chainReceive = requestCreditService.selectReceive(null, startTime, null, null, null, null);
         double chainBackAmount = receiveService.selectBackAmount(chainTime, startTime, null, null, null, null);
         double chainTotalAmount = chainReceive + chainBackAmount;
         double chainWeekReceive = requestCreditService.selectReceive(weekchainTime, nextWeekStartTime, null, null, null, null);
@@ -373,15 +373,29 @@ public class RequestCreditController {
         List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
         if (StringUtils.isNotBlank(companyName)) {
-            List<InquiryAreaVO> ll = list.parallelStream().filter(vo -> vo.getAreaName().equals(companyName))
-                    .collect(Collectors.toList());
-            if (ll.size() > 0) {
-                result.setData(ll.get(0).getCountries());
-            } else {
-                return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
+            if(!companyName.equals("全部")&&!companyName.equals("除易瑞全部")) {
+                List<InquiryAreaVO> ll = list.parallelStream().filter(vo -> vo.getAreaName().equals(companyName))
+                        .collect(Collectors.toList());
+                if (ll.size() > 0) {
+                    ll.get(0).getCountries().add("除易瑞全部");
+                    result.setData(ll.get(0).getCountries());
+                } else {
+                    return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
+                }
+            }else {
+               Set<String> countrys=new HashSet<>();
+               countrys.add("除易瑞全部");
+                for (InquiryAreaVO areaVo:list) {
+                    Set<String> set = areaVo.getCountries();
+                    for (String country: set ) {
+                        countrys.add(country);
+                    }
+                }
+                result.setData(countrys);
             }
         } else {
             List<String> companyList = list.parallelStream().map(InquiryAreaVO::getAreaName).collect(Collectors.toList());
+            companyList.add("除易瑞全部");
             result.setData(companyList);
         }
         return result;
@@ -416,7 +430,7 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
         //应收,已收应收,未收总量
 //        Map mapTotal = requestCreditService.selectRequestTotal(startTime, endTime);
-        double receive = requestCreditService.selectReceive(startTime, endTime, null, null, null, null);
+        double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
         double totalAmount = receive + backAmount;
           Map<String,Double>  mapTotal = new HashMap();
@@ -447,7 +461,7 @@ public class RequestCreditController {
 
         //根据区域或者国家
 //        Map mapCount = requestCreditService.selectByAreaOrCountry(startTime, endTime, map.get("area").toString(), country);
-        double ra = requestCreditService.selectReceive(startTime, endTime, null, null, map.get("area").toString(), country);
+        double ra = requestCreditService.selectReceive(null, endTime, null, null, map.get("area").toString(), country);
         double received = receiveService.selectBackAmount(startTime, endTime, null, null, map.get("area").toString(), country);
         double oa = ra + received;
           Map<String,Double>  mapCount = new HashMap();
@@ -533,7 +547,7 @@ public class RequestCreditController {
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
         //应收余额
-        double receive = this.requestCreditService.selectReceive(startDate, endDate, map.get("company"), map.get("org"), null, null);
+        double receive = this.requestCreditService.selectReceive(null, endDate, map.get("company"), map.get("org"), null, null);
         //回款金额
         double backAmount = receiveService.selectBackAmount(startDate, endDate, map.get("company"), map.get("org"), null, null);
         //应收金额
@@ -541,7 +555,7 @@ public class RequestCreditController {
         //获取下月应收
         double nextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, map.get("company"), map.get("org"),null,null);
         //集团 余额、回款金额、应收金额、下月应收
-        double totalReceive = this.requestCreditService.selectReceive(startDate, endDate, null, null, null, null);
+        double totalReceive = this.requestCreditService.selectReceive(null, endDate, null, null, null, null);
         double TotalBackAmount = receiveService.selectBackAmount(startDate, endDate, null, null, null, null);
         double totalAmount=totalReceive+TotalBackAmount;
         double TotalNextMothReceive = this.requestCreditService.selectReceive(nextMonthFirstDay, nextMonthEndTime, null, null, null, null);
@@ -569,10 +583,10 @@ public class RequestCreditController {
         if (TotalNextMothReceive > 0) {
             nextProportion = RateUtil.doubleChainRate(nextMothReceive, TotalNextMothReceive);
         }
-        xAxis.add("应收金额-占比" + RateUtil.doubleChainRateTwo(totalProportion * 100, 1) + "%");
-        xAxis.add("已收金额-占比" + RateUtil.doubleChainRateTwo(backProportion * 100, 1) + "%");
-        xAxis.add("应收未收-占比" + RateUtil.doubleChainRateTwo(receiveProportion * 100, 1) + "%");
-        xAxis.add("下月应收-占比" + RateUtil.doubleChainRateTwo(nextProportion * 100, 1) + "%");
+        xAxis.add("应收金额-占比" + df.format(totalProportion * 100)+ "%");
+        xAxis.add("已收金额-占比" +df.format(backProportion * 100) + "%");
+        xAxis.add("应收未收-占比" +df.format(receiveProportion * 100)+ "%");
+        xAxis.add("下月应收-占比" +df.format(nextProportion * 100) + "%");
         Map<String, Object> data = new HashMap<>();
         data.put("yAxis", yAxis);
         data.put("xAxis", xAxis);
@@ -596,17 +610,17 @@ public class RequestCreditController {
         }
         endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
         //区域应收账款明细
-        List<Map<String, Object>> areaReceiveList = this.requestCreditService.selectReceiveGroupByArea(startDate, endDate);
+        List<Map<String, Object>> areaReceiveList = this.requestCreditService.selectReceiveGroupByArea(null, endDate);
         List<Map<String, Object>> areaBackList = receiveService.selectBackAmountGroupByArea(startDate, endDate);
-        Map<String, Object> areaResult = this.getOrderAmountDetail(areaReceiveList, areaBackList, 1);
+        Map<String, Object> areaResult = this.getOrderAmountDetail(startDate,endDate,areaReceiveList, areaBackList, 1);
         //主体公司应收账款明细
-        List<Map<String, Object>> companyReceiveList = this.requestCreditService.selectReceiveGroupByCompany(startDate, endDate);
+        List<Map<String, Object>> companyReceiveList = this.requestCreditService.selectReceiveGroupByCompany(null, endDate);
         List<Map<String, Object>> companyBackList = receiveService.selectBackAmountGroupByCompany(startDate, endDate);
-        Map<String, Object> companyResult = this.getOrderAmountDetail(companyReceiveList, companyBackList, 2);
+        Map<String, Object> companyResult = this.getOrderAmountDetail(startDate,endDate,companyReceiveList, companyBackList, 2);
         //主体公司应收账款明细
-        List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(startDate, endDate);
+        List<Map<String, Object>> orgReceiveList = this.requestCreditService.selectReceiveGroupByOrg(null, endDate);
         List<Map<String, Object>> orgpanyBackList = receiveService.selectBackAmountGroupByOrg(startDate, endDate);
-        Map<String, Object> orgResult = this.getOrderAmountDetail(orgReceiveList, orgpanyBackList, 3);
+        Map<String, Object> orgResult = this.getOrderAmountDetail(startDate,endDate,orgReceiveList, orgpanyBackList, 3);
         Map<String, Object> data = new HashMap<>();
         data.put("area", areaResult);
         data.put("company", companyResult);
@@ -620,7 +634,10 @@ public class RequestCreditController {
      * @Date:14:41 2017/12/20
      * @modified By
      */
-    private Map<String, Object> getOrderAmountDetail(List<Map<String, Object>> receiveList, List<Map<String, Object>> backList, int type) {
+    private Map<String, Object> getOrderAmountDetail(Date startTime,Date endTime,List<Map<String, Object>> receiveList, List<Map<String, Object>> backList, int type) {
+        double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
+        double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
+        double totalAmount = receive + backAmount;
         List<String> areas = new ArrayList<>();
         List<Double> areaAmounts = new ArrayList<>();
         if (receiveList != null && receiveList.size() > 0) {
@@ -710,17 +727,30 @@ public class RequestCreditController {
                     }
                 }
         }
+
+        //占比
+        List<Double> proportions=new ArrayList<>();
+        if(areaAmounts!=null&&areaAmounts.size()>0){
+            for (Double amount:areaAmounts) {
+                if(totalAmount>0){
+                    proportions.add(RateUtil.doubleChainRate(amount,totalAmount));
+                }
+            }
+        }
         //封装结果
         Map<String, Object> dataResult = new HashMap<>();
         if (type == 1) {
             dataResult.put("areaAmount", areaAmounts);
             dataResult.put("area", areas);
+            dataResult.put("areaProportion", proportions);
         } else if (type == 2) {
             dataResult.put("companyAmount", areaAmounts);
             dataResult.put("company", areas);
+            dataResult.put("companyProportion", proportions);
         } else if (type == 3) {
             dataResult.put("busUnitAmount", areaAmounts);
             dataResult.put("busUnit", areas);
+            dataResult.put("busUnitProportion", proportions);
         }
         return dataResult;
     }

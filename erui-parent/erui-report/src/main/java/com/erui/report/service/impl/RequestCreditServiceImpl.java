@@ -131,7 +131,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             criteria2.andBackDateLessThan(nextMonthEndTime);
         }
         if (startTime != null) {
-            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+          //  criteria.andBackDateGreaterThanOrEqualTo(startTime);
             criteria1.andBackDateGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -466,10 +466,18 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             criteria.andBackDateLessThan(endTime);
         }
         if (StringUtils.isNotEmpty(company)) {
-            criteria.andSalesMainCompanyEqualTo(company);
+            if(company.equals("除易瑞全部")){
+                criteria.andSalesMainCompanyNotLike("%易瑞%");
+            }else {
+                criteria.andSalesMainCompanyEqualTo(company);
+            }
         }
         if (StringUtils.isNotEmpty(org)) {
-            criteria.andOrganizationEqualTo(org);
+            if(org.equals("除易瑞全部")){
+                criteria.andOrganizationNotLike("%易瑞%");
+            }else {
+                criteria.andOrganizationEqualTo(org);
+            }
         }
         if (StringUtils.isNotEmpty(area)) {
             criteria.andSalesAreaEqualTo(area);

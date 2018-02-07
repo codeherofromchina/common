@@ -1,194 +1,193 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.erui.report.dao.InquiryCountMapper" >
-  <resultMap id="BaseResultMap" type="com.erui.report.model.InquiryCount" >
-    <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="inquiry_num" property="inquiryNum" jdbcType="VARCHAR" />
-    <result column="quotation_num" property="quotationNum" jdbcType="VARCHAR" />
-    <result column="inquiry_unit" property="inquiryUnit" jdbcType="VARCHAR" />
-    <result column="inquiry_area" property="inquiryArea" jdbcType="VARCHAR" />
-    <result column="organization" property="organization" jdbcType="VARCHAR" />
-    <result column="cust_name" property="custName" jdbcType="VARCHAR" />
-    <result column="cust_description" property="custDescription" jdbcType="VARCHAR" />
-    <result column="pro_name" property="proName" jdbcType="VARCHAR" />
-    <result column="pro_name_foreign" property="proNameForeign" jdbcType="VARCHAR" />
-    <result column="specification" property="specification" jdbcType="VARCHAR" />
-    <result column="figure_num" property="figureNum" jdbcType="VARCHAR" />
-    <result column="pro_count" property="proCount" jdbcType="INTEGER" />
-    <result column="pro_unit" property="proUnit" jdbcType="VARCHAR" />
-    <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
-    <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
-    <result column="pro_category" property="proCategory" jdbcType="VARCHAR" />
-    <result column="is_kerui_equip_parts" property="isKeruiEquipParts" jdbcType="VARCHAR" />
-    <result column="is_bid" property="isBid" jdbcType="VARCHAR" />
-    <result column="rollin_time" property="rollinTime" jdbcType="TIMESTAMP" />
-    <result column="need_time" property="needTime" jdbcType="TIMESTAMP" />
-    <result column="clarify_time" property="clarifyTime" jdbcType="TIMESTAMP" />
-    <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP" />
-    <result column="quote_need_time" property="quoteNeedTime" jdbcType="DECIMAL" />
-    <result column="market_principal" property="marketPrincipal" jdbcType="VARCHAR" />
-    <result column="bus_technical_bidder" property="busTechnicalBidder" jdbcType="VARCHAR" />
-    <result column="bus_unit_principal" property="busUnitPrincipal" jdbcType="VARCHAR" />
-    <result column="pro_brand" property="proBrand" jdbcType="VARCHAR" />
-    <result column="quonation_suppli" property="quonationSuppli" jdbcType="VARCHAR" />
-    <result column="suppli_bidder" property="suppliBidder" jdbcType="VARCHAR" />
-    <result column="bidder_phone" property="bidderPhone" jdbcType="VARCHAR" />
-    <result column="suppli_unit_price" property="suppliUnitPrice" jdbcType="DECIMAL" />
-    <result column="suppli_total_price" property="suppliTotalPrice" jdbcType="DECIMAL" />
-    <result column="profit_margin" property="profitMargin" jdbcType="DECIMAL" />
-    <result column="quote_unit_price" property="quoteUnitPrice" jdbcType="DECIMAL" />
-    <result column="quote_total_price" property="quoteTotalPrice" jdbcType="DECIMAL" />
-    <result column="quotation_price" property="quotationPrice" jdbcType="DECIMAL" />
-    <result column="piece_weight" property="pieceWeight" jdbcType="DECIMAL" />
-    <result column="total_weight" property="totalWeight" jdbcType="DECIMAL" />
-    <result column="packaging_volume" property="packagingVolume" jdbcType="VARCHAR" />
-    <result column="packaging_way" property="packagingWay" jdbcType="VARCHAR" />
-    <result column="delivery_date" property="deliveryDate" jdbcType="INTEGER" />
-    <result column="expiry_date" property="expiryDate" jdbcType="INTEGER" />
-    <result column="standard_trade_items" property="standardTradeItems" jdbcType="VARCHAR" />
-    <result column="latest_schedule" property="latestSchedule" jdbcType="VARCHAR" />
-    <result column="quoted_status" property="quotedStatus" jdbcType="VARCHAR" />
-    <result column="remark" property="remark" jdbcType="VARCHAR" />
-    <result column="quote_overtime_category" property="quoteOvertimeCategory" jdbcType="VARCHAR" />
-    <result column="quote_overtime_cause" property="quoteOvertimeCause" jdbcType="VARCHAR" />
-    <result column="is_success_order" property="isSuccessOrder" jdbcType="VARCHAR" />
-    <result column="lose_order_category" property="loseOrderCategory" jdbcType="VARCHAR" />
-    <result column="lose_order_cause" property="loseOrderCause" jdbcType="VARCHAR" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+    <resultMap id="BaseResultMap" type="com.erui.report.model.InquiryCount" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="inquiry_num" property="inquiryNum" jdbcType="VARCHAR" />
+        <result column="quotation_num" property="quotationNum" jdbcType="VARCHAR" />
+        <result column="inquiry_unit" property="inquiryUnit" jdbcType="VARCHAR" />
+        <result column="inquiry_area" property="inquiryArea" jdbcType="VARCHAR" />
+        <result column="organization" property="organization" jdbcType="VARCHAR" />
+        <result column="cust_name" property="custName" jdbcType="VARCHAR" />
+        <result column="cust_description" property="custDescription" jdbcType="VARCHAR" />
+        <result column="pro_name" property="proName" jdbcType="VARCHAR" />
+        <result column="pro_name_foreign" property="proNameForeign" jdbcType="VARCHAR" />
+        <result column="specification" property="specification" jdbcType="VARCHAR" />
+        <result column="figure_num" property="figureNum" jdbcType="VARCHAR" />
+        <result column="pro_count" property="proCount" jdbcType="INTEGER" />
+        <result column="pro_unit" property="proUnit" jdbcType="VARCHAR" />
+        <result column="is_oil_gas" property="isOilGas" jdbcType="VARCHAR" />
+        <result column="plat_pro_category" property="platProCategory" jdbcType="VARCHAR" />
+        <result column="pro_category" property="proCategory" jdbcType="VARCHAR" />
+        <result column="is_kerui_equip_parts" property="isKeruiEquipParts" jdbcType="VARCHAR" />
+        <result column="is_bid" property="isBid" jdbcType="VARCHAR" />
+        <result column="rollin_time" property="rollinTime" jdbcType="TIMESTAMP" />
+        <result column="need_time" property="needTime" jdbcType="TIMESTAMP" />
+        <result column="clarify_time" property="clarifyTime" jdbcType="TIMESTAMP" />
+        <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP" />
+        <result column="quote_need_time" property="quoteNeedTime" jdbcType="DECIMAL" />
+        <result column="market_principal" property="marketPrincipal" jdbcType="VARCHAR" />
+        <result column="bus_technical_bidder" property="busTechnicalBidder" jdbcType="VARCHAR" />
+        <result column="bus_unit_principal" property="busUnitPrincipal" jdbcType="VARCHAR" />
+        <result column="pro_brand" property="proBrand" jdbcType="VARCHAR" />
+        <result column="quonation_suppli" property="quonationSuppli" jdbcType="VARCHAR" />
+        <result column="suppli_bidder" property="suppliBidder" jdbcType="VARCHAR" />
+        <result column="bidder_phone" property="bidderPhone" jdbcType="VARCHAR" />
+        <result column="suppli_unit_price" property="suppliUnitPrice" jdbcType="DECIMAL" />
+        <result column="suppli_total_price" property="suppliTotalPrice" jdbcType="DECIMAL" />
+        <result column="profit_margin" property="profitMargin" jdbcType="DECIMAL" />
+        <result column="quote_unit_price" property="quoteUnitPrice" jdbcType="DECIMAL" />
+        <result column="quote_total_price" property="quoteTotalPrice" jdbcType="DECIMAL" />
+        <result column="quotation_price" property="quotationPrice" jdbcType="DECIMAL" />
+        <result column="piece_weight" property="pieceWeight" jdbcType="DECIMAL" />
+        <result column="total_weight" property="totalWeight" jdbcType="DECIMAL" />
+        <result column="packaging_volume" property="packagingVolume" jdbcType="VARCHAR" />
+        <result column="packaging_way" property="packagingWay" jdbcType="VARCHAR" />
+        <result column="delivery_date" property="deliveryDate" jdbcType="INTEGER" />
+        <result column="expiry_date" property="expiryDate" jdbcType="INTEGER" />
+        <result column="standard_trade_items" property="standardTradeItems" jdbcType="VARCHAR" />
+        <result column="latest_schedule" property="latestSchedule" jdbcType="VARCHAR" />
+        <result column="quoted_status" property="quotedStatus" jdbcType="VARCHAR" />
+        <result column="return_count" property="returnCount" jdbcType="INTEGER" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" />
+        <result column="quote_overtime_category" property="quoteOvertimeCategory" jdbcType="VARCHAR" />
+        <result column="quote_overtime_cause" property="quoteOvertimeCause" jdbcType="VARCHAR" />
+        <result column="is_success_order" property="isSuccessOrder" jdbcType="VARCHAR" />
+        <result column="lose_order_category" property="loseOrderCategory" jdbcType="VARCHAR" />
+        <result column="lose_order_cause" property="loseOrderCause" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Example_Where_Clause" >
+        <where >
+            <foreach collection="oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="inquiry_alias_Example_Where_Clause" >
-    <where >
-      <foreach collection="inquiryCountExample.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+        </where>
+    </sql>
+    <sql id="inquiry_alias_Example_Where_Clause" >
+        <where >
+            <foreach collection="inquiryCountExample.oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  
-  
-  <sql id="orderCount_alias_Example_Where_Clause" >
-    <where >
-      <foreach collection="orderCountExample.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+        </where>
+    </sql>
+
+
+    <sql id="orderCount_alias_Example_Where_Clause" >
+        <where >
+            <foreach collection="orderCountExample.oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  
-  
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause" >
+        <where >
+            <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
-    id, inquiry_num, quotation_num, inquiry_unit, inquiry_area, organization, cust_name, 
-    cust_description, pro_name, pro_name_foreign, specification, figure_num, pro_count, 
-    pro_unit, is_oil_gas, plat_pro_category, pro_category, is_kerui_equip_parts, is_bid, 
-    rollin_time, need_time, clarify_time, submit_time, quote_need_time, market_principal, 
-    bus_technical_bidder, bus_unit_principal, pro_brand, quonation_suppli, suppli_bidder, 
-    bidder_phone, suppli_unit_price, suppli_total_price, profit_margin, quote_unit_price, 
-    quote_total_price, quotation_price, piece_weight, total_weight, packaging_volume, 
-    packaging_way, delivery_date, expiry_date, standard_trade_items, latest_schedule, 
-    quoted_status, remark, quote_overtime_category, quote_overtime_cause, is_success_order, 
-    lose_order_category, lose_order_cause
+        </where>
+    </sql>
+    <sql id="Base_Column_List" >
+    id, inquiry_num, quotation_num, inquiry_unit, inquiry_area, organization, cust_name,
+    cust_description, pro_name, pro_name_foreign, specification, figure_num, pro_count,
+    pro_unit, is_oil_gas, plat_pro_category, pro_category, is_kerui_equip_parts, is_bid,
+    rollin_time, need_time, clarify_time, submit_time, quote_need_time, market_principal,
+    bus_technical_bidder, bus_unit_principal, pro_brand, quonation_suppli, suppli_bidder,
+    bidder_phone, suppli_unit_price, suppli_total_price, profit_margin, quote_unit_price,
+    quote_total_price, quotation_price, piece_weight, total_weight, packaging_volume,
+    packaging_way, delivery_date, expiry_date, standard_trade_items, latest_schedule,
+    quoted_status, return_count, remark, quote_overtime_category, quote_overtime_cause,
+    is_success_order, lose_order_category, lose_order_cause
   </sql>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT rollin_time FROM inquiry_count ORDER BY rollin_time ASC LIMIT 1
+    SELECT rollin_time FROM inquiry_count WHERE rollin_time IS NOT NULL ORDER BY rollin_time ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
     SELECT rollin_time FROM inquiry_count ORDER BY rollin_time DESC LIMIT 1
@@ -207,6 +206,31 @@
       order by ${orderByClause}
     </if>
   </select>
+  <!--询单退回次数和平均退回次数-->
+  <select id="selectRejectCount" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT  SUM(return_count) AS  sumCount,avg(return_count) AS  avgCount
+    FROM inquiry_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+    <!--退回询单数量-->
+    <select id="selectInqRtnCountByTime" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+        SELECT  COUNT(1)
+        FROM inquiry_count
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+    </select>
+
+
   <!--询单趋势图-->
   <select id="inqTrendByTime" resultType="map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT COUNT(1) as count ,FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
@@ -242,12 +266,18 @@
       order by ${orderByClause}
     </if>
   </select>
-  
+
   <!--查询所有销售大区和国家列表列表-->
   <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
     select inquiry_area as area,inquiry_unit as country
     from inquiry_count
     group by inquiry_area,inquiry_unit  HAVING  inquiry_area IS  NOT  NULL
+  </select>
+  <!--查询所有销售大区和国家列表列表-->
+  <select id="selectAllAreaAndOrgList" resultType="java.util.Map" >
+    select inquiry_area as area,organization as org
+    from inquiry_count
+    group by inquiry_area,organization  HAVING  inquiry_area IS  NOT  NULL AND  organization IS  NOT  NULL
   </select>
   <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT  COUNT(1) as proCountTotal FROM inquiry_count
@@ -295,12 +325,12 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from inquiry_count
     where id = #{id,jdbcType=BIGINT}
   </select>
-  
+
   <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
     select
 	    count(1) as total,
@@ -317,8 +347,8 @@
       order by ${orderByClause}
     </if>
   </select>
-  
-  
+
+
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
     select t.pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from
 		(
@@ -327,7 +357,7 @@
       			<include refid="orderCount_alias_Example_Where_Clause" />
     		</if>
     		group by pro_category
-			union all 
+			union all
 			select pro_category,count(1) as xdCount,0 as ddCount from inquiry_count
 			<if test="inquiryCountExample != null" >
       			<include refid="inquiry_alias_Example_Where_Clause" />
@@ -351,7 +381,7 @@
   </select>
 
   <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime
+    SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime,COUNT(1) AS  total
     FROM erui_report.inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -364,9 +394,9 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
-    group by inquiry_area
+    group by inquiry_area HAVING  inquiry_area IS  NOT  NULL
   </select>
-  
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from inquiry_count
     where id = #{id,jdbcType=BIGINT}
@@ -377,7 +407,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.erui.report.model.InquiryCount" >
+    <insert id="insert" parameterType="com.erui.report.model.InquiryCount" >
     insert into inquiry_count (id, inquiry_num, quotation_num, 
       inquiry_unit, inquiry_area, organization, 
       cust_name, cust_description, pro_name, 
@@ -393,755 +423,750 @@
       quotation_price, piece_weight, total_weight, 
       packaging_volume, packaging_way, delivery_date, 
       expiry_date, standard_trade_items, latest_schedule, 
-      quoted_status, remark, quote_overtime_category, 
-      quote_overtime_cause, is_success_order, lose_order_category, 
-      lose_order_cause)
-    values (#{id,jdbcType=BIGINT}, #{inquiryNum,jdbcType=VARCHAR}, #{quotationNum,jdbcType=VARCHAR}, 
-      #{inquiryUnit,jdbcType=VARCHAR}, #{inquiryArea,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, 
-      #{custName,jdbcType=VARCHAR}, #{custDescription,jdbcType=VARCHAR}, #{proName,jdbcType=VARCHAR}, 
-      #{proNameForeign,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, #{figureNum,jdbcType=VARCHAR}, 
-      #{proCount,jdbcType=INTEGER}, #{proUnit,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR}, 
-      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{isKeruiEquipParts,jdbcType=VARCHAR}, 
-      #{isBid,jdbcType=VARCHAR}, #{rollinTime,jdbcType=TIMESTAMP}, #{needTime,jdbcType=TIMESTAMP}, 
-      #{clarifyTime,jdbcType=TIMESTAMP}, #{submitTime,jdbcType=TIMESTAMP}, #{quoteNeedTime,jdbcType=DECIMAL}, 
-      #{marketPrincipal,jdbcType=VARCHAR}, #{busTechnicalBidder,jdbcType=VARCHAR}, #{busUnitPrincipal,jdbcType=VARCHAR}, 
-      #{proBrand,jdbcType=VARCHAR}, #{quonationSuppli,jdbcType=VARCHAR}, #{suppliBidder,jdbcType=VARCHAR}, 
-      #{bidderPhone,jdbcType=VARCHAR}, #{suppliUnitPrice,jdbcType=DECIMAL}, #{suppliTotalPrice,jdbcType=DECIMAL}, 
-      #{profitMargin,jdbcType=DECIMAL}, #{quoteUnitPrice,jdbcType=DECIMAL}, #{quoteTotalPrice,jdbcType=DECIMAL}, 
-      #{quotationPrice,jdbcType=DECIMAL}, #{pieceWeight,jdbcType=DECIMAL}, #{totalWeight,jdbcType=DECIMAL}, 
-      #{packagingVolume,jdbcType=VARCHAR}, #{packagingWay,jdbcType=VARCHAR}, #{deliveryDate,jdbcType=INTEGER}, 
-      #{expiryDate,jdbcType=INTEGER}, #{standardTradeItems,jdbcType=VARCHAR}, #{latestSchedule,jdbcType=VARCHAR}, 
-      #{quotedStatus,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{quoteOvertimeCategory,jdbcType=VARCHAR}, 
-      #{quoteOvertimeCause,jdbcType=VARCHAR}, #{isSuccessOrder,jdbcType=VARCHAR}, #{loseOrderCategory,jdbcType=VARCHAR}, 
-      #{loseOrderCause,jdbcType=VARCHAR})
+      quoted_status, return_count, remark,
+      quote_overtime_category, quote_overtime_cause,
+      is_success_order, lose_order_category, lose_order_cause
+      )
+    values (#{id,jdbcType=BIGINT}, #{inquiryNum,jdbcType=VARCHAR}, #{quotationNum,jdbcType=VARCHAR},
+      #{inquiryUnit,jdbcType=VARCHAR}, #{inquiryArea,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR},
+      #{custName,jdbcType=VARCHAR}, #{custDescription,jdbcType=VARCHAR}, #{proName,jdbcType=VARCHAR},
+      #{proNameForeign,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, #{figureNum,jdbcType=VARCHAR},
+      #{proCount,jdbcType=INTEGER}, #{proUnit,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR},
+      #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, #{isKeruiEquipParts,jdbcType=VARCHAR},
+      #{isBid,jdbcType=VARCHAR}, #{rollinTime,jdbcType=TIMESTAMP}, #{needTime,jdbcType=TIMESTAMP},
+      #{clarifyTime,jdbcType=TIMESTAMP}, #{submitTime,jdbcType=TIMESTAMP}, #{quoteNeedTime,jdbcType=DECIMAL},
+      #{marketPrincipal,jdbcType=VARCHAR}, #{busTechnicalBidder,jdbcType=VARCHAR}, #{busUnitPrincipal,jdbcType=VARCHAR},
+      #{proBrand,jdbcType=VARCHAR}, #{quonationSuppli,jdbcType=VARCHAR}, #{suppliBidder,jdbcType=VARCHAR},
+      #{bidderPhone,jdbcType=VARCHAR}, #{suppliUnitPrice,jdbcType=DECIMAL}, #{suppliTotalPrice,jdbcType=DECIMAL},
+      #{profitMargin,jdbcType=DECIMAL}, #{quoteUnitPrice,jdbcType=DECIMAL}, #{quoteTotalPrice,jdbcType=DECIMAL},
+      #{quotationPrice,jdbcType=DECIMAL}, #{pieceWeight,jdbcType=DECIMAL}, #{totalWeight,jdbcType=DECIMAL},
+      #{packagingVolume,jdbcType=VARCHAR}, #{packagingWay,jdbcType=VARCHAR}, #{deliveryDate,jdbcType=INTEGER},
+      #{expiryDate,jdbcType=INTEGER}, #{standardTradeItems,jdbcType=VARCHAR}, #{latestSchedule,jdbcType=VARCHAR},
+      #{quotedStatus,jdbcType=VARCHAR}, #{returnCount,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR},
+      #{quoteOvertimeCategory,jdbcType=VARCHAR}, #{quoteOvertimeCause,jdbcType=VARCHAR},
+      #{isSuccessOrder,jdbcType=VARCHAR}, #{loseOrderCategory,jdbcType=VARCHAR}, #{loseOrderCause,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="com.erui.report.model.InquiryCount" >
-    insert into inquiry_count
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="inquiryNum != null" >
-        inquiry_num,
-      </if>
-      <if test="quotationNum != null" >
-        quotation_num,
-      </if>
-      <if test="inquiryUnit != null" >
-        inquiry_unit,
-      </if>
-      <if test="inquiryArea != null" >
-        inquiry_area,
-      </if>
-      <if test="organization != null" >
-        organization,
-      </if>
-      <if test="custName != null" >
-        cust_name,
-      </if>
-      <if test="custDescription != null" >
-        cust_description,
-      </if>
-      <if test="proName != null" >
-        pro_name,
-      </if>
-      <if test="proNameForeign != null" >
-        pro_name_foreign,
-      </if>
-      <if test="specification != null" >
-        specification,
-      </if>
-      <if test="figureNum != null" >
-        figure_num,
-      </if>
-      <if test="proCount != null" >
-        pro_count,
-      </if>
-      <if test="proUnit != null" >
-        pro_unit,
-      </if>
-      <if test="isOilGas != null" >
-        is_oil_gas,
-      </if>
-      <if test="platProCategory != null" >
-        plat_pro_category,
-      </if>
-      <if test="proCategory != null" >
-        pro_category,
-      </if>
-      <if test="isKeruiEquipParts != null" >
-        is_kerui_equip_parts,
-      </if>
-      <if test="isBid != null" >
-        is_bid,
-      </if>
-      <if test="rollinTime != null" >
-        rollin_time,
-      </if>
-      <if test="needTime != null" >
-        need_time,
-      </if>
-      <if test="clarifyTime != null" >
-        clarify_time,
-      </if>
-      <if test="submitTime != null" >
-        submit_time,
-      </if>
-      <if test="quoteNeedTime != null" >
-        quote_need_time,
-      </if>
-      <if test="marketPrincipal != null" >
-        market_principal,
-      </if>
-      <if test="busTechnicalBidder != null" >
-        bus_technical_bidder,
-      </if>
-      <if test="busUnitPrincipal != null" >
-        bus_unit_principal,
-      </if>
-      <if test="proBrand != null" >
-        pro_brand,
-      </if>
-      <if test="quonationSuppli != null" >
-        quonation_suppli,
-      </if>
-      <if test="suppliBidder != null" >
-        suppli_bidder,
-      </if>
-      <if test="bidderPhone != null" >
-        bidder_phone,
-      </if>
-      <if test="suppliUnitPrice != null" >
-        suppli_unit_price,
-      </if>
-      <if test="suppliTotalPrice != null" >
-        suppli_total_price,
-      </if>
-      <if test="profitMargin != null" >
-        profit_margin,
-      </if>
-      <if test="quoteUnitPrice != null" >
-        quote_unit_price,
-      </if>
-      <if test="quoteTotalPrice != null" >
-        quote_total_price,
-      </if>
-      <if test="quotationPrice != null" >
-        quotation_price,
-      </if>
-      <if test="pieceWeight != null" >
-        piece_weight,
-      </if>
-      <if test="totalWeight != null" >
-        total_weight,
-      </if>
-      <if test="packagingVolume != null" >
-        packaging_volume,
-      </if>
-      <if test="packagingWay != null" >
-        packaging_way,
-      </if>
-      <if test="deliveryDate != null" >
-        delivery_date,
-      </if>
-      <if test="expiryDate != null" >
-        expiry_date,
-      </if>
-      <if test="standardTradeItems != null" >
-        standard_trade_items,
-      </if>
-      <if test="latestSchedule != null" >
-        latest_schedule,
-      </if>
-      <if test="quotedStatus != null" >
-        quoted_status,
-      </if>
-      <if test="remark != null" >
-        remark,
-      </if>
-      <if test="quoteOvertimeCategory != null" >
-        quote_overtime_category,
-      </if>
-      <if test="quoteOvertimeCause != null" >
-        quote_overtime_cause,
-      </if>
-      <if test="isSuccessOrder != null" >
-        is_success_order,
-      </if>
-      <if test="loseOrderCategory != null" >
-        lose_order_category,
-      </if>
-      <if test="loseOrderCause != null" >
-        lose_order_cause,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=BIGINT},
-      </if>
-      <if test="inquiryNum != null" >
-        #{inquiryNum,jdbcType=VARCHAR},
-      </if>
-      <if test="quotationNum != null" >
-        #{quotationNum,jdbcType=VARCHAR},
-      </if>
-      <if test="inquiryUnit != null" >
-        #{inquiryUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="inquiryArea != null" >
-        #{inquiryArea,jdbcType=VARCHAR},
-      </if>
-      <if test="organization != null" >
-        #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="custName != null" >
-        #{custName,jdbcType=VARCHAR},
-      </if>
-      <if test="custDescription != null" >
-        #{custDescription,jdbcType=VARCHAR},
-      </if>
-      <if test="proName != null" >
-        #{proName,jdbcType=VARCHAR},
-      </if>
-      <if test="proNameForeign != null" >
-        #{proNameForeign,jdbcType=VARCHAR},
-      </if>
-      <if test="specification != null" >
-        #{specification,jdbcType=VARCHAR},
-      </if>
-      <if test="figureNum != null" >
-        #{figureNum,jdbcType=VARCHAR},
-      </if>
-      <if test="proCount != null" >
-        #{proCount,jdbcType=INTEGER},
-      </if>
-      <if test="proUnit != null" >
-        #{proUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="isOilGas != null" >
-        #{isOilGas,jdbcType=VARCHAR},
-      </if>
-      <if test="platProCategory != null" >
-        #{platProCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="proCategory != null" >
-        #{proCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="isKeruiEquipParts != null" >
-        #{isKeruiEquipParts,jdbcType=VARCHAR},
-      </if>
-      <if test="isBid != null" >
-        #{isBid,jdbcType=VARCHAR},
-      </if>
-      <if test="rollinTime != null" >
-        #{rollinTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="needTime != null" >
-        #{needTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="clarifyTime != null" >
-        #{clarifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="submitTime != null" >
-        #{submitTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="quoteNeedTime != null" >
-        #{quoteNeedTime,jdbcType=DECIMAL},
-      </if>
-      <if test="marketPrincipal != null" >
-        #{marketPrincipal,jdbcType=VARCHAR},
-      </if>
-      <if test="busTechnicalBidder != null" >
-        #{busTechnicalBidder,jdbcType=VARCHAR},
-      </if>
-      <if test="busUnitPrincipal != null" >
-        #{busUnitPrincipal,jdbcType=VARCHAR},
-      </if>
-      <if test="proBrand != null" >
-        #{proBrand,jdbcType=VARCHAR},
-      </if>
-      <if test="quonationSuppli != null" >
-        #{quonationSuppli,jdbcType=VARCHAR},
-      </if>
-      <if test="suppliBidder != null" >
-        #{suppliBidder,jdbcType=VARCHAR},
-      </if>
-      <if test="bidderPhone != null" >
-        #{bidderPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="suppliUnitPrice != null" >
-        #{suppliUnitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="suppliTotalPrice != null" >
-        #{suppliTotalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="profitMargin != null" >
-        #{profitMargin,jdbcType=DECIMAL},
-      </if>
-      <if test="quoteUnitPrice != null" >
-        #{quoteUnitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="quoteTotalPrice != null" >
-        #{quoteTotalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="quotationPrice != null" >
-        #{quotationPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="pieceWeight != null" >
-        #{pieceWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="totalWeight != null" >
-        #{totalWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="packagingVolume != null" >
-        #{packagingVolume,jdbcType=VARCHAR},
-      </if>
-      <if test="packagingWay != null" >
-        #{packagingWay,jdbcType=VARCHAR},
-      </if>
-      <if test="deliveryDate != null" >
-        #{deliveryDate,jdbcType=INTEGER},
-      </if>
-      <if test="expiryDate != null" >
-        #{expiryDate,jdbcType=INTEGER},
-      </if>
-      <if test="standardTradeItems != null" >
-        #{standardTradeItems,jdbcType=VARCHAR},
-      </if>
-      <if test="latestSchedule != null" >
-        #{latestSchedule,jdbcType=VARCHAR},
-      </if>
-      <if test="quotedStatus != null" >
-        #{quotedStatus,jdbcType=VARCHAR},
-      </if>
-      <if test="remark != null" >
-        #{remark,jdbcType=VARCHAR},
-      </if>
-      <if test="quoteOvertimeCategory != null" >
-        #{quoteOvertimeCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="quoteOvertimeCause != null" >
-        #{quoteOvertimeCause,jdbcType=VARCHAR},
-      </if>
-      <if test="isSuccessOrder != null" >
-        #{isSuccessOrder,jdbcType=VARCHAR},
-      </if>
-      <if test="loseOrderCategory != null" >
-        #{loseOrderCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="loseOrderCause != null" >
-        #{loseOrderCause,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="com.erui.report.model.InquiryCountExample" resultType="java.lang.Integer" >
-    SELECT count(*) FROM inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-
-  <select id="selectInqDetailByCategoryByExample"  resultType="com.erui.report.model.CateDetailVo"  parameterType="com.erui.report.model.InquiryCountExample">
-    SELECT
-    IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) AS inqCatePrice,
-    COUNT(*) AS inqCateCount,
-    pro_category AS category
-    FROM
-    inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP BY
-    category HAVING  category IS  NOT  NULL
-  </select>
-  <update id="updateByExampleSelective" parameterType="map" >
-    update inquiry_count
-    <set >
-      <if test="record.id != null" >
-        id = #{record.id,jdbcType=BIGINT},
-      </if>
-      <if test="record.inquiryNum != null" >
+    <insert id="insertSelective" parameterType="com.erui.report.model.InquiryCount" >
+        insert into inquiry_count
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="inquiryNum != null" >
+                inquiry_num,
+            </if>
+            <if test="quotationNum != null" >
+                quotation_num,
+            </if>
+            <if test="inquiryUnit != null" >
+                inquiry_unit,
+            </if>
+            <if test="inquiryArea != null" >
+                inquiry_area,
+            </if>
+            <if test="organization != null" >
+                organization,
+            </if>
+            <if test="custName != null" >
+                cust_name,
+            </if>
+            <if test="custDescription != null" >
+                cust_description,
+            </if>
+            <if test="proName != null" >
+                pro_name,
+            </if>
+            <if test="proNameForeign != null" >
+                pro_name_foreign,
+            </if>
+            <if test="specification != null" >
+                specification,
+            </if>
+            <if test="figureNum != null" >
+                figure_num,
+            </if>
+            <if test="proCount != null" >
+                pro_count,
+            </if>
+            <if test="proUnit != null" >
+                pro_unit,
+            </if>
+            <if test="isOilGas != null" >
+                is_oil_gas,
+            </if>
+            <if test="platProCategory != null" >
+                plat_pro_category,
+            </if>
+            <if test="proCategory != null" >
+                pro_category,
+            </if>
+            <if test="isKeruiEquipParts != null" >
+                is_kerui_equip_parts,
+            </if>
+            <if test="isBid != null" >
+                is_bid,
+            </if>
+            <if test="rollinTime != null" >
+                rollin_time,
+            </if>
+            <if test="needTime != null" >
+                need_time,
+            </if>
+            <if test="clarifyTime != null" >
+                clarify_time,
+            </if>
+            <if test="submitTime != null" >
+                submit_time,
+            </if>
+            <if test="quoteNeedTime != null" >
+                quote_need_time,
+            </if>
+            <if test="marketPrincipal != null" >
+                market_principal,
+            </if>
+            <if test="busTechnicalBidder != null" >
+                bus_technical_bidder,
+            </if>
+            <if test="busUnitPrincipal != null" >
+                bus_unit_principal,
+            </if>
+            <if test="proBrand != null" >
+                pro_brand,
+            </if>
+            <if test="quonationSuppli != null" >
+                quonation_suppli,
+            </if>
+            <if test="suppliBidder != null" >
+                suppli_bidder,
+            </if>
+            <if test="bidderPhone != null" >
+                bidder_phone,
+            </if>
+            <if test="suppliUnitPrice != null" >
+                suppli_unit_price,
+            </if>
+            <if test="suppliTotalPrice != null" >
+                suppli_total_price,
+            </if>
+            <if test="profitMargin != null" >
+                profit_margin,
+            </if>
+            <if test="quoteUnitPrice != null" >
+                quote_unit_price,
+            </if>
+            <if test="quoteTotalPrice != null" >
+                quote_total_price,
+            </if>
+            <if test="quotationPrice != null" >
+                quotation_price,
+            </if>
+            <if test="pieceWeight != null" >
+                piece_weight,
+            </if>
+            <if test="totalWeight != null" >
+                total_weight,
+            </if>
+            <if test="packagingVolume != null" >
+                packaging_volume,
+            </if>
+            <if test="packagingWay != null" >
+                packaging_way,
+            </if>
+            <if test="deliveryDate != null" >
+                delivery_date,
+            </if>
+            <if test="expiryDate != null" >
+                expiry_date,
+            </if>
+            <if test="standardTradeItems != null" >
+                standard_trade_items,
+            </if>
+            <if test="latestSchedule != null" >
+                latest_schedule,
+            </if>
+            <if test="quotedStatus != null" >
+                quoted_status,
+            </if>
+            <if test="returnCount != null" >
+                return_count,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="quoteOvertimeCategory != null" >
+                quote_overtime_category,
+            </if>
+            <if test="quoteOvertimeCause != null" >
+                quote_overtime_cause,
+            </if>
+            <if test="isSuccessOrder != null" >
+                is_success_order,
+            </if>
+            <if test="loseOrderCategory != null" >
+                lose_order_category,
+            </if>
+            <if test="loseOrderCause != null" >
+                lose_order_cause,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="inquiryNum != null" >
+                #{inquiryNum,jdbcType=VARCHAR},
+            </if>
+            <if test="quotationNum != null" >
+                #{quotationNum,jdbcType=VARCHAR},
+            </if>
+            <if test="inquiryUnit != null" >
+                #{inquiryUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="inquiryArea != null" >
+                #{inquiryArea,jdbcType=VARCHAR},
+            </if>
+            <if test="organization != null" >
+                #{organization,jdbcType=VARCHAR},
+            </if>
+            <if test="custName != null" >
+                #{custName,jdbcType=VARCHAR},
+            </if>
+            <if test="custDescription != null" >
+                #{custDescription,jdbcType=VARCHAR},
+            </if>
+            <if test="proName != null" >
+                #{proName,jdbcType=VARCHAR},
+            </if>
+            <if test="proNameForeign != null" >
+                #{proNameForeign,jdbcType=VARCHAR},
+            </if>
+            <if test="specification != null" >
+                #{specification,jdbcType=VARCHAR},
+            </if>
+            <if test="figureNum != null" >
+                #{figureNum,jdbcType=VARCHAR},
+            </if>
+            <if test="proCount != null" >
+                #{proCount,jdbcType=INTEGER},
+            </if>
+            <if test="proUnit != null" >
+                #{proUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="isOilGas != null" >
+                #{isOilGas,jdbcType=VARCHAR},
+            </if>
+            <if test="platProCategory != null" >
+                #{platProCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="proCategory != null" >
+                #{proCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="isKeruiEquipParts != null" >
+                #{isKeruiEquipParts,jdbcType=VARCHAR},
+            </if>
+            <if test="isBid != null" >
+                #{isBid,jdbcType=VARCHAR},
+            </if>
+            <if test="rollinTime != null" >
+                #{rollinTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="needTime != null" >
+                #{needTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="clarifyTime != null" >
+                #{clarifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="submitTime != null" >
+                #{submitTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="quoteNeedTime != null" >
+                #{quoteNeedTime,jdbcType=DECIMAL},
+            </if>
+            <if test="marketPrincipal != null" >
+                #{marketPrincipal,jdbcType=VARCHAR},
+            </if>
+            <if test="busTechnicalBidder != null" >
+                #{busTechnicalBidder,jdbcType=VARCHAR},
+            </if>
+            <if test="busUnitPrincipal != null" >
+                #{busUnitPrincipal,jdbcType=VARCHAR},
+            </if>
+            <if test="proBrand != null" >
+                #{proBrand,jdbcType=VARCHAR},
+            </if>
+            <if test="quonationSuppli != null" >
+                #{quonationSuppli,jdbcType=VARCHAR},
+            </if>
+            <if test="suppliBidder != null" >
+                #{suppliBidder,jdbcType=VARCHAR},
+            </if>
+            <if test="bidderPhone != null" >
+                #{bidderPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="suppliUnitPrice != null" >
+                #{suppliUnitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="suppliTotalPrice != null" >
+                #{suppliTotalPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="profitMargin != null" >
+                #{profitMargin,jdbcType=DECIMAL},
+            </if>
+            <if test="quoteUnitPrice != null" >
+                #{quoteUnitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="quoteTotalPrice != null" >
+                #{quoteTotalPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="quotationPrice != null" >
+                #{quotationPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="pieceWeight != null" >
+                #{pieceWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="totalWeight != null" >
+                #{totalWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="packagingVolume != null" >
+                #{packagingVolume,jdbcType=VARCHAR},
+            </if>
+            <if test="packagingWay != null" >
+                #{packagingWay,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryDate != null" >
+                #{deliveryDate,jdbcType=INTEGER},
+            </if>
+            <if test="expiryDate != null" >
+                #{expiryDate,jdbcType=INTEGER},
+            </if>
+            <if test="standardTradeItems != null" >
+                #{standardTradeItems,jdbcType=VARCHAR},
+            </if>
+            <if test="latestSchedule != null" >
+                #{latestSchedule,jdbcType=VARCHAR},
+            </if>
+            <if test="quotedStatus != null" >
+                #{quotedStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="returnCount != null" >
+                #{returnCount,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null" >
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="quoteOvertimeCategory != null" >
+                #{quoteOvertimeCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="quoteOvertimeCause != null" >
+                #{quoteOvertimeCause,jdbcType=VARCHAR},
+            </if>
+            <if test="isSuccessOrder != null" >
+                #{isSuccessOrder,jdbcType=VARCHAR},
+            </if>
+            <if test="loseOrderCategory != null" >
+                #{loseOrderCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="loseOrderCause != null" >
+                #{loseOrderCause,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.erui.report.model.InquiryCountExample" resultType="java.lang.Integer" >
+        select count(*) from inquiry_count
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map" >
+        update inquiry_count
+        <set >
+            <if test="record.id != null" >
+                id = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.inquiryNum != null" >
+                inquiry_num = #{record.inquiryNum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.quotationNum != null" >
+                quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.inquiryUnit != null" >
+                inquiry_unit = #{record.inquiryUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="record.inquiryArea != null" >
+                inquiry_area = #{record.inquiryArea,jdbcType=VARCHAR},
+            </if>
+            <if test="record.organization != null" >
+                organization = #{record.organization,jdbcType=VARCHAR},
+            </if>
+            <if test="record.custName != null" >
+                cust_name = #{record.custName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.custDescription != null" >
+                cust_description = #{record.custDescription,jdbcType=VARCHAR},
+            </if>
+            <if test="record.proName != null" >
+                pro_name = #{record.proName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.proNameForeign != null" >
+                pro_name_foreign = #{record.proNameForeign,jdbcType=VARCHAR},
+            </if>
+            <if test="record.specification != null" >
+                specification = #{record.specification,jdbcType=VARCHAR},
+            </if>
+            <if test="record.figureNum != null" >
+                figure_num = #{record.figureNum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.proCount != null" >
+                pro_count = #{record.proCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.proUnit != null" >
+                pro_unit = #{record.proUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isOilGas != null" >
+                is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
+            </if>
+            <if test="record.platProCategory != null" >
+                plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="record.proCategory != null" >
+                pro_category = #{record.proCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isKeruiEquipParts != null" >
+                is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isBid != null" >
+                is_bid = #{record.isBid,jdbcType=VARCHAR},
+            </if>
+            <if test="record.rollinTime != null" >
+                rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.needTime != null" >
+                need_time = #{record.needTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.clarifyTime != null" >
+                clarify_time = #{record.clarifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.submitTime != null" >
+                submit_time = #{record.submitTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.quoteNeedTime != null" >
+                quote_need_time = #{record.quoteNeedTime,jdbcType=DECIMAL},
+            </if>
+            <if test="record.marketPrincipal != null" >
+                market_principal = #{record.marketPrincipal,jdbcType=VARCHAR},
+            </if>
+            <if test="record.busTechnicalBidder != null" >
+                bus_technical_bidder = #{record.busTechnicalBidder,jdbcType=VARCHAR},
+            </if>
+            <if test="record.busUnitPrincipal != null" >
+                bus_unit_principal = #{record.busUnitPrincipal,jdbcType=VARCHAR},
+            </if>
+            <if test="record.proBrand != null" >
+                pro_brand = #{record.proBrand,jdbcType=VARCHAR},
+            </if>
+            <if test="record.quonationSuppli != null" >
+                quonation_suppli = #{record.quonationSuppli,jdbcType=VARCHAR},
+            </if>
+            <if test="record.suppliBidder != null" >
+                suppli_bidder = #{record.suppliBidder,jdbcType=VARCHAR},
+            </if>
+            <if test="record.bidderPhone != null" >
+                bidder_phone = #{record.bidderPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="record.suppliUnitPrice != null" >
+                suppli_unit_price = #{record.suppliUnitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="record.suppliTotalPrice != null" >
+                suppli_total_price = #{record.suppliTotalPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="record.profitMargin != null" >
+                profit_margin = #{record.profitMargin,jdbcType=DECIMAL},
+            </if>
+            <if test="record.quoteUnitPrice != null" >
+                quote_unit_price = #{record.quoteUnitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="record.quoteTotalPrice != null" >
+                quote_total_price = #{record.quoteTotalPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="record.quotationPrice != null" >
+                quotation_price = #{record.quotationPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="record.pieceWeight != null" >
+                piece_weight = #{record.pieceWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="record.totalWeight != null" >
+                total_weight = #{record.totalWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="record.packagingVolume != null" >
+                packaging_volume = #{record.packagingVolume,jdbcType=VARCHAR},
+            </if>
+            <if test="record.packagingWay != null" >
+                packaging_way = #{record.packagingWay,jdbcType=VARCHAR},
+            </if>
+            <if test="record.deliveryDate != null" >
+                delivery_date = #{record.deliveryDate,jdbcType=INTEGER},
+            </if>
+            <if test="record.expiryDate != null" >
+                expiry_date = #{record.expiryDate,jdbcType=INTEGER},
+            </if>
+            <if test="record.standardTradeItems != null" >
+                standard_trade_items = #{record.standardTradeItems,jdbcType=VARCHAR},
+            </if>
+            <if test="record.latestSchedule != null" >
+                latest_schedule = #{record.latestSchedule,jdbcType=VARCHAR},
+            </if>
+            <if test="record.quotedStatus != null" >
+                quoted_status = #{record.quotedStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="record.returnCount != null" >
+                return_count = #{record.returnCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.remark != null" >
+                remark = #{record.remark,jdbcType=VARCHAR},
+            </if>
+            <if test="record.quoteOvertimeCategory != null" >
+                quote_overtime_category = #{record.quoteOvertimeCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="record.quoteOvertimeCause != null" >
+                quote_overtime_cause = #{record.quoteOvertimeCause,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isSuccessOrder != null" >
+                is_success_order = #{record.isSuccessOrder,jdbcType=VARCHAR},
+            </if>
+            <if test="record.loseOrderCategory != null" >
+                lose_order_category = #{record.loseOrderCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="record.loseOrderCause != null" >
+                lose_order_cause = #{record.loseOrderCause,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map" >
+        update inquiry_count
+        set id = #{record.id,jdbcType=BIGINT},
         inquiry_num = #{record.inquiryNum,jdbcType=VARCHAR},
-      </if>
-      <if test="record.quotationNum != null" >
         quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
-      </if>
-      <if test="record.inquiryUnit != null" >
         inquiry_unit = #{record.inquiryUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="record.inquiryArea != null" >
         inquiry_area = #{record.inquiryArea,jdbcType=VARCHAR},
-      </if>
-      <if test="record.organization != null" >
         organization = #{record.organization,jdbcType=VARCHAR},
-      </if>
-      <if test="record.custName != null" >
         cust_name = #{record.custName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.custDescription != null" >
         cust_description = #{record.custDescription,jdbcType=VARCHAR},
-      </if>
-      <if test="record.proName != null" >
         pro_name = #{record.proName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.proNameForeign != null" >
         pro_name_foreign = #{record.proNameForeign,jdbcType=VARCHAR},
-      </if>
-      <if test="record.specification != null" >
         specification = #{record.specification,jdbcType=VARCHAR},
-      </if>
-      <if test="record.figureNum != null" >
         figure_num = #{record.figureNum,jdbcType=VARCHAR},
-      </if>
-      <if test="record.proCount != null" >
         pro_count = #{record.proCount,jdbcType=INTEGER},
-      </if>
-      <if test="record.proUnit != null" >
         pro_unit = #{record.proUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="record.isOilGas != null" >
         is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
-      </if>
-      <if test="record.platProCategory != null" >
         plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="record.proCategory != null" >
         pro_category = #{record.proCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="record.isKeruiEquipParts != null" >
         is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
-      </if>
-      <if test="record.isBid != null" >
         is_bid = #{record.isBid,jdbcType=VARCHAR},
-      </if>
-      <if test="record.rollinTime != null" >
         rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.needTime != null" >
         need_time = #{record.needTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.clarifyTime != null" >
         clarify_time = #{record.clarifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.submitTime != null" >
         submit_time = #{record.submitTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.quoteNeedTime != null" >
         quote_need_time = #{record.quoteNeedTime,jdbcType=DECIMAL},
-      </if>
-      <if test="record.marketPrincipal != null" >
         market_principal = #{record.marketPrincipal,jdbcType=VARCHAR},
-      </if>
-      <if test="record.busTechnicalBidder != null" >
         bus_technical_bidder = #{record.busTechnicalBidder,jdbcType=VARCHAR},
-      </if>
-      <if test="record.busUnitPrincipal != null" >
         bus_unit_principal = #{record.busUnitPrincipal,jdbcType=VARCHAR},
-      </if>
-      <if test="record.proBrand != null" >
         pro_brand = #{record.proBrand,jdbcType=VARCHAR},
-      </if>
-      <if test="record.quonationSuppli != null" >
         quonation_suppli = #{record.quonationSuppli,jdbcType=VARCHAR},
-      </if>
-      <if test="record.suppliBidder != null" >
         suppli_bidder = #{record.suppliBidder,jdbcType=VARCHAR},
-      </if>
-      <if test="record.bidderPhone != null" >
         bidder_phone = #{record.bidderPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="record.suppliUnitPrice != null" >
         suppli_unit_price = #{record.suppliUnitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="record.suppliTotalPrice != null" >
         suppli_total_price = #{record.suppliTotalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="record.profitMargin != null" >
         profit_margin = #{record.profitMargin,jdbcType=DECIMAL},
-      </if>
-      <if test="record.quoteUnitPrice != null" >
         quote_unit_price = #{record.quoteUnitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="record.quoteTotalPrice != null" >
         quote_total_price = #{record.quoteTotalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="record.quotationPrice != null" >
         quotation_price = #{record.quotationPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="record.pieceWeight != null" >
         piece_weight = #{record.pieceWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="record.totalWeight != null" >
         total_weight = #{record.totalWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="record.packagingVolume != null" >
         packaging_volume = #{record.packagingVolume,jdbcType=VARCHAR},
-      </if>
-      <if test="record.packagingWay != null" >
         packaging_way = #{record.packagingWay,jdbcType=VARCHAR},
-      </if>
-      <if test="record.deliveryDate != null" >
         delivery_date = #{record.deliveryDate,jdbcType=INTEGER},
-      </if>
-      <if test="record.expiryDate != null" >
         expiry_date = #{record.expiryDate,jdbcType=INTEGER},
-      </if>
-      <if test="record.standardTradeItems != null" >
         standard_trade_items = #{record.standardTradeItems,jdbcType=VARCHAR},
-      </if>
-      <if test="record.latestSchedule != null" >
         latest_schedule = #{record.latestSchedule,jdbcType=VARCHAR},
-      </if>
-      <if test="record.quotedStatus != null" >
         quoted_status = #{record.quotedStatus,jdbcType=VARCHAR},
-      </if>
-      <if test="record.remark != null" >
+        return_count = #{record.returnCount,jdbcType=INTEGER},
         remark = #{record.remark,jdbcType=VARCHAR},
-      </if>
-      <if test="record.quoteOvertimeCategory != null" >
         quote_overtime_category = #{record.quoteOvertimeCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="record.quoteOvertimeCause != null" >
         quote_overtime_cause = #{record.quoteOvertimeCause,jdbcType=VARCHAR},
-      </if>
-      <if test="record.isSuccessOrder != null" >
         is_success_order = #{record.isSuccessOrder,jdbcType=VARCHAR},
-      </if>
-      <if test="record.loseOrderCategory != null" >
         lose_order_category = #{record.loseOrderCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="record.loseOrderCause != null" >
-        lose_order_cause = #{record.loseOrderCause,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update inquiry_count
-    set
-      inquiry_num = #{record.inquiryNum,jdbcType=VARCHAR},
-      quotation_num = #{record.quotationNum,jdbcType=VARCHAR},
-      inquiry_unit = #{record.inquiryUnit,jdbcType=VARCHAR},
-      inquiry_area = #{record.inquiryArea,jdbcType=VARCHAR},
-      organization = #{record.organization,jdbcType=VARCHAR},
-      cust_name = #{record.custName,jdbcType=VARCHAR},
-      cust_description = #{record.custDescription,jdbcType=VARCHAR},
-      pro_name = #{record.proName,jdbcType=VARCHAR},
-      pro_name_foreign = #{record.proNameForeign,jdbcType=VARCHAR},
-      specification = #{record.specification,jdbcType=VARCHAR},
-      figure_num = #{record.figureNum,jdbcType=VARCHAR},
-      pro_count = #{record.proCount,jdbcType=INTEGER},
-      pro_unit = #{record.proUnit,jdbcType=VARCHAR},
-      is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
-      plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
-      pro_category = #{record.proCategory,jdbcType=VARCHAR},
-      is_kerui_equip_parts = #{record.isKeruiEquipParts,jdbcType=VARCHAR},
-      is_bid = #{record.isBid,jdbcType=VARCHAR},
-      rollin_time = #{record.rollinTime,jdbcType=TIMESTAMP},
-      need_time = #{record.needTime,jdbcType=TIMESTAMP},
-      clarify_time = #{record.clarifyTime,jdbcType=TIMESTAMP},
-      submit_time = #{record.submitTime,jdbcType=TIMESTAMP},
-      quote_need_time = #{record.quoteNeedTime,jdbcType=DECIMAL},
-      market_principal = #{record.marketPrincipal,jdbcType=VARCHAR},
-      bus_technical_bidder = #{record.busTechnicalBidder,jdbcType=VARCHAR},
-      bus_unit_principal = #{record.busUnitPrincipal,jdbcType=VARCHAR},
-      pro_brand = #{record.proBrand,jdbcType=VARCHAR},
-      quonation_suppli = #{record.quonationSuppli,jdbcType=VARCHAR},
-      suppli_bidder = #{record.suppliBidder,jdbcType=VARCHAR},
-      bidder_phone = #{record.bidderPhone,jdbcType=VARCHAR},
-      suppli_unit_price = #{record.suppliUnitPrice,jdbcType=DECIMAL},
-      suppli_total_price = #{record.suppliTotalPrice,jdbcType=DECIMAL},
-      profit_margin = #{record.profitMargin,jdbcType=DECIMAL},
-      quote_unit_price = #{record.quoteUnitPrice,jdbcType=DECIMAL},
-      quote_total_price = #{record.quoteTotalPrice,jdbcType=DECIMAL},
-      quotation_price = #{record.quotationPrice,jdbcType=DECIMAL},
-      piece_weight = #{record.pieceWeight,jdbcType=DECIMAL},
-      total_weight = #{record.totalWeight,jdbcType=DECIMAL},
-      packaging_volume = #{record.packagingVolume,jdbcType=VARCHAR},
-      packaging_way = #{record.packagingWay,jdbcType=VARCHAR},
-      delivery_date = #{record.deliveryDate,jdbcType=INTEGER},
-      expiry_date = #{record.expiryDate,jdbcType=INTEGER},
-      standard_trade_items = #{record.standardTradeItems,jdbcType=VARCHAR},
-      latest_schedule = #{record.latestSchedule,jdbcType=VARCHAR},
-      quoted_status = #{record.quotedStatus,jdbcType=VARCHAR},
-      remark = #{record.remark,jdbcType=VARCHAR},
-      quote_overtime_category = #{record.quoteOvertimeCategory,jdbcType=VARCHAR},
-      quote_overtime_cause = #{record.quoteOvertimeCause,jdbcType=VARCHAR},
-      is_success_order = #{record.isSuccessOrder,jdbcType=VARCHAR},
-      lose_order_category = #{record.loseOrderCategory,jdbcType=VARCHAR},
-      lose_order_cause = #{record.loseOrderCause,jdbcType=VARCHAR}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.InquiryCount" >
-    update inquiry_count
-    <set >
-      <if test="inquiryNum != null" >
-        inquiry_num = #{inquiryNum,jdbcType=VARCHAR},
-      </if>
-      <if test="quotationNum != null" >
-        quotation_num = #{quotationNum,jdbcType=VARCHAR},
-      </if>
-      <if test="inquiryUnit != null" >
-        inquiry_unit = #{inquiryUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="inquiryArea != null" >
-        inquiry_area = #{inquiryArea,jdbcType=VARCHAR},
-      </if>
-      <if test="organization != null" >
-        organization = #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="custName != null" >
-        cust_name = #{custName,jdbcType=VARCHAR},
-      </if>
-      <if test="custDescription != null" >
-        cust_description = #{custDescription,jdbcType=VARCHAR},
-      </if>
-      <if test="proName != null" >
-        pro_name = #{proName,jdbcType=VARCHAR},
-      </if>
-      <if test="proNameForeign != null" >
-        pro_name_foreign = #{proNameForeign,jdbcType=VARCHAR},
-      </if>
-      <if test="specification != null" >
-        specification = #{specification,jdbcType=VARCHAR},
-      </if>
-      <if test="figureNum != null" >
-        figure_num = #{figureNum,jdbcType=VARCHAR},
-      </if>
-      <if test="proCount != null" >
-        pro_count = #{proCount,jdbcType=INTEGER},
-      </if>
-      <if test="proUnit != null" >
-        pro_unit = #{proUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="isOilGas != null" >
-        is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
-      </if>
-      <if test="platProCategory != null" >
-        plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="proCategory != null" >
-        pro_category = #{proCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="isKeruiEquipParts != null" >
-        is_kerui_equip_parts = #{isKeruiEquipParts,jdbcType=VARCHAR},
-      </if>
-      <if test="isBid != null" >
-        is_bid = #{isBid,jdbcType=VARCHAR},
-      </if>
-      <if test="rollinTime != null" >
-        rollin_time = #{rollinTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="needTime != null" >
-        need_time = #{needTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="clarifyTime != null" >
-        clarify_time = #{clarifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="submitTime != null" >
-        submit_time = #{submitTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="quoteNeedTime != null" >
-        quote_need_time = #{quoteNeedTime,jdbcType=DECIMAL},
-      </if>
-      <if test="marketPrincipal != null" >
-        market_principal = #{marketPrincipal,jdbcType=VARCHAR},
-      </if>
-      <if test="busTechnicalBidder != null" >
-        bus_technical_bidder = #{busTechnicalBidder,jdbcType=VARCHAR},
-      </if>
-      <if test="busUnitPrincipal != null" >
-        bus_unit_principal = #{busUnitPrincipal,jdbcType=VARCHAR},
-      </if>
-      <if test="proBrand != null" >
-        pro_brand = #{proBrand,jdbcType=VARCHAR},
-      </if>
-      <if test="quonationSuppli != null" >
-        quonation_suppli = #{quonationSuppli,jdbcType=VARCHAR},
-      </if>
-      <if test="suppliBidder != null" >
-        suppli_bidder = #{suppliBidder,jdbcType=VARCHAR},
-      </if>
-      <if test="bidderPhone != null" >
-        bidder_phone = #{bidderPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="suppliUnitPrice != null" >
-        suppli_unit_price = #{suppliUnitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="suppliTotalPrice != null" >
-        suppli_total_price = #{suppliTotalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="profitMargin != null" >
-        profit_margin = #{profitMargin,jdbcType=DECIMAL},
-      </if>
-      <if test="quoteUnitPrice != null" >
-        quote_unit_price = #{quoteUnitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="quoteTotalPrice != null" >
-        quote_total_price = #{quoteTotalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="quotationPrice != null" >
-        quotation_price = #{quotationPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="pieceWeight != null" >
-        piece_weight = #{pieceWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="totalWeight != null" >
-        total_weight = #{totalWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="packagingVolume != null" >
-        packaging_volume = #{packagingVolume,jdbcType=VARCHAR},
-      </if>
-      <if test="packagingWay != null" >
-        packaging_way = #{packagingWay,jdbcType=VARCHAR},
-      </if>
-      <if test="deliveryDate != null" >
-        delivery_date = #{deliveryDate,jdbcType=INTEGER},
-      </if>
-      <if test="expiryDate != null" >
-        expiry_date = #{expiryDate,jdbcType=INTEGER},
-      </if>
-      <if test="standardTradeItems != null" >
-        standard_trade_items = #{standardTradeItems,jdbcType=VARCHAR},
-      </if>
-      <if test="latestSchedule != null" >
-        latest_schedule = #{latestSchedule,jdbcType=VARCHAR},
-      </if>
-      <if test="quotedStatus != null" >
-        quoted_status = #{quotedStatus,jdbcType=VARCHAR},
-      </if>
-      <if test="remark != null" >
-        remark = #{remark,jdbcType=VARCHAR},
-      </if>
-      <if test="quoteOvertimeCategory != null" >
-        quote_overtime_category = #{quoteOvertimeCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="quoteOvertimeCause != null" >
-        quote_overtime_cause = #{quoteOvertimeCause,jdbcType=VARCHAR},
-      </if>
-      <if test="isSuccessOrder != null" >
-        is_success_order = #{isSuccessOrder,jdbcType=VARCHAR},
-      </if>
-      <if test="loseOrderCategory != null" >
-        lose_order_category = #{loseOrderCategory,jdbcType=VARCHAR},
-      </if>
-      <if test="loseOrderCause != null" >
-        lose_order_cause = #{loseOrderCause,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.InquiryCount" >
+        lose_order_cause = #{record.loseOrderCause,jdbcType=VARCHAR}
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.InquiryCount" >
+        update inquiry_count
+        <set >
+            <if test="inquiryNum != null" >
+                inquiry_num = #{inquiryNum,jdbcType=VARCHAR},
+            </if>
+            <if test="quotationNum != null" >
+                quotation_num = #{quotationNum,jdbcType=VARCHAR},
+            </if>
+            <if test="inquiryUnit != null" >
+                inquiry_unit = #{inquiryUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="inquiryArea != null" >
+                inquiry_area = #{inquiryArea,jdbcType=VARCHAR},
+            </if>
+            <if test="organization != null" >
+                organization = #{organization,jdbcType=VARCHAR},
+            </if>
+            <if test="custName != null" >
+                cust_name = #{custName,jdbcType=VARCHAR},
+            </if>
+            <if test="custDescription != null" >
+                cust_description = #{custDescription,jdbcType=VARCHAR},
+            </if>
+            <if test="proName != null" >
+                pro_name = #{proName,jdbcType=VARCHAR},
+            </if>
+            <if test="proNameForeign != null" >
+                pro_name_foreign = #{proNameForeign,jdbcType=VARCHAR},
+            </if>
+            <if test="specification != null" >
+                specification = #{specification,jdbcType=VARCHAR},
+            </if>
+            <if test="figureNum != null" >
+                figure_num = #{figureNum,jdbcType=VARCHAR},
+            </if>
+            <if test="proCount != null" >
+                pro_count = #{proCount,jdbcType=INTEGER},
+            </if>
+            <if test="proUnit != null" >
+                pro_unit = #{proUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="isOilGas != null" >
+                is_oil_gas = #{isOilGas,jdbcType=VARCHAR},
+            </if>
+            <if test="platProCategory != null" >
+                plat_pro_category = #{platProCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="proCategory != null" >
+                pro_category = #{proCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="isKeruiEquipParts != null" >
+                is_kerui_equip_parts = #{isKeruiEquipParts,jdbcType=VARCHAR},
+            </if>
+            <if test="isBid != null" >
+                is_bid = #{isBid,jdbcType=VARCHAR},
+            </if>
+            <if test="rollinTime != null" >
+                rollin_time = #{rollinTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="needTime != null" >
+                need_time = #{needTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="clarifyTime != null" >
+                clarify_time = #{clarifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="submitTime != null" >
+                submit_time = #{submitTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="quoteNeedTime != null" >
+                quote_need_time = #{quoteNeedTime,jdbcType=DECIMAL},
+            </if>
+            <if test="marketPrincipal != null" >
+                market_principal = #{marketPrincipal,jdbcType=VARCHAR},
+            </if>
+            <if test="busTechnicalBidder != null" >
+                bus_technical_bidder = #{busTechnicalBidder,jdbcType=VARCHAR},
+            </if>
+            <if test="busUnitPrincipal != null" >
+                bus_unit_principal = #{busUnitPrincipal,jdbcType=VARCHAR},
+            </if>
+            <if test="proBrand != null" >
+                pro_brand = #{proBrand,jdbcType=VARCHAR},
+            </if>
+            <if test="quonationSuppli != null" >
+                quonation_suppli = #{quonationSuppli,jdbcType=VARCHAR},
+            </if>
+            <if test="suppliBidder != null" >
+                suppli_bidder = #{suppliBidder,jdbcType=VARCHAR},
+            </if>
+            <if test="bidderPhone != null" >
+                bidder_phone = #{bidderPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="suppliUnitPrice != null" >
+                suppli_unit_price = #{suppliUnitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="suppliTotalPrice != null" >
+                suppli_total_price = #{suppliTotalPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="profitMargin != null" >
+                profit_margin = #{profitMargin,jdbcType=DECIMAL},
+            </if>
+            <if test="quoteUnitPrice != null" >
+                quote_unit_price = #{quoteUnitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="quoteTotalPrice != null" >
+                quote_total_price = #{quoteTotalPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="quotationPrice != null" >
+                quotation_price = #{quotationPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="pieceWeight != null" >
+                piece_weight = #{pieceWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="totalWeight != null" >
+                total_weight = #{totalWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="packagingVolume != null" >
+                packaging_volume = #{packagingVolume,jdbcType=VARCHAR},
+            </if>
+            <if test="packagingWay != null" >
+                packaging_way = #{packagingWay,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryDate != null" >
+                delivery_date = #{deliveryDate,jdbcType=INTEGER},
+            </if>
+            <if test="expiryDate != null" >
+                expiry_date = #{expiryDate,jdbcType=INTEGER},
+            </if>
+            <if test="standardTradeItems != null" >
+                standard_trade_items = #{standardTradeItems,jdbcType=VARCHAR},
+            </if>
+            <if test="latestSchedule != null" >
+                latest_schedule = #{latestSchedule,jdbcType=VARCHAR},
+            </if>
+            <if test="quotedStatus != null" >
+                quoted_status = #{quotedStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="returnCount != null" >
+                return_count = #{returnCount,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="quoteOvertimeCategory != null" >
+                quote_overtime_category = #{quoteOvertimeCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="quoteOvertimeCause != null" >
+                quote_overtime_cause = #{quoteOvertimeCause,jdbcType=VARCHAR},
+            </if>
+            <if test="isSuccessOrder != null" >
+                is_success_order = #{isSuccessOrder,jdbcType=VARCHAR},
+            </if>
+            <if test="loseOrderCategory != null" >
+                lose_order_category = #{loseOrderCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="loseOrderCause != null" >
+                lose_order_cause = #{loseOrderCause,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.erui.report.model.InquiryCount" >
     update inquiry_count
     set inquiry_num = #{inquiryNum,jdbcType=VARCHAR},
       quotation_num = #{quotationNum,jdbcType=VARCHAR},
@@ -1188,6 +1213,7 @@
       standard_trade_items = #{standardTradeItems,jdbcType=VARCHAR},
       latest_schedule = #{latestSchedule,jdbcType=VARCHAR},
       quoted_status = #{quotedStatus,jdbcType=VARCHAR},
+      return_count = #{returnCount,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR},
       quote_overtime_category = #{quoteOvertimeCategory,jdbcType=VARCHAR},
       quote_overtime_cause = #{quoteOvertimeCause,jdbcType=VARCHAR},

@@ -96,6 +96,8 @@ public class InquiryCount {
 
     private String quotedStatus;
 
+    private Integer returnCount;
+
     private String remark;
 
     private String quoteOvertimeCategory;
@@ -474,6 +476,14 @@ public class InquiryCount {
 
     public void setQuotedStatus(String quotedStatus) {
         this.quotedStatus = quotedStatus == null ? null : quotedStatus.trim();
+    }
+
+    public Integer getReturnCount() {
+        return returnCount;
+    }
+
+    public void setReturnCount(Integer returnCount) {
+        this.returnCount = returnCount;
     }
 
     public String getRemark() {

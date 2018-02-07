@@ -139,6 +139,7 @@
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
@@ -179,6 +180,7 @@
             <artifactId>spring-data-commons</artifactId>
             <version>1.13.3.RELEASE</version>
         </dependency>
+
     </dependencies>
 
 </project>

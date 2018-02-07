@@ -62,6 +62,11 @@ public interface InquiryCountMapper {
      * @return	Map<String,String> -> {'area':'大区名称','country':'城市名称'}
      */
     List<Map<String,String>>  selectAllAreaAndCountryList();
+    /**
+     * 查询询单的所有大区和城市列表
+     * @return	Map<String,String> -> {'area':'大区名称','org':'事业部名称'}
+     */
+    List<Map<String,String>>  selectAllAreaAndOrgList();
 
     /**
      * 查询询单的数量汇总数据
@@ -107,4 +112,16 @@ public interface InquiryCountMapper {
      * @return  {"avgNeedTime":'平均响应时间',"organization":'事业部'}
      */
     List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(InquiryCountExample example);
+    /**
+     * 询单退回次数和退回平均次数
+     * @param example
+     * @return
+     */
+    List<Map<String, Object>> selectRejectCount(InquiryCountExample example);
+    /**
+     * 退回询单数量
+     * @param example
+     * @return
+     */
+    int selectInqRtnCountByTime(InquiryCountExample example);
 }

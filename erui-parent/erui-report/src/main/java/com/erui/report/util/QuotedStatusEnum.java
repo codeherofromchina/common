@@ -10,7 +10,7 @@ public enum QuotedStatusEnum {
     STATUS_QUOTED_ED(2,"已报价"),
     STATUS_QUOTED_FINISHED(3,"已完成"),
     STATUS_QUOTED_CANCEL(4,"询单取消"),
-    STATUS_QUOTED_QUOTEING(5,"询价中");
+    STATUS_QUOTED_RETURNED(5,"已退回");
     private int code;
     private String quotedStatus;
 

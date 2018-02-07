@@ -21,10 +21,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.encrypt.MD5;
+import com.erui.report.dao.InqRtnReasonMapper;
 import com.erui.report.dao.InquirySkuMapper;
 import com.erui.report.model.*;
 import com.erui.report.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
@@ -333,12 +335,22 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
             ic.setStandardTradeItems(strArr[42]);
             ic.setLatestSchedule(strArr[43]);
             ic.setQuotedStatus(strArr[44]);
-            ic.setRemark(strArr[45]);
-            ic.setQuoteOvertimeCategory(strArr[46]);
-            ic.setQuoteOvertimeCause(strArr[47]);
-            ic.setIsSuccessOrder(strArr[48]);
-            ic.setLoseOrderCategory(strArr[49]);
-            ic.setLoseOrderCause(strArr[50]);
+            if (strArr[45] != null) {
+                try {
+                    ic.setReturnCount(new BigDecimal(strArr[45]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, "有效期字段非数字");
+                    continue;
+                }
+            }
+            ic.setRemark(strArr[46]);
+            ic.setQuoteOvertimeCategory(strArr[47]);
+            ic.setQuoteOvertimeCause(strArr[48]);
+            ic.setIsSuccessOrder(strArr[49]);
+            ic.setLoseOrderCategory(strArr[50]);
+            ic.setLoseOrderCause(strArr[51]);
 
             try {
                 if (!testOnly) {
@@ -456,6 +468,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     @Override
     public List<String> selectOrgList() {
         InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andOrganizationIsNotNull();
         return readMapper.selectOrgListByExample(example);
     }
 
@@ -468,7 +482,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     // 根据时间查询询单列表
     @Override
-    public List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes,String area ,String country) {
+    public List<InquiryCount> selectListByTime(Date startTime, Date endTime, String[] quotes, String area, String country) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -477,13 +491,13 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
         }
-        if(quotes!=null&&quotes.length>0){
+        if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
-        if(StringUtil.isNotBlank(area)){
+        if (StringUtil.isNotBlank(area)) {
             criteria.andInquiryAreaEqualTo(area);
         }
-        if(StringUtil.isNotBlank(country)){
+        if (StringUtil.isNotBlank(country)) {
             criteria.andInquiryUnitEqualTo(country);
         }
         return readMapper.selectByExample(example);
@@ -505,8 +519,30 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         List<Map<String, String>> orderAreaAndCountryList = orderCountMapper.selectAllAreaAndCountryList();
 
         // 数据转换
-        coverAreaAndCountryData(result, areaAndCountryList);
-        coverAreaAndCountryData(result, orderAreaAndCountryList);
+        coverAreaAndCountryData(result, areaAndCountryList, "country");
+        coverAreaAndCountryData(result, orderAreaAndCountryList, "country");
+
+        return result;
+    }
+
+    /**
+     * 查询所有询单中的所有大区和事业部列表（大区1 <-> n事业部）
+     *
+     * @return
+     */
+    @Override
+    public List<InquiryAreaVO> selectAllAreaAndOrgList() {
+        List<InquiryAreaVO> result = new ArrayList<>();
+        // 查询所有询单的大区和事业部信息 {'area':'大区名称','org':'事业部名称'}
+        List<Map<String, String>> areaAndOrgList = readMapper.selectAllAreaAndOrgList();
+
+        // 查询所有订单的大区和国家信息 {'area':'大区名称','country':'城市名称'}
+        OrderCountMapper orderCountMapper = readerSession.getMapper(OrderCountMapper.class);
+        List<Map<String, String>> orderAreaAndOrgList = orderCountMapper.selectAllAreaAndOrgList();
+
+        // 数据转换
+        coverAreaAndCountryData(result, areaAndOrgList, "org");
+        coverAreaAndCountryData(result, orderAreaAndOrgList, "org");
 
         return result;
     }
@@ -517,7 +553,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @param list
      * @param areaAndCountryList
      */
-    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList) {
+    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList, String typeName) {
         if (areaAndCountryList != null && areaAndCountryList.size() > 0) {
 
             Map<String, InquiryAreaVO> map = list.parallelStream()
@@ -534,13 +570,18 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                     list.add(vo);
                     map.put(area, vo);
                 }
-                vo.pushCountry(data.get("country"));
+                if (typeName.equals("country")) {
+                    vo.pushCountry(data.get("country"));
+                }
+                if (typeName.equals("org")) {
+                    vo.pushOrg(data.get("org"));
+                }
             });
         }
     }
 
     // // 根据时间统计询单金额
-    public Double inquiryAmountByTime(Date startTime, Date endTime, String area,String country,String[] quotedStatus) {
+    public Double inquiryAmountByTime(Date startTime, Date endTime, String area, String country, String[] quotedStatus) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -667,7 +708,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate) {
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate, String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startDate != null) {
@@ -675,6 +716,11 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
+        }
+        if (quotes != null && quotes.length > 0) {
+            criteria.andQuotedStatusIn(Arrays.asList(quotes));
+        }else{
+            criteria.andReturnCountGreaterThanOrEqualTo(1);//退回询单条件
         }
         List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
         if (result == null) {
@@ -761,7 +807,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
      */
     @Override
-    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime) {
+    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime, String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -769,6 +815,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
+        }
+        if (quotes != null && quotes.length > 0) {
+            criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
         criteria.andInquiryAreaIsNotNull();
         List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
@@ -798,135 +847,162 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return result;
     }
     @Override
-    public void inquiryData(String startTime, String endTime) throws Exception {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPut putMethod = getPutMethod(inquiryUrl, startTime, endTime);
-        CloseableHttpResponse inquiryResult = client.execute(putMethod);
+    public void inquiryData(List<HashMap> list) throws Exception {
 
-        JSONObject json1 = new JSONObject();
-        String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
-        JSONObject inquiryObject = json1.parseObject(inquiryData);
-        Object inquiryCode = inquiryObject.get("code");
         InquiryCountMapper mapper = writerSession.getMapper(InquiryCountMapper.class);
         InquirySkuMapper skuWriteMapper = writerSession.getMapper(InquirySkuMapper.class);
-        if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
-            Object data = inquiryObject.get("data");
-            if (data != null) {
-                String dataJson = data.toString();
-                List<HashMap> list = JSON.parseArray(dataJson, HashMap.class);
-                if (list != null && list.size() > 0) {
-                    List<InquiryCount> inquiryCounts = new ArrayList<>();
-                    List<InquiryCount> updateCounts = new ArrayList<>();
-                    List<InquirySku> inquiryCates = new ArrayList<>();
+        if (list != null && list.size() > 0) {
+            List<InquirySku> inquiryCates = new ArrayList<>();
+            for (Map<String, Object> map : list) {
+                Object serial_no = map.get("serial_no");//报价单号
+                Object created_at = map.get("created_at");//转入日期
+                Object country_name = map.get("country_name");//国家
+                Object area_name = map.get("area_name");//区域
+                Object org_name = map.get("org_name");//事业部
+                Object gross_profit_rate = map.get("gross_profit_rate");//利润率
+                Object total_quote_price = map.get("total_quote_price");//报价总金额
+                Object quote_time = map.get("quote_time");//报价用时
+                Object quote_status = map.get("quote_status");//报价
+                Object reject_count = map.get("reject_count");//退回次数
+                Object reject_reason = map.get("reject_reason");//退回原因
+                Object other = map.get("other");//询单商品数据
+                InquiryCount inquiryCount = new InquiryCount();
+                List<InquiryCount> inqList = null;
+                if (created_at != null) {
+                    inquiryCount.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                }
+                if (country_name != null) {
+                    inquiryCount.setInquiryUnit(country_name.toString());
+                }
+                if (area_name != null) {
+                    inquiryCount.setInquiryArea(area_name.toString());
+                }
+                if (org_name != null) {
+                    inquiryCount.setOrganization(org_name.toString());
+                }
+                if (gross_profit_rate != null) {
+                    inquiryCount.setProfitMargin(new BigDecimal(gross_profit_rate.toString()));
+                }
+                if (total_quote_price != null) {
+                    inquiryCount.setQuotationPrice(new BigDecimal(total_quote_price.toString()));
+                }
+                if (quote_time != null) {
+                    double quote = Double.parseDouble(quote_time.toString());//秒
+                    double hour = quote / 3600;
+                    inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
+                }
+                if (quote_status != null) {
+                    inquiryCount.setQuotedStatus(quote_status.toString());
+                }
+                if (reject_count != null) {
+                    inquiryCount.setReturnCount(Integer.parseInt(reject_count.toString()));
+                }
+                if (serial_no != null) {
 
-                    for (Map<String, Object> map : list) {
-                        Object serial_no = map.get("serial_no");//报价单号
-                        Object created_at = map.get("created_at");//转入日期
-                        Object country_name = map.get("country_name");//国家
-                        Object area_name = map.get("area_name");//区域
-                        Object org_name = map.get("org_name");//事业部
-                        Object gross_profit_rate = map.get("gross_profit_rate");//利润率
-                        Object total_quote_price = map.get("total_quote_price");//报价总金额
-                        Object quote_time = map.get("quote_time");//报价用时
-                        Object quote_status = map.get("quote_status");//报价
-                        Object other = map.get("other");//询单商品数据
-                        InquiryCount inquiryCount = new InquiryCount();
-                        List<InquiryCount> inqList =null;
-                        if (created_at != null) {
-                            inquiryCount.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                    inquiryCount.setQuotationNum(serial_no.toString());
+                    InquiryCountExample example = new InquiryCountExample();
+                    Criteria criteria = example.createCriteria();
+                    criteria.andQuotationNumEqualTo(serial_no.toString());
+                    inqList = readMapper.selectByExample(example);//查询询单列表
+                    if (inqList != null && inqList.size() == 1) {
+                        inquiryCount.setId(inqList.get(0).getId());
+                        // updateCounts.add(inquiryCount);
+                        mapper.updateByPrimaryKey(inquiryCount);
+                        Integer returnCount = inqList.get(0).getReturnCount();
+                        if (returnCount != null && returnCount > 0) {
+                            InqRtnReasonExample inqRtnReasonExample = new InqRtnReasonExample();
+                            InqRtnReasonExample.Criteria rtnCriteria = inqRtnReasonExample.createCriteria();
+                            rtnCriteria.andQuotationNumEqualTo(serial_no.toString());
+                            InqRtnReasonMapper rtnMapper = readerSession.getMapper(InqRtnReasonMapper.class);
+                            rtnMapper.deleteByExample(inqRtnReasonExample);
                         }
-                        if (country_name != null) {
-                            inquiryCount.setInquiryUnit(country_name.toString());
-                        }
-                        if (area_name != null) {
-                            inquiryCount.setInquiryArea(area_name.toString());
-                        }
-                        if (org_name != null) {
-                            inquiryCount.setOrganization(org_name.toString());
-                        }
-                        if (gross_profit_rate != null) {
-                            inquiryCount.setProfitMargin(new BigDecimal(gross_profit_rate.toString()));
-                        }
-                        if (total_quote_price != null) {
-                            inquiryCount.setQuotationPrice(new BigDecimal(total_quote_price.toString()));
-                        }
-                        if (quote_time != null) {
-                            double quote = Double.parseDouble(quote_time.toString());//秒
-                            double hour =( quote / 60) / 60;
-                            inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
-                        }
-                        if (quote_status != null) {
-                            inquiryCount.setQuotedStatus(quote_status.toString());
-                        }
-                        if (serial_no != null) {
-
-                            inquiryCount.setQuotationNum(serial_no.toString());
-                            InquiryCountExample example = new InquiryCountExample();
-                            Criteria criteria = example.createCriteria();
-                            criteria.andQuotationNumEqualTo(serial_no.toString());
-                             inqList = readMapper.selectByExample(example);//查询询单列表
-                            if (inqList != null && inqList.size() == 1) {
-                                inquiryCount.setId(inqList.get(0).getId());
-//                                updateCounts.add(inquiryCount);
-                                mapper.updateByPrimaryKey(inquiryCount);
-                            } else if (inqList != null && inqList.size() > 1) {
-                                continue;
-                            } else {
-//                                inquiryCounts.add(inquiryCount);
-                                mapper.insertSelective(inquiryCount);
+                    } else if (inqList != null && inqList.size() > 1) {
+                        continue;
+                    } else {
+                        //  inquiryCounts.add(inquiryCount);
+                        mapper.insertSelective(inquiryCount);
+                    }
+                }
+                if (reject_reason != null) {
+                    List<String> reasons = JSON.parseArray(reject_reason.toString(), String.class);
+                    if (reasons != null && reasons.size() > 0) {
+                        for (String rtn : reasons) { //退回原因
+                            InqRtnReason rtnReason = new InqRtnReason();
+                            if (serial_no != null) {
+                                rtnReason.setQuotationNum(serial_no.toString());
                             }
+                            if (created_at != null) {
+                                rtnReason.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                            }
+                            if (country_name != null) {
+                                rtnReason.setInquiryUnit(country_name.toString());
+                            }
+                            if (area_name != null) {
+                                rtnReason.setInquiryArea(area_name.toString());
+                            }
+                            if (org_name != null) {
+                                rtnReason.setOrganization(org_name.toString());
+                            }
+                            if (StringUtil.isNotBlank(rtn)) {
+                                rtnReason.setReturnSeason(rtn);
+                            } else {
+                                rtnReason.setReturnSeason("其他");
+                            }
+                            InqRtnReasonMapper rtnMapper = writerSession.getMapper(InqRtnReasonMapper.class);
+                            rtnMapper.insertSelective(rtnReason);
                         }
-
-                        if (other != null) {
-                            List<HashMap> cateList = JSON.parseArray(other.toString(), HashMap.class);
-                            if (cateList != null && cateList.size() > 0) {
-                                for (Map<String, Object> goodsList : cateList) { //询单分类商品
-                                    InquirySku inquirySku = new InquirySku();
-                                    if (goodsList.get("category") != null) {
-                                        inquirySku.setProCategory(goodsList.get("category").toString());
-                                    }
+                    }
+                }
+                if (other != null) {
+                    List<HashMap> cateList = JSON.parseArray(other.toString(), HashMap.class);
+                    if (cateList != null && cateList.size() > 0) {
+                        for (Map<String, Object> goodsList : cateList) { //询单分类商品
+                            InquirySku inquirySku = new InquirySku();
+                            if (goodsList.get("category") != null) {
+                                inquirySku.setProCategory(goodsList.get("category").toString());
+                            }
 
 //                                        inquirySku.setCateCount(1);
-                                    if (goodsList.get("qty") != null) {
-                                        inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
-                                    }
-                                    if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
-                                        inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
-                                    } else {
-                                        inquirySku.setIsOilGas("油气");
-                                    }
-                                    if (goodsList.get("sku_type") != null && !goodsList.get("sku_type").equals("")) {
-                                        inquirySku.setPlatProCategory(goodsList.get("sku_type").toString());
-                                    } else {
-                                        inquirySku.setPlatProCategory("平台");
-                                    }
-                                    if (goodsList.get("quote_unit_price") != null) {
-                                        inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
-                                    }
-                                    if (goodsList.get("total_quote_price") != null) {
-                                        inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("total_quote_price").toString()));
-                                    }
-                                    if (created_at != null) {
-                                        inquirySku.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
-                                    }
-                                    if (serial_no != null) {
-                                        inquirySku.setQuotationNum(serial_no.toString());
-                                        if(inqList!=null&&inqList.size()>0){
-                                            InquirySkuExample skuExample = new InquirySkuExample();
-                                            InquirySkuExample.Criteria criteria = skuExample.createCriteria();
-                                            criteria.andQuotationNumEqualTo(serial_no.toString());
-                                            skuWriteMapper.deleteByExample(skuExample);
-                                        }
-                                    }
-                                    inquiryCates.add(inquirySku);
-//                                    skuWriteMapper.insertSelective(inquirySku);
+                            if (goodsList.get("qty") != null) {
+                                inquirySku.setCateCount(Integer.parseInt(goodsList.get("qty").toString()));
+                            }
+                            if (goodsList.get("oil_type") != null && !goodsList.get("oil_type").equals("")) {
+                                inquirySku.setIsOilGas(goodsList.get("oil_type").toString());
+                            } else {
+                                inquirySku.setIsOilGas("油气");
+                            }
+                            if (goodsList.get("sku_type") != null && !goodsList.get("sku_type").equals("")) {
+                                inquirySku.setPlatProCategory(goodsList.get("sku_type").toString());
+                            } else {
+                                inquirySku.setPlatProCategory("平台");
+                            }
+                            if (goodsList.get("quote_unit_price") != null) {
+                                inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("quote_unit_price").toString()));
+                            }
+                            if (goodsList.get("total_quote_price") != null) {
+                                inquirySku.setQuoteUnitPrice(new BigDecimal(goodsList.get("total_quote_price").toString()));
+                            }
+                            if (created_at != null) {
+                                inquirySku.setRollinTime(DateUtil.parseStringToDate(created_at.toString(), DateUtil.FULL_FORMAT_STR));
+                            }
+                            if (serial_no != null) {
+                                inquirySku.setQuotationNum(serial_no.toString());
+                                if (inqList != null && inqList.size() > 0) {
+                                    InquirySkuExample skuExample = new InquirySkuExample();
+                                    InquirySkuExample.Criteria criteria = skuExample.createCriteria();
+                                    criteria.andQuotationNumEqualTo(serial_no.toString());
+                                    skuWriteMapper.deleteByExample(skuExample);
                                 }
                             }
-
-
+                            inquiryCates.add(inquirySku);
+//                                    skuWriteMapper.insertSelective(inquirySku);
                         }
-
                     }
+
+
+                }
+
+            }
 //                    if (updateCounts != null && updateCounts.size() > 0) {
 //                        for (InquiryCount inq:updateCounts ) {
 //                            mapper.updateByPrimaryKey(inq);
@@ -938,39 +1014,43 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 //                            mapper.insertSelective(inq);
 //                        }
 //                    }
-                    if (inquiryCates != null && inquiryCates.size() > 0) {
-                        for (InquirySku inqSKU:inquiryCates ) {
-                            skuWriteMapper.insertSelective(inqSKU);
-                        }
-                    }
+            if (inquiryCates != null && inquiryCates.size() > 0) {
+                for (InquirySku inqSKU : inquiryCates) {
+                    skuWriteMapper.insertSelective(inqSKU);
                 }
             }
+
         }
 
 
     }
 
-    /**
-     * 获取PutMethod
-     */
-    HttpPut getPutMethod(String url, String startTime, String endTime) throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        HttpPut method = new HttpPut(url);
-        // method.getParams().setParameter("http.socket.timeout", 3000);
-        //组装请求json
-        JSONObject jsonObject = new JSONObject();
-        Map<String, Object> input = new HashMap<>();
-        input.put("lang", "zh");
-        input.put("creat_at_start", startTime);
-        input.put("creat_at_end", endTime);
-        String inputStr = om.writeValueAsString(input);
-        System.out.println("===============" + inputStr);
-        String sign = MD5.encode(key + inputStr);
-        System.out.println(sign + "=====");
-        jsonObject.put("sign", sign);
-        jsonObject.put("input", inputStr);
-        StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
-        method.setEntity(entity);
-        return method;
+
+    @Override
+    public List<Map<String, Object>> selectRejectCount(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        criteria.andReturnCountGreaterThanOrEqualTo(1);
+        return readMapper.selectRejectCount(example);
+    }
+
+    @Override
+    public int selectInqRtnCountByTime(Date startTime, Date endTime) {
+        InquiryCountExample example = new InquiryCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        criteria.andReturnCountGreaterThanOrEqualTo(1);
+        return readMapper.selectInqRtnCountByTime(example);
     }
 }

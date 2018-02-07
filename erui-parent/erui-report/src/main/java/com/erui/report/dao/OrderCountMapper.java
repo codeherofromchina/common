@@ -50,6 +50,11 @@ public interface OrderCountMapper {
      * @return Map<String, String> -> {'area':'大区名称','country':'城市名称'}
      */
 	List<Map<String, String>> selectAllAreaAndCountryList();
+    /**
+     * 查询订单的所有大区和事业部列表
+     * @return Map<String, String> -> {'area':'大区名称','country':'事业部名称'}
+     */
+	List<Map<String, String>> selectAllAreaAndOrgList();
 
 	/**
 	 * 查询订单的数量汇总
@@ -82,5 +87,65 @@ public interface OrderCountMapper {
      * @return {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"area":'区域--String'}
      */
     List<Map<String,Object>> findCountAndAmountByRangProjectStartGroupArea(OrderCountExample example);
+    /**
+     * 查询油气非油气的复购客户数量
+     * @param example
+     * @return {"oil":'油气非油气',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectRePurchaseCustGroupByCustCategory(OrderCountExample example);
+    /**
+     * 查询油气非油气的客户数量
+     * @param example
+     * @return {"oil":'油气非油气',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectCustCountGroupByCustCategory(OrderCountExample example);
 
+    /**
+     * 查询客户复购数据明细
+     * @param example
+     * @return {"custName":'客户名称',"buyCount":'购买次数'}
+     */
+    List<Map<String, Object>> selectRePurchaseDetail(OrderCountExample example);
+    /**
+     * 查询各地区的复购客户数量
+     * @param example
+     * @return {"area":'地区',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectRePurchaseCustGroupByArea(OrderCountExample example);
+    /**
+     * 查询各地区的客户数量
+     * @param example
+     * @return {"area":'地区',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectCustCountGroupByArea(OrderCountExample example);
+    /**
+     * 查询各事业部的复购客户数量
+     * @param example
+     * @return {"org":'事业部',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectRePurchaseCustGroupByOrg(OrderCountExample example);
+    /**
+     * 查询各事业部的客户数量
+     * @param example
+     * @return {"org":'事业部',"custCount":'客户数量'}
+     */
+    List<Map<String, Object>> selectCustCountGroupByOrg(OrderCountExample example);
+    /**
+     * 查询各地区的订单数量和金额
+     * @param example
+     * @return {"area":'地区',"ordCount":'订单数量',"ordAmmount":'订单金额'}
+     */
+    List<Map<String, Object>> selectDataGroupByArea(OrderCountExample example);
+    /**
+     * 查询各事业部的订单数量和金额
+     * @param example
+     * @return {"org":'事业部',"ordCount":'订单数量',"ordAmmount":'订单金额'}
+     */
+    List<Map<String, Object>> selectDataGroupByOrg(OrderCountExample example);
+    /**
+     * 查询订单品类明细的数据
+     * @param example
+     * @return {"itemClass":'事业部',"ordCount":'订单数量',"ordAmmount":'订单金额',"profit":'初步利润率'}
+     */
+    List<Map<String, Object>> selecOrdDetailGroupByCategory(OrderCountExample example);
 }

@@ -8,6 +8,8 @@ public class ProcurementCount {
 
     private Date assignTime;
 
+    private Date executeTime;
+
     private String planNum;
 
     private String executeNum;
@@ -36,6 +38,14 @@ public class ProcurementCount {
 
     public void setAssignTime(Date assignTime) {
         this.assignTime = assignTime;
+    }
+
+    public Date getExecuteTime() {
+        return executeTime;
+    }
+
+    public void setExecuteTime(Date executeTime) {
+        this.executeTime = executeTime;
     }
 
     public String getPlanNum() {

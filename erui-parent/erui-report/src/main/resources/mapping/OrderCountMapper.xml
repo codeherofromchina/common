@@ -11,6 +11,7 @@
     <result column="exe_company" property="exeCompany" jdbcType="VARCHAR" />
     <result column="order_area" property="orderArea" jdbcType="VARCHAR" />
     <result column="cust_description" property="custDescription" jdbcType="VARCHAR" />
+    <result column="cust_category" property="custCategory" jdbcType="VARCHAR" />
     <result column="pro_name" property="proName" jdbcType="VARCHAR" />
     <result column="english_name" property="englishName" jdbcType="VARCHAR" />
     <result column="specification" property="specification" jdbcType="VARCHAR" />
@@ -129,18 +130,18 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_serial_num, pro_notice_num, execute_num, po_num, organization, exe_company, 
-    order_area, cust_description, pro_name, english_name, specification, is_oil_gas, 
-    plat_pro_category, pro_category, order_count, order_unit, sale_num, order_num, project_account, 
-    pre_profit, back_form, back_date, back_amount, credit_extension, project_start, exe_promise_date, 
-    exe_promise_update_date, require_purchase_get_date, market_manager, business_manager, 
-    purchase_manager, supplier, purchase_contract_nu, pre_quotes_account, purchase_account_cny, 
-    purchase_account_usd, purchase_contract_date, purchase_contract_delivery_date, purchase_payment_mode, 
-    to_factory_payment_date, purchase_get_date, inspection_date, inspection_finash_date, 
-    to_storage_date, booking_date, market_request_date, forward_manager, package_date, 
-    storage_out_date, ackage_notice_date, ship_air_date, arrive_date, logistics_num, 
-    pre_logistics_amount, logistics_forward_amount, finish_date, trade_terms, purchase_delay_date, 
-    logistics_delay_date, project_status, reason_type, reason_category, reality_reason, 
-    project_progress, remark
+    order_area, cust_description, cust_category, pro_name, english_name, specification,
+    is_oil_gas, plat_pro_category, pro_category, order_count, order_unit, sale_num, order_num,
+    project_account, pre_profit, back_form, back_date, back_amount, credit_extension,
+    project_start, exe_promise_date, exe_promise_update_date, require_purchase_get_date,
+    market_manager, business_manager, purchase_manager, supplier, purchase_contract_nu,
+    pre_quotes_account, purchase_account_cny, purchase_account_usd, purchase_contract_date,
+    purchase_contract_delivery_date, purchase_payment_mode, to_factory_payment_date,
+    purchase_get_date, inspection_date, inspection_finash_date, to_storage_date, booking_date,
+    market_request_date, forward_manager, package_date, storage_out_date, ackage_notice_date,
+    ship_air_date, arrive_date, logistics_num, pre_logistics_amount, logistics_forward_amount,
+    finish_date, trade_terms, purchase_delay_date, logistics_delay_date, project_status,
+    reason_type, reason_category, reality_reason, project_progress, remark
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.OrderCountExample" >
     select
@@ -169,7 +170,7 @@
     GROUP BY TO_DAYS(project_start)
   </select>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT project_start FROM order_count ORDER BY project_start ASC LIMIT 1
+    SELECT project_start FROM order_count WHERE project_start IS NOT NULL ORDER BY project_start ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
     SELECT project_start FROM order_count ORDER BY project_start DESC LIMIT 1
@@ -215,6 +216,52 @@
     GROUP BY
     category HAVING  category IS  NOT  NULL
   </select>
+  <!--查询订单品类明细数据-->
+  <select id="selecOrdDetailGroupByCategory"  resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordAmmount,
+    COUNT(1) AS ordCount,
+    pro_category AS itemClass,
+    IFNULL(sum(IFNULL(pre_profit,0)),0)/COUNT(1) AS  profit
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP BY
+    itemClass HAVING  itemClass IS  NOT  NULL
+  </select>
+  <select id="selectDataGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordAmmount,
+    COUNT(*) AS ordCount,
+    order_area AS  area
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  order_area HAVING  order_area IS  NOT  NULL
+  </select>
+  <select id="selectDataGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    SUM(project_account) AS ordAmmount,
+    COUNT(*) AS ordCount,
+    organization AS  org
+    from order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    GROUP  BY  organization HAVING  organization IS  NOT  NULL
+  </select>
   <select id="selectOrderProTop3" resultType="map" parameterType="Object" >
     SELECT
     COUNT(1) AS orderCount,
@@ -246,6 +293,11 @@
     <!--查询所有销售大区和国家列表列表-->
   <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
     select order_area as area,exe_company as country from order_count group by order_area,exe_company HAVING  order_area IS  NOT  NULL
+  </select>
+
+  <!--查询所有销售大区和事业部列表-->
+  <select id="selectAllAreaAndOrgList" resultType="java.util.Map" >
+    select order_area as area,organization as org from order_count group by order_area,organization HAVING  order_area IS  NOT  NULL
   </select>
   
   <!-- 查询订单中的数量汇总数据 -->
@@ -287,7 +339,183 @@
     </if>
     group by order_area
   </select>
-  
+
+    <!-- 查询客户复购数据明细 -->
+    <select id="selectRePurchaseDetail" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+      SELECT
+      COUNT(1) buyCount,
+      `cust_description` custName
+      FROM
+      order_count
+      <if test="_parameter != null" >
+        <include refid="Example_Where_Clause" />
+      </if>
+      GROUP BY
+      cust_description
+      HAVING
+      cust_description IS NOT NULL
+
+    </select>
+    <!-- 查询油气非油气的复购客户数量 -->
+    <select id="selectRePurchaseCustGroupByCustCategory" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+      SELECT
+      COUNT(*) AS custCount,
+      cust_category AS oil
+      FROM
+      (
+      SELECT
+      COUNT(1),
+      `cust_description`,
+      `cust_category`
+      FROM
+      order_count
+      <if test="_parameter != null" >
+        <include refid="Example_Where_Clause" />
+      </if>
+      GROUP BY
+      cust_description,
+      cust_category
+      HAVING
+      cust_description IS NOT NULL
+      AND cust_category IS NOT NULL
+      AND COUNT(1) > 1
+      ) AS inq
+      GROUP BY
+      oil;
+    </select>
+
+    <!-- 查询油气非油气的客户数量-->
+  <select id="selectCustCountGroupByCustCategory" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    cust_category AS oil
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `cust_category`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    cust_category
+    HAVING
+    cust_description IS NOT NULL
+    AND cust_category IS NOT NULL
+    ) AS inq
+    GROUP BY
+    oil;
+  </select>
+  <!--查询各地区的复购客户数量 -->
+  <select id="selectRePurchaseCustGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    order_area AS area
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `order_area`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    order_area
+    HAVING
+    cust_description IS NOT NULL
+    AND order_area IS NOT NULL
+    AND COUNT(1) > 1
+    ) AS inq
+    GROUP BY
+    area;
+  </select>
+  <!--查询各地区的客户数量 -->
+  <select id="selectCustCountGroupByArea" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    order_area AS area
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `order_area`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    order_area
+    HAVING
+    cust_description IS NOT NULL
+    AND order_area IS NOT NULL
+    ) AS inq
+    GROUP BY
+    area;
+  </select>
+  <!--查询各事业部的复购客户数量 -->
+  <select id="selectRePurchaseCustGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    organization AS org
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `organization`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    organization
+    HAVING
+    cust_description IS NOT NULL
+    AND organization IS NOT NULL
+    AND COUNT(1) > 1
+    ) AS inq
+    GROUP BY
+    org;
+  </select>
+  <!--查询各事业部的客户数量 -->
+  <select id="selectCustCountGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+    SELECT
+    COUNT(*) AS custCount,
+    organization AS org
+    FROM
+    (
+    SELECT
+    COUNT(1),
+    `cust_description`,
+    `organization`
+    FROM
+    order_count
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    GROUP BY
+    cust_description,
+    organization
+    HAVING
+    cust_description IS NOT NULL
+    AND organization IS NOT NULL
+    ) AS inq
+    GROUP BY
+    org;
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from order_count
     where id = #{id,jdbcType=BIGINT}
@@ -302,50 +530,52 @@
     insert into order_count (id, order_serial_num, pro_notice_num, 
       execute_num, po_num, organization, 
       exe_company, order_area, cust_description, 
-      pro_name, english_name, specification, 
-      is_oil_gas, plat_pro_category, pro_category, 
-      order_count, order_unit, sale_num, 
-      order_num, project_account, pre_profit, 
-      back_form, back_date, back_amount, 
-      credit_extension, project_start, exe_promise_date, 
-      exe_promise_update_date, require_purchase_get_date, 
-      market_manager, business_manager, purchase_manager, 
-      supplier, purchase_contract_nu, pre_quotes_account, 
-      purchase_account_cny, purchase_account_usd, 
-      purchase_contract_date, purchase_contract_delivery_date, 
-      purchase_payment_mode, to_factory_payment_date, 
-      purchase_get_date, inspection_date, inspection_finash_date, 
-      to_storage_date, booking_date, market_request_date, 
-      forward_manager, package_date, storage_out_date, 
-      ackage_notice_date, ship_air_date, arrive_date, 
-      logistics_num, pre_logistics_amount, logistics_forward_amount, 
-      finish_date, trade_terms, purchase_delay_date, 
-      logistics_delay_date, project_status, reason_type, 
-      reason_category, reality_reason, project_progress, 
+      cust_category, pro_name, english_name,
+      specification, is_oil_gas, plat_pro_category,
+      pro_category, order_count, order_unit,
+      sale_num, order_num, project_account,
+      pre_profit, back_form, back_date,
+      back_amount, credit_extension, project_start,
+      exe_promise_date, exe_promise_update_date,
+      require_purchase_get_date, market_manager,
+      business_manager, purchase_manager, supplier,
+      purchase_contract_nu, pre_quotes_account, purchase_account_cny,
+      purchase_account_usd, purchase_contract_date,
+      purchase_contract_delivery_date, purchase_payment_mode,
+      to_factory_payment_date, purchase_get_date,
+      inspection_date, inspection_finash_date,
+      to_storage_date, booking_date, market_request_date,
+      forward_manager, package_date, storage_out_date,
+      ackage_notice_date, ship_air_date, arrive_date,
+      logistics_num, pre_logistics_amount, logistics_forward_amount,
+      finish_date, trade_terms, purchase_delay_date,
+      logistics_delay_date, project_status, reason_type,
+      reason_category, reality_reason, project_progress,
       remark)
-    values (#{id,jdbcType=BIGINT}, #{orderSerialNum,jdbcType=VARCHAR}, #{proNoticeNum,jdbcType=VARCHAR}, 
-      #{executeNum,jdbcType=VARCHAR}, #{poNum,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, 
-      #{exeCompany,jdbcType=VARCHAR}, #{orderArea,jdbcType=VARCHAR}, #{custDescription,jdbcType=VARCHAR}, 
-      #{proName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, 
-      #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, 
-      #{orderCount,jdbcType=INTEGER}, #{orderUnit,jdbcType=VARCHAR}, #{saleNum,jdbcType=VARCHAR}, 
-      #{orderNum,jdbcType=VARCHAR}, #{projectAccount,jdbcType=DECIMAL}, #{preProfit,jdbcType=VARCHAR}, 
-      #{backForm,jdbcType=VARCHAR}, #{backDate,jdbcType=TIMESTAMP}, #{backAmount,jdbcType=DECIMAL}, 
-      #{creditExtension,jdbcType=VARCHAR}, #{projectStart,jdbcType=TIMESTAMP}, #{exePromiseDate,jdbcType=TIMESTAMP}, 
-      #{exePromiseUpdateDate,jdbcType=TIMESTAMP}, #{requirePurchaseGetDate,jdbcType=TIMESTAMP}, 
-      #{marketManager,jdbcType=VARCHAR}, #{businessManager,jdbcType=VARCHAR}, #{purchaseManager,jdbcType=VARCHAR}, 
-      #{supplier,jdbcType=VARCHAR}, #{purchaseContractNu,jdbcType=VARCHAR}, #{preQuotesAccount,jdbcType=VARCHAR}, 
-      #{purchaseAccountCny,jdbcType=VARCHAR}, #{purchaseAccountUsd,jdbcType=VARCHAR}, 
-      #{purchaseContractDate,jdbcType=TIMESTAMP}, #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP}, 
-      #{purchasePaymentMode,jdbcType=VARCHAR}, #{toFactoryPaymentDate,jdbcType=TIMESTAMP}, 
-      #{purchaseGetDate,jdbcType=TIMESTAMP}, #{inspectionDate,jdbcType=TIMESTAMP}, #{inspectionFinashDate,jdbcType=TIMESTAMP}, 
-      #{toStorageDate,jdbcType=TIMESTAMP}, #{bookingDate,jdbcType=TIMESTAMP}, #{marketRequestDate,jdbcType=TIMESTAMP}, 
-      #{forwardManager,jdbcType=VARCHAR}, #{packageDate,jdbcType=TIMESTAMP}, #{storageOutDate,jdbcType=TIMESTAMP}, 
-      #{ackageNoticeDate,jdbcType=TIMESTAMP}, #{shipAirDate,jdbcType=TIMESTAMP}, #{arriveDate,jdbcType=TIMESTAMP}, 
-      #{logisticsNum,jdbcType=VARCHAR}, #{preLogisticsAmount,jdbcType=DECIMAL}, #{logisticsForwardAmount,jdbcType=DECIMAL}, 
-      #{finishDate,jdbcType=TIMESTAMP}, #{tradeTerms,jdbcType=VARCHAR}, #{purchaseDelayDate,jdbcType=INTEGER}, 
-      #{logisticsDelayDate,jdbcType=INTEGER}, #{projectStatus,jdbcType=VARCHAR}, #{reasonType,jdbcType=VARCHAR}, 
-      #{reasonCategory,jdbcType=VARCHAR}, #{realityReason,jdbcType=VARCHAR}, #{projectProgress,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{orderSerialNum,jdbcType=VARCHAR}, #{proNoticeNum,jdbcType=VARCHAR},
+      #{executeNum,jdbcType=VARCHAR}, #{poNum,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR},
+      #{exeCompany,jdbcType=VARCHAR}, #{orderArea,jdbcType=VARCHAR}, #{custDescription,jdbcType=VARCHAR},
+      #{custCategory,jdbcType=VARCHAR}, #{proName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR},
+      #{specification,jdbcType=VARCHAR}, #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR},
+      #{proCategory,jdbcType=VARCHAR}, #{orderCount,jdbcType=INTEGER}, #{orderUnit,jdbcType=VARCHAR},
+      #{saleNum,jdbcType=VARCHAR}, #{orderNum,jdbcType=VARCHAR}, #{projectAccount,jdbcType=DECIMAL},
+      #{preProfit,jdbcType=VARCHAR}, #{backForm,jdbcType=VARCHAR}, #{backDate,jdbcType=TIMESTAMP},
+      #{backAmount,jdbcType=DECIMAL}, #{creditExtension,jdbcType=VARCHAR}, #{projectStart,jdbcType=TIMESTAMP},
+      #{exePromiseDate,jdbcType=TIMESTAMP}, #{exePromiseUpdateDate,jdbcType=TIMESTAMP},
+      #{requirePurchaseGetDate,jdbcType=TIMESTAMP}, #{marketManager,jdbcType=VARCHAR},
+      #{businessManager,jdbcType=VARCHAR}, #{purchaseManager,jdbcType=VARCHAR}, #{supplier,jdbcType=VARCHAR},
+      #{purchaseContractNu,jdbcType=VARCHAR}, #{preQuotesAccount,jdbcType=VARCHAR}, #{purchaseAccountCny,jdbcType=VARCHAR},
+      #{purchaseAccountUsd,jdbcType=VARCHAR}, #{purchaseContractDate,jdbcType=TIMESTAMP},
+      #{purchaseContractDeliveryDate,jdbcType=TIMESTAMP}, #{purchasePaymentMode,jdbcType=VARCHAR},
+      #{toFactoryPaymentDate,jdbcType=TIMESTAMP}, #{purchaseGetDate,jdbcType=TIMESTAMP},
+      #{inspectionDate,jdbcType=TIMESTAMP}, #{inspectionFinashDate,jdbcType=TIMESTAMP},
+      #{toStorageDate,jdbcType=TIMESTAMP}, #{bookingDate,jdbcType=TIMESTAMP}, #{marketRequestDate,jdbcType=TIMESTAMP},
+      #{forwardManager,jdbcType=VARCHAR}, #{packageDate,jdbcType=TIMESTAMP}, #{storageOutDate,jdbcType=TIMESTAMP},
+      #{ackageNoticeDate,jdbcType=TIMESTAMP}, #{shipAirDate,jdbcType=TIMESTAMP}, #{arriveDate,jdbcType=TIMESTAMP},
+      #{logisticsNum,jdbcType=VARCHAR}, #{preLogisticsAmount,jdbcType=DECIMAL}, #{logisticsForwardAmount,jdbcType=DECIMAL},
+      #{finishDate,jdbcType=TIMESTAMP}, #{tradeTerms,jdbcType=VARCHAR}, #{purchaseDelayDate,jdbcType=INTEGER},
+      #{logisticsDelayDate,jdbcType=INTEGER}, #{projectStatus,jdbcType=VARCHAR}, #{reasonType,jdbcType=VARCHAR},
+      #{reasonCategory,jdbcType=VARCHAR}, #{realityReason,jdbcType=VARCHAR}, #{projectProgress,jdbcType=VARCHAR},
       #{remark,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.OrderCount" >
@@ -377,6 +607,9 @@
       </if>
       <if test="custDescription != null" >
         cust_description,
+      </if>
+      <if test="custCategory != null" >
+        cust_category,
       </if>
       <if test="proName != null" >
         pro_name,
@@ -578,6 +811,9 @@
       <if test="custDescription != null" >
         #{custDescription,jdbcType=VARCHAR},
       </if>
+      <if test="custCategory != null" >
+        #{custCategory,jdbcType=VARCHAR},
+      </if>
       <if test="proName != null" >
         #{proName,jdbcType=VARCHAR},
       </if>
@@ -756,14 +992,6 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectProCountByExample"  resultType="java.lang.Integer" >
-    select  IFNULL(SUM(IFNULL(order_count,0.0)),0.0) AS orderCount
-     from
-      order_count
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
     update order_count
@@ -794,6 +1022,9 @@
       </if>
       <if test="record.custDescription != null" >
         cust_description = #{record.custDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custCategory != null" >
+        cust_category = #{record.custCategory,jdbcType=VARCHAR},
       </if>
       <if test="record.proName != null" >
         pro_name = #{record.proName,jdbcType=VARCHAR},
@@ -974,71 +1205,72 @@
   <update id="updateByExample" parameterType="map" >
     update order_count
     set id = #{record.id,jdbcType=BIGINT},
-      order_serial_num = #{record.orderSerialNum,jdbcType=VARCHAR},
-      pro_notice_num = #{record.proNoticeNum,jdbcType=VARCHAR},
-      execute_num = #{record.executeNum,jdbcType=VARCHAR},
-      po_num = #{record.poNum,jdbcType=VARCHAR},
-      organization = #{record.organization,jdbcType=VARCHAR},
-      exe_company = #{record.exeCompany,jdbcType=VARCHAR},
-      order_area = #{record.orderArea,jdbcType=VARCHAR},
-      cust_description = #{record.custDescription,jdbcType=VARCHAR},
-      pro_name = #{record.proName,jdbcType=VARCHAR},
-      english_name = #{record.englishName,jdbcType=VARCHAR},
-      specification = #{record.specification,jdbcType=VARCHAR},
-      is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
-      plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
-      pro_category = #{record.proCategory,jdbcType=VARCHAR},
-      order_count = #{record.orderCount,jdbcType=INTEGER},
-      order_unit = #{record.orderUnit,jdbcType=VARCHAR},
-      sale_num = #{record.saleNum,jdbcType=VARCHAR},
-      order_num = #{record.orderNum,jdbcType=VARCHAR},
-      project_account = #{record.projectAccount,jdbcType=DECIMAL},
-      pre_profit = #{record.preProfit,jdbcType=VARCHAR},
-      back_form = #{record.backForm,jdbcType=VARCHAR},
-      back_date = #{record.backDate,jdbcType=TIMESTAMP},
-      back_amount = #{record.backAmount,jdbcType=DECIMAL},
-      credit_extension = #{record.creditExtension,jdbcType=VARCHAR},
-      project_start = #{record.projectStart,jdbcType=TIMESTAMP},
-      exe_promise_date = #{record.exePromiseDate,jdbcType=TIMESTAMP},
-      exe_promise_update_date = #{record.exePromiseUpdateDate,jdbcType=TIMESTAMP},
-      require_purchase_get_date = #{record.requirePurchaseGetDate,jdbcType=TIMESTAMP},
-      market_manager = #{record.marketManager,jdbcType=VARCHAR},
-      business_manager = #{record.businessManager,jdbcType=VARCHAR},
-      purchase_manager = #{record.purchaseManager,jdbcType=VARCHAR},
-      supplier = #{record.supplier,jdbcType=VARCHAR},
-      purchase_contract_nu = #{record.purchaseContractNu,jdbcType=VARCHAR},
-      pre_quotes_account = #{record.preQuotesAccount,jdbcType=VARCHAR},
-      purchase_account_cny = #{record.purchaseAccountCny,jdbcType=VARCHAR},
-      purchase_account_usd = #{record.purchaseAccountUsd,jdbcType=VARCHAR},
-      purchase_contract_date = #{record.purchaseContractDate,jdbcType=TIMESTAMP},
-      purchase_contract_delivery_date = #{record.purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
-      purchase_payment_mode = #{record.purchasePaymentMode,jdbcType=VARCHAR},
-      to_factory_payment_date = #{record.toFactoryPaymentDate,jdbcType=TIMESTAMP},
-      purchase_get_date = #{record.purchaseGetDate,jdbcType=TIMESTAMP},
-      inspection_date = #{record.inspectionDate,jdbcType=TIMESTAMP},
-      inspection_finash_date = #{record.inspectionFinashDate,jdbcType=TIMESTAMP},
-      to_storage_date = #{record.toStorageDate,jdbcType=TIMESTAMP},
-      booking_date = #{record.bookingDate,jdbcType=TIMESTAMP},
-      market_request_date = #{record.marketRequestDate,jdbcType=TIMESTAMP},
-      forward_manager = #{record.forwardManager,jdbcType=VARCHAR},
-      package_date = #{record.packageDate,jdbcType=TIMESTAMP},
-      storage_out_date = #{record.storageOutDate,jdbcType=TIMESTAMP},
-      ackage_notice_date = #{record.ackageNoticeDate,jdbcType=TIMESTAMP},
-      ship_air_date = #{record.shipAirDate,jdbcType=TIMESTAMP},
-      arrive_date = #{record.arriveDate,jdbcType=TIMESTAMP},
-      logistics_num = #{record.logisticsNum,jdbcType=VARCHAR},
-      pre_logistics_amount = #{record.preLogisticsAmount,jdbcType=DECIMAL},
-      logistics_forward_amount = #{record.logisticsForwardAmount,jdbcType=DECIMAL},
-      finish_date = #{record.finishDate,jdbcType=TIMESTAMP},
-      trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
-      purchase_delay_date = #{record.purchaseDelayDate,jdbcType=INTEGER},
-      logistics_delay_date = #{record.logisticsDelayDate,jdbcType=INTEGER},
-      project_status = #{record.projectStatus,jdbcType=VARCHAR},
-      reason_type = #{record.reasonType,jdbcType=VARCHAR},
-      reason_category = #{record.reasonCategory,jdbcType=VARCHAR},
-      reality_reason = #{record.realityReason,jdbcType=VARCHAR},
-      project_progress = #{record.projectProgress,jdbcType=VARCHAR},
-      remark = #{record.remark,jdbcType=VARCHAR}
+    order_serial_num = #{record.orderSerialNum,jdbcType=VARCHAR},
+    pro_notice_num = #{record.proNoticeNum,jdbcType=VARCHAR},
+    execute_num = #{record.executeNum,jdbcType=VARCHAR},
+    po_num = #{record.poNum,jdbcType=VARCHAR},
+    organization = #{record.organization,jdbcType=VARCHAR},
+    exe_company = #{record.exeCompany,jdbcType=VARCHAR},
+    order_area = #{record.orderArea,jdbcType=VARCHAR},
+    cust_description = #{record.custDescription,jdbcType=VARCHAR},
+    cust_category = #{record.custCategory,jdbcType=VARCHAR},
+    pro_name = #{record.proName,jdbcType=VARCHAR},
+    english_name = #{record.englishName,jdbcType=VARCHAR},
+    specification = #{record.specification,jdbcType=VARCHAR},
+    is_oil_gas = #{record.isOilGas,jdbcType=VARCHAR},
+    plat_pro_category = #{record.platProCategory,jdbcType=VARCHAR},
+    pro_category = #{record.proCategory,jdbcType=VARCHAR},
+    order_count = #{record.orderCount,jdbcType=INTEGER},
+    order_unit = #{record.orderUnit,jdbcType=VARCHAR},
+    sale_num = #{record.saleNum,jdbcType=VARCHAR},
+    order_num = #{record.orderNum,jdbcType=VARCHAR},
+    project_account = #{record.projectAccount,jdbcType=DECIMAL},
+    pre_profit = #{record.preProfit,jdbcType=VARCHAR},
+    back_form = #{record.backForm,jdbcType=VARCHAR},
+    back_date = #{record.backDate,jdbcType=TIMESTAMP},
+    back_amount = #{record.backAmount,jdbcType=DECIMAL},
+    credit_extension = #{record.creditExtension,jdbcType=VARCHAR},
+    project_start = #{record.projectStart,jdbcType=TIMESTAMP},
+    exe_promise_date = #{record.exePromiseDate,jdbcType=TIMESTAMP},
+    exe_promise_update_date = #{record.exePromiseUpdateDate,jdbcType=TIMESTAMP},
+    require_purchase_get_date = #{record.requirePurchaseGetDate,jdbcType=TIMESTAMP},
+    market_manager = #{record.marketManager,jdbcType=VARCHAR},
+    business_manager = #{record.businessManager,jdbcType=VARCHAR},
+    purchase_manager = #{record.purchaseManager,jdbcType=VARCHAR},
+    supplier = #{record.supplier,jdbcType=VARCHAR},
+    purchase_contract_nu = #{record.purchaseContractNu,jdbcType=VARCHAR},
+    pre_quotes_account = #{record.preQuotesAccount,jdbcType=VARCHAR},
+    purchase_account_cny = #{record.purchaseAccountCny,jdbcType=VARCHAR},
+    purchase_account_usd = #{record.purchaseAccountUsd,jdbcType=VARCHAR},
+    purchase_contract_date = #{record.purchaseContractDate,jdbcType=TIMESTAMP},
+    purchase_contract_delivery_date = #{record.purchaseContractDeliveryDate,jdbcType=TIMESTAMP},
+    purchase_payment_mode = #{record.purchasePaymentMode,jdbcType=VARCHAR},
+    to_factory_payment_date = #{record.toFactoryPaymentDate,jdbcType=TIMESTAMP},
+    purchase_get_date = #{record.purchaseGetDate,jdbcType=TIMESTAMP},
+    inspection_date = #{record.inspectionDate,jdbcType=TIMESTAMP},
+    inspection_finash_date = #{record.inspectionFinashDate,jdbcType=TIMESTAMP},
+    to_storage_date = #{record.toStorageDate,jdbcType=TIMESTAMP},
+    booking_date = #{record.bookingDate,jdbcType=TIMESTAMP},
+    market_request_date = #{record.marketRequestDate,jdbcType=TIMESTAMP},
+    forward_manager = #{record.forwardManager,jdbcType=VARCHAR},
+    package_date = #{record.packageDate,jdbcType=TIMESTAMP},
+    storage_out_date = #{record.storageOutDate,jdbcType=TIMESTAMP},
+    ackage_notice_date = #{record.ackageNoticeDate,jdbcType=TIMESTAMP},
+    ship_air_date = #{record.shipAirDate,jdbcType=TIMESTAMP},
+    arrive_date = #{record.arriveDate,jdbcType=TIMESTAMP},
+    logistics_num = #{record.logisticsNum,jdbcType=VARCHAR},
+    pre_logistics_amount = #{record.preLogisticsAmount,jdbcType=DECIMAL},
+    logistics_forward_amount = #{record.logisticsForwardAmount,jdbcType=DECIMAL},
+    finish_date = #{record.finishDate,jdbcType=TIMESTAMP},
+    trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+    purchase_delay_date = #{record.purchaseDelayDate,jdbcType=INTEGER},
+    logistics_delay_date = #{record.logisticsDelayDate,jdbcType=INTEGER},
+    project_status = #{record.projectStatus,jdbcType=VARCHAR},
+    reason_type = #{record.reasonType,jdbcType=VARCHAR},
+    reason_category = #{record.reasonCategory,jdbcType=VARCHAR},
+    reality_reason = #{record.realityReason,jdbcType=VARCHAR},
+    project_progress = #{record.projectProgress,jdbcType=VARCHAR},
+    remark = #{record.remark,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -1069,6 +1301,9 @@
       </if>
       <if test="custDescription != null" >
         cust_description = #{custDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="custCategory != null" >
+        cust_category = #{custCategory,jdbcType=VARCHAR},
       </if>
       <if test="proName != null" >
         pro_name = #{proName,jdbcType=VARCHAR},
@@ -1254,6 +1489,7 @@
       exe_company = #{exeCompany,jdbcType=VARCHAR},
       order_area = #{orderArea,jdbcType=VARCHAR},
       cust_description = #{custDescription,jdbcType=VARCHAR},
+      cust_category = #{custCategory,jdbcType=VARCHAR},
       pro_name = #{proName,jdbcType=VARCHAR},
       english_name = #{englishName,jdbcType=VARCHAR},
       specification = #{specification,jdbcType=VARCHAR},
