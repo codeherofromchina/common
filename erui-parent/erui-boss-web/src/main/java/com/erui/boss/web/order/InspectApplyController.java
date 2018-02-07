@@ -193,8 +193,6 @@ public class InspectApplyController {
                 return coverInspectApply2Map(vo);
             }).collect(Collectors.toList());
 
-            Collections.reverse(data);
-
             return new Result<>(data);
         }
         return new Result<>(ResultStatusEnum.FAIL);
