@@ -670,7 +670,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail) {
-        DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getDeliverDetailNo());
+        DeliverDetail one = deliverDetailDao.findByDeliverDetailNo(deliverDetail.getDeliverDetailNo());
         one.setConfirmTheGoods(deliverDetail.getConfirmTheGoods());
         deliverDetailDao.saveAndFlush(one);
     }
