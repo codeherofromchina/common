@@ -12,10 +12,6 @@
     <artifactId>erui-order</artifactId>
 
     <packaging>jar</packaging>
-    <properties>
-        <!-- hibernate 版本号 -->
-        <hibernate.version>5.1.0.Final</hibernate.version>
-    </properties>
 
     <dependencies>
         <dependency>

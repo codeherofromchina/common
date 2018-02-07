@@ -37,9 +37,9 @@ public class PurchGoods {
     @JsonIgnore
     private Purch purch;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    // 务必没有修改goods权限的能力
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
-    @JsonIgnore
     private Goods goods;
     /**
      * 商品ID
@@ -61,6 +61,10 @@ public class PurchGoods {
     // 已报检数量，报检提交才增加此数量
     @Column(name = "inspect_num")
     private Integer inspectNum;
+
+    // 预报检数量，报检保存就修改此数量
+    @Column(name = "pre_inspect_num")
+    private Integer preInspectNum;
 
     // 检验合格商品数量
     @Column(name = "good_num")
@@ -184,6 +188,14 @@ public class PurchGoods {
 
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
+    }
+
+    public Integer getPreInspectNum() {
+        return preInspectNum;
+    }
+
+    public void setPreInspectNum(Integer preInspectNum) {
+        this.preInspectNum = preInspectNum;
     }
 
     public Integer getGoodNum() {

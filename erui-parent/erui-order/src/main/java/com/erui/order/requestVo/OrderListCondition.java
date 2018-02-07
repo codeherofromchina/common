@@ -13,6 +13,8 @@ public class OrderListCondition {
     private String poNo;
     //询单号
     private String inquiryNo;
+    //市场经办人id
+    private Integer agentId;
     //市场经办人
     private String agentName;
     //订单签约日期
@@ -24,7 +26,7 @@ public class OrderListCondition {
     //框架协议号
     private String frameworkNo;
     //订单类型
-    private Boolean orderType;
+    private Integer orderType;
     //款项状态
     private Integer payStatus;
     //订单状态
@@ -33,14 +35,27 @@ public class OrderListCondition {
     private String orderSource;
     //订单来源
     private Boolean deleteFlag;
+    //区域国家
+    private String country;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
 
-    public Boolean getOrderType() {
-        return orderType;
+    public String getCountry() {
+        return country;
     }
 
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public Integer getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(Integer agentId) {
+        this.agentId = agentId;
+    }
     public String getContractNo() {
         return contractNo;
     }
@@ -97,11 +112,11 @@ public class OrderListCondition {
         this.crmCode = crmCode;
     }
 
-    public Boolean isOrderType() {
+    public Integer getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
 

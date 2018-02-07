@@ -1,13 +1,12 @@
 package com.erui.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
+import com.fasterxml.jackson.annotation.*;
+import org.apache.commons.lang3.StringUtils;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Pattern;
+import java.util.List;
 
 /**
  * 订单-项目信息
@@ -19,11 +18,12 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
-
+    @Transient
+    private Integer oId;
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
@@ -39,7 +39,7 @@ public class Project {
     @Column(name = "start_date")
     private Date startDate;
 
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -76,6 +76,9 @@ public class Project {
     @Column(name = "quality_uid")
     private Integer qualityUid;
 
+    @Column(name="quality_name")
+    private String qualityName;
+
     @Column(name = "business_uid")
     private Integer businessUid;
 
@@ -88,6 +91,10 @@ public class Project {
     @Column(name = "warehouse_uid")
     private Integer warehouseUid;
 
+
+    @Column(name = "warehouse_name")
+    private String warehouseName;
+
     @Column(name = "create_user_id")
     private Integer createUserId;
 
@@ -98,15 +105,28 @@ public class Project {
     private Date createTime;
     @Column(name = "exec_co_name")
     private String execCoName;
-
+    //分销部名称
     @Column(name = "distribution_dept_name")
     private String distributionDeptName;
-
+    //下发部门
+    @Column(name = "send_dept_id")
+    private Integer sendDeptId;
     @Column(name = "business_unit_name")
     private String businessUnitName;
+    //商务技术经办人
+    @Column(name = "business_name")
+    private String businessName;
+    //国际物流经办人
+    @Column(name = "logistics_name")
+    private String logisticsName;
 
     private String region;
+    private String country;
     private String remarks;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private List<Goods> goodsList = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -116,12 +136,44 @@ public class Project {
         this.id = id;
     }
 
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getLogisticsName() {
+        return logisticsName;
+    }
+
+    public void setLogisticsName(String logisticsName) {
+        this.logisticsName = logisticsName;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     public Order getOrder() {
         return order;
     }
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public Integer getoId() {
+        return oId;
+    }
+
+    public void setoId(Integer oId) {
+        this.oId = oId;
     }
 
     public PurchRequisition getPurchRequisition() {
@@ -268,6 +320,14 @@ public class Project {
         this.businessUid = businessUid;
     }
 
+    public String getQualityName() {
+        return qualityName;
+    }
+
+    public void setQualityName(String qualityName) {
+        this.qualityName = qualityName;
+    }
+
     public Integer getManagerUid() {
         return managerUid;
     }
@@ -290,6 +350,14 @@ public class Project {
 
     public void setWarehouseUid(Integer warehouseUid) {
         this.warehouseUid = warehouseUid;
+    }
+
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
     }
 
     public Integer getCreateUserId() {
@@ -332,6 +400,14 @@ public class Project {
         this.execCoName = execCoName;
     }
 
+    public String getBusinessUnitName() {
+        return businessUnitName;
+    }
+
+    public void setBusinessUnitName(String businessUnitName) {
+        this.businessUnitName = businessUnitName;
+    }
+
     public String getDistributionDeptName() {
         return distributionDeptName;
     }
@@ -340,12 +416,12 @@ public class Project {
         this.distributionDeptName = distributionDeptName;
     }
 
-    public String getBusinessUnitName() {
-        return businessUnitName;
+    public Integer getSendDeptId() {
+        return sendDeptId;
     }
 
-    public void setBusinessUnitName(String businessUnitName) {
-        this.businessUnitName = businessUnitName;
+    public void setSendDeptId(Integer sendDeptId) {
+        this.sendDeptId = sendDeptId;
     }
 
     public String getRegion() {
@@ -356,7 +432,15 @@ public class Project {
         this.region = region;
     }
 
-    public boolean copyProjectDesc(Project project) {
+    public List<Goods> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<Goods> goodsList) {
+        this.goodsList = goodsList;
+    }
+
+    public boolean copyProjectDescTo(Project project) {
         if (project == null) {
             return false;
         }
@@ -371,10 +455,16 @@ public class Project {
         project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setQualityUid(this.qualityUid);
-        project.setBusinessUid(this.businessUid);
+        project.setQualityName(this.qualityName);
+        //project.setBusinessUid(this.businessUid);
+        project.setBusinessName(this.businessName);
+        project.setQualityName(this.qualityName);
+        project.setWarehouseName(this.warehouseName);
+        project.setLogisticsName(this.logisticsName);
         project.setManagerUid(this.managerUid);
         project.setLogisticsUid(this.logisticsUid);
         project.setWarehouseUid(this.warehouseUid);
+        project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
         project.setProjectStatus(this.projectStatus);
         return true;
@@ -384,7 +474,7 @@ public class Project {
      * 是否已经创建采购申请单枚举类
      */
     public static enum PurchReqCreateEnum {
-        NOT_CREATE(0, "未创建"), CREATED(1, "已创建"), SUBMITED(2, "已提交");
+        NOT_CREATE(1, "未创建"), CREATED(2, "已创建"), SUBMITED(3, "已提交");
 
         private int code;
         private String msg;
@@ -401,7 +491,62 @@ public class Project {
         public String getMsg() {
             return msg;
         }
+
+
+        public static PurchReqCreateEnum valueOfCode(Integer code) {
+            if (code != null) {
+                int codeInt = code.intValue();
+                for (PurchReqCreateEnum reqEnum : PurchReqCreateEnum.values()) {
+                    if (codeInt == reqEnum.getCode()) {
+                        return reqEnum;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
+    public static enum ProjectStatusEnum {
+
+        SUBMIT("SUBMIT", "未执行",1),HASMANAGER("HASMANAGER", "有项目经理",2),
+        EXECUTING("EXECUTING", "正常执行",3), DONE("DONE", "正常完成",4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行",5),
+        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成",6), UNSHIPPED("UNSHIPPED", "正常待发运",7),
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运",8), PAUSE("PAUSE", "项目暂停",9), CANCEL("CANCEL", "项目取消",10);
+        private String code;
+        private String msg;
+
+        private Integer num;
+
+        ProjectStatusEnum(String code, String msg,Integer num) {
+
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
+        public static ProjectStatusEnum fromCode(String code) {
+            if (StringUtils.isNotBlank(code)) {
+                for (ProjectStatusEnum statusEnum : ProjectStatusEnum.values()) {
+                    if (statusEnum.getCode().equals(code)) {
+                        return statusEnum;
+
+                    }
+                }
+            }
+            return null;
+
+        }
+    }
 
 }

@@ -5,10 +5,12 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -28,23 +30,39 @@ public class ProjectController {
     /**
      * 可以采购的项目列表
      *
+     * @param params {projectNos:"项目号列表"}
      * @return
      */
-    @RequestMapping(value = "purchAbleList", method = RequestMethod.POST)
-    public Result<Object> purchAbleList() {
+    @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> purchAbleList(@RequestBody Map<String, String> params) {
+        String projectNos = params.get("projectNos");
+        List<String> projectNoList = null;
+        if (StringUtils.isNotBlank(projectNos)) {
+            String[] split = projectNos.split(",");
+            projectNoList = Arrays.asList(split);
+        }
+        String purchaseUid = params.get("purchaseUid");
+        List<Project> projectList = null;
+        String errMsg = null;
+        try {
+            projectList = projectService.purchAbleList(projectNoList, purchaseUid);
 
-        List<Project> projectList = projectService.purchAbleList();
 
-        List<Map<String, Object>> data = projectList.stream().map(project -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", project.getId());
-            map.put("projectNo", project.getProjectNo());
-            map.put("projectName", project.getProjectName());
+            List<Map<String, Object>> data = projectList.stream().map(project -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", project.getId());
+                map.put("projectNo", project.getProjectNo());
+                map.put("projectName", project.getProjectName());
 
-            return map;
-        }).collect(Collectors.toList());
+                return map;
+            }).collect(Collectors.toList());
+            return new Result<>(data);
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+            e.printStackTrace();
+        }
 
-        return new Result<>(data);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 
     /**
@@ -53,33 +71,22 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "projectManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    @ResponseBody
     public Result<Object> projectManage(@RequestBody ProjectListCondition condition) {
-        Page<Project> projectPage = projectService.findByPage(condition);
-        for (Project project:projectPage) {
-            project.setOrder(null);
+        int page = condition.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
         }
-        /*if (projectPage.hasContent()){
-            projectPage.getContent().forEach(vo -> {
-                vo.setOrder(null);
-            });
-        }*/
-           /* Map<String, Object> projectMap = new HashMap<>();
-            projectMap.put("id",vo.getId());
-            projectMap.put("contractNo",vo.getContractNo());
-            projectMap.put("projectName",vo.getProjectName());
-            projectMap.put("execCoId",vo.getExecCoName());
-            projectMap.put("startDate",vo.getStartDate());
-            projectMap.put("distributionDeptId",vo.getDistributionDeptName());
-            projectMap.put("businessUnitId",vo.getBusinessUid());
-            projectMap.put("region",vo.getRegion());
-            projectMap.put("deliveryDate",vo.getDeliveryDate());
-            projectMap.put("exeChgDate",vo.getExeChgDate());
-            projectMap.put("requireDurchaseDate",vo.getRequirePurchaseDate());
-            projectMap.put("projectStatus",vo.getProjectStatus());
-            list.add(projectMap);*/
-        return new Result<>(projectPage);
+        Page<Project> projectPage = projectService.findByPage(condition);
+        if (projectPage != null) {
+            for (Project project : projectPage) {
+                project.setGoodsList(null);
+                project.setPurchRequisition(null);
+            }
+            return new Result<>(projectPage);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
+
     /**
      * 办理项目
      *
@@ -88,26 +95,58 @@ public class ProjectController {
      */
     @RequestMapping(value = "handleProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> handleProject(@RequestBody Project project) {
-        // TODO参数检查略过
+        Result<Object> result = new Result<>();
+        Project proStatus = projectService.findById(project.getId());
+        String errorMsg = null;
         try {
-            boolean flag = false;
-            flag = projectService.updateProject(project);
-            if (flag) {
+            if (proStatus != null && projectService.updateProject(project)) {
                 return new Result<>();
+            } else {
+                errorMsg = "项目状态错误";
             }
         } catch (Exception ex) {
-            logger.error("办理订单操作失败：{}", project, ex);
+            errorMsg = ex.getMessage();
+            logger.error("异常错误", ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
+
     /**
      * 获取项目详情
      *
      * @return
      */
-    @RequestMapping(value = "queryProject", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Project> queryProject(@RequestParam(name = "id")Integer id) {
+    @RequestMapping(value = "queryProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Project> queryProject(@RequestBody Map<String, Integer> map) {
+        Integer id = map.get("id");
+        if (id == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
         Project project = projectService.findDesc(id);
-        return new Result<>(project);
+        if (project != null) {
+            return new Result<>(project);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
+    }
+
+    /**
+     * 根据订单id或者项目id获取项目详情
+     *
+     * @param map
+     * @return
+     */
+    @RequestMapping(value = "queryByIdOrOrderId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Project> queryByIdOrOrderId(@RequestBody Map<String, Integer> map) {
+        if (map.get("id") == null && map.get("orderId") == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Project project = projectService.findByIdOrOrderId(map.get("id"), map.get("orderId"));
+        if (project != null) {
+            if (project.getPurchRequisition() != null) {
+                project.getPurchRequisition().setGoodsList(null);
+            }
+            return new Result<>(project);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 }

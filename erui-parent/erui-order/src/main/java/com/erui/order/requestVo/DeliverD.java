@@ -15,11 +15,13 @@ public class DeliverD {
 
     private String projectNo;    //项目号
 
-    private Date BillingDate;   //开单日期
+    private Date billingDate;   //开单日期
 
     private Date releaseDate; //放行日期
 
     private Integer wareHouseman;   //仓库经办人
+
+    private Integer status;   //仓库出库管理状态
 
     private Integer page;
 
@@ -42,7 +44,7 @@ public class DeliverD {
     }
 
     public Date getBillingDate() {
-        return BillingDate;
+        return billingDate;
     }
 
     public Date getReleaseDate() {
@@ -70,7 +72,7 @@ public class DeliverD {
     }
 
     public void setBillingDate(Date billingDate) {
-        BillingDate = billingDate;
+        this.billingDate = billingDate;
     }
 
     public void setReleaseDate(Date releaseDate) {
@@ -89,4 +91,11 @@ public class DeliverD {
         this.rows = rows;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 }

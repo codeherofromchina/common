@@ -27,24 +27,31 @@ public class CompanyController {
      * @param map
      * @return
      */
-    @RequestMapping(value = "get",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "get", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Result<Object> get(@RequestBody Map<String,Integer> map) {
+    public Result<Object> get(@RequestBody Map<String, Integer> map) {
         Company company = companyService.findById(map.get("id"));
         return new Result<>(company);
 
     }
+
     /**
      * 查询所有分公司
      *
      * @param
      * @return
      */
-    @RequestMapping(value = "getCompany",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "getCompany", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Result<Object> getCompany(@RequestBody Map<String,String> map) {
-        List<Company> companyList = companyService.findAll(map.get("name"));
-        companyList.parallelStream().forEach(vo -> {vo.setDeptSet(null);vo.setArea(null);});
+    public Result<Object> getCompany(@RequestBody Map<String, String> map) {
+        if (!map.containsKey("areaBn")) {
+            map.put("areaBn", "");
+        }
+        List<Company> companyList = companyService.findAll(map.get("areaBn"),map.get("name"));
+        companyList.parallelStream().forEach(vo -> {
+            vo.setDeptSet(null);
+            vo.setArea(null);
+        });
         return new Result<>(companyList);
     }
 }

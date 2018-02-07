@@ -30,7 +30,6 @@ public class InspectApply {
     @JsonIgnore
     private Purch purch;
 
-
     /**
      * 参数使用,不同情况可以使用为采购单ID，或父报检单ID
      */
@@ -48,14 +47,13 @@ public class InspectApply {
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
-    @JsonIgnore
     private List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
 
     /**
      * 是否是主报检单 true：是 false：否
      */
     @Column(name = "`master`")
-    private boolean master = true;
+    private Boolean master = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_id")
@@ -74,9 +72,9 @@ public class InspectApply {
     @Column(name = "inspect_date")
     private Date inspectDate;
 
-    private Boolean direct;
+    private Boolean direct= false;
     @Column(name = "out_check")
-    private Boolean outCheck;
+    private Boolean outCheck= false;
 
     // 报检次数
     private Integer num;
@@ -84,11 +82,17 @@ public class InspectApply {
     //质检申请单状态 0：未编辑 1：保存/草稿  2：已提交 3：合格 4:未合格
     private Integer status;
 
+    @Column(name="pub_status")
+    private Integer pubStatus;
+
     // 整改意见
     private String msg;
+    // 下一条的整改意见，临时存储
+    @Column(name = "tmp_msg")
+    private String tmpMsg;
 
     // 是否存在历史记录
-    private boolean history = false;
+    private Boolean history = false;
 
     @Column(name = "create_time")
     @JsonIgnore
@@ -249,12 +253,28 @@ public class InspectApply {
         this.status = status;
     }
 
+    public Integer getPubStatus() {
+        return pubStatus;
+    }
+
+    public void setPubStatus(Integer pubStatus) {
+        this.pubStatus = pubStatus;
+    }
+
     public String getMsg() {
         return msg;
     }
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public String getTmpMsg() {
+        return tmpMsg;
+    }
+
+    public void setTmpMsg(String tmpMsg) {
+        this.tmpMsg = tmpMsg;
     }
 
     public void setHistory(boolean history) {

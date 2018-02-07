@@ -21,13 +21,15 @@ public class InspectApplyGoods {
     @JsonIgnore
     private InspectApply inspectApply;
 
-    @Column(name = "inspect_report_id")
-    private Integer inspectReportId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inspect_report_id")
+    private InspectReport inspectReport;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
     private Goods goods;
 
+    // 务必没有任何增删改的权限
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "purch_goods_id")
     private PurchGoods purchGoods;
@@ -89,12 +91,12 @@ public class InspectApplyGoods {
         this.inspectApply = inspectApply;
     }
 
-    public Integer getInspectReportId() {
-        return inspectReportId;
+    public InspectReport getInspectReport() {
+        return inspectReport;
     }
 
-    public void setInspectReportId(Integer inspectReportId) {
-        this.inspectReportId = inspectReportId;
+    public void setInspectReport(InspectReport inspectReport) {
+        this.inspectReport = inspectReport;
     }
 
     public Goods getGoods() {

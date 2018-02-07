@@ -5,6 +5,7 @@ import com.erui.order.entity.PurchGoods;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -24,9 +25,9 @@ public interface PurchService {
      */
     Page<Purch> findByPage(Purch condition) ;
 
-    boolean update(Purch purchVo) throws Exception;
+    boolean update(Purch purch) throws Exception;
 
-    boolean insert(Purch purchVo) throws Exception;
+    boolean insert(Purch purch) throws Exception;
 
     /**
      * 查询采购详情信息
@@ -43,4 +44,10 @@ public interface PurchService {
      */
     Purch findPurchAndGoodsInfo(Integer id);
 
+    /**
+     *根据订单id查询(进行中/已完成)采购列表
+     * @param orderId
+     * @return
+     */
+    List<Map<String,Object>> listByOrderId(Integer orderId) throws Exception;
 }

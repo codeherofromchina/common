@@ -6,14 +6,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 订单表
  */
 @Entity
 @Table(name = "`order`")
-//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,14 +39,15 @@ public class Order {
     private String inquiryNo;
 
     @Column(name = "order_type")
-    private boolean orderType = true;
+    private Integer orderType;
 
     @Column(name = "order_source")
-    private String orderSource;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Integer orderSource;
+
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -72,7 +74,7 @@ public class Order {
     private String crmCode;
 
     @Column(name = "customer_type")
-    private boolean customerType;
+    private Integer customerType;
 
     @Column(name = "per_liable_repay")
     private String perLiableRepay;
@@ -88,11 +90,11 @@ public class Order {
     @Column(name = "grant_type")
     private String grantType;
 
-    @Column(name = "is_preinvest")
-    private boolean isPreinvest = false;
+    @Column(name = "preinvest")
+    private Integer preinvest;
 
-    @Column(name = "is_financing")
-    private boolean isFinancing = false;
+    @Column(name = "financing")
+    private Integer financing;
 
     @Column(name = "trade_terms")
     private String tradeTerms;
@@ -125,7 +127,7 @@ public class Order {
     private String currencyBn;
 
     @Column(name = "tax_bearing")
-    private Boolean taxBearing;
+    private Integer taxBearing;
 
     @Column(name = "payment_mode_bn")
     private String paymentModeBn;
@@ -134,52 +136,52 @@ public class Order {
     private BigDecimal qualityFunds;
 
     /**
-     * 收款状态 0:未付款 1:部分付款 2:收款完成
+     * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
     @Column(name = "pay_status")
-    private Integer payStatus;
+    private Integer payStatus = 1;
 
     private Integer status;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "create_time")
     private Date createTime;
 
     @Column(name = "deliver_consign_c")
-    private boolean deliverConsignC = true;
+    private Boolean deliverConsignC = true;
 
     @Column(name = "create_user_id")
     private Integer createUserId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delete_time")
     private Date deleteTime;
 
     @Column(name = "receivable_account_remaining")
-    private BigDecimal receivableAccountRemaining;
+    private BigDecimal receivableAccountRemaining;  //应收账款余额
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     @OrderBy("id asc")
-   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Goods> goodsList = new ArrayList<>();
 
     @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
-   // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
     @Column(name = "delivery_requires")
@@ -193,7 +195,8 @@ public class Order {
 
     @Column(name = "business_unit_name")
     private String businessUnitName;
-
+    @Column(name = "acquire_id")
+    private Integer acquireId;
     @Transient
     private int page = 0;
 
@@ -204,10 +207,37 @@ public class Order {
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
 
+    public Integer getAcquireId() {
+        return acquireId;
+    }
+
+    public void setAcquireId(Integer acquireId) {
+        this.acquireId = acquireId;
+    }
+
+    public Integer getPreinvest() {
+        return preinvest;
+    }
+
+    public void setPreinvest(Integer preinvest) {
+        this.preinvest = preinvest;
+    }
+
+    public Integer getFinancing() {
+        return financing;
+    }
+
+    public void setFinancing(Integer financing) {
+        this.financing = financing;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
 
     public String getExecCoName() {
         return execCoName;
@@ -216,13 +246,6 @@ public class Order {
     public void setPage(int page) {
         this.page = page;
     }
-
-   /* public void setDeliveryDateNo(Date deliveryDateNo) {
-        this.deliveryDateNo = deliveryDateNo;
-    }
-    public Date getDeliveryDateNo() {
-        return deliveryDateNo;
-    }*/
 
     public void setExecCoName(String execCoName) {
         this.execCoName = execCoName;
@@ -254,7 +277,7 @@ public class Order {
 
     public String getInquiryNo() {
         if (inquiryNo == null)
-            setPoNo("");
+            setInquiryNo("");
         return inquiryNo;
     }
 
@@ -262,54 +285,13 @@ public class Order {
         this.inquiryNo = inquiryNo;
     }
 
-    public boolean isOrderType() {
-        return orderType;
-    }
 
-    public void setOrderType(boolean orderType) {
-        this.orderType = orderType;
-    }
-
-    public String getOrderSource() {
-        if (orderSource == null)
-            setOrderSource("");
+    public Integer getOrderSource() {
         return orderSource;
     }
 
-    public void setOrderSource(String orderSource) {
+    public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
-    }
-
-    public boolean isCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(boolean customerType) {
-        this.customerType = customerType;
-    }
-
-    public boolean isPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setPreinvest(boolean preinvest) {
-        isPreinvest = preinvest;
-    }
-
-    public boolean isFinancing() {
-        return isFinancing;
-    }
-
-    public void setFinancing(boolean financing) {
-        isFinancing = financing;
-    }
-
-    public boolean isDeliverConsignC() {
-        return deliverConsignC;
-    }
-
-    public void setDeliverConsignC(boolean deliverConsignC) {
-        this.deliverConsignC = deliverConsignC;
     }
 
     public Integer getId() {
@@ -363,11 +345,11 @@ public class Order {
         this.logiQuoteNo = logiQuoteNo;
     }
 
-    public Boolean getOrderType() {
+    public Integer getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
 
@@ -436,11 +418,11 @@ public class Order {
         this.crmCode = crmCode;
     }
 
-    public Boolean getCustomerType() {
+    public Integer getCustomerType() {
         return customerType;
     }
 
-    public void setCustomerType(Boolean customerType) {
+    public void setCustomerType(Integer customerType) {
         this.customerType = customerType;
     }
 
@@ -482,22 +464,6 @@ public class Order {
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
-    }
-
-    public Boolean getIsPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setIsPreinvest(Boolean isPreinvest) {
-        this.isPreinvest = isPreinvest;
-    }
-
-    public Boolean getIsFinancing() {
-        return isFinancing;
-    }
-
-    public void setIsFinancing(Boolean isFinancing) {
-        this.isFinancing = isFinancing;
     }
 
     public int getPage() {
@@ -588,11 +554,11 @@ public class Order {
         this.currencyBn = currencyBn;
     }
 
-    public Boolean getTaxBearing() {
+    public Integer getTaxBearing() {
         return taxBearing;
     }
 
-    public void setTaxBearing(Boolean taxBearing) {
+    public void setTaxBearing(Integer taxBearing) {
         this.taxBearing = taxBearing;
     }
 
@@ -676,11 +642,11 @@ public class Order {
         this.deleteTime = deleteTime;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 
@@ -725,4 +691,23 @@ public class Order {
         this.customerContext = customerContext;
     }
 
+
+    public static enum StatusEnum{
+        INIT(1,"待确认"),UNEXECUTED(2,"未执行"),EXECUTING(3,"执行中"),DONE(4,"完成");
+
+        public int code;
+        public String msg;
+        StatusEnum(int code,String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
 }

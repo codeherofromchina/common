@@ -4,6 +4,8 @@ import java.util.Date;
 
 public class DeliverW {
 
+    private Integer id;
+
     private String deliverDetailNo; //产品放行单号
 
     private String contractNo; //销售合同号
@@ -11,6 +13,8 @@ public class DeliverW {
     private Date releaseDate;   //放行日期
 
     private Integer logisticsUserId;    //物流经办人
+
+    private Integer logisticsUid;    //国际物流经办人
 
     private Date logisticsDate; //物流经办时间
 
@@ -21,6 +25,13 @@ public class DeliverW {
     private Integer rows;
 
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public void setContractNo(String contractNo) {
         this.contractNo = contractNo;
@@ -85,5 +96,13 @@ public class DeliverW {
 
     public Integer getRows() {
         return rows;
+    }
+
+    public Integer getLogisticsUid() {
+        return logisticsUid;
+    }
+
+    public void setLogisticsUid(Integer logisticsUid) {
+        this.logisticsUid = logisticsUid;
     }
 }

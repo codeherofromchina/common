@@ -19,7 +19,7 @@ public interface DeliverNoticeService {
      * @param condition
      * @return
      */
-    Page<DeliverNotice> listByPage(DeliverNotice condition);
+    Page<DeliverNotice> listByPage(DeliverNotice condition) throws Exception;
 
 
     //编辑/保存

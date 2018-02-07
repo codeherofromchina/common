@@ -1,13 +1,10 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 出口发货通知单
@@ -30,10 +27,13 @@ public class DeliverConsign {
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
+
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
-    private Integer coId;
+    private String coId;
+    @Column(name = "exec_co_name")
+    private String execCoName;
     @Column(name = "write_date")
     private Date writeDate;
     @Column(name = "arrival_date")
@@ -42,29 +42,48 @@ public class DeliverConsign {
     private Date bookingDate;
     private Integer status;
     @Column(name = "deliver_yn")
-    private Integer deliverYn;  //是否已发货
+    private Integer deliverYn =1;  //是否已发货      1:未发货  2：已发货
     @Column(name = "create_user_id")
     private Integer createUserId;
     @Column(name = "create_time")
     private Date createTime;
+    private String country;
+    private String region;
     private String remarks;
+    //出口通知单附件
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
+    //出口通知单商品
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
+    private List<DeliverConsignGoods> deliverConsignGoodsSet = new ArrayList<>();
 
-    public Integer getDeliverYn() {
-        return deliverYn;
+    public String getCountry() {
+        return country;
     }
 
-    public DeliverConsign setDeliverYn(Integer deliverYn) {
-        this.deliverYn = deliverYn;
-        return this;
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
     }
 
     public Integer getId() {
@@ -75,12 +94,12 @@ public class DeliverConsign {
         this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
     }
 
     public Integer getoId() {
@@ -91,14 +110,13 @@ public class DeliverConsign {
         this.oId = oId;
     }
 
-    public String getDeliverConsignNo() {
-        return deliverConsignNo;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setDeliverConsignNo(String deliverConsignNo) {
-        this.deliverConsignNo = deliverConsignNo;
+    public void setOrder(Order order) {
+        this.order = order;
     }
-
 
     public Integer getDeptId() {
         return deptId;
@@ -108,11 +126,11 @@ public class DeliverConsign {
         this.deptId = deptId;
     }
 
-    public Integer getCoId() {
+    public String getCoId() {
         return coId;
     }
 
-    public void setCoId(Integer coId) {
+    public void setCoId(String coId) {
         this.coId = coId;
     }
 
@@ -148,6 +166,14 @@ public class DeliverConsign {
         this.status = status;
     }
 
+    public Integer getDeliverYn() {
+        return deliverYn;
+    }
+
+    public void setDeliverYn(Integer deliverYn) {
+        this.deliverYn = deliverYn;
+    }
+
     public Integer getCreateUserId() {
         return createUserId;
     }
@@ -172,23 +198,19 @@ public class DeliverConsign {
         this.remarks = remarks;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 
-    public Set<DeliverConsignGoods> getDeliverConsignGoodsSet() {
+    public List<DeliverConsignGoods> getDeliverConsignGoodsSet() {
         return deliverConsignGoodsSet;
     }
 
-    public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
+    public void setDeliverConsignGoodsSet(List<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
-    }
-
-    public void setDeliverYn(int deliverYn) {
-        this.deliverYn = deliverYn;
     }
 }

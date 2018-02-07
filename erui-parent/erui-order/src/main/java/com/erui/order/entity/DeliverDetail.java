@@ -16,12 +16,14 @@ public class DeliverDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name="pack_total")
+    private Integer packTotal;
+
     // 产品放行单号,自动生成
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
 
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
@@ -33,6 +35,12 @@ public class DeliverDetail {
     // 项目号
     @Transient
     private String projectNo;
+
+    @Transient
+    private String prepareReq;  //备货要求
+
+    @Transient
+    private String packageReq;  //包装要求
 
 /*
     @Column(name = "product_discharged_no")
@@ -65,13 +73,22 @@ public class DeliverDetail {
     @Column(name = "ware_houseman")
     private Integer wareHouseman;   //仓库经办人
 
+    @Column(name = "ware_houseman_name")
+    private String wareHousemanName;   //仓库经办人姓名
+
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "send_date")
     private Date sendDate;  ///发运日期
 
     private Integer sender; //发运人员
 
+    @Column(name="sender_name")
+    private String senderName; //发运人员姓名
+
     private Integer reviewer;   //协办/复核人
+
+    @Column(name = "reviewer_name")
+    private String reviewerName;    //协办/复核人名字
 
     @Column(name = "goods_chk_status")
     private String goodsChkStatus;  //实物检验结论
@@ -83,7 +100,7 @@ public class DeliverDetail {
     private Integer checkerUid; //检验工程师 ID
 
     // 检验工程师名称
-    @Column(name = "checker_uname")
+    @Column(name = "checker_name")
     private String checkerName;
 
     @Column(name = "check_dept")
@@ -100,16 +117,28 @@ public class DeliverDetail {
     @Column(name = "release_uid")
     private Integer releaseUid; //最终放行人
 
+    @Column(name = "release_name")
+    private String releaseName; //最终放行人姓名
+
     @Column(name = "quality_leader_id")
     private Integer qualityLeaderId;    //质量分管领导
 
+    @Column(name = "quality_leader_name")
+    private String qualityleaderName;    //质量分管领导姓名
+
     private Integer applicant;  //特殊放行申请人
+
+    @Column(name = "applicant_name")
+    private String applicantName;  //特殊放行申请人姓名
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "applicant_date")
     private Date applicantDate; //特殊放行申请日期
 
     private Integer approver;   //批准人
+
+    @Column(name = "approver_name")
+    private String approverName;   //批准人姓名
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "approval_date")
@@ -124,6 +153,9 @@ public class DeliverDetail {
 
     @Column(name = "logistics_user_id")
     private Integer logisticsUserId;    //物流经办人
+
+    @Column(name = "logistics_user_name")
+    private String logisticsUserName;    //物流经办人名称
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "logistics_date")
@@ -163,8 +195,6 @@ public class DeliverDetail {
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "arrival_port_time")
     private Date arrivalPortTime;   //预计抵达时间
-
-
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
      */
@@ -175,18 +205,21 @@ public class DeliverDetail {
     @Column(name="create_user_name")
     private String createUserName;//创建人姓名
 
+    @Column(name = "confirm_the_goods")
+    private Date confirmTheGoods;   //确认收货
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonIgnore
+    /*@JsonIgnore*/
     private List<Attachment> attachmentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
-    @JsonIgnore
+    /*@JsonIgnore*/
     private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
 
 
@@ -206,7 +239,15 @@ public class DeliverDetail {
         this.id = id;
     }
 
-  /*  public void setProductDischargedNo(String productDischargedNo) {
+    public Integer getPackTotal() {
+        return packTotal;
+    }
+
+    public void setPackTotal(Integer packTotal) {
+        this.packTotal = packTotal;
+    }
+
+    /*  public void setProductDischargedNo(String productDischargedNo) {
         this.productDischargedNo = productDischargedNo;
     }
 
@@ -214,10 +255,73 @@ public class DeliverDetail {
         return productDischargedNo;
     }*/
 
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public void setReleaseName(String releaseName) {
+        this.releaseName = releaseName;
+    }
+
+    public void setQualityleaderName(String qualityleaderName) {
+        this.qualityleaderName = qualityleaderName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public void setApproverName(String approverName) {
+        this.approverName = approverName;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public String getReleaseName() {
+        return releaseName;
+    }
+
+    public String getQualityleaderName() {
+        return qualityleaderName;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public String getApproverName() {
+        return approverName;
+    }
+
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;
     }
 
+    public Date getConfirmTheGoods() {
+        return confirmTheGoods;
+    }
+
+    public void setConfirmTheGoods(Date confirmTheGoods) {
+        this.confirmTheGoods = confirmTheGoods;
+    }
 
     public void setDeliverNotice(DeliverNotice deliverNotice) {
         this.deliverNotice = deliverNotice;
@@ -229,6 +333,14 @@ public class DeliverDetail {
 
     public void setCarrierCo(String carrierCo) {
         this.carrierCo = carrierCo;
+    }
+
+    public String getLogisticsUserName() {
+        return logisticsUserName;
+    }
+
+    public void setLogisticsUserName(String logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
     }
 
     public String getDriver() {
@@ -448,6 +560,22 @@ public class DeliverDetail {
         this.approvalDate = approvalDate;
     }
 
+    public String getPrepareReq() {
+        return prepareReq;
+    }
+
+    public void setPrepareReq(String prepareReq) {
+        this.prepareReq = prepareReq;
+    }
+
+    public void setPackageReq(String packageReq) {
+        this.packageReq = packageReq;
+    }
+
+    public String getPackageReq() {
+        return packageReq;
+    }
+
     public String getOpinion() {
         return opinion;
     }
@@ -616,11 +744,11 @@ public class DeliverDetail {
     }
 
     /**
-     * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人完整 5：完善物流状态中 6：项目完结',
+     * 出库到物流的状态1：出库保存/草稿 2：出库提交 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结
      */
     public static enum StatusEnum {
-        SAVED_OUTSTOCK(0, "出库保存"), SUBMITED_OUTSTOCK(1, "出库提交"), SAVED_OUT_INSPECT(2, "出库质检保存"),
-        SUBMITED_OUT_INSPECT(3, "出库质检提交"), PROCESS_LOGI_PERSON(4, "物流人完整"), PROCESS_LOGI(5, "完善物流状态中"), DONE_PROJECT(6, "项目完结");
+        SAVED_OUTSTOCK(1, "出库保存"), SUBMITED_OUTSTOCK(2, "出库提交"), SAVED_OUT_INSPECT(3, "出库质检保存"),
+        SUBMITED_OUT_INSPECT(4, "出库质检提交"), PROCESS_LOGI_PERSON(5, "确认出库"), PROCESS_LOGI(6, "完善物流状态中"), DONE_PROJECT(7, "项目完结");
 
         private int statusCode;
         private String statusMsg;
@@ -639,7 +767,7 @@ public class DeliverDetail {
         }
 
         public static StatusEnum fromStatusCode(Integer statusCode) {
-            if (statusCode == null) {
+            if (statusCode != null) {
                 int sInt = statusCode.intValue();
                 for (StatusEnum se : StatusEnum.values()) {
                     if (se.statusCode == sInt) {
@@ -648,8 +776,6 @@ public class DeliverDetail {
                 }
             }
             return null;
-
-
         }
     }
 }

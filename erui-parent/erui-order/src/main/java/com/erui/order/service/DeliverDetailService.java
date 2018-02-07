@@ -53,7 +53,7 @@ public interface DeliverDetailService {
      * @param deliverD
      * @return
      */
-    Page<DeliverDetail> outboundManage(DeliverD deliverD);
+    Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception;
 
     /**
      * 分页查询出库质检列表
@@ -76,7 +76,7 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    boolean saveQuality(DeliverDetail deliverDetail);
+    boolean saveQuality(DeliverDetail deliverDetail) throws Exception;
 
     /**
      * 物流跟踪管理
@@ -92,7 +92,7 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    boolean outboundSaveOrAdd(DeliverDetail deliverDetail);
+    boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception;
 
 
     /**
@@ -119,4 +119,20 @@ public interface DeliverDetailService {
      * @return
      */
     DeliverDetail queryLogisticsTrace(Integer id);
+
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息
+     * @param deliverDetailNo
+     * @return
+     */
+    DeliverDetail queryByDeliverDetailNo(String deliverDetailNo);
+
+
+    /**
+     * 订单执行跟踪  根据运单号（产品放行单号）查询物流信息   确认收货
+     * @param deliverDetail
+     * @return
+     */
+    void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail);
 }

@@ -27,8 +27,6 @@ public class OrderPayment {
     @Column(name = "receipt_date")
     private Date receiptDate;
 
-    @Column(name = "create_time")
-    private Date createTime;
 
     public Integer getId() {
         return id;
@@ -76,14 +74,6 @@ public class OrderPayment {
 
     public void setReceiptDate(Date receiptDate) {
         this.receiptDate = receiptDate;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
     }
 
 }

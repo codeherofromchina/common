@@ -10,9 +10,11 @@ import com.erui.order.entity.Project;
 import com.erui.order.entity.PurchRequisition;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchRequisitionService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -30,26 +32,38 @@ public class PurchRequisitionController {
     private PurchRequisitionService purchRequisitionService;
     @Autowired
     private ProjectService projectService;
-    @RequestMapping(value = "queryPurchRequisition",method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<PurchRequisition> queryPurchRequisition(@RequestParam(name = "id") Integer id){
-        PurchRequisition purchRequisition = purchRequisitionService.findById(id);
-        return new Result<>(purchRequisition);
+
+    @RequestMapping(value = "queryPurchRequisition", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<PurchRequisition> queryPurchRequisition(@RequestBody Map<String, Integer> map) {
+        PurchRequisition purchRequisition = purchRequisitionService.findById(map.get("id"), map.get("orderId"));
+        if (purchRequisition != null) {
+            purchRequisition.setProject(null);
+            return new Result<>(purchRequisition);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
+
     /**
      * 采购申请单信息
      *
      * @return
      */
-    @RequestMapping(value = "addPurchDesc", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchDesc(@RequestParam(name = "id") Integer id) {
-        Project project = projectService.findDesc(id);
-        Map<String,Object> map = new HashMap<>();
-        map.put("pmUid",project.getManagerUid());
-     //   map.put("department",project.getOrder().getTechnicalIdDept());
-        map.put("transModeBn",project.getOrder().getTradeTerms());
-        map.put("goodList",project.getOrder().getGoodsList());
-        return new Result<>(map);
+    @RequestMapping(value = "addPurchDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) {
+        Project project = projectService.findDesc(proMap.get("proId"));
+        if (project != null) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("pmUid", project.getManagerUid() != null ? project.getManagerUid() : project.getBusinessUid());
+            map.put("contractNo", project.getContractNo());
+            map.put("sendDeptId", project.getSendDeptId());
+            map.put("transModeBn", project.getOrder().getTradeTerms());
+            map.put("goodList", project.getOrder().getGoodsList());
+            return new Result<>(map);
+
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
+
     /**
      * 新增采购单
      *
@@ -58,21 +72,39 @@ public class PurchRequisitionController {
      */
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition) {
-
-        // TODO 参数检查略过,检查采购数量必须大于（如果存在替换商品则可以等于0）0
-        try {
-            boolean flag = false;
-            if (purchRequisition.getId() != null) {
-                flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
-            } else {
-                flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
+        Result<Object> result = new Result<>();
+        if (StringUtils.isBlank(purchRequisition.getProjectNo()) || StringUtils.equals(purchRequisition.getProjectNo(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("项目号不能为空");
+        } else if (purchRequisition.getSubmitDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("下发时间不能为空");
+        } else if (StringUtils.isBlank(purchRequisition.getTradeMethod()) || StringUtils.equals(purchRequisition.getTradeMethod(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("贸易方式不能为空");
+        } else if (StringUtils.isBlank(purchRequisition.getDeliveryPlace()) || StringUtils.equals(purchRequisition.getDeliveryPlace(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("交货地点不能为空");
+        } else {
+            try {
+                boolean flag;
+                if (purchRequisition.getId() != null) {
+                    flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
+                } else {
+                    flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
+                }
+                if (flag) {
+                    return result;
+                }
+            } catch (Exception ex) {
+                logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
+                if (ex instanceof DataIntegrityViolationException) {
+                    result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
+                    result.setMsg("已存在项目");
+                    return result;
+                }
             }
-            if (flag) {
-                return new Result<>();
-            }
-        } catch (Exception ex) {
-            logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return result;
     }
 }

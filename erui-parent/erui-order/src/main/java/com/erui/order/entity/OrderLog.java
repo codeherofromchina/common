@@ -1,5 +1,9 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -8,6 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "order_log")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,6 +20,7 @@ public class OrderLog {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     /**
@@ -36,6 +42,9 @@ public class OrderLog {
 
     @Column(name="create_time")
     private Date createTime;
+
+    @Column(name="order_account_id")
+    private Integer orderAccountId;
 
     public Integer getId() {
         return id;
@@ -99,5 +108,38 @@ public class OrderLog {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getOrderAccountId() {
+        return orderAccountId;
+    }
+
+    public void setOrderAccountId(Integer orderAccountId) {
+        this.orderAccountId = orderAccountId;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this).toString();
+    }
+
+    public static enum LogTypeEnum{
+        CREATEORDER(1,"创建订单"),ADVANCE(2,"收到预付款"),GOODOUT(3,"商品出库"),DELIVERED(4,"已收货"),
+        DELIVERYDONE(5,"全部交收完成"),OTHER(6,"其他");
+
+        public int code;
+        public String msg;
+        LogTypeEnum(int code,String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
     }
 }

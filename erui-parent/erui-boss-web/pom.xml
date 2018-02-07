@@ -8,6 +8,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>erui-boss-web</artifactId>
+    <version>${project.parent.version}</version>
 
     <packaging>war</packaging>
     <properties>
@@ -55,18 +56,18 @@
         <dependency>
             <groupId>com.erui</groupId>
             <artifactId>erui-comm</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.erui</groupId>
             <artifactId>erui-report</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.erui</groupId>
             <artifactId>erui-order</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

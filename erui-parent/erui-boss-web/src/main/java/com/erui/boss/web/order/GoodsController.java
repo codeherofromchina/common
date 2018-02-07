@@ -50,7 +50,7 @@ public class GoodsController {
         List<Goods> goodsList = goodsService.findByProjectIds(ids);
         // 数据过滤并转换
         List<Map<String, Object>> data = goodsList.stream().filter(goods -> {
-            return goods.getPurchasedNum() < goods.getContractGoodsNum();
+            return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
         }).map(goods -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", goods.getId()); // 商品ID
@@ -64,6 +64,10 @@ public class GoodsController {
             map.put("brand", goods.getBrand()); //品牌
             map.put("model", goods.getModel()); //规格型号
             map.put("contractGoodsNum", goods.getContractGoodsNum()); //合同数量
+            map.put("prePurchsedNum", goods.getPrePurchsedNum()); //预采购数量（当前锁定数量）
+            map.put("purchasedNum", goods.getPurchasedNum()); //已采购数量
+            map.put("purChgDate", goods.getPurChgDate()); //合同变更后到货日期
+            map.put("exeChgDate", goods.getExeChgDate()); //执行单变更后到货日期
             return map;
         }).collect(Collectors.toList());
 

@@ -3,12 +3,10 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
-import com.erui.order.service.AreaService;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InstockService;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +18,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +44,7 @@ public class InstockServiceImpl implements InstockService {
     private InspectApplyGoodsDao inspectApplyGoodsDao;
 
     @Override
+    @Transactional(readOnly = true)
     public Instock findById(Integer id) {
         return instockDao.findOne(id);
     }
@@ -60,7 +58,7 @@ public class InstockServiceImpl implements InstockService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<Map<String, Object>> listByPage(Map<String, String> condition, int pageNum, int pageSize) {
         PageRequest request = new PageRequest(pageNum, pageSize, Sort.Direction.DESC, "id");
 
@@ -85,20 +83,30 @@ public class InstockServiceImpl implements InstockService {
                     }
                 }
                 // 仓库经办人
-                if (StringUtil.isNotBlank(condition.get("name"))) {
-                    list.add(cb.like(root.get("name").as(String.class), "%" + condition.get("name") + "%"));
+                if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
+
+                    int wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
+
+                    Join<Instock,InspectReport> inspectReportRoot = root.join("inspectReport");
+                    Join<InspectReport,InspectApply> inspectApplyRoot = inspectReportRoot.join("inspectApply");
+                    Join<InspectApply, Purch> purchRoot = inspectApplyRoot.join("purch");
+                    Join<Project, Project> projectRoot = purchRoot.join("projects");
+                    list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), wareHouseman));
+
                 }
 
                 // 销售合同号 、 项目号查询
-                Set<Instock> instockSet = findByProjectNoAndContractNo(condition.get("projectNo"), condition.get("contractNo"));
-                if (instockSet != null && instockSet.size() > 0) {
-                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
-                    for (Instock p : instockSet) {
-                        idIn.value(p.getId());
-                    }
-                    list.add(idIn);
-                }
 
+                if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
+                    Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
+                    if (StringUtils.isNotBlank(condition.get("projectNo"))) {
+                        list.add(cb.like(instockGoods.get("projectNo").as(String.class), "%" + condition.get("projectNo") + "%"));
+                    }
+
+                    if (StringUtils.isNotBlank(condition.get("contractNo"))) {
+                        list.add(cb.like(instockGoods.get("contractNo").as(String.class), "%" + condition.get("contractNo") + "%"));
+                    }
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -113,13 +121,20 @@ public class InstockServiceImpl implements InstockService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
                 map.put("inspectApplyNo", instock.getInspectApplyNo());
-                List<String> ContractNoList = new ArrayList<>();
-                List<String> projectNoList = new ArrayList<>();
+                Set<String> ContractNoList = new HashSet<>();
+                Set<String> projectNoList = new HashSet<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
                 instockGoodsList.stream().forEach(instockGoods -> {
-                    ContractNoList.add(instockGoods.getContractNo());
-                    projectNoList.add(instockGoods.getProjectNo());
+                    if (StringUtil.isNotBlank(instockGoods.getContractNo())){
+                        ContractNoList.add(instockGoods.getContractNo());
+                    }
+                    Goods goods = instockGoods.getInspectApplyGoods().getPurchGoods().getGoods();
+
+                    if (StringUtil.isNotBlank(goods.getProjectNo())){
+                        projectNoList.add(goods.getProjectNo());
+                    }
+
                 });
                 map.put("contractNos", StringUtils.join(ContractNoList, ","));
                 map.put("projectNos", StringUtils.join(projectNoList, ","));
@@ -127,8 +142,10 @@ public class InstockServiceImpl implements InstockService {
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
                 // 入库时间
-                map.put("instockDate", new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()));
+
+                map.put("instockDate", instock.getInstockDate() != null?new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()):null);
                 map.put("status", instock.getStatus());
+                map.put("uname", instock.getUname());
 
                 list.add(map);
             }
@@ -149,11 +166,11 @@ public class InstockServiceImpl implements InstockService {
                     List<Predicate> list = new ArrayList<>();
                     Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
                     if (StringUtils.isNotBlank(projectNo)) {
-                        list.add(cb.equal(instockGoods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                        list.add(cb.like(instockGoods.get("projectNo").as(String.class), "%" + projectNo + "%"));
                     }
 
                     if (StringUtils.isNotBlank(contractNo)) {
-                        list.add(cb.equal(instockGoods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                        list.add(cb.like(instockGoods.get("contractNo").as(String.class), "%" + contractNo + "%"));
                     }
 
                     Predicate[] predicates = new Predicate[list.size()];
@@ -174,13 +191,10 @@ public class InstockServiceImpl implements InstockService {
 
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean save(Instock instock) throws Exception {
 
         Instock dbInstock = instockDao.findOne(instock.getId());
-        if (dbInstock == null || dbInstock.getStatus() == Instock.StatusEnum.SUBMITED.getStatus()) {
-            return false;
-        }
 
         // 保存基本信息
         dbInstock.setUid(instock.getUid());
@@ -191,6 +205,17 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setCurrentUserId(instock.getCurrentUserId());
         dbInstock.setCurrentUserName(instock.getCurrentUserName());
         dbInstock.setStatus(instock.getStatus());
+        dbInstock.setDepartment(instock.getDepartment());
+
+        List<InstockGoods> instockGoodsList = dbInstock.getInstockGoodsList();
+        for (InstockGoods instockGoods : instockGoodsList){
+            Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
+
+            one.setInstockDate(dbInstock.getInstockDate());
+            one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
+            goodsDao.saveAndFlush(one);
+        }
+
 
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
@@ -198,7 +223,7 @@ public class InstockServiceImpl implements InstockService {
 
 
         // 处理商品信息
-        Map<Integer, InstockGoods> instockGoodsMap = dbInstock.getInstockGoodsList().parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
+        Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
             if (instockGoods.getInstockNum() == null || StringUtils.isBlank(instockGoods.getInstockStock())) {
                 return false;
@@ -242,7 +267,7 @@ public class InstockServiceImpl implements InstockService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Instock detail(Integer id) {
         Instock instock = instockDao.findOne(id);
         instock.getAttachmentList().size();

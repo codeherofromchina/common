@@ -12,6 +12,8 @@ public class ProjectListCondition {
     private String contractNo;
     //项目名称
     private String projectName;
+    //执行分公司ID
+    private String execCoId;
     //执行分公司名称
     private String execCoName;
     //项目开始时期
@@ -30,9 +32,19 @@ public class ProjectListCondition {
     private Date exeChgDate;
     //项目状态
     private String projectStatus;
+    //国家查询
+    private String country;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     public Integer getId() {
         return id;
@@ -56,6 +68,14 @@ public class ProjectListCondition {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getExecCoId() {
+        return execCoId;
+    }
+
+    public void setExecCoId(String execCoId) {
+        this.execCoId = execCoId;
     }
 
     public String getExecCoName() {

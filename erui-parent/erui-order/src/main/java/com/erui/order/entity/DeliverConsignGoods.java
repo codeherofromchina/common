@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * 口发货通知单商品
+ * 出口发货通知单商品
  */
 @Entity
 @Table(name = "deliver_consign_goods")
@@ -16,7 +16,7 @@ public class DeliverConsignGoods {
     private Integer id;
 
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="goods_id")
     private Goods goods;
 
@@ -42,6 +42,9 @@ public class DeliverConsignGoods {
     @Column(name = "create_user_id")
     private Integer createUserId;
 
+    //出库备注
+    @Column(name = "outbound_remark")
+    private String outboundRemark;
 
 
     public Integer getId() {
@@ -108,4 +111,13 @@ public class DeliverConsignGoods {
     public void setCreateUserId(Integer createUserId) {
         this.createUserId = createUserId;
     }
+
+    public String getOutboundRemark() {
+        return outboundRemark;
+    }
+
+    public void setOutboundRemark(String outboundRemark) {
+        this.outboundRemark = outboundRemark;
+    }
+
 }

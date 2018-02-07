@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -15,7 +16,7 @@ public class InspectReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
     @JsonIgnore
     private InspectApply inspectApply;
@@ -38,7 +39,7 @@ public class InspectReport {
     /**
      * 质检员ID
      */
-        @Column(name = "check_user_id")
+    @Column(name = "check_user_id")
     private Integer checkUserId;
 
     /**
@@ -65,9 +66,11 @@ public class InspectReport {
     @Column(name = "ncr_no")
     private String ncrNo;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "check_date")
     private Date checkDate;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "done_date")
     private Date doneDate;
 

@@ -13,7 +13,7 @@ import java.util.*;
 @Table(name = "instock")
 public class Instock {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
@@ -21,6 +21,7 @@ public class Instock {
      */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspect_report_id")
+    @JsonIgnore
     private InspectReport inspectReport;
 
     @Column(name = "inspect_apply_no")
@@ -30,6 +31,7 @@ public class Instock {
     private String supplierName;
     // 仓库经办人ID
     private Integer uid;
+
     // 仓库经办人名称
     private String uname;
     // 下发部门，和仓库经办人管理
@@ -37,9 +39,9 @@ public class Instock {
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "instock_date")
-    private Date instockDate;
+    private Date instockDate;   //入库日期
 
-    private Integer status;
+    private Integer status = 1;
 
     private String remarks;
 
@@ -53,7 +55,6 @@ public class Instock {
     private String currentUserName;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
     @JoinColumn(name = "instock_id")
     private List<InstockGoods> instockGoodsList = new ArrayList<>();
 
@@ -186,7 +187,7 @@ public class Instock {
     }
 
     public static enum StatusEnum {
-        INIT(0, "未编辑"), SAVED(1, "保存"), SUBMITED(2, "提交");
+        INIT(1, "未编辑"), SAVED(2, "保存"), SUBMITED(3, "提交");
         private int status;
         private String msg;
 

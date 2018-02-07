@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,6 @@ public class InspectReportController {
     @Autowired
     private InspectReportService inspectReportService;
 
-
     /**
      * 获取质检报告单列表
      *
@@ -41,7 +41,17 @@ public class InspectReportController {
     public Result<Object> list(@RequestBody InspectReport condition) {
 
         Page<InspectReport> page = inspectReportService.listByPage(condition);
+        if (page.hasContent()) {
+            // 转换数据
+            page.getContent().parallelStream().forEach(inspectReport -> {
+                InspectApply inspectApply = inspectReport.getInspectApply();
+                inspectReport.setPurchNo(inspectApply.getPurchNo());
 
+                inspectReport.setDirect(inspectApply.getDirect());
+                inspectReport.setAttachments(null);
+                inspectReport.setInspectGoodsList(null);
+            });
+        }
         return new Result<>(page);
     }
 
@@ -49,11 +59,17 @@ public class InspectReportController {
     /**
      * 查看质检单详情信息
      *
-     * @param id
+     * @param params {"id":"质检单ID"}
      * @return
      */
-    @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id") Integer id) {
+    @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> detail(@RequestBody Map<String, Integer> params) {
+        Integer id = params.get("id");
+        if (id == null || id <= 0) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+
+
         InspectReport inspectReport = inspectReportService.detail(id);
         if (inspectReport == null) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -77,6 +93,8 @@ public class InspectReportController {
         data.put("reportRemarks", inspectReport.getReportRemarks());
         // 整改意见
         data.put("msg", inspectReport.getMsg());
+        // 采购号
+        data.put("purchNo", inspectReport.getPurchNo());
         // 附件
         data.put("attachments", inspectReport.getAttachments());
         // 商品列表信息
@@ -87,6 +105,8 @@ public class InspectReportController {
             Map<String, Object> map = new HashedMap();
             map.put("id", vo.getId());
             map.put("gId", goods.getId());
+            map.put("sku", goods.getSku());
+            map.put("purchNo", inspectReport.getPurchNo());
             map.put("contractNo", goods.getContractNo());
             map.put("projectNo", goods.getProjectNo());
             map.put("proType", goods.getProType());
@@ -110,13 +130,17 @@ public class InspectReportController {
 
 
     /**
-     * 保存质检单
+     * 质检单历史记录
      *
-     * @param id 质检单ID
+     * @param params {"id":质检单ID}
      * @return
      */
-    @RequestMapping(value = "history", method = RequestMethod.POST)
-    public Result<Object> history(@RequestParam(name = "id") Integer id) {
+    @RequestMapping(value = "history", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> history(@RequestBody Map<String, Integer> params) {
+        Integer id = params.get("id");
+        if (id == null || id <= 0) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
 
         List<InspectReport> list = inspectReportService.history(id);
         if (list == null) {
@@ -130,7 +154,7 @@ public class InspectReportController {
 
             map.put("id", vo.getId());
             map.put("inspectApplyNo", vo.getInspectApplyNo());
-            map.put("purchNo", vo.getPurchNo());
+            map.put("purchNo", inspectApply.getPurchNo());
             map.put("agentName", purch.getAgentName());
             map.put("supplierName", purch.getSupplierName());
             map.put("inspectDate", inspectApply.getInspectDate());
@@ -161,16 +185,18 @@ public class InspectReportController {
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody InspectReport inspectReport) {
 
-        // TODO 验证参数需完善
+
+        String errorMsg = null;
         try {
             if (inspectReportService.save(inspectReport)) {
                 return new Result<>();
             }
         } catch (Exception e) {
+            errorMsg = e.getMessage();
             logger.error("异常错误", e);
         }
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
 

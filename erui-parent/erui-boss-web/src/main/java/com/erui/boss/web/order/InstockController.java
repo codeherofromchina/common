@@ -40,8 +40,7 @@ public class InstockController {
 
         int page = getStrNumber(condition.get("page"), DEFAULT_PAGE);
         int pageSize = getStrNumber(condition.get("pageSize"), DEFAULT_PAGESIZE);
-
-        Page<Map<String, Object>> data = instockService.listByPage(condition, page-1, pageSize);
+        Page<Map<String, Object>> data = instockService.listByPage(condition, page - 1, pageSize);
 
         return new Result<>(data);
     }
@@ -54,41 +53,62 @@ public class InstockController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Instock instock) {
-
+        Result<Object> result = new Result<>();
         boolean continueFlag = true;
-        Instock.StatusEnum statusEnum = Instock.StatusEnum.formStatus(instock.getStatus());
-        if (!(statusEnum == Instock.StatusEnum.SAVED || statusEnum == Instock.StatusEnum.SUBMITED)) {
-            continueFlag = false;
-        }
-
-        if (instock.getId() == null || instock.getId() <= 0) {
-            continueFlag = false;
-        }
-
-        if (continueFlag) {
+        Integer status = instock.getStatus();
+        if (status == 3) {
+            if (instock.getId() == null || instock.getId() <= 0) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("入库信息id不能为空");
+            } else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("仓库经办人名字不能为空");
+            } else if (instock.getInstockDate() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("入库日期不能为空");
+            } else {
+                try {
+                    if (instockService.save(instock)) {
+                        return new Result<>();
+                    }
+                } catch (Exception ex) {
+                    logger.error("异常错误", ex);
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg(ex.toString());
+                }
+            }
+        } else if (status == 2) {
             try {
                 if (instockService.save(instock)) {
                     return new Result<>();
                 }
             } catch (Exception ex) {
                 logger.error("异常错误", ex);
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg(ex.toString());
             }
+        } else {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("入库信息状态错误");
         }
 
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return result;
     }
 
 
     /**
      * 入库详情信息
      *
-     * @param id 入库信息ID
+     * @param instocks 入库信息ID
      * @return
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id") Integer id) {
-        Instock instock = instockService.detail(id);
+    public Result<Object> detail(@RequestBody Instock instocks) {
+        if (instocks == null || instocks.getId() == null) {
+            return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
+        }
+        Instock instock = instockService.detail(instocks.getId());
         if (instock == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -97,8 +117,9 @@ public class InstockController {
         data.put("id", instock.getId());
         data.put("uid", instock.getUid());
         data.put("uname", instock.getUname());
-        data.put("instockDate", new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()));
+        data.put("instockDate", instock.getInstockDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()) : null);
         data.put("remarks", instock.getRemarks());
+        data.put("department", instock.getDepartment());
         data.put("attachmentList", instock.getAttachmentList());
 
         // 商品信息数据转换
@@ -122,13 +143,28 @@ public class InstockController {
             map.put("unit", goods.getUnit()); // 单位
             map.put("nonTaxPrice", purchGoods.getNonTaxPrice()); // 不含税单价
             map.put("taxPrice", purchGoods.getTaxPrice()); // 含税单价
-            map.put("totalPrice", purchGoods.getTotalPrice()); // 总价款
+
+            /**
+             * 总价格
+             *
+             * 判断是否是人民币
+             */
+
+            if(purchGoods.getPurch().getCurrencyBn().equals("CNY")){
+                if(purchGoods.getTaxPrice() != null){
+                    map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getTaxPrice().doubleValue()); // 人民币的时候，总价款=报检数量*含税单价
+                }else{
+                    map.put("totalPrice", "无含税单价"); // 当没有含税单价的时候
+                }
+            }else{
+                map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getNonTaxPrice().doubleValue());  // 非人民币的时候，总价款=报检数量*不含税单价
+            }
             map.put("model", goods.getModel()); // 规格型号
             map.put("brand", goods.getBrand()); // 品牌
             map.put("height", inspectApplyGoods.getHeight()); // 重量（kg）
             map.put("lwh", inspectApplyGoods.getLwh()); // 长*宽*高
             map.put("instockStock", instockGoods.getInstockStock()); // 货物存放地
-            map.put("remark", inspectApplyGoods.getRemarks()); // 备注
+            map.put("remark", instockGoods.getInspectApplyGoods().getPurchGoods().getPurchaseRemark()); // 备注
 
             goodsInfoList.add(map);
         }
@@ -140,12 +176,15 @@ public class InstockController {
 
     protected static int getStrNumber(String numStr, int defaultNum) {
         if (StringUtils.isNumeric(numStr)) {
-            return Integer.parseInt(numStr);
+            int num = Integer.parseInt(numStr);
+            if (num > 0) {
+                return num;
+            }
         }
         return defaultNum;
     }
 
-    protected final static int DEFAULT_PAGE = 0;
+    protected final static int DEFAULT_PAGE = 1;
     protected final static int DEFAULT_PAGESIZE = 20;
 
 }
