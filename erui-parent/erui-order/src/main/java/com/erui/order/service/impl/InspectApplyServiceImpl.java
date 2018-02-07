@@ -128,7 +128,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     goods.setInstockNum(goods.getInstockNum() + inspectNum);
                 }
                 // 设置商品的报检日期,项目的商品跟踪信息
-                if (goods.getInspectDate() != null) {
+                if (goods.getInspectDate() == null) {
                     goods.setInspectDate(inspectApply.getInspectDate());
                 }
                 goodsDao.save(goods);
