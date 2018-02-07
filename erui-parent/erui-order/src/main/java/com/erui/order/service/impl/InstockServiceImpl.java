@@ -210,7 +210,9 @@ public class InstockServiceImpl implements InstockService {
         List<InstockGoods> instockGoodsList = dbInstock.getInstockGoodsList();
         for (InstockGoods instockGoods : instockGoodsList){
             Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
+
             one.setInstockDate(dbInstock.getInstockDate());
+            one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
             goodsDao.saveAndFlush(one);
         }
 
