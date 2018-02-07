@@ -89,13 +89,28 @@ public class DeliverDetailwController {
                 toCountryList.add(order.getCountry());
                 toPortList.add(order.getToPort());
                 toPlaceList.add(order.getToPlace());
-                for (Goods goods : order.getGoodsList()){
+
+                List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                    Goods goods = deliverConsignGoods.getGoods();
                     if(goods.getOutstockNum() != 0){        //物流跟踪 商品信息 数量不能为0
                         goods.setRemarks(deliverConsign.getRemarks());     //备注
                         goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                        goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
                         goodsList.add(goods);
                     }
                 }
+
+               /* for (Goods goods : order.getGoodsList()){
+                    List<DeliverConsignGoods> deliverConsignGoodsList = goods.getDeliverConsignGoodsList();
+                    if(goods.getOutstockNum() != 0){        //物流跟踪 商品信息 数量不能为0
+                        goods.setRemarks(deliverConsign.getRemarks());     //备注
+                        goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                        goods.setOutstockNum();
+                        goodsList.add(goods);
+                    }
+                }*/
+
             }
             List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
             Iterator<Attachment> iterator = attachmentList.iterator();
@@ -188,13 +203,27 @@ public class DeliverDetailwController {
                     toCountryList.add(order.getCountry());
                     toPortList.add(order.getToPort());
                     toPlaceList.add(order.getToPlace());
-                    for (Goods goods : order.getGoodsList()){
+
+                    List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                    for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                        Goods goods = deliverConsignGoods.getGoods();
+                        if(goods.getOutstockNum() != 0){        //物流跟踪 商品信息 数量不能为0
+                            goods.setRemarks(deliverConsign.getRemarks());     //备注
+                            goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                            goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
+                            goodsList.add(goods);
+                        }
+                    }
+
+
+                  /*  for (Goods goods : order.getGoodsList()){
                         if(goods.getOutstockNum() != 0) {        //物流跟踪 商品信息 数量不能为0
                             goods.setRemarks(deliverConsign.getRemarks());     //备注
                             goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
                             goodsList.add(goods);
                         }
-                    }
+                    }*/
+
                 }
                 List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
                 Iterator<Attachment> iterator = attachmentList.iterator();
