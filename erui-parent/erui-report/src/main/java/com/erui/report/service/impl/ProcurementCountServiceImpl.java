@@ -224,7 +224,7 @@ public class ProcurementCountServiceImpl extends BaseService<ProcurementCountMap
         //获取签约合同数据
         List<Map<String, Object>> exeList = readMapper.selectExecuteDataTrend(exeExample);
         //获取采购单数量数据
-        List<Map<String, Object>> planList = readMapper.selectPlanDataTrend(exeExample);
+        List<Map<String, Object>> planList = readMapper.selectPlanDataTrend(planExample);
         //整合数据
         Map<String, Map<String, Object>> planMap = planList.stream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
         Map<String, Map<String, Object>> exeMap = exeList.stream().collect(Collectors.toMap(vo -> vo.get("assignTime").toString(), vo -> vo));
