@@ -50,7 +50,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 (purch.getStatus() == Purch.StatusEnum.DONE.getCode()
                         || purch.getStatus() == Purch.StatusEnum.BEING.getCode())) {
 
-            List<InspectApply> list = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeDesc(purch.getId(), Boolean.TRUE);
+            List<InspectApply> list = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), Boolean.TRUE);
             if (list == null) {
                 list = new ArrayList<>();
             }
