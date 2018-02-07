@@ -150,8 +150,12 @@ public class InstockController {
              * 判断是否是人民币
              */
 
-            if(StringUtils.isNotBlank(purchGoods.getProject().getCurrencyBn()) &&purchGoods.getProject().getCurrencyBn() == "CNY"){
-                map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getTaxPrice().doubleValue()); // 人民币的时候，总价款=报检数量*含税单价
+            if(purchGoods.getProject().getCurrencyBn().equals("CNY")){
+                if(purchGoods.getTaxPrice() != null){
+                    map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getTaxPrice().doubleValue()); // 人民币的时候，总价款=报检数量*含税单价
+                }else{
+                    map.put("totalPrice", "无含税单价"); // 当没有含税单价的时候
+                }
             }else{
                 map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getNonTaxPrice().doubleValue());  // 非人民币的时候，总价款=报检数量*不含税单价
             }
