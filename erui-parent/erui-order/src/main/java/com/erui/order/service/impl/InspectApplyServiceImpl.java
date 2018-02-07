@@ -37,6 +37,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private AttachmentService attachmentService;
     @Autowired
     private InspectReportDao inspectReportDao;
+    @Autowired
+    private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -463,12 +465,42 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Override
     @Transactional
-    public void fullTmpMsg(Integer id, String tmpMsg) {
+    public void fullTmpMsg(InspectApply inspectApply) {
+        Integer id = inspectApply.getId();
+        // 保存整改意见
         InspectApply one = inspectApplyDao.findOne(id);
-        one.setTmpMsg(tmpMsg);
+        one.setTmpMsg(inspectApply.getMsg());
         inspectApplyDao.save(one);
+        // 删除原来的临时附件
+        inspectApplyTmpAttachDao.deleteByInspectApplyId(id);
+        // 保存附件
+        List<Attachment> attachmentList = inspectApply.getAttachmentList();
+        if (attachmentList != null && attachmentList.size() > 0) {
+            List<InspectApplyTmpAttach> list = attachmentList.stream().map(attachment -> {
+                InspectApplyTmpAttach tmpAttach = new InspectApplyTmpAttach();
+                tmpAttach.setInspectApplyId(id);
+                attachment.setId(null);
+                tmpAttach.setAttachment(attachment);
+                return tmpAttach;
+            }).collect(Collectors.toList());
+            inspectApplyTmpAttachDao.save(list);
+        }
     }
 
+    // 获取重新报检时，保存的临时附件
+    @Override
+    public List<Attachment> findTmpAttachmentByInspectApplyId(Integer inspectApplyId) {
+        List<Attachment> result = new ArrayList<>();
+        List<InspectApplyTmpAttach> tmpAttaches = inspectApplyTmpAttachDao.findByInspectApplyId(inspectApplyId);
+        if (tmpAttaches != null && tmpAttaches.size() > 0) {
+            for (InspectApplyTmpAttach vo : tmpAttaches) {
+                Attachment attachment = vo.getAttachment();
+                attachment.setId(null);
+                result.add(attachment);
+            }
+        }
+        return result;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -477,7 +509,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (parentInspectApply == null || parentInspectApply.getNum() < 2) {
             return null;
         }
-
         InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), parentInspectApply.getNum()));
         if (inspectApply == null || inspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
             return null;

@@ -1,5 +1,6 @@
 package com.erui.order.service;
 
+import com.erui.order.entity.Attachment;
 import com.erui.order.entity.InspectApply;
 import java.util.List;
 
@@ -57,12 +58,14 @@ public interface InspectApplyService {
      */
     InspectApply findDetail(Integer id);
 
+    //
+    List<Attachment> findTmpAttachmentByInspectApplyId(Integer inspectApplyId);
+
     /**
      * 完善临时整改意见
-     * @param id
-     * @param tmpMsg
+     * @param inspectApply 关键参数 {id:"",msg:"",attachmentList:[{}...]}
      */
-    void fullTmpMsg(Integer id, String tmpMsg);
+    void fullTmpMsg(InspectApply inspectApply);
 
     /**
      * 通过父质检单ID，查找子最后一次质检失败的报检单

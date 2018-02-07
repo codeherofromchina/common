@@ -48,7 +48,6 @@ public class InspectApplyController {
             return new Result<>(data);
         }
         return new Result<>(ResultStatusEnum.FAIL);
-
     }
 
 
@@ -78,11 +77,13 @@ public class InspectApplyController {
                 // 返回本身重新质检
                 inspectApply = inspectApplyService.findDetail(id);
             }
+            // 查看是否修改过整改意见
+            if (inspectApply.getTmpMsg() != null) {
+                inspectApply.setAttachmentList(inspectApplyService.findTmpAttachmentByInspectApplyId(inspectApply.getId()));
+            }
             return new Result<>(handleApply(inspectApply));
         }
-
         return new Result<>(ResultStatusEnum.FAIL).setMsg("质检结果未出");
-
     }
 
 
@@ -142,11 +143,9 @@ public class InspectApplyController {
             map.put("height", vo.getHeight());
             map.put("lwh", vo.getLwh());
             map.put("purchaseRemark", purchGoods.getPurchaseRemark());
-
             inspectApplyGoodsList.add(map);
         }
         data.put("inspectApplyGoodsList", inspectApplyGoodsList);
-
         return data;
     }
 
@@ -185,9 +184,10 @@ public class InspectApplyController {
         // 查询多次相同报检提交的报检单
         InspectApply masterInspectApply = inspectApplyService.findById(inspectApply.getId());
         if (masterInspectApply != null && masterInspectApply.isMaster()) {
-
             List<InspectApply> list = inspectApplyService.findByParentId(masterInspectApply.getId());
-            list.add(0,masterInspectApply); // 在最后添加主报检单
+            // 在历史报检单列表中，num为第几次报检，所以设置主报检单为第一次
+            masterInspectApply.setNum(1);
+            list.add(0, masterInspectApply); // 在最后添加主报检单
             // 处理为页面需要数据
             List<Map<String, Object>> data = list.parallelStream().map(vo -> {
                 return coverInspectApply2Map(vo);
@@ -221,7 +221,7 @@ public class InspectApplyController {
     /**
      * 完善报检单的整改意见
      *
-     * @param inspectApply
+     * @param inspectApply 主要参数 id、msg、attachmentList
      * @return
      */
     @RequestMapping(value = "fullMsg", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -237,7 +237,7 @@ public class InspectApplyController {
         if (StringUtils.isBlank(inspectApply.getMsg())) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("整改意见不可空");
         }
-        inspectApplyService.fullTmpMsg(id, inspectApply.getMsg());
+        inspectApplyService.fullTmpMsg(inspectApply);
 
 
         return new Result<>();

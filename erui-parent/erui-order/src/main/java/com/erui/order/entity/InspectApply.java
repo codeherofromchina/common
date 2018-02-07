@@ -30,7 +30,6 @@ public class InspectApply {
     @JsonIgnore
     private Purch purch;
 
-
     /**
      * 参数使用,不同情况可以使用为采购单ID，或父报检单ID
      */
