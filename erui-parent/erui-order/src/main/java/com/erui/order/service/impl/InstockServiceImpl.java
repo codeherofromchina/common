@@ -96,15 +96,16 @@ public class InstockServiceImpl implements InstockService {
                 }
 
                 // 销售合同号 、 项目号查询
-                Set<Instock> instockSet = findByProjectNoAndContractNo(condition.get("projectNo"), condition.get("contractNo"));
-                if(instockSet != null && instockSet.size() != 0){
-                  /*  if (instockSet != null && instockSet.size() > 0) {*/
-                        CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
-                        for (Instock p : instockSet) {
-                            idIn.value(p.getId());
-                        }
-                        list.add(idIn);
-                   /* }*/
+
+                if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
+                    Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
+                    if (StringUtils.isNotBlank(condition.get("projectNo"))) {
+                        list.add(cb.like(instockGoods.get("projectNo").as(String.class), "%" + condition.get("projectNo") + "%"));
+                    }
+
+                    if (StringUtils.isNotBlank(condition.get("contractNo"))) {
+                        list.add(cb.like(instockGoods.get("contractNo").as(String.class), "%" + condition.get("contractNo") + "%"));
+                    }
                 }
 
                 Predicate[] predicates = new Predicate[list.size()];
