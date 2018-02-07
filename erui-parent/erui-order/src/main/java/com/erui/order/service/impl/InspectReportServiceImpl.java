@@ -248,13 +248,16 @@ public class InspectReportServiceImpl implements InspectReportService {
                 throw new Exception("传入质检商品不正确");
             }
 
+            PurchGoods purchGoods = applyGoods.getPurchGoods();
+            Goods goods = purchGoods.getGoods();
+
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
             if (samples == null || samples <= 0) {
-                throw new Exception("抽样数错误");
+                throw new Exception("抽样数错误【SKU:"+goods.getSku()+"】");
             }
             if (unqualified == null || unqualified < 0 || unqualified > samples) {
-                throw new Exception("不合格数据错误");
+                throw new Exception("不合格数据错误【SKU:"+goods.getSku()+"】");
             }
             if (unqualified > 0) {
                 hegeFlag = false;
@@ -267,13 +270,11 @@ public class InspectReportServiceImpl implements InspectReportService {
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 if (qualifiedNum < 0) {
-                    throw new Exception("传入不合格数量参数不正确");
+                    throw new Exception("传入不合格数量参数不正确【SKU:"+goods.getSku()+"】");
                 }
-                PurchGoods purchGoods = applyGoods.getPurchGoods();
                 purchGoods.setGoodNum(purchGoods.getGoodNum() + qualifiedNum);
                 purchGoodsDao.save(purchGoods);
 
-                Goods goods = purchGoods.getGoods();
                 if (goods.getCheckUerId() == null) {
                     goods.setCheckUerId(dbInspectReport.getCheckUserId());
                 }
