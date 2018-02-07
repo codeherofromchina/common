@@ -265,16 +265,20 @@ public class DeliverDetailsController {
         String message =null;
         try {
             boolean flag = false;
-            if (deliverDetail.getBillingDate() == null) {
-                result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg("开单日期不能为空");
-                return result;
-            }else if (deliverDetail.getPackTotal() == null){
-                result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg("总包装件数不能为空");
-                return result;
-            }else{
+            if(deliverDetail.getStatus() == 5){
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
+            }else{
+                if (deliverDetail.getBillingDate() == null) {
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("开单日期不能为空");
+                    return result;
+                }else if (deliverDetail.getPackTotal() == null){
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("总包装件数不能为空");
+                    return result;
+                }else{
+                    flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
+                }
             }
             if (flag) {
                 return new Result<>();
