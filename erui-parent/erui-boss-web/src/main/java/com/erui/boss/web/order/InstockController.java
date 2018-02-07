@@ -164,7 +164,7 @@ public class InstockController {
             map.put("height", inspectApplyGoods.getHeight()); // 重量（kg）
             map.put("lwh", inspectApplyGoods.getLwh()); // 长*宽*高
             map.put("instockStock", instockGoods.getInstockStock()); // 货物存放地
-            map.put("remark", inspectApplyGoods.getRemarks()); // 备注
+            map.put("remark", instockGoods.getInspectApplyGoods().getPurchGoods().getPurchaseRemark()); // 备注
 
             goodsInfoList.add(map);
         }
