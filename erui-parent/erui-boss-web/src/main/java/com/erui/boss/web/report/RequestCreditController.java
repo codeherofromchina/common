@@ -373,16 +373,18 @@ public class RequestCreditController {
         List<InquiryAreaVO> list = this.requestCreditService.selectAllCompanyAndOrgList();
 
         if (StringUtils.isNotBlank(companyName)) {
-            if(!companyName.equals("全部")) {
+            if(!companyName.equals("全部")&&!companyName.equals("除易瑞全部")) {
                 List<InquiryAreaVO> ll = list.parallelStream().filter(vo -> vo.getAreaName().equals(companyName))
                         .collect(Collectors.toList());
                 if (ll.size() > 0) {
+                    ll.get(0).getCountries().add("除易瑞全部");
                     result.setData(ll.get(0).getCountries());
                 } else {
                     return result.setStatus(ResultStatusEnum.COMPANY_NOT_EXIST);
                 }
             }else {
                Set<String> countrys=new HashSet<>();
+               countrys.add("除易瑞全部");
                 for (InquiryAreaVO areaVo:list) {
                     Set<String> set = areaVo.getCountries();
                     for (String country: set ) {
@@ -393,6 +395,7 @@ public class RequestCreditController {
             }
         } else {
             List<String> companyList = list.parallelStream().map(InquiryAreaVO::getAreaName).collect(Collectors.toList());
+            companyList.add("除易瑞全部");
             result.setData(companyList);
         }
         return result;

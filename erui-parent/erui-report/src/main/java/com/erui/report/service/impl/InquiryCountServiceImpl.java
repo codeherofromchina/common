@@ -882,7 +882,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 }
                 if (quote_time != null) {
                     double quote = Double.parseDouble(quote_time.toString());//秒
-                    double hour = (quote / 60) / 60;
+                    double hour = quote / 3600;
                     inquiryCount.setQuoteNeedTime(new BigDecimal(hour));
                 }
                 if (quote_status != null) {
