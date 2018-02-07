@@ -468,7 +468,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         one.setTmpMsg(inspectApply.getMsg());
         inspectApplyDao.save(one);
         // 删除原来的临时附件
-        inspectApplyTmpAttachDao.deleteByInspectApplyId(id);
+        List<InspectApplyTmpAttach> byInspectApplyId = inspectApplyTmpAttachDao.findByInspectApplyId(id);
+        inspectApplyTmpAttachDao.delete(byInspectApplyId);
+//        inspectApplyTmpAttachDao.deleteByInspectApplyId(id);
         // 保存附件
         List<Attachment> attachmentList = inspectApply.getAttachmentList();
         if (attachmentList != null && attachmentList.size() > 0) {
@@ -476,6 +478,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 InspectApplyTmpAttach tmpAttach = new InspectApplyTmpAttach();
                 tmpAttach.setInspectApplyId(id);
                 attachment.setId(null);
+                attachment.setCreateTime(new Date());
                 tmpAttach.setAttachment(attachment);
                 return tmpAttach;
             }).collect(Collectors.toList());

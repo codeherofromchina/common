@@ -103,7 +103,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setOrderId(project.getOrder().getId());
         purchRequisitionAdd.setProject(project);
         purchRequisitionAdd.setDepartment(project.getSendDeptId());
-        purchRequisitionAdd.setPmUid(project.getManagerUid());
+        if (project.getManagerUid() != null) {
+            purchRequisitionAdd.setPmUid(project.getManagerUid());
+        } else {
+            purchRequisitionAdd.setPmUid(project.getBusinessUid());
+        }
         purchRequisitionAdd.setProjectNo(purchRequisition.getProjectNo());
         purchRequisitionAdd.setSubmitDate(purchRequisition.getSubmitDate());
         purchRequisitionAdd.setTradeMethod(purchRequisition.getTradeMethod());

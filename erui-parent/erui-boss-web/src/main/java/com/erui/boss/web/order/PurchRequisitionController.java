@@ -38,7 +38,6 @@ public class PurchRequisitionController {
         PurchRequisition purchRequisition = purchRequisitionService.findById(map.get("id"), map.get("orderId"));
         if (purchRequisition != null) {
             purchRequisition.setProject(null);
-            //purchRequisition.getGoodsList().iterator().next().setOrder(null);
             return new Result<>(purchRequisition);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -54,7 +53,7 @@ public class PurchRequisitionController {
         Project project = projectService.findDesc(proMap.get("proId"));
         if (project != null) {
             Map<String, Object> map = new HashMap<>();
-            map.put("pmUid", project.getManagerUid());
+            map.put("pmUid", project.getManagerUid() != null ? project.getManagerUid() : project.getBusinessUid());
             map.put("contractNo", project.getContractNo());
             map.put("sendDeptId", project.getSendDeptId());
             map.put("transModeBn", project.getOrder().getTradeTerms());
@@ -88,7 +87,7 @@ public class PurchRequisitionController {
             result.setMsg("交货地点不能为空");
         } else {
             try {
-                boolean flag = false;
+                boolean flag;
                 if (purchRequisition.getId() != null) {
                     flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
                 } else {
