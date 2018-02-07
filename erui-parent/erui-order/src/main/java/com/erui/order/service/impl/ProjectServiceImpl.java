@@ -79,6 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
                 projectUpdate.setQualityName(null);
                 projectUpdate.setQualityUid(null);
                 projectUpdate.setLogisticsUid(null);
+                projectUpdate.setLogisticsName(null);
                 projectUpdate.setWarehouseName(null);
                 projectUpdate.setWarehouseUid(null);
             }
@@ -92,6 +93,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectUpdate.setQualityName(project.getQualityName());
             projectUpdate.setQualityUid(project.getQualityUid());
             projectUpdate.setLogisticsUid(project.getLogisticsUid());
+            projectUpdate.setLogisticsName(project.getLogisticsName());
             projectUpdate.setWarehouseName(project.getWarehouseName());
             projectUpdate.setWarehouseUid(project.getWarehouseUid());
             // 修改备注和执行单变更日期

@@ -240,7 +240,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Transactional
     public void endGatheringRecord(Integer id) throws Exception {
 
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderId(id);
+        /**
+         * 查看当前订单是否有收款记录
+         */
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id,1);
         if(byOrderId.size() == 0){
             throw new Exception("无收款记录");
         }
