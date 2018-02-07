@@ -86,7 +86,7 @@ public class DeliverDetailwController {
                 tradeTermsList.add(order.getTradeTerms());
                 fromPlaceList.add(order.getFromPlace());
                 fromPortList.add(order.getFromPort());
-                toCountryList.add(order.getCountry());
+                toCountryList.add(order.getToCountry());
                 toPortList.add(order.getToPort());
                 toPlaceList.add(order.getToPlace());
 
@@ -200,7 +200,7 @@ public class DeliverDetailwController {
                     tradeTermsList.add(order.getTradeTerms());
                     fromPlaceList.add(order.getFromPlace());
                     fromPortList.add(order.getFromPort());
-                    toCountryList.add(order.getCountry());
+                    toCountryList.add(order.getToCountry());
                     toPortList.add(order.getToPort());
                     toPlaceList.add(order.getToPlace());
 
