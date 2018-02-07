@@ -725,11 +725,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 // 销售合同号 、 项目号查询
                 String contractNo = condition.get("contractNo");
                 String projectNo = condition.get("projectNo");
-                List<DeliverDetail> deliverDetails = findDeliverDetailIdsByContractNoAndProjectNo(contractNo, projectNo);
-                CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
-                if (deliverDetails != null && deliverDetails.size() > 0) {
-                    for (DeliverDetail detail : deliverDetails) {
-                        idIn.value(detail.getId());
+                if (StringUtils.isNotBlank(contractNo) || StringUtils.isNotBlank(projectNo)) {
+                    List<DeliverDetail> deliverDetails = findDeliverDetailIdsByContractNoAndProjectNo(contractNo, projectNo);
+                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                    if (deliverDetails != null && deliverDetails.size() > 0) {
+                        for (DeliverDetail detail : deliverDetails) {
+                            idIn.value(detail.getId());
+                        }
+                    } else {
+                        // 一个出库质检也查询不到
+                        idIn.value(-1);
                     }
                     list.add(idIn);
                 }
@@ -803,7 +808,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     if (StringUtils.isNotBlank(contractNos)) {
                         String[] split = contractNos.split(",");
                         for (String contractNo : split) {
-                            list.add(cb.equal(goods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                            list.add(cb.like(goods.get("contractNo").as(String.class), "%" + contractNo + "%"));
                         }
                     }
 
@@ -811,7 +816,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     if (StringUtils.isNotBlank(projectNos)) {
                         String[] split = projectNos.split(",");
                         for (String projectNo : split) {
-                            list.add(cb.equal(goods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                            list.add(cb.like(goods.get("projectNo").as(String.class), "%" + projectNo + "%"));
                         }
                     }
 
