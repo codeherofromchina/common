@@ -143,8 +143,18 @@ public class InstockController {
             map.put("unit", goods.getUnit()); // 单位
             map.put("nonTaxPrice", purchGoods.getNonTaxPrice()); // 不含税单价
             map.put("taxPrice", purchGoods.getTaxPrice()); // 含税单价
-//            map.put("totalPrice", purchGoods.getTotalPrice()); // 总价款
-            map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getNonTaxPrice().doubleValue()); // 总价款 // bug:2058
+
+            /**
+             * 总价格
+             *
+             * 判断是否是人民币
+             */
+
+            if(StringUtils.isNotBlank(purchGoods.getProject().getCurrencyBn()) &&purchGoods.getProject().getCurrencyBn() == "CNY"){
+                map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getTaxPrice().doubleValue()); // 人民币的时候，总价款=报检数量*含税单价
+            }else{
+                map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getNonTaxPrice().doubleValue());  // 非人民币的时候，总价款=报检数量*不含税单价
+            }
             map.put("model", goods.getModel()); // 规格型号
             map.put("brand", goods.getBrand()); // 品牌
             map.put("height", inspectApplyGoods.getHeight()); // 重量（kg）
