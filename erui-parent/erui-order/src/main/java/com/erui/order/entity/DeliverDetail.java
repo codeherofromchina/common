@@ -212,14 +212,13 @@ public class DeliverDetail {
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    /*@JsonIgnore*/
     private List<Attachment> attachmentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
-    /*@JsonIgnore*/
+    @JsonIgnore
     private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
 
 

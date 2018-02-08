@@ -193,6 +193,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         if (page.hasContent()) {
             for (DeliverDetail notice : page.getContent()) {
+                // 列表报错后添加
+                notice.setAttachmentList(null);
+                notice.setDeliverConsignGoodsList(null);
+
                 List<String> contractNos = new ArrayList<String>();    //销售合同号
                 List<String> projectNos = new ArrayList<String>();     //项目号
                 DeliverNotice deliverNotice = notice.getDeliverNotice();
