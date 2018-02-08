@@ -167,42 +167,10 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         }
 
         deliverNotice.setDeliverConsigns(list);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-        String format = simpleDateFormat.format(new Date());
+        //看货通知单
+        String deliverDetailNo1 = createDeliverNoticeNo();
+        deliverNotice.setDeliverNoticeNo(deliverDetailNo1);
 
-            //查询当天看货通知单
-            List<DeliverNotice> lsit = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
-                @Override
-                public Predicate toPredicate(Root<DeliverNotice> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    List<Predicate> list = new ArrayList<>();
-                    // 根据日期查询  当天看货通知单
-                    if (StringUtil.isNotBlank(format)) {
-                        list.add(cb.like(root.get("deliverNoticeNo").as(String.class),  format + "%"));
-                    }
-                    Predicate[] predicates = new Predicate[list.size()];
-                    predicates = list.toArray(predicates);
-                    return cb.and(predicates);
-                }
-            });
-
-            //看货通知单
-            String[] str = new String[lsit.size()];
-            for (int i =0 ;i<lsit.size() ;i++){
-                str[i]= lsit.get(i).getDeliverNoticeNo();
-            }
-
-            if(str.length !=0){
-                //最大值
-                 Integer max = Integer.parseInt(str[0].replaceFirst("^0*", "").substring(8)); //0为第一个数组下标
-                for (int i = 0; i < str.length; i++) {   //开始循环一维数组
-                    if (max < Integer.parseInt(str[i].replaceFirst("^0*", "").substring(8))) {  //循环判断数组元素
-                        max = Integer.parseInt(str[i].replaceFirst("^0*", "").substring(8)); }  //赋值给num，然后再次循环
-                }
-
-                deliverNotice.setDeliverNoticeNo(format+String.format("%04d",(max+1)));
-            }else{
-                deliverNotice.setDeliverNoticeNo(format+String.format("%04d",1));
-             }
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
         deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
@@ -212,40 +180,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         if (deliverNotice.getStatus() == 2){
             DeliverDetail deliverDetail = new DeliverDetail();
             deliverDetail.setDeliverNotice(deliverNotice);
-            SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-            String formats = simpleDateFormats.format(new Date());
-            //查询当天产品放行单
-            List<DeliverDetail> lits = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
-                @Override
-                public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    List<Predicate> lista = new ArrayList<>();
-                    // 根据日期查询  当天产品放行单
-                    if (StringUtil.isNotBlank(formats)) {
-                        lista.add(cb.like(root.get("deliverDetailNo").as(String.class),  formats + "%"));
-                    }
-                    Predicate[] predicates = new Predicate[lista.size()];
-                    predicates = lista.toArray(predicates);
-                    return cb.and(predicates);
-                }
-            });
-
-            //产品放行单
-            String[] strs = new String[lits.size()];
-            for (int i =0 ;i<lits.size() ;i++){
-                strs[i]= lits.get(i).getDeliverDetailNo();
-            }
-
-            if(strs.length !=0){
-                //最大值
-                Integer maxs = Integer.parseInt(strs[0].replaceFirst("^0*", "").substring(4)); //0为第一个数组下标
-                for (int i = 0; i < strs.length; i++) {   //开始循环一维数组
-                    if (maxs < Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4))) {  //循环判断数组元素
-                        maxs = Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4)); }  //赋值给num，然后再次循环
-                }
-                deliverDetail.setDeliverDetailNo(formats+String.format("%04d",(maxs+1)));   //产品放行单
-            }else{
-                deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
-            }
+            String deliverDetailNo = deliverDetailNo1;
+            deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
 
             //推送仓库经办人   物流经办人
             DeliverConsign deliverConsigns1 =  deliverConsignDao.findOne(Integer.parseInt(split[0]));
@@ -369,40 +305,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 if (deliverNotice.getStatus() == 2){
                     DeliverDetail deliverDetail = new DeliverDetail();
                     deliverDetail.setDeliverNotice(deliverNotice);
-                    SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-                    String formats = simpleDateFormats.format(new Date());
-                    //查询当天产品放行单
-                    List<DeliverDetail> lits = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
-                        @Override
-                        public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                            List<Predicate> lista = new ArrayList<>();
-                            // 根据日期查询  当天产品放行单
-                            if (StringUtil.isNotBlank(formats)) {
-                                lista.add(cb.like(root.get("deliverDetailNo").as(String.class),  formats + "%"));
-                            }
-                            Predicate[] predicates = new Predicate[lista.size()];
-                            predicates = lista.toArray(predicates);
-                            return cb.and(predicates);
-                        }
-                    });
-
-                    //产品放行单
-                    String[] strs = new String[lits.size()];
-                    for (int i =0 ;i<lits.size() ;i++){
-                        strs[i]= lits.get(i).getDeliverDetailNo();
-                    }
-
-                    if(strs.length !=0){
-                        //最大值
-                        Integer maxs = Integer.parseInt(strs[0].replaceFirst("^0*", "").substring(4)); //0为第一个数组下标
-                        for (int i = 0; i < strs.length; i++) {   //开始循环一维数组
-                            if (maxs < Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4))) {  //循环判断数组元素
-                                maxs = Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4)); }  //赋值给num，然后再次循环
-                        }
-                        deliverDetail.setDeliverDetailNo(formats+String.format("%04d",(maxs+1)));   //产品放行单
-                    }else{
-                        deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
-                    }
+                    String deliverDetailNo = createDeliverDetailNo();
+                    deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
                     //推送仓库经办人   物流经办人
                     DeliverConsign deliverConsigns1 =  deliverConsignDao.findOne(Integer.parseInt(split[0]));
                         Project project = deliverConsigns1.getOrder().getProject();
@@ -481,6 +385,49 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         deliverNotice.getAttachmentSet().size();
         return deliverNotice;
     }
+
+
+    /**
+     * \//生成产品放行单
+     * @return
+     */
+
+    public String createDeliverDetailNo(){
+        SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
+
+        //查询最近插入的产品放行单
+       String deliverDetailNo= deliverDetailDao.findDeliverDetailNo();
+        String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
+        String formats = simpleDateFormats.format(new Date());  //当前年份
+        if(substring.equals(formats)){   //判断年份
+            String substring1 = deliverDetailNo.substring(4);
+            return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+        }else{
+            return formats+String.format("%04d",1);     //第一个
+        }
+    }
+
+    /**
+     * //生成看货通知单
+     * @return
+     */
+
+    public String createDeliverNoticeNo(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+
+        //查询最近插入的看货通知单
+        String  DeliverNoticeNo  = deliverNoticeDao.findDeliverNoticeNo();
+        String substring = DeliverNoticeNo.substring(0, 8); //获取到产品放行单的年份
+        String format = simpleDateFormat.format(new Date());    //当前年月日
+
+        if(substring.equals(format)){   //判断年份
+            String substring1 = DeliverNoticeNo.substring(8);
+            return format + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+        }else{
+            return format+String.format("%04d",1); //第一个
+        }
+    }
+
 
 
 }
