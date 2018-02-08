@@ -287,6 +287,8 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("目的地不能为空");
                 }
                 break;
+            case "FOB":
+                break;
             default:
                 throw new Exception("不存在的贸易术语");
         }

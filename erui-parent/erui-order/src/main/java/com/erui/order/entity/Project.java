@@ -24,9 +24,7 @@ public class Project {
     private Order order;
     @Transient
     private Integer oId;
-
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
-    @JsonIgnore
     private PurchRequisition purchRequisition;
 
     @Column(name = "contract_no")
@@ -126,7 +124,7 @@ public class Project {
     private String country;
     private String remarks;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<Goods> goodsList = new ArrayList<>();
 
