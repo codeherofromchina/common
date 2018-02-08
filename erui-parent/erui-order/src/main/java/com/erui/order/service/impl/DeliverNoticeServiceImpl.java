@@ -168,8 +168,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         deliverNotice.setDeliverConsigns(list);
         //看货通知单
-        String deliverDetailNo1 = createDeliverNoticeNo();
-        deliverNotice.setDeliverNoticeNo(deliverDetailNo1);
+        String deliverNoticeNo = createDeliverNoticeNo();
+        deliverNotice.setDeliverNoticeNo(deliverNoticeNo);
 
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
@@ -180,7 +180,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         if (deliverNotice.getStatus() == 2){
             DeliverDetail deliverDetail = new DeliverDetail();
             deliverDetail.setDeliverNotice(deliverNotice);
-            String deliverDetailNo = deliverDetailNo1;
+            String deliverDetailNo = createDeliverDetailNo();
             deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
 
             //推送仓库经办人   物流经办人
