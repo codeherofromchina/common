@@ -12,4 +12,12 @@ public interface AreaService {
      * @return
      */
     Area findById(Integer id);
+
+
+    /**
+     * 根据bn查询地区信息
+     * @param bn
+     * @return
+     */
+    public Area findByBn(String bn) ;
 }
