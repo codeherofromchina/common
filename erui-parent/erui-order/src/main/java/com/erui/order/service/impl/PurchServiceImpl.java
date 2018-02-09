@@ -557,7 +557,7 @@ public class PurchServiceImpl implements PurchService {
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
-                    throw new Exception("商品数量超过合同数量【sku :" + goods.getSku() + "】");
+                    throw new Exception("采购数量超过合同数量【sku :" + goods.getSku() + "】");
                 }
                 if (purchaseNum > 0 &&
                         (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
@@ -620,7 +620,7 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于合同数量，则错误
         if (goods.getPrePurchsedNum() + purchaseNum > goods.getContractGoodsNum()) {
-            throw new Exception("商品数量超过合同数量【sku :" + goods.getSku() + "】");
+            throw new Exception("采购数量超过合同数量【sku :" + goods.getSku() + "】");
         }
         if (purchaseNum > 0 &&
                 (newPurchGoods.getPurchasePrice() == null || newPurchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
