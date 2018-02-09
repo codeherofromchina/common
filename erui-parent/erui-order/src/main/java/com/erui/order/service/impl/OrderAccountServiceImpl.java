@@ -152,12 +152,20 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addGatheringRecord(OrderAccount orderAccount) {
+    public void addGatheringRecord(OrderAccount orderAccount) throws Exception {
       /*orderAccount.setPaymentDate(new Date());*/   //测试放开
         orderAccount.setCreateTime(new Date());
-        OrderAccount orderAccount1 =orderAccountDao.save(orderAccount);
+        OrderAccount orderAccount1;
+        try {
+            orderAccount1 =orderAccountDao.save(orderAccount);
+        }catch (Exception e){
+            throw new Exception("订单收款记录添加失败");
+        }
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
+        if( order== null){
+            throw new Exception("无订单id："+orderAccount.getOrder().getId()+"  关联关系");
+        }
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
 
@@ -175,6 +183,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             logger.error("日志记录失败 {}", orderLog.toString());
             logger.error("错误", ex);
             ex.printStackTrace();
+            throw new Exception("订单收款记录日志添加失败");
         }
 
     }
