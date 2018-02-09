@@ -111,7 +111,7 @@ public class ProjectServiceImpl implements ProjectService {
             order.getGoodsList().forEach(gd -> {
                         gd.setStartDate(projectUpdate.getStartDate());
                         gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                        gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                        gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
                         gd.setExeChgDate(projectUpdate.getExeChgDate());
                     }
             );

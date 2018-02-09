@@ -508,7 +508,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (parentInspectApply == null || parentInspectApply.getNum() < 2) {
             return null;
         }
-        InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), parentInspectApply.getNum()));
+        InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
         if (inspectApply == null || inspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
             return null;
         }

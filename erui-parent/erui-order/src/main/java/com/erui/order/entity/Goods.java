@@ -83,7 +83,7 @@ public class Goods {
     private String clientDesc;
 
     /**
-     * 要求采购到货日期
+     * 采购需用日期--采购申请中
      */
     @Column(name = "require_purchase_date")
     private Date requirePurchaseDate;
@@ -132,7 +132,9 @@ public class Goods {
     @Column(name = "exe_chg_date")
     private Date exeChgDate;
 
-
+    // 执行单变更后日期 - 项目中的日期
+    @Column(name = "project_require_purchase_date")
+    private Date projectRequirePurchaseDate;
 
     //合同变更后到货日期
     @Column(name = "pur_chg_date")
@@ -211,6 +213,14 @@ public class Goods {
 
     public void setExeChgDate(Date exeChgDate) {
         this.exeChgDate = exeChgDate;
+    }
+
+    public Date getProjectRequirePurchaseDate() {
+        return projectRequirePurchaseDate;
+    }
+
+    public void setProjectRequirePurchaseDate(Date projectRequirePurchaseDate) {
+        this.projectRequirePurchaseDate = projectRequirePurchaseDate;
     }
 
     public Date getPurChgDate() {

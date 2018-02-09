@@ -29,7 +29,12 @@ public class OrderLog {
     @Column(name="log_type")
     private Integer logType;
 
+    // 操作说明
     private String operation;
+
+    // 业务日期
+    @Column(name = "business_date")
+    private Date businessDate;
 
     @Column(name="create_id")
     private Integer createId;
@@ -76,6 +81,15 @@ public class OrderLog {
 
     public void setOperation(String operation) {
         this.operation = operation;
+    }
+
+
+    public Date getBusinessDate() {
+        return businessDate;
+    }
+
+    public void setBusinessDate(Date businessDate) {
+        this.businessDate = businessDate;
     }
 
     public Integer getCreateId() {
