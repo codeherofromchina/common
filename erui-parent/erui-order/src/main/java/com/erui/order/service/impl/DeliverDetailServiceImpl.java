@@ -547,10 +547,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
 
-            if (deliverDetail.getLogisticsUserId() != null) {
-                one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
+            List<DeliverConsignGoods> deliverConsignGoodsList = one.getDeliverConsignGoodsList();
+            Integer id = deliverConsignGoodsList.get(0).getGoods().getOrder().getId();  //获取到订单id
+
+            //订单动态跟踪  发货号 经办日期
                 try {
-                    OrderLog orderLog = orderLogDao.findByOperation(one.getDeliverDetailNo());
+                    OrderLog orderLog = orderLogDao.findByOperationAndOrderId(one.getDeliverDetailNo(),id);
                     orderLog.setBusinessDate(deliverDetail.getLogisticsDate());
                     orderLogDao.save(orderLog);
                 } catch (Exception ex) {
@@ -558,7 +560,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     logger.error("错误", ex);
                     ex.printStackTrace();
                 }
-            }
 
         }
         //物流发票号
