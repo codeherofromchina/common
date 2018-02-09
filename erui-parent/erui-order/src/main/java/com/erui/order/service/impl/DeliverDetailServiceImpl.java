@@ -451,7 +451,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
                 //  订单执行跟踪   推送运单号
-                OrderLog orderLog1 = new OrderLog();
+              /*  OrderLog orderLog1 = new OrderLog();
                 try {
                     orderLog1.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
                     orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
@@ -462,7 +462,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     logger.error("日志记录失败 {}", orderLog1.toString());
                     logger.error("错误", ex);
                     ex.printStackTrace();
-                }
+                }*/
 
             }
 
@@ -549,14 +549,17 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             List<DeliverConsignGoods> deliverConsignGoodsList = one.getDeliverConsignGoodsList();
             Integer id = deliverConsignGoodsList.get(0).getGoods().getOrder().getId();  //获取到订单id
-
-            //订单动态跟踪  发货号 经办日期
+                //  订单执行跟踪   推送运单号      经办日期
+                OrderLog orderLog1 = new OrderLog();
                 try {
-                    OrderLog orderLog = orderLogDao.findByOperationAndOrderId(one.getDeliverDetailNo(),id);
-                    orderLog.setBusinessDate(deliverDetail.getLogisticsDate());
-                    orderLogDao.save(orderLog);
+                    orderLog1.setOrder(orderDao.findOne(id));
+                    orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
+                    orderLog1.setOperation(one.getDeliverDetailNo());
+                    orderLog1.setCreateTime(new Date());
+                    orderLog1.setBusinessDate(deliverDetail.getLogisticsDate());
+                    orderLogDao.save(orderLog1);
                 } catch (Exception ex) {
-                    logger.error("日志记录失败 {}", deliverDetail.getLogisticsDate());
+                    logger.error("日志记录失败 {}", orderLog1.toString());
                     logger.error("错误", ex);
                     ex.printStackTrace();
                 }

@@ -338,10 +338,8 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
-        if (order1 != null) {
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null,addOrderVo.getSigningDate());
-        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null,addOrderVo.getSigningDate());
             // 订单提交时推送项目信息
             Project project = new Project();
             //project.setProjectNo(UUID.randomUUID().toString());
