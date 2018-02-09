@@ -11,4 +11,6 @@ import java.io.Serializable;
  */
 public interface AreaDao extends JpaRepository<Area, Serializable> {
     Area findByName(String name);
+
+    Area findById(Integer id);
 }
