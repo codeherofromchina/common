@@ -339,7 +339,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
         if (order1 != null) {
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null);
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null,addOrderVo.getSigningDate());
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 订单提交时推送项目信息
@@ -377,13 +377,13 @@ public class OrderServiceImpl implements OrderService {
      * @param goodsId 可空，商品ID
      */
     @Transactional
-    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId) {
+    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId,Date signingDate) {
         OrderLog orderLog = new OrderLog();
         try {
             orderLog.setOrder(orderDao.findOne(orderId));
             orderLog.setLogType(logType.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
-            orderLog.setCreateTime(new Date());
+            orderLog.setCreateTime(signingDate);
             orderLog.setOrdersGoodsId(goodsId);
             orderLogDao.save(orderLog);
         } catch (Exception ex) {

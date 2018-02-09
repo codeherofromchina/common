@@ -107,36 +107,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
 
         /**
-         *  更正应收账款余额
-         */
-        /*//TODO
-        Order order = orderDao.findOne(id1);  //查询订单信息
-        List<OrderAccount> byOrderId2 = orderAccountDao.findByOrderIdAndDelYn(id,1);  //查询订单收款记录
-        BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
-        BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
-        BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
-        int size = byOrderId2.size();   //收款记录条数
-        for (int i = 0; i < size; i++) {
-            if (byOrderId2.get(i).getGoodsPrice() != null) {
-                sumGoodsPrice = sumGoodsPrice.add(byOrderId2.get(i).getGoodsPrice());    //发货金额
-            }
-            if (byOrderId2.get(i).getMoney() != null) {
-                sumMoney = sumMoney.add(byOrderId2.get(i).getMoney());       //回款金额
-            }
-            if (byOrderId2.get(i).getDiscount() != null) {
-                sumDiscount = sumDiscount.add(byOrderId2.get(i).getDiscount());      //其他扣款金额
-            }
-        }
-        BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);    // 应收账款余额=发货金额-回款金额-其他扣款金额
-        if(subtract.compareTo(BigDecimal.ZERO) == 1){
-            order.setReceivableAccountRemaining(subtract);    //应收账款余额
-        }else{
-            order.setReceivableAccountRemaining(BigDecimal.ZERO);
-        }
-        orderDao.saveAndFlush(order);
-*/
-
-        /**
          * //日志记录表
          */
         OrderLog byOrderAccountId = orderLogDao.findByOrderAccountId(id);
@@ -175,7 +145,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+order.getCurrencyBn());
-            orderLog.setCreateTime(new Date());
+            orderLog.setCreateTime(orderAccount.getPaymentDate());  //获取回款时间
             orderLog.setOrdersGoodsId(null);
             orderLog.setOrderAccountId(orderAccount1.getId());
             orderLogDao.save(orderLog);

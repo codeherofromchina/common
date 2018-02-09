@@ -440,7 +440,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     orderLog.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
                     orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
                     orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
-                    orderLog.setCreateTime(new Date());
+                    orderLog.setCreateTime(one.getReleaseDate());
                     orderLog.setOrdersGoodsId(null);
                     orderLogDao.save(orderLog);
                 } catch (Exception ex) {
