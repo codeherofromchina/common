@@ -448,7 +448,24 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     logger.error("错误", ex);
                     ex.printStackTrace();
                 }
+
+                //  订单执行跟踪   推送运单号
+                OrderLog orderLog1 = new OrderLog();
+                try {
+                    orderLog1.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
+                    orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
+                    orderLog1.setOperation(one.getDeliverDetailNo());
+                    orderLog1.setCreateTime(new Date());
+                    orderLogDao.save(orderLog1);
+                } catch (Exception ex) {
+                    logger.error("日志记录失败 {}", orderLog1.toString());
+                    logger.error("错误", ex);
+                    ex.printStackTrace();
+                }
+
             }
+
+
         }
 
         // 只接受仓储物流部的附件

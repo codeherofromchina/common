@@ -210,23 +210,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
             DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
 
-            //  订单执行跟踪   推送运单号
-            OrderLog orderLog = new OrderLog();
-            List<DeliverConsign> deliverConsigns = deliverNotice1.getDeliverConsigns();
-            for (DeliverConsign deliverConsign1 : deliverConsigns){
-                try {
-                    orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
-                    orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
-                    orderLog.setOperation(deliverDetail.getDeliverDetailNo());
-                    orderLog.setCreateTime(new Date());
-                    orderLogDao.save(orderLog);
-                } catch (Exception ex) {
-                    logger.error("日志记录失败 {}", orderLog.toString());
-                    logger.error("错误", ex);
-                    ex.printStackTrace();
-                }
-            }
-
         }
         return true;
     }
@@ -333,9 +316,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
-
-
-                    //  订单执行跟踪   推送运单号
+                 /*   //  订单执行跟踪   推送运单号
                     OrderLog orderLog = new OrderLog();
                     List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
                     for (DeliverConsign deliverConsign1 : deliverConsigns){
@@ -351,8 +332,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                             ex.printStackTrace();
                         }
                     }
-
-
+*/
                 }
 
                 return true;
