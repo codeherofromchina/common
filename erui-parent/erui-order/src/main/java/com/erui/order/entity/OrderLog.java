@@ -12,7 +12,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "order_log")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,18 +36,23 @@ public class OrderLog {
     private Date businessDate;
 
     @Column(name="create_id")
+    @JsonIgnore
     private Integer createId;
 
     @Column(name="orders_goods_id")
+    @JsonIgnore
     private Integer ordersGoodsId;
 
     @Column(name="create_name")
+    @JsonIgnore
     private String createName;
 
     @Column(name="create_time")
+    @JsonIgnore
     private Date createTime;
 
     @Column(name="order_account_id")
+    @JsonIgnore
     private Integer orderAccountId;
 
     public Integer getId() {
