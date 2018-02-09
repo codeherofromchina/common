@@ -348,7 +348,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         inspectApplyDao.save(parentInspectApply);
 
         //新插入报检单，并设置上级报检单
-        newInspectApply.setInspectApplyNo(parentInspectApply.getInspectApplyNo() + "-" + parentInspectApply.getNum());
+        newInspectApply.setInspectApplyNo(parentInspectApply.getInspectApplyNo() + "-" + (parentInspectApply.getNum() - 1));
         newInspectApply.setPurch(parentInspectApply.getPurch());
         newInspectApply.setPurchNo(parentInspectApply.getPurchNo());
         newInspectApply.setMaster(false);

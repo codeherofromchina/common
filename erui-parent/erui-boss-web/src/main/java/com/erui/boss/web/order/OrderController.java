@@ -120,6 +120,8 @@ public class OrderController {
                 result.setMsg("收款方式不能为空");
             } else if (addOrderVo.getAcquireId() == null) {
                 result.setMsg("获取人不能为空");
+            } else if (StringUtils.isBlank(addOrderVo.getCurrencyBn())) {
+                result.setMsg("货币类型不能为空");
             } else {
                 continueFlag = true;
             }

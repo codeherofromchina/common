@@ -555,6 +555,15 @@ public class PurchServiceImpl implements PurchService {
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                 }
+                // 判断采购是否超限,预采购数量大于合同数量，则错误
+                if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
+                    throw new Exception("商品数量超过合同数量【sku :" + goods.getSku() + "】");
+                }
+                if (purchaseNum > 0 &&
+                        (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
+                    throw new Exception("要采购的商品单价错误【sku :" + goods.getSku() + "】");
+                }
+
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);
             } else {
