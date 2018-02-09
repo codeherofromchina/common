@@ -94,7 +94,7 @@ public class DeliverDetailwController {
                 for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                     Goods goods = deliverConsignGoods.getGoods();
                     if(deliverConsignGoods.getSendNum() != 0){        //物流跟踪 商品信息 数量不能为0
-                        goods.setRemarks(deliverConsign.getRemarks());     //备注
+                        goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注
                         goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
                         goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
                         goodsList.add(goods);
@@ -208,7 +208,7 @@ public class DeliverDetailwController {
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
                         Goods goods = deliverConsignGoods.getGoods();
                         if(deliverConsignGoods.getSendNum() != 0){        //物流跟踪 商品信息 数量不能为0
-                            goods.setRemarks(deliverConsign.getRemarks());     //备注
+                            goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注
                             goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
                             goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
                             goodsList.add(goods);
