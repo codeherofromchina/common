@@ -383,7 +383,8 @@ public class OrderServiceImpl implements OrderService {
             orderLog.setOrder(orderDao.findOne(orderId));
             orderLog.setLogType(logType.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
-            orderLog.setCreateTime(signingDate);
+            orderLog.setCreateTime(new Date());
+            orderLog.setBusinessDate(signingDate);  //订单签约日期
             orderLog.setOrdersGoodsId(goodsId);
             orderLogDao.save(orderLog);
         } catch (Exception ex) {

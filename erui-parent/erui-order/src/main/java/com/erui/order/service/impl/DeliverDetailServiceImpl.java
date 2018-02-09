@@ -440,7 +440,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     orderLog.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
                     orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
                     orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
-                    orderLog.setCreateTime(one.getReleaseDate());
+                    orderLog.setCreateTime(new Date());
+                    orderLog.setBusinessDate(one.getReleaseDate()); //放行日期
                     orderLog.setOrdersGoodsId(null);
                     orderLogDao.save(orderLog);
                 } catch (Exception ex) {
@@ -545,6 +546,20 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //经办日期
         if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
+
+            if (deliverDetail.getLogisticsUserId() != null) {
+                one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
+                try {
+                    OrderLog orderLog = orderLogDao.findByOperation(one.getDeliverDetailNo());
+                    orderLog.setBusinessDate(deliverDetail.getLogisticsDate());
+                    orderLogDao.save(orderLog);
+                } catch (Exception ex) {
+                    logger.error("日志记录失败 {}", deliverDetail.getLogisticsDate());
+                    logger.error("错误", ex);
+                    ex.printStackTrace();
+                }
+            }
+
         }
         //物流发票号
         if (StringUtil.isNotBlank(deliverDetail.getLogiInvoiceNo())) {

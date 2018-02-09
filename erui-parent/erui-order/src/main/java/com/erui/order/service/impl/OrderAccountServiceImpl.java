@@ -145,7 +145,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+order.getCurrencyBn());
-            orderLog.setCreateTime(orderAccount.getPaymentDate());  //获取回款时间
+            orderLog.setCreateTime(new Date());
+            orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
             orderLog.setOrderAccountId(orderAccount1.getId());
             orderLogDao.save(orderLog);
