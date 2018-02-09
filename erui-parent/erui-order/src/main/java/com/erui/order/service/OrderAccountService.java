@@ -39,7 +39,7 @@ public interface OrderAccountService {
      * @param orderAccount  收款信息
      * @return
      */
-    void addGatheringRecord(OrderAccount orderAccount);
+    void addGatheringRecord(OrderAccount orderAccount) throws  Exception;
 
 
     /**

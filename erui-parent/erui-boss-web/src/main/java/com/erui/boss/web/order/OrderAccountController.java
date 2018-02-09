@@ -107,7 +107,7 @@ public class OrderAccountController {
             }catch (Exception e){
                 logger.error("收款记录添加失败：{}", orderAccount, e);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg("收款记录添加失败");
+                result.setMsg(e.getMessage());
             }
         }
         return result;
