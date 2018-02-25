@@ -276,6 +276,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
         });
 
+
+        if (page != null && page.size() > 1) {
+            // 反序排列
+            Collections.reverse(page);
+        }
+
         return page;
 
     }
