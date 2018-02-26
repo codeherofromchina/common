@@ -201,7 +201,10 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setUid(instock.getUid());
         dbInstock.setUname(instock.getUname());
         dbInstock.setDepartment(instock.getDepartment());
-        dbInstock.setInstockDate(NewDateUtil.getDate(instock.getInstockDate()));
+        //当入库提交的时候才保存  入库日期
+        if(instock.getStatus() == 3){
+            dbInstock.setInstockDate(NewDateUtil.getDate(instock.getInstockDate()));
+        }
         dbInstock.setRemarks(instock.getRemarks());
         dbInstock.setCurrentUserId(instock.getCurrentUserId());
         dbInstock.setCurrentUserName(instock.getCurrentUserName());
