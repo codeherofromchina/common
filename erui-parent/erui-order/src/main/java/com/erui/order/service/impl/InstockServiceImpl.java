@@ -9,6 +9,7 @@ import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InstockService;
+import javassist.expr.NewArray;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,16 +97,10 @@ public class InstockServiceImpl implements InstockService {
                 }
 
                 // 销售合同号 、 项目号查询
-
                 if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
-                    Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
-                    if (StringUtils.isNotBlank(condition.get("projectNo"))) {
-                        list.add(cb.like(instockGoods.get("projectNo").as(String.class), "%" + condition.get("projectNo") + "%"));
-                    }
-
-                    if (StringUtils.isNotBlank(condition.get("contractNo"))) {
-                        list.add(cb.like(instockGoods.get("contractNo").as(String.class), "%" + condition.get("contractNo") + "%"));
-                    }
+                   Set<Integer> a= queryProjectNoAndContractNo(condition.get("projectNo"),condition.get("contractNo"));
+                    Integer[] objectArray2 = a.toArray(new Integer[a.size()]);
+                    list.add(root.get("id").in(objectArray2));
                 }
 
                 Predicate[] predicates = new Predicate[list.size()];
@@ -283,5 +278,35 @@ public class InstockServiceImpl implements InstockService {
         }
 
         return instock;
+    }
+
+
+    @Transactional(readOnly = true)
+    public Set queryProjectNoAndContractNo(String projectNo ,String contractNo) {
+
+        List<Instock> page = instockDao.findAll(new Specification<Instock>() {
+            @Override
+            public Predicate toPredicate(Root<Instock> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+
+                Join<Instock, InstockGoods> instockGoods = root.join("instockGoodsList");
+                if (StringUtils.isNotBlank(projectNo)) {
+                    list.add(cb.like(instockGoods.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                }
+
+                if (StringUtils.isNotBlank(contractNo)) {
+                    list.add(cb.like(instockGoods.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                }
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        });
+
+        Set<Integer> idSer = new HashSet<Integer>();
+        for (Instock page1 : page){
+            idSer.add(page1.getId());
+        }
+        return idSer;
     }
 }
