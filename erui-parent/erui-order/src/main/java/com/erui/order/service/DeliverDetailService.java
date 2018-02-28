@@ -135,4 +135,5 @@ public interface DeliverDetailService {
      * @return
      */
     void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail);
+
 }

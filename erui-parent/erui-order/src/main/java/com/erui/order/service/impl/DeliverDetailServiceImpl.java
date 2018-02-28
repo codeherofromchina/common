@@ -55,6 +55,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     GoodsDao goodsDao;
 
+    @Autowired
+    DeliverConsignDao deliverConsignDao;
+
+    @Autowired
+    DeliverNoticeDao deliverNoticeDao;
+
     @Override
     @Transactional(readOnly = true)
     public DeliverDetail findById(Integer id) {
@@ -950,4 +956,70 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         return true;
     }
+
+
+
+
+
+    /**
+     *  订单列表增加确认收货按钮：
+     *  2、所有出口发货通知单中的商品全部出库并在物流跟踪管理中“跟踪状态”为“执行中”。
+     *
+     * @param
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Boolean findStatusAndNumber(Integer orderId) {
+        /**
+         * 判断出库状态
+         */
+            //根据 看货通知单 查询信息
+            List<DeliverNotice> companyList = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
+                @Override
+                public Predicate toPredicate(Root<DeliverNotice> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+
+                    //订单id查询
+                    Join<DeliverNotice, DeliverConsign> deliverConsign = root.join("deliverConsigns");
+                    Join<DeliverConsign, Order> order = deliverConsign.join("order");
+                    list.add(cb.equal(order.get("id").as(Integer.class), orderId));
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            });
+            //获取物流-出库单详情
+            for (DeliverNotice deliverNotice :companyList){
+                DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();
+                if(deliverDetail != null){
+                    //  1：出库保存/草稿 2：提交出库质检 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结',
+                    if(deliverDetail.getStatus()<5){    //判断是否全部出库
+                        return false;
+                    }
+                }
+            }
+
+        /**
+         * 判断商品是否出完
+         */
+        List<Goods> byOrderId = goodsDao.findByOrderId(orderId);//查询商品id
+        for (Goods goods :byOrderId){
+            int sendNum = 0;    //该商品总数量
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsDao.findByGoodsId(goods.getId())){
+                sendNum += deliverConsignGoods.getSendNum();    //已发货数量
+            }
+            Integer contractGoodsNum = goods.getContractGoodsNum();//合同商品数量
+            if (sendNum != contractGoodsNum){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+
+
 }
