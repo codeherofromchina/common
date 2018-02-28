@@ -143,10 +143,10 @@ public class OrderServiceImpl implements OrderService {
                 vo.setGoodsList(null);
             });
         }
-
-
         return pageList;
     }
+
+
 
     @Override
     @Transactional
@@ -216,7 +216,12 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         Order orderUpdate = orderDao.saveAndFlush(order);
+        Date signingDate = null;
+        if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            signingDate = orderUpdate.getSigningDate();
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -341,8 +346,12 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
+        Date signingDate = null;
+        if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            signingDate = order1.getSigningDate();
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null,addOrderVo.getSigningDate());
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
             //project.setProjectNo(UUID.randomUUID().toString());
@@ -378,7 +387,7 @@ public class OrderServiceImpl implements OrderService {
      * @param goodsId 可空，商品ID
      */
     @Transactional
-    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId,Date signingDate) {
+    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId, Date signingDate) {
         OrderLog orderLog = new OrderLog();
         try {
             orderLog.setOrder(orderDao.findOne(orderId));
