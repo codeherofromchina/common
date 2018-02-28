@@ -97,7 +97,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void delGatheringRecord(Integer id) {
+    public void delGatheringRecord(ServletRequest request,Integer id) {
 
 
         /**
@@ -108,10 +108,18 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccounts.setDelYn(0);
         orderAccountDao.save(orderAccounts);        //收款记录  逻辑删除
 
+
+        Order order = orderAccounts.getOrder();
+
+        //需要调用CRM系统接口，完成CRM会员升级
+        Map<String,Object> map = new HashMap<>();
+        map.put("crm_code",order.getCrmCode());
+        sendPost(request,map);
+
         /**
          * 判断是否是收款中状态
          */
-        Integer id1 = orderAccounts.getOrder().getId();//拿到订单id
+        Integer id1 = order.getId();//拿到订单id
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id1,1);
         //无收款记录  改变收款状态为  1:未付款      （ 1:未付款 2:部分付款 3:收款完成'）
         if(byOrderId.size() == 0){
@@ -192,7 +200,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void updateGatheringRecord(OrderAcciuntAdd orderAccount) {
+    public void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount) {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId()); //查询收款
 
 
@@ -248,6 +256,14 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
         orderAccounts.setUpdateTime(new Date());
         orderAccountDao.saveAndFlush(orderAccounts);
+
+
+
+        //需要调用CRM系统接口，完成CRM会员升级
+        Map<String,Object> map = new HashMap<>();
+        map.put("crm_code",orderAccounts.getOrder().getCrmCode());
+        sendPost(request,map);
+
     }
 
 
@@ -376,7 +392,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         PrintWriter out = null;
         BufferedReader in = null;
-        String result = "";
+       /* String result = "";*/
         try {
             URL realUrl = new URL(POST_URL);
             // 打开和URL之间的连接
@@ -403,12 +419,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             // flush输出流的缓冲
             out.flush();
             // 定义BufferedReader输入流来读取URL的响应
-           in = new BufferedReader(
+          /* in = new BufferedReader(
                     new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;
-            }
+            }*/
         } catch (Exception e) {
             System.err.println("发送 POST 请求出现异常！" + e);
             e.printStackTrace();
@@ -426,8 +442,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 ex.printStackTrace();
             }
         }
-        System.out.print(result);
-        /*return result;*/
+       /* System.out.print(result);
+        return result;*/
     }
 
 
