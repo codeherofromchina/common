@@ -1,5 +1,7 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.erui.boss.web.util.EruitokenUtil;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderAccountDao;
@@ -26,7 +28,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.ServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -141,7 +150,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderDao.saveAndFlush(order);
 
         /**
-         *  推送收到预付款
+         *  推送 Log日志 收到预付款
          */
         OrderLog orderLog = new OrderLog();
         try {
@@ -340,9 +349,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             }
         }, request);
 
-
         return pageOrder;
     }
+
+
 
 
 }

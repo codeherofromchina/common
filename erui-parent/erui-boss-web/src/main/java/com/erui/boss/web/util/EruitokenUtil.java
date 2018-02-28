@@ -12,7 +12,7 @@ import java.util.Enumeration;
  * Created by wangxiaodan on 2018/2/28.
  */
 public class EruitokenUtil {
-    private static String TOKEN_NAME = "eruitoken";
+    public static String TOKEN_NAME = "eruitoken";
 
     /**
      * 获取sso的token
