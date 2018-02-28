@@ -70,7 +70,7 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Transactional(readOnly = true)
     public Page<InspectReport> listByPage(InspectReport condition) {
 
-        PageRequest request = new PageRequest(condition.getPage()-1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getPageSize(), Sort.Direction.DESC, "createTime");
 
         Page<InspectReport> page = inspectReportDao.findAll(new Specification<InspectReport>() {
             @Override
@@ -254,10 +254,10 @@ public class InspectReportServiceImpl implements InspectReportService {
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
             if (samples == null || samples <= 0) {
-                throw new Exception("抽样数错误【SKU:"+goods.getSku()+"】");
+                throw new Exception("抽样数错误【SKU:" + goods.getSku() + "】");
             }
             if (unqualified == null || unqualified < 0 || unqualified > samples) {
-                throw new Exception("不合格数据错误【SKU:"+goods.getSku()+"】");
+                throw new Exception("不合格数据错误【SKU:" + goods.getSku() + "】");
             }
             if (unqualified > 0) {
                 hegeFlag = false;
@@ -270,7 +270,11 @@ public class InspectReportServiceImpl implements InspectReportService {
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 if (qualifiedNum < 0) {
-                    throw new Exception("传入不合格数量参数不正确【SKU:"+goods.getSku()+"】");
+                    throw new Exception("传入不合格数量参数不正确【SKU:" + goods.getSku() + "】");
+                }
+                if (purchGoods.getInspectNum() < purchGoods.getGoodNum() + qualifiedNum) {
+                    // 合格数量大于报检数量，数据错误
+                    throw new Exception("采购的合格数量错误【purchGoodsId:" + purchGoods.getId() + "】");
                 }
                 purchGoods.setGoodNum(purchGoods.getGoodNum() + qualifiedNum);
                 purchGoodsDao.save(purchGoods);
@@ -379,7 +383,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             List<InspectApply> childInspectApplyList = inspectApplyDao.findByParentIdOrderByIdAsc(parentApplyId);
             List<Integer> inspectApplyIds = childInspectApplyList.parallelStream().map(InspectApply::getId).collect(Collectors.toList());
             inspectApplyIds.add(parentApplyId);
-            result = inspectReportDao.findByInspectApplyIdInOrderByIdDesc(inspectApplyIds);
+            result = inspectReportDao.findByInspectApplyIdInOrderByIdAsc(inspectApplyIds);
         }
 
 

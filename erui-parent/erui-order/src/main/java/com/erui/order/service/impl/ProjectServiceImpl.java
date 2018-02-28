@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -226,6 +227,8 @@ public class ProjectServiceImpl implements ProjectService {
                     return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
                 });
             }).collect(Collectors.toList());
+            // 反序
+            Collections.reverse(list);
         }
         return list;
     }

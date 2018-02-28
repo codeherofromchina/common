@@ -72,7 +72,7 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "addDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrder(@RequestBody DeliverConsign deliverConsign) {
+    public Result<Object> addDeliverConsign(@RequestBody DeliverConsign deliverConsign) {
         // TODO 参数检查略过
         String errMsg = null;
         try {

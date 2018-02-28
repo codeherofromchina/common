@@ -396,11 +396,14 @@ public class PurchServiceImpl implements PurchService {
             Integer paymentId = payment.getId();
             if (paymentId == null) {
                 payment.setCreateTime(now);
-            } else {
-                PurchPayment payment2 = collect.remove(paymentId);
-                payment.setCreateTime(payment2.getCreateTime());
+                return payment;
             }
-            return payment;
+            PurchPayment payment2 = collect.remove(paymentId);
+            payment2.setReceiptDate(payment.getReceiptDate());
+            payment2.setType(payment.getType());
+            payment2.setMoney(payment.getMoney());
+            payment2.setTitle(payment.getTitle());
+            return payment2;
         }).collect(Collectors.toList());
         dbPurch.setPurchPaymentList(paymentList);
         // 删除废弃的结算方式
@@ -410,6 +413,7 @@ public class PurchServiceImpl implements PurchService {
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
         dbPurch.setAttachments(attachmentlist);
+
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
         Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
