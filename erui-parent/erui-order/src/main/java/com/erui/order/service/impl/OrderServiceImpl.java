@@ -143,10 +143,10 @@ public class OrderServiceImpl implements OrderService {
                 vo.setGoodsList(null);
             });
         }
-
-
         return pageList;
     }
+
+
 
     @Override
     @Transactional
@@ -216,7 +216,12 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         Order orderUpdate = orderDao.saveAndFlush(order);
+        Date signingDate = null;
+        if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            signingDate = orderUpdate.getSigningDate();
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
