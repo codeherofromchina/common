@@ -1,4 +1,4 @@
-package com.erui.boss.web.util;
+package com.erui.comm.util;
 
 import org.springframework.web.util.WebUtils;
 
@@ -31,8 +31,8 @@ public class EruitokenUtil {
         // 如果cookie中不存在eruitoken,则获取header中的token信息
         Enumeration headerNames = httpRequest.getHeaderNames();
         while(headerNames.hasMoreElements()) {
-            token = ((String)headerNames.nextElement()).toLowerCase();
-            if(TOKEN_NAME.equals(token)) {
+            String headerName = ((String)headerNames.nextElement()).toLowerCase();
+            if(TOKEN_NAME.equals(headerName)) {
                 token = httpRequest.getHeader(token);
             }
         }

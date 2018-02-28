@@ -5,6 +5,8 @@ import com.erui.order.entity.OrderAccount;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
+
+import javax.servlet.ServletRequest;
 import java.util.List;
 
 /**
@@ -39,7 +41,7 @@ public interface OrderAccountService {
      * @param orderAccount  收款信息
      * @return
      */
-    void addGatheringRecord(OrderAccount orderAccount) throws  Exception;
+    void addGatheringRecord(OrderAccount orderAccount,ServletRequest request) throws  Exception;
 
 
     /**
