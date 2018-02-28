@@ -1,8 +1,9 @@
 package com.erui.order.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.erui.boss.web.util.EruitokenUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
@@ -58,6 +59,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     OrderLogDao orderLogDao;
+
+
+    static final String POST_URL = "http://api.erui.com/v2/buyer/autoUpgrade";
 
     /**
      * 根据id 查询订单收款信息(单条)
@@ -132,7 +136,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addGatheringRecord(OrderAccount orderAccount) throws Exception {
+    public void addGatheringRecord(OrderAccount orderAccount,ServletRequest request) throws Exception {
       /*orderAccount.setPaymentDate(new Date());*/   //测试放开
         orderAccount.setCreateTime(new Date());
         OrderAccount orderAccount1;
@@ -148,6 +152,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
+
+
+        //需要调用CRM系统接口，完成CRM会员升级
+        Map<String,Object> map = new HashMap<>();
+        map.put("crm_code",order.getCrmCode());
+        sendPost(request,map);
+
 
         /**
          *  推送 Log日志 收到预付款
@@ -351,6 +362,78 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         return pageOrder;
     }
+
+
+
+
+    /**
+     * 向指定URL发送POST请求
+     * @param paramMap
+     * @return 响应结果
+     */
+    public static void sendPost(ServletRequest request, Map<String, Object> paramMap) {
+        String eruiToken = EruitokenUtil.getEruiToken(request);
+
+        PrintWriter out = null;
+        BufferedReader in = null;
+        String result = "";
+        try {
+            URL realUrl = new URL(POST_URL);
+            // 打开和URL之间的连接
+            URLConnection conn = realUrl.openConnection();
+            // 设置通用的请求属性
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            conn.setRequestProperty(EruitokenUtil.TOKEN_NAME, eruiToken);
+            conn.setRequestProperty("Content-Type", " application/json");//设定 请求格式 json，
+            // 发送POST请求必须设置如下两行
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            // 获取URLConnection对象对应的输出流
+            out = new PrintWriter(conn.getOutputStream());
+
+            // 设置请求属性
+            String jsonString = null;
+            if (paramMap != null && paramMap.size() > 0) {
+                 jsonString = JSON.toJSONString(paramMap, SerializerFeature.WriteMapNullValue,SerializerFeature.WriteNullStringAsEmpty);
+            }
+            // 发送请求参数
+            out.print(jsonString);
+            // flush输出流的缓冲
+            out.flush();
+            // 定义BufferedReader输入流来读取URL的响应
+           in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result += line;
+            }
+        } catch (Exception e) {
+            System.err.println("发送 POST 请求出现异常！" + e);
+            e.printStackTrace();
+        }
+        // 使用finally块来关闭输出流、输入流
+        finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        System.out.print(result);
+        /*return result;*/
+    }
+
+
+
+
+
 
 
 
