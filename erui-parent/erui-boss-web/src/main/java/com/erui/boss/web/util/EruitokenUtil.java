@@ -1,6 +1,5 @@
 package com.erui.boss.web.util;
 
-import com.erui.power.client.sso.CookieUtil;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.ServletRequest;
