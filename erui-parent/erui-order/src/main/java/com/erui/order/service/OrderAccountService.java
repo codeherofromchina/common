@@ -33,7 +33,7 @@ public interface OrderAccountService {
      *  根据收款信息id 逻辑删除
      * @param id       收款信息id
      */
-    void delGatheringRecord(Integer id);
+    void delGatheringRecord(ServletRequest request,Integer id);
 
 
     /**
@@ -49,7 +49,7 @@ public interface OrderAccountService {
      * @param orderAccount
      * @return
      */
-    void updateGatheringRecord(OrderAcciuntAdd orderAccount);
+    void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount);
 
 
 

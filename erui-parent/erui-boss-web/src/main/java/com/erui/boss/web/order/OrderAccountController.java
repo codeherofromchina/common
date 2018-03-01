@@ -53,11 +53,11 @@ public class OrderAccountController {
      */
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        orderAccountService.delGatheringRecord(orderAcciuntAdd.getId());
+        orderAccountService.delGatheringRecord(request,orderAcciuntAdd.getId());
         return new Result<>();
     }
 
@@ -144,8 +144,8 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount){
-        orderAccountService.updateGatheringRecord(orderAccount);
+    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+        orderAccountService.updateGatheringRecord(request,orderAccount);
         return new Result<>();
     }
 
