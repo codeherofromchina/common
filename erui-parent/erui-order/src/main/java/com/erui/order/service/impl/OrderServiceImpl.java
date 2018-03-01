@@ -14,6 +14,7 @@ import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.DeliverDetailService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProjectDao projectDao;
     @Autowired
-    private AttachmentService attachmentService;
+    private DeliverDetailService deliverDetailService;
 
     @Override
     @Transactional(readOnly = true)
@@ -139,14 +140,15 @@ public class OrderServiceImpl implements OrderService {
                     vo.setDeliverConsignC(flag);
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
+                    if (deliverDetailService.findStatusAndNumber(vo.getId())&&vo.getDeliverConsignC() == false){
+                        vo.setOrderFinish(Boolean.TRUE);
+                    }
                 }
                 vo.setGoodsList(null);
             });
         }
         return pageList;
     }
-
-
 
     @Override
     @Transactional

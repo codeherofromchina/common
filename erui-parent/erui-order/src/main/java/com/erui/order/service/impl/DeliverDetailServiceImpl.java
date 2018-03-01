@@ -969,6 +969,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @return
      */
     @Transactional(readOnly = true)
+    @Override
     public Boolean findStatusAndNumber(Integer orderId) {
         /**
          * 判断出库状态

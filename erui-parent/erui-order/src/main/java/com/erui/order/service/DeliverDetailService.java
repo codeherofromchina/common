@@ -136,4 +136,6 @@ public interface DeliverDetailService {
      */
     void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail);
 
+    public Boolean findStatusAndNumber(Integer orderId);
+
 }

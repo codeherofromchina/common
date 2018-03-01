@@ -202,7 +202,9 @@ public class Order {
 
     @Transient
     private int rows = 50;
-
+    //订单列表增加确认收货按钮标识
+    @Transient
+    private Boolean orderFinish = false;//true时可以确认收货
    /*@Column(name = "delivery_date_no")
     private Date deliveryDateNo;    //执行单约定交付日期*/
 
@@ -210,6 +212,14 @@ public class Order {
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
+
+    public Boolean getOrderFinish() {
+        return orderFinish;
+    }
+
+    public void setOrderFinish(Boolean orderFinish) {
+        this.orderFinish = orderFinish;
+    }
 
     public Integer getAcquireId() {
         return acquireId;
