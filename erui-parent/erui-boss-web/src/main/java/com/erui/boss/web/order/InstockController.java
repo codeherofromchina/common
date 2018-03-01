@@ -126,47 +126,49 @@ public class InstockController {
         List<Map<String, Object>> goodsInfoList = new ArrayList<>();
         List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
         for (InstockGoods instockGoods : instockGoodsList) {
-            InspectApplyGoods inspectApplyGoods = instockGoods.getInspectApplyGoods();
-            PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
-            Goods goods = inspectApplyGoods.getGoods();
-            Map<String, Object> map = new HashMap();
-            map.put("id", instockGoods.getId());
-            map.put("contractNo", goods.getContractNo()); // 销售合同号
-            map.put("projectNo", goods.getProjectNo()); // 项目号
-            map.put("sku", goods.getSku()); // 平台SKU
-            map.put("proType", goods.getProType()); // 产品分类
-            map.put("nameEn", goods.getNameEn()); // 外文品名
-            map.put("nameZh", goods.getNameZh()); // 中文品名
-            map.put("inspectNum", inspectApplyGoods.getInspectNum()); // 报检数量
-            map.put("unqualified", inspectApplyGoods.getUnqualified()); // 不合格数量
-            map.put("instockNum", instockGoods.getInstockNum()); // 入库数量
-            map.put("unit", goods.getUnit()); // 单位
-            map.put("nonTaxPrice", purchGoods.getNonTaxPrice()); // 不含税单价
-            map.put("taxPrice", purchGoods.getTaxPrice()); // 含税单价
+            if(instockGoods.getInstockNum() == 0){
+                InspectApplyGoods inspectApplyGoods = instockGoods.getInspectApplyGoods();
+                PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
+                Goods goods = inspectApplyGoods.getGoods();
+                Map<String, Object> map = new HashMap();
+                map.put("id", instockGoods.getId());
+                map.put("contractNo", goods.getContractNo()); // 销售合同号
+                map.put("projectNo", goods.getProjectNo()); // 项目号
+                map.put("sku", goods.getSku()); // 平台SKU
+                map.put("proType", goods.getProType()); // 产品分类
+                map.put("nameEn", goods.getNameEn()); // 外文品名
+                map.put("nameZh", goods.getNameZh()); // 中文品名
+                map.put("inspectNum", inspectApplyGoods.getInspectNum()); // 报检数量
+                map.put("unqualified", inspectApplyGoods.getUnqualified()); // 不合格数量
+                map.put("instockNum", instockGoods.getInstockNum()); // 入库数量
+                map.put("unit", goods.getUnit()); // 单位
+                map.put("nonTaxPrice", purchGoods.getNonTaxPrice()); // 不含税单价
+                map.put("taxPrice", purchGoods.getTaxPrice()); // 含税单价
 
-            /**
-             * 总价格
-             *
-             * 判断是否是人民币
-             */
+                /**
+                 * 总价格
+                 *
+                 * 判断是否是人民币
+                 */
 
-            if(purchGoods.getPurch().getCurrencyBn().equals("CNY")){
-                if(purchGoods.getTaxPrice() != null){
-                    map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getTaxPrice().doubleValue()); // 人民币的时候，总价款=报检数量*含税单价
+                if(purchGoods.getPurch().getCurrencyBn().equals("CNY")){
+                    if(purchGoods.getTaxPrice() != null){
+                        map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getTaxPrice().doubleValue()); // 人民币的时候，总价款=报检数量*含税单价
+                    }else{
+                        map.put("totalPrice", "无含税单价"); // 当没有含税单价的时候
+                    }
                 }else{
-                    map.put("totalPrice", "无含税单价"); // 当没有含税单价的时候
+                    map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getNonTaxPrice().doubleValue());  // 非人民币的时候，总价款=报检数量*不含税单价
                 }
-            }else{
-                map.put("totalPrice", inspectApplyGoods.getInspectNum() * purchGoods.getNonTaxPrice().doubleValue());  // 非人民币的时候，总价款=报检数量*不含税单价
-            }
-            map.put("model", goods.getModel()); // 规格型号
-            map.put("brand", goods.getBrand()); // 品牌
-            map.put("height", inspectApplyGoods.getHeight()); // 重量（kg）
-            map.put("lwh", inspectApplyGoods.getLwh()); // 长*宽*高
-            map.put("instockStock", instockGoods.getInstockStock()); // 货物存放地
-            map.put("remark", instockGoods.getInspectApplyGoods().getPurchGoods().getPurchaseRemark()); // 备注
+                map.put("model", goods.getModel()); // 规格型号
+                map.put("brand", goods.getBrand()); // 品牌
+                map.put("height", inspectApplyGoods.getHeight()); // 重量（kg）
+                map.put("lwh", inspectApplyGoods.getLwh()); // 长*宽*高
+                map.put("instockStock", instockGoods.getInstockStock()); // 货物存放地
+                map.put("remark", instockGoods.getInspectApplyGoods().getPurchGoods().getPurchaseRemark()); // 备注
 
-            goodsInfoList.add(map);
+                goodsInfoList.add(map);
+            }
         }
         data.put("instockGoodsList", goodsInfoList);
 
