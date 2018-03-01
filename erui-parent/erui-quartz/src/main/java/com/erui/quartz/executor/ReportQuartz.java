@@ -10,6 +10,7 @@ import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.util.GetDataEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -40,7 +41,7 @@ public class ReportQuartz {
     private static final String key = "9b2a37b7b606c14d43db538487a148c7";
     private static ObjectMapper om = new ObjectMapper();
 
-    public void getSupplyChainRead()throws  Exception{
+    public void getSupplyChainRead() throws Exception {
         //获取前一天的两个时间点
         System.out.println("执行一次调度");
         Date date = DateUtil.sometimeCalendar(new Date(), 1);
@@ -48,10 +49,10 @@ public class ReportQuartz {
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
 
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPut goodPutMethod = getPutMethod(1,goodUrl, startTime, endTime);
-        HttpPut productPutMethod = getPutMethod(1,productUrl, startTime, endTime);
-        HttpPut supplierPutMethod = getPutMethod(1,supplierUrl, startTime, endTime);
-        HttpPut catePutMethod = getPutMethod(1,cateUrl, startTime, endTime);
+        HttpPut goodPutMethod = getPutMethod(1, goodUrl, startTime, endTime);
+        HttpPut productPutMethod = getPutMethod(1, productUrl, startTime, endTime);
+        HttpPut supplierPutMethod = getPutMethod(1, supplierUrl, startTime, endTime);
+        HttpPut catePutMethod = getPutMethod(1, cateUrl, startTime, endTime);
         CloseableHttpResponse skuResult = client.execute(goodPutMethod);
         CloseableHttpResponse spuResult = client.execute(productPutMethod);
         //处理结果
@@ -70,20 +71,20 @@ public class ReportQuartz {
         String cateData = EntityUtils.toString(cateResult.getEntity());
         JSONObject cateJson = json.parseObject(cateData);
         int cateCode = (int) cateJson.get("code");
-        List<HashMap> chainCateVoList=null;
+        List<HashMap> chainCateVoList = null;
         if (cateCode == 1) {
             String cates = cateJson.get("data").toString();
-             chainCateVoList = JSON.parseArray(cates, HashMap.class);
-    }
-        supplyChainReadService.supplyChainReadData(startTime,supplyChainRead,chainCateVoList);
+            chainCateVoList = JSON.parseArray(cates, HashMap.class);
+        }
+        supplyChainReadService.supplyChainReadData(startTime, supplyChainRead, chainCateVoList);
 
         //处理询单数据
-        HttpPut putMethod = getPutMethod(2,inquiryUrl, startTime, endTime);
+        HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
         CloseableHttpResponse inquiryResult = client.execute(putMethod);
         String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
         JSONObject inquiryObject = json.parseObject(inquiryData);
         Object inquiryCode = inquiryObject.get("code");
-        List<HashMap> list=null;
+        List<HashMap> list = null;
         if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
             Object data = inquiryObject.get("data");
             if (data != null) {
@@ -94,96 +95,108 @@ public class ReportQuartz {
 
         inquiryService.inquiryData(list);
     }
-
+    /**
+     * 刷新历史数据
+     */
     public void totalData() throws Exception {
-        Date day = DateUtil.parseStringToDate("2017-07-01 00:00:00", DateUtil.FULL_FORMAT_STR);
-        List<Map<String, String>> list = new ArrayList<>();
-        for (int j = 0; j < 7; j++) {//获取到18年1月份
-            Date   lastDay = DateUtil.getNextMonthLastDay(day);
-            Date firstDay = DateUtil.getNextMonthFirstDay(day);
-            day=lastDay;
-            int days = DateUtil.getDayBetween(firstDay, lastDay);
-            if(j==6){
-                days=DateUtil.getDayBetween(firstDay,new Date())-1;
-                lastDay=DateUtil.sometimeCalendar(new Date(),1);
-            }
-            for (int i = days - 1; i >= 0; i--) {
-                HashMap<String, String> dateMap = new HashMap<>();
-                Date date1 = DateUtil.sometimeCalendar(lastDay, i);
-                String startTime = DateUtil.getStartTime(date1, DateUtil.FULL_FORMAT_STR);
-                String endTime = DateUtil.getEndTime(date1, DateUtil.FULL_FORMAT_STR);
-                dateMap.put("startTime", startTime);
-                dateMap.put("endTime", endTime);
-                list.add(dateMap);
-            }
-        }
-        for (Map<String, String> map : list) {
-            String startTime = map.get("startTime");
-            String endTime = map.get("endTime");
-            CloseableHttpClient client = HttpClients.createDefault();
-            HttpPut goodPutMethod = getPutMethod(1,goodUrl, startTime, endTime);
-            HttpPut productPutMethod = getPutMethod(1,productUrl, startTime, endTime);
-            HttpPut supplierPutMethod = getPutMethod(1,supplierUrl, startTime, endTime);
-            HttpPut catePutMethod = getPutMethod(1,cateUrl, startTime, endTime);
-            CloseableHttpResponse skuResult = client.execute(goodPutMethod);
-            CloseableHttpResponse spuResult = client.execute(productPutMethod);
-            //处理结果
-            SupplyChainRead skuRead = this.handleResult(skuResult, GetDataEnum.SKU_DATA.getCode());
-            SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SPU_DATA.getCode());
-            CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
-            CloseableHttpResponse cateResult = client.execute(catePutMethod);
-            SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SUPPLIER_DATA.getCode());
-            SupplyChainRead supplyChainRead = null;
-            if (skuRead != null || spuRead != null || supplierRead != null) {
-                supplyChainRead = mergeResult(skuRead, spuRead, supplierRead);
-            }
-
-            //处理分类的数据
-            JSONObject json = new JSONObject();
-            String cateData = EntityUtils.toString(cateResult.getEntity());
-            JSONObject cateJson = json.parseObject(cateData);
-            int cateCode = (int) cateJson.get("code");
-            List<HashMap> chainCateVoList=null;
-            if (cateCode == 1) {
-                String cates = cateJson.get("data").toString();
-                chainCateVoList = JSON.parseArray(cates, HashMap.class);
-            }
-            supplyChainReadService.supplyChainReadData(startTime,supplyChainRead,chainCateVoList);
-
-            //处理询单数据
-            HttpPut putMethod = getPutMethod(2,inquiryUrl, startTime, endTime);
-            CloseableHttpResponse inquiryResult = client.execute(putMethod);
-            String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
-            JSONObject inquiryObject = json.parseObject(inquiryData);
-            Object inquiryCode = inquiryObject.get("code");
-            List<HashMap> dlist=null;
-            if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
-                Object data = inquiryObject.get("data");
-                if (data != null) {
-                    String dataJson = data.toString();
-                    dlist = JSON.parseArray(dataJson, HashMap.class);
+        List<Map<String, String>> list = getTimes();
+        if(CollectionUtils.isNotEmpty(list)) {
+            for (Map<String, String> map : list) {
+                String startTime = map.get("startTime");
+                String endTime = map.get("endTime");
+                CloseableHttpClient client = HttpClients.createDefault();
+                HttpPut goodPutMethod = getPutMethod(1, goodUrl, startTime, endTime);
+                HttpPut productPutMethod = getPutMethod(1, productUrl, startTime, endTime);
+                HttpPut supplierPutMethod = getPutMethod(1, supplierUrl, startTime, endTime);
+                HttpPut catePutMethod = getPutMethod(1, cateUrl, startTime, endTime);
+                CloseableHttpResponse skuResult = client.execute(goodPutMethod);
+                CloseableHttpResponse spuResult = client.execute(productPutMethod);
+                //处理结果
+                SupplyChainRead skuRead = this.handleResult(skuResult, GetDataEnum.SKU_DATA.getCode());
+                SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SPU_DATA.getCode());
+                CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
+                CloseableHttpResponse cateResult = client.execute(catePutMethod);
+                SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SUPPLIER_DATA.getCode());
+                SupplyChainRead supplyChainRead = null;
+                if (skuRead != null || spuRead != null || supplierRead != null) {
+                    supplyChainRead = mergeResult(skuRead, spuRead, supplierRead);
                 }
-            }
 
-            inquiryService.inquiryData(dlist);
+                //处理分类的数据
+                JSONObject json = new JSONObject();
+                String cateData = EntityUtils.toString(cateResult.getEntity());
+                JSONObject cateJson = json.parseObject(cateData);
+                int cateCode = (int) cateJson.get("code");
+                List<HashMap> chainCateVoList = null;
+                if (cateCode == 1) {
+                    String cates = cateJson.get("data").toString();
+                    chainCateVoList = JSON.parseArray(cates, HashMap.class);
+                }
+                supplyChainReadService.supplyChainReadData(startTime, supplyChainRead, chainCateVoList);
+
+                //处理询单数据
+                HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
+                CloseableHttpResponse inquiryResult = client.execute(putMethod);
+                String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
+                JSONObject inquiryObject = json.parseObject(inquiryData);
+                Object inquiryCode = inquiryObject.get("code");
+                List<HashMap> dlist = null;
+                if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
+                    Object data = inquiryObject.get("data");
+                    if (data != null) {
+                        String dataJson = data.toString();
+                        dlist = JSON.parseArray(dataJson, HashMap.class);
+                    }
+                }
+
+                inquiryService.inquiryData(dlist);
+            }
         }
     }
+
+    /**
+     * 获取所有时间点列表
+     */
+    public List<Map<String, String>> getTimes() throws Exception {
+
+        List<Map<String, String>> list = new ArrayList<>();
+        Date day = DateUtil.parseStringToDate("2017-08-01 00:00:00", DateUtil.FULL_FORMAT_STR);
+        int days = DateUtil.getDayBetween(day, new Date());
+        String dateTime = DateUtil.getStartTime(new Date(), DateUtil.FULL_FORMAT_STR);
+        //获取当前时间的其实时间，和结束时间
+        String startTime = DateUtil.getStartTime(day,DateUtil.FULL_FORMAT_STR);
+        String endTime = DateUtil.getEndTime(day,DateUtil.FULL_FORMAT_STR);
+        for (int i =0; i <days-1; i++) {
+            if(startTime.trim().equals(dateTime.trim()))  break;
+            HashMap<String, String> dateMap = new HashMap<>();
+            dateMap.put("startTime", startTime);
+            dateMap.put("endTime", endTime);
+            list.add(dateMap);
+            day=DateUtil.sometimeCalendar(day,-1);
+            startTime = DateUtil.getStartTime(day,DateUtil.FULL_FORMAT_STR);
+            endTime = DateUtil.getEndTime(day,DateUtil.FULL_FORMAT_STR);
+        }
+        return list;
+    }
+
     /**
      * 获取PutMethod
      */
-    HttpPut getPutMethod(int type ,String url, String startTime, String endTime) throws Exception {
+    HttpPut getPutMethod(int type, String url, String startTime, String endTime) throws Exception {
         HttpPut method = new HttpPut(url);
         // method.getParams().setParameter("http.socket.timeout", 3000);
         //组装请求json
         JSONObject jsonObject = new JSONObject();
         Map<String, Object> input = new HashMap<>();
         input.put("lang", "zh");
-        if(type==1) {
+        if (type == 1) {
             input.put("created_at_start", startTime);
             input.put("created_at_end", endTime);
-        }else if(type==2){
+        } else if (type == 2) {
             input.put("creat_at_start", startTime);
             input.put("creat_at_end", endTime);
+            input.put("updat_at_start", startTime);
+            input.put("update_at_end", endTime);
         }
         String inputStr = om.writeValueAsString(input);
         System.out.println("=================" + inputStr);
@@ -195,6 +208,7 @@ public class ReportQuartz {
         method.setEntity(entity);
         return method;
     }
+
     /**
      * 处理获取的数据结果
      */

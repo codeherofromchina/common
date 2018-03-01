@@ -1,8 +1,14 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.comm.RateUtil;
+import com.erui.comm.util.data.string.StringUtil;
+import com.erui.report.model.CreditExtensionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -108,5 +114,66 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
         response.setDone(true);
 
         return response;
+    }
+
+    @Override
+    public Map<String, Object> creditPandect(Map<String, String> params) {
+
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> creditData = new HashMap<>();
+        Map<String, Object> usedCredit = new HashMap<>();
+        Map<String, Object> addCredit = new HashMap<>();
+
+        //获取当前数据
+        Map<String, Object> datas = readMapper.selectCreditSummary(params);
+        //获取环比数据
+        String chainStartTime = params.get("chainStartTime");
+        String startTime = params.get("startTime");
+        if (StringUtil.isNotBlank(chainStartTime)) {
+            params.put("startTime", chainStartTime);
+            params.put("endTime", startTime);
+        }
+        Map<String, Object> chainDatas = readMapper.selectCreditSummary(params);
+        //处理数据
+        Double usedRate = 0.0;//使用率
+        Double usedChainRate = 0.0;//使用环比
+        Double lossRate = 0.0;//流失率
+        Double incrCreditRate = 0.0;//新增授信环比
+        Integer creditCount =Integer.parseInt(datas.get("creditCount").toString());
+        Double creditAmount = Double.parseDouble(datas.get("creditAmount").toString());
+        Double usedAmount = Double.parseDouble(datas.get("usedAmount").toString());
+        Double availAmount = Double.parseDouble(datas.get("availAmount").toString());
+        int incrCredit = Integer.parseInt(datas.get("incrCredit").toString());
+        int elimiCredit = Integer.parseInt(datas.get("elimiCredit").toString());
+        if (usedAmount + availAmount > 0) {
+            usedRate = RateUtil.doubleChainRate(usedAmount , usedAmount + availAmount);
+        }
+        Double chainUsedAmount = Double.parseDouble(chainDatas.get("usedAmount").toString());
+        if (chainUsedAmount > 0) {
+            usedChainRate =RateUtil.doubleChainRate(usedAmount - chainUsedAmount , chainUsedAmount);
+        }
+        if (incrCredit > 0) {
+            lossRate = RateUtil.intChainRate(elimiCredit, incrCredit);
+        }
+        int chainIncrCredit = Integer.parseInt(chainDatas.get("incrCredit").toString());
+        if (chainIncrCredit > 0) {
+            incrCreditRate = RateUtil.intChainRate(incrCredit - chainIncrCredit, chainIncrCredit);
+        }
+
+        //封装数据
+        creditData.put("creditCount",creditCount);
+        creditData.put("creditAmount",creditAmount);
+        usedCredit.put("usedCreditAmount",usedAmount);
+        usedCredit.put("availableCreditAmount",availAmount);
+        usedCredit.put("usedRate",usedRate);
+        usedCredit.put("chainRate",usedChainRate);
+        addCredit.put("addCreditCount",incrCredit);
+        addCredit.put("eliminateCreditCount",elimiCredit);
+        addCredit.put("lossRate",lossRate);
+        addCredit.put("chainRate",incrCreditRate);
+        data.put("credit",creditData);
+        data.put("usedCredit",usedCredit);
+        data.put("addCredit",addCredit);
+        return data;
     }
 }

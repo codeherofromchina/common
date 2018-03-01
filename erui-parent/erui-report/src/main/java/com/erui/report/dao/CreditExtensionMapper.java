@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.CreditExtension;
 import com.erui.report.model.CreditExtensionExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreditExtensionMapper {
@@ -29,4 +31,7 @@ public interface CreditExtensionMapper {
     int updateByPrimaryKey(CreditExtension record);
     
     void truncateTable();
+
+    //查询授信汇总数据
+    Map<String,Object> selectCreditSummary(Map<String,String> params);
 }

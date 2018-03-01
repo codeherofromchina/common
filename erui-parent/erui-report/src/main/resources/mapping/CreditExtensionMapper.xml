@@ -195,6 +195,21 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
+  <!--查询授信汇总数据-->
+  <select id="selectCreditSummary" parameterType="java.util.Map" resultType="java.util.Map" >
+   SELECT t0.creditCount,t0.creditAmount,t0.usedAmount,t0.availAmount ,t1.incrCredit,t2.elimiCredit FROM
+      (SELECT	COUNT(1) AS creditCount,IFNULL(SUM(IFNULL(rely_credit, 0.00)),0.00) AS creditAmount,
+	    IFNULL(SUM(IFNULL(used_amount, 0.00)),0.00) AS usedAmount,IFNULL(SUM(IFNULL(available_amount, 0.00)),0.00) AS availAmount
+	     FROM credit_extension  where credit_date between  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and  DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+	  ) AS t0 ,
+      (SELECT COUNT(1) AS incrCredit FROM credit_extension WHERE   effective_date
+        BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and  DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      )  AS t1 ,
+      (SELECT COUNT(1) AS elimiCredit FROM credit_extension WHERE   expiry_date BETWEEN
+        DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and  DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      ) AS t2
+
+  </select>
   <update id="updateByExampleSelective" parameterType="map" >
     update credit_extension
     <set >

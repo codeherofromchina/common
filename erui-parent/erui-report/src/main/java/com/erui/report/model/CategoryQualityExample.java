@@ -2,6 +2,7 @@ package com.erui.report.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CategoryQualityExample {
@@ -175,62 +176,52 @@ public class CategoryQualityExample {
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateEqualTo(String value) {
+        public Criteria andQualityControlDateEqualTo(Date value) {
             addCriterion("quality_control_date =", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateNotEqualTo(String value) {
+        public Criteria andQualityControlDateNotEqualTo(Date value) {
             addCriterion("quality_control_date <>", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateGreaterThan(String value) {
+        public Criteria andQualityControlDateGreaterThan(Date value) {
             addCriterion("quality_control_date >", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateGreaterThanOrEqualTo(String value) {
+        public Criteria andQualityControlDateGreaterThanOrEqualTo(Date value) {
             addCriterion("quality_control_date >=", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateLessThan(String value) {
+        public Criteria andQualityControlDateLessThan(Date value) {
             addCriterion("quality_control_date <", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateLessThanOrEqualTo(String value) {
+        public Criteria andQualityControlDateLessThanOrEqualTo(Date value) {
             addCriterion("quality_control_date <=", value, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateLike(String value) {
-            addCriterion("quality_control_date like", value, "qualityControlDate");
-            return (Criteria) this;
-        }
-
-        public Criteria andQualityControlDateNotLike(String value) {
-            addCriterion("quality_control_date not like", value, "qualityControlDate");
-            return (Criteria) this;
-        }
-
-        public Criteria andQualityControlDateIn(List<String> values) {
+        public Criteria andQualityControlDateIn(List<Date> values) {
             addCriterion("quality_control_date in", values, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateNotIn(List<String> values) {
+        public Criteria andQualityControlDateNotIn(List<Date> values) {
             addCriterion("quality_control_date not in", values, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateBetween(String value1, String value2) {
+        public Criteria andQualityControlDateBetween(Date value1, Date value2) {
             addCriterion("quality_control_date between", value1, value2, "qualityControlDate");
             return (Criteria) this;
         }
 
-        public Criteria andQualityControlDateNotBetween(String value1, String value2) {
+        public Criteria andQualityControlDateNotBetween(Date value1, Date value2) {
             addCriterion("quality_control_date not between", value1, value2, "qualityControlDate");
             return (Criteria) this;
         }

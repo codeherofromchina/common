@@ -1,11 +1,12 @@
 package com.erui.report.model;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class CategoryQuality {
     private Long id;
 
-    private String qualityControlDate;
+    private Date qualityControlDate;
 
     private Integer inspectionTotal;
 
@@ -33,12 +34,12 @@ public class CategoryQuality {
         this.id = id;
     }
 
-    public String getQualityControlDate() {
+    public Date getQualityControlDate() {
         return qualityControlDate;
     }
 
-    public void setQualityControlDate(String qualityControlDate) {
-        this.qualityControlDate = qualityControlDate == null ? null : qualityControlDate.trim();
+    public void setQualityControlDate(Date qualityControlDate) {
+        this.qualityControlDate = qualityControlDate;
     }
 
     public Integer getInspectionTotal() {

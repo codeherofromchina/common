@@ -3,6 +3,7 @@ package com.erui.report.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.erui.comm.util.data.date.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,17 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
             }
 
             cq = new CategoryQuality();
-            cq.setQualityControlDate(strArr[0]);
+            if(strArr[0]!=null) {
+                try {
+                    cq.setQualityControlDate(DateUtil.parseString2Date(strArr[0], DateUtil.SHORT_SLASH_FORMAT_STR, DateUtil.FULL_FORMAT_STR2,
+                            DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "时间字段格式错误");
+                    continue;
+                }
+            }
             if (strArr[1] != null) {
                 try {
                     cq.setInspectionTotal(new BigDecimal(strArr[1]).intValue());

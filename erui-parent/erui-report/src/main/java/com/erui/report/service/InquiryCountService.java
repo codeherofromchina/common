@@ -158,4 +158,5 @@ public interface InquiryCountService {
 	 * @param endTime
 	 */
 	int selectInqRtnCountByTime(Date startTime, Date endTime);
+
 }
