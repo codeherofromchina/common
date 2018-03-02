@@ -34,4 +34,12 @@ public interface CreditExtensionMapper {
 
     //查询授信汇总数据
     Map<String,Object> selectCreditSummary(Map<String,String> params);
+    //趋势图 新增授信
+    List<Map<String,Object>> selectIncrCreditGroupByEffectiveDate(Map<String,String> params);
+    //趋势图 淘汰授信
+    List<Map<String,Object>> selectElimiCreditGroupByExpiryDate(Map<String,String> params);
+    //趋势图 授信数量 可用授信 已用授信
+    List<Map<String,Object>> selectCreditGroupByCreditDate(Map<String,String> params);
+    //查询所有大区和国家列表
+    List<Map<String, String>> selectAllAreaAndCountryList();
 }
