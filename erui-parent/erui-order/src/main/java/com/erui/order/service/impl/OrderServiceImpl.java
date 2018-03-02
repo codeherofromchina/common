@@ -124,6 +124,22 @@ public class OrderServiceImpl implements OrderService {
                 if (country != null) {
                     list.add(root.get("country").in(country));
                 }
+                if (condition.getType() == 1) {
+                    if (country != null) {
+                        list.add(root.get("country").in(country));
+                    }
+                    if (condition.getCreateUserId() != null) {
+                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
+                    }
+                } else if (condition.getType() == 2) {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    if (condition.getCreateUserId() != null) {
+                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
+                    }
+                }
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -140,7 +156,7 @@ public class OrderServiceImpl implements OrderService {
                     vo.setDeliverConsignC(flag);
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
-                    if (deliverDetailService.findStatusAndNumber(vo.getId())&&vo.getDeliverConsignC() == false){
+                    if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
                         vo.setOrderFinish(Boolean.TRUE);
                     }
                 }
@@ -467,9 +483,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public boolean orderFinish(Order order) {
         Order order1 = orderDao.findOne(order.getId());
-        if (order1!=null){
+        if (order1 != null) {
             order1.setStatus(order.getStatus());
             orderDao.save(order1);
+            addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, null);
             return true;
         }
         return false;
