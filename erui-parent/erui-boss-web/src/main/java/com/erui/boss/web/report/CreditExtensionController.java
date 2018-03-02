@@ -70,7 +70,7 @@ public class CreditExtensionController {
         }
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         Map<String,Object> datas=  creditService.creditTrend(startTime,endTime ,params.get("creditType"));
-        return  datas;
+        return  result.setData(datas);
     }
 
     /**
