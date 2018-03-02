@@ -147,6 +147,12 @@ public class DeliverDetailwController {
        deliverDetailService.logisticsActionAddOrSave(deliverDetail);
         return new Result<>();
     }
+/*
+    @RequestMapping(value = "a", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> a(@RequestBody DeliverDetail deliverDetail){
+        Boolean statusAndNumber = deliverDetailService.findStatusAndNumber(deliverDetail.getId());
+        return new Result<>(statusAndNumber);
+    }*/
 
 
     /**

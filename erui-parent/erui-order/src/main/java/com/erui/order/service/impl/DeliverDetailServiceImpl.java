@@ -974,7 +974,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         /**
          * 判断出库状态
          */
-            //根据 看货通知单 查询信息
+            // 看货通知单 查询信息
             List<DeliverNotice> companyList = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
                 @Override
                 public Predicate toPredicate(Root<DeliverNotice> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -991,30 +991,51 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
             });
             //获取物流-出库单详情
-            for (DeliverNotice deliverNotice :companyList){
-                DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();
-                if(deliverDetail != null){
-                    //  1：出库保存/草稿 2：提交出库质检 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结',
-                    if(deliverDetail.getStatus()<5){    //判断是否全部出库
-                        return false;
+            if(companyList.size() != 0){
+                for (DeliverNotice deliverNotice :companyList){
+
+                    DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();     //获取出库信息
+                    if(deliverDetail != null){
+                        //  1：出库保存/草稿 2：提交出库质检 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结',
+                        if(deliverDetail.getStatus()<5){    //判断是否全部出库
+                            return false;
+                        }
+
+                        /**
+                         * 判断商品是否出完
+                         */
+                        List<Goods> byOrderId = goodsDao.findByOrderId(orderId);//查询商品id
+                        for (Goods goods :byOrderId){
+                            int sendNum = 0;    //该商品总数量
+                            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsDao.findByGoodsIdAndDeliverDetailId(goods.getId(),deliverDetail.getId())){
+                                sendNum += deliverConsignGoods.getSendNum();    //已发货数量
+                            }
+                            Integer contractGoodsNum = goods.getContractGoodsNum();//合同商品数量
+                            if (sendNum != contractGoodsNum){
+                                return false;
+                            }
+                        }
+
                     }
                 }
+            }else{
+                return false;
             }
 
         /**
          * 判断商品是否出完
          */
-        List<Goods> byOrderId = goodsDao.findByOrderId(orderId);//查询商品id
+       /* List<Goods> byOrderId = goodsDao.findByOrderId(orderId);//查询商品id
         for (Goods goods :byOrderId){
             int sendNum = 0;    //该商品总数量
-            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsDao.findByGoodsId(goods.getId())){
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsDao.findByGoodsIdAndDeliverDetailId(goods.getId(),deliverDetail.getId())){
                 sendNum += deliverConsignGoods.getSendNum();    //已发货数量
             }
             Integer contractGoodsNum = goods.getContractGoodsNum();//合同商品数量
             if (sendNum != contractGoodsNum){
                 return false;
             }
-        }
+        }*/
 
         return true;
     }

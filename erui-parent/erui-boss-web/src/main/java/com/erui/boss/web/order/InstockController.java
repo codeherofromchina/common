@@ -126,7 +126,7 @@ public class InstockController {
         List<Map<String, Object>> goodsInfoList = new ArrayList<>();
         List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
         for (InstockGoods instockGoods : instockGoodsList) {
-            if(instockGoods.getInstockNum() == 0){
+            if(instockGoods.getInstockNum() != 0){
                 InspectApplyGoods inspectApplyGoods = instockGoods.getInspectApplyGoods();
                 PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
                 Goods goods = inspectApplyGoods.getGoods();
