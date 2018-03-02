@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface DeliverConsignGoodsDao extends JpaRepository<DeliverConsignGoods, Serializable> {
 
-    List<DeliverConsignGoods> findByGoodsId(Integer id);
+
+    Iterable<? extends DeliverConsignGoods> findByGoodsIdAndDeliverDetailId(Integer id, Integer id1);
 }
