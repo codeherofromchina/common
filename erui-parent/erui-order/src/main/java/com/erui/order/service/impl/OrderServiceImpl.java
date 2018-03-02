@@ -119,8 +119,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
-                        //Predicate country1 = cb.or(root.get("country").in(country));
                         list.add(cb.or(root.get("country").in(country),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
