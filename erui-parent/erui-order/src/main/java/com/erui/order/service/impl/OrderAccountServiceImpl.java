@@ -61,7 +61,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     OrderLogDao orderLogDao;
 
 
-    static final String POST_URL = "http://api.erui.com/v2/buyer/autoUpgrade";
+    static final String POST_URL = "http://api.erui.com/v2/buyer/autoUpgrade";  //线上地址
+
+    static final String POST_URL_production = "http://api2.erui.com/v2/buyer/autoUpgrade";  //预生产
 
     /**
      * 根据id 查询订单收款信息(单条)
@@ -394,7 +396,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         BufferedReader in = null;
        /* String result = "";*/
         try {
-            URL realUrl = new URL(POST_URL);
+            URL realUrl = new URL(POST_URL_production);
             // 打开和URL之间的连接
             URLConnection conn = realUrl.openConnection();
             // 设置通用的请求属性
