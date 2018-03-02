@@ -463,4 +463,15 @@ public class OrderServiceImpl implements OrderService {
             orderDao.save(orderList);
         }
     }
+
+    @Override
+    public boolean orderFinish(Order order) {
+        Order order1 = orderDao.findOne(order.getId());
+        if (order1!=null){
+            order1.setStatus(order.getStatus());
+            orderDao.save(order1);
+            return true;
+        }
+        return false;
+    }
 }

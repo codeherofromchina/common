@@ -63,4 +63,10 @@ public interface OrderService {
 
 
     void updateOrderDeliverConsignC(Set<Integer> orderId);
+    /**
+     * 订单确认
+     * @param order
+     * @return
+     */
+    boolean orderFinish(Order order);
 }
