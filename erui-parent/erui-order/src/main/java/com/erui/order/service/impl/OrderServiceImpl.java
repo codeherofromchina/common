@@ -81,10 +81,6 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getInquiryNo())) {
                     list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
                 }
-                //根据市场经办人查询
-                if (condition.getAgentId() != null) {
-                    list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
-                }
                 //根据订单签订时间查询
                 if (condition.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
@@ -121,23 +117,23 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-                if (country != null) {
-                    list.add(root.get("country").in(country));
-                }
                 if (condition.getType() == 1) {
-                    if (country != null) {
-                        list.add(root.get("country").in(country));
-                    }
-                    if (condition.getCreateUserId() != null) {
-                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
+                    if (country != null || condition.getCreateUserId() != null) {
+                        //Predicate country1 = cb.or(root.get("country").in(country));
+                        list.add(cb.or(root.get("country").in(country),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
                 } else if (condition.getType() == 2) {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null||condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                }else {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
-                    if (condition.getCreateUserId() != null) {
-                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
+                    if (country != null) {
+                        list.add(root.get("country").in(country));
                     }
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
