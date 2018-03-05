@@ -636,8 +636,6 @@ public class AddOrderVo {
         order.setCustomerContext(this.customerContext);
         order.setBusinessUnitName(this.businessUnitName);
         order.setExecCoName(this.execCoName);
-        order.setCreateUserId(this.createUserId);
-        order.setCreateUserName(this.createUserName);
         order.setDistributionDeptName(this.distributionDeptName);
         order.setAcquireId(this.acquireId);
     }

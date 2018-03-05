@@ -331,6 +331,8 @@ public class OrderServiceImpl implements OrderService {
         }
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
+        order.setCreateUserId(addOrderVo.getCreateUserId());
+        order.setCreateUserName(addOrderVo.getCreateUserName());
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
