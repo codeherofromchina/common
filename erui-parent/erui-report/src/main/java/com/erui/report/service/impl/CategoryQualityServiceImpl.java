@@ -1,9 +1,9 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
@@ -181,4 +181,71 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
         }
         return data;
     }
+
+    @Override
+    public Map<String, Object> selectQualityTrendData(Date startTime, Date endTime, String type) {
+        //1.构建一个标准的时间集合
+        List<String> dates = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
+            dates.add(dateFormat.format(datetime));
+        }
+        //2.获取趋势图数据
+        Map<String, String> params = new HashMap<>();
+        params.put("startTime", DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2));
+        params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2));
+        List<Map<String, Object>> trendList = readMapper.selectTrendData(params);
+        //3.处理数据
+        List<Integer> inspectList = new ArrayList<>(); //报检总数列表
+        List<Integer> inspectPassList = new ArrayList<>(); //首检合格数列表
+        List<Integer> factoryList = new ArrayList<>(); //出厂总数列表
+        List<Integer> factoryPassList = new ArrayList<>(); //出厂合格数列表
+        List<Integer> assignList = new ArrayList<>(); //外派监造总数列表
+        List<Integer> assignPassList = new ArrayList<>(); //外派监造合格数列表
+        Map<String, Map<String, Object>> trendMap =
+                trendList.stream().collect(Collectors.toMap(vo -> vo.get("qualityDate").toString(), vo -> vo));
+        for (String date :dates) {
+            if(trendMap.containsKey(date)){
+                Map<String, Object> data = trendMap.get(date);
+                inspectList.add(Integer.parseInt(data.get("inspectTotal").toString()));
+                inspectPassList.add(Integer.parseInt(data.get("inspectPassCount").toString()));
+                factoryList.add(Integer.parseInt(data.get("outfactoryTotal").toString()));
+                factoryPassList.add(Integer.parseInt(data.get("outfactoryPassCount").toString()));
+                assignList.add(Integer.parseInt(data.get("assignTotal").toString()));
+                assignPassList.add(Integer.parseInt(data.get("assignPassCount").toString()));
+            }else {
+                inspectList.add(0);
+                inspectPassList.add(0);
+                factoryList.add(0);
+                factoryPassList.add(0);
+                assignList.add(0);
+                assignPassList.add(0);
+            }
+        }
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("xAxis", dates);
+        if(type.equals(INSPECTION)){
+            datas.put("legend",INSPECTION);
+            datas.put("yAxis", inspectList);
+            datas.put("passList", inspectPassList);
+        }
+        if(FACTORY.equals(FACTORY)){
+            datas.put("legend",FACTORY);
+            datas.put("yAxis", factoryList);
+            datas.put("passList", factoryPassList);
+        }
+        if(FOREIGN.equals(FOREIGN)){
+            datas.put("legend",FOREIGN);
+            datas.put("yAxis", assignList);
+            datas.put("passList", assignPassList);
+        }
+
+        return datas;
+    }
+
+    private  final static  String INSPECTION ="inspection";
+    private  final static  String FACTORY ="factory";
+    private  final static  String FOREIGN ="foreign";
 }

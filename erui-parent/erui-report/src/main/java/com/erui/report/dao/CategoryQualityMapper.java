@@ -37,4 +37,10 @@ public interface CategoryQualityMapper {
      * @return
      */
     Map<String, Object> selectQualitySummaryData(Map<String, String> params);
+    /**
+     * 趋势图数据
+     * @param params startTime ，endTime
+     * @return
+     */
+    List<Map<String, Object>> selectTrendData(Map<String, String> params);
 }

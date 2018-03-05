@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +20,12 @@ public interface CategoryQualityService {
 	 * @return
 	 */
 	Map<String,Object> selectQualitySummaryData(Map<String,String> params);
+	/**
+	 * 查询品控趋势图数据
+	 * @param  startTime
+	 * @param  endTime
+	 * @param  type
+	 * @return
+	 */
+	Map<String,Object> selectQualityTrendData(Date startTime, Date endTime, String type);
 }

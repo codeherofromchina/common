@@ -107,6 +107,20 @@
     FROM category_quality where quality_control_date BETWEEN
     DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
   </select>
+
+  <!--趋势图数据-->
+  <select id="selectTrendData" parameterType="java.util.Map" resultType="java.util.Map">
+    SELECT DATE_FORMAT(quality_control_date,'%Y-%m-%d')  AS qualityDate ,
+    IFNULL(SUM(IFNULL(inspection_total, 0)),0) AS inspectTotal,
+	IFNULL(SUM(IFNULL(pro_infactory_check_pass_count, 0)),0) AS inspectPassCount,
+	IFNULL(SUM(IFNULL(pro_outfactory_total, 0)),0) AS outfactoryTotal,
+	IFNULL(SUM(IFNULL(pro_outfactory_check_count, 0)),0) AS outfactoryPassCount,
+	IFNULL(SUM(IFNULL(assignments_total, 0)),0) AS assignTotal,
+	IFNULL(SUM(IFNULL(products_qualified_count, 0)),0) AS assignPassCount
+    from category_quality
+    where quality_control_date between  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and  DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    group  by quality_control_date having quality_control_date is not  null
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
