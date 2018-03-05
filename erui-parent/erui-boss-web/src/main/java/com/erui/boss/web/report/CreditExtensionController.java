@@ -103,12 +103,12 @@ public class CreditExtensionController {
      */
     @ResponseBody
     @RequestMapping("/areaList")
-    public Object areaList(@RequestBody Map<String,String> params) {
+    public Object areaList(String areaName) {
         Result<Object> result = new Result<>();
 
         List<InquiryAreaVO> arayList = creditService.selectAllAreaAndCountryList();
-        if (StringUtils.isNotBlank(params.get("areaName"))){
-            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(params.get("areaName")))
+        if (StringUtils.isNotBlank( areaName)){
+            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(areaName))
                     .collect(Collectors.toList());
             if (ll.size() > 0) {
                 result.setData(ll.get(0).getCountries());

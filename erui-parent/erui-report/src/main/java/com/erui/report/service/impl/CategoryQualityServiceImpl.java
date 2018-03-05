@@ -1,8 +1,11 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,5 +155,30 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
         response.setDone(true);
 
         return response;
+    }
+
+    @Override
+    public Map<String, Object> selectQualitySummaryData(Map<String, String> params) {
+        Map<String, Object> data = readMapper.selectQualitySummaryData(params);
+
+        if(data.get("inspectPassRate")!=null){
+            double inspectPassRate = Double.parseDouble(data.get("inspectPassRate").toString());
+            data.put("inspectPassRate",RateUtil.doubleChainRate(inspectPassRate,1));
+        }else {
+            data.put("inspectPassRate",0.00);
+        }
+        if(data.get("outfactoryPassRate")!=null){
+            double outfactoryPassRate = Double.parseDouble(data.get("outfactoryPassRate").toString());
+            data.put("outfactoryPassRate",RateUtil.doubleChainRate(outfactoryPassRate,1));
+        }else {
+            data.put("outfactoryPassRate",0.00);
+        }
+        if(data.get("assignPassRate")!=null){
+            double assignPassRate = Double.parseDouble(data.get("assignPassRate").toString());
+            data.put("assignPassRate",RateUtil.doubleChainRate(assignPassRate,1));
+        }else {
+            data.put("assignPassRate",0.00);
+        }
+        return data;
     }
 }

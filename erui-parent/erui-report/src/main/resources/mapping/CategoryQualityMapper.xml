@@ -91,6 +91,22 @@
       order by ${orderByClause}
     </if>
   </select>
+  <!--查询品控总览数据-->
+  <select id="selectQualitySummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT
+	IFNULL(SUM(IFNULL(inspection_total, 0)),0) AS inspectTotal,
+	IFNULL(SUM(IFNULL(pro_infactory_check_pass_count, 0)),0) AS inspectPassCount,
+	SUM(IFNULL(pro_infactory_check_pass_count, 0))/SUM(IFNULL(inspection_total, 0)) AS inspectPassRate,
+	IFNULL(SUM(IFNULL(pro_outfactory_total, 0)),0) AS outfactoryTotal,
+	IFNULL(SUM(IFNULL(pro_outfactory_check_count, 0)),0) AS outfactoryPassCount,
+	SUM(IFNULL(pro_outfactory_check_count, 0))/SUM(IFNULL(pro_outfactory_total, 0)) AS outfactoryPassRate,
+	IFNULL(SUM(IFNULL(assignments_total, 0)),0) AS assignTotal,
+	IFNULL(SUM(IFNULL(products_qualified_count, 0)),0) AS assignPassCount,
+	SUM(IFNULL(products_qualified_count, 0))/SUM(IFNULL(assignments_total, 0)) AS assignPassRate
+    FROM category_quality where quality_control_date BETWEEN
+    DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.CategoryQuality;
 import com.erui.report.model.CategoryQualityExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CategoryQualityMapper {
@@ -29,4 +31,10 @@ public interface CategoryQualityMapper {
     int updateByPrimaryKey(CategoryQuality record);
     
     void truncateTable();
+    /**
+     * 查询品控总览数据
+     * @param params startTime ，endTime
+     * @return
+     */
+    Map<String, Object> selectQualitySummaryData(Map<String, String> params);
 }

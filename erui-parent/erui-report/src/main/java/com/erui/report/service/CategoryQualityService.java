@@ -1,6 +1,7 @@
 package com.erui.report.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.erui.report.util.ImportDataResponse;
 
@@ -12,4 +13,10 @@ public interface CategoryQualityService {
 	 * @return
 	 */
 	public ImportDataResponse importData(List<String[]> datas,boolean onlyTest) ;
+	/**
+	 * 查询品控总览数据
+	 * @param params startTime ，endTime
+	 * @return
+	 */
+	Map<String,Object> selectQualitySummaryData(Map<String,String> params);
 }
