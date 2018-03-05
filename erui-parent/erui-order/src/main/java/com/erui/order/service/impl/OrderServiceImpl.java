@@ -155,9 +155,9 @@ public class OrderServiceImpl implements OrderService {
                     vo.setDeliverConsignC(flag);
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
-                    if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
-                        vo.setOrderFinish(Boolean.TRUE);
-                    }
+                }
+                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                    vo.setOrderFinish(Boolean.TRUE);
                 }
                 vo.setGoodsList(null);
             });
