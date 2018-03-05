@@ -50,7 +50,7 @@ public class DeliverConsignGoods {
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_consign_goods_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_detail_id"))
-    /*@JsonIgnore*/
+    @JsonIgnore
     private DeliverDetail deliverDetail;
 
 
