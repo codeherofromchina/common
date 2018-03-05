@@ -300,7 +300,7 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
     @Override
     public Map<String, Object> areaDetail(Map<String,String> params) {
 
-        Map<String,Object> result=new HashMap<>();//总览数据
+        Map<String,Object> result=new HashMap<>();
         Map<String,Object> pandect=new HashMap<>();//总览数据
         Map<String,Object> chart=new HashMap<>();//图表数据数据
         Map<String, Object> datas = readMapper.selectCreditSummary(params);
