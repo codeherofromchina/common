@@ -46,6 +46,9 @@ public class DeliverNoticeController {
         }
         try {
             Page<DeliverNotice> pageList = deliverNoticeService.listByPage(condition);
+            for (DeliverNotice deliverNotice : pageList){
+                deliverNotice.setDeliverDetail(null);
+            }
             return new Result<>(pageList);
         }catch (Exception e){
             logger.error("查询错误", e);

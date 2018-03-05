@@ -168,9 +168,11 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
                     list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
                 }
+                String[] projectStatus = null;
                 //根据项目状态
                 if (StringUtil.isNotBlank(condition.getProjectStatus())) {
-                    list.add(cb.equal(root.get("projectStatus").as(String.class), condition.getProjectStatus()));
+                    projectStatus = condition.getProjectStatus().split(",");
+                    list.add(root.get("projectStatus").in(projectStatus));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {

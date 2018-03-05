@@ -369,6 +369,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
+                list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的
                 list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
                 //
 
