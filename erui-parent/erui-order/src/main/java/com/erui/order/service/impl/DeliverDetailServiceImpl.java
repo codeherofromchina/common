@@ -996,11 +996,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 for (DeliverNotice deliverNotice :companyList){
 
                     DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();     //获取出库信息
-                    if(deliverDetail == null){
-                        return false;
-                    }
+
                     //  1：出库保存/草稿 2：提交出库质检 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结',
-                    if(deliverDetail.getStatus()<5){    //判断是否全部出库
+                    if(deliverDetail == null || deliverDetail.getStatus()<5){   //判断是否全部出库
                         return false;
                     }
 
