@@ -196,10 +196,9 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setUid(instock.getUid());
         dbInstock.setUname(instock.getUname());
         dbInstock.setDepartment(instock.getDepartment());
-        //当入库提交的时候才保存  入库日期
-        if(instock.getStatus() == 3){
-            dbInstock.setInstockDate(NewDateUtil.getDate(instock.getInstockDate()));
-        }
+
+        dbInstock.setInstockDate(NewDateUtil.getDate(instock.getInstockDate()));    //入库日期
+
         dbInstock.setRemarks(instock.getRemarks());
         dbInstock.setCurrentUserId(instock.getCurrentUserId());
         dbInstock.setCurrentUserName(instock.getCurrentUserName());
@@ -207,12 +206,14 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setDepartment(instock.getDepartment());
 
         List<InstockGoods> instockGoodsList = dbInstock.getInstockGoodsList();
-        for (InstockGoods instockGoods : instockGoodsList){
-            Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
-
-            one.setInstockDate(dbInstock.getInstockDate());
-            one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
-            goodsDao.saveAndFlush(one);
+        if(instock.getStatus() == 3){
+            for (InstockGoods instockGoods : instockGoodsList){
+                //当入库提交的时候才保存  入库日期
+                Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
+                one.setInstockDate(dbInstock.getInstockDate()); //入库日期
+                one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
+                goodsDao.saveAndFlush(one);
+            }
         }
 
 
