@@ -553,11 +553,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
 
+            /**
+             *  订单执行跟踪   推送运单号      经办日期
+             */
+            OrderLog orderLog = orderLogDao.findByDeliverDetailId(deliverDetail.getId());   //查询是否有记录
+            if(orderLog == null){   //如果等于空，新增
+
             List<DeliverConsignGoods> deliverConsignGoodsList = one.getDeliverConsignGoodsList();
             Integer id = deliverConsignGoodsList.get(0).getGoods().getOrder().getId();  //获取到订单id
-                //  订单执行跟踪   推送运单号      经办日期
+
                 OrderLog orderLog1 = new OrderLog();
                 try {
+                    orderLog1.setDeliverDetailId(deliverDetail.getId());
                     orderLog1.setOrder(orderDao.findOne(id));
                     orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
                     orderLog1.setOperation(one.getDeliverDetailNo());
@@ -569,6 +576,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     logger.error("错误", ex);
                     ex.printStackTrace();
                 }
+            }else{  //不等于空，更新时间
+                orderLog.setBusinessDate(deliverDetail.getLogisticsDate());
+                orderLogDao.save(orderLog);
+            }
 
         }
         //物流发票号
@@ -998,7 +1009,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();     //获取出库信息
 
                     //  1：出库保存/草稿 2：提交出库质检 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结',
-                    if(deliverDetail == null || deliverDetail.getStatus()<5){   //判断是否全部出库
+                    if(deliverDetail == null || deliverDetail.getStatus()<6){   //判断是否全部出库
                         return false;
                     }
 
