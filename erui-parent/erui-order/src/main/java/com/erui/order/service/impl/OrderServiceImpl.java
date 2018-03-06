@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
@@ -155,9 +156,9 @@ public class OrderServiceImpl implements OrderService {
                     vo.setDeliverConsignC(flag);
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
-                    if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
-                        vo.setOrderFinish(Boolean.TRUE);
-                    }
+                }
+                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                    vo.setOrderFinish(Boolean.TRUE);
                 }
                 vo.setGoodsList(null);
             });
@@ -331,6 +332,8 @@ public class OrderServiceImpl implements OrderService {
         }
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
+        order.setCreateUserId(addOrderVo.getCreateUserId());
+        order.setCreateUserName(addOrderVo.getCreateUserName());
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
@@ -338,6 +341,7 @@ public class OrderServiceImpl implements OrderService {
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
+
             goods.setSku(pGoods.getSku());
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
@@ -485,7 +489,7 @@ public class OrderServiceImpl implements OrderService {
         if (order1 != null) {
             order1.setStatus(order.getStatus());
             orderDao.save(order1);
-            addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, null);
+            addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, new Date());
             return true;
         }
         return false;

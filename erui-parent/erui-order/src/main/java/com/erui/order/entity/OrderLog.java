@@ -55,6 +55,10 @@ public class OrderLog {
     @JsonIgnore
     private Integer orderAccountId;
 
+    @Column(name="deliver_detail_id")
+    @JsonIgnore
+    private Integer deliverDetailId;    //物流id
+
     public Integer getId() {
         return id;
     }
@@ -134,6 +138,14 @@ public class OrderLog {
 
     public void setOrderAccountId(Integer orderAccountId) {
         this.orderAccountId = orderAccountId;
+    }
+
+    public Integer getDeliverDetailId() {
+        return deliverDetailId;
+    }
+
+    public void setDeliverDetailId(Integer deliverDetailId) {
+        this.deliverDetailId = deliverDetailId;
     }
 
     @Override
