@@ -9,6 +9,17 @@ import com.erui.report.util.InquiryAreaVO;
 
 public interface CreditExtensionService {
 	/**
+	 * 查询 起始时间
+	 * @return Date
+	 */
+	Date selectStart();
+	/**
+	 * 查询 结束时间
+	 * @return Date
+	 */
+	Date selectEnd();
+
+	/**
 	 * 导入授信数据
 	 * @param datas
 	 * @param testOnly	true:只检测数据  false:插入正式库

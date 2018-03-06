@@ -2,6 +2,8 @@ package com.erui.report.dao;
 
 import com.erui.report.model.MarketerCount;
 import com.erui.report.model.MarketerCountExample;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,8 @@ public interface MarketerCountMapper {
     int updateByPrimaryKey(MarketerCount record);
     
     void truncateTable();
+    Date selectStart();
+    Date selectEnd();
     //市场询单top1
     Map<String,Object> marketInqTop1(Map<String,String> params);
     //市场成单top1

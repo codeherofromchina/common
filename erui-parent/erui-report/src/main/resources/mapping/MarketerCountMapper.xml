@@ -92,6 +92,14 @@
             order by ${orderByClause}
         </if>
     </select>
+
+    <select id="selectStart" resultType="java.util.Date">
+    SELECT create_time FROM marketer_count ORDER BY create_time ASC LIMIT 1
+  </select>
+
+    <select id="selectEnd" resultType="java.util.Date">
+    SELECT create_time FROM marketer_count ORDER BY create_time DESC LIMIT 1
+  </select>
     <!--国家询单top1-->
     <select id="marketInqTop1" resultType="java.util.Map" parameterType="java.util.Map">
     SELECT

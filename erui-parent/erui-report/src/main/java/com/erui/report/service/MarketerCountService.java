@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -7,6 +8,16 @@ import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
 
 public interface MarketerCountService {
+	/**
+	 * 查询 起始时间
+	 * @return Date
+	 */
+	Date selectStart();
+	/**
+	 * 查询 结束时间
+	 * @return  Date
+	 */
+	Date selectEnd();
 	/**
 	 * 导入市场人员数据
 	 * @param datas

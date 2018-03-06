@@ -27,6 +27,16 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
 
 
     @Override
+    public Date selectStart() {
+        return readMapper.selectStart();
+    }
+
+    @Override
+    public Date selectEnd() {
+        return readMapper.selectEnd();
+    }
+
+    @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse();
@@ -341,9 +351,9 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
         yList.add(creditCount);
         yList.add(usedAmount);
         yList.add(availAmount);
-        rateList.add("占比"+countRate*100+"%");
-        rateList.add("占比"+usedRate*100+"%");
-        rateList.add("占比"+availRate*100+"%");
+        rateList.add("占比"+RateUtil.doubleChainRateTwo(countRate*100,1)+"%");
+        rateList.add("占比"+RateUtil.doubleChainRateTwo(usedRate*100,1)+"%");
+        rateList.add("占比"+RateUtil.doubleChainRateTwo(availRate*100,1)+"%");
         chart.put("xAxis",xList);
         chart.put("yAxis",yList);
         chart.put("rate",rateList);

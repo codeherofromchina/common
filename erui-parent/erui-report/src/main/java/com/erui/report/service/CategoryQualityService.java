@@ -8,6 +8,20 @@ import com.erui.report.util.ImportDataResponse;
 
 public interface CategoryQualityService {
 	/**
+	 * 查询 起始时间
+	 * @return Date
+	 */
+	Date selectStart();
+	/**
+	 * 查询 结束时间
+	 * @return Date
+	 */
+	Date selectEnd();
+	/**
+	 * 查询 结束时间
+	 * @return  Date
+	 */
+	/**
 	 * 导入品控数据
 	 * @param datas
 	 * @param onlyTest	true:只检测数据  false:插入正式库

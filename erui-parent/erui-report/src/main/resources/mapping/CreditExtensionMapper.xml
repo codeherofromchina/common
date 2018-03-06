@@ -199,6 +199,13 @@
         </if>
     </select>
 
+    <select id="selectStart" resultType="java.util.Date">
+    SELECT credit_date FROM credit_extension ORDER BY credit_date ASC LIMIT 1
+  </select>
+
+    <select id="selectEnd" resultType="java.util.Date">
+    SELECT credit_date FROM credit_extension ORDER BY credit_date DESC LIMIT 1
+  </select>
     <!--查询所有大区和国家列表-->
     <select id="selectAllAreaAndCountryList" resultType="java.util.Map">
     select credit_area as area ,credit_country as country from credit_extension

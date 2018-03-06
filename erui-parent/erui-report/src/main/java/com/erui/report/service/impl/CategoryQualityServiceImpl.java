@@ -22,6 +22,16 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
     private final static Logger logger = LoggerFactory.getLogger(CategoryQualityServiceImpl.class);
 
     @Override
+    public Date selectStart() {
+        return  readMapper.selectStart();
+    }
+
+    @Override
+    public Date selectEnd() {
+        return readMapper.selectEnd();
+    }
+
+    @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse();

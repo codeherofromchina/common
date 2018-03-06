@@ -2,6 +2,8 @@ package com.erui.report.dao;
 
 import com.erui.report.model.CategoryQuality;
 import com.erui.report.model.CategoryQualityExample;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,16 @@ public interface CategoryQualityMapper {
     int updateByPrimaryKey(CategoryQuality record);
     
     void truncateTable();
+    /**
+     * 查询 起始时间
+     * @return Date
+     */
+    Date selectStart();
+    /**
+     * 查询 结束时间
+     * @return Date
+     */
+    Date selectEnd();
     /**
      * 查询品控总览数据
      * @param params startTime ，endTime

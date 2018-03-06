@@ -1,10 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.erui.comm.RateUtil;
@@ -23,6 +20,16 @@ import com.erui.report.util.ImportDataResponse;
 @Service
 public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> implements MarketerCountService {
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
+
+    @Override
+    public Date selectStart() {
+        return readMapper.selectStart();
+    }
+
+    @Override
+    public Date selectEnd() {
+        return readMapper.selectEnd();
+    }
 
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {

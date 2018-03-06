@@ -91,6 +91,15 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <select id="selectStart" resultType="java.util.Date">
+    SELECT quality_control_date FROM category_quality ORDER BY quality_control_date ASC LIMIT 1
+  </select>
+
+  <select id="selectEnd" resultType="java.util.Date">
+    SELECT quality_control_date FROM category_quality ORDER BY quality_control_date DESC LIMIT 1
+  </select>
+
   <!--查询品控总览数据-->
   <select id="selectQualitySummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
 
