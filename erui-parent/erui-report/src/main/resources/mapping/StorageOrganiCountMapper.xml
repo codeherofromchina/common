@@ -93,11 +93,11 @@
                   WHEN (outTime &lt; entryTime AND outTime &lt; orgTime) THEN outTime
 				  ELSE orgTime END ) AS startTime
 	FROM ( SELECT entryTime ,outTime ,orgTime
-	        FROM  (SELECT create_at AS entryTime FROM order_entry_count ORDER BY entryTime ASC LIMIT 1)
+	        FROM  (SELECT create_at AS entryTime FROM order_entry_count ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") ASC LIMIT 1)
 	              AS t1,
-                 (SELECT create_at AS outTime FROM order_outbound_count ORDER BY outTime ASC LIMIT 1)
+                 (SELECT create_at AS outTime FROM order_outbound_count ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") ASC LIMIT 1)
                   AS t2,
-                 (SELECT create_at AS orgTime FROM storage_organi_count  ORDER BY orgTime ASC LIMIT 1 )
+                 (SELECT create_at AS orgTime FROM storage_organi_count  ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") ASC LIMIT 1 )
                   AS t3 )
     AS t4
   </select>
@@ -107,11 +107,11 @@
                   WHEN (outTime>entryTime AND outTime > orgTime) THEN outTime
 				  ELSE orgTime END ) AS startTime
 	FROM ( SELECT entryTime ,outTime ,orgTime
-	        FROM  (SELECT create_at AS entryTime FROM order_entry_count ORDER BY entryTime DESC LIMIT 1)
+	        FROM  (SELECT create_at AS entryTime FROM order_entry_count ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") DESC LIMIT 1)
 	              AS t1,
-                 (SELECT create_at AS outTime FROM order_outbound_count ORDER BY outTime DESC LIMIT 1)
+                 (SELECT create_at AS outTime FROM order_outbound_count ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") DESC LIMIT 1)
                   AS t2,
-                 (SELECT create_at AS orgTime FROM storage_organi_count  ORDER BY orgTime DESC LIMIT 1 )
+                 (SELECT create_at AS orgTime FROM storage_organi_count  ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") DESC LIMIT 1 )
                   AS t3 )
     AS t4
   </select>

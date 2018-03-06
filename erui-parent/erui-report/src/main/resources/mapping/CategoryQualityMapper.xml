@@ -93,11 +93,11 @@
   </select>
 
   <select id="selectStart" resultType="java.util.Date">
-    SELECT quality_control_date FROM category_quality ORDER BY quality_control_date ASC LIMIT 1
+    SELECT quality_control_date FROM category_quality ORDER BY DATE_FORMAT(quality_control_date,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
   </select>
 
   <select id="selectEnd" resultType="java.util.Date">
-    SELECT quality_control_date FROM category_quality ORDER BY quality_control_date DESC LIMIT 1
+    SELECT quality_control_date FROM category_quality ORDER BY DATE_FORMAT(quality_control_date,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
   </select>
 
   <!--查询品控总览数据-->
