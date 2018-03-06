@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -61,9 +62,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     OrderLogDao orderLogDao;
 
 
-    static final String POST_URL = "http://api.erui.com/v2/buyer/autoUpgrade";  //线上地址
+    @Value("#{orderProp[CRM_URL]}")
+    private String crmUrl;  //CRM接口地址
 
-    static final String POST_URL_production = "http://api2.erui.com/v2/buyer/autoUpgrade";  //预生产
+    // 用户升级方法
+    static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
 
     /**
      * 根据id 查询订单收款信息(单条)
@@ -99,7 +102,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void delGatheringRecord(ServletRequest request,Integer id) {
+    public void delGatheringRecord(ServletRequest request, Integer id) {
 
 
         /**
@@ -114,17 +117,17 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order order = orderAccounts.getOrder();
 
         //需要调用CRM系统接口，完成CRM会员升级
-        Map<String,Object> map = new HashMap<>();
-        map.put("crm_code",order.getCrmCode());
-        sendPost(request,map);
+        Map<String, Object> map = new HashMap<>();
+        map.put("crm_code", order.getCrmCode());
+        sendPost(crmUrl + CRM_URL_METHOD, request, map);
 
         /**
          * 判断是否是收款中状态
          */
         Integer id1 = order.getId();//拿到订单id
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id1,1);
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id1, 1);
         //无收款记录  改变收款状态为  1:未付款      （ 1:未付款 2:部分付款 3:收款完成'）
-        if(byOrderId.size() == 0){
+        if (byOrderId.size() == 0) {
             Order one = orderDao.findOne(id1);
             one.setPayStatus(1);
             orderDao.saveAndFlush(one);
@@ -146,28 +149,28 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addGatheringRecord(OrderAccount orderAccount,ServletRequest request) throws Exception {
+    public void addGatheringRecord(OrderAccount orderAccount, ServletRequest request) throws Exception {
       /*orderAccount.setPaymentDate(new Date());*/   //测试放开
         orderAccount.setCreateTime(new Date());
         OrderAccount orderAccount1;
         try {
-            orderAccount1 =orderAccountDao.save(orderAccount);
-        }catch (Exception e){
+            orderAccount1 = orderAccountDao.save(orderAccount);
+        } catch (Exception e) {
             throw new Exception("订单收款记录添加失败");
         }
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
-        if( order== null){
-            throw new Exception("无订单id："+orderAccount.getOrder().getId()+"  关联关系");
+        if (order == null) {
+            throw new Exception("无订单id：" + orderAccount.getOrder().getId() + "  关联关系");
         }
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
 
 
         //需要调用CRM系统接口，完成CRM会员升级
-        Map<String,Object> map = new HashMap<>();
-        map.put("crm_code",order.getCrmCode());
-        sendPost(request,map);
+        Map<String, Object> map = new HashMap<>();
+        map.put("crm_code", order.getCrmCode());
+        sendPost(crmUrl + CRM_URL_METHOD, request, map);
 
 
         /**
@@ -178,7 +181,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             NumberFormat numberFormat1 = NumberFormat.getNumberInstance();
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+numberFormat1.format(orderAccount.getMoney()) +" "+order.getCurrencyBn());
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
@@ -202,7 +205,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount) {
+    public void updateGatheringRecord(ServletRequest request, OrderAcciuntAdd orderAccount) {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId()); //查询收款
 
 
@@ -213,27 +216,27 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         String currencyBn = orderAccounts.getOrder().getCurrencyBn();   //金额类型
 
         NumberFormat numberFormat1 = NumberFormat.getNumberInstance();
-        if(StringUtil.isNotBlank(orderAccount.getDesc()) && orderAccount.getMoney() != null  ){
+        if (StringUtil.isNotBlank(orderAccount.getDesc()) && orderAccount.getMoney() != null) {
             //获取回款时间
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
             }
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+numberFormat1.format(orderAccount.getMoney()) +" "+currencyBn);
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
             orderLogDao.save(orderLog);
-        }else if(StringUtil.isNotBlank(orderAccount.getDesc()) || orderAccount.getMoney() != null){
-            if(StringUtil.isNotBlank(orderAccount.getDesc())){
+        } else if (StringUtil.isNotBlank(orderAccount.getDesc()) || orderAccount.getMoney() != null) {
+            if (StringUtil.isNotBlank(orderAccount.getDesc())) {
                 //获取回款时间
                 if (orderAccount.getPaymentDate() != null) {
                     orderLog.setBusinessDate(orderAccount.getPaymentDate());
                 }
-                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+numberFormat1.format(orderAccounts.getMoney()) +" "+currencyBn);
+                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccounts.getMoney()) + " " + currencyBn);
                 orderLogDao.save(orderLog);
-            }else if(orderAccount.getMoney() != null){
+            } else if (orderAccount.getMoney() != null) {
                 //获取回款时间
                 if (orderAccount.getPaymentDate() != null) {
                     orderLog.setBusinessDate(orderAccount.getPaymentDate());
                 }
-                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccounts.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+numberFormat1.format(orderAccount.getMoney()) +" "+currencyBn);
+                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccounts.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
                 orderLogDao.save(orderLog);
             }
         }
@@ -245,7 +248,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderAccounts.setMoney(orderAccount.getMoney());
         }
         /*if (orderAccount.getDiscount() != null) {*/
-            orderAccounts.setDiscount(orderAccount.getDiscount());
+        orderAccounts.setDiscount(orderAccount.getDiscount());
        /*}*/
         if (orderAccount.getPaymentDate() != null) {
             orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
@@ -260,11 +263,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccountDao.saveAndFlush(orderAccounts);
 
 
-
         //需要调用CRM系统接口，完成CRM会员升级
-        Map<String,Object> map = new HashMap<>();
-        map.put("crm_code",orderAccounts.getOrder().getCrmCode());
-        sendPost(request,map);
+        Map<String, Object> map = new HashMap<>();
+        map.put("crm_code", orderAccounts.getOrder().getCrmCode());
+        sendPost(crmUrl + CRM_URL_METHOD, request, map);
 
     }
 
@@ -281,8 +283,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         /**
          * 查看当前订单是否有收款记录
          */
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id,1);
-        if(byOrderId.size() == 0){
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
+        if (byOrderId.size() == 0) {
             throw new Exception("无收款记录");
         }
         Order order = orderDao.findOne(id);
@@ -304,7 +306,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     public Order gatheringMessage(Integer id) {
         Order order = orderDao.findOne(id);  //查询订单信息
 
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id,1);
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
 
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
         BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
@@ -325,7 +327,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
 
-       // 应收账款余额=发货金额-回款金额-其他扣款金额
+        // 应收账款余额=发货金额-回款金额-其他扣款金额
         order.setReceivableAccountRemaining(subtract);    //应收账款余额
         return order;
     }
@@ -340,7 +342,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional(readOnly = true)
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC,"createTime");
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "createTime");
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -383,27 +385,26 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     }
 
 
-
-
     /**
      * 向指定URL发送POST请求
+     *
      * @param paramMap
      * @return 响应结果
      */
-    public static void sendPost(ServletRequest request, Map<String, Object> paramMap) {
+    public static void sendPost(String url, ServletRequest request, Map<String, Object> paramMap) {
         String eruiToken = EruitokenUtil.getEruiToken(request);
 
         PrintWriter out = null;
         BufferedReader in = null;
        /* String result = "";*/
         try {
-            URL realUrl = new URL(POST_URL_production);
+            URL realUrl = new URL(url);
             // 打开和URL之间的连接
             URLConnection conn = realUrl.openConnection();
             // 设置通用的请求属性
             conn.setRequestProperty("accept", "*/*");
             conn.setRequestProperty("connection", "Keep-Alive");
-            conn.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
             conn.setRequestProperty(EruitokenUtil.TOKEN_NAME, eruiToken);
             conn.setRequestProperty("Content-Type", " application/json");//设定 请求格式 json，
             // 发送POST请求必须设置如下两行
@@ -415,7 +416,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             // 设置请求属性
             String jsonString = null;
             if (paramMap != null && paramMap.size() > 0) {
-                 jsonString = JSON.toJSONString(paramMap, SerializerFeature.WriteMapNullValue,SerializerFeature.WriteNullStringAsEmpty);
+                jsonString = JSON.toJSONString(paramMap, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty);
             }
             // 发送请求参数
             out.print(jsonString);
@@ -450,11 +451,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     }
 
 
-
-
-
-
-
-
-
+    public void setCrmUrl(String crmUrl) {
+        this.crmUrl = crmUrl;
+    }
 }
