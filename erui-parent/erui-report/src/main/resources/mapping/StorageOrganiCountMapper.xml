@@ -186,6 +186,20 @@
         </if>
   ) AS outData
   </select>
+    <!--查询各事业部的库存-->
+    <select id="orgStocks" resultType="java.util.Map" parameterType="java.util.Map">
+      SELECT
+	organi_name AS orgName,
+    IFNULL(SUM(IFNULL(tray_num, 0)),0) AS trayCount,
+	IFNULL(SUM(IFNULL(product_num, 0)),0) AS proCount
+    FROM storage_organi_count
+    WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and create_at BETWEEN
+            DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+    GROUP BY organi_name HAVING organi_name IS NOT NULL
+    </select>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         select
         <include refid="Base_Column_List"/>

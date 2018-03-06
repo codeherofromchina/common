@@ -38,4 +38,10 @@ public interface StorageOrganiCountService {
 	 * @return
 	 */
 	Map<String,Object> selectStorageTrend(Date startTime,Date endTime);
+	/**
+	 * 仓储物流总览数据
+	 * @param  params startTime,endTime
+	 * @return
+	 */
+	Map<String,Object> orgStocks(Map<String,String> params);
 }

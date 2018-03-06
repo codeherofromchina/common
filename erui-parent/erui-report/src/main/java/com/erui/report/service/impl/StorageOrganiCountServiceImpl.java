@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.erui.comm.RateUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -181,5 +182,28 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
         datas.put("outCounts", outCounts);
         datas.put("totalCounts", totalCounts);
         return datas;
+    }
+
+    @Override
+    public Map<String, Object> orgStocks(Map<String,String> params) {
+       List<Map<String,Object>> orgDataList= readMapper.orgStocks(params);
+       List<String> orgList=new ArrayList<>();
+       List<Integer> trayList=new ArrayList<>();
+       List<Integer> productList=new ArrayList<>();
+       if(CollectionUtils.isNotEmpty(orgDataList)){
+           for (Map<String,Object> map: orgDataList) {
+               String org =map.get("orgName").toString();
+               int proCount = Integer.parseInt(map.get("proCount").toString());
+               int trayCount = Integer.parseInt(map.get("trayCount").toString());
+               orgList.add(org);
+               trayList.add(trayCount);
+               productList.add(proCount);
+           }
+       }
+        Map<String,Object> data =new HashMap<>();
+       data.put("orgs",orgList);
+       data.put("trayCounts",trayList);
+       data.put("proCounts",productList);
+        return data;
     }
 }

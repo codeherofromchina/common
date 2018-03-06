@@ -44,6 +44,7 @@ public class StorageController {
        Map<String,Object> data= storageService.selectStorageSummaryData(params);
         return result.setData(data);
     }
+
     @ResponseBody
     @RequestMapping(value = "/storageTrend",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public Result storageTrend(@RequestBody(required = true) Map<String,String> params){
@@ -55,6 +56,24 @@ public class StorageController {
         }
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
        Map<String,Object> data= storageService.selectStorageTrend(startTime,endTime);
+        return result.setData(data);
+    }
+    @ResponseBody
+    @RequestMapping(value = "/orgStocks",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public Result orgStocks(@RequestBody(required = true) Map<String,String> params){
+        Result<Object> result = new Result<>();
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
+        String fullStartTime=DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2);
+        String fullEndTime=DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime",fullStartTime);
+        params.put("endTime",fullEndTime);
+       Map<String,Object> data= storageService.orgStocks(params);
         return result.setData(data);
     }
 
