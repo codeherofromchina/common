@@ -242,6 +242,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             throw new Exception("传入质检商品数量不正确");
         }
         boolean hegeFlag = true;
+        int hegeNum = 0;
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
             if (paramApplyGoods == null) {
@@ -269,6 +270,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
+                hegeNum += qualifiedNum; // 统计合格总数量
                 if (qualifiedNum < 0) {
                     throw new Exception("传入不合格数量参数不正确【SKU:" + goods.getSku() + "】");
                 }
@@ -315,8 +317,8 @@ public class InspectReportServiceImpl implements InspectReportService {
         }
         inspectReportDao.save(dbInspectReport);
 
-        // 最后判断采购是否完成
-        if (statusEnum == InspectReport.StatusEnum.DONE) {
+        // 最后判断采购是否完成，且存在合格的商品数量
+        if (statusEnum == InspectReport.StatusEnum.DONE && hegeNum > 0) {
             Purch purch = dbInspectReport.getInspectApply().getPurch();
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
             boolean doneFlag = true;
@@ -330,6 +332,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
             }
+
 
             // 推送数据到入库部门
             Instock instock = new Instock();
@@ -348,12 +351,17 @@ public class InspectReportServiceImpl implements InspectReportService {
             List<InstockGoods> instockGoodsList = new ArrayList<>();
             // 入库商品
             for (InspectApplyGoods inspectGoods : dbInspectReport.getInspectGoodsList()) {
+                int qualifiedNum = inspectGoods.getInspectNum() - inspectGoods.getUnqualified();
+                if (qualifiedNum <= 0) {
+                    // 全部不合格商品则不添加到入库
+                    continue;
+                }
                 InstockGoods instockGoods = new InstockGoods();
                 instockGoods.setInstock(instock);
                 instockGoods.setContractNo(inspectGoods.getGoods().getContractNo());
                 instockGoods.setProjectNo(inspectGoods.getGoods().getProjectNo());
                 instockGoods.setInspectApplyGoods(inspectGoods);
-                instockGoods.setQualifiedNum(inspectGoods.getInspectNum() - inspectGoods.getUnqualified());
+                instockGoods.setQualifiedNum(qualifiedNum);
                 instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
                 Date date = new Date();
                 instockGoods.setCreateTime(date);
