@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping(value = "/report/storage")
-public class StorageCountroller {
+public class StorageController {
 
     @Autowired
     private StorageOrganiCountService storageService;

@@ -163,7 +163,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
                 entryCounts.add(0);
             }
             if(outMap.containsKey(date)){
-                Map<String, Object> data = entryMap.get(date);
+                Map<String, Object> data = outMap.get(date);
                 int outCount = Integer.parseInt(data.get("outCount").toString());
                 outCounts.add(outCount);
 
