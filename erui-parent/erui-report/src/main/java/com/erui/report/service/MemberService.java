@@ -30,4 +30,11 @@ public interface MemberService {
 	  * @modified By
 	  */
 	public Map<String,Object> selectMemberByTime();
+	/**
+	 * @Author:lirb
+	 * @Description 查询运营数据汇总数据
+	 * @Date:17:59 2018/03/06
+	 * @modified By
+	 */
+	Map<String,Object> selectOperateSummaryData(Map<String,String> params);
 }

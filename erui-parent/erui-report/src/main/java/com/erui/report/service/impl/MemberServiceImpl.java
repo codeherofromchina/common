@@ -150,7 +150,6 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         return this.readMapper.selectByTime(example);
     }
 
-
     @Override
     @Deprecated
     public Map<String, Object> selectMemberByTime() {
@@ -210,11 +209,11 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         return data;
     }
 
-
-    public static void main(String[] args) throws ParseException {
-        Date date = DateUtil.parseString2Date("2017/9/09", "yyyy/M/d", "yyyy/M/d HH:mm:ss",
-                DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR);
-
-        System.out.println(DateUtil.formatDateToString(date, DateUtil.FULL_FORMAT_STR));
+    @Override
+    public Map<String, Object> selectOperateSummaryData(Map<String, String> params) {
+        
+        return null;
     }
+
+
 }

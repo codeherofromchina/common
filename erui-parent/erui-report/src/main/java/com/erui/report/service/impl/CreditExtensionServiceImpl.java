@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CreditExtensionExample;
@@ -39,7 +40,10 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"","","",""}
+        );
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         CreditExtension ce = null;
         if (!testOnly) {
@@ -164,12 +168,12 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
         if (chainUsedAmount > 0) {
             usedChainRate = RateUtil.doubleChainRate(usedAmount - chainUsedAmount, chainUsedAmount);
         }
-        if (incrCredit > 0) {
-            lossRate = RateUtil.intChainRate(elimiCredit, incrCredit);
+        if (creditCount > 0) {
+            lossRate = RateUtil.intChainRate(elimiCredit, creditCount);
         }
-        int chainIncrCredit = Integer.parseInt(chainDatas.get("incrCredit").toString());
-        if (chainIncrCredit > 0) {
-            incrCreditRate = RateUtil.intChainRate(incrCredit - chainIncrCredit, chainIncrCredit);
+        int chainelimiCredit = Integer.parseInt(chainDatas.get("elimiCredit").toString());
+        if (chainelimiCredit > 0) {
+            incrCreditRate = RateUtil.intChainRate(elimiCredit - chainelimiCredit, chainelimiCredit);
         }
 
         //封装数据

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import org.slf4j.Logger;
@@ -34,7 +35,11 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"inspectionTotal","proInfactoryCheckPassCount","proOutfactoryTotal",
+                        "proOutfactoryCheckCount","assignmentsTotal","productsQualifiedCount"}
+        );
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         CategoryQuality cq = null;
         if (!testOnly) {
@@ -159,7 +164,12 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
                 response.pushFailItem(ExcelUploadTypeEnum.INQUIRY_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            // 在上周范围内则统计
+            if (NewDateUtil.inSaturdayWeek(cq.getQualityControlDate())) {
+                response.sumData(cq);
+            }
             response.incrSuccess();
+
 
         }
         response.setDone(true);

@@ -884,7 +884,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 inquiryCount.setOrganization(map.get("org_name").toString());
             }
             if (map.get("buyer_code") != null) {//客户编码
-                inquiryCount.setCustName(map.get("buyer_code").toString());
+                inquiryCount.setCustDescription(map.get("buyer_code").toString());
             }
             if (map.get("gross_profit_rate") != null) {//利润率
                 inquiryCount.setProfitMargin(new BigDecimal(map.get("gross_profit_rate").toString()));
