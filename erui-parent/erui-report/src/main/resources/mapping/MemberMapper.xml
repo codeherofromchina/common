@@ -101,6 +101,38 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <!--查询会员汇总数量-->
+  <select id="selectOperateSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+      IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0) as doorCount,
+      IFNULL(SUM(CASE source_name WHEN '后台' THEN 1 ELSE 0 END ),0) AS backStageCount,
+      IFNULL(SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END ),0) AS generalCount,
+      IFNULL(SUM(CASE source_name WHEN '高级会员' THEN 1 ELSE 0 END ),0) AS seniorCount
+    FROM erui_buyer.v_buyer where 1=1
+    <if test="startTime!=null and endTime!=null">
+      and created_at BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+  </select>
+  <!--查询会员趋势图数据-->
+  <select id="selectOperateTrend" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+      DATE_FORMAT(created_at,"%Y/%m/%d") AS createdAt,
+      COUNT(1) AS totalCount,
+      SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END) AS generalCount,
+      SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END) AS seniorCount
+    FROM erui_buyer.v_buyer
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and createdAt BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+     GROUP BY createdAt having createdAt is not null ;
+
+  </select>
+
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />

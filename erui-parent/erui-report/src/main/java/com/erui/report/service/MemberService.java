@@ -32,9 +32,16 @@ public interface MemberService {
 	public Map<String,Object> selectMemberByTime();
 	/**
 	 * @Author:lirb
-	 * @Description 查询运营数据汇总数据
+	 * @Description 查询会员数据汇总 门户，后台，普通，高级
 	 * @Date:17:59 2018/03/06
 	 * @modified By
 	 */
 	Map<String,Object> selectOperateSummaryData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 运营数据趋势图
+	 * @Date:17:59 2018/03/06
+	 * @modified By
+	 */
+	Map<String,Object> selectOperateTrend(Date startTime,Date endTime );
 }

@@ -33,4 +33,9 @@ public interface MemberMapper {
     int updateByPrimaryKey(Member record);
     
     void truncateTable();
+
+    //查询会员数据汇总  门户、前台、普通会员和高级会员
+    Map<String, Object> selectOperateSummaryData(Map<String, String> params);
+    //查询趋势图数据
+    List<Map<String, Object>> selectOperateTrend(Map<String, String> params);
 }

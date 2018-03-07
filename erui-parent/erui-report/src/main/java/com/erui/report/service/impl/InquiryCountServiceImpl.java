@@ -1041,4 +1041,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return readMapper.selectInqRtnCountByTime(example);
     }
 
+    @Override
+    public Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, String> params) {
+
+        return readMapper.selectInqAndOrdCountAndPassengers(params);
+    }
+
 }

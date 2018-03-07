@@ -347,6 +347,48 @@
       order by ${orderByClause}
     </if>
   </select>
+    <!--查询询单、交易的人数和单数-->
+  <select id="selectInqAndOrdCountAndPassengers" resultType="java.util.Map" parameterType="java.util.Map" >
+  SELECT
+  t1.inqCount AS inqCount,
+  t1.inqCustCount+t2.inqNullCount AS inqCustCount,
+  t3.ordCount AS ordCount,
+  t3.ordCount+t4.ordNullCount AS ordCustCount
+  from
+    (SELECT COUNT(1) AS inqCount,COUNT(DISTINCT(cust_description)) AS inqCustCount
+       FROM inquiry_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+       AND cust_description IS NOT NULL)
+     AS t1,
+    (SELECT COUNT(cust_description) AS inqNullCount
+       FROM inquiry_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NULL)
+    AS t2,
+    (SELECT COUNT(1) AS ordCount,COUNT(DISTINCT(cust_description)) AS ordCustCount
+       FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NOT NULL)
+    AS t3,
+    (SELECT COUNT(cust_description) AS ordNullCount
+       FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NULL)
+    AS t4;
+
+  </select>
 
 
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >

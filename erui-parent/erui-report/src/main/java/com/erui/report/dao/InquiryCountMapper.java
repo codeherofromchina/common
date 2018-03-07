@@ -124,4 +124,11 @@ public interface InquiryCountMapper {
      * @return
      */
     int selectInqRtnCountByTime(InquiryCountExample example);
+
+    /**
+     * 查询询单、交易的人数和单数
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, String> params);
 }

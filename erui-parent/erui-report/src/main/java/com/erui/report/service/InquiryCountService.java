@@ -158,5 +158,10 @@ public interface InquiryCountService {
 	 * @param endTime
 	 */
 	int selectInqRtnCountByTime(Date startTime, Date endTime);
+	/**
+	 * 查询询单、交易的人数和单数
+	 * @param params
+	 */
+	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,String> params);
 
 }

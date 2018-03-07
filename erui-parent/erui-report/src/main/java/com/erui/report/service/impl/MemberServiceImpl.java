@@ -3,6 +3,7 @@ package com.erui.report.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.dao.InquiryCountMapper;
 import com.erui.report.dao.MemberMapper;
 import com.erui.report.model.MarketerCount;
 import com.erui.report.model.Member;
@@ -13,11 +14,11 @@ import com.erui.report.util.ImportDataResponse;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -211,9 +212,38 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
     @Override
     public Map<String, Object> selectOperateSummaryData(Map<String, String> params) {
-        
-        return null;
+        Map<String, Object> custData = readMapper.selectOperateSummaryData(params);
+        InquiryCountMapper inqMapper = readerSession.getMapper(InquiryCountMapper.class);
+        Map<String, Object> inqAndOrdData = inqMapper.selectInqAndOrdCountAndPassengers(params);
+        //和数据
+        Map<String,Object> data=new HashMap<>();
+        data.put("member",custData);
+        data.put("inqAndOrd",inqAndOrdData);
+        return  data;
     }
 
+    @Override
+    public Map<String, Object> selectOperateTrend(Date startTime,Date endTime) {
+        //1.构建一个标准的时间集合
+        List<String> dates = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
+            dates.add(dateFormat.format(datetime));
+        }
+        //2.获取趋势图数据
+        Map<String, String> params = new HashMap<>();
+        params.put("startTime", DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2));
+        params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2));
+        //获取会员趋势图数据
+        List<Map<String, Object>> dataList= readMapper.selectOperateTrend(params);
+        Map<String, Map<String, Object>> datMap = dataList.stream().
+                collect(Collectors.toMap(vo -> vo.get("createdAt").toString(), vo -> vo));
+        for (String date :dates) {
+
+        }
+        return null;
+    }
 
 }
