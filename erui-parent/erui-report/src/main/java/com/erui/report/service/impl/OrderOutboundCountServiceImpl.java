@@ -2,7 +2,10 @@ package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.comm.NewDateUtil;
+import com.erui.report.dao.StorageOrganiCountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,12 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new  String[]{"totalCount","entryCount","outCount"}
+        );
+
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        Map<String, BigDecimal> sumMap = response.getSumMap();
         int size = datas.size();
         OrderOutboundCount ooc = null;
         if (!testOnly) {
@@ -90,6 +98,15 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
             response.incrSuccess();
 
         }
+        StorageOrganiCountMapper orgMapper = readerSession.getMapper(StorageOrganiCountMapper.class);
+        Map<String, Object> data = OrderEntryCountServiceImpl.countStack(orgMapper);
+        int totalCount = Integer.parseInt(data.get("totalCount").toString());
+        int entryCount = Integer.parseInt(data.get("entryCount").toString());
+        int outCount = Integer.parseInt(data.get("outCount").toString());
+        sumMap.put("totalCount",new BigDecimal(totalCount));
+        sumMap.put("entryCount",new BigDecimal(entryCount));
+        sumMap.put("outCount",new BigDecimal(outCount));
+
         response.setDone(true);
 
         return response;

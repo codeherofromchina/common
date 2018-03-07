@@ -2,8 +2,12 @@ package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.comm.NewDateUtil;
+import com.erui.report.dao.StorageOrganiCountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,12 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+               new  String[]{"totalCount","entryCount","outCount"}
+        );
+
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        Map<String, BigDecimal> sumMap = response.getSumMap();
         int size = datas.size();
         OrderEntryCount oec = null;
         if (!testOnly) {
@@ -91,8 +100,34 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
             response.incrSuccess();
 
         }
+        StorageOrganiCountMapper mapper = readerSession.getMapper(StorageOrganiCountMapper.class);
+        Map<String, Object> data = this.countStack(mapper);
+        int totalCount = Integer.parseInt(data.get("totalCount").toString());
+        int entryCount = Integer.parseInt(data.get("entryCount").toString());
+        int outCount = Integer.parseInt(data.get("outCount").toString());
+        sumMap.put("totalCount",new BigDecimal(totalCount));
+        sumMap.put("entryCount",new BigDecimal(entryCount));
+        sumMap.put("outCount",new BigDecimal(outCount));
         response.setDone(true);
 
         return response;
+    }
+/*
+* 统计导入数据返回库存数据
+* */
+    public static Map<String,Object> countStack(StorageOrganiCountMapper orgMapper){
+        //统计数据
+        Map<String,String> params=new HashMap<>();
+        Date[] weekDates = NewDateUtil.getBeforeSaturdayWeek(new Date());
+        String startTime = DateUtil.formatDateToString(weekDates[0], DateUtil.FULL_FORMAT_STR2);
+        Date end = DateUtil.getOperationTime(weekDates[1], 23, 59, 59);
+        String endTime=DateUtil.formatDateToString(end, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        Map<String, Object> stack = orgMapper.selectTotalStack(params);
+        Map<String, Object> entryAndOut = orgMapper.selectEntryAndOutData(params);
+        int totalCount = Integer.parseInt(stack.get("totalCount").toString());
+        entryAndOut.put("totalCount",totalCount);
+        return  entryAndOut;
     }
 }
