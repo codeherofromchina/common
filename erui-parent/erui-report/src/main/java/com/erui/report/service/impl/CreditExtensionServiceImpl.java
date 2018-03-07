@@ -41,9 +41,11 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse(
-                new String[]{"","","",""}
+                new String[]{"creditCount","creditAmount","usedAmount",
+                        "availAmount","incrCredit","emiliCredit"}
         );
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        Map<String, BigDecimal> sumMap = response.getSumMap();
         int size = datas.size();
         CreditExtension ce = null;
         if (!testOnly) {
@@ -124,6 +126,21 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
                 response.pushFailItem(ExcelUploadTypeEnum.CREDIT_EXTENSION.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+
+
+            if(NewDateUtil.inSaturdayWeek(ce.getCreditDate())){
+                sumMap.put("creditCount",sumMap.get("creditCount").add(new BigDecimal(1)));
+                sumMap.put("creditAmount",sumMap.get("creditAmount").add(ce.getRelyCredit()));
+                sumMap.put("usedAmount",sumMap.get("usedAmount").add(ce.getUsedAmount()));
+                sumMap.put("availAmount",sumMap.get("availAmount").add(ce.getAvailableAmount()));
+            }
+            if(NewDateUtil.inSaturdayWeek(ce.getEffectiveDate())){
+                sumMap.put("incrCredit",sumMap.get("incrCredit").add(new BigDecimal(1)));
+            }
+            if(NewDateUtil.inSaturdayWeek(ce.getExpiryDate())){
+                sumMap.put("emiliCredit",sumMap.get("emiliCredit").add(new BigDecimal(1)));
+            }
+
             response.incrSuccess();
 
         }
