@@ -251,11 +251,19 @@ public class DeliverNoticeController {
     @RequestMapping(value = "queryExitAdvice")
     public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
         Page<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
+
+            Map<String,Object> map = new HashMap<>();
+
             for (DeliverConsign deliverConsign :list){
                 deliverConsign.setAttachmentSet(null);
                 deliverConsign.setDeliverConsignGoodsSet(null);
+                map.put("id",deliverConsign.getId());   //出口发货通知单id
+                map.put("deliverConsignNo",deliverConsign.getDeliverConsignNo()); //出口发货通知单号
+                Order order = deliverConsign.getOrder();
+                map.put("contractNo",order.getContractNo());    //销售合同号
+                map.put("projectNo",order.getProject().getProjectNo());  //项目号
             }
-            return new Result<>(list);
+            return new Result<>(map);
     }
 
 

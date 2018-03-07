@@ -246,11 +246,22 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     list.add(root.get("country").in(country));
                 }
 
-                //根据下单人（国际物流经办人）
-                if(deliverNotice.getSenderId() != null){
+                //根据下单人（国际物流经办人）      销售合同号    项目号
+                if(deliverNotice.getSenderId() != null || StringUtil.isNotBlank(deliverNotice.getContractNo()) || StringUtil.isNotBlank(deliverNotice.getProjectNo())){
                     Join<DeliverConsign, Order> orderRoot = root.join("order");
+                    //根据 销售合同号
+                    if(StringUtil.isNotBlank(deliverNotice.getContractNo())){
+                        list.add(cb.like(orderRoot.get("contractNo").as(String.class),"%"+deliverNotice.getContractNo()+"%"));
+                    }
                     Join<Order, Project> projectRoot = orderRoot.join("project");
-                    list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),deliverNotice.getSenderId()));
+                    //根据下单人（国际物流经办人）
+                    if(deliverNotice.getSenderId() != null){
+                        list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),deliverNotice.getSenderId()));
+                    }
+                    //根据 项目号
+                    if(StringUtil.isNotBlank(deliverNotice.getProjectNo())){
+                        list.add(cb.like(projectRoot.get("projectNo").as(String.class),"%"+deliverNotice.getProjectNo()+"%"));
+                    }
                 }
 
                 // 根据出口通知单号

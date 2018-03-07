@@ -23,12 +23,15 @@ public class DeliverNotice {
     private String deliverNoticeNo;
     @OneToOne(mappedBy = "deliverNotice", fetch = FetchType.LAZY)
     private DeliverDetail deliverDetail;
-    // 销售合同号
+
     @Transient
-    private String contractNo;
+    private String contractNo; // 销售合同号
     // 出口通知单号
     @Transient
     private String deliverConsignNo;
+
+    @Transient
+    private String projectNo;   //项目号
 
     @Transient
     private String country;     //国家查询
@@ -331,5 +334,13 @@ public class DeliverNotice {
 
     public String getCountry() {
         return country;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 }
