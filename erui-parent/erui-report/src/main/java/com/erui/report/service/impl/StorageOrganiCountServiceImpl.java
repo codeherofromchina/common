@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -36,7 +37,12 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+            new String[]{"productNum","trayNum"}
+        );
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        Set<String> orgs=new HashSet<>();
+        Map<String, BigDecimal> sumMap = response.getSumMap();
         int size = datas.size();
         StorageOrganiCount soc = null;
         if (!testOnly) {
@@ -88,9 +94,14 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
                 response.pushFailItem(ExcelUploadTypeEnum.STORAGE_ORGANI_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+            //统计事业部数量
+            if(NewDateUtil.inSaturdayWeek(soc.getCreateAt())){
+                response.sumData(soc);
+                orgs.add(soc.getOrganiName());
+            }
             response.incrSuccess();
-
         }
+        response.getSumMap().put("orgCount",new BigDecimal(orgs.size()));
         response.setDone(true);
 
         return response;

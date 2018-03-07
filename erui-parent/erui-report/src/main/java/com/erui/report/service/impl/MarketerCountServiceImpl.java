@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.report.util.InquiryAreaVO;
 import org.slf4j.Logger;
@@ -34,7 +35,11 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new String[]{"inquiryCount","quoteCount","bargainCount",
+                        "bargainAmount","inquiryAmount","newMemberCount"}
+        );
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         MarketerCount mc = null;
         if (!testOnly) {
@@ -128,6 +133,11 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.MARKETER_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
+            }
+
+            //统计数据
+            if(NewDateUtil.inSaturdayWeek(mc.getCreateTime())){
+                response.sumData(mc);
             }
             response.incrSuccess();
 
