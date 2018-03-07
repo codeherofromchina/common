@@ -100,7 +100,11 @@ public class InstockServiceImpl implements InstockService {
                 if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
                    Set<Integer> a= queryProjectNoAndContractNo(condition.get("projectNo"),condition.get("contractNo"));
                     Integer[] objectArray2 = a.toArray(new Integer[a.size()]);
-                    list.add(root.get("id").in(objectArray2));
+                    if(objectArray2.length == 0){
+                        list.add(root.get("id").in(-1));
+                    }else{
+                        list.add(root.get("id").in(objectArray2));
+                    }
                 }
 
                 Predicate[] predicates = new Predicate[list.size()];
