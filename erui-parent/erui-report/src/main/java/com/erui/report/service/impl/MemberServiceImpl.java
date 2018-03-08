@@ -238,12 +238,31 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2));
         //获取会员趋势图数据
         List<Map<String, Object>> dataList= readMapper.selectOperateTrend(params);
-        Map<String, Map<String, Object>> datMap = dataList.stream().
+        //3整理数据
+        List<Integer> totalList=new ArrayList<>();//注册数列表
+        List<Integer> generalList=new ArrayList<>();//普通会员数列表
+        List<Integer> seniorList=new ArrayList<>();//高级会员数列表
+        Map<String, Map<String, Object>> dataMap = dataList.stream().
                 collect(Collectors.toMap(vo -> vo.get("createdAt").toString(), vo -> vo));
         for (String date :dates) {
-
+            if(dataMap.containsKey(date)){
+                Map<String, Object> data = dataMap.get(date);
+                totalList.add(Integer.parseInt(data.get("totalCount").toString()));
+                generalList.add(Integer.parseInt(data.get("generalCount").toString()));
+                seniorList.add(Integer.parseInt(data.get("seniorCount").toString()));
+            }else {
+                totalList.add(0);
+                generalList.add(0);
+                seniorList.add(0);
+            }
         }
-        return null;
+
+        Map<String,Object> result=new HashMap<>();
+        result.put("datetime",dates);
+        result.put("registerCount",totalList);
+        result.put("regulerMembers",generalList);
+        result.put("seniorMembers",seniorList);
+        return result;
     }
 
 }

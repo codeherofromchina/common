@@ -97,19 +97,19 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+
+            if(NewDateUtil.inSaturdayWeek(oec.getStorageDate())){
+                sumMap.put("entryCount",sumMap.get("entryCount").add(new BigDecimal(oec.getEntryCount())));
+            }
             response.incrSuccess();
 
         }
+        //查询出库量
         StorageOrganiCountMapper mapper = readerSession.getMapper(StorageOrganiCountMapper.class);
-        Map<String, Object> data = this.countStack(mapper);
-        int totalCount = Integer.parseInt(data.get("totalCount").toString());
-        int entryCount = Integer.parseInt(data.get("entryCount").toString());
-        int outCount = Integer.parseInt(data.get("outCount").toString());
-        sumMap.put("totalCount",new BigDecimal(totalCount));
-        sumMap.put("entryCount",new BigDecimal(entryCount));
+        Map<String, Object> entryAndOut = countStack(mapper);
+        int outCount = Integer.parseInt(entryAndOut.get("outCount").toString());
         sumMap.put("outCount",new BigDecimal(outCount));
-        response.setDone(true);
-
+        sumMap.put("totalCount",sumMap.get("entryCount").add(new BigDecimal(-outCount)));
         return response;
     }
 /*
@@ -124,10 +124,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
         String endTime=DateUtil.formatDateToString(end, DateUtil.FULL_FORMAT_STR2);
         params.put("startTime",startTime);
         params.put("endTime",endTime);
-        Map<String, Object> stack = orgMapper.selectTotalStack(params);
         Map<String, Object> entryAndOut = orgMapper.selectEntryAndOutData(params);
-        int totalCount = Integer.parseInt(stack.get("totalCount").toString());
-        entryAndOut.put("totalCount",totalCount);
         return  entryAndOut;
     }
 }

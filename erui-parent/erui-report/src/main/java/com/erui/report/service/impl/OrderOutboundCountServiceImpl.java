@@ -95,20 +95,21 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+
+            if(NewDateUtil.inSaturdayWeek(ooc.getOutboundDate())){
+                sumMap.put("outCount",sumMap.get("outCount").add(new BigDecimal(ooc.getPackCount())));
+            }
+
             response.incrSuccess();
 
         }
+        //查询入库和库存
         StorageOrganiCountMapper orgMapper = readerSession.getMapper(StorageOrganiCountMapper.class);
-        Map<String, Object> data = OrderEntryCountServiceImpl.countStack(orgMapper);
-        int totalCount = Integer.parseInt(data.get("totalCount").toString());
-        int entryCount = Integer.parseInt(data.get("entryCount").toString());
-        int outCount = Integer.parseInt(data.get("outCount").toString());
-        sumMap.put("totalCount",new BigDecimal(totalCount));
+        Map<String, Object> dataMap = OrderEntryCountServiceImpl.countStack(orgMapper);
+        int entryCount = Integer.parseInt(dataMap.get("entryCount").toString());
         sumMap.put("entryCount",new BigDecimal(entryCount));
-        sumMap.put("outCount",new BigDecimal(outCount));
-
+        sumMap.put("totalCount",new BigDecimal(entryCount).subtract(sumMap.get("outCount")));
         response.setDone(true);
-
         return response;
     }
 }
