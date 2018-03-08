@@ -1,35 +1,53 @@
 package com.erui.order.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Date;
 
+@Entity
+@Table(name = "old_order_log")
 public class OldOrderLog {
+
+    @Id
     private Long id;
 
     private String content;
 
+    @Column(name = "order_id")
     private Long orderId;
 
+    @Column(name = "log_group")
     private String logGroup;
 
+    @Column(name = "log_at")
     private Date logAt;
 
+    @Column(name = "out_no")
     private String outNo;
 
+    @Column(name = "waybill_no")
     private String waybillNo;
 
     private BigDecimal amount;
 
     private String type;
 
+    @Column(name = "order_address_id")
     private Long orderAddressId;
 
+    @Column(name = "log_id")
     private Long logId;
 
+    @Column(name = "created_at")
     private Date createdAt;
 
+    @Column(name = "created_by")
     private Long createdBy;
 
+    @Column(name = "deleted_flag")
     private String deletedFlag;
 
     public Long getId() {

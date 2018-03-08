@@ -7,8 +7,10 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name = "old_order_contact")
+@Table(name="old_order_contact")
 public class OldOrderContact {
+
+
     @Id
     private Long id;
 
@@ -27,6 +29,7 @@ public class OldOrderContact {
 
     @Column(name = "created_by")
     private Long createdBy;
+
     @Column(name = "created_at")
     private Date createdAt;
 
