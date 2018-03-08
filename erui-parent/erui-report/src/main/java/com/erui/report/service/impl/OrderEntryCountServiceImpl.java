@@ -1,12 +1,14 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.report.dao.OrderOutboundCountMapper;
 import com.erui.report.dao.StorageOrganiCountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,25 +103,37 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
             if(NewDateUtil.inSaturdayWeek(oec.getStorageDate())){
                 sumMap.put("entryCount",sumMap.get("entryCount").add(new BigDecimal(oec.getEntryCount())));
             }
+            if(NewDateUtil.lessFridayWeek(oec.getStorageDate())){
+                sumMap.put("totalCount",sumMap.get("totalCount").add(new BigDecimal(oec.getEntryCount())));
+            }
             response.incrSuccess();
 
         }
-        //查询出库量
-        StorageOrganiCountMapper mapper = readerSession.getMapper(StorageOrganiCountMapper.class);
-        Map<String, Object> entryAndOut = countStack(mapper);
-        int outCount = Integer.parseInt(entryAndOut.get("outCount").toString());
-        sumMap.put("outCount",new BigDecimal(outCount));
-        sumMap.put("totalCount",sumMap.get("entryCount").add(new BigDecimal(-outCount)));
+        //查询库存量
+        try {
+            StorageOrganiCountMapper mapper = readerSession.getMapper(StorageOrganiCountMapper.class);
+            Date startTime = DateUtil.parseString2Date(STARTTIME, DateUtil.FULL_FORMAT_STR2);
+            Map<String, Object> totalData = countStack(startTime,mapper);
+            int toutCount = Integer.parseInt(totalData.get("outCount").toString());
+            sumMap.put("totalCount",sumMap.get("totalCount").add(new BigDecimal(-toutCount)));
+            //查询出库量
+            Date[] week = NewDateUtil.getBeforeSaturdayWeek(new Date());
+            Map<String, Object> outData = countStack(week[0],mapper);
+            sumMap.put("outCount",new BigDecimal(outData.get("outCount").toString()));
+        } catch (ParseException e) {
+            logger.error(e.getMessage());
+        }
+
         return response;
     }
 /*
 * 统计导入数据返回库存数据
 * */
-    public static Map<String,Object> countStack(StorageOrganiCountMapper orgMapper){
+    public static Map<String,Object> countStack(Date start ,StorageOrganiCountMapper orgMapper){
         //统计数据
         Map<String,String> params=new HashMap<>();
         Date[] weekDates = NewDateUtil.getBeforeSaturdayWeek(new Date());
-        String startTime = DateUtil.formatDateToString(weekDates[0], DateUtil.FULL_FORMAT_STR2);
+        String startTime = DateUtil.formatDateToString(start, DateUtil.FULL_FORMAT_STR2);
         Date end = DateUtil.getOperationTime(weekDates[1], 23, 59, 59);
         String endTime=DateUtil.formatDateToString(end, DateUtil.FULL_FORMAT_STR2);
         params.put("startTime",startTime);
@@ -127,4 +141,6 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
         Map<String, Object> entryAndOut = orgMapper.selectEntryAndOutData(params);
         return  entryAndOut;
     }
+
+    public final  static  String STARTTIME="2005/01/01 00:00:00";
 }

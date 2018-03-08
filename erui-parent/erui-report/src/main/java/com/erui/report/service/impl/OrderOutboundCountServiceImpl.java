@@ -1,6 +1,8 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -99,16 +101,28 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
             if(NewDateUtil.inSaturdayWeek(ooc.getOutboundDate())){
                 sumMap.put("outCount",sumMap.get("outCount").add(new BigDecimal(ooc.getPackCount())));
             }
+            if(NewDateUtil.lessFridayWeek(ooc.getOutboundDate())){
+                sumMap.put("totalCount",sumMap.get("totalCount").add(new BigDecimal(-ooc.getPackCount())));
+            }
 
             response.incrSuccess();
 
         }
-        //查询入库和库存
-        StorageOrganiCountMapper orgMapper = readerSession.getMapper(StorageOrganiCountMapper.class);
-        Map<String, Object> dataMap = OrderEntryCountServiceImpl.countStack(orgMapper);
-        int entryCount = Integer.parseInt(dataMap.get("entryCount").toString());
-        sumMap.put("entryCount",new BigDecimal(entryCount));
-        sumMap.put("totalCount",new BigDecimal(entryCount).subtract(sumMap.get("outCount")));
+        //查询库存
+        try {
+            StorageOrganiCountMapper orgMapper = readerSession.getMapper(StorageOrganiCountMapper.class);
+            Date start = DateUtil.parseString2Date(OrderEntryCountServiceImpl.STARTTIME, DateUtil.FULL_FORMAT_STR2);
+            Map<String, Object> totalMap = OrderEntryCountServiceImpl.countStack(start,orgMapper);
+            int tentryCount = Integer.parseInt(totalMap.get("entryCount").toString());
+            sumMap.put("totalCount",sumMap.get("totalCount").add(new BigDecimal(tentryCount)));
+            //入库
+            Date[] week = NewDateUtil.getBeforeSaturdayWeek(new Date());
+            Map<String, Object> entryMap = OrderEntryCountServiceImpl.countStack(week[0],orgMapper);
+            sumMap.put("entryCount",new BigDecimal(entryMap.get("entryCount").toString()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         response.setDone(true);
         return response;
     }

@@ -243,7 +243,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         List<Integer> generalList=new ArrayList<>();//普通会员数列表
         List<Integer> seniorList=new ArrayList<>();//高级会员数列表
         Map<String, Map<String, Object>> dataMap = dataList.stream().
-                collect(Collectors.toMap(vo -> vo.get("createdAt").toString(), vo -> vo));
+                collect(Collectors.toMap(vo ->vo.get("creatTime").toString(), vo -> vo));
         for (String date :dates) {
             if(dataMap.containsKey(date)){
                 Map<String, Object> data = dataMap.get(date);

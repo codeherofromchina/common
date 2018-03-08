@@ -57,7 +57,6 @@ public class NewDateUtil {
             if (localDate.isBefore(paramDate)) { // 大于周五，不在上周内
                 return false;
             }
-
             localDate = localDate.minusDays(6); // 获取相对于周五的上周六
 
             if (localDate.isAfter(paramDate)) { // 小于上周六，不在上周内
@@ -67,7 +66,32 @@ public class NewDateUtil {
         }
         return false;
     }
+    /**
+     * 给定日期是否在上周五之前（定义一周是从周六开始到下周五结束）
+     *
+     * @param date
+     * @return
+     */
+    public static boolean lessFridayWeek(Date date) {
+        if (date != null) {
+            Instant instant = date.toInstant();
+            ZoneId zoneId = ZoneId.systemDefault();
+            LocalDate paramDate = instant.atZone(zoneId).toLocalDate();
 
+            LocalDate localDate = LocalDate.now();
+            DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+            if (dayOfWeek.compareTo(DayOfWeek.FRIDAY) > 0) { // 大于周五，算本周五就可以
+                localDate = localDate.minusDays(dayOfWeek.getValue() - DayOfWeek.FRIDAY.getValue());
+            } else { // 计算上周五
+                localDate = localDate.minusDays(dayOfWeek.getValue() + (DayOfWeek.SUNDAY.getValue() - DayOfWeek.FRIDAY.getValue()));
+            }
+            if (localDate.isBefore(paramDate)) { // 大于周五，不在上周内
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 获取给定日期的上周日期的连续字符串

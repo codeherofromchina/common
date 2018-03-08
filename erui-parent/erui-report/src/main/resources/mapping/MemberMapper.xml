@@ -118,17 +118,17 @@
   <!--查询会员趋势图数据-->
   <select id="selectOperateTrend" resultType="java.util.Map" parameterType="java.util.Map" >
     SELECT
-      DATE_FORMAT(created_at,"%Y/%m/%d") AS createdAt,
+      DATE_FORMAT(created_at,"%Y-%m-%d") AS creatTime,
       COUNT(1) AS totalCount,
       SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END) AS generalCount,
       SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END) AS seniorCount
     FROM erui_buyer.v_buyer
     WHERE 1=1
     <if test="startTime!=null and endTime!=null">
-      and createdAt BETWEEN
+      and created_at BETWEEN
       DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-     GROUP BY createdAt having createdAt is not null ;
+    GROUP BY STR_TO_DATE(creatTime,"%Y-%m-%d") having STR_TO_DATE(creatTime,"%Y-%m-%d") is not null  ;
 
   </select>
 
