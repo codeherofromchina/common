@@ -1,10 +1,18 @@
 package com.erui.order.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
+@Entity
+@Table(name = "old_order_goods")
 public class OldOrderGoods {
+    @Id
     private Long id;
 
+    @Column(name = "order_no")
     private String orderNo;
 
     private String sku;
@@ -12,39 +20,39 @@ public class OldOrderGoods {
     private String lang;
 
     private String name;
-
+    @Column(name = "name_zh")
     private String nameZh;
 
     private String brand;
 
     private String model;
-
+    @Column(name = "spec_attrs")
     private String specAttrs;
 
     private String symbol;
 
     private Float price;
-
+    @Column(name = "buy_number")
     private Integer buyNumber;
-
+    @Column(name = "min_pack_naked_qty")
     private Integer minPackNakedQty;
-
+    @Column(name = "nude_cargo_unit")
     private String nudeCargoUnit;
-
+    @Column(name = "min_pack_unit")
     private String minPackUnit;
 
     private String thumb;
-
+    @Column(name = "buyer_id")
     private Long buyerId;
-
+    @Column(name = "created_at")
     private Date createdAt;
-
+    @Column(name = "created_by")
     private Long createdBy;
-
+    @Column(name = "updated_by")
     private Long updatedBy;
-
+    @Column(name = "updated_at")
     private Date updatedAt;
-
+    @Column(name = "deleted_flag")
     private String deletedFlag;
 
     public Long getId() {

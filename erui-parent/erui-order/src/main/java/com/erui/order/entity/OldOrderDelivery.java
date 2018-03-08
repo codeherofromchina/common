@@ -1,18 +1,26 @@
 package com.erui.order.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
+@Entity
+@Table(name = "old_order_delivery")
 public class OldOrderDelivery {
+    @Id
     private Long id;
 
+    @Column(name = "order_id")
     private Long orderId;
 
     private String describe;
-
+    @Column(name = "delivery_at")
     private Date deliveryAt;
-
+    @Column(name = "created_by")
     private Long createdBy;
-
+    @Column(name = "created_at")
     private Date createdAt;
 
     public Long getId() {
