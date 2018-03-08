@@ -137,7 +137,7 @@
   <select id="selectRegisterInqAndOrdCount" resultType="java.util.Map" parameterType="java.util.Map" >
     SELECT a.registerInq ,b.registerOrd FROM
     (
-        SELECT COUNT(inq.quotation_num) AS inqCount FROM inquiry_count AS inq WHERE 1=1
+        SELECT COUNT(inq.quotation_num) AS registerInq FROM inquiry_count AS inq WHERE 1=1
                <if test="startTime!=null and endTime!=null">
                   and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -152,7 +152,7 @@
     ) AS a ,
 
     (
-        SELECT COUNT(ord.execute_num) AS ordCount FROM order_count AS ord WHERE 1=1
+        SELECT COUNT(ord.execute_num) AS registerOrd FROM order_count AS ord WHERE 1=1
                <if test="startTime!=null and endTime!=null">
                  and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                  and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
