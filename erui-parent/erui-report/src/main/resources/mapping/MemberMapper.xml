@@ -135,7 +135,7 @@
 
   <!--查询注册人数询单量和注册人数订单量-->
   <select id="selectRegisterInqAndOrdCount" resultType="java.util.Map" parameterType="java.util.Map" >
-    SELECT a.inqCount ,b.ordCount FROM
+    SELECT a.registerInq ,b.registerOrd FROM
     (
         SELECT COUNT(inq.quotation_num) AS inqCount FROM inquiry_count AS inq WHERE 1=1
                <if test="startTime!=null and endTime!=null">

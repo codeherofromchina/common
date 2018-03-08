@@ -272,8 +272,8 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         int seniorCount = Integer.parseInt(operateData.get("seniorCount").toString());//高级会员量
         //查询注册人数询单量和注册人数订单量
         Map<String,Integer> data= readMapper.selectRegisterInqAndOrdCount(params);
-        data.put("registerCount",registerCount);
-        data.put("seniorCount",seniorCount);
+        data.put("registers",registerCount);
+        data.put("seniorMembers",seniorCount);
         return data;
     }
 
