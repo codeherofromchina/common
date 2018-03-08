@@ -38,4 +38,6 @@ public interface MemberMapper {
     Map<String, Object> selectOperateSummaryData(Map<String, String> params);
     //查询趋势图数据
     List<Map<String, Object>> selectOperateTrend(Map<String, String> params);
+    //查询注册人数询单量和注册人数订单量
+    Map<String,Integer> selectRegisterInqAndOrdCount(Map<String, String> params);
 }

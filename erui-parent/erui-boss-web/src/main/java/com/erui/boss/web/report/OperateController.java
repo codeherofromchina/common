@@ -56,7 +56,7 @@ public class OperateController {
         return result.setData(data);
     }
     /**
-     * 运营数据总览
+     * 运营数据趋势图
      * @param params
      * @return
      */
@@ -72,6 +72,29 @@ public class OperateController {
         }
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         Map<String,Object> data= memberService.selectOperateTrend( startTime,endTime);
+        return result.setData(data);
+    }
+    /**
+     * 运营数据-注册明细总览
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/registerDetailPandect",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public Result registerDetailPandect(@RequestBody(required = true) Map<String,String> params){
+        // 获取参数并转换成时间格式
+        Result<Object> result = new Result<>();
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String fullStartTime=DateUtil.formatDateToString(startTime,"yyyy/MM/dd HH:mm:ss");
+        String fullEndTime=DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime",fullStartTime);
+        params.put("endTime",fullEndTime);
+        Map<String,Integer> data= memberService.selectRegisterSummaryData(params);
         return result.setData(data);
     }
 

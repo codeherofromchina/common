@@ -44,4 +44,11 @@ public interface MemberService {
 	 * @modified By
 	 */
 	Map<String,Object> selectOperateTrend(Date startTime,Date endTime );
+	/**
+	 * @Author:lirb
+	 * @Description 查询注册详情汇总数据： 注册人数、注册人数询单量、注册人数订单量、高级会员量
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	Map<String,Integer> selectRegisterSummaryData(Map<String,String> params);
 }

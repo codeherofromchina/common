@@ -265,4 +265,16 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         return result;
     }
 
+    @Override
+    public Map<String, Integer> selectRegisterSummaryData(Map<String, String> params) {
+        Map<String, Object> operateData = readMapper.selectOperateSummaryData(params);
+        int registerCount = Integer.parseInt(operateData.get("registerCount").toString());//注册会员量
+        int seniorCount = Integer.parseInt(operateData.get("seniorCount").toString());//高级会员量
+        //查询注册人数询单量和注册人数订单量
+        Map<String,Integer> data= readMapper.selectRegisterInqAndOrdCount(params);
+        data.put("registerCount",registerCount);
+        data.put("seniorCount",seniorCount);
+        return data;
+    }
+
 }
