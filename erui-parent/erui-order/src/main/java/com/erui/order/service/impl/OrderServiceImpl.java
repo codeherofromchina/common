@@ -425,6 +425,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+
+
     @Override
     @Transactional(readOnly = true)
     public Order detail(Integer orderId) {
@@ -449,6 +451,8 @@ public class OrderServiceImpl implements OrderService {
             orderLog = new ArrayList<>();
         }
         /*
+
+
         else {
             orderLog = orderLog.stream().filter(log -> {
                 if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
@@ -459,6 +463,8 @@ public class OrderServiceImpl implements OrderService {
         }
         */
         return orderLog;
+
+
     }
 
     /**
