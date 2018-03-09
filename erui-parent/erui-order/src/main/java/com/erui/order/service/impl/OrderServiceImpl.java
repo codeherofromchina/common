@@ -38,6 +38,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.sound.sampled.Line;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,15 @@ public class OrderServiceImpl implements OrderService {
     private DeliverDetailService deliverDetailService;
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
+
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+
 
 
     @Override
@@ -287,40 +297,7 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("CRM返回信息：" + s);
             }
 
-
-            //订单下达后通知商务技术经办人
-            if (StringUtils.isNotBlank(eruiToken)) {
-
-                // 根据id获取商务经办人信息
-                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");
-                header.put("accept", "*/*");
-                String s = HttpRequest.sendPost("http://172.18.18.196/v2/user/info", jsonParam, header);
-                logger.info("CRM返回信息：" + s);
-
-                // 获取商务经办人手机号
-                JSONObject jsonObject = JSONObject.parseObject(s);
-                Integer code = jsonObject.getInteger("code");
-                String mobile = null;  //商务经办人手机号
-                if(code == 1){
-                    JSONObject data = jsonObject.parseObject("data");
-                    mobile = data.getString("mobile");
-                    //发送短信
-                    Map<String,Object> map= new HashMap();
-                    map.put("areaCode","86");
-                    map.put("to","[\""+mobile+"\"]");
-                    map.put("content","尊敬的客户您好！销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，"+order.getInquiryNo()+" 订单正在走项目执行，请及时处理。感谢您对我们的支持与信任！(测试)");
-                    map.put("subType","0");
-                    map.put("groupSending","0");
-                    map.put("useType","订单");
-                    HttpRequest.sendPostNote("http://msg.eruidev.com/api/sms/", map, header);
-                }
-
-
-
-            }
+            sendSms(order);
         }
         return true;
     }
@@ -458,6 +435,7 @@ public class OrderServiceImpl implements OrderService {
 
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
+
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -468,21 +446,7 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("CRM返回信息：" + s);
             }
 
-            //订单下达后通知商务技术经办人
-            if (StringUtils.isNotBlank(eruiToken)) {
-
-                // 获取商务经办人手机号
-                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");
-                header.put("accept", "*/*");
-                String s = HttpRequest.sendPost("http://172.18.18.196/v2/user/info", jsonParam, header);
-                logger.info("CRM返回信息：" + s);
-
-
-            }
-
+            sendSms(order);
 
         }
         return true;
@@ -586,4 +550,48 @@ public class OrderServiceImpl implements OrderService {
         }
         return false;
     }
+
+
+    //订单下达后通知商务技术经办人
+    public void sendSms(Order order) throws  Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+
+                // 获取商务经办人手机号
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                String mobile = null;  //商务经办人手机号
+                if(code == 1){
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    mobile = data.getString("mobile");
+                    //发送短信
+                    Map<String,Object> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to","[\""+mobile+"\"]");
+                    map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，已申请项目执行。请及时处理，感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPostNote(sendSms, map, header);
+                    logger.info("发送手机号失败"+s1);
+                }
+
+            }catch (Exception e){
+                throw new Exception("订单下达通知商务技术经办人");
+            }
+
+        }
+    }
+
+
 }
