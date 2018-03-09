@@ -8,7 +8,7 @@ public class ThreadLocalUtil {
     private static ThreadLocal<Object> threadLocal = new ThreadLocal<>();
 
 
-    public static void putObject(Object obj) {
+    public static void setObject(Object obj) {
         threadLocal.set(obj);
     }
 
