@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 运营数据
@@ -107,7 +105,7 @@ public class OperateController {
     }
 
     /**
-     * 运营数据-注册明细总览
+     * 运营数据-注册区域饼图
      *
      * @param params
      * @return
@@ -127,7 +125,7 @@ public class OperateController {
         String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
         params.put("startTime", fullStartTime);
         params.put("endTime", fullEndTime);
-        List<Map<String, Integer>> data = memberService.selectRegisterCountGroupByArea(params);
+       Map<String, Object> data = memberService.selectRegisterCountGroupByArea(params);
         return result.setData(data);
     }
     /**

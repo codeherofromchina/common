@@ -278,8 +278,22 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     }
 
     @Override
-    public List<Map<String, Integer>> selectRegisterCountGroupByArea(Map<String, String> params) {
-        return readMapper.selectRegisterCountGroupByArea(params);
+    public Map<String, Object> selectRegisterCountGroupByArea(Map<String, String> params) {
+        //各区域的注册数量 registerCount ,area
+        List<Map<String, Object>> dataList = readMapper.selectRegisterCountGroupByArea(params);
+        List<String> areaList =new ArrayList<>();
+        List<Integer> countList =new ArrayList<>();
+        dataList.stream().forEach(m->{
+            String area = m.get("area").toString();
+            int registerCount = Integer.parseInt(m.get("registerCount").toString());
+            areaList.add(area);
+            countList.add(registerCount);
+        });
+
+        Map<String,Object> data=new HashMap<>();
+        data.put("area",areaList);
+        data.put("registers",countList);
+        return data;
     }
 
     @Override

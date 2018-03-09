@@ -57,7 +57,7 @@ public interface MemberService {
 	 * @Date:17:59 2018/03/08
 	 * @modified By
 	 */
-	List<Map<String, Integer>> selectRegisterCountGroupByArea(Map<String,String> params);
+	Map<String, Object> selectRegisterCountGroupByArea(Map<String,String> params);
 	/**
 	 * @Author:lirb
 	 * @Description 查询询单频率数据
