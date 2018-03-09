@@ -1,5 +1,7 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
@@ -284,6 +286,41 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
+
+
+            //订单下达后通知商务技术经办人
+            if (StringUtils.isNotBlank(eruiToken)) {
+
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost("http://172.18.18.196/v2/user/info", jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+
+                // 获取商务经办人手机号
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                String mobile = null;  //商务经办人手机号
+                if(code == 1){
+                    JSONObject data = jsonObject.parseObject("data");
+                    mobile = data.getString("mobile");
+                    //发送短信
+                    Map<String,Object> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to","[\""+mobile+"\"]");
+                    map.put("content","尊敬的客户您好！销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，"+order.getInquiryNo()+" 订单正在走项目执行，请及时处理。");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    HttpRequest.sendPostNote("http://msg.eruidev.com/api/sms/", map, header);
+                }
+
+
+
+            }
         }
         return true;
     }
@@ -430,6 +467,23 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
+
+            //订单下达后通知商务技术经办人
+            if (StringUtils.isNotBlank(eruiToken)) {
+
+                // 获取商务经办人手机号
+                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost("http://172.18.18.196/v2/user/info", jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+
+
+            }
+
+
         }
         return true;
     }
