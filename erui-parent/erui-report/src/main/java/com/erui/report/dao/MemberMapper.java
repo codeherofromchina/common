@@ -42,8 +42,12 @@ public interface MemberMapper {
     Map<String,Integer> selectRegisterInqAndOrdCount(Map<String, String> params);
     //查询各区域的注册数量
     List<Map<String, Object>> selectRegisterCountGroupByArea(Map<String, String> params);
-    //查询交易频率明细
-    List<Map<String, Object>>  selectOrdRePurchaseDetail(Map<String, String> params);
-    //查询询单频率明细
-    List<Map<String, Object>>  selectInqRateDetail(Map<String, String> params);
+    //查询会员交易频率明细
+    List<Map<String, Object>>  selectCustOrdRateDetail(Map<String, String> params);
+    //查询会员询单频率明细
+    List<Map<String, Object>>  selectCustInqRateDetail(Map<String, String> params);
+    //查询会员询单汇总数据
+    Map<String,Integer> selectCustInqSummaryData(Map<String, String> params);
+    //查询各区域的会员的询单数据
+    List<Map<String, Object>> selectCustInqDataGroupByArea(Map<String, String> params);
 }

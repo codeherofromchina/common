@@ -184,8 +184,8 @@
 
   </select>
 
-  <!--查询交易频率明细-->
-  <select id="selectOrdRePurchaseDetail" resultType="java.util.Map" parameterType="java.util.Map" >
+  <!--查询会员交易频率明细-->
+  <select id="selectCustOrdRateDetail" resultType="java.util.Map" parameterType="java.util.Map" >
 
     SELECT
       COUNT(cust_description) buyCount,
@@ -208,8 +208,8 @@
       HAVING
       cust_description IS NOT NULL
   </select>
-  <!--查询询单频率明细-->
-  <select id="selectInqRateDetail" resultType="java.util.Map" parameterType="java.util.Map" >
+  <!--查询会员询单频率明细-->
+  <select id="selectCustInqRateDetail" resultType="java.util.Map" parameterType="java.util.Map" >
 
     SELECT
       COUNT(cust_description) inqCount,
@@ -231,6 +231,85 @@
       cust_description
       HAVING
       cust_description IS NOT NULL
+  </select>
+  <!--查询会员询单汇总数据-->
+  <select id="selectCustInqSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+  SELECT t1.custCount ,t1.inqCount as inqTimes,
+         IFNULL(t2.firstInqCount,0) as firstCustCount,
+         t3.seniorCount as  seniorCustCount
+  from
+      (  SELECT COUNT(DISTINCT(cust_description)) AS custCount , COUNT(1) AS inqCount
+         FROM  inquiry_count
+         WHERE 1=1
+              <if test="startTime!=null and endTime!=null">
+                and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+              </if>
+              AND cust_description
+              IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                        <if test="startTime!=null and endTime!=null">
+                         and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                        </if>
+                 )
+      ) AS t1 ,
+      (
+          SELECT SUM(CASE t.custCount WHEN 1 THEN 1 ELSE 0 END ) AS firstInqCount
+          FROM
+          ( SELECT count(cust_description) AS custCount , cust_description as custName
+            FROM inquiry_count WHERE 1=1
+                  <if test="startTime!=null and endTime!=null">
+                      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                     and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                  </if>
+                   AND cust_description
+                    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                        <if test="startTime!=null and endTime!=null">
+                          and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                        </if>
+                        )
+          GROUP BY cust_description HAVING custName IS NOT NULL  ) AS t
+      ) AS t2,
+      (
+          SELECT COUNT(DISTINCT(cust_description)) AS seniorCount
+          FROM inquiry_count WHERE 1=1
+                    <if test="startTime!=null and endTime!=null">
+                       and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                    </if>
+                    AND cust_description
+                    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员'
+                            <if test="startTime!=null and endTime!=null">
+                             and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                             and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                            </if>
+                        )
+      ) AS t3
+
+  </select>
+
+  <!--查询各区域的会员的询单数据-->
+  <select id="selectCustInqDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+           COUNT(1) AS inqTimes  ,
+           inquiry_area AS area
+    FROM  inquiry_count
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+      AND cust_description
+      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                <if test="startTime!=null and endTime!=null">
+                    and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                    and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                </if>
+         )
+    GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
+
   </select>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >

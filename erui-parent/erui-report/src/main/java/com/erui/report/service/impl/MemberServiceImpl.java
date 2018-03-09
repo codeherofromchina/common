@@ -297,10 +297,10 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     }
 
     @Override
-    public List<Map<String, Integer>> selectInqFrequencyData(Map<String, String> params) {
+    public List<Map<String, Integer>> selectCustInqFrequencyData(Map<String, String> params) {
 
         //查询交易频率明细 inqCount ，custName
-        List<Map<String, Object>>  inqList=readMapper.selectInqRateDetail(params);
+        List<Map<String, Object>>  inqList=readMapper.selectCustInqRateDetail(params);
 
         Map<Integer, List<String>> dataMap = new HashMap<>();
         inqList.stream().forEach(map1 -> {
@@ -325,10 +325,10 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     }
 
     @Override
-    public List<Map<String, Integer>> selectOrdFrequencyData(Map<String, String> params) {
+    public List<Map<String, Integer>> selectCustOrdFrequencyData(Map<String, String> params) {
 
         //查询交易频率明细 buyCount ，custName
-        List<Map<String, Object>>  ordList=readMapper.selectOrdRePurchaseDetail(params);
+        List<Map<String, Object>>  ordList=readMapper.selectCustOrdRateDetail(params);
 
         Map<Integer, List<String>> dataMap = new HashMap<>();
         ordList.stream().forEach(map1 -> {
@@ -350,6 +350,18 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
            data.add(map);
         }
         return data;
+    }
+
+    @Override
+    public Map<String, Integer> selectCustInqSummaryData(Map<String, String> params) {
+        //查询会员询单总览数据 custCount, inqCount,firstInqCount,seniorCount
+        Map<String,Integer> data=readMapper.selectCustInqSummaryData(params);
+        return data;
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustInqDataGroupByArea(Map<String, String> params) {
+        return readMapper.selectCustInqDataGroupByArea(params);
     }
 
 }

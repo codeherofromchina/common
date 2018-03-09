@@ -64,12 +64,26 @@ public interface MemberService {
 	 * @Date:17:59 2018/03/08
 	 * @modified By
 	 */
-	List<Map<String, Integer>> selectInqFrequencyData(Map<String,String> params);
+	List<Map<String, Integer>> selectCustInqFrequencyData(Map<String,String> params);
 	/**
 	 * @Author:lirb
 	 * @Description 查询交易频率数据
 	 * @Date:17:59 2018/03/08
 	 * @modified By
 	 */
-	List<Map<String, Integer>> selectOrdFrequencyData(Map<String,String> params);
+	List<Map<String, Integer>> selectCustOrdFrequencyData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 会员询单汇总数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	Map<String,Integer> selectCustInqSummaryData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 各区域的会员询单数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectCustInqDataGroupByArea(Map<String,String> params);
 }
