@@ -117,10 +117,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         Order order = orderAccounts.getOrder();
 
-        //需要调用CRM系统接口，完成CRM会员升级
+      /*  //需要调用CRM系统接口，完成CRM会员升级
         Map<String, Object> map = new HashMap<>();
         map.put("crm_code", order.getCrmCode());
-        sendPost(crmUrl + CRM_URL_METHOD, request, map);
+        sendPost(crmUrl + CRM_URL_METHOD, request, map);*/
 
         /**
          * 判断是否是收款中状态
@@ -168,10 +168,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderDao.saveAndFlush(order);
 
 
-        //需要调用CRM系统接口，完成CRM会员升级
+       /* //需要调用CRM系统接口，完成CRM会员升级
         Map<String, Object> map = new HashMap<>();
         map.put("crm_code", order.getCrmCode());
-        sendPost(crmUrl + CRM_URL_METHOD, request, map);
+        sendPost(crmUrl + CRM_URL_METHOD, request, map);*/
 
 
         /**
@@ -263,11 +263,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccounts.setUpdateTime(new Date());
         orderAccountDao.saveAndFlush(orderAccounts);
 
+/*
 
         //需要调用CRM系统接口，完成CRM会员升级
         Map<String, Object> map = new HashMap<>();
         map.put("crm_code", orderAccounts.getOrder().getCrmCode());
         sendPost(crmUrl + CRM_URL_METHOD, request, map);
+*/
 
     }
 
