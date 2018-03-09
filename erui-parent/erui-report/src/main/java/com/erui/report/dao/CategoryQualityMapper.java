@@ -1,12 +1,12 @@
 package com.erui.report.dao;
 
 import com.erui.report.model.CategoryQuality;
-import com.erui.report.model.CategoryQualityExample;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.CategoryQualityExample;
 import org.apache.ibatis.annotations.Param;
 
 public interface CategoryQualityMapper {

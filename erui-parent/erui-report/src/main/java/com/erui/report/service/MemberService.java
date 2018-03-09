@@ -51,4 +51,25 @@ public interface MemberService {
 	 * @modified By
 	 */
 	Map<String,Integer> selectRegisterSummaryData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询各区域的注册数量
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	List<Map<String, Integer>> selectRegisterCountGroupByArea(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询询单频率数据
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	List<Map<String, Integer>> selectInqFrequencyData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询交易频率数据
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	List<Map<String, Integer>> selectOrdFrequencyData(Map<String,String> params);
 }

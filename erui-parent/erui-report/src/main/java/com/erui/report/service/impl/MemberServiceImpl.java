@@ -277,4 +277,65 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         return data;
     }
 
+    @Override
+    public List<Map<String, Integer>> selectRegisterCountGroupByArea(Map<String, String> params) {
+        return readMapper.selectRegisterCountGroupByArea(params);
+    }
+
+    @Override
+    public List<Map<String, Integer>> selectInqFrequencyData(Map<String, String> params) {
+
+        //查询交易频率明细 inqCount ，custName
+        List<Map<String, Object>>  inqList=readMapper.selectInqRateDetail(params);
+
+        Map<Integer, List<String>> dataMap = new HashMap<>();
+        inqList.stream().forEach(map1 -> {
+            String custName = String.valueOf(map1.get("custName"));
+            int inqCount = Integer.parseInt(map1.get("inqCount").toString());
+            if (dataMap.containsKey(inqCount)) {
+                dataMap.get(inqCount).add(custName);
+            } else {
+                List<String> names = new ArrayList<>();
+                names.add(custName);
+                dataMap.put(inqCount, names);
+            }
+        });
+        List<Map<String,Integer>> data=new ArrayList<>();
+        for(Map.Entry<Integer,List<String> > entry:dataMap.entrySet()){
+            Map<String,Integer> map=new HashMap<>();
+            map.put("inqRate",entry.getKey());
+            map.put("custCount",entry.getValue().size());
+            data.add(map);
+        }
+        return data;
+    }
+
+    @Override
+    public List<Map<String, Integer>> selectOrdFrequencyData(Map<String, String> params) {
+
+        //查询交易频率明细 buyCount ，custName
+        List<Map<String, Object>>  ordList=readMapper.selectOrdRePurchaseDetail(params);
+
+        Map<Integer, List<String>> dataMap = new HashMap<>();
+        ordList.stream().forEach(map1 -> {
+            String custName = String.valueOf(map1.get("custName"));
+            int buyCount = Integer.parseInt(map1.get("buyCount").toString());
+            if (dataMap.containsKey(buyCount)) {
+                dataMap.get(buyCount).add(custName);
+            } else {
+                List<String> names = new ArrayList<>();
+                names.add(custName);
+                dataMap.put(buyCount, names);
+            }
+        });
+        List<Map<String,Integer>> data=new ArrayList<>();
+        for(Map.Entry<Integer,List<String> > entry:dataMap.entrySet()){
+           Map<String,Integer> map=new HashMap<>();
+           map.put("ordRate",entry.getKey());
+           map.put("custCount",entry.getValue().size());
+           data.add(map);
+        }
+        return data;
+    }
+
 }
