@@ -311,7 +311,7 @@ public class OrderServiceImpl implements OrderService {
                     Map<String,Object> map= new HashMap();
                     map.put("areaCode","86");
                     map.put("to","[\""+mobile+"\"]");
-                    map.put("content","尊敬的客户您好！销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，"+order.getInquiryNo()+" 订单正在走项目执行，请及时处理。");
+                    map.put("content","尊敬的客户您好！销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，"+order.getInquiryNo()+" 订单正在走项目执行，请及时处理。感谢您对我们的支持与信任！(测试)");
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");
