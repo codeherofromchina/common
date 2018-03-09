@@ -1,4 +1,9 @@
 package com.erui.comm.util.http;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.erui.comm.util.EruitokenUtil;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,13 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
-	/**
+    /**
      * 向指定URL发送GET方法的请求
-     * 
-     * @param url
-     *            发送请求的URL
-     * @param param
-     *            请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
+     *
+     * @param url   发送请求的URL
+     * @param param 请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
      * @return URL 所代表远程资源的响应结果
      */
     public static String sendGet(String url, String param) {
@@ -41,7 +44,7 @@ public class HttpRequest {
             }
             // 定义 BufferedReader输入流来读取URL的响应
             in = new BufferedReader(new InputStreamReader(
-                    connection.getInputStream(),"utf-8"));//防止乱码
+                    connection.getInputStream(), "utf-8"));//防止乱码
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;
@@ -62,13 +65,12 @@ public class HttpRequest {
         }
         return result;
     }
-	/**
+
+    /**
      * 向指定 URL 发送POST方法的请求
-     * 
-     * @param url
-     *            发送请求的 URL
-     * @param param
-     *            请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
+     *
+     * @param url   发送请求的 URL
+     * @param param 请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
      * @return 所代表远程资源的响应结果
      */
     public static String sendPost(String url, String param) {
@@ -95,29 +97,88 @@ public class HttpRequest {
             out.flush();
             // 定义BufferedReader输入流来读取URL的响应
             in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(),"utf-8"));
+                    new InputStreamReader(conn.getInputStream(), "utf-8"));
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;
             }
         } catch (Exception e) {
-            System.out.println("发送 POST 请求出现异常！"+e);
+            System.out.println("发送 POST 请求出现异常！" + e);
             e.printStackTrace();
         }
         //使用finally块来关闭输出流、输入流
-        finally{
-            try{
-                if(out!=null){
+        finally {
+            try {
+                if (out != null) {
                     out.close();
                 }
-                if(in!=null){
+                if (in != null) {
                     in.close();
                 }
-            }
-            catch(IOException ex){
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
         return result;
-    }    
+    }
+
+
+    /**
+     * 向指定 URL 发送POST方法的请求
+     *
+     * @param url   发送请求的 URL
+     * @param param 请求参数
+     * @return 所代表远程资源的响应结果
+     */
+    public static String sendPost(String url, String param, Map<String, String> header) {
+        PrintWriter out = null;
+        BufferedReader in = null;
+        String result = "";
+        try {
+            URL realUrl = new URL(url);
+            // 打开和URL之间的连接
+            URLConnection conn = realUrl.openConnection();
+
+            if (header != null && header.size() > 0) {
+                for (Map.Entry<String, String> entry : header.entrySet()) {
+                    conn.setRequestProperty(entry.getKey(), entry.getValue());
+                }
+            }
+            // 发送POST请求必须设置如下两行
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            // 获取URLConnection对象对应的输出流
+            out = new PrintWriter(conn.getOutputStream());
+
+            // 发送请求参数
+            out.print(param);
+            // flush输出流的缓冲
+            out.flush();
+            // 定义BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result += line;
+            }
+        } catch (Exception e) {
+            System.err.println("发送 POST 请求出现异常！" + e);
+            e.printStackTrace();
+        }
+        // 使用finally块来关闭输出流、输入流
+        finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result;
+    }
+
 }

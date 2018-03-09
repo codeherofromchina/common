@@ -1,8 +1,11 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
@@ -21,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,6 +44,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+    // 用户升级方法
+    static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private OrderDao orderDao;
@@ -51,6 +57,9 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private DeliverDetailService deliverDetailService;
+    @Value("#{orderProp[CRM_URL]}")
+    private String crmUrl;  //CRM接口地址
+
 
     @Override
     @Transactional(readOnly = true)
@@ -120,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(root.get("country").in(country),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
@@ -128,10 +137,10 @@ public class OrderServiceImpl implements OrderService {
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
-                    if (condition.getAgentId() != null||condition.getCreateUserId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
-                }else {
+                } else {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
@@ -263,6 +272,18 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProjectNo(project2.getProjectNo());
             });
             goodsDao.save(goodsList1);
+
+            // 调用CRM系统，触发CRM用户升级任务
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+            if (StringUtils.isNotBlank(eruiToken)) {
+                String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+            }
         }
         return true;
     }
@@ -397,6 +418,18 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProjectNo(project2.getProjectNo());
             });
             goodsDao.save(goodsList1);
+
+            // 调用CRM系统，触发CRM用户升级任务
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+            if (StringUtils.isNotBlank(eruiToken)) {
+                String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+            }
         }
         return true;
     }
@@ -424,7 +457,6 @@ public class OrderServiceImpl implements OrderService {
             ex.printStackTrace();
         }
     }
-
 
 
     @Override
