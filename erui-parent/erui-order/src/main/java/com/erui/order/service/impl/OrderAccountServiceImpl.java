@@ -63,12 +63,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     OrderLogDao orderLogDao;
 
 
-    @Value("#{orderProp[CRM_URL]}")
+  /*  @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
 
-    // 用户升级方法
-    static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
-
+*/
     /**
      * 根据id 查询订单收款信息(单条)
      *
@@ -117,11 +115,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         Order order = orderAccounts.getOrder();
 
-        //需要调用CRM系统接口，完成CRM会员升级
-        Map<String, Object> map = new HashMap<>();
-        map.put("crm_code", order.getCrmCode());
-        sendPost(crmUrl + CRM_URL_METHOD, request, map);
-
         /**
          * 判断是否是收款中状态
          */
@@ -166,13 +159,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
-
-
-        //需要调用CRM系统接口，完成CRM会员升级
-        Map<String, Object> map = new HashMap<>();
-        map.put("crm_code", order.getCrmCode());
-        sendPost(crmUrl + CRM_URL_METHOD, request, map);
-
 
         /**
          *  推送 Log日志 收到预付款
@@ -263,12 +249,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccounts.setUpdateTime(new Date());
         orderAccountDao.saveAndFlush(orderAccounts);
 
-
-        //需要调用CRM系统接口，完成CRM会员升级
-        Map<String, Object> map = new HashMap<>();
-        map.put("crm_code", orderAccounts.getOrder().getCrmCode());
-        sendPost(crmUrl + CRM_URL_METHOD, request, map);
-
     }
 
 
@@ -292,7 +272,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
 
-        /*orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成*/
     }
 
 
@@ -384,86 +363,5 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         return pageOrder;
     }
-
-
-    /**
-     * 向指定URL发送POST请求
-     *
-     * @param paramMap
-     * @return 响应结果
-     */
-    public static void sendPost(String url, ServletRequest request, Map<String, Object> paramMap) {
-        String eruiToken = EruitokenUtil.getEruiToken(request);
-
-        PrintWriter out = null;
-        BufferedReader in = null;
-       /* String result = "";*/
-        try {
-            URL realUrl = new URL(url);
-            // 打开和URL之间的连接
-            URLConnection conn = realUrl.openConnection();
-            // 设置通用的请求属性
-            conn.setRequestProperty("accept", "*/*");
-            conn.setRequestProperty("connection", "Keep-Alive");
-            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-            conn.setRequestProperty(EruitokenUtil.TOKEN_NAME, eruiToken);
-            conn.setRequestProperty("Content-Type", " application/json");//设定 请求格式 json，
-            // 发送POST请求必须设置如下两行
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            // 获取URLConnection对象对应的输出流
-            out = new PrintWriter(conn.getOutputStream());
-
-            // 设置请求属性
-            String jsonString = null;
-            if (paramMap != null && paramMap.size() > 0) {
-                jsonString = JSON.toJSONString(paramMap, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty);
-            }
-            // 发送请求参数
-            out.print(jsonString);
-            // flush输出流的缓冲
-            out.flush();
-            // 定义BufferedReader输入流来读取URL的响应
-          /* in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                result += line;
-            }*/
-        } catch (Exception e) {
-            System.err.println("发送 POST 请求出现异常！" + e);
-            e.printStackTrace();
-        }
-        // 使用finally块来关闭输出流、输入流
-        finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-       /* System.out.print(result);
-        return result;*/
-    }
-
-
-    public void setCrmUrl(String crmUrl) {
-        this.crmUrl = crmUrl;
-    }
-
-    /**
-     * BigDecimal类型小数处理 .00
-     */
-    public String disposeBigDecimal(BigDecimal bigDecimal){
-        DecimalFormat df1 = new DecimalFormat("0.00");
-        String str = df1.format(bigDecimal);
-        return str;
-    }
-
 
 }

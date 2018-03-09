@@ -1,25 +1,38 @@
 package com.erui.order.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Date;
 
+@Entity
+@Table(name = "old_order_payment")
 public class OldOrderPayment {
+    @Id
     private Long id;
 
+    @Column(name = "order_id")
     private Long orderId;
 
     private String name;
 
     private BigDecimal amount;
 
+    @Column(name = "payment_mode")
     private String paymentMode;
 
+    @Column(name = "payment_at")
     private Date paymentAt;
 
+    @Column(name = "created_by")
     private Long createdBy;
 
+    @Column(name = "created_at")
     private Date createdAt;
 
+    @Column(name = "deleted_flag")
     private String deletedFlag;
 
     public Long getId() {
