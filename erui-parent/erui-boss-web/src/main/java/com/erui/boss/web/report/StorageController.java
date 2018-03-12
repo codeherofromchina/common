@@ -86,8 +86,8 @@ public class StorageController {
         String fullEndTime=DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
         params.put("startTime",fullStartTime);
         params.put("endTime",fullEndTime);
-//        Map<String,Object> data= storageService.selectCountryOutStoreSummary(params);
-        return result.setData(null);
+        Map<String,Object> data= storageService.selectCountryOutStoreSummary(params);
+        return result.setData(data);
     }
     /**
      * @Description:事业部库存

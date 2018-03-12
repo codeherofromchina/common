@@ -134,6 +134,21 @@
        group  by outbound_date having outbound_date is not  null
     </select>
 
+    <!--出库趋势图数据-->
+    <select id="selectOutDataGroupByCountry" resultType="java.util.Map"  parameterType="java.util.Map">
+       SELECT destination as country,
+			  IFNULL(SUM(IFNULL(pack_count, 0)),0) AS outCount,
+              IFNULL(SUM(IFNULL(amounts, 0)),0) AS outAmount
+       from order_outbound_count
+       where 1=1
+       <if test="startTime!=null and endTime!=null">
+        and  outbound_date between
+           DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+           and  DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+       </if>
+       group  by destination having destination is not  null
+    </select>
+
     <!--查询入库量和出库量-->
     <select id="selectEntryAndOutData" resultType="java.util.Map" parameterType="java.util.Map">
    SELECT entryData.entryCount,entryData.entryAmount,outData.outCount,outData.outAmount FROM

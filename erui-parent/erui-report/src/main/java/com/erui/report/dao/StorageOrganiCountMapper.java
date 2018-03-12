@@ -51,6 +51,8 @@ public interface StorageOrganiCountMapper {
     List<Map<String,Object>> selectEntryDataGroupByTime(Map<String,String> params);
     //查询出库趋势图数据
     List<Map<String,Object>> selectOutDataGroupByTime(Map<String,String> params);
+    //查询出库目的国明细
+    List<Map<String,Object>> selectOutDataGroupByCountry(Map<String,String> params);
     //查询各事业部的库存
     List<Map<String,Object>> orgStocks(Map<String,String> params);
 }

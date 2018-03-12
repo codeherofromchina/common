@@ -39,6 +39,12 @@ public interface StorageOrganiCountService {
 	 */
 	Map<String,Object> selectStorageTrend(Date startTime,Date endTime);
 	/**
+	 * 出库目的国明细
+	 * @param  params startTime,endTime
+	 * @return
+	 */
+	Map<String,Object> selectCountryOutStoreSummary(Map<String,String> params);
+	/**
 	 * 仓储物流总览数据
 	 * @param  params startTime,endTime
 	 * @return
