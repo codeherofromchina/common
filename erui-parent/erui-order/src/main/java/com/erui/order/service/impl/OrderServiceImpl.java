@@ -203,10 +203,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrder(AddOrderVo addOrderVo) throws Exception {
+    public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
-            return false;
+            return null;
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
@@ -299,7 +299,7 @@ public class OrderServiceImpl implements OrderService {
 
             sendSms(order);
         }
-        return true;
+        return order.getId();
     }
 
     // 检查和贸易术语相关字段的完整性
@@ -357,7 +357,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
+    public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
         }
@@ -449,7 +449,7 @@ public class OrderServiceImpl implements OrderService {
             sendSms(order);
 
         }
-        return true;
+        return order1.getId();
     }
 
     /**
