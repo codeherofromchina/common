@@ -1,12 +1,23 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectApplyService;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +29,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class InspectApplyServiceImpl implements InspectApplyService {
+
+    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Autowired
     private InspectApplyDao inspectApplyDao;
@@ -35,6 +48,16 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportDao inspectReportDao;
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //用户列表
 
     @Override
     @Transactional(readOnly = true)
@@ -150,6 +173,42 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             pushDataToInspectReport(inspectApply);
+
+
+            //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
+
+            Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多
+            Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
+            Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
+            Set<String> purchaseNameList = new HashSet<>(); //采购经办人
+            for (Project project : purch.getProjects()){
+                if(StringUtil.isNotBlank(project.getProjectNo())){
+                    projectNoList.add(project.getProjectNo());
+                }
+                if(StringUtil.isNotBlank(project.getQualityName())){
+                    qualityNameList.add(project.getQualityUid());
+                }
+                if(StringUtil.isNotBlank(project.getWarehouseName())){
+                    warehouseNameList.add(project.getWarehouseUid());
+                }
+                if(StringUtil.isNotBlank(project.getPurchaseName())){
+                 purchaseNameList.add(project.getPurchaseName());
+                }
+            }
+            String qualityNames =  StringUtils.join(qualityNameList, ",");  //质检经办人
+            String warehouseNames =  StringUtils.join(warehouseNameList, ",");  //仓库经办人
+            String projectNos =  StringUtils.join(projectNoList, ",");  //项目号
+            String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
+            String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
+
+            Map<String,Object> map = new HashMap<>();
+            map.put("qualityNames",qualityNames);
+            map.put("warehouseNames",warehouseNames);
+            map.put("projectNos",projectNos);
+            map.put("purchaseNames",purchaseNames);
+            map.put("inspectApplyNo",inspectApplyNo);
+            sendSms(map);
+
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
             checkPurchHasDone(inspectApply.getPurch());
@@ -517,5 +576,105 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         return inspectApply;
     }
+
+
+    //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
+    public void sendSms(Map<String,Object> map1) throws  Exception {
+
+        //获取token
+        /*String eruiToken = (String) ThreadLocalUtil.getObject();*/
+        String eruiToken = "82e708fb7ac93bd76ab59771743efe0c";
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                String mobile = null;  //质检经办人+采购经办人手机号
+                Set<String> qualityNameSet = new HashSet();    //质检经办人  手机号
+                Set<String> warehouseNameSet = new HashSet();    //采购经办人  手机号
+                String qualityNames = (String) map1.get("qualityNames");
+                String warehouseNames = (String) map1.get("warehouseNames");
+                String[] split = qualityNames.split(",");
+                String[] split2 = warehouseNames.split(",");
+
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+
+                //质检经办人 手机号
+               for (String s :split){
+                   String jsonParam = "{\"id\":\"" +s + "\"}";
+                   String s1 = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                   logger.info("CRM返回信息：" + s1);
+                   // 获取手机号
+                   JSONObject jsonObject = JSONObject.parseObject(s1);
+                   Integer code = jsonObject.getInteger("code");
+                   if(code == 1){
+                       JSONObject data = jsonObject.getJSONObject("data");
+                       qualityNameSet.add(data.getString("mobile"));
+                   }
+               }
+
+               //采购经办人  手机号
+               for (String s2 :split2){
+                   String jsonParam = "{\"id\":\"" +s2 + "\"}";
+                   String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                   logger.info("CRM返回信息：" + s3);
+                   // 获取手机号
+                   JSONObject jsonObject = JSONObject.parseObject(s3);
+                   Integer code = jsonObject.getInteger("code");
+                   if(code == 1){
+                       JSONObject data = jsonObject.getJSONObject("data");
+                       warehouseNameSet.add(data.getString("mobile"));
+                   }
+               }
+
+
+               //去除重复
+                Set<String> listAll = new HashSet<>();
+                listAll.addAll(qualityNameSet);
+                listAll.addAll(warehouseNameSet);
+                listAll = new HashSet<>(new LinkedHashSet<>(listAll));
+
+/*
+                String jsonParam = "{\"username\":\"徐健\"}";
+                String s3 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("CRM返回信息：" + s3);
+                // 获取手机号
+                JSONObject jsonObject = JSONObject.parseObject(s3);
+                Integer code = jsonObject.getInteger("code");
+                if(code == 1){
+                    JSONArray data = jsonObject.getJSONArray("data");
+                    JSONObject jsonObject1 = data.getJSONObject(0);
+                    listAll.add(jsonObject1.getString("mobile"));
+                    listAll.add(jsonObject1.getString("mobile"));
+                }
+*/
+                //获取徐健 手机号
+                listAll.add("15066060360");
+/*
+                mobile = StringUtils.join(listAll, ",");//质检经办人+采购经办人手机号
+                String[] strArr = mobile.split(",");
+                String[] objects = new JSONArray().toArray(strArr);
+                //发送短信
+                if(StringUtil.isNotBlank(mobile) && mobile != null){
+                    Map<String,Object> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to",objects);
+                    map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPostNote(sendSms, map, header);
+                    logger.info("发送手机号失败"+s1);
+                }*/
+
+            }catch (Exception e){
+                throw new Exception("发送短信失败");
+            }
+
+        }
+    }
+
+
+
 
 }

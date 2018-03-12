@@ -6,6 +6,9 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.entity.Project;
 import com.erui.order.entity.PurchRequisition;
 import com.erui.order.service.ProjectService;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +75,7 @@ public class PurchRequisitionController {
      * @return
      */
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition) {
+    public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition , HttpServletRequest request) {
         Result<Object> result = new Result<>();
         if (StringUtils.isBlank(purchRequisition.getProjectNo()) || StringUtils.equals(purchRequisition.getProjectNo(), "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
@@ -88,6 +92,8 @@ public class PurchRequisitionController {
         } else {
             try {
                 boolean flag;
+                String eruiToken = EruitokenUtil.getEruiToken(request);
+                ThreadLocalUtil.setObject(eruiToken);
                 if (purchRequisition.getId() != null) {
                     flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
                 } else {
