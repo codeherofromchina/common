@@ -161,6 +161,8 @@ public class AddOrderVo {
     private Integer createUserId;
     //创建人姓名
     private String createUserName;
+    private Integer buyerId;
+    private Integer inquiryId;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -168,6 +170,22 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getBuyerId() {
+        return buyerId;
+    }
+
+    public void setBuyerId(Integer buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public Integer getInquiryId() {
+        return inquiryId;
+    }
+
+    public void setInquiryId(Integer inquiryId) {
+        this.inquiryId = inquiryId;
+    }
 
     public Integer getCreateUserId() {
         return createUserId;
@@ -614,6 +632,8 @@ public class AddOrderVo {
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
         //   order.setTechnicalIdDept(this.technicalIdDept);
+        order.setBuyerId(this.buyerId);
+        order.setInquiryId(this.inquiryId);
         order.setGrantType(this.grantType);
         order.setPreinvest(this.preinvest);
         order.setFinancing(this.financing);
