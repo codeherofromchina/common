@@ -201,7 +201,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
        List<Map<String,Object>> dataList= readMapper.selectOutDataGroupByCountry(params);
        List<String> countrys=new ArrayList<>();//目的国家列表
         List<Integer> outCountList=new ArrayList<>();//出库量列表
-        List<Double> proportionList=new ArrayList<>();//占比列表
+        List<String> proportionList=new ArrayList<>();//占比列表
        dataList.stream().forEach(m->{
             String country=m.get("country").toString();
            int outCount = Integer.parseInt(m.get("outCount").toString());
@@ -212,7 +212,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
       Integer totalCount= outCountList.stream().reduce(0,(a,b)->a+b);
         if(totalCount!=null&&totalCount>0){
             outCountList.stream().forEach(count->{
-                proportionList.add(RateUtil.intChainRate(count,totalCount));
+                proportionList.add("占比"+RateUtil.intChainRateTwo(count*100,totalCount)+"%");
             });
         }
         Map<String,Object> data=new HashMap<>();
