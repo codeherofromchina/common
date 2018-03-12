@@ -215,7 +215,6 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         Map<String, Object> custData = readMapper.selectOperateSummaryData(params);
         InquiryCountMapper inqMapper = readerSession.getMapper(InquiryCountMapper.class);
         Map<String, Object> inqAndOrdData = inqMapper.selectInqAndOrdCountAndPassengers(params);
-        //和数据
         Map<String, Object> data = new HashMap<>();
         data.put("member", custData);
         data.put("inqAndOrd", inqAndOrdData);
