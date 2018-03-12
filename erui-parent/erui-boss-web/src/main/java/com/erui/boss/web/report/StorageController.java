@@ -25,7 +25,11 @@ public class StorageController {
 
     @Autowired
     private StorageOrganiCountService storageService;
-
+    /**
+     * @Description:库存总览
+     * @Author: lirb
+     * @CreateDate: 2018/3/7 11:17
+     */
     @ResponseBody
     @RequestMapping(value = "/storagePandect",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public Result storagePandect(@RequestBody(required = true) Map<String,String> params){
@@ -44,7 +48,11 @@ public class StorageController {
        Map<String,Object> data= storageService.selectStorageSummaryData(params);
         return result.setData(data);
     }
-
+    /**
+     * @Description:仓储物流趋势图
+     * @Author: lirb
+     * @CreateDate: 2018/3/7 11:17
+     */
     @ResponseBody
     @RequestMapping(value = "/storageTrend",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public Result storageTrend(@RequestBody(required = true) Map<String,String> params){
@@ -58,6 +66,34 @@ public class StorageController {
        Map<String,Object> data= storageService.selectStorageTrend(startTime,endTime);
         return result.setData(data);
     }
+    /**
+     * @Description:出库目的国分析
+     * @Author: lirb
+     * @CreateDate: 2018/3/7 11:17
+     */
+    @ResponseBody
+    @RequestMapping(value = "/outStoreDestinationDetail",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public Result outStoreDestinationDetail(@RequestBody(required = true) Map<String,String> params){
+        Result<Object> result = new Result<>();
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+
+        String fullStartTime=DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2);
+        String fullEndTime=DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime",fullStartTime);
+        params.put("endTime",fullEndTime);
+//        Map<String,Object> data= storageService.selectCountryOutStoreSummary(params);
+        return result.setData(null);
+    }
+    /**
+     * @Description:事业部库存
+     * @Author: lirb
+     * @CreateDate: 2018/3/7 11:17
+     */
     @ResponseBody
     @RequestMapping(value = "/orgStocks",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public Result orgStocks(@RequestBody(required = true) Map<String,String> params){

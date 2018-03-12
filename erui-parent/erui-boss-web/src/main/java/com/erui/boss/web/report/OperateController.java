@@ -181,7 +181,7 @@ public class OperateController {
         return result.setData(data);
     }
     /**
-     * 运营数据-会员询单 区域明显
+     * 运营数据-会员询单 区域明细
      *
      * @param params
      * @return
@@ -219,6 +219,69 @@ public class OperateController {
         data.put("areaTable",tabalData);
         return result.setData(data);
     }
+    /**
+     * 运营数据-会员的订单总览
+     *
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/ordDetailPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result ordDetailPandect(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Result<Object> result = new Result<>();
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime", fullStartTime);
+        params.put("endTime", fullEndTime);
+        //查询会员的订单总览数据
+        Map<String,Object> data=memberService.selectCustOrdSummaryData(params);
+        return result.setData(data);
+    }
+    /**
+     * 运营数据-会员订单 区域明细
+     *
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/ordAreaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result ordAreaDetail(@RequestBody(required = true) Map<String, String> params) {
+        // 获取参数并转换成时间格式
+        Result<Object> result = new Result<>();
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime", fullStartTime);
+        params.put("endTime", fullEndTime);
+        //查询各区域的会员订单数据 custCount,ordTimes,area
+        List<Map<String,Object>> tabalData=memberService.selectCustOrdDataGroupByArea(params);
+        //构建饼图数据
+        List<String> areaList=new ArrayList<>();//区域列表
+        List<Integer> custCountList=new ArrayList<>();//订单人数列表
+        tabalData.stream().forEach(m->{
+            areaList.add(m.get("area").toString());
+            custCountList.add(Integer.parseInt(m.get("custCount").toString()));
+        });
 
+        Map<String,Object> data=new HashMap<>();
+        Map<String,Object> areaPie=new HashMap<>();
+        areaPie.put("area",areaList);
+        areaPie.put("custCount",custCountList);
+        data.put("areaPie",areaPie);
+        data.put("areaTable",tabalData);
+        return result.setData(data);
+    }
 
 }

@@ -364,4 +364,15 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         return readMapper.selectCustInqDataGroupByArea(params);
     }
 
+    @Override
+    public Map<String, Object> selectCustOrdSummaryData(Map<String, String> params) {
+
+        return readMapper.selectCustOrdSummaryData(params);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustOrdDataGroupByArea(Map<String, String> params) {
+        return readMapper.selectCustOrdDataGroupByArea(params);
+    }
+
 }

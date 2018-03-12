@@ -86,4 +86,19 @@ public interface MemberService {
 	 * @modified By
 	 */
 	List<Map<String,Object>> selectCustInqDataGroupByArea(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 会员订单汇总数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	Map<String,Object> selectCustOrdSummaryData(Map<String,String> params);
+
+	/**
+	 * @Author:lirb
+	 * @Description 查询 各区域的会员的订单数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectCustOrdDataGroupByArea(Map<String,String> params);
 }

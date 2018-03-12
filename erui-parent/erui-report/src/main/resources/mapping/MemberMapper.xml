@@ -311,7 +311,89 @@
     GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
 
   </select>
+  <!--查询会员订单汇总数据-->
+  <select id="selectCustOrdSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
 
+    SELECT t1.dealCount , IFNULL(t1.dealAmount,0) AS dealAmount,
+           IFNULL(t2.firstDealCount,0) AS firstDealCount ,
+           t3.seniorDealCount
+    from
+        (
+          SELECT COUNT(DISTINCT(cust_description)) AS dealCount ,
+                 IFNULL(SUM(IFNULL(project_account,0.00)),0) AS dealAmount
+          FROM  order_count
+          WHERE 1=1
+                <if test="startTime!=null and endTime!=null">
+                   and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                </if>
+                   AND cust_description
+                   IN ( SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                               <if test="startTime!=null and endTime!=null">
+                                   and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                               </if>
+                      )
+        ) AS t1 ,
+        (
+           SELECT SUM(CASE t.custCount WHEN 1 THEN 1 ELSE 0 END ) AS firstDealCount
+           FROM
+             ( SELECT count(cust_description) AS custCount ,
+                      cust_description as custName
+               FROM order_count WHERE 1=1
+                    <if test="startTime!=null and endTime!=null">
+                        and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                    </if>
+                        AND cust_description
+                        IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                                <if test="startTime!=null and endTime!=null">
+                                  and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                                  and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                                </if>
+                           )
+               GROUP BY cust_description HAVING custName IS NOT NULL  )
+           AS t
+        ) AS t2,
+        (
+          SELECT COUNT(DISTINCT(cust_description)) AS seniorDealCount
+          FROM order_count WHERE 1=1
+               <if test="startTime!=null and endTime!=null">
+                   and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+               </if>
+                   AND cust_description
+                   IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员'
+                             <if test="startTime!=null and endTime!=null">
+                                and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                             </if>
+                       )
+        ) AS t3
+
+  </select>
+  <!--查询各区域的会员的订单数据-->
+  <select id="selectCustOrdDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+    COUNT(1) AS ordTimes  ,
+    order_area AS area
+    FROM  order_count
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    AND cust_description
+    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    )
+    GROUP BY order_area HAVING order_area IS NOT NULL
+
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
     <include refid="Base_Column_List" />
