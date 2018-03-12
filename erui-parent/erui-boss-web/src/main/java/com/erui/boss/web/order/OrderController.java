@@ -137,16 +137,16 @@ public class OrderController {
         }
 
         try {
-            boolean flag;
+            Integer id;
             String eruiToken = EruitokenUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
             if (addOrderVo.getId() != null) {
-                flag = orderService.updateOrder(addOrderVo);
+                id = orderService.updateOrder(addOrderVo);
             } else {
-                flag = orderService.addOrder(addOrderVo);
+                id = orderService.addOrder(addOrderVo);
             }
-            if (flag) {
-                return new Result<>();
+            if (id != null) {
+                return new Result<>(id);
             }
         } catch (Exception ex) {
             logger.error("订单操作失败：{}", addOrderVo, ex);
