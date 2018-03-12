@@ -46,6 +46,13 @@ public class DeliverConsignGoods {
     @Column(name = "outbound_remark")
     private String outboundRemark;
 
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "deliver_detail_goods",
+            joinColumns = @JoinColumn(name = "deliver_consign_goods_id"),
+            inverseJoinColumns = @JoinColumn(name = "deliver_detail_id"))
+    @JsonIgnore
+    private DeliverDetail deliverDetail;
+
 
     public Integer getId() {
         return id;
@@ -120,4 +127,11 @@ public class DeliverConsignGoods {
         this.outboundRemark = outboundRemark;
     }
 
+    public DeliverDetail getDeliverDetail() {
+        return deliverDetail;
+    }
+
+    public void setDeliverDetail(DeliverDetail deliverDetail) {
+        this.deliverDetail = deliverDetail;
+    }
 }

@@ -159,6 +159,7 @@ public class InspectReportController {
             map.put("supplierName", purch.getSupplierName());
             map.put("inspectDate", inspectApply.getInspectDate());
             map.put("department", inspectApply.getDepartment());
+            map.put("checkUserId", vo.getCheckUserId());
             InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
             String checkStatus = null;
             if (statusEnum == InspectApply.StatusEnum.QUALIFIED) {

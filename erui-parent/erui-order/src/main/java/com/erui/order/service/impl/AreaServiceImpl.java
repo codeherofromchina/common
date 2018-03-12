@@ -19,6 +19,13 @@ public class AreaServiceImpl implements AreaService {
     @Override
     @Transactional(readOnly = true)
     public Area findById(Integer id) {
-        return areaDao.findOne(id);
+        return areaDao.findById(id);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Area findByBn(String bn) {
+        return areaDao.findOne(bn);
     }
 }

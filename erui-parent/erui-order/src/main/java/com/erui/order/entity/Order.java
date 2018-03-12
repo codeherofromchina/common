@@ -151,6 +151,10 @@ public class Order {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
+
+    @Column(name = "create_user_name")
+    private String createUserName;
+
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
@@ -202,14 +206,31 @@ public class Order {
 
     @Transient
     private int rows = 50;
-
+    //订单列表增加确认收货按钮标识
+    @Transient
+    private Boolean orderFinish = false;//true时可以确认收货
    /*@Column(name = "delivery_date_no")
     private Date deliveryDateNo;    //执行单约定交付日期*/
-
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
+
+    public Boolean getOrderFinish() {
+        return orderFinish;
+    }
+
+    public void setOrderFinish(Boolean orderFinish) {
+        this.orderFinish = orderFinish;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
 
     public Integer getAcquireId() {
         return acquireId;

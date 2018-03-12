@@ -5,6 +5,8 @@ import com.erui.order.entity.OrderAccount;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
+
+import javax.servlet.ServletRequest;
 import java.util.List;
 
 /**
@@ -31,7 +33,7 @@ public interface OrderAccountService {
      *  根据收款信息id 逻辑删除
      * @param id       收款信息id
      */
-    void delGatheringRecord(Integer id);
+    void delGatheringRecord(ServletRequest request,Integer id);
 
 
     /**
@@ -39,7 +41,7 @@ public interface OrderAccountService {
      * @param orderAccount  收款信息
      * @return
      */
-    void addGatheringRecord(OrderAccount orderAccount);
+    void addGatheringRecord(OrderAccount orderAccount,ServletRequest request) throws  Exception;
 
 
     /**
@@ -47,7 +49,7 @@ public interface OrderAccountService {
      * @param orderAccount
      * @return
      */
-    void updateGatheringRecord(OrderAcciuntAdd orderAccount);
+    void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount);
 
 
 

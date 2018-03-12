@@ -14,6 +14,12 @@ public interface OrderLogDao extends JpaRepository<OrderLog, Serializable>, JpaS
     List<OrderLog> findByOrderIdOrderByCreateTimeAsc(Integer orderId);
 
     OrderLog findByOrderAccountId(Integer id);
+
+    OrderLog findByOperation(String deliverDetailNo);
+
+    OrderLog findByOperationAndOrderId(String deliverDetailNo, Integer id);
+
+    OrderLog findByDeliverDetailId(Integer id);
    /* List<Order> findByIdIn(Integer[] ids);
     @Query(value = "select count(t1) from Order t1 where t1.contractNo = :contractNo")
     Long countByContractNo(@Param("contractNo") String contractNo);*/

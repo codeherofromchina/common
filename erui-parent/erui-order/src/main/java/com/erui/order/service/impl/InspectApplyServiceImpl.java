@@ -311,10 +311,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (parentInspectApply == null) {
             parentInspectApply = lastInspectApply;
         }
-        // 如果最后一次报检不是上级报检单，则修改上次报检的pubStatus =UNQUALIFIED
-        if (parentInspectApply != lastInspectApply) {
-            lastInspectApply.setPubStatus(InspectApply.StatusEnum.UNQUALIFIED.getCode());
-            inspectApplyDao.save(lastInspectApply);
+        // 检查是否是最后一次报检信息
+        if (parentInspectApply.getNum().intValue() != lastInspectApply.getNum()) {
+            throw new Exception("重新报检的不是最后一次质检结果");
         }
         // 声明要插入的报检单
         InspectApply newInspectApply = new InspectApply();
@@ -342,13 +341,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 检验完毕，做正式操作
         // 主报检单的报检数量+1
-        parentInspectApply.setNum(parentInspectApply.getNum() + 1);
+        Integer num = parentInspectApply.getNum();
+        parentInspectApply.setNum(num + 1);
         parentInspectApply.setHistory(true);
         parentInspectApply.setPubStatus(InspectApply.StatusEnum.SUBMITED.getCode()); // 设置全局状态为待审核
         inspectApplyDao.save(parentInspectApply);
 
         //新插入报检单，并设置上级报检单
-        newInspectApply.setInspectApplyNo(parentInspectApply.getInspectApplyNo() + "-" + parentInspectApply.getNum());
+        newInspectApply.setInspectApplyNo(parentInspectApply.getInspectApplyNo() + "-" + num);
         newInspectApply.setPurch(parentInspectApply.getPurch());
         newInspectApply.setPurchNo(parentInspectApply.getPurchNo());
         newInspectApply.setMaster(false);
@@ -508,7 +508,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (parentInspectApply == null || parentInspectApply.getNum() < 2) {
             return null;
         }
-        InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), parentInspectApply.getNum()));
+        InspectApply inspectApply = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
         if (inspectApply == null || inspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
             return null;
         }

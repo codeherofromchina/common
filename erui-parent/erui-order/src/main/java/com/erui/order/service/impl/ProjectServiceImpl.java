@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,7 +112,7 @@ public class ProjectServiceImpl implements ProjectService {
             order.getGoodsList().forEach(gd -> {
                         gd.setStartDate(projectUpdate.getStartDate());
                         gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                        gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                        gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
                         gd.setExeChgDate(projectUpdate.getExeChgDate());
                     }
             );
@@ -167,9 +168,11 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
                     list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
                 }
+                String[] projectStatus = null;
                 //根据项目状态
                 if (StringUtil.isNotBlank(condition.getProjectStatus())) {
-                    list.add(cb.equal(root.get("projectStatus").as(String.class), condition.getProjectStatus()));
+                    projectStatus = condition.getProjectStatus().split(",");
+                    list.add(root.get("projectStatus").in(projectStatus));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
@@ -226,6 +229,8 @@ public class ProjectServiceImpl implements ProjectService {
                     return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
                 });
             }).collect(Collectors.toList());
+            // 反序
+            Collections.reverse(list);
         }
         return list;
     }

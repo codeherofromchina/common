@@ -396,11 +396,14 @@ public class PurchServiceImpl implements PurchService {
             Integer paymentId = payment.getId();
             if (paymentId == null) {
                 payment.setCreateTime(now);
-            } else {
-                PurchPayment payment2 = collect.remove(paymentId);
-                payment.setCreateTime(payment2.getCreateTime());
+                return payment;
             }
-            return payment;
+            PurchPayment payment2 = collect.remove(paymentId);
+            payment2.setReceiptDate(payment.getReceiptDate());
+            payment2.setType(payment.getType());
+            payment2.setMoney(payment.getMoney());
+            payment2.setTitle(payment.getTitle());
+            return payment2;
         }).collect(Collectors.toList());
         dbPurch.setPurchPaymentList(paymentList);
         // 删除废弃的结算方式
@@ -410,6 +413,7 @@ public class PurchServiceImpl implements PurchService {
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
         dbPurch.setAttachments(attachmentlist);
+
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
         Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
@@ -555,6 +559,15 @@ public class PurchServiceImpl implements PurchService {
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                 }
+                // 判断采购是否超限,预采购数量大于合同数量，则错误
+                if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
+                    throw new Exception("采购数量超过合同数量【sku :" + goods.getSku() + "】");
+                }
+                if (purchaseNum > 0 &&
+                        (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
+                    throw new Exception("要采购的商品单价错误【sku :" + goods.getSku() + "】");
+                }
+
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);
             } else {
@@ -611,7 +624,7 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于合同数量，则错误
         if (goods.getPrePurchsedNum() + purchaseNum > goods.getContractGoodsNum()) {
-            throw new Exception("商品数量超过合同数量【sku :" + goods.getSku() + "】");
+            throw new Exception("采购数量超过合同数量【sku :" + goods.getSku() + "】");
         }
         if (purchaseNum > 0 &&
                 (newPurchGoods.getPurchasePrice() == null || newPurchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {

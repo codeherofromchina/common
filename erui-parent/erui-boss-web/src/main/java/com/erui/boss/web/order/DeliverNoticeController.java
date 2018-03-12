@@ -46,6 +46,9 @@ public class DeliverNoticeController {
         }
         try {
             Page<DeliverNotice> pageList = deliverNoticeService.listByPage(condition);
+            for (DeliverNotice deliverNotice : pageList){
+                deliverNotice.setDeliverDetail(null);
+            }
             return new Result<>(pageList);
         }catch (Exception e){
             logger.error("查询错误", e);
@@ -247,15 +250,22 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "queryExitAdvice")
     public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
-        List<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
-        if(list != null){
-            list.parallelStream().forEach( v -> {
-                v.setAttachmentSet(null);
-                v.setDeliverConsignGoodsSet(null);
-            });
-            return new Result<>(list);
-        }
-        return new Result<>(ResultStatusEnum.DATA_NULL);
+        Page<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
+
+
+            List<Map<String,Object>> list1 = new ArrayList<>();
+            for (DeliverConsign deliverConsign :list){
+                Map<String,Object> map = new HashMap<>();
+                deliverConsign.setAttachmentSet(null);
+                deliverConsign.setDeliverConsignGoodsSet(null);
+                map.put("id",deliverConsign.getId());   //出口发货通知单id
+                map.put("deliverConsignNo",deliverConsign.getDeliverConsignNo()); //出口发货通知单号
+                Order order = deliverConsign.getOrder();
+                map.put("contractNo",order.getContractNo());    //销售合同号
+                map.put("projectNo",order.getProject().getProjectNo());  //项目号
+                list1.add(map);
+            }
+            return new Result<>(list1);
     }
 
 

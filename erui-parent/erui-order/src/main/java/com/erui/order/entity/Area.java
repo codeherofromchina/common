@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -28,6 +29,8 @@ public class Area {
     private String bn;
 
     private String status;
+
+    @JsonIgnore
     @Column(name = "deleted_flag")
     private Character deletedFlag;
 

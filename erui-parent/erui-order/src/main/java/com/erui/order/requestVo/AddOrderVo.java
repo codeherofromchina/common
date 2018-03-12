@@ -4,6 +4,7 @@ import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -156,6 +157,10 @@ public class AddOrderVo {
     private String businessUnitName;
     //获取人
     private Integer acquireId;
+    //创建人id
+    private Integer createUserId;
+    //创建人姓名
+    private String createUserName;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -163,6 +168,22 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
 
     public Integer getAcquireId() {
         return acquireId;

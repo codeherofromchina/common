@@ -135,4 +135,7 @@ public interface DeliverDetailService {
      * @return
      */
     void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail);
+
+    public Boolean findStatusAndNumber(Integer orderId);
+
 }

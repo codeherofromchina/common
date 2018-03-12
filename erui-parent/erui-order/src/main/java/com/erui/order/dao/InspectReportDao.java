@@ -20,5 +20,5 @@ public interface InspectReportDao extends JpaRepository<InspectReport, Serializa
      * @param inspectApplyIds
      * @return
      */
-    List<InspectReport> findByInspectApplyIdInOrderByIdDesc(List<Integer> inspectApplyIds);
+    List<InspectReport> findByInspectApplyIdInOrderByIdAsc(List<Integer> inspectApplyIds);
 }

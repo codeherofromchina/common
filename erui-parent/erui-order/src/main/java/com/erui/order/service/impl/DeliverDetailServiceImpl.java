@@ -55,6 +55,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     GoodsDao goodsDao;
 
+    @Autowired
+    DeliverConsignDao deliverConsignDao;
+
+    @Autowired
+    DeliverNoticeDao deliverNoticeDao;
+
     @Override
     @Transactional(readOnly = true)
     public DeliverDetail findById(Integer id) {
@@ -441,6 +447,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
                     orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
                     orderLog.setCreateTime(new Date());
+                    orderLog.setBusinessDate(one.getReleaseDate()); //放行日期
                     orderLog.setOrdersGoodsId(null);
                     orderLogDao.save(orderLog);
                 } catch (Exception ex) {
@@ -448,7 +455,24 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     logger.error("错误", ex);
                     ex.printStackTrace();
                 }
+
+                //  订单执行跟踪   推送运单号
+              /*  OrderLog orderLog1 = new OrderLog();
+                try {
+                    orderLog1.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
+                    orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
+                    orderLog1.setOperation(one.getDeliverDetailNo());
+                    orderLog1.setCreateTime(new Date());
+                    orderLogDao.save(orderLog1);
+                } catch (Exception ex) {
+                    logger.error("日志记录失败 {}", orderLog1.toString());
+                    logger.error("错误", ex);
+                    ex.printStackTrace();
+                }*/
+
             }
+
+
         }
 
         // 只接受仓储物流部的附件
@@ -528,6 +552,35 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //经办日期
         if (deliverDetail.getLogisticsDate() != null) {
             one.setLogisticsDate(deliverDetail.getLogisticsDate());
+
+            /**
+             *  订单执行跟踪   推送运单号      经办日期
+             */
+            OrderLog orderLog = orderLogDao.findByDeliverDetailId(deliverDetail.getId());   //查询是否有记录
+            if(orderLog == null){   //如果等于空，新增
+
+            List<DeliverConsignGoods> deliverConsignGoodsList = one.getDeliverConsignGoodsList();
+            Integer id = deliverConsignGoodsList.get(0).getGoods().getOrder().getId();  //获取到订单id
+
+                OrderLog orderLog1 = new OrderLog();
+                try {
+                    orderLog1.setDeliverDetailId(deliverDetail.getId());
+                    orderLog1.setOrder(orderDao.findOne(id));
+                    orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
+                    orderLog1.setOperation(one.getDeliverDetailNo());
+                    orderLog1.setCreateTime(new Date());
+                    orderLog1.setBusinessDate(deliverDetail.getLogisticsDate());
+                    orderLogDao.save(orderLog1);
+                } catch (Exception ex) {
+                    logger.error("日志记录失败 {}", orderLog1.toString());
+                    logger.error("错误", ex);
+                    ex.printStackTrace();
+                }
+            }else{  //不等于空，更新时间
+                orderLog.setBusinessDate(deliverDetail.getLogisticsDate());
+                orderLogDao.save(orderLog);
+            }
+
         }
         //物流发票号
         if (StringUtil.isNotBlank(deliverDetail.getLogiInvoiceNo())) {
@@ -757,6 +810,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 map.put("id", deliverDetail.getId());
                 map.put("deliverDetailNo", deliverDetail.getDeliverDetailNo()); // 产品放行单号
                 map.put("checkerName", deliverDetail.getCheckerName()); // 检验员
+                map.put("checkUserId", deliverDetail.getCheckerUid()); // 检验员id
                 map.put("checkDate", deliverDetail.getCheckDate()); // 检验日期
                 map.put("status", deliverDetail.getStatus()); // 状态
                 map.put("checkDept", deliverDetail.getCheckDept()); // 质检部门
@@ -914,4 +968,61 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         return true;
     }
+
+
+
+
+
+    /**
+     *  订单列表增加确认收货按钮：
+     *  2、所有出口发货通知单中的商品全部出库并在物流跟踪管理中“跟踪状态”为“执行中”。
+     *
+     * @param
+     * @return
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean findStatusAndNumber(Integer orderId) {
+        /**
+         * 判断出库状态
+         */
+            // 看货通知单 查询信息
+            List<DeliverNotice> companyList = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
+                @Override
+                public Predicate toPredicate(Root<DeliverNotice> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+
+                    //订单id查询
+                    Join<DeliverNotice, DeliverConsign> deliverConsign = root.join("deliverConsigns");
+                    Join<DeliverConsign, Order> order = deliverConsign.join("order");
+                    list.add(cb.equal(order.get("id").as(Integer.class), orderId));
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            });
+            //获取物流-出库单详情
+        if(companyList.size() != 0 && companyList.size()== deliverConsignDao.findByOrderId(orderId).size()){
+                for (DeliverNotice deliverNotice :companyList){
+
+                    DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();     //获取出库信息
+
+                    //  1：出库保存/草稿 2：提交出库质检 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结',
+                    if(deliverDetail == null || deliverDetail.getStatus()<6){   //判断是否全部出库
+                        return false;
+                    }
+
+                }
+            }else{
+                return false;
+            }
+
+        return true;
+    }
+
+
+
+
+
 }

@@ -12,6 +12,9 @@ import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -226,8 +229,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
-        List<DeliverConsign> page = deliverConsignDao.findAll(new Specification<DeliverConsign>() {
+    public Page<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
+
+        PageRequest request = new PageRequest(deliverNotice.getPage() - 1, deliverNotice.getRows(), Sort.Direction.DESC,"createTime");
+
+        Page<DeliverConsign> page = deliverConsignDao.findAll(new Specification<DeliverConsign>() {
             @Override
             public Predicate toPredicate(Root<DeliverConsign> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
@@ -240,11 +246,22 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     list.add(root.get("country").in(country));
                 }
 
-                //根据下单人（国际物流经办人）
-                if(deliverNotice.getSenderId() != null){
+                //根据下单人（国际物流经办人）      销售合同号    项目号
+                if(deliverNotice.getSenderId() != null || StringUtil.isNotBlank(deliverNotice.getContractNo()) || StringUtil.isNotBlank(deliverNotice.getProjectNo())){
                     Join<DeliverConsign, Order> orderRoot = root.join("order");
+                    //根据 销售合同号
+                    if(StringUtil.isNotBlank(deliverNotice.getContractNo())){
+                        list.add(cb.like(orderRoot.get("contractNo").as(String.class),"%"+deliverNotice.getContractNo()+"%"));
+                    }
                     Join<Order, Project> projectRoot = orderRoot.join("project");
-                    list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),deliverNotice.getSenderId()));
+                    //根据下单人（国际物流经办人）
+                    if(deliverNotice.getSenderId() != null){
+                        list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),deliverNotice.getSenderId()));
+                    }
+                    //根据 项目号
+                    if(StringUtil.isNotBlank(deliverNotice.getProjectNo())){
+                        list.add(cb.like(projectRoot.get("projectNo").as(String.class),"%"+deliverNotice.getProjectNo()+"%"));
+                    }
                 }
 
                 // 根据出口通知单号
@@ -274,7 +291,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
 
             }
-        });
+        },request);
+
+       /* if (page != null && page.size() > 1) {
+            // 反序排列
+            Collections.reverse(page);
+        }*/
 
         return page;
 

@@ -1,6 +1,5 @@
 package com.erui.order.dao;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.Goods;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +12,6 @@ import java.util.List;
 public interface GoodsDao extends JpaRepository<Goods, Serializable> {
 
     List<Goods> findByProjectIdIn(List<Integer> projectIds);
+
+    List<Goods> findByOrderId(Integer orderId);
 }

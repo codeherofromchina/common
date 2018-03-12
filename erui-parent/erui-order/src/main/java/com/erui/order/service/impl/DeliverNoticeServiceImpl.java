@@ -210,23 +210,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
             DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
 
-            //  订单执行跟踪   推送运单号
-            OrderLog orderLog = new OrderLog();
-            List<DeliverConsign> deliverConsigns = deliverNotice1.getDeliverConsigns();
-            for (DeliverConsign deliverConsign1 : deliverConsigns){
-                try {
-                    orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
-                    orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
-                    orderLog.setOperation(deliverDetail.getDeliverDetailNo());
-                    orderLog.setCreateTime(new Date());
-                    orderLogDao.save(orderLog);
-                } catch (Exception ex) {
-                    logger.error("日志记录失败 {}", orderLog.toString());
-                    logger.error("错误", ex);
-                    ex.printStackTrace();
-                }
-            }
-
         }
         return true;
     }
@@ -333,9 +316,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
-
-
-                    //  订单执行跟踪   推送运单号
+                 /*   //  订单执行跟踪   推送运单号
                     OrderLog orderLog = new OrderLog();
                     List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
                     for (DeliverConsign deliverConsign1 : deliverConsigns){
@@ -351,8 +332,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                             ex.printStackTrace();
                         }
                     }
-
-
+*/
                 }
 
                 return true;
@@ -397,14 +377,20 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         //查询最近插入的产品放行单
        String deliverDetailNo= deliverDetailDao.findDeliverDetailNo();
-        String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
-        String formats = simpleDateFormats.format(new Date());  //当前年份
-        if(substring.equals(formats)){   //判断年份
-            String substring1 = deliverDetailNo.substring(4);
-            return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
-        }else{
-            return formats+String.format("%04d",1);     //第一个
-        }
+       if(deliverDetailNo == null){
+           String formats = simpleDateFormats.format(new Date());  //当前年份
+           return formats+String.format("%04d",1);     //第一个
+       }else{
+           String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
+           String formats = simpleDateFormats.format(new Date());  //当前年份
+           if(substring.equals(formats)){   //判断年份
+               String substring1 = deliverDetailNo.substring(4);
+               return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+           }else{
+               return formats+String.format("%04d",1);     //第一个
+           }
+       }
+
     }
 
     /**
@@ -417,15 +403,21 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         //查询最近插入的看货通知单
         String  DeliverNoticeNo  = deliverNoticeDao.findDeliverNoticeNo();
-        String substring = DeliverNoticeNo.substring(0, 8); //获取到产品放行单的年份
-        String format = simpleDateFormat.format(new Date());    //当前年月日
-
-        if(substring.equals(format)){   //判断年份
-            String substring1 = DeliverNoticeNo.substring(8);
-            return format + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
-        }else{
+        if(DeliverNoticeNo==null){
+            String format = simpleDateFormat.format(new Date());    //当前年月日
             return format+String.format("%04d",1); //第一个
+        }else{
+            String substring = DeliverNoticeNo.substring(0, 8); //获取到产品放行单的年份
+            String format = simpleDateFormat.format(new Date());    //当前年月日
+
+            if(substring.equals(format)){   //判断年份
+                String substring1 = DeliverNoticeNo.substring(8);
+                return format + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+            }else{
+                return format+String.format("%04d",1); //第一个
+            }
         }
+
     }
 
 
