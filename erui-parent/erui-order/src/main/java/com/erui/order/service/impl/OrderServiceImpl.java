@@ -71,8 +71,6 @@ public class OrderServiceImpl implements OrderService {
     private String sendSms;  //发短信接口
 
 
-
-
     @Override
     @Transactional(readOnly = true)
     public Order findById(Integer id) {
@@ -220,6 +218,7 @@ public class OrderServiceImpl implements OrderService {
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
         Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
@@ -230,8 +229,14 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("不存在的商品标识");
                 }
             }
-            //goods.setSeq(pGoods.getSeq());
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            boolean putSkuToSet = skuRepeatSet.add(sku);
+            if (!putSkuToSet) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+
+            goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
@@ -373,11 +378,17 @@ public class OrderServiceImpl implements OrderService {
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
-
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            boolean putSkuToSet = skuRepeatSet.add(sku);
+            if (!putSkuToSet) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+            goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -553,11 +564,11 @@ public class OrderServiceImpl implements OrderService {
 
 
     //订单下达后通知商务技术经办人
-    public void sendSms(Order order) throws  Exception {
+    public void sendSms(Order order) throws Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            try{
+            try {
                 // 根据id获取商务经办人信息
                 String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -571,22 +582,22 @@ public class OrderServiceImpl implements OrderService {
                 JSONObject jsonObject = JSONObject.parseObject(s);
                 Integer code = jsonObject.getInteger("code");
                 String mobile = null;  //商务经办人手机号
-                if(code == 1){
+                if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     mobile = data.getString("mobile");
                     //发送短信
-                    Map<String,Object> map= new HashMap();
-                    map.put("areaCode","86");
-                    map.put("to","[\""+mobile+"\"]");
-                    map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，已申请项目执行。请及时处理，感谢您对我们的支持与信任！");
-                    map.put("subType","0");
-                    map.put("groupSending","0");
-                    map.put("useType","订单");
+                    Map<String, Object> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", "[\"" + mobile + "\"]");
+                    map.put("content", "您好，销售合同号：" + order.getContractNo() + "，市场经办人:" + order.getAgentName() + "，已申请项目执行。请及时处理，感谢您对我们的支持与信任！");
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
                     String s1 = HttpRequest.sendPostNote(sendSms, map, header);
-                    logger.info("发送手机号失败"+s1);
+                    logger.info("发送手机号失败" + s1);
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new Exception("订单下达通知商务技术经办人");
             }
 
