@@ -215,6 +215,24 @@ public class Order {
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
+    private Integer buyerId;
+    private Integer inquiryId;
+
+    public Integer getBuyerId() {
+        return buyerId;
+    }
+
+    public void setBuyerId(Integer buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public Integer getInquiryId() {
+        return inquiryId;
+    }
+
+    public void setInquiryId(Integer inquiryId) {
+        this.inquiryId = inquiryId;
+    }
 
     public Boolean getOrderFinish() {
         return orderFinish;
