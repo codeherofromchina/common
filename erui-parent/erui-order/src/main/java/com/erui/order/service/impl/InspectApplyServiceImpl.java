@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
@@ -11,6 +12,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectApplyService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -632,7 +634,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 listAll.addAll(warehouseNameSet);
                 listAll = new HashSet<>(new LinkedHashSet<>(listAll));
 
-                //获取徐健 手机号
 /*
                 String jsonParam = "{\"username\":\"徐健\"}";
                 String s3 = HttpRequest.sendPost(memberList, jsonParam, header);
@@ -644,22 +645,27 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     JSONArray data = jsonObject.getJSONArray("data");
                     JSONObject jsonObject1 = data.getJSONObject(0);
                     listAll.add(jsonObject1.getString("mobile"));
+                    listAll.add(jsonObject1.getString("mobile"));
                 }
 */
-
+                //获取徐健 手机号
+                listAll.add("15066060360");
+/*
                 mobile = StringUtils.join(listAll, ",");//质检经办人+采购经办人手机号
+                String[] strArr = mobile.split(",");
+                String[] objects = new JSONArray().toArray(strArr);
                 //发送短信
                 if(StringUtil.isNotBlank(mobile) && mobile != null){
                     Map<String,Object> map= new HashMap();
                     map.put("areaCode","86");
-                    map.put("to","[\""+mobile+"\"]");
+                    map.put("to",objects);
                     map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");
                     String s1 = HttpRequest.sendPostNote(sendSms, map, header);
                     logger.info("发送手机号失败"+s1);
-                }
+                }*/
 
             }catch (Exception e){
                 throw new Exception("发送短信失败");
