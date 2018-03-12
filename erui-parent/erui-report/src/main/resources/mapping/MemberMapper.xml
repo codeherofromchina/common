@@ -311,6 +311,35 @@
     GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
 
   </select>
+
+  <!--/查询各时间段内询单人数量-->
+  <select id="selectInqCustRegistTimeSummary" resultType="java.util.Map" parameterType="java.util.Map" >
+      SELECT
+      COUNT(1) AS totalCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 1 MONTH) >= NOW() THEN 1 ELSE 0 END ),0)  AS oneMothCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 1 MONTH) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 3 MONTH)  >=NOW() THEN 1 ELSE 0 END ),0)  AS threeMothCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 3 MONTH) &lt; NOW() THEN 1 ELSE 0 END ),0)  AS moreThanThreeMothCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 4 HOUR) >= NOW() THEN 1 ELSE 0 END ),0)  AS fourHourCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 4 HOUR) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 8 HOUR)  >=NOW() THEN 1 ELSE 0 END ),0)  AS eightHourCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 8 HOUR) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 24 HOUR) >=NOW() THEN 1 ELSE 0 END ),0)  AS twentyFourHourCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 24 HOUR) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 28 HOUR) >=NOW() THEN 1 ELSE 0 END ),0)  AS fortyEightHourCount,
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 48 HOUR) &lt; NOW()  THEN 1 ELSE 0 END ),0)  AS moreThanFortyEightHourCount
+      FROM
+      (
+        SELECT created_at AS createTime ,buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
+                in (
+                      SELECT DISTINCT(cust_description) FROM inquiry_count WHERE 1=1
+                          <if test="startTime!=null and endTime!=null">
+                              and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                             and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                          </if>
+                  )
+      ) AS a
+
+  </select>
+
+
+
   <!--查询会员订单汇总数据-->
   <select id="selectCustOrdSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
 

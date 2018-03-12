@@ -50,6 +50,8 @@ public interface MemberMapper {
     Map<String,Integer> selectCustInqSummaryData(Map<String, String> params);
     //查询各区域的会员的询单数据
     List<Map<String, Object>> selectCustInqDataGroupByArea(Map<String, String> params);
+    //查询各时间段内询单人数量
+    Map<String,Object> selectInqCustRegistTimeSummary(Map<String,String> params);
     //查询会员订单汇总数据
     Map<String,Object> selectCustOrdSummaryData(Map<String, String> params);
     //查询各区域的会员的询单数据

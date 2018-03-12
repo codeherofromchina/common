@@ -88,6 +88,13 @@ public interface MemberService {
 	List<Map<String,Object>> selectCustInqDataGroupByArea(Map<String,String> params);
 	/**
 	 * @Author:lirb
+	 * @Description 查询 询单人注册时间 占比明细
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	Map<String,Object> selectInqCustRegistTimeDetail(Map<String,String> params);
+	/**
+	 * @Author:lirb
 	 * @Description 查询 会员订单汇总数据
 	 * @Date:17:59 2018/03/09
 	 * @modified By

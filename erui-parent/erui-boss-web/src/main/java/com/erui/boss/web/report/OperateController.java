@@ -227,8 +227,8 @@ public class OperateController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/ll", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result ll(@RequestBody(required = true) Map<String, String> params) {
+    @RequestMapping(value = "/inqRegisTimeDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result inqRegisTimeDetail(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
         Result<Object> result = new Result<>();
         Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
@@ -241,22 +241,8 @@ public class OperateController {
         String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
         params.put("startTime", fullStartTime);
         params.put("endTime", fullEndTime);
-        //查询各区域的会员询单数据 custCount,inqTimes,area
-        List<Map<String,Object>> tabalData=memberService.selectCustInqDataGroupByArea(params);
-        //构建饼图数据
-        List<String> areaList=new ArrayList<>();//区域列表
-        List<Integer> custCountList=new ArrayList<>();//询单人数列表
-        tabalData.stream().forEach(m->{
-            areaList.add(m.get("area").toString());
-            custCountList.add(Integer.parseInt(m.get("custCount").toString()));
-        });
-
-        Map<String,Object> data=new HashMap<>();
-        Map<String,Object> areaPie=new HashMap<>();
-        areaPie.put("area",areaList);
-        areaPie.put("registers",custCountList);
-        data.put("areaPie",areaPie);
-        data.put("areaTable",tabalData);
+        //查询询单人注册时间数据明细
+        Map<String,Object> data=memberService.selectInqCustRegistTimeDetail(params);
         return result.setData(data);
     }
 

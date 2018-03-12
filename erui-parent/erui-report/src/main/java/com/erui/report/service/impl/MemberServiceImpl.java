@@ -216,14 +216,14 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         InquiryCountMapper inqMapper = readerSession.getMapper(InquiryCountMapper.class);
         Map<String, Object> inqAndOrdData = inqMapper.selectInqAndOrdCountAndPassengers(params);
         //和数据
-        Map<String,Object> data=new HashMap<>();
-        data.put("member",custData);
-        data.put("inqAndOrd",inqAndOrdData);
-        return  data;
+        Map<String, Object> data = new HashMap<>();
+        data.put("member", custData);
+        data.put("inqAndOrd", inqAndOrdData);
+        return data;
     }
 
     @Override
-    public Map<String, Object> selectOperateTrend(Date startTime,Date endTime) {
+    public Map<String, Object> selectOperateTrend(Date startTime, Date endTime) {
         //1.构建一个标准的时间集合
         List<String> dates = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -237,31 +237,31 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         params.put("startTime", DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2));
         params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2));
         //获取会员趋势图数据
-        List<Map<String, Object>> dataList= readMapper.selectOperateTrend(params);
+        List<Map<String, Object>> dataList = readMapper.selectOperateTrend(params);
         //3整理数据
-        List<Integer> totalList=new ArrayList<>();//注册数列表
-        List<Integer> generalList=new ArrayList<>();//普通会员数列表
-        List<Integer> seniorList=new ArrayList<>();//高级会员数列表
+        List<Integer> totalList = new ArrayList<>();//注册数列表
+        List<Integer> generalList = new ArrayList<>();//普通会员数列表
+        List<Integer> seniorList = new ArrayList<>();//高级会员数列表
         Map<String, Map<String, Object>> dataMap = dataList.stream().
-                collect(Collectors.toMap(vo ->vo.get("creatTime").toString(), vo -> vo));
-        for (String date :dates) {
-            if(dataMap.containsKey(date)){
+                collect(Collectors.toMap(vo -> vo.get("creatTime").toString(), vo -> vo));
+        for (String date : dates) {
+            if (dataMap.containsKey(date)) {
                 Map<String, Object> data = dataMap.get(date);
                 totalList.add(Integer.parseInt(data.get("totalCount").toString()));
                 generalList.add(Integer.parseInt(data.get("generalCount").toString()));
                 seniorList.add(Integer.parseInt(data.get("seniorCount").toString()));
-            }else {
+            } else {
                 totalList.add(0);
                 generalList.add(0);
                 seniorList.add(0);
             }
         }
 
-        Map<String,Object> result=new HashMap<>();
-        result.put("datetime",dates);
-        result.put("registerCount",totalList);
-        result.put("regulerMembers",generalList);
-        result.put("seniorMembers",seniorList);
+        Map<String, Object> result = new HashMap<>();
+        result.put("datetime", dates);
+        result.put("registerCount", totalList);
+        result.put("regulerMembers", generalList);
+        result.put("seniorMembers", seniorList);
         return result;
     }
 
@@ -271,9 +271,9 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         int registerCount = Integer.parseInt(operateData.get("registerCount").toString());//注册会员量
         int seniorCount = Integer.parseInt(operateData.get("seniorCount").toString());//高级会员量
         //查询注册人数询单量和注册人数订单量
-        Map<String,Integer> data= readMapper.selectRegisterInqAndOrdCount(params);
-        data.put("registers",registerCount);
-        data.put("seniorMembers",seniorCount);
+        Map<String, Integer> data = readMapper.selectRegisterInqAndOrdCount(params);
+        data.put("registers", registerCount);
+        data.put("seniorMembers", seniorCount);
         return data;
     }
 
@@ -281,18 +281,18 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public Map<String, Object> selectRegisterCountGroupByArea(Map<String, String> params) {
         //各区域的注册数量 registerCount ,area
         List<Map<String, Object>> dataList = readMapper.selectRegisterCountGroupByArea(params);
-        List<String> areaList =new ArrayList<>();
-        List<Integer> countList =new ArrayList<>();
-        dataList.stream().forEach(m->{
+        List<String> areaList = new ArrayList<>();
+        List<Integer> countList = new ArrayList<>();
+        dataList.stream().forEach(m -> {
             String area = m.get("area").toString();
             int registerCount = Integer.parseInt(m.get("registerCount").toString());
             areaList.add(area);
             countList.add(registerCount);
         });
 
-        Map<String,Object> data=new HashMap<>();
-        data.put("area",areaList);
-        data.put("registers",countList);
+        Map<String, Object> data = new HashMap<>();
+        data.put("area", areaList);
+        data.put("registers", countList);
         return data;
     }
 
@@ -300,7 +300,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public List<Map<String, Integer>> selectCustInqFrequencyData(Map<String, String> params) {
 
         //查询交易频率明细 inqCount ，custName
-        List<Map<String, Object>>  inqList=readMapper.selectCustInqRateDetail(params);
+        List<Map<String, Object>> inqList = readMapper.selectCustInqRateDetail(params);
 
         Map<Integer, List<String>> dataMap = new HashMap<>();
         inqList.stream().forEach(map1 -> {
@@ -314,11 +314,11 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
                 dataMap.put(inqCount, names);
             }
         });
-        List<Map<String,Integer>> data=new ArrayList<>();
-        for(Map.Entry<Integer,List<String> > entry:dataMap.entrySet()){
-            Map<String,Integer> map=new HashMap<>();
-            map.put("inqRate",entry.getKey());
-            map.put("custCount",entry.getValue().size());
+        List<Map<String, Integer>> data = new ArrayList<>();
+        for (Map.Entry<Integer, List<String>> entry : dataMap.entrySet()) {
+            Map<String, Integer> map = new HashMap<>();
+            map.put("inqRate", entry.getKey());
+            map.put("custCount", entry.getValue().size());
             data.add(map);
         }
         return data;
@@ -328,7 +328,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public List<Map<String, Integer>> selectCustOrdFrequencyData(Map<String, String> params) {
 
         //查询交易频率明细 buyCount ，custName
-        List<Map<String, Object>>  ordList=readMapper.selectCustOrdRateDetail(params);
+        List<Map<String, Object>> ordList = readMapper.selectCustOrdRateDetail(params);
 
         Map<Integer, List<String>> dataMap = new HashMap<>();
         ordList.stream().forEach(map1 -> {
@@ -342,12 +342,12 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
                 dataMap.put(buyCount, names);
             }
         });
-        List<Map<String,Integer>> data=new ArrayList<>();
-        for(Map.Entry<Integer,List<String> > entry:dataMap.entrySet()){
-           Map<String,Integer> map=new HashMap<>();
-           map.put("ordRate",entry.getKey());
-           map.put("custCount",entry.getValue().size());
-           data.add(map);
+        List<Map<String, Integer>> data = new ArrayList<>();
+        for (Map.Entry<Integer, List<String>> entry : dataMap.entrySet()) {
+            Map<String, Integer> map = new HashMap<>();
+            map.put("ordRate", entry.getKey());
+            map.put("custCount", entry.getValue().size());
+            data.add(map);
         }
         return data;
     }
@@ -355,13 +355,66 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     @Override
     public Map<String, Integer> selectCustInqSummaryData(Map<String, String> params) {
         //查询会员询单总览数据 custCount, inqCount,firstInqCount,seniorCount
-        Map<String,Integer> data=readMapper.selectCustInqSummaryData(params);
+        Map<String, Integer> data = readMapper.selectCustInqSummaryData(params);
         return data;
     }
 
     @Override
     public List<Map<String, Object>> selectCustInqDataGroupByArea(Map<String, String> params) {
         return readMapper.selectCustInqDataGroupByArea(params);
+    }
+
+    @Override
+    public Map<String, Object> selectInqCustRegistTimeDetail(Map<String, String> params) {
+        //查询各个时间段内的询单人数量 totalCount,oneMothCount,threeMothCount ,moreThanThreeMothCount
+        Map<String, Object> data = readMapper.selectInqCustRegistTimeSummary(params);
+        List<String> regisTime=new ArrayList<>();
+        List<Integer> custCount=new ArrayList<>();
+        regisTime.add("4小时以下");
+        regisTime.add("4-8小时");
+        regisTime.add("8-24小时");
+        regisTime.add("24-48小时");
+        regisTime.add("48小时以上");
+        custCount.add(Integer.parseInt(data.get("fourHourCount").toString()));
+        custCount.add(Integer.parseInt(data.get("eightHourCount").toString()));
+        custCount.add(Integer.parseInt(data.get("twentyFourHourCount").toString()));
+        custCount.add(Integer.parseInt(data.get("fortyEightHourCount").toString()));
+        custCount.add(Integer.parseInt(data.get("moreThanFortyEightHourCount").toString()));
+        Map<String,Object> regisTimePie=new HashMap<>();
+        regisTimePie.put("regisTime",regisTime);
+        regisTimePie.put("custCount",custCount);
+        //封装表格数据
+        int totalCount = Integer.parseInt(data.get("totalCount").toString());//总询单人数量
+        int oneMothCount = Integer.parseInt(data.get("oneMothCount").toString());//一个月内询单人数量
+        int threeMothCount = Integer.parseInt(data.get("threeMothCount").toString());//1-3个月内询单人数量
+        int moreThanThreeMothCount = Integer.parseInt(data.get("moreThanThreeMothCount").toString());//三个月以上询单人数量
+       double oneProportion=0.00,threeProportion=0.00,moreThanThreePro=0.00;
+       if(totalCount>0){
+           oneProportion=RateUtil.intChainRate(oneMothCount,totalCount);
+           threeProportion=RateUtil.intChainRate(threeMothCount,totalCount);
+           moreThanThreePro=RateUtil.intChainRate(moreThanThreeMothCount,totalCount);
+       }
+       List<Map<String,Object>> regisTimeTable=new ArrayList<>();
+       Map<String,Object> one =new HashMap<>();
+       Map<String,Object> three =new HashMap<>();
+       Map<String,Object> moreThree =new HashMap<>();
+       one.put("regisTime","一个月内");
+       one.put("custCount",oneMothCount);
+       one.put("proportion",oneProportion);
+        three.put("regisTime","1-3个月内");
+        three.put("custCount",threeMothCount);
+        three.put("proportion",threeProportion);
+        moreThree.put("regisTime","3个月以上");
+        moreThree.put("custCount",moreThanThreeMothCount);
+        moreThree.put("proportion",moreThanThreePro);
+        regisTimeTable.add(one);
+        regisTimeTable.add(three);
+        regisTimeTable.add(moreThree);
+
+        Map<String,Object> result=new HashMap<>();
+        result.put("regisTimeTable",regisTimeTable);
+        result.put("regisTimePie",regisTimePie);
+        return result;
     }
 
     @Override
