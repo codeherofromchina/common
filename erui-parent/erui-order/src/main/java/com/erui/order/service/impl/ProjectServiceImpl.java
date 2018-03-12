@@ -83,6 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
                 projectUpdate.setLogisticsName(null);
                 projectUpdate.setWarehouseName(null);
                 projectUpdate.setWarehouseUid(null);
+                projectUpdate.setPurchaseName(null);
             }
         } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
             // 交付配送中心项目经理只能保存后者执行
@@ -97,6 +98,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectUpdate.setLogisticsName(project.getLogisticsName());
             projectUpdate.setWarehouseName(project.getWarehouseName());
             projectUpdate.setWarehouseUid(project.getWarehouseUid());
+            projectUpdate.setPurchaseName(project.getPurchaseName());
             // 修改备注和执行单变更日期
             projectUpdate.setRemarks(project.getRemarks());
             projectUpdate.setExeChgDate(project.getExeChgDate());

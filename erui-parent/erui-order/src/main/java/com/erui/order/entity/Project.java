@@ -73,6 +73,9 @@ public class Project {
     @Column(name = "purchase_uid")
     private Integer purchaseUid;
 
+    @Column(name = "purchase_name") //采购经办人名称
+    private String purchaseName;
+
     @Column(name = "quality_uid")
     private Integer qualityUid;
 
@@ -438,6 +441,14 @@ public class Project {
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
+    }
+
+    public String getPurchaseName() {
+        return purchaseName;
+    }
+
+    public void setPurchaseName(String purchaseName) {
+        this.purchaseName = purchaseName;
     }
 
     public boolean copyProjectDescTo(Project project) {
