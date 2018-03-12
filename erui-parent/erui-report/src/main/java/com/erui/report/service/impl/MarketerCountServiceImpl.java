@@ -189,6 +189,12 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
         Map<String,Object> inqMap= readMapper.areaMarketerInqTop1(params);
         Map<String, Object> ordMap = readMapper.areaMarketerSucessOrdTop1(params);
         Map<String, Object> memberMap = readMapper.areaMarketerIncrMemberTop1(params);
+        ordMap.put("ordAmount",RateUtil.doubleChainRateTwo(
+                Integer.parseInt(ordMap.get("ordAmount").toString()),1
+        ));
+        inqMap.put("inqAmount",RateUtil.doubleChainRateTwo(
+                Integer.parseInt(inqMap.get("inqAmount").toString()),1
+        ));
         //获取环比参数
         String chainTime = params.get("chainTime");
         String startTime = params.get("startTime");
@@ -305,8 +311,14 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
                 count= Integer.parseInt(dataMap.get("memberCount").toString());
             }else if(type.equals(INQUIRY)){
                 count= Integer.parseInt(dataMap.get("inqCount").toString());
+                dataMap.put("inqAmount",RateUtil.doubleChainRateTwo(
+                        Integer.parseInt(dataMap.get("inqAmount").toString()),1
+                ));
             }else if(type.equals(SUCCESS_ORDER)){
                 count= Integer.parseInt(dataMap.get("ordCount").toString());
+                dataMap.put("ordAmount",RateUtil.doubleChainRateTwo(
+                        Integer.parseInt(dataMap.get("ordAmount").toString()),1
+                ));
             }
             if (chainMap != null) {
                 int chainCount =0;
