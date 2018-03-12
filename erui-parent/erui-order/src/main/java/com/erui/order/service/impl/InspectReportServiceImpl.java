@@ -265,6 +265,10 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             applyGoods.setSamples(samples);
             applyGoods.setUnqualified(unqualified);
+            // 如果有不合格商品，则必须有不合格描述
+            if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedDesc())) {
+                throw new Exception("商品(SKU:"+goods.getSku()+")的不合格描述不能为空");
+            }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
