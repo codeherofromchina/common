@@ -234,43 +234,24 @@
   </select>
   <!--查询会员询单汇总数据-->
   <select id="selectCustInqSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
-  SELECT t1.custCount ,t1.inqCount as inqTimes,
-         IFNULL(t2.firstInqCount,0) as firstCustCount,
-         t3.seniorCount as  seniorCustCount
+  SELECT
+         IFNULL(t1.fristCustCount,0) as firstCustCount,
+         t2.seniorCount as  seniorCustCount
   from
-      (  SELECT COUNT(DISTINCT(cust_description)) AS custCount , COUNT(1) AS inqCount
-         FROM  inquiry_count
-         WHERE 1=1
-              <if test="startTime!=null and endTime!=null">
+      (
+          SELECT  COUNT(cust_description) AS fristCustCount
+          FROM inquiry_count as t1
+          WHERE 1=1 AND cust_description IS NOT NULL
+                <if test="startTime!=null and endTime!=null">
                 and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                 and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-              </if>
-              AND cust_description
-              IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-                        <if test="startTime!=null and endTime!=null">
-                         and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                        </if>
-                 )
-      ) AS t1 ,
-      (
-          SELECT SUM(CASE t.custCount WHEN 1 THEN 1 ELSE 0 END ) AS firstInqCount
-          FROM
-          ( SELECT count(cust_description) AS custCount , cust_description as custName
-            FROM inquiry_count WHERE 1=1
-                  <if test="startTime!=null and endTime!=null">
-                      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                     and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                  </if>
-                   AND cust_description
-                    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-                        <if test="startTime!=null and endTime!=null">
-                          and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                        </if>
-                        )
-          GROUP BY cust_description HAVING custName IS NOT NULL  ) AS t
-      ) AS t2,
+                </if>
+                and not EXISTS (select * from inquiry_count where 1=1
+                                    <if test="startTime!=null">
+                                  and    rollin_time &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                                    </if>
+                                and t1.cust_description= cust_description)
+      ) AS t1,
       (
           SELECT COUNT(DISTINCT(cust_description)) AS seniorCount
           FROM inquiry_count WHERE 1=1
@@ -279,13 +260,8 @@
                        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                     </if>
                     AND cust_description
-                    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员'
-                            <if test="startTime!=null and endTime!=null">
-                             and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                             and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                            </if>
-                        )
-      ) AS t3
+                    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员')
+      ) AS t2
 
   </select>
 

@@ -353,8 +353,14 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
     @Override
     public Map<String, Integer> selectCustInqSummaryData(Map<String, String> params) {
-        //查询会员询单总览数据 custCount, inqCount,firstInqCount,seniorCount
+
+        //查询会员询单总览数据firstInqCount,seniorCount
         Map<String, Integer> data = readMapper.selectCustInqSummaryData(params);
+        //查询询单人数和询单次数 inqCount inqCustCount
+        InquiryCountMapper inqMapper = readerSession.getMapper(InquiryCountMapper.class);
+        Map<String, Object> inqAndOrdData = inqMapper.selectInqAndOrdCountAndPassengers(params);
+        data.put("inqTimes",Integer.parseInt(inqAndOrdData.get("inqCount").toString()));
+        data.put("custCount",Integer.parseInt(inqAndOrdData.get("inqCustCount").toString()));
         return data;
     }
 

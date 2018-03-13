@@ -353,7 +353,7 @@
   t1.inqCount AS inqCount,
   t1.inqCustCount+t2.inqNullCount AS inqCustCount,
   t3.ordCount AS ordCount,
-  t3.ordCount+t4.ordNullCount AS ordCustCount
+  t3.ordCustCount+t4.ordNullCount AS ordCustCount
   from
     (SELECT COUNT(1) AS inqCount,COUNT(DISTINCT(cust_description)) AS inqCustCount
        FROM inquiry_count WHERE 1=1
