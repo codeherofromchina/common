@@ -232,8 +232,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             String sku = pGoods.getSku();
-            boolean putSkuToSet = skuRepeatSet.add(sku);
-            if (!putSkuToSet) {
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
                 // 已经存在的sku，返回错误
                 throw new Exception("同一sku不可以重复添加");
             }
@@ -385,8 +384,7 @@ public class OrderServiceImpl implements OrderService {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
             String sku = pGoods.getSku();
-            boolean putSkuToSet = skuRepeatSet.add(sku);
-            if (!putSkuToSet) {
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
                 // 已经存在的sku，返回错误
                 throw new Exception("同一sku不可以重复添加");
             }
