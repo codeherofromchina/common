@@ -367,28 +367,25 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     public Map<String, Object> selectInqCustRegistTimeDetail(Map<String, String> params) {
         //查询各个时间段内的询单人数量 totalCount,oneMothCount,threeMothCount ,moreThanThreeMothCount
         Map<String, Object> data = readMapper.selectInqCustRegistTimeSummary(params);
-        List<String> regisTime=new ArrayList<>();
-        List<Integer> custCount=new ArrayList<>();
-        regisTime.add("4小时以下");
-        regisTime.add("4-8小时");
-        regisTime.add("8-24小时");
-        regisTime.add("24-48小时");
-        regisTime.add("48小时以上");
-        custCount.add(Integer.parseInt(data.get("fourHourCount").toString()));
-        custCount.add(Integer.parseInt(data.get("eightHourCount").toString()));
-        custCount.add(Integer.parseInt(data.get("twentyFourHourCount").toString()));
-        custCount.add(Integer.parseInt(data.get("fortyEightHourCount").toString()));
-        custCount.add(Integer.parseInt(data.get("moreThanFortyEightHourCount").toString()));
-        Map<String,Object> regisTimePie=new HashMap<>();
-        regisTimePie.put("regisTime",regisTime);
-        regisTimePie.put("custCount",custCount);
-        //封装表格数据
         int totalCount = Integer.parseInt(data.get("totalCount").toString());//总询单人数量
         int oneMothCount = Integer.parseInt(data.get("oneMothCount").toString());//一个月内询单人数量
         int threeMothCount = Integer.parseInt(data.get("threeMothCount").toString());//1-3个月内询单人数量
         int moreThanThreeMothCount = Integer.parseInt(data.get("moreThanThreeMothCount").toString());//三个月以上询单人数量
-       double oneProportion=0.00,threeProportion=0.00,moreThanThreePro=0.00;
-       if(totalCount>0){
+        double oneProportion=0.00,threeProportion=0.00,moreThanThreePro=0.00;
+        //饼图数据
+        List<String> regisTime=new ArrayList<>();
+        List<Integer> custCount=new ArrayList<>();
+        regisTime.add("一个月内");
+        regisTime.add("1-3个月内");
+        regisTime.add("3个月以上");
+        custCount.add(oneMothCount);
+        custCount.add(threeMothCount);
+        custCount.add(moreThanThreeMothCount);
+        Map<String,Object> regisTimePie=new HashMap<>();
+        regisTimePie.put("regisTime",regisTime);
+        regisTimePie.put("custCount",custCount);
+        //封装表格数据
+        if(totalCount>0){
            oneProportion=RateUtil.intChainRate(oneMothCount,totalCount);
            threeProportion=RateUtil.intChainRate(threeMothCount,totalCount);
            moreThanThreePro=RateUtil.intChainRate(moreThanThreeMothCount,totalCount);

@@ -318,12 +318,7 @@
       COUNT(1) AS totalCount,
       IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 1 MONTH) >= NOW() THEN 1 ELSE 0 END ),0)  AS oneMothCount,
       IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 1 MONTH) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 3 MONTH)  >=NOW() THEN 1 ELSE 0 END ),0)  AS threeMothCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 3 MONTH) &lt; NOW() THEN 1 ELSE 0 END ),0)  AS moreThanThreeMothCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 4 HOUR) >= NOW() THEN 1 ELSE 0 END ),0)  AS fourHourCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 4 HOUR) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 8 HOUR)  >=NOW() THEN 1 ELSE 0 END ),0)  AS eightHourCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 8 HOUR) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 24 HOUR) >=NOW() THEN 1 ELSE 0 END ),0)  AS twentyFourHourCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 24 HOUR) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 28 HOUR) >=NOW() THEN 1 ELSE 0 END ),0)  AS fortyEightHourCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 48 HOUR) &lt; NOW()  THEN 1 ELSE 0 END ),0)  AS moreThanFortyEightHourCount
+      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 3 MONTH) &lt; NOW() THEN 1 ELSE 0 END ),0)  AS moreThanThreeMothCount
       FROM
       (
         SELECT created_at AS createTime ,buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
