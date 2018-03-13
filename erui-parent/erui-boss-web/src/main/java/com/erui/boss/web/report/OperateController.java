@@ -151,6 +151,13 @@ public class OperateController {
         params.put("endTime", fullEndTime);
         List<Map<String, Integer>> inqData = memberService.selectCustInqFrequencyData(params);
         List<Map<String, Integer>> ordData = memberService.selectCustOrdFrequencyData(params);
+        //排序
+        inqData.sort((Map<String, Integer> m1,Map<String, Integer> m2)->
+            m1.get("inqRate")-m2.get("inqRate")
+        );
+        ordData.sort((Map<String, Integer> m1,Map<String, Integer> m2)->
+            m1.get("ordRate")-m2.get("ordRate")
+        );
         Map<String,Object> data=new HashMap<>();
         data.put("inqTable",inqData);
         data.put("ordTable",ordData);
