@@ -13,6 +13,7 @@ import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.OutListCondition;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverDetailService;
@@ -140,6 +141,66 @@ public class OrderServiceImpl implements OrderService {
                         list.add(root.get("country").in(country));
                     }
                 }
+                list.add(cb.equal(root.get("deleteFlag"), false));
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, pageRequest);
+
+        if (pageList.hasContent()) {
+            pageList.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    vo.setDeliverConsignC(flag);
+                } else {
+                    vo.setDeliverConsignC(Boolean.FALSE);
+                }
+                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                    vo.setOrderFinish(Boolean.TRUE);
+                }
+                vo.setGoodsList(null);
+            });
+        }
+        return pageList;
+    }
+
+    @Override
+    public Page<Order> findByOutList(OutListCondition condition) {
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
+            @Override
+            public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                //根据订单签订时间查询
+              /*  if (condition.getSigningDate() != null) {
+                    list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
+                }
+                //根据合同交货日期查询
+                if (condition.getDeliveryDate() != null) {
+                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getBuyer_no())) {
+                    list.add(cb.like(root.get("buyer_no").as(String.class), "%" + condition.getBuyer_no() + "%"));
+                }
+                //根据订单类型
+                if (condition.getBuyer_id() != null) {
+                    list.add(cb.equal(root.get("buyer_id").as(Integer.class), condition.getBuyer_id()));
+                }
+                //根据汇款状态
+                if (condition.getPay_status() != null) {
+                    list.add(cb.equal(root.get("pay_status").as(Integer.class), condition.getPay_status()));
+                }
+                if (condition.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+                }
+                //根据订单来源查询
+                if (StringUtil.isNotBlank(condition.getOrderSource())) {
+                    list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
+                }*/
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);

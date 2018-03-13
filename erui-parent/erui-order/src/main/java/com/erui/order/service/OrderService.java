@@ -6,6 +6,7 @@ import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.OutListCondition;
 import org.springframework.data.domain.Page;
 
 import java.util.Date;
@@ -30,6 +31,12 @@ public interface OrderService {
      * @return
      */
     Page<Order> findByPage(OrderListCondition condition);
+    /**
+     * 根据条件查询门户订单列表
+     * @param condition
+     * @return
+     */
+    Page<Order> findByOutList(OutListCondition condition);
     /**
      * 删除订单
      * @param ids
