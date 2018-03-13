@@ -220,6 +220,7 @@ public class OrderServiceImpl implements OrderService {
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
         Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
@@ -230,8 +231,14 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("不存在的商品标识");
                 }
             }
-            //goods.setSeq(pGoods.getSeq());
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            boolean putSkuToSet = skuRepeatSet.add(sku);
+            if (!putSkuToSet) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+
+            goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
@@ -373,11 +380,17 @@ public class OrderServiceImpl implements OrderService {
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
-
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            boolean putSkuToSet = skuRepeatSet.add(sku);
+            if (!putSkuToSet) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+            goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());

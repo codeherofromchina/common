@@ -230,9 +230,10 @@ public class ProjectServiceImpl implements ProjectService {
                 return goodsList.parallelStream().anyMatch(goods -> {
                     return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
                 });
+            }).sorted((o1,o2) -> {
+                return o2.getUpdateTime().compareTo(o1.getUpdateTime());
             }).collect(Collectors.toList());
-            // 反序
-            Collections.reverse(list);
+
         }
         return list;
     }
