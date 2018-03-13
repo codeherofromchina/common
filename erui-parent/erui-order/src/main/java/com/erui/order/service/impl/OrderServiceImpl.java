@@ -575,19 +575,19 @@ public class OrderServiceImpl implements OrderService {
                     JSONObject data = jsonObject.getJSONObject("data");
                     mobile = data.getString("mobile");
                     //发送短信
-                    Map<String,Object> map= new HashMap();
+                    Map<String,String> map= new HashMap();
                     map.put("areaCode","86");
                     map.put("to","[\""+mobile+"\"]");
                     map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人:"+order.getAgentName()+"，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");
-                    String s1 = HttpRequest.sendPostNote(sendSms, map, header);
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
                     logger.info("发送手机号失败"+s1);
                 }
 
             }catch (Exception e){
-                throw new Exception("订单下达通知商务技术经办人");
+                throw new Exception("发送短信失败");
             }
 
         }

@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
-import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
@@ -12,7 +11,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectApplyService;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,7 +217,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
 
     @Transactional
-    private void checkPurchHasDone(Purch purch) {
+    public void checkPurchHasDone(Purch purch) {
         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
         boolean doneFlag = true;
         for (PurchGoods pg : purchGoodsList) {
@@ -583,7 +582,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         //获取token
         /*String eruiToken = (String) ThreadLocalUtil.getObject();*/
-        String eruiToken = "82e708fb7ac93bd76ab59771743efe0c";
+        String eruiToken = "6528deeb76e7cdf1dd9a57e5d2427dd9";
         if (StringUtils.isNotBlank(eruiToken)) {
             try{
                 String mobile = null;  //质检经办人+采购经办人手机号
@@ -634,44 +633,62 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 listAll.addAll(warehouseNameSet);
                 listAll = new HashSet<>(new LinkedHashSet<>(listAll));
 
-/*
-                String jsonParam = "{\"username\":\"徐健\"}";
-                String s3 = HttpRequest.sendPost(memberList, jsonParam, header);
-                logger.info("CRM返回信息：" + s3);
-                // 获取手机号
-                JSONObject jsonObject = JSONObject.parseObject(s3);
-                Integer code = jsonObject.getInteger("code");
-                if(code == 1){
-                    JSONArray data = jsonObject.getJSONArray("data");
-                    JSONObject jsonObject1 = data.getJSONObject(0);
-                    listAll.add(jsonObject1.getString("mobile"));
-                    listAll.add(jsonObject1.getString("mobile"));
-                }
-*/
                 //获取徐健 手机号
                 listAll.add("15066060360");
-/*
-                mobile = StringUtils.join(listAll, ",");//质检经办人+采购经办人手机号
-                String[] strArr = mobile.split(",");
-                String[] objects = new JSONArray().toArray(strArr);
+                JSONArray smsarray = new JSONArray();
+                StringBuilder sBuilder = new StringBuilder();
+                for (String me : listAll) {
+                    smsarray.add(me);
+                }
+
+
                 //发送短信
-                if(StringUtil.isNotBlank(mobile) && mobile != null){
-                    Map<String,Object> map= new HashMap();
-                    map.put("areaCode","86");
-                    map.put("to",objects);
-                    map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
-                    map.put("subType","0");
-                    map.put("groupSending","0");
-                    map.put("useType","订单");
-                    String s1 = HttpRequest.sendPostNote(sendSms, map, header);
+                if (smsarray.size() > 0) {
+
+                    JSONObject smsObj = new JSONObject();
+                    smsObj.put("areaCode","86");
+                    smsObj.put("to",smsarray.toString());
+                    smsObj.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
+                    //  map.put("content","您好，项目号：shuaiguo-030501，报检单号：ERJ20180048，采购经办人:ERJ20180048，已申请报检，请及时处理。感谢您对我们的支持与信任");
+                    smsObj.put("subType","0");
+                    smsObj.put("groupSending","0");
+                    smsObj.put("useType","订单");
+//                    Map<String,String> map= new HashMap();
+//                    map.put("areaCode","86");
+//                    map.put("to","["+sBuilder+"]");
+//                    map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
+//                    //  map.put("content","您好，项目号：shuaiguo-030501，报检单号：ERJ20180048，采购经办人:ERJ20180048，已申请报检，请及时处理。感谢您对我们的支持与信任");
+//                    map.put("subType","0");
+//                    map.put("groupSending","0");
+//                    map.put("useType","订单");
+
+                    String s1 = HttpRequest.sendPost("http://msg.erui.com/api/sms/", "{\"areaCode\":\"86\",\"groupSending\":\"0\",\"subType\":\"0\",\"to\":\"[\\\"15066060360\\\",\\\"13137921214\\\"]\",\"useType\":\"订单\",\"content\":\"您好，项目号：shuaiguo-030501，报检单号：ERJ20180064，采购经办人:，已申请报检，请及时处理。感谢您对我们的支持与信任\"}", header);
                     logger.info("发送手机号失败"+s1);
-                }*/
+                }
 
             }catch (Exception e){
                 throw new Exception("发送短信失败");
             }
 
         }
+    }
+
+    public static void main(String[] args) {
+        String eruiToken = "6528deeb76e7cdf1dd9a57e5d2427dd9";
+        Map<String, String> header = new HashMap<>();
+        header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+        header.put("Content-Type", "application/json");
+        header.put("accept", "*/*");
+        Map<String,String> map= new HashMap();
+        map.put("areaCode","86");
+        map.put("to","[\"17600556432\"]");
+        map.put("content","您好，项目号：shuaiguo-030501，报检单号：ERJ20180048，采购经办人:ERJ20180048，已申请报检，请及时处理。感谢您对我们的支持与信任");
+        map.put("subType","0");
+        map.put("groupSending","0");
+        map.put("useType","订单");
+        String s1 = HttpRequest.sendPost("http://msg.erui.com/api/sms/", "{\"areaCode\":\"86\",\"groupSending\":\"0\",\"subType\":\"0\",\"to\":\"[\\\"15066060360\\\",\\\"13137921214\\\"]\",\"useType\":\"订单\",\"content\":\"您好，项目号：shuaiguo-030501，报检单号：ERJ20180064，采购经办人:，已申请报检，请及时处理。感谢您对我们的支持与信任\"}", header);
+        System.out.println(s1);
+        logger.info("发送手机号失败"+s1);
     }
 
 
