@@ -157,6 +157,9 @@ public class Goods {
     //检验日期
     @Column(name = "check_date")
     private Date checkDate;
+    //检验完成日期
+    @Column(name = "check_done_date")
+    private Date checkDoneDate;
     //仓库经办人
     private Integer uid;
     //入库日期
@@ -277,6 +280,14 @@ public class Goods {
 
     public void setCheckDate(Date checkDate) {
         this.checkDate = checkDate;
+    }
+
+    public Date getCheckDoneDate() {
+        return checkDoneDate;
+    }
+
+    public void setCheckDoneDate(Date checkDoneDate) {
+        this.checkDoneDate = checkDoneDate;
     }
 
     public Integer getUid() {

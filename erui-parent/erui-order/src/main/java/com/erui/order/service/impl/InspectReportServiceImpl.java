@@ -289,7 +289,12 @@ public class InspectReportServiceImpl implements InspectReportService {
                     goods.setCheckUerId(dbInspectReport.getCheckUserId());
                 }
                 if (goods.getCheckDate() == null) {
+                    // 检验时间
                     goods.setCheckDate(dbInspectReport.getCheckDate());
+                }
+                if (dbInspectReport.getDoneDate() != null) {
+                    // 检验完成时间
+                    goods.setCheckDoneDate(dbInspectReport.getDoneDate());
                 }
                 goodsDao.save(goods);
             }
