@@ -187,32 +187,32 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
             Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
             Set<String> purchaseNameList = new HashSet<>(); //采购经办人
-            for (Project project : purch.getProjects()){
-                if(StringUtil.isNotBlank(project.getProjectNo())){
+            for (Project project : purch.getProjects()) {
+                if (StringUtil.isNotBlank(project.getProjectNo())) {
                     projectNoList.add(project.getProjectNo());
                 }
-                if(StringUtil.isNotBlank(project.getQualityName())){
+                if (StringUtil.isNotBlank(project.getQualityName())) {
                     qualityNameList.add(project.getQualityUid());
                 }
-                if(StringUtil.isNotBlank(project.getWarehouseName())){
+                if (StringUtil.isNotBlank(project.getWarehouseName())) {
                     warehouseNameList.add(project.getWarehouseUid());
                 }
-                if(StringUtil.isNotBlank(project.getPurchaseName())){
-                 purchaseNameList.add(project.getPurchaseName());
+                if (StringUtil.isNotBlank(project.getPurchaseName())) {
+                    purchaseNameList.add(project.getPurchaseName());
                 }
             }
-            String qualityNames =  StringUtils.join(qualityNameList, ",");  //质检经办人
-            String warehouseNames =  StringUtils.join(warehouseNameList, ",");  //仓库经办人
-            String projectNos =  StringUtils.join(projectNoList, ",");  //项目号
-            String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
+            String qualityNames = StringUtils.join(qualityNameList, ",");  //质检经办人
+            String warehouseNames = StringUtils.join(warehouseNameList, ",");  //仓库经办人
+            String projectNos = StringUtils.join(projectNoList, ",");  //项目号
+            String purchaseNames = StringUtils.join(purchaseNameList, ",");  //采购经办人
             String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
 
-            Map<String,Object> map = new HashMap<>();
-            map.put("qualityNames",qualityNames);
-            map.put("warehouseNames",warehouseNames);
-            map.put("projectNos",projectNos);
-            map.put("purchaseNames",purchaseNames);
-            map.put("inspectApplyNo",inspectApplyNo);
+            Map<String, Object> map = new HashMap<>();
+            map.put("qualityNames", qualityNames);
+            map.put("warehouseNames", warehouseNames);
+            map.put("projectNos", projectNos);
+            map.put("purchaseNames", purchaseNames);
+            map.put("inspectApplyNo", inspectApplyNo);
             sendSms(map);
 
         } else if (directInstockGoods) {
@@ -387,6 +387,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (parentInspectApply.getNum().intValue() != lastInspectApply.getNum()) {
             throw new Exception("重新报检的不是最后一次质检结果");
         }
+        InspectApply lastInspectApplyTest = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
+        if (lastInspectApplyTest == null || lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
+            throw new Exception("重新报检的不是最后一次质检结果");
+        }
+
         // 声明要插入的报检单
         InspectApply newInspectApply = new InspectApply();
         // 判断每个商品的报检数量是否等于最后一次报检不合格数量
@@ -403,7 +408,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApplyGoods.setPurchaseNum(applyGoods.getPurchaseNum());
             inspectApplyGoods.setPurchGoods(applyGoods.getPurchGoods());
             inspectApplyGoods.setHeight(applyGoods.getHeight());
-            inspectApplyGoods.setLwh(inspectApplyGoods.getLwh());
+            inspectApplyGoods.setLwh(applyGoods.getLwh());
             inspectApplyGoods.setInspectNum(applyGoods.getUnqualified());
             inspectApplyGoods.setSamples(0);
             inspectApplyGoods.setUnqualified(0);
@@ -433,8 +438,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         newInspectApply.setSupplierName(lastInspectApply.getSupplierName());
         // 设置国外分公司
         newInspectApply.setAbroadCoName(lastInspectApply.getAbroadCoName());
-        // 设置报检时间
-        newInspectApply.setInspectDate(NewDateUtil.getDate(new Date()));
+        // 设置报检时间 - 如果传入则用传入报检时间，否则使用上一次的报检时间
+        newInspectApply.setInspectDate(
+                inspectApply.getInspectDate() != null ?
+                        inspectApply.getInspectDate() : lastInspectApply.getInspectDate());
         newInspectApply.setDirect(lastInspectApply.getDirect());
         newInspectApply.setOutCheck(lastInspectApply.getOutCheck());
         newInspectApply.setMsg(inspectApply.getMsg());
@@ -642,12 +649,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
 
     //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-    public void sendSms(Map<String,Object> map1) throws  Exception {
+    public void sendSms(Map<String, Object> map1) throws Exception {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            try{
+            try {
                 String mobile = null;  //质检经办人+采购经办人手机号
                 Set<String> qualityNameSet = new HashSet();    //质检经办人  手机号
                 Set<String> warehouseNameSet = new HashSet();    //采购经办人  手机号
@@ -662,35 +669,35 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 header.put("accept", "*/*");
 
                 //质检经办人 手机号
-               for (String s :split){
-                   String jsonParam = "{\"id\":\"" +s + "\"}";
-                   String s1 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                   logger.info("CRM返回信息：" + s1);
-                   // 获取手机号
-                   JSONObject jsonObject = JSONObject.parseObject(s1);
-                   Integer code = jsonObject.getInteger("code");
-                   if(code == 1){
-                       JSONObject data = jsonObject.getJSONObject("data");
-                       qualityNameSet.add(data.getString("mobile"));
-                   }
-               }
+                for (String s : split) {
+                    String jsonParam = "{\"id\":\"" + s + "\"}";
+                    String s1 = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    logger.info("CRM返回信息：" + s1);
+                    // 获取手机号
+                    JSONObject jsonObject = JSONObject.parseObject(s1);
+                    Integer code = jsonObject.getInteger("code");
+                    if (code == 1) {
+                        JSONObject data = jsonObject.getJSONObject("data");
+                        qualityNameSet.add(data.getString("mobile"));
+                    }
+                }
 
-               //采购经办人  手机号
-               for (String s2 :split2){
-                   String jsonParam = "{\"id\":\"" +s2 + "\"}";
-                   String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                   logger.info("CRM返回信息：" + s3);
-                   // 获取手机号
-                   JSONObject jsonObject = JSONObject.parseObject(s3);
-                   Integer code = jsonObject.getInteger("code");
-                   if(code == 1){
-                       JSONObject data = jsonObject.getJSONObject("data");
-                       warehouseNameSet.add(data.getString("mobile"));
-                   }
-               }
+                //采购经办人  手机号
+                for (String s2 : split2) {
+                    String jsonParam = "{\"id\":\"" + s2 + "\"}";
+                    String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    logger.info("CRM返回信息：" + s3);
+                    // 获取手机号
+                    JSONObject jsonObject = JSONObject.parseObject(s3);
+                    Integer code = jsonObject.getInteger("code");
+                    if (code == 1) {
+                        JSONObject data = jsonObject.getJSONObject("data");
+                        warehouseNameSet.add(data.getString("mobile"));
+                    }
+                }
 
 
-               //去除重复
+                //去除重复
                 Set<String> listAll = new HashSet<>();
                 listAll.addAll(qualityNameSet);
                 listAll.addAll(warehouseNameSet);
@@ -712,17 +719,17 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");
-
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
                     logger.info("发送手机号失败"+s1);
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new Exception("发送短信失败");
             }
 
         }
     }
+
 
 
 }
