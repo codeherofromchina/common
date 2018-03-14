@@ -74,6 +74,13 @@ public interface InquiryCountMapper {
      * @return
      */
 	CustomerNumSummaryVO selectNumSummaryByExample(InquiryCountExample example);
+
+    /**
+     * 查询各个时间段报价询单个数
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectInqCountGroupByQuoteTime( Map<String,String> params);
 	
 	/**
 	 * 根据分类查询询单和订单的数量汇总数据

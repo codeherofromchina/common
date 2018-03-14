@@ -381,7 +381,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
         //饼图数据
         List<String> regisTime=new ArrayList<>();
         List<Integer> custCount=new ArrayList<>();
-        regisTime.add("一个月内");
+        regisTime.add("1个月内");
         regisTime.add("1-3个月内");
         regisTime.add("3个月以上");
         custCount.add(oneMothCount);

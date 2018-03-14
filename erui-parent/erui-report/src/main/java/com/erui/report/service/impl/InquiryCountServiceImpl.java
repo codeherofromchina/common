@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.RateUtil;
 import com.erui.report.model.*;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.util.*;
@@ -625,6 +626,59 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         CustomerNumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
 
         return vo;
+    }
+
+    @Override
+    public Map<String, Object> selectQuoteTimeSummaryData(Map<String, String> params) {
+        //查询各个时间段报价询单个数
+        params.put("finished","已完成");
+        params.put("quoted","已报价");
+        Map<String,Object> data=readMapper.selectInqCountGroupByQuoteTime(params);
+        Integer totalCount = Integer.parseInt(data.get("totalCount").toString());
+        double oneCountRate=0.00,fourCountRate=0.00,eightCountRate=0.00,
+                twentyFourCountRate=0.00,otherCountRate=0.00;
+        if(totalCount>0){
+            oneCountRate=RateUtil.intChainRate(Integer.parseInt(data.get("oneCount").toString()),
+                    totalCount);
+            fourCountRate=RateUtil.intChainRate(Integer.parseInt(data.get("fourCount").toString()),
+                    totalCount);
+            eightCountRate=RateUtil.intChainRate(Integer.parseInt(data.get("eightCount").toString()),
+                    totalCount);
+            twentyFourCountRate=RateUtil.intChainRate(Integer.parseInt(data.get("twentyFourCount").
+                    toString()),totalCount);
+            otherCountRate=RateUtil.intChainRate(Integer.parseInt(data.get("otherCount").toString())
+                    ,totalCount);
+        }
+        data.put("oneCountRate",oneCountRate);
+        data.put("fourCountRate",fourCountRate);
+        data.put("eightCountRate",eightCountRate);
+        data.put("twentyFourCountRate",twentyFourCountRate);
+        data.put("otherCountRate",otherCountRate);
+        //查询各事业部的 平均报价用时
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
+        InquiryCountExample inqExample = new InquiryCountExample();
+        Criteria criteria = inqExample.createCriteria();
+        if (startTime != null) {
+            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andRollinTimeLessThan(endTime);
+        }
+        List<String> statusList=new ArrayList<>();
+        statusList.add(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus());
+        statusList.add(QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus());
+        criteria.andQuotedStatusIn(statusList);
+        List<Map<String, Object>> orgData = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(inqExample);
+        orgData.stream().forEach(m->{
+            m.put("avgNeedTime",RateUtil.doubleChainRateTwo(Double.
+                    parseDouble(m.get("avgNeedTime").toString()),1));
+        });
+
+        Map<String,Object> datas=new HashMap<>();
+        datas.put("quoteTimeTable",data);
+        datas.put("orgTable",orgData);
+        return datas;
     }
 
 

@@ -347,6 +347,26 @@
       order by ${orderByClause}
     </if>
   </select>
+    <!--查询各个时间段报价询单个数-->
+  <select id="selectInqCountGroupByQuoteTime" resultType="java.util.Map" parameterType="java.util.Map" >
+      SELECT
+      COUNT(1) AS totalCount,
+      SUM(CASE  WHEN quote_need_time &lt;=4 THEN 1 ELSE 0 END) AS oneCount,
+      SUM(CASE  WHEN  quote_need_time>4  AND quote_need_time &lt;=8 THEN 1 ELSE 0 END) AS fourCount,
+      SUM(CASE  WHEN quote_need_time>8  AND quote_need_time &lt;=24 THEN 1 ELSE 0 END) AS eightCount,
+      SUM(CASE  WHEN quote_need_time>24  AND  quote_need_time &lt;=48 THEN 1 ELSE 0 END) AS twentyFourCount,
+      SUM(CASE  WHEN quote_need_time>48   THEN 1 ELSE 0 END) AS otherCount
+      from inquiry_count
+      WHERE 1=1
+      <if test="finished!=null and quoted!=null">
+         and quoted_status in (#{finished},#{quoted})
+      </if>
+
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+  </select>
     <!--查询询单、交易的人数和单数-->
   <select id="selectInqAndOrdCountAndPassengers" resultType="java.util.Map" parameterType="java.util.Map" >
   SELECT
