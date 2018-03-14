@@ -364,7 +364,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 Map<String,Object> map = new HashMap<>();
                 map.put("inspectApplyNo",inspectReport.getInspectApplyNo());    //报检单号
                 if (project != null){
-                    map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
+                    map.put("purchaseUid",project.getPurchaseUid());       //采购经办人id
                     map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
                     map.put("purchaseNames",project.getProjectNo());      //项目号
                 }
