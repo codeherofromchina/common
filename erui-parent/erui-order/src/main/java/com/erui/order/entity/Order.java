@@ -733,35 +733,6 @@ public class Order {
         return goodsList;
     }
 
-    public static int compare(Integer i1, Integer i2) {
-        if (i1 == null && i2 == null) {
-            return 0;
-        } else if (i1 == null) {
-            return -1;
-        } else if (i2 == null) {
-            return 1;
-        } else {
-            return i1 - i2;
-        }
-    }
-
-
-    public static void main(String[] args) {
-        List<Integer> list = new ArrayList<>();
-        list.add(2);
-        list.add(4);
-        list.add(-3);
-        list.add(1);
-        list.add(8);
-
-        Collections.sort(list, (t1, t2) -> {
-
-            return t1 - t2;
-        });
-
-        System.out.println(list);
-
-    }
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
@@ -810,6 +781,19 @@ public class Order {
 
         public String getMsg() {
             return msg;
+        }
+    }
+
+
+    public static int compare(Integer i1, Integer i2) {
+        if (i1 == null && i2 == null) {
+            return 0;
+        } else if (i1 == null) {
+            return -1;
+        } else if (i2 == null) {
+            return 1;
+        } else {
+            return i1 - i2;
         }
     }
 }
