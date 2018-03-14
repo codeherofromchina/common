@@ -109,7 +109,7 @@
       IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0) as doorCount,
       IFNULL(SUM(CASE source_name WHEN '后台' THEN 1 ELSE 0 END ),0) AS backStageCount,
       IFNULL(SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END ),0) AS generalCount,
-      IFNULL(SUM(CASE source_name WHEN '高级会员' THEN 1 ELSE 0 END ),0) AS seniorCount
+      IFNULL(SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END ),0) AS seniorCount
     FROM erui_buyer.v_buyer where 1=1
     <if test="startTime!=null and endTime!=null">
       and created_at BETWEEN
