@@ -350,10 +350,10 @@
     <!--查询询单、交易的人数和单数-->
   <select id="selectInqAndOrdCountAndPassengers" resultType="java.util.Map" parameterType="java.util.Map" >
   SELECT
-  t1.inqCount AS inqCount,
-  t1.inqCustCount+t2.inqNullCount AS inqCustCount,
-  t3.ordCount AS ordCount,
-  t3.ordCustCount+t4.ordNullCount AS ordCustCount
+  t1.inqCount+t2.inqNullCount AS inqCount,
+  t1.inqCustCount+t2.inqCustNullCount AS inqCustCount,
+  t3.ordCount+t4.ordNullCount AS ordCount,
+  t3.ordCustCount+t4.ordCustNullCount AS ordCustCount
   from
     (SELECT COUNT(1) AS inqCount,COUNT(DISTINCT(cust_description)) AS inqCustCount
        FROM inquiry_count WHERE 1=1
@@ -363,7 +363,7 @@
       </if>
        AND cust_description IS NOT NULL)
      AS t1,
-    (SELECT COUNT(cust_description) AS inqNullCount
+    (SELECT COUNT(1) AS inqNullCount,COUNT(cust_description) AS inqCustNullCount
        FROM inquiry_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and rollin_time BETWEEN
@@ -379,7 +379,7 @@
       </if>
       AND cust_description IS NOT NULL)
     AS t3,
-    (SELECT COUNT(cust_description) AS ordNullCount
+    (SELECT COUNT(1) AS ordNullCount ,COUNT(cust_description) AS ordCustNullCount
        FROM order_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and project_start BETWEEN
