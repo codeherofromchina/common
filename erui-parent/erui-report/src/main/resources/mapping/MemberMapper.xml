@@ -300,6 +300,7 @@
         SELECT created_at AS createTime ,buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
                 in (
                       SELECT DISTINCT(cust_description) FROM inquiry_count WHERE 1=1
+                      AND cust_description IS NOT NULL  AND cust_description !=''
                           <if test="startTime!=null and endTime!=null">
                               and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                              and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
