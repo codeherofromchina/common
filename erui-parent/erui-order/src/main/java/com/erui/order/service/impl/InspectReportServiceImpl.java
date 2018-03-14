@@ -344,6 +344,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
                         map.put("purchaseNames",project.getProjectNo());      //项目号
                     }
+                    map.put("purchNo",dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
                     map.put("sum",sum);   //商品不合格数量
                     map.put("hegeNum",hegeNum);   //商品合格数量
                     map.put("yn",1);
@@ -356,6 +357,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
                         map.put("purchaseNames",project.getProjectNo());      //项目号
                     }
+                    map.put("purchNo",dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
                     map.put("sum",sum);  //商品不合格数量
                     map.put("yn",2);
                     sendSms(map);
@@ -368,6 +370,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                     map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
                     map.put("purchaseNames",project.getProjectNo());      //项目号
                 }
+                map.put("purchNo",dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
                 map.put("hegeNum",hegeNum);//商品合格数量
                 map.put("yn",3);
                 sendSms(map);
@@ -503,7 +506,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         Map<String,String> map= new HashMap();
                         map.put("areaCode","86");
                         map.put("to","[\""+s+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号:"+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，采购合同号："+map1.get("purchNo")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType","0");
                         map.put("groupSending","0");
                         map.put("useType","订单");
@@ -511,13 +514,13 @@ public class InspectReportServiceImpl implements InspectReportService {
                         logger.info("发送短信失败"+s1);
                     }
 
-                    String s2 = queryMessage(warehouseUid, eruiToken);  //讲合格发送给仓库经办人
+                    String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
                     if(s2 != null){
                         //发送短信
                         Map<String,String> map= new HashMap();
                         map.put("areaCode","86");
                         map.put("to","[\""+s2+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号:"+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType","0");
                         map.put("groupSending","0");
                         map.put("useType","订单");
@@ -532,7 +535,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         Map<String,String> map= new HashMap();
                         map.put("areaCode","86");
                         map.put("to","[\""+s+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号:"+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，采购合同号："+map1.get("purchNo")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType","0");
                         map.put("groupSending","0");
                         map.put("useType","订单");
@@ -540,13 +543,13 @@ public class InspectReportServiceImpl implements InspectReportService {
                         logger.info("发送短信失败"+s1);
                     }
                 }else{   // 3 全部合格
-                    String s2 = queryMessage(warehouseUid, eruiToken);  //讲合格发送给仓库经办人
+                    String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
                     if(s2 != null){
                         //发送短信
                         Map<String,String> map= new HashMap();
                         map.put("areaCode","86");
                         map.put("to","[\""+s2+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号:"+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType","0");
                         map.put("groupSending","0");
                         map.put("useType","订单");

@@ -1106,7 +1106,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         //去除重复
                         Set<String> listAll = new HashSet<>();
                         listAll.add(mobile);
-                        //获取徐健 手机号
+                        //获取徐健 手机号-
                         listAll.add("15066060360");
                         listAll = new HashSet<>(new LinkedHashSet<>(listAll));
                         JSONArray smsarray = new JSONArray();
@@ -1117,11 +1117,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     }
 
                     if(status == 2){
-                        map.put("content","您好，项目号："+map1.get("projectNo")+"，产品放行单号:"+map1.get("deliverDetailNo")+"，已申请出库报检，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，项目号："+map1.get("projectNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，已申请出库报检，请及时处理。感谢您对我们的支持与信任！");
                     }else if(status == 5){
-                        map.put("content","您好，销售合同号："+map1.get("projectNo")+"，产品放行单号:"+map1.get("deliverDetailNo")+"，仓储经办人："+map1.get("wareHousemanName")+"，已出库并上传箱单，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，销售合同号："+map1.get("projectNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，仓储经办人："+map1.get("wareHousemanName")+"，已出库并上传箱单，请及时处理。感谢您对我们的支持与信任！");
                     } else{
-                        map.put("content","您好，项目号："+map1.get("projectNo")+"，产品放行单号:"+map1.get("deliverDetailNo")+"，出库质检已合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，项目号："+map1.get("projectNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，出库质检已合格，请及时处理。感谢您对我们的支持与信任！");
                     }
                     map.put("subType","0");
                     map.put("groupSending","0");

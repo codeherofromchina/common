@@ -483,7 +483,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     Map<String,String> map= new HashMap();
                     map.put("areaCode","86");
                     map.put("to",smsarray.toString());
-                    map.put("content","您好，项目号："+map1.get("projectNo")+"，出口通知单号："+map1.get("deliverConsignNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，物流经办人:"+map1.get("logisticsName")+"，已下发看货通知，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("content","您好，项目号："+map1.get("projectNo")+"，出口通知单号："+map1.get("deliverConsignNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，物流经办人："+map1.get("logisticsName")+"，已下发看货通知，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");

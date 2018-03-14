@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsignGoods;
 import com.erui.order.entity.DeliverDetail;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -62,7 +65,7 @@ public class DeliverDetailController {
      * @return
      */
     @RequestMapping(value = "saveQuality", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> saveQuality(@RequestBody DeliverDetail deliverDetail) {
+    public Result<Object> saveQuality(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request) {
         boolean continueFlag = true;
         String errMsg = null;
         if (deliverDetail.getId() == null || deliverDetail.getId() <= 0) {
@@ -93,9 +96,8 @@ public class DeliverDetailController {
 
         if (continueFlag) {
             try {
-                
-
-
+                String eruiToken = EruitokenUtil.getEruiToken(request);
+                ThreadLocalUtil.setObject(eruiToken);
 
                 if (deliverDetailService.saveQuality(deliverDetail)) {
                     return new Result<>();

@@ -183,14 +183,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
             //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
 
-            Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多
+            /*Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多*/
             Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
             Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
             Set<String> purchaseNameList = new HashSet<>(); //采购经办人
             for (Project project : purch.getProjects()) {
-                if (StringUtil.isNotBlank(project.getProjectNo())) {
+                /*if (StringUtil.isNotBlank(project.getProjectNo())) {
                     projectNoList.add(project.getProjectNo());
-                }
+                }*/
                 if (StringUtil.isNotBlank(project.getQualityName())) {
                     qualityNameList.add(project.getQualityUid());
                 }
@@ -203,14 +203,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             }
             String qualityNames = StringUtils.join(qualityNameList, ",");  //质检经办人
             String warehouseNames = StringUtils.join(warehouseNameList, ",");  //仓库经办人
-            String projectNos = StringUtils.join(projectNoList, ",");  //项目号
+           /* String projectNos = StringUtils.join(projectNoList, ",");  //项目号*/
             String purchaseNames = StringUtils.join(purchaseNameList, ",");  //采购经办人
             String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
 
             Map<String, Object> map = new HashMap<>();
             map.put("qualityNames", qualityNames);
             map.put("warehouseNames", warehouseNames);
-            map.put("projectNos", projectNos);
+            map.put("projectNos", purch.getPurchNo());  //采购合同号
             map.put("purchaseNames", purchaseNames);
             map.put("inspectApplyNo", inspectApplyNo);
             sendSms(map);
@@ -611,14 +611,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public void disposeSmsDate(InspectApply dbInspectApply ,InspectApply inspectApply ) throws Exception {
         //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
 
-        Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多
+        /*Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多*/
         Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
         Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
         Set<String> purchaseNameList = new HashSet<>(); //采购经办人
-        for (Project project : dbInspectApply.getPurch().getProjects()){
-            if(StringUtil.isNotBlank(project.getProjectNo())){
+        Purch purch = dbInspectApply.getPurch();
+        for (Project project : purch.getProjects()){
+            /*if(StringUtil.isNotBlank(project.getProjectNo())){
                 projectNoList.add(project.getProjectNo());
-            }
+            }*/
             if(StringUtil.isNotBlank(project.getQualityName())){
                 qualityNameList.add(project.getQualityUid());
             }
@@ -631,14 +632,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         String qualityNames =  StringUtils.join(qualityNameList, ",");  //质检经办人
         String warehouseNames =  StringUtils.join(warehouseNameList, ",");  //仓库经办人
-        String projectNos =  StringUtils.join(projectNoList, ",");  //项目号
+       /* String projectNos =  StringUtils.join(projectNoList, ",");  //项目号*/
         String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
         String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
 
         Map<String,Object> map = new HashMap<>();
         map.put("qualityNames",qualityNames);
         map.put("warehouseNames",warehouseNames);
-        map.put("projectNos",projectNos);
+        map.put("projectNos",purch.getPurchNo()); // 采购合同号
         map.put("purchaseNames",purchaseNames);
         map.put("inspectApplyNo",inspectApplyNo);
         sendSms(map);
@@ -715,7 +716,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     Map<String,String> map= new HashMap();
                     map.put("areaCode","86");
                     map.put("to",smsarray.toString());
-                    map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("content","您好，采购合同号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人："+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");
