@@ -1,7 +1,12 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -11,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -49,6 +55,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
     @Autowired
     OrderDao orderDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
 
     @Override
     @Transactional(readOnly = true)
@@ -147,8 +159,9 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
         List<DeliverConsign> list = new ArrayList<DeliverConsign>();
+        DeliverConsign one = null; //出库通知单
         for (String s :split){
-            DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
+            one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
             list.add(one);
 
             List<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
@@ -209,6 +222,20 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
             DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
+
+
+            //看货通知：看货通知单下达后通知仓库经办人（如果仓库经办人不是徐健，那么还要单独发给徐健）
+            Map<String,Object> map = new HashMap<>();
+            map.put("warehouseUid",project.getWarehouseUid());  //仓库经办人id
+            map.put("projectNo",project.getProjectNo());   //项目号
+            map.put("deliverConsignNo",one.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
+            map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
+            try {
+                sendSms(map);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
         return true;
@@ -316,23 +343,20 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
-                 /*   //  订单执行跟踪   推送运单号
-                    OrderLog orderLog = new OrderLog();
-                    List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
-                    for (DeliverConsign deliverConsign1 : deliverConsigns){
-                        try {
-                            orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
-                            orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
-                            orderLog.setOperation(deliverDetail.getDeliverDetailNo());
-                            orderLog.setCreateTime(new Date());
-                            orderLogDao.save(orderLog);
-                        } catch (Exception ex) {
-                            logger.error("日志记录失败 {}", orderLog.toString());
-                            logger.error("错误", ex);
-                            ex.printStackTrace();
-                        }
+
+                    //看货通知：看货通知单下达后通知仓库经办人（如果仓库经办人不是徐健，那么还要单独发给徐健）
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("warehouseUid",project.getWarehouseUid());  //仓库经办人id
+                    map.put("projectNo",project.getProjectNo());   //项目号
+                    map.put("deliverConsignNo",one.getDeliverConsignNo());  //出口通知单号
+                    map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
+                    map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
+                    try {
+                        sendSms(map);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-*/
+
                 }
 
                 return true;
@@ -418,6 +442,59 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
         }
 
+    }
+
+
+
+   // 看货通知：看货通知单下达后通知仓库经办人（如果仓库经办人不是徐健，那么还要单独发给徐健）
+    public void sendSms(Map<String,Object> map1) throws  Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取人员信息
+                String jsonParam = "{\"id\":\"" + map1.get("warehouseUid") + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+
+                if(code == 1){
+                    // 获取人员手机号
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //去除重复
+                    Set<String> listAll = new HashSet<>();
+                    listAll.add(data.getString("mobile"));//采购人员手机号
+                    //获取徐健 手机号
+                    listAll.add("15066060360");
+                    listAll = new HashSet<>(new LinkedHashSet<>(listAll));
+                    JSONArray smsarray = new JSONArray();
+                    for (String me : listAll) {
+                        smsarray.add(me);
+                    }
+
+                    //发送短信
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to",smsarray.toString());
+                    map.put("content","您好，项目号："+map1.get("projectNo")+"，出口通知单号："+map1.get("deliverConsignNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，物流经办人："+map1.get("logisticsName")+"，已下发看货通知，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送手机号失败"+s1);
+                }
+            }catch (Exception e){
+                throw new Exception("发送短信失败");
+            }
+
+        }
     }
 
 

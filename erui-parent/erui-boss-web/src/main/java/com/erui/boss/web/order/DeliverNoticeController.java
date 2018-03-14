@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -133,9 +136,12 @@ public class DeliverNoticeController {
      * @return
      */
     @RequestMapping(value = "exitRequisitionSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice) {
+    public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice, HttpServletRequest request) {
         Result<Object> result = new Result<>();
         try {
+            String eruiToken = EruitokenUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
             boolean flag = false;
             if (deliverNotice.getId()!= null) {
                 flag = deliverNoticeService.updateexitRequisition(deliverNotice);
