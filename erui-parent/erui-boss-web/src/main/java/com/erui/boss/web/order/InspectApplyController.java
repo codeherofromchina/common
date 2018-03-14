@@ -250,11 +250,11 @@ public class InspectApplyController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody InspectApply inspectApply) {
-        //InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
-        //boolean continueFlag = true;
+        InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
+        boolean continueFlag = true;
         String errMsg = null;
         // 必须是保存、提交、重新报检的一种，这里将NO_EDIT设置为重新报检类型复用
-        /*if (statusEnum == null || (statusEnum != InspectApply.StatusEnum.SAVED && statusEnum != InspectApply.StatusEnum.SUBMITED && statusEnum != InspectApply.StatusEnum.NO_EDIT)) {
+        if (statusEnum == null || (statusEnum != InspectApply.StatusEnum.SAVED && statusEnum != InspectApply.StatusEnum.SUBMITED && statusEnum != InspectApply.StatusEnum.NO_EDIT)) {
             continueFlag = false;
             errMsg = "状态提交错误";
         }
@@ -293,7 +293,7 @@ public class InspectApplyController {
                 errMsg = ex.getMessage();
                 logger.error("异常报错", ex);
             }
-        }*/
+        }
 
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
