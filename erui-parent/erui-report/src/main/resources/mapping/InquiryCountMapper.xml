@@ -363,7 +363,7 @@
       </if>
        AND cust_description IS NOT NULL)
      AS t1,
-    (SELECT COUNT(1) AS inqNullCount,COUNT(cust_description) AS inqCustNullCount
+    (SELECT COUNT(1) AS inqNullCount,COUNT(1) AS inqCustNullCount
        FROM inquiry_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and rollin_time BETWEEN
@@ -379,7 +379,7 @@
       </if>
       AND cust_description IS NOT NULL)
     AS t3,
-    (SELECT COUNT(1) AS ordNullCount ,COUNT(cust_description) AS ordCustNullCount
+    (SELECT COUNT(1) AS ordNullCount ,COUNT(1) AS ordCustNullCount
        FROM order_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and project_start BETWEEN
