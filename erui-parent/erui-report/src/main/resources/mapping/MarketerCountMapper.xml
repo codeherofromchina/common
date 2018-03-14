@@ -205,10 +205,10 @@
         IFNULL(SUM(IFNULL(new_member_count, 0)),0) AS memberCount
         FROM marketer_count where create_time BETWEEN
         DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-        <if test="area!=null">
+        <if test="area!=null and area!=''">
             and  area = #{area}
         </if>
-        <if test="country!=null">
+        <if test="country!=null and country!='' ">
             and  country = #{country}
         </if>
     </select>
