@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
@@ -180,7 +181,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             pushDataToInspectReport(inspectApply);
 
-
             //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
 
             Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多
@@ -346,6 +346,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             // 推送数据到入库质检中
             pushDataToInspectReport(dbInspectApply);
+
+            //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
+            disposeSmsDate(dbInspectApply,inspectApply);
+
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
             checkPurchHasDone(dbInspectApply.getPurch());
@@ -449,6 +453,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         // 推送数据到入库质检中
         pushDataToInspectReport(newInspectApply);
+
+        //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
+        disposeSmsDate(lastInspectApply,inspectApply);
 
         return true;
     }
@@ -587,12 +594,58 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     }
 
 
+    /**
+     * 处理短信信息
+     *
+     * @param dbInspectApply
+     * @param inspectApply
+     * @throws Exception
+     */
+    public void disposeSmsDate(InspectApply dbInspectApply ,InspectApply inspectApply ) throws Exception {
+        //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
+
+        Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多
+        Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
+        Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
+        Set<String> purchaseNameList = new HashSet<>(); //采购经办人
+        for (Project project : dbInspectApply.getPurch().getProjects()){
+            if(StringUtil.isNotBlank(project.getProjectNo())){
+                projectNoList.add(project.getProjectNo());
+            }
+            if(StringUtil.isNotBlank(project.getQualityName())){
+                qualityNameList.add(project.getQualityUid());
+            }
+            if(StringUtil.isNotBlank(project.getWarehouseName())){
+                warehouseNameList.add(project.getWarehouseUid());
+            }
+            if(StringUtil.isNotBlank(project.getPurchaseName())){
+                purchaseNameList.add(project.getPurchaseName());
+            }
+        }
+        String qualityNames =  StringUtils.join(qualityNameList, ",");  //质检经办人
+        String warehouseNames =  StringUtils.join(warehouseNameList, ",");  //仓库经办人
+        String projectNos =  StringUtils.join(projectNoList, ",");  //项目号
+        String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
+        String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("qualityNames",qualityNames);
+        map.put("warehouseNames",warehouseNames);
+        map.put("projectNos",projectNos);
+        map.put("purchaseNames",purchaseNames);
+        map.put("inspectApplyNo",inspectApplyNo);
+        sendSms(map);
+    }
+
+
+
+
+
     //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
     public void sendSms(Map<String,Object> map1) throws  Exception {
 
         //获取token
-        /*String eruiToken = (String) ThreadLocalUtil.getObject();*/
-        String eruiToken = "6528deeb76e7cdf1dd9a57e5d2427dd9";
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
             try{
                 String mobile = null;  //质检经办人+采购经办人手机号
@@ -641,38 +694,26 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 Set<String> listAll = new HashSet<>();
                 listAll.addAll(qualityNameSet);
                 listAll.addAll(warehouseNameSet);
-                listAll = new HashSet<>(new LinkedHashSet<>(listAll));
-
                 //获取徐健 手机号
                 listAll.add("15066060360");
+                listAll = new HashSet<>(new LinkedHashSet<>(listAll));
+
+
                 JSONArray smsarray = new JSONArray();
-                StringBuilder sBuilder = new StringBuilder();
                 for (String me : listAll) {
                     smsarray.add(me);
                 }
-
-
                 //发送短信
                 if (smsarray.size() > 0) {
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to",smsarray.toString());
+                    map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
 
-                    JSONObject smsObj = new JSONObject();
-                    smsObj.put("areaCode","86");
-                    smsObj.put("to",smsarray.toString());
-                    smsObj.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
-                    //  map.put("content","您好，项目号：shuaiguo-030501，报检单号：ERJ20180048，采购经办人:ERJ20180048，已申请报检，请及时处理。感谢您对我们的支持与信任");
-                    smsObj.put("subType","0");
-                    smsObj.put("groupSending","0");
-                    smsObj.put("useType","订单");
-//                    Map<String,String> map= new HashMap();
-//                    map.put("areaCode","86");
-//                    map.put("to","["+sBuilder+"]");
-//                    map.put("content","您好，项目号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人:"+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任");
-//                    //  map.put("content","您好，项目号：shuaiguo-030501，报检单号：ERJ20180048，采购经办人:ERJ20180048，已申请报检，请及时处理。感谢您对我们的支持与信任");
-//                    map.put("subType","0");
-//                    map.put("groupSending","0");
-//                    map.put("useType","订单");
-
-                    String s1 = HttpRequest.sendPost("http://msg.erui.com/api/sms/", "{\"areaCode\":\"86\",\"groupSending\":\"0\",\"subType\":\"0\",\"to\":\"[\\\"15066060360\\\",\\\"13137921214\\\"]\",\"useType\":\"订单\",\"content\":\"您好，项目号：shuaiguo-030501，报检单号：ERJ20180064，采购经办人:，已申请报检，请及时处理。感谢您对我们的支持与信任\"}", header);
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
                     logger.info("发送手机号失败"+s1);
                 }
 
@@ -682,26 +723,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         }
     }
-
-    public static void main(String[] args) {
-        String eruiToken = "6528deeb76e7cdf1dd9a57e5d2427dd9";
-        Map<String, String> header = new HashMap<>();
-        header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
-        header.put("Content-Type", "application/json");
-        header.put("accept", "*/*");
-        Map<String,String> map= new HashMap();
-        map.put("areaCode","86");
-        map.put("to","[\"17600556432\"]");
-        map.put("content","您好，项目号：shuaiguo-030501，报检单号：ERJ20180048，采购经办人:ERJ20180048，已申请报检，请及时处理。感谢您对我们的支持与信任");
-        map.put("subType","0");
-        map.put("groupSending","0");
-        map.put("useType","订单");
-        String s1 = HttpRequest.sendPost("http://msg.erui.com/api/sms/", "{\"areaCode\":\"86\",\"groupSending\":\"0\",\"subType\":\"0\",\"to\":\"[\\\"15066060360\\\",\\\"13137921214\\\"]\",\"useType\":\"订单\",\"content\":\"您好，项目号：shuaiguo-030501，报检单号：ERJ20180064，采购经办人:，已申请报检，请及时处理。感谢您对我们的支持与信任\"}", header);
-        System.out.println(s1);
-        logger.info("发送手机号失败"+s1);
-    }
-
-
 
 
 }
