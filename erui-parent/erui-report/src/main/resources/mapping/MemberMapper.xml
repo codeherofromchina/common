@@ -239,7 +239,7 @@
          t2.seniorCount as  seniorCustCount
   from
       (
-          SELECT  COUNT(cust_description) AS fristCustCount
+          SELECT  COUNT(distinct(cust_description)) AS fristCustCount
           FROM inquiry_count as t1
           WHERE 1=1 AND cust_description IS NOT NULL
                 <if test="startTime!=null and endTime!=null">
