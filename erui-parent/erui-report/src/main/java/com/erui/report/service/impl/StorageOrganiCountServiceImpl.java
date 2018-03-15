@@ -199,6 +199,9 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
     public Map<String, Object> selectCountryOutStoreSummary(Map<String, String> params) {
 
        List<Map<String,Object>> dataList= readMapper.selectOutDataGroupByCountry(params);
+       //排序
+        dataList.sort((Map<String,Object> m1,Map<String,Object> m2)->
+                Integer.parseInt(m2.get("outCount").toString())-Integer.parseInt(m1.get("outCount").toString()));
        List<String> countrys=new ArrayList<>();//目的国家列表
         List<Integer> outCountList=new ArrayList<>();//出库量列表
         List<String> proportionList=new ArrayList<>();//占比列表
