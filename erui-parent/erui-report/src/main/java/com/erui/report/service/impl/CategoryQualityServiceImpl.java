@@ -251,12 +251,12 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
             datas.put("yAxis", inspectList);
             datas.put("passList", inspectPassList);
         }
-        if(FACTORY.equals(FACTORY)){
+        if(type.equals(FACTORY)){
             datas.put("legend",FACTORY);
             datas.put("yAxis", factoryList);
             datas.put("passList", factoryPassList);
         }
-        if(FOREIGN.equals(FOREIGN)){
+        if(type.equals(FOREIGN)){
             datas.put("legend",FOREIGN);
             datas.put("yAxis", assignList);
             datas.put("passList", assignPassList);
