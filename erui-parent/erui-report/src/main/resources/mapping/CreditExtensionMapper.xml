@@ -243,28 +243,28 @@
         availAmount
         FROM credit_extension where credit_date between DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and
         DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-        <if test="area !=null">
+        <if test="area !=null and area!=''">
             and credit_area = #{area}
         </if>
-        <if test="country !=null">
+        <if test="country !=null and country!=''">
             and credit_country = #{country}
         </if>
         ) AS t0 ,
         (SELECT COUNT(1) AS incrCredit FROM credit_extension WHERE effective_date
         BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-        <if test="area !=null">
+        <if test="area !=null and area!=''">
             and credit_area = #{area}
         </if>
-        <if test="country !=null">
+        <if test="country !=null and country!=''">
             and credit_country = #{country}
         </if>
         ) AS t1 ,
         (SELECT COUNT(1) AS elimiCredit FROM credit_extension WHERE expiry_date BETWEEN
         DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-        <if test="area !=null">
+        <if test="area !=null and area!=''">
             and credit_area = #{area}
         </if>
-        <if test="country !=null">
+        <if test="country !=null and country!=''">
             and credit_country = #{country}
         </if>
         ) AS t2
