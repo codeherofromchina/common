@@ -278,12 +278,7 @@
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
       AND cust_description
-      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-                <if test="startTime!=null and endTime!=null">
-                    and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                    and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                </if>
-         )
+      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is  not null and buyer_code!='')
     GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
 
   </select>
@@ -315,47 +310,40 @@
   <!--查询会员订单汇总数据-->
   <select id="selectCustOrdSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
 
-    SELECT t1.dealCount , IFNULL(t1.dealAmount,0) AS dealAmount,
-           IFNULL(t2.firstDealCount,0) AS firstDealCount ,
-           t3.seniorDealCount
+    SELECT t1.dealCount1+t2.dealCount2 as dealCount, t1.dealAmount1+t2.dealAmount2  AS dealAmount,
+           IFNULL(t3.firstDealCount,0) AS firstDealCount ,
+           t4.seniorDealCount
     from
-        (
-          SELECT COUNT(DISTINCT(cust_description)) AS dealCount ,
-                 IFNULL(SUM(IFNULL(project_account,0.00)),0) AS dealAmount
-          FROM  order_count
-          WHERE 1=1
-                <if test="startTime!=null and endTime!=null">
-                   and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                </if>
-                   AND cust_description
-                   IN ( SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-                               <if test="startTime!=null and endTime!=null">
-                                   and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                               </if>
-                      )
-        ) AS t1 ,
-        (
-           SELECT SUM(CASE t.custCount WHEN 1 THEN 1 ELSE 0 END ) AS firstDealCount
-           FROM
-             ( SELECT count(cust_description) AS custCount ,
-                      cust_description as custName
-               FROM order_count WHERE 1=1
-                    <if test="startTime!=null and endTime!=null">
-                        and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                    </if>
-                        AND cust_description
-                        IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-                                <if test="startTime!=null and endTime!=null">
-                                  and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                                  and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                                </if>
-                           )
-               GROUP BY cust_description HAVING custName IS NOT NULL  )
-           AS t
-        ) AS t2,
+      (SELECT IFNULL(SUM(IFNULL(project_account,0.00)),0.00) AS dealAmount1,COUNT(DISTINCT(cust_description)) AS dealCount1
+      FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NOT NULL)
+      AS t1,
+      (SELECT IFNULL(SUM(IFNULL(project_account,0.00)),0.00) AS dealAmount2 ,COUNT(1) AS dealCount2
+      FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NULL)
+      AS t2,
+      (
+      SELECT  COUNT(distinct(cust_description)) AS firstDealCount
+      FROM order_count as tt
+      WHERE 1=1 AND cust_description IS NOT NULL
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      and not EXISTS (select * from order_count where 1=1
+      <if test="startTime!=null">
+          and    project_start &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      and tt.cust_description= cust_description)
+      ) AS t3,
         (
           SELECT COUNT(DISTINCT(cust_description)) AS seniorDealCount
           FROM order_count WHERE 1=1
@@ -364,13 +352,8 @@
                    and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                </if>
                    AND cust_description
-                   IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员'
-                             <if test="startTime!=null and endTime!=null">
-                                and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                             </if>
-                       )
-        ) AS t3
+                   IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员')
+        ) AS t4
 
   </select>
   <!--查询各区域的会员的订单数据-->
@@ -386,12 +369,7 @@
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
     AND cust_description
-    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-    <if test="startTime!=null and endTime!=null">
-      and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-    </if>
-    )
+    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is not null and  buyer_code!='')
     GROUP BY order_area HAVING order_area IS NOT NULL
 
   </select>
