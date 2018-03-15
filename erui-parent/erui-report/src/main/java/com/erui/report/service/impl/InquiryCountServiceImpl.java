@@ -776,8 +776,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
-        } else {
-            criteria.andReturnCountGreaterThanOrEqualTo(1);//退回询单条件
         }
         List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
         if (result == null) {
