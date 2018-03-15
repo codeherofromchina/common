@@ -265,24 +265,36 @@
 
   </select>
 
-  <!--查询各区域的会员的询单数据-->
+  <!--查询各区域的询单数据-->
   <select id="selectCustInqDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
 
     SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
            COUNT(1) AS inqTimes  ,
            inquiry_area AS area
     FROM  inquiry_count
-    WHERE 1=1
+    WHERE 1=1 and  cust_description is not null
     <if test="startTime!=null and endTime!=null">
       and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-      AND cust_description
-      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is  not null and buyer_code!='')
     GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
 
   </select>
+    <!--查询各区域 客户编码为null的询单数据-->
+    <select id="selectCustIsNullInqDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
 
+        SELECT COUNT(1) AS custCount ,
+        COUNT(1) AS inqTimes  ,
+        inquiry_area AS area
+        FROM  inquiry_count
+        WHERE 1=1 and  cust_description is  null
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
+
+    </select>
   <!--/查询各时间段内询单人数量-->
   <select id="selectInqCustRegistTimeSummary" resultType="java.util.Map" parameterType="java.util.Map" >
       SELECT
@@ -363,13 +375,26 @@
     COUNT(1) AS ordTimes  ,
     order_area AS area
     FROM  order_count
-    WHERE 1=1
+    WHERE 1=1 and cust_description is not null
     <if test="startTime!=null and endTime!=null">
       and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    AND cust_description
-    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is not null and  buyer_code!='')
+    GROUP BY order_area HAVING order_area IS NOT NULL
+
+  </select>
+  <!--查询各区域的客户编码为null的订单数据-->
+  <select id="selectCustIsNullOrdDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+    COUNT(1) AS ordTimes  ,
+    order_area AS area
+    FROM  order_count
+    WHERE 1=1 and cust_description is  null
+    <if test="startTime!=null and endTime!=null">
+      and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
     GROUP BY order_area HAVING order_area IS NOT NULL
 
   </select>

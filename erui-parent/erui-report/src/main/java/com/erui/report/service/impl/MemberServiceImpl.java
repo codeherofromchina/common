@@ -366,7 +366,24 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
     @Override
     public List<Map<String, Object>> selectCustInqDataGroupByArea(Map<String, String> params) {
-        return readMapper.selectCustInqDataGroupByArea(params);
+        List<Map<String, Object>> notNullList = readMapper.selectCustInqDataGroupByArea(params);
+        List<Map<String, Object>> nullList = readMapper.selectCustIsNullInqDataGroupByArea(params);
+        Map<String, Map<String, Object>> notNullMap = notNullList.stream().
+                collect(Collectors.toMap(m -> m.get("area").toString(), m -> m));
+        nullList.stream().forEach(m->{
+            String area = m.get("area").toString();
+            if(notNullMap.containsKey(area)){
+                Map<String, Object> data = notNullMap.get(area);
+                int custCount = Integer.parseInt(m.get("custCount").toString());
+                int inqTimes = Integer.parseInt(m.get("inqTimes").toString());
+                data.put("custCount",Integer.parseInt(data.get("custCount").toString())+custCount);
+                data.put("inqTimes",Integer.parseInt(data.get("inqTimes").toString())+inqTimes);
+            }else {
+                notNullMap.put(area,m);
+                notNullList.add(m);
+            }
+        });
+        return notNullList;
     }
 
     @Override
@@ -427,7 +444,24 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
 
     @Override
     public List<Map<String, Object>> selectCustOrdDataGroupByArea(Map<String, String> params) {
-        return readMapper.selectCustOrdDataGroupByArea(params);
+        List<Map<String, Object>> notNullList = readMapper.selectCustOrdDataGroupByArea(params);
+        List<Map<String, Object>> nullList = readMapper.selectCustIsNullOrdDataGroupByArea(params);
+        Map<String, Map<String, Object>> notNullMap = notNullList.stream().
+                collect(Collectors.toMap(m -> m.get("area").toString(), m -> m));
+        nullList.stream().forEach(m->{
+            String area = m.get("area").toString();
+            if(notNullMap.containsKey(area)){
+                Map<String, Object> data = notNullMap.get(area);
+                int custCount = Integer.parseInt(m.get("custCount").toString());
+                int ordTimes = Integer.parseInt(m.get("ordTimes").toString());
+                data.put("custCount",Integer.parseInt(data.get("custCount").toString())+custCount);
+                data.put("ordTimes",Integer.parseInt(data.get("ordTimes").toString())+ordTimes);
+            }else {
+                notNullMap.put(area,m);
+                notNullList.add(m);
+            }
+        });
+        return notNullList;
     }
 
 }
