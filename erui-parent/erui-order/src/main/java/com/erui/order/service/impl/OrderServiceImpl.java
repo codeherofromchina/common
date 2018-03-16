@@ -567,6 +567,7 @@ public class OrderServiceImpl implements OrderService {
     public void sendSms(Order order) throws  Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
+        logger.info("发送短信的用户token:" + eruiToken);
         if (StringUtils.isNotBlank(eruiToken)) {
             try{
                 // 根据id获取商务经办人信息
