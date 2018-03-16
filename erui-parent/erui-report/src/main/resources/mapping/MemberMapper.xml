@@ -150,7 +150,7 @@
 
     (
         SELECT COUNT(ord.execute_num) AS registerOrd FROM order_count AS ord WHERE 1=1
-                and ord.cust_description!=null and ord.cust_description!=''
+                and ord.cust_description is not  null and ord.cust_description!=''
                  and ord.cust_description
                  IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
                          <if test="startTime!=null and endTime!=null">
@@ -191,11 +191,7 @@
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
 	  AND cust_description
-      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-          <if test="startTime!=null and endTime!=null">
-                and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-           </if>
+      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is not null  and buyer_code!=''
           )
       GROUP BY
       cust_description
@@ -215,12 +211,8 @@
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
 	  AND cust_description
-      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
-          <if test="startTime!=null and endTime!=null">
-                and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-           </if>
-          )
+      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is not null  and buyer_code!=''
+      )
       GROUP BY
       cust_description
       HAVING
