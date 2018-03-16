@@ -175,6 +175,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrderAccountId(orderAccount1.getId());
             orderLogDao.save(orderLog);
         } catch (Exception ex) {
+
             logger.error("日志记录失败 {}", orderLog.toString());
             logger.error("错误", ex);
             ex.printStackTrace();

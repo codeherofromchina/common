@@ -472,7 +472,23 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     Set<String> listAll = new HashSet<>();
                     listAll.add(data.getString("mobile"));//采购人员手机号
                     //获取徐健 手机号
-                    listAll.add("15066060360");
+
+                    //获取徐健 手机号
+                    String name = null;
+                    String jsonParams = "{\"id\":\"29606\"}";
+                    String s3 = HttpRequest.sendPost(memberInformation, jsonParams, header);
+                    logger.info("CRM返回信息：" + s3);
+                    // 获取手机号
+                    JSONObject jsonObjects = JSONObject.parseObject(s3);
+                    Integer codes = jsonObjects.getInteger("code");
+                    if (codes == 1) {
+                        JSONObject datas = jsonObjects.getJSONObject("data");
+                        name=datas.getString("mobile");
+                    }
+                    /*listAll.add("15066060360");*/
+                    listAll.add(name);
+
+                    /*listAll.add("15066060360");*/
                     listAll = new HashSet<>(new LinkedHashSet<>(listAll));
                     JSONArray smsarray = new JSONArray();
                     for (String me : listAll) {
