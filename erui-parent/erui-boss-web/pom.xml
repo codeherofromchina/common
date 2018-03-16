@@ -180,13 +180,7 @@
             <artifactId>spring-data-commons</artifactId>
             <version>1.13.3.RELEASE</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>com.erui</groupId>
-            <artifactId>erui-sso-client-dev</artifactId>
-            <version>1.0</version>
-        </dependency>
-        -->
+
     </dependencies>
 
 
@@ -197,5 +191,43 @@
             <url>http://172.18.19.140:8081/nexus/repository/3dpp/</url>
         </repository>
     </repositories>
+
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-dev</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+
+        <profile>
+            <id>zhengshi</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>production</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>
