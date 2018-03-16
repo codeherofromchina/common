@@ -697,16 +697,30 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     }
                 }
 
-
+                
+               
                 //去除重复
                 Set<String> listAll = new HashSet<>();
                 listAll.addAll(qualityNameSet);
                 listAll.addAll(warehouseNameSet);
+
+
                 //获取徐健 手机号
-                listAll.add("15066060360");
+                String name = null;
+                String jsonParam = "{\"id\":\"29606\"}";
+                String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("CRM返回信息：" + s3);
+                // 获取手机号
+                JSONObject jsonObject = JSONObject.parseObject(s3);
+                Integer code = jsonObject.getInteger("code");
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    name=data.getString("mobile");
+                }
+                /*listAll.add("15066060360");*/
+                listAll.add(name);
+
                 listAll = new HashSet<>(new LinkedHashSet<>(listAll));
-
-
                 JSONArray smsarray = new JSONArray();
                 for (String me : listAll) {
                     smsarray.add(me);
