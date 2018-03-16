@@ -123,7 +123,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
         } catch (ParseException e) {
             logger.error(e.getMessage());
         }
-
+        response.setDone(true);
         return response;
     }
 /*
