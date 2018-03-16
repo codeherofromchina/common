@@ -511,7 +511,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
 
                     String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
@@ -525,7 +525,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
                 }else if(yn == 2){  // 2 全部不合格
                     // 根据id获取人员信息
@@ -540,7 +540,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
                 }else{   // 3 全部合格
                     String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
@@ -554,7 +554,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
                 }
 
@@ -576,7 +576,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
             String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-            logger.info("CRM返回信息：" + s);
+            logger.info("人员详情返回信息：" + s);
 
             // 获取人员手机号
             JSONObject jsonObject = JSONObject.parseObject(s);
