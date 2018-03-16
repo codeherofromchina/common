@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -249,7 +252,7 @@ public class InspectApplyController {
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(@RequestBody InspectApply inspectApply) {
+    public Result<Object> save(@RequestBody InspectApply inspectApply, HttpServletRequest request) {
         InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
         boolean continueFlag = true;
         String errMsg = null;
@@ -267,6 +270,8 @@ public class InspectApplyController {
 
         if (continueFlag) {
             try {
+                String eruiToken = EruitokenUtil.getEruiToken(request);
+                ThreadLocalUtil.setObject(eruiToken);
                 boolean flag;
                 if (statusEnum != InspectApply.StatusEnum.NO_EDIT) {
                     if (inspectApply.getId() != null) {

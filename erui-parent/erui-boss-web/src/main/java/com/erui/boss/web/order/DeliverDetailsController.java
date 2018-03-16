@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.service.DeliverDetailService;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -260,10 +263,13 @@ public class DeliverDetailsController {
      * @return
      */
     @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail){
+    public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request){
         Result<Object> result = new Result<>();
         String message =null;
         try {
+            String eruiToken = EruitokenUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
             boolean flag = false;
             if(deliverDetail.getStatus() == 5){
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);

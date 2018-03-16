@@ -87,13 +87,14 @@ public class OrderAccountController {
         }else if (orderAcciuntAdd.getPaymentDate() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款时间不能为空");
-        }else if (orderAcciuntAdd.getGoodsPrice() == null) {
+        } /*else if (orderAcciuntAdd.getGoodsPrice() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("发货金额不能为空");
         }else if (orderAcciuntAdd.getDeliverDate() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("发货时间不能为空");
-        }else{
+        }*/
+        else{
             order.setId(orderAcciuntAdd.getOrderId());
             orderAccount.setId(null);
             orderAccount.setDesc(orderAcciuntAdd.getDesc());   //描述

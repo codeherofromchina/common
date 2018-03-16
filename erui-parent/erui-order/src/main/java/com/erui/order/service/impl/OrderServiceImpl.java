@@ -1,5 +1,7 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
@@ -36,6 +38,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.sound.sampled.Line;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +62,15 @@ public class OrderServiceImpl implements OrderService {
     private DeliverDetailService deliverDetailService;
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
+
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+
 
 
     @Override
@@ -191,10 +203,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrder(AddOrderVo addOrderVo) throws Exception {
+    public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
-            return false;
+            return null;
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
@@ -208,6 +220,7 @@ public class OrderServiceImpl implements OrderService {
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
         Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
@@ -218,8 +231,13 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("不存在的商品标识");
                 }
             }
-            //goods.setSeq(pGoods.getSeq());
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+
+            goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
@@ -284,8 +302,10 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
+
+            sendSms(order);
         }
-        return true;
+        return order.getId();
     }
 
     // 检查和贸易术语相关字段的完整性
@@ -343,7 +363,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
+    public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
         }
@@ -359,11 +379,16 @@ public class OrderServiceImpl implements OrderService {
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
-
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+            goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -421,6 +446,7 @@ public class OrderServiceImpl implements OrderService {
 
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
+
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -430,8 +456,11 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
+
+            sendSms(order);
+
         }
-        return true;
+        return order1.getId();
     }
 
     /**
@@ -532,4 +561,48 @@ public class OrderServiceImpl implements OrderService {
         }
         return false;
     }
+
+
+    //订单下达后通知商务技术经办人
+    public void sendSms(Order order) throws  Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+
+                // 获取商务经办人手机号
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                String mobile = null;  //商务经办人手机号
+                if(code == 1){
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    mobile = data.getString("mobile");
+                    //发送短信
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to","[\""+mobile+"\"]");
+                    map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人："+order.getAgentName()+"，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送手机号失败"+s1);
+                }
+
+            }catch (Exception e){
+                throw new Exception("发送短信失败");
+            }
+
+        }
+    }
+
+
 }
