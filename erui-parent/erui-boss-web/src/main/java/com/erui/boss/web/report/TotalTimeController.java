@@ -35,6 +35,14 @@ public class TotalTimeController {
     private SupplyChainReadService supplyChainReadService;
     @Autowired
     private ProcurementCountService procurementCountService;
+    @Autowired
+    private MarketerCountService marketerService;
+    @Autowired
+    private CategoryQualityService qualityService;
+    @Autowired
+    private CreditExtensionService creditService;
+    @Autowired
+    private StorageOrganiCountService storageService;
 
     @RequestMapping(value = "totalTime", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
@@ -51,8 +59,18 @@ public class TotalTimeController {
         Date supplyEndTime = supplyChainReadService.selectEnd();
         Date procurStartTime = procurementCountService.selectStart();
         Date procurEndTime = procurementCountService.selectEnd();
-        Date totalStartTime = DateUtil.minTime(hrStartTime, inquiryStartTime, orderStartTime, requestStartTime, supplyStartTime);
-        Date totalEndTime = DateUtil.maxTime(hrEndTime, inquiryEndTime, orderEndTime, requestEndTime, supplyEndTime);
+        Date marketerStartTime = marketerService.selectStart();
+        Date marketerEndTime = marketerService.selectEnd();
+        Date qualiltyStartTime = qualityService.selectStart();
+        Date qualityEndTime = qualityService.selectEnd();
+        Date creditStartTime = creditService.selectStart();
+        Date creditEndTime = creditService.selectEnd();
+        Date storageStartTime = storageService.selectStart();
+        Date storageEndTime = storageService.selectEnd();
+        Date totalStartTime = DateUtil.minTime(hrStartTime, inquiryStartTime, orderStartTime, requestStartTime,
+                supplyStartTime,marketerStartTime,qualiltyStartTime,creditStartTime,storageStartTime);
+        Date totalEndTime = DateUtil.maxTime(hrEndTime, inquiryEndTime, orderEndTime, requestEndTime,
+                supplyEndTime,marketerEndTime,qualityEndTime,creditEndTime,storageEndTime);
         Date customStartTime = DateUtil.minTime(inquiryStartTime,orderStartTime);
         Date customEndTime = DateUtil.maxTime(inquiryEndTime,inquiryEndTime);
         Map<String, Object> data = new HashMap<>();
@@ -85,6 +103,30 @@ public class TotalTimeController {
         }
         if(procurEndTime!=null) {
             data.put("procurEndTime", DateUtil.formatDate2String(procurEndTime, "yyyy/MM/dd"));
+        }
+        if(marketerStartTime!=null) {
+            data.put("marketerStartTime", DateUtil.formatDate2String(marketerStartTime, "yyyy/MM/dd"));
+        }
+        if(marketerEndTime!=null) {
+            data.put("marketerEndTime", DateUtil.formatDate2String(marketerEndTime, "yyyy/MM/dd"));
+        }
+        if(creditStartTime!=null) {
+            data.put("creditStartTime", DateUtil.formatDate2String(creditStartTime, "yyyy/MM/dd"));
+        }
+        if(creditEndTime!=null) {
+            data.put("creditEndTime", DateUtil.formatDate2String(creditEndTime, "yyyy/MM/dd"));
+        }
+        if(qualiltyStartTime!=null) {
+            data.put("qualiltyStartTime", DateUtil.formatDate2String(qualiltyStartTime, "yyyy/MM/dd"));
+        }
+        if(qualityEndTime!=null) {
+            data.put("qualityEndTime", DateUtil.formatDate2String(qualityEndTime, "yyyy/MM/dd"));
+        }
+        if(storageStartTime!=null) {
+            data.put("storageStartTime", DateUtil.formatDate2String(storageStartTime, "yyyy/MM/dd"));
+        }
+        if(storageEndTime!=null) {
+            data.put("storageEndTime", DateUtil.formatDate2String(storageEndTime, "yyyy/MM/dd"));
         }
         if(totalStartTime!=null) {
             data.put("totalStartTime", DateUtil.formatDate2String(totalStartTime, "yyyy/MM/dd"));

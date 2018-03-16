@@ -3,7 +3,7 @@
 <mapper namespace="com.erui.report.dao.CategoryQualityMapper" >
   <resultMap id="BaseResultMap" type="com.erui.report.model.CategoryQuality" >
     <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="quality_control_date" property="qualityControlDate" jdbcType="VARCHAR" />
+    <result column="quality_control_date" property="qualityControlDate" jdbcType="TIMESTAMP" />
     <result column="inspection_total" property="inspectionTotal" jdbcType="INTEGER" />
     <result column="pro_infactory_check_pass_count" property="proInfactoryCheckPassCount" jdbcType="INTEGER" />
     <result column="pro_infactory_check_pass_rate" property="proInfactoryCheckPassRate" jdbcType="DECIMAL" />
@@ -91,6 +91,45 @@
       order by ${orderByClause}
     </if>
   </select>
+
+  <select id="selectStart" resultType="java.util.Date">
+    SELECT quality_control_date FROM category_quality ORDER BY DATE_FORMAT(quality_control_date,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
+  </select>
+
+  <select id="selectEnd" resultType="java.util.Date">
+    SELECT quality_control_date FROM category_quality ORDER BY DATE_FORMAT(quality_control_date,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
+  </select>
+
+  <!--查询品控总览数据-->
+  <select id="selectQualitySummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT
+	IFNULL(SUM(IFNULL(inspection_total, 0)),0) AS inspectTotal,
+	IFNULL(SUM(IFNULL(pro_infactory_check_pass_count, 0)),0) AS inspectPassCount,
+	SUM(IFNULL(pro_infactory_check_pass_count, 0))/SUM(IFNULL(inspection_total, 0)) AS inspectPassRate,
+	IFNULL(SUM(IFNULL(pro_outfactory_total, 0)),0) AS outfactoryTotal,
+	IFNULL(SUM(IFNULL(pro_outfactory_check_count, 0)),0) AS outfactoryPassCount,
+	SUM(IFNULL(pro_outfactory_check_count, 0))/SUM(IFNULL(pro_outfactory_total, 0)) AS outfactoryPassRate,
+	IFNULL(SUM(IFNULL(assignments_total, 0)),0) AS assignTotal,
+	IFNULL(SUM(IFNULL(products_qualified_count, 0)),0) AS assignPassCount,
+	SUM(IFNULL(products_qualified_count, 0))/SUM(IFNULL(assignments_total, 0)) AS assignPassRate
+    FROM category_quality where quality_control_date BETWEEN
+    DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+  </select>
+
+  <!--趋势图数据-->
+  <select id="selectTrendData" parameterType="java.util.Map" resultType="java.util.Map">
+    SELECT DATE_FORMAT(quality_control_date,'%Y-%m-%d')  AS qualityDate ,
+    IFNULL(SUM(IFNULL(inspection_total, 0)),0) AS inspectTotal,
+	IFNULL(SUM(IFNULL(pro_infactory_check_pass_count, 0)),0) AS inspectPassCount,
+	IFNULL(SUM(IFNULL(pro_outfactory_total, 0)),0) AS outfactoryTotal,
+	IFNULL(SUM(IFNULL(pro_outfactory_check_count, 0)),0) AS outfactoryPassCount,
+	IFNULL(SUM(IFNULL(assignments_total, 0)),0) AS assignTotal,
+	IFNULL(SUM(IFNULL(products_qualified_count, 0)),0) AS assignPassCount
+    from category_quality
+    where quality_control_date between  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and  DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    group  by quality_control_date having quality_control_date is not  null
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
@@ -114,7 +153,7 @@
       pro_outfactory_check_rate, assignments_total, 
       products_qualified_count, products_assignments_qualified_rate
       )
-    values (#{id,jdbcType=BIGINT}, #{qualityControlDate,jdbcType=VARCHAR}, #{inspectionTotal,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{qualityControlDate,jdbcType=TIMESTAMP}, #{inspectionTotal,jdbcType=INTEGER}, 
       #{proInfactoryCheckPassCount,jdbcType=INTEGER}, #{proInfactoryCheckPassRate,jdbcType=DECIMAL}, 
       #{proOutfactoryTotal,jdbcType=INTEGER}, #{proOutfactoryCheckCount,jdbcType=INTEGER}, 
       #{proOutfactoryCheckRate,jdbcType=DECIMAL}, #{assignmentsTotal,jdbcType=INTEGER}, 
@@ -163,7 +202,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="qualityControlDate != null" >
-        #{qualityControlDate,jdbcType=VARCHAR},
+        #{qualityControlDate,jdbcType=TIMESTAMP},
       </if>
       <if test="inspectionTotal != null" >
         #{inspectionTotal,jdbcType=INTEGER},
@@ -207,7 +246,7 @@
         id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.qualityControlDate != null" >
-        quality_control_date = #{record.qualityControlDate,jdbcType=VARCHAR},
+        quality_control_date = #{record.qualityControlDate,jdbcType=TIMESTAMP},
       </if>
       <if test="record.inspectionTotal != null" >
         inspection_total = #{record.inspectionTotal,jdbcType=INTEGER},
@@ -244,7 +283,7 @@
   <update id="updateByExample" parameterType="map" >
     update category_quality
     set id = #{record.id,jdbcType=BIGINT},
-      quality_control_date = #{record.qualityControlDate,jdbcType=VARCHAR},
+      quality_control_date = #{record.qualityControlDate,jdbcType=TIMESTAMP},
       inspection_total = #{record.inspectionTotal,jdbcType=INTEGER},
       pro_infactory_check_pass_count = #{record.proInfactoryCheckPassCount,jdbcType=INTEGER},
       pro_infactory_check_pass_rate = #{record.proInfactoryCheckPassRate,jdbcType=DECIMAL},
@@ -262,7 +301,7 @@
     update category_quality
     <set >
       <if test="qualityControlDate != null" >
-        quality_control_date = #{qualityControlDate,jdbcType=VARCHAR},
+        quality_control_date = #{qualityControlDate,jdbcType=TIMESTAMP},
       </if>
       <if test="inspectionTotal != null" >
         inspection_total = #{inspectionTotal,jdbcType=INTEGER},
@@ -296,7 +335,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.CategoryQuality" >
     update category_quality
-    set quality_control_date = #{qualityControlDate,jdbcType=VARCHAR},
+    set quality_control_date = #{qualityControlDate,jdbcType=TIMESTAMP},
       inspection_total = #{inspectionTotal,jdbcType=INTEGER},
       pro_infactory_check_pass_count = #{proInfactoryCheckPassCount,jdbcType=INTEGER},
       pro_infactory_check_pass_rate = #{proInfactoryCheckPassRate,jdbcType=DECIMAL},
@@ -308,7 +347,7 @@
       products_assignments_qualified_rate = #{productsAssignmentsQualifiedRate,jdbcType=DECIMAL}
     where id = #{id,jdbcType=BIGINT}
   </update>
-    <update id="truncateTable" >
+  <update id="truncateTable" >
     truncate table category_quality
   </update>
 </mapper>

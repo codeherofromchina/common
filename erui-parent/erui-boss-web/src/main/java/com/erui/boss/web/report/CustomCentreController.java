@@ -503,6 +503,7 @@ public class CustomCentreController {
         return new Result<>(data);
     }
 
+
     // 询单时间分布分析
     @ResponseBody
     @RequestMapping(value = "/inquiryTimeDistrbute", method = RequestMethod.POST, produces = "application/json;charset=utf8")
@@ -513,41 +514,8 @@ public class CustomCentreController {
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-//        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
-
-        // 定义已完成询单的所有状态数组
-        String[] statusArr = new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
-        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 0, "", "");
-        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 4, "", "");
-        int count2 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 4, 8, "", "");
-        int count3 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 8, 24, "", "");
-        int count5 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 24, 48, "", "");
-        int otherCount = totalCount - (count1 + count2 + count3 + count5);
-        HashMap<String, Object> quoteTimeMap = new HashMap<>();
-        quoteTimeMap.put("oneCount", count1);
-        quoteTimeMap.put("fourCount", count2);
-        quoteTimeMap.put("eightCount", count3);
-        quoteTimeMap.put("twentyFourCount", count5);
-        quoteTimeMap.put("otherCount", otherCount);
-        Double oneCountRate = null;
-        Double fourCountRate = null;
-        Double eightCountRate = null;
-        Double twentyFourCountRate = null;
-        Double otherCountRate = null;
-        if (totalCount > 0) {
-            oneCountRate = RateUtil.intChainRate(count1, totalCount);
-            fourCountRate = RateUtil.intChainRate(count2, totalCount);
-            eightCountRate = RateUtil.intChainRate(count3, totalCount);
-            twentyFourCountRate = RateUtil.intChainRate(count5, totalCount);
-            otherCountRate = RateUtil.intChainRate(otherCount, totalCount);
-        }
-        quoteTimeMap.put("oneCountRate", oneCountRate);
-        quoteTimeMap.put("fourCountRate", fourCountRate);
-        quoteTimeMap.put("eightCountRate", eightCountRate);
-        quoteTimeMap.put("twentyFourCountRate", twentyFourCountRate);
-        quoteTimeMap.put("otherCountRate", otherCountRate);
-
-        return new Result<>(quoteTimeMap);
+       Map<String,Object> data= this.inquiryService.selectQuoteTimeSummaryData(params);
+        return new Result<>(data);
     }
 
     // 事业部明细

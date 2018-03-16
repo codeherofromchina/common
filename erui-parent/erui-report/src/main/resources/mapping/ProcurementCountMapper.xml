@@ -91,7 +91,7 @@ SELECT
 FROM
 	procurement_count
 ORDER BY
-	startTime ASC
+	DATE_FORMAT(startTime,"%Y-%m-%d %H:%i%S") ASC
 LIMIT 1
   </select>
     <!--结束时间-->
@@ -108,7 +108,7 @@ LIMIT 1
 FROM
 	procurement_count
 ORDER BY
-	startTime DESC
+	DATE_FORMAT(startTime,"%Y-%m-%d %H:%i%S") DESC
 LIMIT 1
   </select>
 

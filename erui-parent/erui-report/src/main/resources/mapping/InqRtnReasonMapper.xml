@@ -137,12 +137,23 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.erui.report.model.InqRtnReason" >
-    insert into inq_rtn_reason (id, quotation_num, rollin_time, 
+  <insert id="insertRtnReasons" parameterType="java.util.List" >
+    insert into inq_rtn_reason (quotation_num, rollin_time, 
       inquiry_unit, inquiry_area, organization, 
       return_season)
-    values (#{id,jdbcType=BIGINT}, #{quotationNum,jdbcType=VARCHAR}, #{rollinTime,jdbcType=TIMESTAMP}, 
-      #{inquiryUnit,jdbcType=VARCHAR}, #{inquiryArea,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, 
+    values
+    <foreach collection="list" item="reason" index="index" separator=",">
+      (#{reason.quotationNum,jdbcType=VARCHAR},  #{reason.rollinTime,jdbcType=TIMESTAMP},
+      #{reason.inquiryUnit,jdbcType=VARCHAR}, #{reason.inquiryArea,jdbcType=VARCHAR}, #{reason.organization,jdbcType=VARCHAR},
+      #{reason.returnSeason,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="insert" parameterType="com.erui.report.model.InqRtnReason" >
+    insert into inq_rtn_reason (id, quotation_num, rollin_time,
+      inquiry_unit, inquiry_area, organization,
+      return_season)
+    values (#{id,jdbcType=BIGINT}, #{quotationNum,jdbcType=VARCHAR}, #{rollinTime,jdbcType=TIMESTAMP},
+      #{inquiryUnit,jdbcType=VARCHAR}, #{inquiryArea,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR},
       #{returnSeason,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.InqRtnReason" >

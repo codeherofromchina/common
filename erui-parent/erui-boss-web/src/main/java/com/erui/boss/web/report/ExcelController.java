@@ -148,7 +148,7 @@ public class ExcelController {
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
         File saveFile = null;
         try {
-            saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
+             saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
         } catch (IOException e1) {
             logger.debug("异常:" + e1.getMessage(), e1);
             return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);

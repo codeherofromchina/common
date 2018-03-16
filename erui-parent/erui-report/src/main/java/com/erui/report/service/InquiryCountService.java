@@ -99,7 +99,12 @@ public interface InquiryCountService {
 	 * @return
 	 */
 	 CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
-
+	/**
+	 * 获取询单报价用时分析数据
+	 * @param params
+	 * @return
+	 */
+	Map<String,Object> selectQuoteTimeSummaryData(Map<String,String> params);
 	/**
 	 * 询订单分类 TOP N
 	 * @param topN
@@ -158,4 +163,10 @@ public interface InquiryCountService {
 	 * @param endTime
 	 */
 	int selectInqRtnCountByTime(Date startTime, Date endTime);
+	/**
+	 * 查询询单、交易的人数和单数
+	 * @param params
+	 */
+	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,String> params);
+
 }

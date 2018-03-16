@@ -30,4 +30,82 @@ public interface MemberService {
 	  * @modified By
 	  */
 	public Map<String,Object> selectMemberByTime();
+	/**
+	 * @Author:lirb
+	 * @Description 查询会员数据汇总 门户，后台，普通，高级
+	 * @Date:17:59 2018/03/06
+	 * @modified By
+	 */
+	Map<String,Object> selectOperateSummaryData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 运营数据趋势图
+	 * @Date:17:59 2018/03/06
+	 * @modified By
+	 */
+	Map<String,Object> selectOperateTrend(Date startTime,Date endTime );
+	/**
+	 * @Author:lirb
+	 * @Description 查询注册详情汇总数据： 注册人数、注册人数询单量、注册人数订单量、高级会员量
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	Map<String,Integer> selectRegisterSummaryData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询各区域的注册数量
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	Map<String, Object> selectRegisterCountGroupByArea(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询询单频率数据
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	List<Map<String, Integer>> selectCustInqFrequencyData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询交易频率数据
+	 * @Date:17:59 2018/03/08
+	 * @modified By
+	 */
+	List<Map<String, Integer>> selectCustOrdFrequencyData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 会员询单汇总数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	Map<String,Integer> selectCustInqSummaryData(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 各区域的会员询单数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectCustInqDataGroupByArea(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 询单人注册时间 占比明细
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	Map<String,Object> selectInqCustRegistTimeDetail(Map<String,String> params);
+	/**
+	 * @Author:lirb
+	 * @Description 查询 会员订单汇总数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	Map<String,Object> selectCustOrdSummaryData(Map<String,String> params);
+
+	/**
+	 * @Author:lirb
+	 * @Description 查询 各区域的会员的订单数据
+	 * @Date:17:59 2018/03/09
+	 * @modified By
+	 */
+	List<Map<String,Object>> selectCustOrdDataGroupByArea(Map<String,String> params);
 }
