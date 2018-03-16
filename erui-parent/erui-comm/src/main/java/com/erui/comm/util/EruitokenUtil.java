@@ -19,6 +19,7 @@ public class EruitokenUtil {
 
     /**
      * 获取sso的token
+     *
      * @param request
      * @return
      */
@@ -29,19 +30,15 @@ public class EruitokenUtil {
             // 获取cookie中的token
             Cookie eruitokenCookie = WebUtils.getCookie(httpRequest, TOKEN_NAME);
             if (eruitokenCookie != null) {
+                logger.info("eruitokenCookie-token : " + eruitokenCookie.getValue());
                 return eruitokenCookie.getValue();
             }
             // 如果cookie中不存在eruitoken,则获取header中的token信息
-            Enumeration headerNames = httpRequest.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = ((String) headerNames.nextElement()).toLowerCase();
-                if (TOKEN_NAME.equals(headerName)) {
-                    token = httpRequest.getHeader(token);
-                }
-            }
-        }catch (Exception ex) {
-            logger.error("获取用户token异常",ex);
+            token = httpRequest.getHeader(TOKEN_NAME);
+        } catch (Exception ex) {
+            logger.error("获取用户token异常", ex);
         }
+        logger.info("getEruiToken-Token : " + String.valueOf(token));
         return token;
     }
 
