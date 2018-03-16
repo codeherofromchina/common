@@ -104,11 +104,6 @@
             <version>2.6.3</version>
         </dependency>
 
-	<!--	<dependency>
-			<groupId>com.erui</groupId>
-			<artifactId>erui-sso-client-dev</artifactId>
-			<version>1.0</version>
-		</dependency>-->
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
