@@ -258,7 +258,7 @@ public class DeliverNoticeController {
     public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
         Page<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
 
-
+        Map<String,Object> map1 = new HashMap<>();
             List<Map<String,Object>> list1 = new ArrayList<>();
             for (DeliverConsign deliverConsign :list){
                 Map<String,Object> map = new HashMap<>();
@@ -271,7 +271,9 @@ public class DeliverNoticeController {
                 map.put("projectNo",order.getProject().getProjectNo());  //项目号
                 list1.add(map);
             }
-            return new Result<>(list1);
+            map1.put("rows",list1);
+            map1.put("total",list.getTotalElements());
+            return new Result<>(map1);
     }
 
 

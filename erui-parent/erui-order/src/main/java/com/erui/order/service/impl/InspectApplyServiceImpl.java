@@ -673,7 +673,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 for (String s : split) {
                     String jsonParam = "{\"id\":\"" + s + "\"}";
                     String s1 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                    logger.info("CRM返回信息：" + s1);
+                    logger.info("人员详情返回信息：" + s1);
                     // 获取手机号
                     JSONObject jsonObject = JSONObject.parseObject(s1);
                     Integer code = jsonObject.getInteger("code");
@@ -687,7 +687,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 for (String s2 : split2) {
                     String jsonParam = "{\"id\":\"" + s2 + "\"}";
                     String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                    logger.info("CRM返回信息：" + s3);
+                    logger.info("人员详情返回信息：" + s3);
                     // 获取手机号
                     JSONObject jsonObject = JSONObject.parseObject(s3);
                     Integer code = jsonObject.getInteger("code");
@@ -709,7 +709,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 String name = null;
                 String jsonParam = "{\"id\":\"29606\"}";
                 String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("CRM返回信息：" + s3);
+                logger.info("人员详情返回信息：" + s3);
                 // 获取手机号
                 JSONObject jsonObject = JSONObject.parseObject(s3);
                 Integer code = jsonObject.getInteger("code");
@@ -735,7 +735,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     map.put("groupSending","0");
                     map.put("useType","订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送手机号失败"+s1);
+                    logger.info("发送短信返回状态"+s1);
                 }
 
             } catch (Exception e) {

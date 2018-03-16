@@ -1086,7 +1086,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("CRM返回信息：" + s);
+                logger.info("人员详情返回信息：" + s);
 
                 // 获取人员手机号
                 JSONObject jsonObject = JSONObject.parseObject(s);
@@ -1111,7 +1111,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         String name = null;
                         String jsonParams = "{\"id\":\"29606\"}";
                         String s3 = HttpRequest.sendPost(memberInformation, jsonParams, header);
-                        logger.info("CRM返回信息：" + s3);
+                        logger.info("人员详情返回信息：" + s3);
                         // 获取手机号
                         JSONObject jsonObjects = JSONObject.parseObject(s3);
                         Integer codes = jsonObjects.getInteger("code");
@@ -1142,7 +1142,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     map.put("groupSending","0");
                     map.put("useType","订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送手机号失败"+s1);
+                    logger.info("发送短信返回状态"+s1);
                 }
 
             }catch (Exception e){
