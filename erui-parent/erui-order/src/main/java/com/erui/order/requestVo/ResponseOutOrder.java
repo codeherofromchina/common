@@ -1,0 +1,104 @@
+package com.erui.order.requestVo;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * Created by GS on 2017/12/14 0014.
+ * 门户订单列表返回  为兼容商城老版本
+ */
+public class ResponseOutOrder {
+    private Integer id;
+    private String order_no;
+    private String po_no;
+    private Integer pay_status;
+    private Integer status;
+    private String trade_terms_bn;
+    //订单日期
+    private Date created_at;
+    //交货日期
+    private Date delivery_at;
+    //订单金额
+    private BigDecimal amount;
+    private Integer type;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getOrder_no() {
+        return order_no;
+    }
+
+    public void setOrder_no(String order_no) {
+        this.order_no = order_no;
+    }
+
+    public String getPo_no() {
+        return po_no;
+    }
+
+    public void setPo_no(String po_no) {
+        this.po_no = po_no;
+    }
+
+    public Integer getPay_status() {
+        return pay_status;
+    }
+
+    public void setPay_status(Integer pay_status) {
+        this.pay_status = pay_status;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getTrade_terms_bn() {
+        return trade_terms_bn;
+    }
+
+    public void setTrade_terms_bn(String trade_terms_bn) {
+        this.trade_terms_bn = trade_terms_bn;
+    }
+
+    public Date getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Date created_at) {
+        this.created_at = created_at;
+    }
+
+    public Date getDelivery_at() {
+        return delivery_at;
+    }
+
+    public void setDelivery_at(Date delivery_at) {
+        this.delivery_at = delivery_at;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+}

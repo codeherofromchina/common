@@ -3,14 +3,8 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
-import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Order;
-import com.erui.order.entity.OrderLog;
-import com.erui.order.entity.Project;
+import com.erui.order.dao.*;
+import com.erui.order.entity.*;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.OutListCondition;
@@ -52,6 +46,8 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private DeliverDetailService deliverDetailService;
+    @Autowired
+    private ComplexOrderDao complexOrderDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -121,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(root.get("country").in(country),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
@@ -129,10 +125,10 @@ public class OrderServiceImpl implements OrderService {
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
-                    if (condition.getAgentId() != null||condition.getCreateUserId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()),cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
-                }else {
+                } else {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
@@ -168,47 +164,43 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> findByOutList(OutListCondition condition) {
+    public Page<ComplexOrder> findByOutList(OutListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
-        Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
+        Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
             @Override
-            public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
-                //根据订单签订时间查询
-              /*  if (condition.getSigningDate() != null) {
-                    list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
+                //根据订单日期查询
+                if (condition.getStart_time() != null && condition.getEnd_time() != null) {
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), condition.getStart_time());
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), condition.getEnd_time());
+                    list.add(startTime);
+                    list.add(endTime);
                 }
-                //根据合同交货日期查询
-                if (condition.getDeliveryDate() != null) {
-                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
-                }
-                //根据crm客户代码查询
+
+                /*//根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getBuyer_no())) {
-                    list.add(cb.like(root.get("buyer_no").as(String.class), "%" + condition.getBuyer_no() + "%"));
-                }
-                //根据订单类型
+                    list.add(cb.equal(root.get("buyer_no").as(String.class), condition.getBuyer_no()));
+                }*/
+                //根据客户ID
                 if (condition.getBuyer_id() != null) {
-                    list.add(cb.equal(root.get("buyer_id").as(Integer.class), condition.getBuyer_id()));
+                    list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
                 }
-                //根据汇款状态
+                //根据付款状态
                 if (condition.getPay_status() != null) {
-                    list.add(cb.equal(root.get("pay_status").as(Integer.class), condition.getPay_status()));
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPay_status()));
                 }
+                //根据订单状态
                 if (condition.getStatus() != null) {
                     list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
                 }
-                //根据订单来源查询
-                if (StringUtil.isNotBlank(condition.getOrderSource())) {
-                    list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
-                }*/
-                list.add(cb.equal(root.get("deleteFlag"), false));
+              //  list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
         }, pageRequest);
-
-        if (pageList.hasContent()) {
+    /*    if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 vo.setAttachmentSet(null);
                 vo.setOrderPayments(null);
@@ -223,7 +215,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 vo.setGoodsList(null);
             });
-        }
+        }*/
         return pageList;
     }
 
@@ -485,7 +477,6 @@ public class OrderServiceImpl implements OrderService {
             ex.printStackTrace();
         }
     }
-
 
 
     @Override

@@ -1,6 +1,7 @@
 package com.erui.order.service;
 
 
+import com.erui.order.entity.ComplexOrder;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
@@ -36,7 +37,7 @@ public interface OrderService {
      * @param condition
      * @return
      */
-    Page<Order> findByOutList(OutListCondition condition);
+    Page<ComplexOrder> findByOutList(OutListCondition condition);
     /**
      * 删除订单
      * @param ids

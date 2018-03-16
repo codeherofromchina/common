@@ -1,7 +1,9 @@
 package com.erui.out.web.order;
 
 import com.erui.comm.util.encrypt.MD5;
+import com.erui.order.entity.ComplexOrder;
 import com.erui.order.requestVo.OutListCondition;
+import com.erui.order.requestVo.ResponseOutOrder;
 import com.erui.out.web.util.Result;
 import com.erui.out.web.util.ResultStatusEnum;
 import com.erui.order.entity.Order;
@@ -24,6 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +38,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("order/orderManage2")
+@RequestMapping("order/orderManageOut")
 public class OrderOutController {
     private final static Logger logger = LoggerFactory.getLogger(OrderOutController.class);
     @Autowired
@@ -44,13 +49,14 @@ public class OrderOutController {
     private RedisTemplate<String, String> redisTemplate;*/
     private static final String api_key_order = "3a13749d4b3af3b2bb601552278a0051";
 
+
     /**
      * 获取单列表
      *
      * @return
      */
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderManage(@RequestBody OutListCondition condition) {
+    public Object orderManage(@RequestBody OutListCondition condition) {
         Result<Object> result = new Result<>();
         String toHash = getString(api_key_order,condition.getBuyer_id(),condition.getBuyer_no(),condition.getReq_time());
         String encode = MD5.encode(toHash);
@@ -63,15 +69,30 @@ public class OrderOutController {
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        Page<Order> orderPage = orderService.findByOutList(condition);
+        List<ResponseOutOrder> outList = new ArrayList<>();
+        Page<ComplexOrder> orderPage = orderService.findByOutList(condition);
+        HashMap<Object, Object> map = null;
         if (orderPage.hasContent()) {
             orderPage.getContent().forEach(vo -> {
-                vo.setAttachmentSet(null);
-                vo.setOrderPayments(null);
-                vo.setGoodsList(null);
+                ResponseOutOrder responseOutOrder = new ResponseOutOrder();
+                responseOutOrder.setId(vo.getId());
+                responseOutOrder.setOrder_no(null);
+                responseOutOrder.setStatus(vo.getStatus());
+                responseOutOrder.setAmount(BigDecimal.valueOf(Double.parseDouble(vo.getTotalPrice())));
+                responseOutOrder.setDelivery_at(vo.getDeliveryDate());
+                responseOutOrder.setPay_status(vo.getPayStatus());
+                responseOutOrder.setPo_no(vo.getPoNo());
+                responseOutOrder.setTrade_terms_bn(vo.getTradeTerms());
+                outList.add(responseOutOrder);
             });
+            map = new HashMap<>();
+            map.put("count",orderPage.getTotalElements());
+            map.put("data",orderPage.getContent());
+            map.put("message",result.getMsg());
+            map.put("code",result.getCode());
         }
-        return result.setData(orderPage);
+        return map;
+
     }
 
     /**
@@ -182,7 +203,7 @@ public class OrderOutController {
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
-        Order order = orderService.findById(map.get("id"));
+        Order order = orderService.findById(map.get("buyer_id"));
         if (order != null) {
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                 boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());

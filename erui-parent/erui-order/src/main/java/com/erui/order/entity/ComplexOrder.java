@@ -37,14 +37,13 @@ public class ComplexOrder {
     private String signingDate;
     // 合同交货日期
     @Column(name = "delivery_date")
-    private String deliveryDate;
+    private Date deliveryDate;
     // 合同总价
     @Column(name = "total_price")
     private String totalPrice;
     // 货币类型
-    @Column(name = "currencyBn")
-    private String
-            currencyBn;
+    @Column(name = "currency_bn")
+    private String currencyBn;
     // 市场经办人ID
     @Column(name = "agent_id")
     private String agentId;
@@ -72,6 +71,16 @@ public class ComplexOrder {
     // 目的地
     @Column(name = "to_place")
     private String toPlace;
+    @Column(name = "buyer_id")
+    private Integer buyerId;
+
+    public Integer getBuyerId() {
+        return buyerId;
+    }
+
+    public void setBuyerId(Integer buyerId) {
+        this.buyerId = buyerId;
+    }
 
     public Integer getId() {
         return id;
@@ -137,11 +146,11 @@ public class ComplexOrder {
         this.signingDate = signingDate;
     }
 
-    public String getDeliveryDate() {
+    public Date getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(String deliveryDate) {
+    public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
