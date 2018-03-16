@@ -221,12 +221,12 @@
         <profile>
             <id>production</id>
 
-            <dependencies>
+           <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>
-                    <artifactId>erui-sso-client</artifactId>
+                    <artifactId>erui-beta-sso-client</artifactId>
                     <version>1.0</version>
-                </dependency>
+                 </dependency>
             </dependencies>
 
         </profile>
