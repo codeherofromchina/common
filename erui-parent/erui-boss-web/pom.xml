@@ -220,7 +220,7 @@
         </profile>
         <profile>
             <id>production</id>
-            <!--
+
             <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>
@@ -228,7 +228,7 @@
                     <version>1.0</version>
                 </dependency>
             </dependencies>
-            -->
+
         </profile>
     </profiles>
 
