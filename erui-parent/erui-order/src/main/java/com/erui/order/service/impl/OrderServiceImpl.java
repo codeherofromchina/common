@@ -282,6 +282,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
+            projectAdd.setBusinessName(orderUpdate.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -435,6 +436,7 @@ public class OrderServiceImpl implements OrderService {
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
+            project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
@@ -577,7 +579,7 @@ public class OrderServiceImpl implements OrderService {
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("CRM返回信息：" + s);
+                logger.info("人员详情返回信息：" + s);
 
                 // 获取商务经办人手机号
                 JSONObject jsonObject = JSONObject.parseObject(s);
@@ -595,7 +597,7 @@ public class OrderServiceImpl implements OrderService {
                     map.put("groupSending","0");
                     map.put("useType","订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送手机号失败"+s1);
+                    logger.info("发送短信返回状态"+s1);
                 }
 
             }catch (Exception e){

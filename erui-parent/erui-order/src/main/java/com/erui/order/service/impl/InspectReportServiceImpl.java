@@ -338,7 +338,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
                 if(hegeNum != 0){   //部分合格,部分不合格
                     Map<String,Object> map = new HashMap<>();
-                    map.put("inspectApplyNo",inspectReport.getInspectApplyNo());    //报检单号
+                    map.put("inspectApplyNo",dbInspectReport.getInspectApplyNo());    //报检单号
                     if (project != null){
                         map.put("purchaseUid",project.getPurchaseUid());       //采购经办人id
                         map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
@@ -351,7 +351,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                     sendSms(map);
                 }else {//全部不合格
                     Map<String,Object> map = new HashMap<>();
-                    map.put("inspectApplyNo",inspectReport.getInspectApplyNo());    //报检单号
+                    map.put("inspectApplyNo",dbInspectReport.getInspectApplyNo());    //报检单号
                     if (project != null){
                         map.put("purchaseUid",project.getPurchaseUid());       //采购经办人id
                         map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
@@ -359,18 +359,20 @@ public class InspectReportServiceImpl implements InspectReportService {
                     }
                     map.put("purchNo",dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
                     map.put("sum",sum);  //商品不合格数量
+                    map.put("hegeNum",hegeNum);   //商品合格数量
                     map.put("yn",2);
                     sendSms(map);
                 }
             }else { // 全部合格
                 Map<String,Object> map = new HashMap<>();
-                map.put("inspectApplyNo",inspectReport.getInspectApplyNo());    //报检单号
+                map.put("inspectApplyNo",dbInspectReport.getInspectApplyNo());    //报检单号
                 if (project != null){
                     map.put("purchaseUid",project.getPurchaseUid());       //采购经办人id
                     map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
                     map.put("purchaseNames",project.getProjectNo());      //项目号
                 }
                 map.put("purchNo",dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
+                map.put("sum",sum);  //商品不合格数量
                 map.put("hegeNum",hegeNum);//商品合格数量
                 map.put("yn",3);
                 sendSms(map);
@@ -511,7 +513,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
 
                     String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
@@ -520,12 +522,12 @@ public class InspectReportServiceImpl implements InspectReportService {
                         Map<String,String> map= new HashMap();
                         map.put("areaCode","86");
                         map.put("to","[\""+s2+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("hegeNum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType","0");
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
                 }else if(yn == 2){  // 2 全部不合格
                     // 根据id获取人员信息
@@ -540,7 +542,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
                 }else{   // 3 全部合格
                     String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
@@ -549,12 +551,12 @@ public class InspectReportServiceImpl implements InspectReportService {
                         Map<String,String> map= new HashMap();
                         map.put("areaCode","86");
                         map.put("to","[\""+s2+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("hegeNum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType","0");
                         map.put("groupSending","0");
                         map.put("useType","订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信失败"+s1);
+                        logger.info("发送短信返回状态"+s1);
                     }
                 }
 
@@ -576,7 +578,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
             String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-            logger.info("CRM返回信息：" + s);
+            logger.info("人员详情返回信息：" + s);
 
             // 获取人员手机号
             JSONObject jsonObject = JSONObject.parseObject(s);

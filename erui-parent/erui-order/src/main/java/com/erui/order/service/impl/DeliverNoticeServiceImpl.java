@@ -348,7 +348,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     Map<String,Object> map = new HashMap<>();
                     map.put("warehouseUid",project.getWarehouseUid());  //仓库经办人id
                     map.put("projectNo",project.getProjectNo());   //项目号
-                    map.put("deliverConsignNo",one.getDeliverConsignNo());  //出口通知单号
+                    map.put("deliverConsignNo",one.getDeliverConsigns().get(1).getDeliverConsignNo());  //出口通知单号
                     map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
                     map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
                     try {
@@ -460,7 +460,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("CRM返回信息：" + s);
+                logger.info("人员详情返回信息：" + s);
 
                 JSONObject jsonObject = JSONObject.parseObject(s);
                 Integer code = jsonObject.getInteger("code");
@@ -477,7 +477,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     String name = null;
                     String jsonParams = "{\"id\":\"29606\"}";
                     String s3 = HttpRequest.sendPost(memberInformation, jsonParams, header);
-                    logger.info("CRM返回信息：" + s3);
+                    logger.info("人员详情返回信息：" + s3);
                     // 获取手机号
                     JSONObject jsonObjects = JSONObject.parseObject(s3);
                     Integer codes = jsonObjects.getInteger("code");
@@ -504,7 +504,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     map.put("groupSending","0");
                     map.put("useType","订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送手机号失败"+s1);
+                    logger.info("发送短信返回状态"+s1);
                 }
             }catch (Exception e){
                 throw new Exception("发送短信失败");

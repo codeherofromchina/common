@@ -194,7 +194,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("CRM返回信息：" + s);
+                logger.info("人员详情返回信息：" + s);
 
                 // 获取商务经办人手机号
                 JSONObject jsonObject = JSONObject.parseObject(s);
@@ -207,12 +207,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                     Map<String,String> map= new HashMap();
                     map.put("areaCode","86");
                     map.put("to","[\""+mobile+"\"]");
-                    map.put("content","您好，项目号："+Project1.getProjectNo()+"，商务技术经办人:"+Project1.getBusinessName()+"，已申请采购,请及时处理。感谢您对我们的支持与信任！");
+                    map.put("content","您好，项目号："+Project1.getProjectNo()+"，商务技术经办人："+Project1.getBusinessName()+"，已申请采购，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType","0");
                     map.put("groupSending","0");
                     map.put("useType","订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送手机号失败"+s1);
+                    logger.info("发送短信返回状态："+s1);
                 }
 
             }catch (Exception e){
