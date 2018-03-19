@@ -454,7 +454,7 @@ public class OrderServiceImpl implements OrderService {
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
-                logger.info("CRM返回信息：" + s);
+                logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
 
             sendSms(order);
@@ -567,6 +567,7 @@ public class OrderServiceImpl implements OrderService {
     public void sendSms(Order order) throws  Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
+        logger.info("发送短信的用户token:" + eruiToken);
         if (StringUtils.isNotBlank(eruiToken)) {
             try{
                 // 根据id获取商务经办人信息
@@ -598,7 +599,7 @@ public class OrderServiceImpl implements OrderService {
                 }
 
             }catch (Exception e){
-                throw new Exception("发送短信失败");
+                throw new Exception("发送短信异常失败");
             }
 
         }
