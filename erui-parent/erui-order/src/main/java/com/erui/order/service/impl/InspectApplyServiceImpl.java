@@ -388,7 +388,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             throw new Exception("重新报检的不是最后一次质检结果");
         }
         InspectApply lastInspectApplyTest = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
-        if (lastInspectApplyTest == null || lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
+        if (parentInspectApply.getNum() != 1 && lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
             throw new Exception("重新报检的不是最后一次质检结果");
         }
 
@@ -634,14 +634,18 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         String warehouseNames =  StringUtils.join(warehouseNameList, ",");  //仓库经办人
        /* String projectNos =  StringUtils.join(projectNoList, ",");  //项目号*/
         String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
-        String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
+        /*String inspectApplyNo = inspectApply.getInspectApplyNo();    */
+        String inspectApplyNo1 = dbInspectApply.getInspectApplyNo();//报检单号
 
         Map<String,Object> map = new HashMap<>();
         map.put("qualityNames",qualityNames);
         map.put("warehouseNames",warehouseNames);
         map.put("projectNos",purch.getPurchNo()); // 采购合同号
         map.put("purchaseNames",purchaseNames);
-        map.put("inspectApplyNo",inspectApplyNo);
+        /*if(StringUtil.isNotBlank(inspectApplyNo) && inspectApplyNo != null){
+            map.put("inspectApplyNo",inspectApplyNo);
+        }*/
+        map.put("inspectApplyNo",inspectApplyNo1);
         sendSms(map);
     }
 

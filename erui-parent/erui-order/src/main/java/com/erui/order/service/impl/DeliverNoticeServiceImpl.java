@@ -348,7 +348,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     Map<String,Object> map = new HashMap<>();
                     map.put("warehouseUid",project.getWarehouseUid());  //仓库经办人id
                     map.put("projectNo",project.getProjectNo());   //项目号
-                    map.put("deliverConsignNo",one.getDeliverConsignNo());  //出口通知单号
+                    map.put("deliverConsignNo",one.getDeliverConsigns().get(1).getDeliverConsignNo());  //出口通知单号
                     map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
                     map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
                     try {
