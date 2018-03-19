@@ -462,7 +462,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         pushDataToInspectReport(newInspectApply);
 
         //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-        disposeSmsDate(lastInspectApply,inspectApply);
+        disposeSmsDate(newInspectApply,inspectApply);
 
         return true;
     }
