@@ -68,7 +68,7 @@ public class OrderOutController {
             orderPage.getContent().forEach(vo -> {
                 ResponseOutOrder responseOutOrder = new ResponseOutOrder();
                 responseOutOrder.setId(vo.getId());
-                responseOutOrder.setOrder_no(null);
+                responseOutOrder.setOrder_no(vo.getContractNo());
                 responseOutOrder.setStatus(vo.getStatus());
                 responseOutOrder.setAmount(BigDecimal.valueOf(Double.parseDouble(vo.getTotalPrice())));
                 responseOutOrder.setDelivery_at(vo.getDeliveryDate());
