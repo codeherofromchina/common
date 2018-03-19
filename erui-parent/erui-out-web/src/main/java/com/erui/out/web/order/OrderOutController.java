@@ -43,10 +43,9 @@ public class OrderOutController {
     private final static Logger logger = LoggerFactory.getLogger(OrderOutController.class);
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
-    /*@Autowired
-    private RedisTemplate<String, String> redisTemplate;*/
+   /* @Autowired
+    private StringRedisTemplate stringRedisTemplate;*/
+
     private static final String api_key_order = "3a13749d4b3af3b2bb601552278a0051";
 
 
@@ -203,7 +202,7 @@ public class OrderOutController {
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
-        Order order = orderService.findById(map.get("buyer_id"));
+        Order order = orderService.findById(map.get("id"));
         if (order != null) {
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                 boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
@@ -253,7 +252,7 @@ public class OrderOutController {
         return result;
     }
 
-    @RequestMapping(value = "orderTest", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+  /*  @RequestMapping(value = "orderTest", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public String saveUser() {
         ValueOperations<String, String> vop = stringRedisTemplate.opsForValue();
         String key = "string_redis_template";
@@ -262,7 +261,7 @@ public class OrderOutController {
         String value = vop.get(key);
         System.out.println(value);
         return value;
-    }
+    }*/
 
     private String getString(String key,Integer buyer_id,String buyer_no,String req_time) {
         String hashString = null;
