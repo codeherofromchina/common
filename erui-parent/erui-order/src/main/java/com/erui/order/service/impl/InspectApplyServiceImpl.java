@@ -388,7 +388,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             throw new Exception("重新报检的不是最后一次质检结果");
         }
         InspectApply lastInspectApplyTest = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
-        if (lastInspectApplyTest == null || lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
+        if (parentInspectApply.getNum() != 1 && lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
             throw new Exception("重新报检的不是最后一次质检结果");
         }
 
