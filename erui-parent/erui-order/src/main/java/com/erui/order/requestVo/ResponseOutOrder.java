@@ -14,6 +14,9 @@ public class ResponseOutOrder {
     private Integer pay_status;
     private Integer status;
     private String trade_terms_bn;
+    private String currency_bn;
+    private String to_port;
+    private String to_country;
     //订单日期
     private Date created_at;
     //交货日期
@@ -21,6 +24,8 @@ public class ResponseOutOrder {
     //订单金额
     private BigDecimal amount;
     private Integer type;
+    private String pay_status_text;
+    private String show_status_text;
 
     public Integer getId() {
         return id;
@@ -100,5 +105,45 @@ public class ResponseOutOrder {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getCurrency_bn() {
+        return currency_bn;
+    }
+
+    public void setCurrency_bn(String currency_bn) {
+        this.currency_bn = currency_bn;
+    }
+
+    public String getTo_port() {
+        return to_port;
+    }
+
+    public void setTo_port(String to_port) {
+        this.to_port = to_port;
+    }
+
+    public String getTo_country() {
+        return to_country;
+    }
+
+    public void setTo_country(String to_country) {
+        this.to_country = to_country;
+    }
+
+    public String getPay_status_text() {
+        return pay_status_text;
+    }
+
+    public void setPay_status_text(String pay_status_text) {
+        this.pay_status_text = pay_status_text;
+    }
+
+    public String getShow_status_text() {
+        return show_status_text;
+    }
+
+    public void setShow_status_text(String show_status_text) {
+        this.show_status_text = show_status_text;
     }
 }

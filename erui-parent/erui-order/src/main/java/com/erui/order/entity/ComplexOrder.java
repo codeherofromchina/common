@@ -1,9 +1,8 @@
 package com.erui.order.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.apache.commons.lang.StringUtils;
+
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -73,6 +72,11 @@ public class ComplexOrder {
     private String toPlace;
     @Column(name = "buyer_id")
     private Integer buyerId;
+    @Transient
+    private String pay_status_text;
+    @Transient
+    private String show_status_text;
+
 
     public Integer getBuyerId() {
         return buyerId;
@@ -240,5 +244,83 @@ public class ComplexOrder {
 
     public void setToPlace(String toPlace) {
         this.toPlace = toPlace;
+    }
+
+    public String getPay_status_text() {
+        return pay_status_text;
+    }
+
+    public void setPay_status_text(String pay_status_text) {
+        this.pay_status_text = pay_status_text;
+    }
+
+    public String getShow_status_text(int code) {
+        return show_status_text;
+    }
+
+    public void setShow_status_text(String show_status_text) {
+        this.show_status_text = show_status_text;
+    }
+
+    public static enum StatusEnum {
+        ONE(-1, "草稿") ,INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
+
+        public int code;
+        public String msg;
+
+        StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+    public static enum PayStatusEnum {
+        ONE(-1, "草稿"),INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
+
+        public int code;
+        public String msg;
+
+        PayStatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+    public static StatusEnum fromStatusCode(Integer code) {
+        if (code != null) {
+            for (StatusEnum statusEnum : StatusEnum.values()) {
+                if (statusEnum.getCode() == code) {
+                    return statusEnum;
+                }
+            }
+        }
+        return null;
+    }
+    public static PayStatusEnum fromPayCode(Integer code) {
+        if (code != null) {
+            for (PayStatusEnum payStatusEnum : PayStatusEnum.values()) {
+                if (payStatusEnum.getCode() == code) {
+                    return payStatusEnum;
+
+                }
+            }
+        }
+        return null;
     }
 }
