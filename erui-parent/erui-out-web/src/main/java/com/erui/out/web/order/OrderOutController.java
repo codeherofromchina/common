@@ -86,7 +86,7 @@ public class OrderOutController {
             });
             map = new HashMap<>();
             map.put("count",orderPage.getTotalElements());
-            map.put("data",orderPage.getContent());
+            map.put("data",outList);
             map.put("message",result.getMsg());
             map.put("code",result.getCode());
         }
