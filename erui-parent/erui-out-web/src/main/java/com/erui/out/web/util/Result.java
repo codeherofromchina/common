@@ -1,5 +1,6 @@
 package com.erui.out.web.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.commons.lang3.StringUtils;
@@ -61,9 +62,19 @@ public class Result<T> {
 		return this;
 	}
 
+	public String toJsonString(){
+		return JSONObject.toJSONString(this);
+	}
+
 	@Override
 	public String toString() {
 		return "Result [code=" + code + ", msg=" + msg + ", data=" + data + "]";
 	}
 
+
+	public static void main(String[] args) {
+		Result<Object> result = new Result<>(ResultStatusEnum.AREA_NOT_EXIST);
+
+		System.out.println(result.toJsonString());
+	}
 }

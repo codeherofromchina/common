@@ -58,13 +58,6 @@ public class OrderOutController {
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object orderManage(@RequestBody OutListCondition condition) {
         Result<Object> result = new Result<>();
-        String toHash = getString(api_key_order,condition.getBuyer_id(),condition.getBuyer_no(),condition.getReq_time());
-        String encode = MD5.encode(toHash);
-        if (!StringUtils.equals(condition.getHash(),encode)){
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("用户验证未通过");
-            return result;
-        }
         //页数不能小于1
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -262,17 +255,5 @@ public class OrderOutController {
         String value = vop.get(key);
         System.out.println(value);
         return value;
-    }
-
-    private String getString(String key,Integer buyer_id,String buyer_no,String req_time) {
-        String hashString = null;
-        try {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(key).append('#').append(buyer_id).append('#').append(buyer_no).append('#').append(req_time).append('#').append(key);
-            hashString = stringBuilder.toString();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return hashString;
     }
 }
