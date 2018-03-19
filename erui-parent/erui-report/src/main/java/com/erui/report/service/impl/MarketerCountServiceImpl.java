@@ -280,13 +280,13 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
         int tQuoteCount = Integer.parseInt(totalDatas.get("quoteCount").toString());//总报价数量
         double inqProportion=0.00,ordProportion=0.00,quoteProportion=0.00;
         if(tInqCount>0){
-            inqProportion=RateUtil.intChainRate(inqCount,tInqCount);
+            inqProportion=inqCount/tInqCount;
         }
         if(tOrdCount>0){
-            ordProportion=RateUtil.intChainRate(ordCount,tOrdCount);
+            ordProportion=ordCount/tOrdCount;
         }
         if(tQuoteCount>0){
-            quoteProportion=RateUtil.intChainRate(quoteCount,tQuoteCount);
+            quoteProportion=quoteCount/tQuoteCount;
         }
         List<String> xList = new ArrayList<>();
         List<Object> yList = new ArrayList<>();
@@ -298,8 +298,8 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
         yList.add(quoteCount);
         yList.add(ordCount);
         rateList.add("占比"+RateUtil.doubleChainRateTwo(inqProportion*100,1)+"%");
-        rateList.add("占比"+RateUtil.doubleChainRateTwo(ordProportion*100,1)+"%");
         rateList.add("占比"+RateUtil.doubleChainRateTwo(quoteProportion*100,1)+"%");
+        rateList.add("占比"+RateUtil.doubleChainRateTwo(ordProportion*100,1)+"%");
         chart.put("xAxis",xList);
         chart.put("yAxis",yList);
         chart.put("rate",rateList);

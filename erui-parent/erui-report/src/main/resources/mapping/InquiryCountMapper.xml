@@ -448,6 +448,9 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
+      <if test="orderByClause != null" >
+          order by ${orderByClause}
+      </if>
     group by organization HAVING  organization IS  NOT NULL
   </select>
   <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >

@@ -11,10 +11,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.erui.comm.middle.fastdfs.FastDFSUtil;
 import com.erui.report.service.*;
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.csource.common.MyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,7 @@ import com.erui.comm.FileUtil;
 import com.erui.comm.util.pinyin4j.Pinyin4j;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import com.erui.report.util.ImportDataResponse;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * 报表excel导入控制层
@@ -144,18 +149,22 @@ public class ExcelController {
             return new Result<Object>(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
         }
 
-        // 经过上面初步判断后，保存文件到本地
+        // 经过上面初步判断后，保存文件到本地 和fastDFS
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
-        File saveFile = null;
+//        File saveFile = null;
+        String[] groups=null;
         try {
-             saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
-        } catch (IOException e1) {
+//            saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
+            byte[] bytes = file.getBytes();
+             groups = FastDFSUtil.uploadFile("group1", bytes, ".xlsx", null);
+        } catch (IOException | MyException e1) {
             logger.debug("异常:" + e1.getMessage(), e1);
             return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
         }
-        // 删除之前无用的文件 保存数据
-        //int delFileNum = FileUtil.delBefore2HourFiles(realPath);
-        //logger.info("删除无用excel文件数量：{}", delFileNum);
+        //转成file类型
+        CommonsMultipartFile cf= (CommonsMultipartFile)file;
+        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
+        File saveFile = fi.getStoreLocation();
 
         ExcelReader excelReader = new ExcelReader();
         try {
@@ -178,7 +187,7 @@ public class ExcelController {
             // 整理结果集并返回
             Result<Object> result = new Result<Object>();
             Map<String, Object> data = new HashMap<>();
-            data.put("tmpFileName", saveFile.getName());
+            data.put("tmpFileName", groups[1]);
             data.put("type", typeEnum.getType());
             data.put("response", importDataResponse);
             result.setData(data);
@@ -210,9 +219,18 @@ public class ExcelController {
         if (typeEnum == null) {
             return result.setStatus(ResultStatusEnum.EXCEL_TYPE_NOT_SUPPORT);
         }
-            String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
-        File file = new File(realPath, fileName);
-        if (file.exists() && file.isFile()) {
+            String realPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
+
+        //下载file
+        String saveFileName=null;
+        try {
+             saveFileName = FastDFSUtil.downloadFile2("group1", fileName, realPath);
+        } catch (IOException | MyException e1) {
+            logger.debug("异常:" + e1.getMessage(), e1);
+            return new Result<Object>(ResultStatusEnum.EXCEL_DOWNLOAD_FALL);
+        }
+        File file = new File(realPath, saveFileName);
+        if (file.exists() && file.isFile()&&file.length()>0) {
             logger.info(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName, type));
             System.out.println(String.format("导入数据到数据库{文件：%s,类型：%d}", fileName, type));
             ExcelReader excelReader = new ExcelReader();
@@ -228,8 +246,14 @@ public class ExcelController {
 
                 try {
                     // 删除数据导入成功的文件
+                    Integer dCode = FastDFSUtil.deleteFile("group1", fileName);
+                    if(dCode!=null&&dCode==0){
+                        logger.info("FastDFS文件删除成功");
+                    }else{
+                        logger.info("FastDFS文件删除失败");
+                    }
                     FileUtils.forceDelete(file);
-                } catch (IOException ex) {
+                } catch (IOException | MyException ex) {
                     logger.debug("异常:" + ex.getMessage(), ex);
                 }
             } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
