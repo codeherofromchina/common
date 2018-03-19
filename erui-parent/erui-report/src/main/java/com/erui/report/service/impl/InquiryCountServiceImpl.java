@@ -765,7 +765,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate, String[] quotes) {
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,int rtnCount, String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startDate != null) {
@@ -773,6 +773,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (endDate != null) {
             criteria.andRollinTimeLessThan(endDate);
+        }
+        if(rtnCount>0){
+            criteria.andReturnCountGreaterThanOrEqualTo(rtnCount);
         }
         if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
@@ -862,7 +865,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
      */
     @Override
-    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime, String[] quotes) {
+    public List<Map<String, Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,int rtnCount, String[] quotes) {
         InquiryCountExample example = new InquiryCountExample();
         Criteria criteria = example.createCriteria();
         if (startTime != null) {
@@ -870,6 +873,9 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         if (endTime != null) {
             criteria.andRollinTimeLessThan(endTime);
+        }
+        if(rtnCount>0){
+            criteria.andReturnCountGreaterThanOrEqualTo(rtnCount);
         }
         if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));

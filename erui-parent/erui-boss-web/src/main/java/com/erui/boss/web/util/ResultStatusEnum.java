@@ -22,8 +22,8 @@ public enum ResultStatusEnum {
     EXCEL_CONTENT_EMPTY(13, "Excel数据内容为空"),
     EXCEL_HEAD_VERIFY_FAIL(14, "Excel头信息验证失败"),
     EXCEL_OPERATOR_FAIL(15, "Excel文件操作失败"),
-    EXCEL_FILE_NOT_EXIST(16, "Excel文件不存"),
-
+    EXCEL_FILE_NOT_EXIST(16, "Excel文件不存在"),
+    EXCEL_DOWNLOAD_FALL(17,"文件下载失败"),
     //-----------daqu----------------
     AREA_NOT_EXIST(20, "不存在的大区"),
     ////// ----
