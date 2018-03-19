@@ -282,6 +282,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
+            projectAdd.setBusinessName(orderUpdate.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -435,6 +436,7 @@ public class OrderServiceImpl implements OrderService {
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
+            project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();

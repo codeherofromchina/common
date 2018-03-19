@@ -85,6 +85,10 @@ public class Order {
 
     @Column(name = "technical_id")
     private Integer technicalId;
+
+    @Column(name = "business_name")
+    private String businessName;   //商务技术经办人名称
+
    /* @Column(name = "technical_id_dept")
     private String technicalIdDept;*/
 
@@ -763,6 +767,13 @@ public class Order {
         this.customerContext = customerContext;
     }
 
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
 
     public static enum StatusEnum {
         INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
