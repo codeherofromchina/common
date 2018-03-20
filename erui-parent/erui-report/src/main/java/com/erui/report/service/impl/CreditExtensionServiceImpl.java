@@ -348,9 +348,9 @@ public class CreditExtensionServiceImpl extends BaseService<CreditExtensionMappe
         params.put("area",null);
         params.put("country",null);
         Map<String, Object> totalDatas = readMapper.selectCreditSummary(params);
-        int totalCount = Integer.parseInt(datas.get("creditCount").toString());
-        Double totalUsedAmount = Double.parseDouble(datas.get("usedAmount").toString());
-        Double totalAvailAmount = Double.parseDouble(datas.get("availAmount").toString());
+        int totalCount = Integer.parseInt(totalDatas.get("creditCount").toString());
+        Double totalUsedAmount = Double.parseDouble(totalDatas.get("usedAmount").toString());
+        Double totalAvailAmount = Double.parseDouble(totalDatas.get("availAmount").toString());
         Double countRate=0.00,usedRate=0.00,availRate=0.00;
         if(totalCount>0){
             countRate= RateUtil.intChainRate(creditCount,totalCount);
