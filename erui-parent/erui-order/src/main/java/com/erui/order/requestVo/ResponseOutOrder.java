@@ -24,7 +24,9 @@ public class ResponseOutOrder {
     //订单金额
     private BigDecimal amount;
     private Integer type;
+    //支付状态显示
     private String pay_status_text;
+    //状态显示
     private String show_status_text;
 
     public Integer getId() {
