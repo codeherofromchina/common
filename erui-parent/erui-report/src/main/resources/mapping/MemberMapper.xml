@@ -106,7 +106,8 @@
   <select id="selectOperateSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
     SELECT
       count(1) as registerCount,
-      IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0) as doorCount,
+      IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0)+
+      IFNULL(SUM(CASE source_name WHEN '移动端' THEN 1 ELSE 0 END ),0) as doorCount,
       IFNULL(SUM(CASE source_name WHEN '后台' THEN 1 ELSE 0 END ),0) AS backStageCount,
       IFNULL(SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END ),0) AS generalCount,
       IFNULL(SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END ),0) AS seniorCount
@@ -372,7 +373,7 @@
   <!--查询各区域的客户编码为null的订单数据-->
   <select id="selectCustIsNullOrdDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
 
-    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+    SELECT COUNT(1) AS custCount ,
     COUNT(1) AS ordTimes  ,
     order_area AS area
     FROM  order_count

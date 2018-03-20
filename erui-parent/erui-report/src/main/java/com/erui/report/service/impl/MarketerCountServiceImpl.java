@@ -280,13 +280,13 @@ public class MarketerCountServiceImpl extends BaseService<MarketerCountMapper> i
         int tQuoteCount = Integer.parseInt(totalDatas.get("quoteCount").toString());//总报价数量
         double inqProportion=0.00,ordProportion=0.00,quoteProportion=0.00;
         if(tInqCount>0){
-            inqProportion=inqCount/tInqCount;
+            inqProportion=RateUtil.doubleChainRate(inqCount,tInqCount);
         }
         if(tOrdCount>0){
-            ordProportion=ordCount/tOrdCount;
+            ordProportion=RateUtil.doubleChainRate(ordCount,tOrdCount);
         }
         if(tQuoteCount>0){
-            quoteProportion=quoteCount/tQuoteCount;
+            quoteProportion=RateUtil.doubleChainRate(quoteCount,tQuoteCount);
         }
         List<String> xList = new ArrayList<>();
         List<Object> yList = new ArrayList<>();

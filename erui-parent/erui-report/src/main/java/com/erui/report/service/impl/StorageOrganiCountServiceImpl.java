@@ -148,15 +148,21 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
         List<Map<String,Object>> outList=readMapper.selectOutDataGroupByTime(params);
        //获取库存数据
         List<Integer> totalCounts=new ArrayList<>();//库存量列表
+        Map<String,Integer> inventory=new HashMap<>(); //封装每天库存数据
         for (int i = 0; i < days; i++) {
             Date datetime = DateUtil.sometimeCalendar(startTime, -i);
             String eTime = DateUtil.getEndTime(datetime,DateUtil.FULL_FORMAT_STR);
+            SimpleDateFormat sdf = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
+            String time=sdf.format(datetime);
             params.put("endTime",eTime);
             Map<String, Object> totalMap = readMapper.selectTotalStack(params);
             if(totalMap!=null&&totalMap.get("totalCount")!=null){
-                totalCounts.add(Integer.parseInt(totalMap.get("totalCount").toString()));
+                int totalCount = Integer.parseInt(totalMap.get("totalCount").toString());
+                totalCounts.add(totalCount);
+                inventory.put(time,totalCount);
             }else {
                 totalCounts.add(0);
+                inventory.put(time,0);
             }
         }
         //3.处理数据
@@ -192,6 +198,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
         datas.put("entryCounts", entryCounts);
         datas.put("outCounts", outCounts);
         datas.put("totalCounts", totalCounts);
+        datas.put("inventory", inventory);
         return datas;
     }
 
