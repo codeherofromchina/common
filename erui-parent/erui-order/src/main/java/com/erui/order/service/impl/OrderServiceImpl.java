@@ -559,6 +559,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderLog> logList = orderLogDao.findByOrderIdOrderByCreateTimeAsc(id);
         OutOrderDetail outOrderDetail = null;
         List<OutGoods> goodList = new ArrayList<>();
+        HashMap<String, Object> resultMap = null;
         if (order != null) {
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                 boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
@@ -577,16 +578,16 @@ public class OrderServiceImpl implements OrderService {
                 outGoods.setBuyer_id(null);
                 goodList.add(outGoods);
             }
+            resultMap = new HashMap<>();
+            resultMap.put("orderinfo",outOrderDetail);
+            resultMap.put("ordergoods",goodList);
+            resultMap.put("orderlogs",logList);
+            resultMap.put("order_no",order.getContractNo());
+            resultMap.put("orderaddress",null);
+            resultMap.put("orderpayments",null);
+            resultMap.put("imgprefix",null);
 
         }
-        HashMap<String, Object> resultMap = new HashMap<>();
-        resultMap.put("orderinfo",outOrderDetail);
-        resultMap.put("ordergoods",goodList);
-        resultMap.put("orderlogs",logList);
-        resultMap.put("order_no",order.getContractNo());
-        resultMap.put("orderaddress",null);
-        resultMap.put("orderpayments",null);
-        resultMap.put("imgprefix",null);
         return resultMap;
     }
 }
