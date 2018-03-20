@@ -1,5 +1,6 @@
 package com.erui.out.web.order;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.order.entity.ComplexOrder;
 import com.erui.order.requestVo.OutListCondition;
@@ -75,6 +76,12 @@ public class OrderOutController {
                 responseOutOrder.setPay_status(vo.getPayStatus());
                 responseOutOrder.setPo_no(vo.getPoNo());
                 responseOutOrder.setTrade_terms_bn(vo.getTradeTerms());
+                responseOutOrder.setType(vo.getType());
+                responseOutOrder.setCurrency_bn(vo.getCurrencyBn());
+                responseOutOrder.setTo_country(vo.getToCountry());
+                responseOutOrder.setTo_port(vo.getToPort());
+                responseOutOrder.setShow_status_text(ComplexOrder.fromStatusCode(vo.getStatus()).toString());
+                responseOutOrder.setPay_status_text(ComplexOrder.fromPayCode(vo.getPayStatus()).toString());
                 outList.add(responseOutOrder);
             });
             map = new HashMap<>();
@@ -194,22 +201,23 @@ public class OrderOutController {
      * @return
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
-        Order order = orderService.findById(map.get("id"));
-        if (order != null) {
-            if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
-                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
-                order.setDeliverConsignC(flag);
-            } else {
-                order.setDeliverConsignC(Boolean.FALSE);
-            }
+    public Result<Object> queryOrderDesc(@RequestBody JSONObject json) {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        Map<String,Object> resultMap = orderService.findByIdOut(json.getInteger("buyer_id"));
+        if (resultMap != null) {
+           result.setData(resultMap);
+           result.setCode(ResultStatusEnum.SUCCESS.getCode());
+           result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+           return result;
         }
-        return new Result<>(order);
+        return result;
     }
 
     /**
      * 获取订单跟踪
      *
+     *
+     * 
      * @return
      */
     @RequestMapping(value = "queryOrderLog", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
