@@ -465,6 +465,7 @@ public class Project {
         project.setExeChgDate(this.exeChgDate);
         project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
+        project.setPurchaseName(this.purchaseName);
         project.setQualityUid(this.qualityUid);
         project.setQualityName(this.qualityName);
         //project.setBusinessUid(this.businessUid);
