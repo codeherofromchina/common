@@ -159,6 +159,7 @@
         <dependency>
             <groupId>com.erui</groupId>
             <artifactId>erui-report</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
