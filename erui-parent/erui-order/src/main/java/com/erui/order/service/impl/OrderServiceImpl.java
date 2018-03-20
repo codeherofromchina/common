@@ -5,10 +5,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
-import com.erui.order.requestVo.AddOrderVo;
-import com.erui.order.requestVo.OrderListCondition;
-import com.erui.order.requestVo.OutListCondition;
-import com.erui.order.requestVo.PGoods;
+import com.erui.order.requestVo.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverDetailService;
 import com.erui.order.service.OrderService;
@@ -194,7 +191,9 @@ public class OrderServiceImpl implements OrderService {
                 if (condition.getStatus() != null) {
                     list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
                 }
-              //  list.add(cb.equal(root.get("deleteFlag"), false));
+
+
+                //  list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
@@ -551,5 +550,43 @@ public class OrderServiceImpl implements OrderService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> findByIdOut(Integer id) {
+        Order order = orderDao.findOne(id);
+        List<OrderLog> logList = orderLogDao.findByOrderIdOrderByCreateTimeAsc(id);
+        OutOrderDetail outOrderDetail = null;
+        List<OutGoods> goodList = new ArrayList<>();
+        if (order != null) {
+            if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
+                order.setDeliverConsignC(flag);
+            } else {
+                order.setDeliverConsignC(Boolean.FALSE);
+            }
+           /* order.getGoodsList().size();
+            order.getAttachmentSet().size();
+            order.getOrderPayments().size();*/
+            outOrderDetail = new OutOrderDetail();
+            outOrderDetail.copyInfo(order);
+            for (Goods goods:order.getGoodsList()) {
+                OutGoods outGoods = new OutGoods();
+                outGoods.copyInfo(goods);
+                outGoods.setBuyer_id(null);
+                goodList.add(outGoods);
+            }
+
+        }
+        HashMap<String, Object> resultMap = new HashMap<>();
+        resultMap.put("orderinfo",outOrderDetail);
+        resultMap.put("ordergoods",goodList);
+        resultMap.put("orderlogs",logList);
+        resultMap.put("order_no",order.getContractNo());
+        resultMap.put("orderaddress",null);
+        resultMap.put("orderpayments",null);
+        resultMap.put("imgprefix",null);
+        return resultMap;
     }
 }

@@ -77,4 +77,11 @@ public interface OrderService {
      * @return
      */
     boolean orderFinish(Order order);
+     /**
+      * @Author:SHIGS
+      * @Description对接门户订单详情
+      * @Date:14:47 2018/3/19
+      * @modified By
+      */
+    Map<String,Object> findByIdOut(Integer id);
 }
