@@ -468,7 +468,7 @@ public class Project {
         project.setQualityUid(this.qualityUid);
         project.setQualityName(this.qualityName);
         //project.setBusinessUid(this.businessUid);
-        project.setBusinessName(this.businessName);
+        //project.setBusinessName(this.businessName);
         project.setQualityName(this.qualityName);
         project.setWarehouseName(this.warehouseName);
         project.setLogisticsName(this.logisticsName);
