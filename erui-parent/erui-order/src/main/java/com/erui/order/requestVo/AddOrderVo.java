@@ -123,6 +123,8 @@ public class AddOrderVo {
     //质保金
     private BigDecimal qualityFunds;
 
+    private String businessName;
+
     /**
      * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
@@ -606,6 +608,14 @@ public class AddOrderVo {
         this.contractDesc = contractDesc;
     }
 
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
     public void copyBaseInfoTo(Order order) {
         if (order == null) {
             return;
@@ -658,6 +668,7 @@ public class AddOrderVo {
         order.setExecCoName(this.execCoName);
         order.setDistributionDeptName(this.distributionDeptName);
         order.setAcquireId(this.acquireId);
+        order.setBusinessName(this.businessName);
     }
 
 
