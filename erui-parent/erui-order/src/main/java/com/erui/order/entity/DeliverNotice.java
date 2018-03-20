@@ -22,14 +22,16 @@ public class DeliverNotice {
     @Column(name = "deliver_notice_no")
     private String deliverNoticeNo;
     @OneToOne(mappedBy = "deliverNotice", fetch = FetchType.LAZY)
-    @JsonIgnore
     private DeliverDetail deliverDetail;
-    // 销售合同号
+
     @Transient
-    private String contractNo;
+    private String contractNo; // 销售合同号
     // 出口通知单号
     @Transient
     private String deliverConsignNo;
+
+    @Transient
+    private String projectNo;   //项目号
 
     @Transient
     private String country;     //国家查询
@@ -43,7 +45,7 @@ public class DeliverNotice {
     private int status; //看货通知单状态
 
 
-    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)  //看货通知单，出口发货通知单关联表
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)  //看货通知单，出口发货通知单关联表
     @JoinTable(name = "deliver_notice_consign",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
@@ -332,5 +334,13 @@ public class DeliverNotice {
 
     public String getCountry() {
         return country;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 }

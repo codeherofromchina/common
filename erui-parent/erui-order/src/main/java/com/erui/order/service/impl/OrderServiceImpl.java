@@ -1,7 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
@@ -14,11 +20,13 @@ import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.DeliverDetailService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,6 +38,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.sound.sampled.Line;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +47,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+    // 用户升级方法
+    static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private OrderDao orderDao;
@@ -48,7 +59,19 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProjectDao projectDao;
     @Autowired
-    private AttachmentService attachmentService;
+    private DeliverDetailService deliverDetailService;
+    @Value("#{orderProp[CRM_URL]}")
+    private String crmUrl;  //CRM接口地址
+
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -79,10 +102,6 @@ public class OrderServiceImpl implements OrderService {
                 //根据询单号查询
                 if (StringUtil.isNotBlank(condition.getInquiryNo())) {
                     list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
-                }
-                //根据市场经办人查询
-                if (condition.getAgentId() != null) {
-                    list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                 }
                 //根据订单签订时间查询
                 if (condition.getSigningDate() != null) {
@@ -120,8 +139,27 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-                if (country != null) {
-                    list.add(root.get("country").in(country));
+                if (condition.getType() == 1) {
+                    if (country != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                } else if (condition.getType() == 2) {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                } else {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    if (country != null) {
+                        list.add(root.get("country").in(country));
+                    }
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
@@ -140,11 +178,12 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
                 }
+                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                    vo.setOrderFinish(Boolean.TRUE);
+                }
                 vo.setGoodsList(null);
             });
         }
-
-
         return pageList;
     }
 
@@ -164,10 +203,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrder(AddOrderVo addOrderVo) throws Exception {
+    public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
-            return false;
+            return null;
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
@@ -181,6 +220,7 @@ public class OrderServiceImpl implements OrderService {
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
         Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
@@ -191,8 +231,13 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("不存在的商品标识");
                 }
             }
-            //goods.setSeq(pGoods.getSeq());
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+
+            goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
@@ -216,7 +261,12 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         Order orderUpdate = orderDao.saveAndFlush(order);
+        Date signingDate = null;
+        if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            signingDate = orderUpdate.getSigningDate();
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -232,6 +282,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
+            projectAdd.setBusinessName(orderUpdate.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -240,8 +291,22 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProjectNo(project2.getProjectNo());
             });
             goodsDao.save(goodsList1);
+
+            // 调用CRM系统，触发CRM用户升级任务
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+            if (StringUtils.isNotBlank(eruiToken)) {
+                String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
+                logger.info("CRM返回信息：" + s);
+            }
+
+            sendSms(order);
         }
-        return true;
+        return order.getId();
     }
 
     // 检查和贸易术语相关字段的完整性
@@ -287,14 +352,19 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("目的地不能为空");
                 }
                 break;
-            default:
-                throw new Exception("不存在的贸易术语");
+            /*
+                case "FOB":
+                case "FAS":
+                    break;
+                default:
+                    throw new Exception("不存在的贸易术语");
+            */
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addOrder(AddOrderVo addOrderVo) throws Exception {
+    public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
         }
@@ -304,14 +374,22 @@ public class OrderServiceImpl implements OrderService {
         }
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
+        order.setCreateUserId(addOrderVo.getCreateUserId());
+        order.setCreateUserName(addOrderVo.getCreateUserName());
         order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
+        Set<String> skuRepeatSet = new HashSet<>();
         for (PGoods pGoods : pGoodsList) {
             goods = new Goods();
             //goods.setSeq(pGoods.getSeq());
-            goods.setSku(pGoods.getSku());
+            String sku = pGoods.getSku();
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
+                // 已经存在的sku，返回错误
+                throw new Exception("同一sku不可以重复添加");
+            }
+            goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -336,10 +414,12 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         Order order1 = orderDao.save(order);
-        if (order1 != null) {
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null);
+        Date signingDate = null;
+        if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            signingDate = order1.getSigningDate();
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
             //project.setProjectNo(UUID.randomUUID().toString());
@@ -356,6 +436,7 @@ public class OrderServiceImpl implements OrderService {
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
+            project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
@@ -364,8 +445,24 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProjectNo(project2.getProjectNo());
             });
             goodsDao.save(goodsList1);
+
+            // 调用CRM系统，触发CRM用户升级任务
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+
+            if (StringUtils.isNotBlank(eruiToken)) {
+                String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
+                logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
+            }
+
+            sendSms(order);
+
         }
-        return true;
+        return order1.getId();
     }
 
     /**
@@ -375,13 +472,14 @@ public class OrderServiceImpl implements OrderService {
      * @param goodsId 可空，商品ID
      */
     @Transactional
-    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId) {
+    public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId, Date signingDate) {
         OrderLog orderLog = new OrderLog();
         try {
             orderLog.setOrder(orderDao.findOne(orderId));
             orderLog.setLogType(logType.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
             orderLog.setCreateTime(new Date());
+            orderLog.setBusinessDate(signingDate);  //订单签约日期
             orderLog.setOrdersGoodsId(goodsId);
             orderLogDao.save(orderLog);
         } catch (Exception ex) {
@@ -390,6 +488,7 @@ public class OrderServiceImpl implements OrderService {
             ex.printStackTrace();
         }
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -415,6 +514,8 @@ public class OrderServiceImpl implements OrderService {
             orderLog = new ArrayList<>();
         }
         /*
+
+
         else {
             orderLog = orderLog.stream().filter(log -> {
                 if (OrderLog.LogTypeEnum.OTHER.getCode() == log.getLogType()) {
@@ -425,6 +526,8 @@ public class OrderServiceImpl implements OrderService {
         }
         */
         return orderLog;
+
+
     }
 
     /**
@@ -448,4 +551,61 @@ public class OrderServiceImpl implements OrderService {
             orderDao.save(orderList);
         }
     }
+
+    @Override
+    public boolean orderFinish(Order order) {
+        Order order1 = orderDao.findOne(order.getId());
+        if (order1 != null) {
+            order1.setStatus(order.getStatus());
+            orderDao.save(order1);
+            addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, new Date());
+            return true;
+        }
+        return false;
+    }
+
+
+    //订单下达后通知商务技术经办人
+    public void sendSms(Order order) throws  Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        logger.info("发送短信的用户token:" + eruiToken);
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+
+                // 获取商务经办人手机号
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                String mobile = null;  //商务经办人手机号
+                if(code == 1){
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    mobile = data.getString("mobile");
+                    //发送短信
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to","[\""+mobile+"\"]");
+                    map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人："+order.getAgentName()+"，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态"+s1);
+                }
+
+            }catch (Exception e){
+                throw new Exception("发送短信异常失败");
+            }
+
+        }
+    }
+
+
 }

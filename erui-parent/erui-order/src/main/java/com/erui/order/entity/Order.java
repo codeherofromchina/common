@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -44,10 +45,10 @@ public class Order {
     @Column(name = "order_source")
     private Integer orderSource;
 
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -84,6 +85,10 @@ public class Order {
 
     @Column(name = "technical_id")
     private Integer technicalId;
+
+    @Column(name = "business_name")
+    private String businessName;   //商务技术经办人名称
+
    /* @Column(name = "technical_id_dept")
     private String technicalIdDept;*/
 
@@ -151,13 +156,17 @@ public class Order {
 
     @Column(name = "create_user_id")
     private Integer createUserId;
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+
+    @Column(name = "create_user_name")
+    private String createUserName;
+
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delete_time")
     private Date deleteTime;
 
@@ -202,14 +211,51 @@ public class Order {
 
     @Transient
     private int rows = 50;
-
+    //订单列表增加确认收货按钮标识
+    @Transient
+    private Boolean orderFinish = false;//true时可以确认收货
    /*@Column(name = "delivery_date_no")
     private Date deliveryDateNo;    //执行单约定交付日期*/
-
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
+    @Column(name = "buyer_id")
+    private Integer buyerId;
+    @Column(name = "inquiry_id")
+    private Integer inquiryId;
+
+    public Integer getBuyerId() {
+        return buyerId;
+    }
+
+    public void setBuyerId(Integer buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public Integer getInquiryId() {
+        return inquiryId;
+    }
+
+    public void setInquiryId(Integer inquiryId) {
+        this.inquiryId = inquiryId;
+    }
+
+    public Boolean getOrderFinish() {
+        return orderFinish;
+    }
+
+    public void setOrderFinish(Boolean orderFinish) {
+        this.orderFinish = orderFinish;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
 
     public Integer getAcquireId() {
         return acquireId;
@@ -659,8 +705,38 @@ public class Order {
     }
 
     public List<Goods> getGoodsList() {
+        if (goodsList != null && goodsList.size() > 1) {
+            // 将商品按照父子关系升序排列
+            Collections.sort(goodsList, (g1, g2) -> {
+                Integer g1Id = g1.getId();
+                Integer g2Id = g2.getId();
+                Integer g1Pid = g1.getParentId();
+                Integer g2Pid = g2.getParentId();
+
+                if (g1Pid == null && g2Pid == null) {
+                    return compare(g1Id, g2Id);
+                } else if (g1Pid == null) { // g2Pid != null
+                    if (g1Id == null) {
+                        return 1;
+                    }
+                    return -compare(g2Pid, g1Id);
+                } else if (g2Pid == null) {// g1Pid != null
+                    if (g2Id == null) {
+                        return -1;
+                    }
+                    return compare(g1Pid, g2Id) >= 0 ? 1 : -1;
+                } else { // g1Pid != null && g2Pid != null
+                    int tmp = g1Pid - g2Pid;
+                    if (tmp == 0) {
+                        return compare(g1Id, g2Id);
+                    }
+                    return tmp;
+                }
+            });
+        }
         return goodsList;
     }
+
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
@@ -691,13 +767,21 @@ public class Order {
         this.customerContext = customerContext;
     }
 
+    public String getBusinessName() {
+        return businessName;
+    }
 
-    public static enum StatusEnum{
-        INIT(1,"待确认"),UNEXECUTED(2,"未执行"),EXECUTING(3,"执行中"),DONE(4,"完成");
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public static enum StatusEnum {
+        INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
 
         public int code;
         public String msg;
-        StatusEnum(int code,String msg) {
+
+        StatusEnum(int code, String msg) {
             this.code = code;
             this.msg = msg;
         }
@@ -708,6 +792,19 @@ public class Order {
 
         public String getMsg() {
             return msg;
+        }
+    }
+
+
+    public static int compare(Integer i1, Integer i2) {
+        if (i1 == null && i2 == null) {
+            return 0;
+        } else if (i1 == null) {
+            return -1;
+        } else if (i2 == null) {
+            return 1;
+        } else {
+            return i1 - i2;
         }
     }
 }

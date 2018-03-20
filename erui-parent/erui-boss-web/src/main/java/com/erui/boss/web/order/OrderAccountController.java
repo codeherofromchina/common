@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -52,11 +53,11 @@ public class OrderAccountController {
      */
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        orderAccountService.delGatheringRecord(orderAcciuntAdd.getId());
+        orderAccountService.delGatheringRecord(request,orderAcciuntAdd.getId());
         return new Result<>();
     }
 
@@ -67,7 +68,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "addGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+    public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
         Result<Object> result = new Result<>();
         if(orderAcciuntAdd == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -86,13 +87,14 @@ public class OrderAccountController {
         }else if (orderAcciuntAdd.getPaymentDate() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款时间不能为空");
-        }else if (orderAcciuntAdd.getGoodsPrice() == null) {
+        } /*else if (orderAcciuntAdd.getGoodsPrice() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("发货金额不能为空");
         }else if (orderAcciuntAdd.getDeliverDate() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("发货时间不能为空");
-        }else{
+        }*/
+        else{
             order.setId(orderAcciuntAdd.getOrderId());
             orderAccount.setId(null);
             orderAccount.setDesc(orderAcciuntAdd.getDesc());   //描述
@@ -103,11 +105,11 @@ public class OrderAccountController {
             orderAccount.setDiscount(orderAcciuntAdd.getDiscount());
             orderAccount.setOrder(order);
             try {
-                orderAccountService.addGatheringRecord(orderAccount);
+                orderAccountService.addGatheringRecord(orderAccount,request);
             }catch (Exception e){
                 logger.error("收款记录添加失败：{}", orderAccount, e);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
-                result.setMsg("收款记录添加失败");
+                result.setMsg(e.getMessage());
             }
         }
         return result;
@@ -143,8 +145,8 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount){
-        orderAccountService.updateGatheringRecord(orderAccount);
+    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+        orderAccountService.updateGatheringRecord(request,orderAccount);
         return new Result<>();
     }
 

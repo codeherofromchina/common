@@ -2,22 +2,23 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsignGoods;
 import com.erui.order.entity.DeliverDetail;
 import com.erui.order.entity.DeliverNotice;
 import com.erui.order.entity.Goods;
 import com.erui.order.service.DeliverDetailService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -64,7 +65,7 @@ public class DeliverDetailController {
      * @return
      */
     @RequestMapping(value = "saveQuality", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> saveQuality(@RequestBody DeliverDetail deliverDetail) {
+    public Result<Object> saveQuality(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request) {
         boolean continueFlag = true;
         String errMsg = null;
         if (deliverDetail.getId() == null || deliverDetail.getId() <= 0) {
@@ -77,8 +78,27 @@ public class DeliverDetailController {
             errMsg = "出库质检参数状态不正确";
         }
 
+        Date checkDate = deliverDetail.getCheckDate();
+        Date releaseDate = deliverDetail.getReleaseDate();
+        String checkDept = deliverDetail.getCheckDept();
+        if (checkDate == null) {
+            continueFlag = false;
+            errMsg = "检验日期不能为空";
+        }
+        if (releaseDate == null) {
+            continueFlag = false;
+            errMsg = "放行日期不能为空";
+        }
+        if (StringUtils.isBlank(checkDept)) {
+            continueFlag = false;
+            errMsg = "质检部门不能为空";
+        }
+
         if (continueFlag) {
             try {
+                String eruiToken = EruitokenUtil.getEruiToken(request);
+                ThreadLocalUtil.setObject(eruiToken);
+
                 if (deliverDetailService.saveQuality(deliverDetail)) {
                     return new Result<>();
                 }
@@ -205,6 +225,7 @@ public class DeliverDetailController {
         return new Result<>();
 
     }
+
 
 
 }

@@ -37,9 +37,29 @@ public class OrderListCondition {
     private Boolean deleteFlag;
     //区域国家
     private String country;
+    //判断权限
+    private Integer type;
+    //创建人id
+    private Integer createUserId;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
     public String getCountry() {
         return country;

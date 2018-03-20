@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.InspectReportVo;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -159,6 +162,7 @@ public class InspectReportController {
             map.put("supplierName", purch.getSupplierName());
             map.put("inspectDate", inspectApply.getInspectDate());
             map.put("department", inspectApply.getDepartment());
+            map.put("checkUserId", vo.getCheckUserId());
             InspectApply.StatusEnum statusEnum = InspectApply.StatusEnum.fromCode(inspectApply.getStatus());
             String checkStatus = null;
             if (statusEnum == InspectApply.StatusEnum.QUALIFIED) {
@@ -183,11 +187,14 @@ public class InspectReportController {
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(@RequestBody InspectReport inspectReport) {
+    public Result<Object> save(@RequestBody InspectReport inspectReport, HttpServletRequest request) {
 
 
         String errorMsg = null;
         try {
+            String eruiToken = EruitokenUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
             if (inspectReportService.save(inspectReport)) {
                 return new Result<>();
             }

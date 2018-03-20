@@ -24,9 +24,7 @@ public class Project {
     private Order order;
     @Transient
     private Integer oId;
-
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
-    @JsonIgnore
     private PurchRequisition purchRequisition;
 
     @Column(name = "contract_no")
@@ -74,6 +72,9 @@ public class Project {
 
     @Column(name = "purchase_uid")
     private Integer purchaseUid;
+
+    @Column(name = "purchase_name") //采购经办人名称
+    private String purchaseName;
 
     @Column(name = "quality_uid")
     private Integer qualityUid;
@@ -126,7 +127,7 @@ public class Project {
     private String country;
     private String remarks;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<Goods> goodsList = new ArrayList<>();
 
@@ -440,6 +441,14 @@ public class Project {
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
+    }
+
+    public String getPurchaseName() {
+        return purchaseName;
+    }
+
+    public void setPurchaseName(String purchaseName) {
+        this.purchaseName = purchaseName;
     }
 
     public boolean copyProjectDescTo(Project project) {

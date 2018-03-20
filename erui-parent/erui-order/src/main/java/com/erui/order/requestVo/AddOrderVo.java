@@ -4,6 +4,7 @@ import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -122,6 +123,8 @@ public class AddOrderVo {
     //质保金
     private BigDecimal qualityFunds;
 
+    private String businessName;
+
     /**
      * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
@@ -156,6 +159,12 @@ public class AddOrderVo {
     private String businessUnitName;
     //获取人
     private Integer acquireId;
+    //创建人id
+    private Integer createUserId;
+    //创建人姓名
+    private String createUserName;
+    private Integer buyerId;
+    private Integer inquiryId;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -163,6 +172,38 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getBuyerId() {
+        return buyerId;
+    }
+
+    public void setBuyerId(Integer buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public Integer getInquiryId() {
+        return inquiryId;
+    }
+
+    public void setInquiryId(Integer inquiryId) {
+        this.inquiryId = inquiryId;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
 
     public Integer getAcquireId() {
         return acquireId;
@@ -567,6 +608,14 @@ public class AddOrderVo {
         this.contractDesc = contractDesc;
     }
 
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
     public void copyBaseInfoTo(Order order) {
         if (order == null) {
             return;
@@ -593,6 +642,8 @@ public class AddOrderVo {
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
         //   order.setTechnicalIdDept(this.technicalIdDept);
+        order.setBuyerId(this.buyerId);
+        order.setInquiryId(this.inquiryId);
         order.setGrantType(this.grantType);
         order.setPreinvest(this.preinvest);
         order.setFinancing(this.financing);
@@ -617,6 +668,7 @@ public class AddOrderVo {
         order.setExecCoName(this.execCoName);
         order.setDistributionDeptName(this.distributionDeptName);
         order.setAcquireId(this.acquireId);
+        order.setBusinessName(this.businessName);
     }
 
 

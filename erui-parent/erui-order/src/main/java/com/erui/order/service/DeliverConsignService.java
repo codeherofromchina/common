@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.DeliverNotice;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public interface DeliverConsignService {
      *
      * @return
      */
-    List<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice);
+    Page<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice);
 
 
     /**

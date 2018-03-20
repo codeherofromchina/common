@@ -1,7 +1,12 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -11,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -49,6 +55,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
     @Autowired
     OrderDao orderDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
 
     @Override
     @Transactional(readOnly = true)
@@ -147,8 +159,9 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         List<DeliverConsignGoods> deliverConsignGoodsLists = new ArrayList<>();
         List<DeliverConsign> list = new ArrayList<DeliverConsign>();
+        DeliverConsign one = null; //出库通知单
         for (String s :split){
-            DeliverConsign one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
+            one = deliverConsignDao.findOne(Integer.parseInt(s));    //改变出口单状态
             list.add(one);
 
             List<DeliverConsignGoods> deliverConsignGoodsSet = one.getDeliverConsignGoodsSet();
@@ -167,42 +180,10 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         }
 
         deliverNotice.setDeliverConsigns(list);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-        String format = simpleDateFormat.format(new Date());
+        //看货通知单
+        String deliverNoticeNo = createDeliverNoticeNo();
+        deliverNotice.setDeliverNoticeNo(deliverNoticeNo);
 
-            //查询当天看货通知单
-            List<DeliverNotice> lsit = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
-                @Override
-                public Predicate toPredicate(Root<DeliverNotice> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    List<Predicate> list = new ArrayList<>();
-                    // 根据日期查询  当天看货通知单
-                    if (StringUtil.isNotBlank(format)) {
-                        list.add(cb.like(root.get("deliverNoticeNo").as(String.class),  format + "%"));
-                    }
-                    Predicate[] predicates = new Predicate[list.size()];
-                    predicates = list.toArray(predicates);
-                    return cb.and(predicates);
-                }
-            });
-
-            //看货通知单
-            String[] str = new String[lsit.size()];
-            for (int i =0 ;i<lsit.size() ;i++){
-                str[i]= lsit.get(i).getDeliverNoticeNo();
-            }
-
-            if(str.length !=0){
-                //最大值
-                 Integer max = Integer.parseInt(str[0].replaceFirst("^0*", "").substring(8)); //0为第一个数组下标
-                for (int i = 0; i < str.length; i++) {   //开始循环一维数组
-                    if (max < Integer.parseInt(str[i].replaceFirst("^0*", "").substring(8))) {  //循环判断数组元素
-                        max = Integer.parseInt(str[i].replaceFirst("^0*", "").substring(8)); }  //赋值给num，然后再次循环
-                }
-
-                deliverNotice.setDeliverNoticeNo(format+String.format("%04d",(max+1)));
-            }else{
-                deliverNotice.setDeliverNoticeNo(format+String.format("%04d",1));
-             }
         // 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, new ArrayList(deliverNotice.getAttachmentSet()), deliverNotice.getCreateUserId(), deliverNotice.getCreateUserName());
         deliverNotice.setAttachmentSet(new HashSet<>(attachmentlist));
@@ -212,40 +193,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         if (deliverNotice.getStatus() == 2){
             DeliverDetail deliverDetail = new DeliverDetail();
             deliverDetail.setDeliverNotice(deliverNotice);
-            SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-            String formats = simpleDateFormats.format(new Date());
-            //查询当天产品放行单
-            List<DeliverDetail> lits = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
-                @Override
-                public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    List<Predicate> lista = new ArrayList<>();
-                    // 根据日期查询  当天产品放行单
-                    if (StringUtil.isNotBlank(formats)) {
-                        lista.add(cb.like(root.get("deliverDetailNo").as(String.class),  formats + "%"));
-                    }
-                    Predicate[] predicates = new Predicate[lista.size()];
-                    predicates = lista.toArray(predicates);
-                    return cb.and(predicates);
-                }
-            });
-
-            //产品放行单
-            String[] strs = new String[lits.size()];
-            for (int i =0 ;i<lits.size() ;i++){
-                strs[i]= lits.get(i).getDeliverDetailNo();
-            }
-
-            if(strs.length !=0){
-                //最大值
-                Integer maxs = Integer.parseInt(strs[0].replaceFirst("^0*", "").substring(4)); //0为第一个数组下标
-                for (int i = 0; i < strs.length; i++) {   //开始循环一维数组
-                    if (maxs < Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4))) {  //循环判断数组元素
-                        maxs = Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4)); }  //赋值给num，然后再次循环
-                }
-                deliverDetail.setDeliverDetailNo(formats+String.format("%04d",(maxs+1)));   //产品放行单
-            }else{
-                deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
-            }
+            String deliverDetailNo = createDeliverDetailNo();
+            deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
 
             //推送仓库经办人   物流经办人
             DeliverConsign deliverConsigns1 =  deliverConsignDao.findOne(Integer.parseInt(split[0]));
@@ -274,21 +223,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             deliverDetail.setDeliverConsignGoodsList(deliverConsignGoodsLists);
             DeliverDetail deliverDetail1=deliverDetailDao.saveAndFlush(deliverDetail);
 
-            //  订单执行跟踪   推送运单号
-            OrderLog orderLog = new OrderLog();
-            List<DeliverConsign> deliverConsigns = deliverNotice1.getDeliverConsigns();
-            for (DeliverConsign deliverConsign1 : deliverConsigns){
-                try {
-                    orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
-                    orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
-                    orderLog.setOperation(deliverDetail.getDeliverDetailNo());
-                    orderLog.setCreateTime(new Date());
-                    orderLogDao.save(orderLog);
-                } catch (Exception ex) {
-                    logger.error("日志记录失败 {}", orderLog.toString());
-                    logger.error("错误", ex);
-                    ex.printStackTrace();
-                }
+
+            //看货通知：看货通知单下达后通知仓库经办人（如果仓库经办人不是徐健，那么还要单独发给徐健）
+            Map<String,Object> map = new HashMap<>();
+            map.put("warehouseUid",project.getWarehouseUid());  //仓库经办人id
+            map.put("projectNo",project.getProjectNo());   //项目号
+            map.put("deliverConsignNo",one.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
+            map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
+            try {
+                sendSms(map);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
         }
@@ -369,40 +315,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 if (deliverNotice.getStatus() == 2){
                     DeliverDetail deliverDetail = new DeliverDetail();
                     deliverDetail.setDeliverNotice(deliverNotice);
-                    SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-                    String formats = simpleDateFormats.format(new Date());
-                    //查询当天产品放行单
-                    List<DeliverDetail> lits = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
-                        @Override
-                        public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                            List<Predicate> lista = new ArrayList<>();
-                            // 根据日期查询  当天产品放行单
-                            if (StringUtil.isNotBlank(formats)) {
-                                lista.add(cb.like(root.get("deliverDetailNo").as(String.class),  formats + "%"));
-                            }
-                            Predicate[] predicates = new Predicate[lista.size()];
-                            predicates = lista.toArray(predicates);
-                            return cb.and(predicates);
-                        }
-                    });
-
-                    //产品放行单
-                    String[] strs = new String[lits.size()];
-                    for (int i =0 ;i<lits.size() ;i++){
-                        strs[i]= lits.get(i).getDeliverDetailNo();
-                    }
-
-                    if(strs.length !=0){
-                        //最大值
-                        Integer maxs = Integer.parseInt(strs[0].replaceFirst("^0*", "").substring(4)); //0为第一个数组下标
-                        for (int i = 0; i < strs.length; i++) {   //开始循环一维数组
-                            if (maxs < Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4))) {  //循环判断数组元素
-                                maxs = Integer.parseInt(strs[i].replaceFirst("^0*", "").substring(4)); }  //赋值给num，然后再次循环
-                        }
-                        deliverDetail.setDeliverDetailNo(formats+String.format("%04d",(maxs+1)));   //产品放行单
-                    }else{
-                        deliverDetail.setDeliverDetailNo(formats+String.format("%04d",1));
-                    }
+                    String deliverDetailNo = createDeliverDetailNo();
+                    deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
                     //推送仓库经办人   物流经办人
                     DeliverConsign deliverConsigns1 =  deliverConsignDao.findOne(Integer.parseInt(split[0]));
                         Project project = deliverConsigns1.getOrder().getProject();
@@ -430,24 +344,18 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     deliverDetailDao.saveAndFlush(deliverDetail);
 
 
-
-                    //  订单执行跟踪   推送运单号
-                    OrderLog orderLog = new OrderLog();
-                    List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();
-                    for (DeliverConsign deliverConsign1 : deliverConsigns){
-                        try {
-                            orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
-                            orderLog.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
-                            orderLog.setOperation(deliverDetail.getDeliverDetailNo());
-                            orderLog.setCreateTime(new Date());
-                            orderLogDao.save(orderLog);
-                        } catch (Exception ex) {
-                            logger.error("日志记录失败 {}", orderLog.toString());
-                            logger.error("错误", ex);
-                            ex.printStackTrace();
-                        }
+                    //看货通知：看货通知单下达后通知仓库经办人（如果仓库经办人不是徐健，那么还要单独发给徐健）
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("warehouseUid",project.getWarehouseUid());  //仓库经办人id
+                    map.put("projectNo",project.getProjectNo());   //项目号
+                    map.put("deliverConsignNo",one.getDeliverConsigns().get(0).getDeliverConsignNo());  //出口通知单号
+                    map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
+                    map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
+                    try {
+                        sendSms(map);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
 
                 }
 
@@ -481,6 +389,130 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         deliverNotice.getAttachmentSet().size();
         return deliverNotice;
     }
+
+
+    /**
+     * \//生成产品放行单
+     * @return
+     */
+
+    public String createDeliverDetailNo(){
+        SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
+
+        //查询最近插入的产品放行单
+       String deliverDetailNo= deliverDetailDao.findDeliverDetailNo();
+       if(deliverDetailNo == null){
+           String formats = simpleDateFormats.format(new Date());  //当前年份
+           return formats+String.format("%04d",1);     //第一个
+       }else{
+           String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
+           String formats = simpleDateFormats.format(new Date());  //当前年份
+           if(substring.equals(formats)){   //判断年份
+               String substring1 = deliverDetailNo.substring(4);
+               return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+           }else{
+               return formats+String.format("%04d",1);     //第一个
+           }
+       }
+
+    }
+
+    /**
+     * //生成看货通知单
+     * @return
+     */
+
+    public String createDeliverNoticeNo(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+
+        //查询最近插入的看货通知单
+        String  DeliverNoticeNo  = deliverNoticeDao.findDeliverNoticeNo();
+        if(DeliverNoticeNo==null){
+            String format = simpleDateFormat.format(new Date());    //当前年月日
+            return format+String.format("%04d",1); //第一个
+        }else{
+            String substring = DeliverNoticeNo.substring(0, 8); //获取到产品放行单的年份
+            String format = simpleDateFormat.format(new Date());    //当前年月日
+
+            if(substring.equals(format)){   //判断年份
+                String substring1 = DeliverNoticeNo.substring(8);
+                return format + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+            }else{
+                return format+String.format("%04d",1); //第一个
+            }
+        }
+
+    }
+
+
+
+   // 看货通知：看货通知单下达后通知仓库经办人（如果仓库经办人不是徐健，那么还要单独发给徐健）
+    public void sendSms(Map<String,Object> map1) throws  Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取人员信息
+                String jsonParam = "{\"id\":\"" + map1.get("warehouseUid") + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+
+                if(code == 1){
+                    // 获取人员手机号
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //去除重复
+                    Set<String> listAll = new HashSet<>();
+                    listAll.add(data.getString("mobile"));//采购人员手机号
+                    //获取徐健 手机号
+
+                    //获取徐健 手机号
+                    String name = null;
+                    String jsonParams = "{\"id\":\"29606\"}";
+                    String s3 = HttpRequest.sendPost(memberInformation, jsonParams, header);
+                    logger.info("人员详情返回信息：" + s3);
+                    // 获取手机号
+                    JSONObject jsonObjects = JSONObject.parseObject(s3);
+                    Integer codes = jsonObjects.getInteger("code");
+                    if (codes == 1) {
+                        JSONObject datas = jsonObjects.getJSONObject("data");
+                        name=datas.getString("mobile");
+                    }
+                    /*listAll.add("15066060360");*/
+                    listAll.add(name);
+
+                    /*listAll.add("15066060360");*/
+                    listAll = new HashSet<>(new LinkedHashSet<>(listAll));
+                    JSONArray smsarray = new JSONArray();
+                    for (String me : listAll) {
+                        smsarray.add(me);
+                    }
+
+                    //发送短信
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to",smsarray.toString());
+                    map.put("content","您好，项目号："+map1.get("projectNo")+"，出口通知单号："+map1.get("deliverConsignNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，物流经办人："+map1.get("logisticsName")+"，已下发看货通知，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态"+s1);
+                }
+            }catch (Exception e){
+                throw new Exception("发送短信失败");
+            }
+
+        }
+    }
+
 
 
 }

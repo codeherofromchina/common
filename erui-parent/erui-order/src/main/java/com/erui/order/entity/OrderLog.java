@@ -12,7 +12,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "order_log")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,22 +28,36 @@ public class OrderLog {
     @Column(name="log_type")
     private Integer logType;
 
+    // 操作说明
     private String operation;
 
+    // 业务日期
+    @Column(name = "business_date")
+    private Date businessDate;
+
     @Column(name="create_id")
+    @JsonIgnore
     private Integer createId;
 
     @Column(name="orders_goods_id")
+    @JsonIgnore
     private Integer ordersGoodsId;
 
     @Column(name="create_name")
+    @JsonIgnore
     private String createName;
 
     @Column(name="create_time")
+    @JsonIgnore
     private Date createTime;
 
     @Column(name="order_account_id")
+    @JsonIgnore
     private Integer orderAccountId;
+
+    @Column(name="deliver_detail_id")
+    @JsonIgnore
+    private Integer deliverDetailId;    //物流id
 
     public Integer getId() {
         return id;
@@ -76,6 +89,15 @@ public class OrderLog {
 
     public void setOperation(String operation) {
         this.operation = operation;
+    }
+
+
+    public Date getBusinessDate() {
+        return businessDate;
+    }
+
+    public void setBusinessDate(Date businessDate) {
+        this.businessDate = businessDate;
     }
 
     public Integer getCreateId() {
@@ -118,13 +140,21 @@ public class OrderLog {
         this.orderAccountId = orderAccountId;
     }
 
+    public Integer getDeliverDetailId() {
+        return deliverDetailId;
+    }
+
+    public void setDeliverDetailId(Integer deliverDetailId) {
+        this.deliverDetailId = deliverDetailId;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this).toString();
     }
 
     public static enum LogTypeEnum{
-        CREATEORDER(1,"创建订单"),ADVANCE(2,"收到预付款"),GOODOUT(3,"商品出库"),DELIVERED(4,"已收货"),
+        CREATEORDER(1,"订单签约"),ADVANCE(2,"收到预付款"),GOODOUT(3,"商品出库"),DELIVERED(4,"已收货"),
         DELIVERYDONE(5,"全部交收完成"),OTHER(6,"其他");
 
         public int code;

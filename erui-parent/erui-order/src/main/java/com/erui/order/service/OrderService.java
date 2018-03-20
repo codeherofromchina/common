@@ -41,13 +41,13 @@ public interface OrderService {
      * @param addOrderVo
      * @return
      */
-    boolean updateOrder(AddOrderVo addOrderVo) throws Exception;
+    Integer updateOrder(AddOrderVo addOrderVo) throws Exception;
     /**
      * 添加订单
      * @param addOrderVo
      * @return
      */
-    boolean addOrder(AddOrderVo addOrderVo) throws Exception;
+    Integer addOrder(AddOrderVo addOrderVo) throws Exception;
     /**
      * 订单详情
      * @param orderId
@@ -63,4 +63,10 @@ public interface OrderService {
 
 
     void updateOrderDeliverConsignC(Set<Integer> orderId);
+    /**
+     * 订单确认
+     * @param order
+     * @return
+     */
+    boolean orderFinish(Order order);
 }

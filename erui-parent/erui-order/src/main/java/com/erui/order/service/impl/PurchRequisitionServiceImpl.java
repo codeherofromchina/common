@@ -1,5 +1,9 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.ProjectDao;
@@ -8,14 +12,15 @@ import com.erui.order.entity.*;
 import com.erui.order.service.AreaService;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchRequisitionService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +28,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchRequisitionServiceImpl implements PurchRequisitionService {
+
+    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
 
     @Autowired
     private PurchRequisitionDao purchRequisitionDao;
@@ -32,6 +40,14 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private GoodsDao goodsDao;
     @Autowired
     private AttachmentService attachmentService;
+
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
 
     @Transactional(readOnly = true)
     @Override
@@ -87,6 +103,14 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             project1.setProjectNo(purchRequisition1.getProjectNo());
             projectDao.save(project1);
+
+            try {
+                //采购申请通知：采购申请单下达后通知采购经办人
+                sendSms(project1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
         return true;
     }
@@ -143,7 +167,59 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project1.setProjectNo(purchRequisition1.getProjectNo());
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             projectDao.save(project1);
+
+            try {
+                //采购申请通知：采购申请单下达后通知采购经办人
+                sendSms(project1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
         return true;
     }
+
+
+    //采购申请通知：采购申请单下达后通知采购经办人
+    public void sendSms(Project Project1) throws  Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取采购经办人信息
+                String jsonParam = "{\"id\":\"" + Project1.getPurchaseUid() + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+
+                // 获取商务经办人手机号
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                String mobile = null;  //采购经办人手机号
+                if(code == 1){
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    mobile = data.getString("mobile");
+                    //发送短信
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to","[\""+mobile+"\"]");
+                    map.put("content","您好，项目号："+Project1.getProjectNo()+"，商务技术经办人："+Project1.getBusinessName()+"，已申请采购，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态："+s1);
+                }
+
+            }catch (Exception e){
+                throw new Exception("发送短信失败");
+            }
+
+        }
+    }
+
 }

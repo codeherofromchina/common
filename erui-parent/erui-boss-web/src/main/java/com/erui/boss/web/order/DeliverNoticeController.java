@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -46,6 +49,9 @@ public class DeliverNoticeController {
         }
         try {
             Page<DeliverNotice> pageList = deliverNoticeService.listByPage(condition);
+            for (DeliverNotice deliverNotice : pageList){
+                deliverNotice.setDeliverDetail(null);
+            }
             return new Result<>(pageList);
         }catch (Exception e){
             logger.error("查询错误", e);
@@ -130,9 +136,12 @@ public class DeliverNoticeController {
      * @return
      */
     @RequestMapping(value = "exitRequisitionSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice) {
+    public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice, HttpServletRequest request) {
         Result<Object> result = new Result<>();
         try {
+            String eruiToken = EruitokenUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
             boolean flag = false;
             if (deliverNotice.getId()!= null) {
                 flag = deliverNoticeService.updateexitRequisition(deliverNotice);
@@ -247,15 +256,24 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "queryExitAdvice")
     public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
-        List<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
-        if(list != null){
-            list.parallelStream().forEach( v -> {
-                v.setAttachmentSet(null);
-                v.setDeliverConsignGoodsSet(null);
-            });
-            return new Result<>(list);
-        }
-        return new Result<>(ResultStatusEnum.DATA_NULL);
+        Page<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
+
+        Map<String,Object> map1 = new HashMap<>();
+            List<Map<String,Object>> list1 = new ArrayList<>();
+            for (DeliverConsign deliverConsign :list){
+                Map<String,Object> map = new HashMap<>();
+                deliverConsign.setAttachmentSet(null);
+                deliverConsign.setDeliverConsignGoodsSet(null);
+                map.put("id",deliverConsign.getId());   //出口发货通知单id
+                map.put("deliverConsignNo",deliverConsign.getDeliverConsignNo()); //出口发货通知单号
+                Order order = deliverConsign.getOrder();
+                map.put("contractNo",order.getContractNo());    //销售合同号
+                map.put("projectNo",order.getProject().getProjectNo());  //项目号
+                list1.add(map);
+            }
+            map1.put("rows",list1);
+            map1.put("total",list.getTotalElements());
+            return new Result<>(map1);
     }
 
 

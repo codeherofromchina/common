@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,6 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
                 projectUpdate.setLogisticsName(null);
                 projectUpdate.setWarehouseName(null);
                 projectUpdate.setWarehouseUid(null);
+                projectUpdate.setPurchaseName(null);
             }
         } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
             // 交付配送中心项目经理只能保存后者执行
@@ -96,6 +98,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectUpdate.setLogisticsName(project.getLogisticsName());
             projectUpdate.setWarehouseName(project.getWarehouseName());
             projectUpdate.setWarehouseUid(project.getWarehouseUid());
+            projectUpdate.setPurchaseName(project.getPurchaseName());
             // 修改备注和执行单变更日期
             projectUpdate.setRemarks(project.getRemarks());
             projectUpdate.setExeChgDate(project.getExeChgDate());
@@ -111,7 +114,7 @@ public class ProjectServiceImpl implements ProjectService {
             order.getGoodsList().forEach(gd -> {
                         gd.setStartDate(projectUpdate.getStartDate());
                         gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                        gd.setRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                        gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
                         gd.setExeChgDate(projectUpdate.getExeChgDate());
                     }
             );
@@ -167,9 +170,11 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
                     list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
                 }
+                String[] projectStatus = null;
                 //根据项目状态
                 if (StringUtil.isNotBlank(condition.getProjectStatus())) {
-                    list.add(cb.equal(root.get("projectStatus").as(String.class), condition.getProjectStatus()));
+                    projectStatus = condition.getProjectStatus().split(",");
+                    list.add(root.get("projectStatus").in(projectStatus));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
@@ -225,7 +230,10 @@ public class ProjectServiceImpl implements ProjectService {
                 return goodsList.parallelStream().anyMatch(goods -> {
                     return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
                 });
+            }).sorted((o1,o2) -> {
+                return o2.getUpdateTime().compareTo(o1.getUpdateTime());
             }).collect(Collectors.toList());
+
         }
         return list;
     }

@@ -1,6 +1,9 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
@@ -15,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,7 +30,16 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.ServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 /**
@@ -49,6 +62,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Autowired
     OrderLogDao orderLogDao;
 
+
+  /*  @Value("#{orderProp[CRM_URL]}")
+    private String crmUrl;  //CRM接口地址
+
+*/
     /**
      * 根据id 查询订单收款信息(单条)
      *
@@ -83,7 +101,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void delGatheringRecord(Integer id) {
+    public void delGatheringRecord(ServletRequest request, Integer id) {
 
 
         /**
@@ -94,47 +112,20 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccounts.setDelYn(0);
         orderAccountDao.save(orderAccounts);        //收款记录  逻辑删除
 
+
+        Order order = orderAccounts.getOrder();
+
         /**
          * 判断是否是收款中状态
          */
-        Integer id1 = orderAccounts.getOrder().getId();//拿到订单id
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id1,1);
+        Integer id1 = order.getId();//拿到订单id
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id1, 1);
         //无收款记录  改变收款状态为  1:未付款      （ 1:未付款 2:部分付款 3:收款完成'）
-        if(byOrderId.size() == 0){
+        if (byOrderId.size() == 0) {
             Order one = orderDao.findOne(id1);
             one.setPayStatus(1);
             orderDao.saveAndFlush(one);
         }
-
-        /**
-         *  更正应收账款余额
-         */
-        /*//TODO
-        Order order = orderDao.findOne(id1);  //查询订单信息
-        List<OrderAccount> byOrderId2 = orderAccountDao.findByOrderIdAndDelYn(id,1);  //查询订单收款记录
-        BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
-        BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
-        BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
-        int size = byOrderId2.size();   //收款记录条数
-        for (int i = 0; i < size; i++) {
-            if (byOrderId2.get(i).getGoodsPrice() != null) {
-                sumGoodsPrice = sumGoodsPrice.add(byOrderId2.get(i).getGoodsPrice());    //发货金额
-            }
-            if (byOrderId2.get(i).getMoney() != null) {
-                sumMoney = sumMoney.add(byOrderId2.get(i).getMoney());       //回款金额
-            }
-            if (byOrderId2.get(i).getDiscount() != null) {
-                sumDiscount = sumDiscount.add(byOrderId2.get(i).getDiscount());      //其他扣款金额
-            }
-        }
-        BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);    // 应收账款余额=发货金额-回款金额-其他扣款金额
-        if(subtract.compareTo(BigDecimal.ZERO) == 1){
-            order.setReceivableAccountRemaining(subtract);    //应收账款余额
-        }else{
-            order.setReceivableAccountRemaining(BigDecimal.ZERO);
-        }
-        orderDao.saveAndFlush(order);
-*/
 
         /**
          * //日志记录表
@@ -152,29 +143,43 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addGatheringRecord(OrderAccount orderAccount) {
+    public void addGatheringRecord(OrderAccount orderAccount, ServletRequest request) throws Exception {
       /*orderAccount.setPaymentDate(new Date());*/   //测试放开
         orderAccount.setCreateTime(new Date());
-        OrderAccount orderAccount1 =orderAccountDao.save(orderAccount);
+        OrderAccount orderAccount1;
+        try {
+            orderAccount1 = orderAccountDao.save(orderAccount);
+        } catch (Exception e) {
+            throw new Exception("订单收款记录添加失败");
+        }
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
+        if (order == null) {
+            throw new Exception("无订单id：" + orderAccount.getOrder().getId() + "  关联关系");
+        }
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
 
-        //推送收到预付款
+        /**
+         *  推送 Log日志 收到预付款
+         */
         OrderLog orderLog = new OrderLog();
         try {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+order.getCurrencyBn());
+            NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
+            orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
             orderLog.setOrderAccountId(orderAccount1.getId());
             orderLogDao.save(orderLog);
         } catch (Exception ex) {
+
             logger.error("日志记录失败 {}", orderLog.toString());
             logger.error("错误", ex);
             ex.printStackTrace();
+            throw new Exception("订单收款记录日志添加失败");
         }
 
     }
@@ -188,25 +193,41 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void updateGatheringRecord(OrderAcciuntAdd orderAccount) {
+    public void updateGatheringRecord(ServletRequest request, OrderAcciuntAdd orderAccount) {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId()); //查询收款
 
-        OrderLog orderLog = orderLogDao.findByOrderAccountId(orderAccount.getId()); //查询日志
 
+        /**
+         * 修改 log日志 订单执行跟踪  订单执行跟踪 回款时间
+         */
+        OrderLog orderLog = orderLogDao.findByOrderAccountId(orderAccount.getId()); //查询日志
         String currencyBn = orderAccounts.getOrder().getCurrencyBn();   //金额类型
-        if(StringUtil.isNotBlank(orderAccount.getDesc()) && orderAccount.getMoney() != null  ){
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+currencyBn);
+
+        NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
+        if (StringUtil.isNotBlank(orderAccount.getDesc()) && orderAccount.getMoney() != null) {
+            //获取回款时间
+            if (orderAccount.getPaymentDate() != null) {
+                orderLog.setBusinessDate(orderAccount.getPaymentDate());
+            }
+            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
             orderLogDao.save(orderLog);
-        }else if(StringUtil.isNotBlank(orderAccount.getDesc()) || orderAccount.getMoney() != null){
-            if(StringUtil.isNotBlank(orderAccount.getDesc())){
-                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccounts.getMoney() +" "+currencyBn);
+        } else if (StringUtil.isNotBlank(orderAccount.getDesc()) || orderAccount.getMoney() != null) {
+            if (StringUtil.isNotBlank(orderAccount.getDesc())) {
+                //获取回款时间
+                if (orderAccount.getPaymentDate() != null) {
+                    orderLog.setBusinessDate(orderAccount.getPaymentDate());
+                }
+                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccounts.getMoney()) + " " + currencyBn);
                 orderLogDao.save(orderLog);
-            }else if(orderAccount.getMoney() != null){
-                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccounts.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) +"  "+orderAccount.getMoney() +" "+currencyBn);
+            } else if (orderAccount.getMoney() != null) {
+                //获取回款时间
+                if (orderAccount.getPaymentDate() != null) {
+                    orderLog.setBusinessDate(orderAccount.getPaymentDate());
+                }
+                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccounts.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
                 orderLogDao.save(orderLog);
             }
         }
-
 
         if (orderAccount.getDesc() != null) {
             orderAccounts.setDesc(orderAccount.getDesc());
@@ -215,7 +236,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderAccounts.setMoney(orderAccount.getMoney());
         }
         /*if (orderAccount.getDiscount() != null) {*/
-            orderAccounts.setDiscount(orderAccount.getDiscount());
+        orderAccounts.setDiscount(orderAccount.getDiscount());
        /*}*/
         if (orderAccount.getPaymentDate() != null) {
             orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
@@ -228,6 +249,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
         orderAccounts.setUpdateTime(new Date());
         orderAccountDao.saveAndFlush(orderAccounts);
+
     }
 
 
@@ -243,15 +265,14 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         /**
          * 查看当前订单是否有收款记录
          */
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id,1);
-        if(byOrderId.size() == 0){
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
+        if (byOrderId.size() == 0) {
             throw new Exception("无收款记录");
         }
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
         orderDao.saveAndFlush(order);
 
-        /*orderService.addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order.getId(), null, null);    //推送全部交收完成*/
     }
 
 
@@ -266,7 +287,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     public Order gatheringMessage(Integer id) {
         Order order = orderDao.findOne(id);  //查询订单信息
 
-        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id,1);
+        List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
 
         BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
         BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
@@ -287,7 +308,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
 
-       // 应收账款余额=发货金额-回款金额-其他扣款金额
+        // 应收账款余额=发货金额-回款金额-其他扣款金额
         order.setReceivableAccountRemaining(subtract);    //应收账款余额
         return order;
     }
@@ -302,7 +323,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional(readOnly = true)
     public Page<Order> gatheringManage(OrderListCondition condition) {
-        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC,"createTime");
+        PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "createTime");
         Page<Order> pageOrder = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -331,6 +352,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
+                list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的
                 list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
                 //
 
@@ -340,9 +362,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             }
         }, request);
 
-
         return pageOrder;
     }
-
 
 }

@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.EruitokenUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.AddOrderVo;
@@ -15,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +73,9 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrder(@RequestBody AddOrderVo addOrderVo) {
+    public Result<Object> addOrder(@RequestBody AddOrderVo addOrderVo, HttpServletRequest request) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        logger.info("aaaaaaaaaaaaaaaaa");
         boolean continueFlag = false;
         if (addOrderVo.getStatus() != Order.StatusEnum.INIT.getCode() && addOrderVo.getStatus() != Order.StatusEnum.UNEXECUTED.getCode()) {
             result.setMsg("销售合同号不能为空");
@@ -120,6 +124,8 @@ public class OrderController {
                 result.setMsg("收款方式不能为空");
             } else if (addOrderVo.getAcquireId() == null) {
                 result.setMsg("获取人不能为空");
+            } else if (StringUtils.isBlank(addOrderVo.getCurrencyBn())) {
+                result.setMsg("货币类型不能为空");
             } else {
                 continueFlag = true;
             }
@@ -132,14 +138,16 @@ public class OrderController {
         }
 
         try {
-            boolean flag;
+            Integer id;
+            String eruiToken = EruitokenUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
             if (addOrderVo.getId() != null) {
-                flag = orderService.updateOrder(addOrderVo);
+                id = orderService.updateOrder(addOrderVo);
             } else {
-                flag = orderService.addOrder(addOrderVo);
+                id = orderService.addOrder(addOrderVo);
             }
-            if (flag) {
-                return new Result<>();
+            if (id != null) {
+                return new Result<>(id);
             }
         } catch (Exception ex) {
             logger.error("订单操作失败：{}", addOrderVo, ex);
@@ -186,5 +194,23 @@ public class OrderController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(logList);
+    }
+    /**
+     * 确认订单
+     *
+     * @param order
+     * @return
+     */
+    @RequestMapping(value = "orderFinish", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderFinish(@RequestBody Order order) {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        boolean flag;
+        flag = orderService.orderFinish(order);
+        if (flag){
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            return result;
+        }
+        return result;
     }
 }
