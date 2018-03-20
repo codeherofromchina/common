@@ -106,7 +106,8 @@
   <select id="selectOperateSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
     SELECT
       count(1) as registerCount,
-      IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0) as doorCount,
+      IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0)+
+      IFNULL(SUM(CASE source_name WHEN '移动端' THEN 1 ELSE 0 END ),0) as doorCount,
       IFNULL(SUM(CASE source_name WHEN '后台' THEN 1 ELSE 0 END ),0) AS backStageCount,
       IFNULL(SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END ),0) AS generalCount,
       IFNULL(SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END ),0) AS seniorCount
@@ -283,23 +284,47 @@
     </select>
   <!--/查询各时间段内询单人数量-->
   <select id="selectInqCustRegistTimeSummary" resultType="java.util.Map" parameterType="java.util.Map" >
+
       SELECT
-      COUNT(1) AS totalCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 1 MONTH) >= NOW() THEN 1 ELSE 0 END ),0)  AS oneMothCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 1 MONTH) &lt; NOW() AND  DATE_ADD(createTime,INTERVAL 3 MONTH)  >=NOW() THEN 1 ELSE 0 END ),0)  AS threeMothCount,
-      IFNULL(SUM(CASE WHEN DATE_ADD(createTime,INTERVAL 3 MONTH) &lt; NOW() THEN 1 ELSE 0 END ),0)  AS moreThanThreeMothCount
-      FROM
+      oneTable.oneMothCount+threeTable.threeMothCount+otherTable.moreThanThreeMothCount
+      AS totalCount,
+      oneTable.oneMothCount,threeTable.threeMothCount,otherTable.moreThanThreeMothCount
+      from
+
       (
-        SELECT created_at AS createTime ,buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
-                in (
-                      SELECT DISTINCT(cust_description) FROM inquiry_count WHERE 1=1
-                      AND cust_description IS NOT NULL  AND cust_description !=''
-                          <if test="startTime!=null and endTime!=null">
-                              and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                             and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                          </if>
-                  )
-      ) AS a
+      SELECT COUNT(DISTINCT(cust_description)) AS oneMothCount FROM inquiry_count WHERE 1=1
+      AND cust_description IS NOT NULL  AND cust_description !=''
+      AND cust_description IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
+      IS NOT NULL AND buyer_code!='' AND DATE_ADD(created_at,INTERVAL 1 MONTH) >= NOW())
+      and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      )
+      as oneTable,
+      (
+      SELECT COUNT(DISTINCT(cust_description)) AS threeMothCount FROM inquiry_count
+      WHERE 1=1
+      AND cust_description IS NOT NULL  AND cust_description !=''
+      and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      AND cust_description
+      IN (SELECT buyer_code FROM erui_buyer.v_buyer WHERE buyer_code IS NOT NULL AND
+      buyer_code!='' AND DATE_ADD(created_at,INTERVAL 1 MONTH) &lt; NOW() AND
+      DATE_ADD(created_at,INTERVAL 3 MONTH)  >=NOW() )
+      )
+      as threeTable,
+      (
+      SELECT COUNT(DISTINCT(cust_description)) AS moreThanThreeMothCount
+      FROM inquiry_count WHERE 1=1
+      AND cust_description IS NOT NULL  AND cust_description !=''
+      and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      AND cust_description
+      IN (SELECT buyer_code FROM erui_buyer.v_buyer WHERE buyer_code IS NOT NULL
+      AND buyer_code!='' AND DATE_ADD(created_at,INTERVAL 1 MONTH) &lt; NOW()
+      AND  DATE_ADD(created_at,INTERVAL 3 MONTH)  >=NOW()
+      )
+      )
+      as otherTable
 
   </select>
 
@@ -372,7 +397,7 @@
   <!--查询各区域的客户编码为null的订单数据-->
   <select id="selectCustIsNullOrdDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
 
-    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+    SELECT COUNT(1) AS custCount ,
     COUNT(1) AS ordTimes  ,
     order_area AS area
     FROM  order_count
