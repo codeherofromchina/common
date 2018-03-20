@@ -89,6 +89,10 @@ public class OrderOutController {
             map.put("data",outList);
             map.put("message",result.getMsg());
             map.put("code",result.getCode());
+        }else {
+            result.setCode(ResultStatusEnum.DATA_NULL.getCode());
+            result.setMsg(ResultStatusEnum.DATA_NULL.getMsg());
+            return result;
         }
         return map;
 
@@ -203,7 +207,7 @@ public class OrderOutController {
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryOrderDesc(@RequestBody JSONObject json) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        Map<String,Object> resultMap = orderService.findByIdOut(json.getInteger("buyer_id"));
+        Map<String,Object> resultMap = orderService.findByIdOut(json.getInteger("id"));
         if (resultMap != null) {
            result.setData(resultMap);
            result.setCode(ResultStatusEnum.SUCCESS.getCode());
