@@ -85,7 +85,7 @@ FROM
 	procurement_count
 WHERE assign_time IS NOT NULL
 ORDER BY
-	DATE_FORMAT(startTime,"%Y-%m-%d %H:%i%S") ASC
+	DATE_FORMAT(assign_time,"%Y-%m-%d %H:%i%S") ASC
 LIMIT 1
   </select>
     <!--结束时间-->
@@ -96,7 +96,7 @@ FROM
 	procurement_count
 WHERE assign_time IS NOT NULL
 ORDER BY
-	DATE_FORMAT(startTime,"%Y-%m-%d %H:%i%S") DESC
+	DATE_FORMAT(assign_time,"%Y-%m-%d %H:%i%S") DESC
 LIMIT 1
   </select>
 
