@@ -106,9 +106,11 @@ public class DeliverNoticeController {
                     order1.setOrderPayments(null);
                     List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                        Goods goods = deliverConsignGoods.getGoods();
-                       goods.setSendNum(deliverConsignGoods.getSendNum());
-                        goodsList.add(goods);
+                        if(deliverConsignGoods.getSendNum() != 0){
+                            Goods goods = deliverConsignGoods.getGoods();
+                            goods.setSendNum(deliverConsignGoods.getSendNum());
+                            goodsList.add(goods);
+                        }
                     }
                 }
                 data.put("goodsList",goodsList);//商品信息
@@ -213,9 +215,11 @@ public class DeliverNoticeController {
                 deliverConsignNoList.add(deliverConsignS);
                 List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
                     for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                        Goods goods = deliverConsignGoods.getGoods();
-                        goods.setSendNum(deliverConsignGoods.getSendNum());
-                        goodsList.add(goods);
+                        if(deliverConsignGoods.getSendNum() != 0){
+                            Goods goods = deliverConsignGoods.getGoods();
+                            goods.setSendNum(deliverConsignGoods.getSendNum());
+                            goodsList.add(goods);
+                        }
                     }
                 Order order = deliverConsign.getOrder();
                 tradeTermsList.add( order.getTradeTerms());
