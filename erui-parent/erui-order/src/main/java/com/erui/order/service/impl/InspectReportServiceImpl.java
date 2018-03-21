@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.http.HttpRequest;
@@ -102,7 +103,6 @@ public class InspectReportServiceImpl implements InspectReportService {
 
                 Join<InspectReport, InspectApply> inspectApply = root.join("inspectApply");
                 list.add(cb.equal(inspectApply.get("master").as(Boolean.class), Boolean.TRUE)); // 只查询主质检单
-
                 if (!(StringUtils.isBlank(condition.getProjectNo()) && StringUtils.isBlank(condition.getContractNo()))) {
                     CriteriaBuilder.In<Object> idIn = cb.in(inspectApply.get("id"));
                     Set<InspectApply> inspectApplySet = findByProjectNoAndContractNo(condition.getProjectNo(), condition.getContractNo());
@@ -115,6 +115,27 @@ public class InspectReportServiceImpl implements InspectReportService {
                     }
                     list.add(idIn);
                 }
+
+                // 最后质检完成时间过滤
+                if (condition.getDoneDate() != null) {
+                    list.add(cb.equal(root.get("lastDoneDate").as(Date.class), NewDateUtil.getDate(condition.getDoneDate())));
+                }
+
+                // 报检时间过滤
+                if (condition.getInspectDate() != null) {
+                    list.add(cb.equal(inspectApply.get("inspectDate").as(Date.class), NewDateUtil.getDate(condition.getInspectDate())));
+                }
+
+                // 质检检验时间过滤
+                if (condition.getCheckDate() != null) {
+                    list.add(cb.equal(root.get("checkDate").as(Date.class), NewDateUtil.getDate(condition.getCheckDate())));
+                }
+
+                // 质检次数过滤
+                if (condition.getCheckTimes() != null) {
+                    list.add(cb.equal(root.get("checkTimes").as(Integer.class), condition.getCheckTimes()));
+                }
+
 
                 // 根据采购合同号模糊查询
                 if (StringUtils.isNotBlank(condition.getPurchNo())) {
@@ -249,6 +270,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         dbInspectReport.setReportRemarks(inspectReport.getReportRemarks());
         dbInspectReport.setStatus(statusEnum.getCode());
 
+
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInspectReport.getAttachments(), inspectReport.getAttachments(), inspectReport.getCreateUserId(), inspectReport.getCreateUserName());
         dbInspectReport.setAttachments(attachments);
@@ -328,6 +350,15 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
         }
 
+        // 设置父质检单的最后检验完成日期
+        InspectApply inspectApply = dbInspectReport.getInspectApply();
+        InspectApply inspectApplyParent = inspectApply.getParent();
+        if(!dbInspectReport.getReportFirst()){
+            InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(inspectApplyParent.getId());
+            firstInspectReport.setLastDoneDate(firstInspectReport.getDoneDate());
+            inspectReportDao.save(firstInspectReport);
+        }
+
 
         // 提交动作 则设置第一次质检，和相应的报检信息
         if (statusEnum == InspectReport.StatusEnum.DONE) {
@@ -380,22 +411,19 @@ public class InspectReportServiceImpl implements InspectReportService {
 
 
             dbInspectReport.setProcess(false);
-            InspectApply inspectApply = dbInspectReport.getInspectApply();
 
             if (hegeFlag && !dbInspectReport.getReportFirst()) {
                 // 将第一次质检设置为完成
-                InspectApply parentInspectApply = inspectApply.getParent();
-                InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(parentInspectApply.getId());
+                InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(inspectApplyParent.getId());
                 firstInspectReport.setProcess(false);
                 inspectReportDao.save(firstInspectReport);
             } else if (dbInspectReport.getReportFirst() && !hegeFlag) {
                 dbInspectReport.setProcess(true);
             }
 
-            InspectApply parent = inspectApply.getParent();
-            if (parent != null) {
-                parent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
-                inspectApplyDao.save(parent);
+            if (inspectApplyParent != null) {
+                inspectApplyParent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
+                inspectApplyDao.save(inspectApplyParent);
             }
             inspectApply.setStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
             inspectApply.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());

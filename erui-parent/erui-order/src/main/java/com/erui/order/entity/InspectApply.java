@@ -69,6 +69,7 @@ public class InspectApply {
     // 国外分公司
     @Column(name = "abroad_co_name")
     private String abroadCoName;
+    // 报检日期
     @Column(name = "inspect_date")
     private Date inspectDate;
 
