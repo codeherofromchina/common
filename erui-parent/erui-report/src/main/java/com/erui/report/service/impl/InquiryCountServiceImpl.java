@@ -2,12 +2,7 @@ package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.erui.comm.NewDateUtil;
@@ -654,30 +649,43 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         data.put("eightCountRate",eightCountRate);
         data.put("twentyFourCountRate",twentyFourCountRate);
         data.put("otherCountRate",otherCountRate);
-        //查询各事业部的 平均报价用时
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endTime = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-        InquiryCountExample inqExample = new InquiryCountExample();
-        Criteria criteria = inqExample.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        List<String> statusList=new ArrayList<>();
-        statusList.add(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus());
-        statusList.add(QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus());
-        criteria.andQuotedStatusIn(statusList);
-        List<Map<String, Object>> orgData = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(inqExample);
+        //查询各事业部的 报价总用时和总单数 （用于合并事业部平均报价用时）
+        List<Map<String, Object>> orgData = readMapper.findTotalNeedTimeAndCountGroupByOrg(params);
+        Map<String,Map<String,Object>> orgMap=new HashMap<>();
         orgData.stream().forEach(m->{
-            m.put("avgNeedTime",RateUtil.doubleChainRateTwo(Double.
-                    parseDouble(m.get("avgNeedTime").toString()),1));
+            String org = getStandardOrg(m.get("organization").toString());
+            if(orgMap.containsKey(org)){
+                Map<String, Object> map = orgMap.get(org);
+                map.put("totalNeedTime",Double.parseDouble(map.get("totalNeedTime").toString())+
+                        Double.parseDouble(m.get("totalNeedTime").toString()));
+
+                map.put("totalCount",Integer.parseInt(map.get("totalCount").toString())+
+                        Integer.parseInt(m.get("totalCount").toString()));
+            }else {
+                m.put("organization",org);
+                orgMap.put(org,m);
+            }
         });
 
+        Collection<Map<String, Object>> values=orgMap.values();
+             if(values!=null) {
+                 Iterator<Map<String, Object>> iterator = values.iterator();
+                 while (iterator.hasNext()) {
+                     Map<String, Object> m = iterator.next();
+                     double totalNeedTime = Double.parseDouble(m.get("totalNeedTime").toString());
+                     int totalCount1 = Integer.parseInt(m.get("totalCount").toString());
+                     if (totalCount1 > 0) {
+                         m.put("avgNeedTime", RateUtil.doubleChainRateTwo(totalNeedTime, totalCount1));
+                         m.remove("totalNeedTime");
+                         m.remove("totalCount");
+                     }
+                 }
+             }
+
+        //封装数据
         Map<String,Object> datas=new HashMap<>();
         datas.put("quoteTimeTable",data);
-        datas.put("orgTable",orgData);
+        datas.put("orgTable",values);
         return datas;
     }
 
@@ -1104,5 +1112,34 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
         return readMapper.selectInqAndOrdCountAndPassengers(params);
     }
-
+    //获取标准的事业部名称
+    @Override
+    public String getStandardOrg(String org) {
+        if (StringUtils.isNotBlank(org)) {
+            if (org.contains(OrgStatusEnum.ERUI.getMessage())) {
+                return OrgStatusEnum.ERUI.getMessage();
+            } else if (org.contains(OrgStatusEnum.WEFIC.getMessage())) {
+                return OrgStatusEnum.WEFIC.getMessage();
+            } else if (org.contains(OrgStatusEnum.YOUTIAN.getMessage())) {
+                return OrgStatusEnum.YOUTIAN.getMessage();
+            } else if (org.contains(OrgStatusEnum.YOUZENG.getMessage())) {
+                return OrgStatusEnum.YOUZENG.getMessage();
+            } else if (org.contains(OrgStatusEnum.ZUANHUANG.getMessage())) {
+                return OrgStatusEnum.ZUANHUANG.getMessage();
+            } else if (org.contains(OrgStatusEnum.KANGSAIDE.getMessage())) {
+                return OrgStatusEnum.KANGSAIDE.getMessage();
+            } else if (org.contains(OrgStatusEnum.DONGSHI.getMessage())) {
+                return OrgStatusEnum.DONGSHI.getMessage();
+            } else if (org.contains(OrgStatusEnum.YOUFU.getMessage())) {
+                return OrgStatusEnum.YOUFU.getMessage();
+            } else if (org.contains(OrgStatusEnum.KANGBORUI.getMessage())) {
+                return OrgStatusEnum.KANGBORUI.getMessage();
+            } else if (org.contains(OrgStatusEnum.TIANRANQI.getMessage())) {
+                return OrgStatusEnum.TIANRANQI.getMessage();
+            } else {
+                return OrgStatusEnum.OTHER.getMessage();
+            }
+        }
+        return org;
+    }
 }

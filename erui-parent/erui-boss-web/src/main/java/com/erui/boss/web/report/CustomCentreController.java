@@ -542,7 +542,7 @@ public class CustomCentreController {
         Map<String, Map<String, Object>> iiMap = new HashMap<>();
         quiryList.stream().forEach(map -> {
             String organization = String.valueOf(map.get("organization"));
-            String standardOrg = getStandardOrg(organization);
+            String standardOrg = inquiryService.getStandardOrg(organization);
             Long total = (Long) map.get("total");
             if (iiMap.containsKey(standardOrg)) {
                 Map<String, Object> m2 = iiMap.get(standardOrg);
@@ -563,7 +563,7 @@ public class CustomCentreController {
         Map<String, Map<String, Object>> aaMap = new HashMap<>();
         NeedTimeList.stream().forEach(map -> {
             String org = String.valueOf(map.get("organization"));
-            String standardOrg = getStandardOrg(org);
+            String standardOrg = inquiryService.getStandardOrg(org);
             BigDecimal avg1 = (BigDecimal) map.get("avgNeedTime");
             Long tota1 = (Long) map.get("total");
             if (aaMap.containsKey(standardOrg)) {
@@ -587,7 +587,7 @@ public class CustomCentreController {
         Map<String, Map<String, Object>> ooMap = new HashMap<>();
         derList.stream().forEach(map -> {
             String org = String.valueOf(map.get("organization"));
-            String standardOrg = getStandardOrg(org);
+            String standardOrg = inquiryService.getStandardOrg(org);
             Long total = (Long) map.get("totalNum");
             if (ooMap.containsKey(standardOrg)) {
                 Map<String, Object> m2 = ooMap.get(standardOrg);
@@ -614,7 +614,7 @@ public class CustomCentreController {
         // 询单事业部和总询单数
         inquiryCount = inquiryList.stream().map(m -> {
             String organization = String.valueOf(m.get("organization"));
-            String standardOrg = getStandardOrg(organization);
+            String standardOrg = inquiryService.getStandardOrg(organization);
             Long total = (Long) m.get("total");
             inquiryMap.put(organization, m);
             organizations.add(organization);
@@ -714,35 +714,7 @@ public class CustomCentreController {
         return new Result<>(data);
     }
 
-    //获取标准的事业部名称
-    private String getStandardOrg(String org) {
-        if (StringUtils.isNotBlank(org)) {
-            if (org.contains(OrgStatusEnum.ERUI.getMessage())) {
-                return OrgStatusEnum.ERUI.getMessage();
-            } else if (org.contains(OrgStatusEnum.WEFIC.getMessage())) {
-                return OrgStatusEnum.WEFIC.getMessage();
-            } else if (org.contains(OrgStatusEnum.YOUTIAN.getMessage())) {
-                return OrgStatusEnum.YOUTIAN.getMessage();
-            } else if (org.contains(OrgStatusEnum.YOUZENG.getMessage())) {
-                return OrgStatusEnum.YOUZENG.getMessage();
-            } else if (org.contains(OrgStatusEnum.ZUANHUANG.getMessage())) {
-                return OrgStatusEnum.ZUANHUANG.getMessage();
-            } else if (org.contains(OrgStatusEnum.KANGSAIDE.getMessage())) {
-                return OrgStatusEnum.KANGSAIDE.getMessage();
-            } else if (org.contains(OrgStatusEnum.DONGSHI.getMessage())) {
-                return OrgStatusEnum.DONGSHI.getMessage();
-            } else if (org.contains(OrgStatusEnum.YOUFU.getMessage())) {
-                return OrgStatusEnum.YOUFU.getMessage();
-            } else if (org.contains(OrgStatusEnum.KANGBORUI.getMessage())) {
-                return OrgStatusEnum.KANGBORUI.getMessage();
-            } else if (org.contains(OrgStatusEnum.TIANRANQI.getMessage())) {
-                return OrgStatusEnum.TIANRANQI.getMessage();
-            } else {
-                return OrgStatusEnum.OTHER.getMessage();
-            }
-        }
-        return org;
-    }
+
 
     // 区域明细对比
     @ResponseBody
@@ -1328,7 +1300,7 @@ public class CustomCentreController {
         if (orgDataList != null && orgDataList.size() > 0) {
             orgDataList.stream().forEach(m->{
                 String org = String.valueOf(m.get("organization"));
-                String standardOrg = getStandardOrg(org);
+                String standardOrg = inquiryService.getStandardOrg(org);
                 Integer count = Integer.valueOf(m.get("total").toString());
                 if(oMap.containsKey(standardOrg)){
                     Map<String, Object> map1 = oMap.get(standardOrg);
@@ -1547,7 +1519,7 @@ public class CustomCentreController {
         }).reduce(0, (a, b) -> a + b);
         for (Map<String, Object> m : orgdataList) {
             if (orgTotalCount != null && orgTotalCount > 0) {
-                String standardOrg = getStandardOrg(m.get("org").toString());
+                String standardOrg = inquiryService.getStandardOrg(m.get("org").toString());
                 String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
                 if (!orgData.containsKey(standardOrg)) {
                     Map<String, Object> mm = new HashMap<>();
@@ -1795,7 +1767,7 @@ public class CustomCentreController {
             }).reduce(0, (a, b) -> a + b);
             for (Map<String, Object> data : orgDataList) {
                 String org = String.valueOf(data.get("org"));
-                String standardOrg = getStandardOrg(org);
+                String standardOrg = inquiryService.getStandardOrg(org);
                 int orgCount = Integer.parseInt(data.get("ordCount").toString());
                 Double ordAmmount = Double.parseDouble(data.get("ordAmmount").toString());//金额保留两位小数
                 if (orgTotalCount != null && orgTotalCount > 0) {
