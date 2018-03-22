@@ -50,8 +50,9 @@ public class InspectReportController {
                 InspectApply inspectApply = inspectReport.getInspectApply();
                 inspectReport.setPurchNo(inspectApply.getPurchNo());
                 inspectReport.setInspectDate(inspectApply.getInspectDate());
-                inspectReport.setDoneDate(inspectReport.getLastDoneDate()); // 兼容前端字段，使用doneDate
-
+                if (inspectReport.getLastDoneDate() != null) {
+                    inspectReport.setDoneDate(inspectReport.getLastDoneDate()); // 兼容前端字段，使用doneDate
+                }
                 inspectReport.setDirect(inspectApply.getDirect());
                 inspectReport.setAttachments(null);
                 inspectReport.setInspectGoodsList(null);

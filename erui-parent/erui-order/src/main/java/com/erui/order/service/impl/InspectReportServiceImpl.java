@@ -267,6 +267,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         dbInspectReport.setNcrNo(inspectReport.getNcrNo());
         dbInspectReport.setCheckDate(inspectReport.getCheckDate());
         dbInspectReport.setDoneDate(inspectReport.getDoneDate());
+        dbInspectReport.setLastDoneDate(inspectReport.getDoneDate());
         dbInspectReport.setReportRemarks(inspectReport.getReportRemarks());
         dbInspectReport.setStatus(statusEnum.getCode());
 
@@ -355,7 +356,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         InspectApply inspectApplyParent = inspectApply.getParent();
         if(!dbInspectReport.getReportFirst()){
             InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(inspectApplyParent.getId());
-            firstInspectReport.setLastDoneDate(firstInspectReport.getDoneDate());
+            firstInspectReport.setLastDoneDate(dbInspectReport.getDoneDate());
             inspectReportDao.save(firstInspectReport);
         }
 
