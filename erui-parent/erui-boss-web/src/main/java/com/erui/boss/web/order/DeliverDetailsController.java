@@ -100,27 +100,8 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
 
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
-        List<Map<String, Object>> goodsInfoList = new ArrayList<>();
-        for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
-            Goods goods = deliverConsignGoods.getGoods();
 
-            Map<String, Object> goodsInfoMap = new HashMap<>();
-            goodsInfoMap.put("id", deliverConsignGoods.getId());
-            goodsInfoMap.put("goodsId", goods.getId());
-            goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
-            goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
-            goodsInfoMap.put("sku", goods.getSku()); // 平台SKU
-            goodsInfoMap.put("nameEn", goods.getNameEn()); // 英文品名
-            goodsInfoMap.put("nameZh", goods.getNameZh()); // 中文品名
-            goodsInfoMap.put("model", goods.getModel()); // 规格型号
-            goodsInfoMap.put("unit", goods.getUnit()); // 单位
-            goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
-            goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
-            goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
-
-            goodsInfoList.add(goodsInfoMap);
-        }
+        List<Map<String, Object>> goodsInfoList = goodsMessage(deliverConsignGoodsList);    //处理商品信息
 
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
 
@@ -195,29 +176,9 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
         deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
-
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
-        List<Map<String, Object>> goodsInfoList = new ArrayList<>();
-        for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
-            Goods goods = deliverConsignGoods.getGoods();
 
-            Map<String, Object> goodsInfoMap = new HashMap<>();
-            goodsInfoMap.put("id", deliverConsignGoods.getId());
-            goodsInfoMap.put("goodsId", goods.getId());
-            goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
-            goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
-            goodsInfoMap.put("sku", goods.getSku()); // 平台SKU
-            goodsInfoMap.put("nameEn", goods.getNameEn()); // 英文品名
-            goodsInfoMap.put("nameZh", goods.getNameZh()); // 中文品名
-            goodsInfoMap.put("model", goods.getModel()); // 规格型号
-            goodsInfoMap.put("unit", goods.getUnit()); // 单位
-            goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
-            goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
-            goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
-            goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
-
-            goodsInfoList.add(goodsInfoMap);
-        }
+        List<Map<String, Object>> goodsInfoList = goodsMessage(deliverConsignGoodsList);    //处理商品信息
 
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
 
@@ -298,4 +259,34 @@ public class DeliverDetailsController {
 
 
 
+    //处理商品信息
+    public List<Map<String, Object>> goodsMessage(List<DeliverConsignGoods> deliverConsignGoodsList){
+
+        List<Map<String, Object>> goodsInfoList = new ArrayList<>();
+        for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
+            if(deliverConsignGoods.getSendNum() != 0){
+                Goods goods = deliverConsignGoods.getGoods();
+                Map<String, Object> goodsInfoMap = new HashMap<>();
+                goodsInfoMap.put("id", deliverConsignGoods.getId());
+                goodsInfoMap.put("goodsId", goods.getId());
+                goodsInfoMap.put("contractNo", goods.getContractNo()); // 销售合同号
+                goodsInfoMap.put("projectNo", goods.getProjectNo()); // 项目号
+                goodsInfoMap.put("sku", goods.getSku()); // 平台SKU
+                goodsInfoMap.put("nameEn", goods.getNameEn()); // 英文品名
+                goodsInfoMap.put("nameZh", goods.getNameZh()); // 中文品名
+                goodsInfoMap.put("model", goods.getModel()); // 规格型号
+                goodsInfoMap.put("unit", goods.getUnit()); // 单位
+                goodsInfoMap.put("sendNum", deliverConsignGoods.getSendNum()); // 数量
+                goodsInfoMap.put("packRequire", deliverConsignGoods.getPackRequire()); // 包装要求
+                goodsInfoMap.put("clientDesc", goods.getClientDesc());  // 描述
+                goodsInfoMap.put("outboundRemark", deliverConsignGoods.getOutboundRemark()); // 出库备注 TODO
+                goodsInfoList.add(goodsInfoMap);
+            }
+        }
+        return  goodsInfoList;
+    }
+
+
 }
+
+
