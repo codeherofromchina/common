@@ -99,7 +99,12 @@ public interface InquiryCountService {
 	 * @return
 	 */
 	 CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
-
+	/**
+	 * 获取询单报价用时分析数据
+	 * @param params
+	 * @return
+	 */
+	Map<String,Object> selectQuoteTimeSummaryData(Map<String,String> params);
 	/**
 	 * 询订单分类 TOP N
 	 * @param topN
@@ -116,7 +121,7 @@ public interface InquiryCountService {
 	 * @param endDate
 	 * @return  {"total":'总询单数量--Long',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,String[] quotes);
+	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,int rtnCount,String[] quotes);
 
 	/**
 	 * 询订单趋势图数据
@@ -132,7 +137,7 @@ public interface InquiryCountService {
 	 * @param endTime
 	 * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
 	 */
-    List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,String[] quotes);
+    List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,int rtnCount,String[] quotes);
 
 	/**
 	 * 按照转入日期区间统计事业部的平均报价时间
@@ -158,4 +163,10 @@ public interface InquiryCountService {
 	 * @param endTime
 	 */
 	int selectInqRtnCountByTime(Date startTime, Date endTime);
+	/**
+	 * 查询询单、交易的人数和单数
+	 * @param params
+	 */
+	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,String> params);
+
 }

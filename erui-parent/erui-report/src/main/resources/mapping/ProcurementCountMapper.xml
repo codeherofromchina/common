@@ -80,35 +80,23 @@
     <!--起始时间-->
     <select id="selectStart" resultType="java.util.Date">
 SELECT
-	(
-		CASE
-		WHEN assign_time > execute_time THEN
-			execute_time
-		ELSE
-			assign_time
-		END
-	) AS startTime
+	assign_time
 FROM
 	procurement_count
+WHERE assign_time IS NOT NULL
 ORDER BY
-	startTime ASC
+	DATE_FORMAT(assign_time,"%Y-%m-%d %H:%i%S") ASC
 LIMIT 1
   </select>
     <!--结束时间-->
     <select id="selectEnd" resultType="java.util.Date">
    SELECT
-	(
-		CASE
-		WHEN assign_time > execute_time THEN
-			assign_time
-		ELSE
-			execute_time
-		END
-	) AS startTime
+	assign_time
 FROM
 	procurement_count
+WHERE assign_time IS NOT NULL
 ORDER BY
-	startTime DESC
+	DATE_FORMAT(assign_time,"%Y-%m-%d %H:%i%S") DESC
 LIMIT 1
   </select>
 

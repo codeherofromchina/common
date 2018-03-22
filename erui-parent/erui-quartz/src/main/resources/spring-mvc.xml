@@ -30,7 +30,7 @@
 	<!-- 模板信息设置 -->
 	<bean id="velocityConfigurer"
 		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
-		<property name="resourceLoaderPath" value="WEB-INF/velocity" /><!-- 
+		<property name="resourceLoaderPath" value="WEB-INF/velocity" /><!--
 			設置模板放置位置 -->
 		<property name="velocityProperties">
 			<props>

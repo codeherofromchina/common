@@ -44,4 +44,8 @@ public interface InqRtnReasonMapper {
      * 查询事业部退回原因明细
      * */
     List<Map<String, Object>> selectCountGroupByRtnSeasonAndOrg(InqRtnReasonExample example);
+    /*
+     * 批量插入数据
+     * */
+    void insertRtnReasons(List<InqRtnReason> reasons);
 }

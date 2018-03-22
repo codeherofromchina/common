@@ -191,14 +191,27 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.erui.report.model.InquirySku" >
-    insert into inquiry_sku (id, rollin_time, quotation_num, 
+  <insert id="insertSKUList" parameterType="java.util.List" >
+    insert into inquiry_sku (rollin_time, quotation_num,
       is_oil_gas, plat_pro_category, pro_category, 
       cate_count, is_kerui_equip_parts, pro_brand, 
       quote_unit_price, quote_total_price)
-    values (#{id,jdbcType=BIGINT}, #{rollinTime,jdbcType=TIMESTAMP}, #{quotationNum,jdbcType=VARCHAR}, 
-      #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR}, 
-      #{cateCount,jdbcType=INTEGER}, #{isKeruiEquipParts,jdbcType=VARCHAR}, #{proBrand,jdbcType=VARCHAR}, 
+    values
+    <foreach collection="list" item="sku" separator="," index="index">
+      (#{sku.rollinTime,jdbcType=TIMESTAMP}, #{sku.quotationNum,jdbcType=VARCHAR},
+      #{sku.isOilGas,jdbcType=VARCHAR}, #{sku.platProCategory,jdbcType=VARCHAR}, #{sku.proCategory,jdbcType=VARCHAR},
+      #{sku.cateCount,jdbcType=INTEGER}, #{sku.isKeruiEquipParts,jdbcType=VARCHAR}, #{sku.proBrand,jdbcType=VARCHAR},
+      #{sku.quoteUnitPrice,jdbcType=DECIMAL}, #{sku.quoteTotalPrice,jdbcType=DECIMAL})
+    </foreach>
+  </insert>
+  <insert id="insert" parameterType="com.erui.report.model.InquirySku" >
+    insert into inquiry_sku (id, rollin_time, quotation_num,
+      is_oil_gas, plat_pro_category, pro_category,
+      cate_count, is_kerui_equip_parts, pro_brand,
+      quote_unit_price, quote_total_price)
+    values (#{id,jdbcType=BIGINT}, #{rollinTime,jdbcType=TIMESTAMP}, #{quotationNum,jdbcType=VARCHAR},
+      #{isOilGas,jdbcType=VARCHAR}, #{platProCategory,jdbcType=VARCHAR}, #{proCategory,jdbcType=VARCHAR},
+      #{cateCount,jdbcType=INTEGER}, #{isKeruiEquipParts,jdbcType=VARCHAR}, #{proBrand,jdbcType=VARCHAR},
       #{quoteUnitPrice,jdbcType=DECIMAL}, #{quoteTotalPrice,jdbcType=DECIMAL})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.InquirySku" >

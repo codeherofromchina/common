@@ -503,6 +503,7 @@ public class CustomCentreController {
         return new Result<>(data);
     }
 
+
     // 询单时间分布分析
     @ResponseBody
     @RequestMapping(value = "/inquiryTimeDistrbute", method = RequestMethod.POST, produces = "application/json;charset=utf8")
@@ -513,41 +514,8 @@ public class CustomCentreController {
         if (startDate == null || endDate == null || startDate.after(endDate)) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-//        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
-
-        // 定义已完成询单的所有状态数组
-        String[] statusArr = new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
-        int totalCount = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 0, "", "");
-        int count1 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 0, 4, "", "");
-        int count2 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 4, 8, "", "");
-        int count3 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 8, 24, "", "");
-        int count5 = inquiryService.inquiryCountByTime(startDate, endDate, statusArr, 24, 48, "", "");
-        int otherCount = totalCount - (count1 + count2 + count3 + count5);
-        HashMap<String, Object> quoteTimeMap = new HashMap<>();
-        quoteTimeMap.put("oneCount", count1);
-        quoteTimeMap.put("fourCount", count2);
-        quoteTimeMap.put("eightCount", count3);
-        quoteTimeMap.put("twentyFourCount", count5);
-        quoteTimeMap.put("otherCount", otherCount);
-        Double oneCountRate = null;
-        Double fourCountRate = null;
-        Double eightCountRate = null;
-        Double twentyFourCountRate = null;
-        Double otherCountRate = null;
-        if (totalCount > 0) {
-            oneCountRate = RateUtil.intChainRate(count1, totalCount);
-            fourCountRate = RateUtil.intChainRate(count2, totalCount);
-            eightCountRate = RateUtil.intChainRate(count3, totalCount);
-            twentyFourCountRate = RateUtil.intChainRate(count5, totalCount);
-            otherCountRate = RateUtil.intChainRate(otherCount, totalCount);
-        }
-        quoteTimeMap.put("oneCountRate", oneCountRate);
-        quoteTimeMap.put("fourCountRate", fourCountRate);
-        quoteTimeMap.put("eightCountRate", eightCountRate);
-        quoteTimeMap.put("twentyFourCountRate", twentyFourCountRate);
-        quoteTimeMap.put("otherCountRate", otherCountRate);
-
-        return new Result<>(quoteTimeMap);
+       Map<String,Object> data= this.inquiryService.selectQuoteTimeSummaryData(params);
+        return new Result<>(data);
     }
 
     // 事业部明细
@@ -563,7 +531,7 @@ public class CustomCentreController {
 //        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]x`
 
         //1查询给定时间的事业部询单数量
-        List<Map<String, Object>> quiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate, null);
+        List<Map<String, Object>> quiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate,0, null);
         // 查询给定时间段的事业部订单数量和金额
         List<Map<String, Object>> derList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
         //查询给定时间段的事业部平均报价时间
@@ -793,7 +761,7 @@ public class CustomCentreController {
 
         Result<Object> result = new Result<>();
         ///查询给定时间的区域询单数量和金额
-        List<Map<String, Object>> inquiryList = inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startDate, endDate, null);
+        List<Map<String, Object>> inquiryList = inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startDate, endDate,0,null);
         // 查询给定时间段的区域订单数量和金额
         List<Map<String, Object>> orderList = orderService.findCountAndAmountByRangProjectStartGroupArea(startDate, endDate);
 
@@ -1313,7 +1281,12 @@ public class CustomCentreController {
         }
 
         //2.根据状态获取各大区的询单数据
-        List<Map<String, Object>> areaDataList = this.inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startTime, endTime, quotes);
+        List<Map<String, Object>> areaDataList =null;
+        if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {//已退回
+            areaDataList= this.inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startTime, endTime, 1, quotes);
+        }else{
+            areaDataList= this.inquiryService.findCountAndPriceByRangRollinTimeGroupArea(startTime, endTime, 0, quotes);
+        }
         List<String> areas = new ArrayList<>();//大区列表
         List<Integer> areaCounts = new ArrayList<>();//各大区数量列表
         List<Map<String, Object>> areaTableList = new ArrayList<>();//大区表格明细数据
@@ -1340,7 +1313,12 @@ public class CustomCentreController {
             }
         }
         //3.根据状态获取获取各事业部的数据
-        List<Map<String, Object>> orgDataList = this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime, quotes);
+        List<Map<String, Object>> orgDataList = null;
+        if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {//已退回
+            orgDataList= this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime,1, quotes);
+        }else {
+            orgDataList= this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime, 0,quotes);
+        }
 
         List<String> orgs = new ArrayList<>();//事业部列表
         List<Integer> orgCounts = new ArrayList<>();//各事业部数量
@@ -1348,19 +1326,18 @@ public class CustomCentreController {
 
         Map<String, Map<String, Object>> oMap = new HashMap<>();//用于存放整合成标准的事业部数据
         if (orgDataList != null && orgDataList.size() > 0) {
-            for (Map<String, Object> m : orgDataList) {
+            orgDataList.stream().forEach(m->{
                 String org = String.valueOf(m.get("organization"));
                 String standardOrg = getStandardOrg(org);
                 Integer count = Integer.valueOf(m.get("total").toString());
-                if (oMap.containsKey(standardOrg)) {
-                    Map<String, Object> m1 = oMap.get(standardOrg);
-                    Integer count2 = Integer.valueOf(m1.get("total").toString());
-                    m1.put("total", count + count2);
-                } else {
+                if(oMap.containsKey(standardOrg)){
+                    Map<String, Object> map1 = oMap.get(standardOrg);
+                    map1.put("total",Integer.parseInt(map1.get("total").toString())+count);
+                }else {
                     m.put("organization", standardOrg);
-                    oMap.put(standardOrg, m);
+                    oMap.put(standardOrg,m);
                 }
-            }
+            });
             if (oMap.size() > 0) {
                 Set<String> strings = oMap.keySet();
                 orgs = new ArrayList<>(strings);

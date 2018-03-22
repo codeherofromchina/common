@@ -187,10 +187,10 @@
     is_success_order, lose_order_category, lose_order_cause
   </sql>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT rollin_time FROM inquiry_count WHERE rollin_time IS NOT NULL ORDER BY rollin_time ASC LIMIT 1
+    SELECT rollin_time FROM inquiry_count WHERE rollin_time IS NOT NULL ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
-    SELECT rollin_time FROM inquiry_count ORDER BY rollin_time DESC LIMIT 1
+    SELECT rollin_time FROM inquiry_count ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquiryCountExample" >
     select
@@ -347,6 +347,68 @@
       order by ${orderByClause}
     </if>
   </select>
+    <!--查询各个时间段报价询单个数-->
+  <select id="selectInqCountGroupByQuoteTime" resultType="java.util.Map" parameterType="java.util.Map" >
+      SELECT
+      COUNT(1) AS totalCount,
+      SUM(CASE  WHEN quote_need_time &lt;=4 THEN 1 ELSE 0 END) AS oneCount,
+      SUM(CASE  WHEN  quote_need_time>4  AND quote_need_time &lt;=8 THEN 1 ELSE 0 END) AS fourCount,
+      SUM(CASE  WHEN quote_need_time>8  AND quote_need_time &lt;=24 THEN 1 ELSE 0 END) AS eightCount,
+      SUM(CASE  WHEN quote_need_time>24  AND  quote_need_time &lt;=48 THEN 1 ELSE 0 END) AS twentyFourCount,
+      SUM(CASE  WHEN quote_need_time>48   THEN 1 ELSE 0 END) AS otherCount
+      from inquiry_count
+      WHERE 1=1
+      <if test="finished!=null and quoted!=null">
+         and quoted_status in (#{finished},#{quoted})
+      </if>
+
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+  </select>
+    <!--查询询单、交易的人数和单数-->
+  <select id="selectInqAndOrdCountAndPassengers" resultType="java.util.Map" parameterType="java.util.Map" >
+  SELECT
+  t1.inqCount+t2.inqNullCount AS inqCount,
+  t1.inqCustCount+t2.inqCustNullCount AS inqCustCount,
+  t3.ordCount+t4.ordNullCount AS ordCount,
+  t3.ordCustCount+t4.ordCustNullCount AS ordCustCount
+  from
+    (SELECT COUNT(1) AS inqCount,COUNT(DISTINCT(cust_description)) AS inqCustCount
+       FROM inquiry_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+       AND cust_description IS NOT NULL)
+     AS t1,
+    (SELECT COUNT(1) AS inqNullCount,COUNT(1) AS inqCustNullCount
+       FROM inquiry_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NULL)
+    AS t2,
+    (SELECT COUNT(1) AS ordCount,COUNT(DISTINCT(cust_description)) AS ordCustCount
+       FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NOT NULL)
+    AS t3,
+    (SELECT COUNT(1) AS ordNullCount ,COUNT(1) AS ordCustNullCount
+       FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NULL)
+    AS t4;
+
+  </select>
 
 
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
@@ -386,6 +448,9 @@
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
+      <if test="orderByClause != null" >
+          order by ${orderByClause}
+      </if>
     group by organization HAVING  organization IS  NOT NULL
   </select>
   <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >

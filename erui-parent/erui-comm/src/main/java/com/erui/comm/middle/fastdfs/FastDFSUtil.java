@@ -94,23 +94,24 @@ public class FastDFSUtil {
 	}
 	
 	private static void init() throws IOException, FileNotFoundException, MyException {
-		Properties properties = new Properties();
-		properties.load(new BufferedInputStream(FastDFSUtil.class.getResourceAsStream("/comm.properties")));
-		ng_Server = properties.getProperty("fdfs_ng_server");
-		StringBuilder text = new StringBuilder();
-		text.append("connect_timeout=").append(properties.getProperty("fdfs_connect_timeout")).append("\n")
-			.append("network_timeout=").append(properties.getProperty("fdfs_network_timeout")).append("\n")
-			.append("charset=").append(properties.getProperty("fdfs_charset")).append("\n")
-			.append("http.anti_steal_token=").append(properties.getProperty("fdfs_http.anti_steal_token")).append("\n")
-			.append("tracker_server=").append(properties.getProperty("fdfs_tracker_server"));
-		FileReadWriteUtil.writeFile(StringUtil.classpath(), "fdfs_client.conf", text.toString());
-		
-		ClientGlobal.init(StringUtil.classpath() + "fdfs_client.conf");
-		
-		File file = new File(StringUtil.classpath() + "fdfs_client.conf");
-		if(file.exists() && file.isFile()){
-			file.deleteOnExit();
-		}
+//		Properties properties = new Properties();
+//		properties.load(new BufferedInputStream(FastDFSUtil.class.getResourceAsStream("/comm.properties")));
+//		ng_Server = properties.getProperty("fdfs_ng_server");
+//		StringBuilder text = new StringBuilder();
+//		text.append("connect_timeout=").append(properties.getProperty("fdfs_connect_timeout")).append("\n")
+//			.append("network_timeout=").append(properties.getProperty("fdfs_network_timeout")).append("\n")
+//			.append("charset=").append(properties.getProperty("fdfs_charset")).append("\n")
+//			.append("http.anti_steal_token=").append(properties.getProperty("fdfs_http.anti_steal_token")).append("\n")
+//			.append("tracker_server=").append(properties.getProperty("fdfs_tracker_server"));
+//		FileReadWriteUtil.writeFile(StringUtil.classpath(), "fdfs_client.conf", text.toString());
+//
+		String configPath = FastDFSUtil.class.getResource("/fdfs_client.conf").getFile();
+		ClientGlobal.init(configPath);
+//
+//		File file = new File(StringUtil.classpath() + "fdfs_client.conf");
+//		if(file.exists() && file.isFile()){
+//			file.deleteOnExit();
+//		}
 	}
 	
 	/**
@@ -129,9 +130,11 @@ public class FastDFSUtil {
 	public static String[] uploadFile(String local_filename, String file_ext_name, NameValuePair [] meta_list) throws IOException, MyException {
 		return storageClient.upload_file(local_filename, file_ext_name, meta_list);
 	}
-	public static String[] uploadFile(byte [] bytefile, String file_ext_name, NameValuePair [] meta_list) throws IOException, MyException {
-		return storageClient.upload_file(bytefile, file_ext_name, meta_list);
+	public static String[] uploadFile(String groupname,byte [] bytefile, String file_ext_name, NameValuePair [] meta_list) throws IOException, MyException {
+		return storageClient.upload_file(groupname,bytefile, file_ext_name, meta_list);
 	}
+
+
 	/**
 	 * 获取文件的内容，通过数据库中保存的文件路径
 	 * @param path
@@ -165,7 +168,25 @@ public class FastDFSUtil {
 		char last_char = save_path.charAt(save_path.length() - 1);
 		IOUtils.write(b, new FileOutputStream((File.separatorChar == last_char ? "" : File.separator) + save_path + File.separator + UUID.randomUUID().toString() + "." + file_extension_name));
 	}
-	
+	/**
+	 * <div style="color:green;font-weight: bolder;">
+	 * 	<h3>文件下载</h3>
+	 * 	&emsp;&emsp;描述：返回文件名
+	 * </div>
+	 * @date 2015年12月11日下午2:47:21
+	 * @param
+	 * @throws
+	 * @return saveFailName
+	 */
+	public static String downloadFile2(String group_name, String remote_filename, String save_path) throws IOException, MyException {
+		byte [] b = storageClient.download_file(group_name, remote_filename);
+		String file_extension_name = StringUtils.getExtension(remote_filename);
+		char last_char = save_path.charAt(save_path.length() - 1);
+		String randomFileName=File.separator + UUID.randomUUID().toString();
+		IOUtils.write(b, new FileOutputStream((File.separatorChar == last_char ? "" : File.separator) + save_path +randomFileName + "." + file_extension_name));
+		return  randomFileName + "." + file_extension_name;
+	}
+
 	/**
 	 * <div style="color:green;font-weight: bolder;">
 	 * 	<h3>删除文件</h3>

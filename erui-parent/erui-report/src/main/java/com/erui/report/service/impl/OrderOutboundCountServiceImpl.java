@@ -1,8 +1,13 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.erui.comm.NewDateUtil;
+import com.erui.report.dao.StorageOrganiCountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +27,12 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
-        ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse(
+                new  String[]{"totalCount","entryCount","outCount"}
+        );
+
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        Map<String, BigDecimal> sumMap = response.getSumMap();
         int size = datas.size();
         OrderOutboundCount ooc = null;
         if (!testOnly) {
@@ -87,11 +97,33 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, e.getMessage());
                 continue;
             }
+
+            if(NewDateUtil.inSaturdayWeek(ooc.getOutboundDate())){
+                sumMap.put("outCount",sumMap.get("outCount").add(new BigDecimal(ooc.getPackCount())));
+            }
+            if(NewDateUtil.lessFridayWeek(ooc.getOutboundDate())){
+                sumMap.put("totalCount",sumMap.get("totalCount").add(new BigDecimal(-ooc.getPackCount())));
+            }
+
             response.incrSuccess();
 
         }
-        response.setDone(true);
+        //查询库存
+        try {
+            StorageOrganiCountMapper orgMapper = readerSession.getMapper(StorageOrganiCountMapper.class);
+            Date start = DateUtil.parseString2Date(OrderEntryCountServiceImpl.STARTTIME, DateUtil.FULL_FORMAT_STR2);
+            Map<String, Object> totalMap = OrderEntryCountServiceImpl.countStack(start,orgMapper);
+            int tentryCount = Integer.parseInt(totalMap.get("entryCount").toString());
+            sumMap.put("totalCount",sumMap.get("totalCount").add(new BigDecimal(tentryCount)));
+            //入库
+            Date[] week = NewDateUtil.getBeforeSaturdayWeek(new Date());
+            Map<String, Object> entryMap = OrderEntryCountServiceImpl.countStack(week[0],orgMapper);
+            sumMap.put("entryCount",new BigDecimal(entryMap.get("entryCount").toString()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
+        response.setDone(true);
         return response;
     }
 }

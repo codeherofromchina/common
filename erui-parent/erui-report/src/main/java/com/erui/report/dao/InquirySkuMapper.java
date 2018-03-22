@@ -47,4 +47,6 @@ public interface InquirySkuMapper {
      void  deleteByQuotetionNum(String quotetionNum);
      //获取sku区域数据汇总
     CustomerNumSummaryVO selectNumSummaryByExcample(InquirySkuExample example);
+    //批量插入sku
+    void insertSKUList(List<InquirySku> skuList);
 }
