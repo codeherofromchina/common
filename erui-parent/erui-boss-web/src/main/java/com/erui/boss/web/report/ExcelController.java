@@ -162,14 +162,14 @@ public class ExcelController {
             return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
         }
         //转成file类型
-        CommonsMultipartFile cf= (CommonsMultipartFile)file;
-        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
-        File saveFile = fi.getStoreLocation();
+//        CommonsMultipartFile cf= (CommonsMultipartFile)file;
+//        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
+//        File saveFile = fi.getStoreLocation();
 
         ExcelReader excelReader = new ExcelReader();
         try {
             // 读取excel所有的数据
-            List<String[]> excelContent = excelReader.readExcel(saveFile);
+            List<String[]> excelContent = excelReader.readExcel(file.getInputStream());
             // 判断数据和标题的正确性
             int dataRowSize = excelContent.size();
             if (dataRowSize < 1) {

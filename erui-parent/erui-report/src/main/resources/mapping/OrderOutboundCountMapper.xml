@@ -12,6 +12,7 @@
     <result column="outbound_date" property="outboundDate" jdbcType="DATE" />
     <result column="amounts" property="amounts" jdbcType="DECIMAL" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="doc_type" property="docType" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -73,7 +74,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, create_at, outbound_num, contract_num, destination, execute_num, pack_count, 
-    outbound_date, amounts, remark
+    outbound_date, amounts, remark ,doc_type
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.OrderOutboundCountExample" >
     select
@@ -109,11 +110,11 @@
     insert into order_outbound_count (id, create_at, outbound_num, 
       contract_num, destination, execute_num, 
       pack_count, outbound_date, amounts, 
-      remark)
+      remark ,doc_type)
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{outboundNum,jdbcType=VARCHAR}, 
       #{contractNum,jdbcType=VARCHAR}, #{destination,jdbcType=VARCHAR}, #{executeNum,jdbcType=VARCHAR}, 
       #{packCount,jdbcType=INTEGER}, #{outboundDate,jdbcType=DATE}, #{amounts,jdbcType=DECIMAL}, 
-      #{remark,jdbcType=VARCHAR})
+      #{remark,jdbcType=VARCHAR}, #{docType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.OrderOutboundCount" >
     insert into order_outbound_count
@@ -148,6 +149,9 @@
       <if test="remark != null" >
         remark,
       </if>
+      <if test="docType != null" >
+        doc_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -179,6 +183,9 @@
       </if>
       <if test="remark != null" >
         #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="docType != null" >
+        #{docType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -221,6 +228,9 @@
       <if test="record.remark != null" >
         remark = #{record.remark,jdbcType=VARCHAR},
       </if>
+      <if test="record.docType != null" >
+        remark = #{record.docType,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +247,8 @@
       pack_count = #{record.packCount,jdbcType=INTEGER},
       outbound_date = #{record.outboundDate,jdbcType=DATE},
       amounts = #{record.amounts,jdbcType=DECIMAL},
-      remark = #{record.remark,jdbcType=VARCHAR}
+      remark = #{record.remark,jdbcType=VARCHAR},
+      doc_type = #{record.docType,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +283,9 @@
       <if test="remark != null" >
         remark = #{remark,jdbcType=VARCHAR},
       </if>
+      <if test="docType != null" >
+        doc_type = #{docType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -285,7 +299,8 @@
       pack_count = #{packCount,jdbcType=INTEGER},
       outbound_date = #{outboundDate,jdbcType=DATE},
       amounts = #{amounts,jdbcType=DECIMAL},
-      remark = #{remark,jdbcType=VARCHAR}
+      remark = #{remark,jdbcType=VARCHAR},
+      doc_type = #{docType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
     <update id="truncateTable" >

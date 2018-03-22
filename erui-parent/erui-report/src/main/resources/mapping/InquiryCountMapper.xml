@@ -441,7 +441,7 @@
       </if>
       group by organization HAVING  organization IS  NOT NULL
   </select>
-
+    <!--查询各事业部的平均报价用时和单数-->
   <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime,COUNT(1) AS  total
     FROM erui_report.inquiry_count
@@ -451,6 +451,22 @@
       <if test="orderByClause != null" >
           order by ${orderByClause}
       </if>
+    group by organization HAVING  organization IS  NOT NULL
+  </select>
+
+    <!--查询各事业部的总报价用时和总单数-->
+  <select id="findTotalNeedTimeAndCountGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+    SELECT organization ,ifnull(SUM(ifnull(quote_need_time,0)),0) as totalNeedTime,COUNT(1) AS  totalCount
+    FROM erui_report.inquiry_count
+   where 1=1
+   <if test="finished!=null and quoted!=null">
+       and quoted_status in (#{finished},#{quoted})
+   </if>
+
+   <if test="startTime!=null and endTime !=null">
+       and rollin_time BETWEEN
+       DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+   </if>
     group by organization HAVING  organization IS  NOT NULL
   </select>
   <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >

@@ -8,6 +8,7 @@
         <result column="tray_num" property="trayNum" jdbcType="INTEGER"/>
         <result column="product_num" property="productNum" jdbcType="INTEGER"/>
         <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="doc_type" property="docType" jdbcType="VARCHAR"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -70,7 +71,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    id, create_at, organi_name, tray_num, product_num, remark
+    id, create_at, organi_name, tray_num, product_num, remark ,doc_type
   </sql>
     <select id="selectByExample" resultMap="BaseResultMap"
             parameterType="com.erui.report.model.StorageOrganiCountExample">
@@ -233,10 +234,11 @@
     </delete>
     <insert id="insert" parameterType="com.erui.report.model.StorageOrganiCount">
     insert into storage_organi_count (id, create_at, organi_name, 
-      tray_num, product_num, remark
+      tray_num, product_num, remark ,doc_type
       )
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{organiName,jdbcType=VARCHAR}, 
-      #{trayNum,jdbcType=INTEGER}, #{productNum,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+      #{trayNum,jdbcType=INTEGER}, #{productNum,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR},
+      #{docType,jdbcType=VARCHAR}
       )
   </insert>
     <insert id="insertSelective" parameterType="com.erui.report.model.StorageOrganiCount">
@@ -260,6 +262,9 @@
             <if test="remark != null">
                 remark,
             </if>
+            <if test="docType != null">
+                doc_type,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -279,6 +284,9 @@
             </if>
             <if test="remark != null">
                 #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="docType != null">
+                #{docType,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -310,6 +318,9 @@
             <if test="record.remark != null">
                 remark = #{record.remark,jdbcType=VARCHAR},
             </if>
+            <if test="record.docType != null">
+                doc_type = #{record.docType,jdbcType=VARCHAR},
+            </if>
         </set>
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
@@ -322,7 +333,8 @@
         organi_name = #{record.organiName,jdbcType=VARCHAR},
         tray_num = #{record.trayNum,jdbcType=INTEGER},
         product_num = #{record.productNum,jdbcType=INTEGER},
-        remark = #{record.remark,jdbcType=VARCHAR}
+        remark = #{record.remark,jdbcType=VARCHAR},
+        doc_type = #{record.docType,jdbcType=VARCHAR}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
@@ -345,6 +357,9 @@
             <if test="remark != null">
                 remark = #{remark,jdbcType=VARCHAR},
             </if>
+            <if test="docType != null">
+                doc_type = #{record.docType,jdbcType=VARCHAR},
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -354,7 +369,8 @@
       organi_name = #{organiName,jdbcType=VARCHAR},
       tray_num = #{trayNum,jdbcType=INTEGER},
       product_num = #{productNum,jdbcType=INTEGER},
-      remark = #{remark,jdbcType=VARCHAR}
+      remark = #{remark,jdbcType=VARCHAR},
+      doc_type = #{docType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
     <update id="truncateTable">
