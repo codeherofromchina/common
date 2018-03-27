@@ -163,6 +163,9 @@ public class ComplexOrder {
     }
 
     public void setTotalPrice(String totalPrice) {
+        if (StringUtils.isEmpty(totalPrice)){
+            totalPrice = "0.00";
+        }
         this.totalPrice = totalPrice;
     }
 

@@ -66,24 +66,28 @@ public class OrderOutController {
         Page<ComplexOrder> orderPage = orderService.findByOutList(condition);
         HashMap<Object, Object> map = null;
         if (orderPage.hasContent()) {
-            orderPage.getContent().forEach(vo -> {
-                ResponseOutOrder responseOutOrder = new ResponseOutOrder();
-                responseOutOrder.setId(vo.getId());
-                responseOutOrder.setOrder_no(vo.getContractNo());
-                responseOutOrder.setStatus(vo.getStatus());
-                responseOutOrder.setAmount(BigDecimal.valueOf(Double.parseDouble(vo.getTotalPrice())));
-                responseOutOrder.setDelivery_at(vo.getDeliveryDate());
-                responseOutOrder.setPay_status(vo.getPayStatus());
-                responseOutOrder.setPo_no(vo.getPoNo());
-                responseOutOrder.setTrade_terms_bn(vo.getTradeTerms());
-                responseOutOrder.setType(vo.getType());
-                responseOutOrder.setCurrency_bn(vo.getCurrencyBn());
-                responseOutOrder.setTo_country(vo.getToCountry());
-                responseOutOrder.setTo_port(vo.getToPort());
-                responseOutOrder.setShow_status_text(ComplexOrder.fromStatusCode(vo.getStatus()).toString());
-                responseOutOrder.setPay_status_text(ComplexOrder.fromPayCode(vo.getPayStatus()).toString());
-                outList.add(responseOutOrder);
-            });
+            try {
+                orderPage.getContent().forEach(vo -> {
+                    ResponseOutOrder responseOutOrder = new ResponseOutOrder();
+                    responseOutOrder.setId(vo.getId());
+                    responseOutOrder.setOrder_no(vo.getContractNo());
+                    responseOutOrder.setStatus(vo.getStatus());
+                    responseOutOrder.setAmount(BigDecimal.valueOf(Double.parseDouble(vo.getTotalPrice())));
+                    responseOutOrder.setDelivery_at(vo.getDeliveryDate());
+                    responseOutOrder.setPay_status(vo.getPayStatus());
+                    responseOutOrder.setPo_no(vo.getPoNo());
+                    responseOutOrder.setTrade_terms_bn(vo.getTradeTerms());
+                    responseOutOrder.setType(vo.getType());
+                    responseOutOrder.setCurrency_bn(vo.getCurrencyBn());
+                    responseOutOrder.setTo_country(vo.getToCountry());
+                    responseOutOrder.setTo_port(vo.getToPort());
+                    responseOutOrder.setShow_status_text(ComplexOrder.fromStatusCode(vo.getStatus()).toString());
+                    responseOutOrder.setPay_status_text(ComplexOrder.fromPayCode(vo.getPayStatus()).toString());
+                    outList.add(responseOutOrder);
+                });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             map = new HashMap<>();
             map.put("count",orderPage.getTotalElements());
             map.put("data",outList);
