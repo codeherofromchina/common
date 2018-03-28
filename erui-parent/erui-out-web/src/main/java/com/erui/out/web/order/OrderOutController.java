@@ -81,8 +81,8 @@ public class OrderOutController {
                     responseOutOrder.setCurrency_bn(vo.getCurrencyBn());
                     responseOutOrder.setTo_country(vo.getToCountry());
                     responseOutOrder.setTo_port(vo.getToPort());
-                    responseOutOrder.setShow_status_text(ComplexOrder.fromStatusCode(vo.getStatus()).toString());
-                    responseOutOrder.setPay_status_text(ComplexOrder.fromPayCode(vo.getPayStatus()).toString());
+                    responseOutOrder.setShow_status_text(ComplexOrder.fromStatusCode(vo.getStatus()));
+                    responseOutOrder.setPay_status_text(ComplexOrder.fromPayCode(vo.getPayStatus()));
                     outList.add(responseOutOrder);
                 });
             }catch (Exception e){
@@ -97,11 +97,10 @@ public class OrderOutController {
             result.setCode(ResultStatusEnum.DATA_NULL.getCode());
             result.setMsg(ResultStatusEnum.DATA_NULL.getMsg());
             return result;
+
         }
         return map;
-
     }
-
     /**
      * 删除订单
      *
@@ -115,6 +114,8 @@ public class OrderOutController {
     }
 
     /**
+     *
+     *
      * 新增订单
      *
      * @param addOrderVo

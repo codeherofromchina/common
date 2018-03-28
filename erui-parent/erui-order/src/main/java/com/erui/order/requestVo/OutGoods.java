@@ -10,35 +10,6 @@ import java.math.BigDecimal;
  * Created by wangxiaodan on 2017/12/13.
  *
  */
-/*{
-        "id": "160",
-        "order_no": "201803090003",
-        "sku": "1303050000010001",
-        "lang": "en",
-        "name": "Welding apron",
-        "model": "KGW2001",
-        "spec_attrs": {
-        "Color": "Yellow",
-        "Material": "Cow Split Leather",
-        "Size": "90*60cm",
-        "Pocket": "None",
-        "Strap": "Polyester",
-        "Strap Width": "2.5cm"
-        },
-        "price": "Negotiable",
-        "buy_number": "1",
-        "min_pack_naked_qty": "1",
-        "nude_cargo_unit": "piece",
-        "min_pack_unit": "bag",
-        "thumb": [],
-        "buyer_id": "199",
-        "trans_mode": "",
-        "supplier": "",
-        "show_status_text": "To be confirmed",
-        "pay_status_text": "Unpaid",
-        "subtotal": ""
-        }*/
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OutGoods {
     private Integer id;//商品id
     private String order_no;//销售合同号

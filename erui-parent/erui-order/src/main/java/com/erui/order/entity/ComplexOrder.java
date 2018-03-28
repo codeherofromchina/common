@@ -266,7 +266,7 @@ public class ComplexOrder {
     }
 
     public static enum StatusEnum {
-        ONE(-1, "草稿") ,INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
+        INIT(1, "Proceeding"), Proceeding(2, "Proceeding"), Tobeconfirmed(3, "To be confirmed"), Finished(4, "Finished");
 
         public int code;
         public String msg;
@@ -286,7 +286,7 @@ public class ComplexOrder {
     }
 
     public static enum PayStatusEnum {
-        ONE(-1, "草稿"),INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
+        Unpaid(1, "Unpaid"), Partpaid(2, "Part paid"), PaymentComplete(3, "Payment Complete");
 
         public int code;
         public String msg;
@@ -305,21 +305,21 @@ public class ComplexOrder {
         }
     }
 
-    public static StatusEnum fromStatusCode(Integer code) {
+    public static String fromStatusCode(Integer code) {
         if (code != null) {
             for (StatusEnum statusEnum : StatusEnum.values()) {
                 if (statusEnum.getCode() == code) {
-                    return statusEnum;
+                    return statusEnum.getMsg();
                 }
             }
         }
         return null;
     }
-    public static PayStatusEnum fromPayCode(Integer code) {
+    public static String fromPayCode(Integer code) {
         if (code != null) {
             for (PayStatusEnum payStatusEnum : PayStatusEnum.values()) {
                 if (payStatusEnum.getCode() == code) {
-                    return payStatusEnum;
+                    return payStatusEnum.getMsg();
 
                 }
             }

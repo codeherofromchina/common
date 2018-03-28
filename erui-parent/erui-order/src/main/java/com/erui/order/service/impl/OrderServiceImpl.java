@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -169,8 +170,10 @@ public class OrderServiceImpl implements OrderService {
                 List<Predicate> list = new ArrayList<>();
                 //根据订单日期查询
                 if (condition.getStart_time() != null && condition.getEnd_time() != null) {
-                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), condition.getStart_time());
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), condition.getEnd_time());
+                    Date startT  = DateUtil.getOperationTime(condition.getStart_time(),0,0,0);
+                    Date endT  = DateUtil.getOperationTime(condition.getEnd_time(),23,59,59);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     list.add(startTime);
                     list.add(endTime);
                 }
@@ -557,6 +560,21 @@ public class OrderServiceImpl implements OrderService {
     public Map<String, Object> findByIdOut(Integer id) {
         Order order = orderDao.findOne(id);
         List<OrderLog> logList = orderLogDao.findByOrderIdOrderByCreateTimeAsc(id);
+        ArrayList<Object> logs = new ArrayList<>();
+        for (OrderLog orderLog:logList) {
+            OrderLog orderLog2 = new OrderLog();
+           switch (orderLog.getOperation()){
+                case "创建订单": orderLog2.setOperation("Create Order");break;
+                case "收到预付款": orderLog2.setOperation("Receive advance payment");break;
+                case "商品出库": orderLog2.setOperation("Goods export");break;
+                case "已收货": orderLog2.setOperation("received");break;
+                case "全部交收完成": orderLog2.setOperation("Completed delivery");break;
+                case "订单签约":orderLog2.setOperation("Signing order");break;
+                case "其他": orderLog2.setOperation("Other");break;
+
+            }
+            logs.add(orderLog2);
+        }
         OutOrderDetail outOrderDetail = null;
         List<OutGoods> goodList = new ArrayList<>();
         HashMap<String, Object> resultMap = null;
@@ -581,7 +599,7 @@ public class OrderServiceImpl implements OrderService {
             resultMap = new HashMap<>();
             resultMap.put("orderinfo",outOrderDetail);
             resultMap.put("ordergoods",goodList);
-            resultMap.put("orderlogs",logList);
+            resultMap.put("orderlogs",logs);
             resultMap.put("order_no",order.getContractNo());
             resultMap.put("orderaddress",null);
             resultMap.put("orderpayments",null);

@@ -362,8 +362,8 @@ public class OutOrderDetail {
         this.setAddress(null);
         this.setStatus(order.getStatus());
         this.setPay_status(order.getPayStatus());
-        this.setShow_status_text(ComplexOrder.fromStatusCode(order.getStatus()).toString());
-        this.setPay_status_text(ComplexOrder.fromPayCode(order.getPayStatus()).toString());
+        this.setShow_status_text(ComplexOrder.fromStatusCode(order.getStatus()));
+        this.setPay_status_text(ComplexOrder.fromPayCode(order.getPayStatus()));
         this.setAmount(order.getTotalPrice());
         this.setTrade_terms_bn(order.getTradeTerms());
         this.setCurrency_bn(order.getCurrencyBn());
@@ -378,7 +378,7 @@ public class OutOrderDetail {
         this.setTo_port_bn(null);
         this.setQuality(null);
         this.setComment_flag(null);
-        this.setRemark(null);
+        this.setRemark(order.getDeliveryRequires());
         this.setCreated_at(order.getCreateTime());
         this.setTrans_mode(order.getTransportType());
         this.setDelivery_at(order.getDeliveryDate());
