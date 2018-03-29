@@ -2,9 +2,11 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
+import com.erui.order.util.GoodsUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,6 +155,10 @@ public class ProjectController {
             if (project.getPurchRequisition() != null) {
                 project.getPurchRequisition().setGoodsList(null);
             }
+
+            // 按照父子商品排序
+            GoodsUtils.sortGoodsByParentAndSon(project.getGoodsList());
+
             return new Result<>(project);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
