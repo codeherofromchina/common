@@ -5,6 +5,7 @@ import com.erui.order.requestVo.ProjectListCondition;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单业务类
@@ -49,6 +50,17 @@ public interface ProjectService {
      * @return
      */
     List<Project> purchAbleList(List<String> projectNoList,String purchaseUid) throws Exception;
+
+    /**
+     * 获取可采购的项目列表
+     * @param projectNoList
+     * @param purchaseUid
+     * @param pageNum
+     * @param pageSize
+     * @return  {id:项目ID,projectNo:项目编号,projectName:项目名称}
+     * @throws Exception
+     */
+    Page<Map<String,Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize) throws Exception;
 
     /**
      * 根据id查询项目信息

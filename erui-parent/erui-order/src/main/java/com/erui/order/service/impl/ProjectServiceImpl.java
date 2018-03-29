@@ -7,11 +7,13 @@ import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.entity.Purch;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -198,6 +197,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public List<Project> purchAbleList(List<String> projectNoList, String purchaseUid) throws Exception {
+
         List<Project> list = null;
         if (StringUtils.isBlank(purchaseUid)) {
             list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
@@ -230,13 +230,122 @@ public class ProjectServiceImpl implements ProjectService {
                 return goodsList.parallelStream().anyMatch(goods -> {
                     return goods.getPrePurchsedNum() < goods.getContractGoodsNum();
                 });
-            }).sorted((o1,o2) -> {
+            }).sorted((o1, o2) -> {
                 return o2.getUpdateTime().compareTo(o1.getUpdateTime());
             }).collect(Collectors.toList());
 
         }
         return list;
     }
+
+    /**
+     * 查询分页的可采购项目信息
+     *
+     * @param projectNoList 项目号列表
+     * @param purchaseUid   采购经办人Id
+     * @param pageNum       页码
+     * @param pageSize      页大小
+     * @return
+     * @throws Exception
+     */
+    public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize) throws Exception {
+        Integer intPurchaseUid = null;
+        if (StringUtils.isNotBlank(purchaseUid) && !StringUtils.isNumeric(purchaseUid)) {
+            throw new Exception("采购经办人参数错误");
+        } else if (StringUtils.isNotBlank(purchaseUid)) {
+            intPurchaseUid = Integer.parseInt(purchaseUid);
+        }
+
+        List<Integer> projectIds = findAllPurchAbleProjectId(projectNoList,intPurchaseUid);
+
+        PageRequest pageRequest = new PageRequest(pageNum - 1, pageSize, new Sort(Sort.Direction.DESC, "updateTime"));
+        Page<Map<String, Object>> result = null;
+        if (projectIds.size() > 0) {
+            Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
+                @Override
+                public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+
+                    list.add(cb.equal(root.get("purchReqCreate").as(Integer.class), Project.PurchReqCreateEnum.SUBMITED.getCode()));
+                    list.add(cb.equal(root.get("purchDone").as(Boolean.class), Boolean.FALSE));
+                    if (StringUtils.isNotBlank(purchaseUid)) {
+                        list.add(cb.equal(root.get("purchaseUid").as(Integer.class), Integer.parseInt(purchaseUid)));
+                    }
+
+                    if (projectNoList != null && projectNoList.size() > 0) {
+                        Predicate[] orPredicate = new Predicate[projectNoList.size()];
+                        int i = 0;
+                        for (String projectNo : projectNoList) {
+                            orPredicate[i] = cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%");
+                            i++;
+                        }
+                        list.add(cb.or(orPredicate));
+                    }
+
+                    list.add(root.get("id").in(projectIds.toArray(new Integer[projectIds.size()])));
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            }, pageRequest);
+
+            List<Map<String,Object>> list = new ArrayList<>();
+            for (Project project:pageList) {
+                Map<String,Object> map = new HashMap<>();
+                map.put("id",project.getId());
+                map.put("projectNo",project.getProjectNo());
+                map.put("projectName",project.getProjectName());
+                list.add(map);
+            }
+            result = new PageImpl<Map<String, Object>>(list,pageRequest,pageList.getTotalElements());
+        } else {
+            result = new PageImpl<Map<String, Object>>(new ArrayList<>(),pageRequest,0);
+        }
+
+        return result;
+    }
+
+    /**
+     * 查询所有可采购项目的id列表
+     * @param projectNoList
+     * @param purchaseUid
+     * @return
+     */
+    private List<Integer> findAllPurchAbleProjectId(List<String> projectNoList, Integer purchaseUid){
+        List<Project> list = projectDao.findAll(new Specification<Project>() {
+            @Override
+            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+
+                list.add(cb.equal(root.get("purchReqCreate").as(Integer.class), Project.PurchReqCreateEnum.SUBMITED.getCode()));
+                list.add(cb.equal(root.get("purchDone").as(Boolean.class), Boolean.FALSE));
+                if (purchaseUid != null) {
+                    list.add(cb.equal(root.get("purchaseUid").as(Integer.class), purchaseUid));
+                }
+
+                if (projectNoList != null && projectNoList.size() > 0) {
+                    Predicate[] orPredicate = new Predicate[projectNoList.size()];
+                    int i =0;
+                    for (String projectNo:projectNoList) {
+                        orPredicate[i] = cb.like(root.get("projectNo").as(String.class), "%" +projectNo+ "%");
+                        i++;
+                    }
+                    list.add(cb.or(orPredicate));
+                }
+
+                Join<Project, Goods> goodsJoin = root.join("goodsList");
+                list.add(cb.lt(goodsJoin.get("prePurchsedNum").as(Integer.class),goodsJoin.get("contractGoodsNum").as(Integer.class)));
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        });
+
+        return list.parallelStream().map(po -> po.getId()).collect(Collectors.toList());
+    }
+
 
     @Transactional(readOnly = true)
     @Override

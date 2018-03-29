@@ -75,7 +75,7 @@ public class OrderController {
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addOrder(@RequestBody AddOrderVo addOrderVo, HttpServletRequest request) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        logger.info("aaaaaaaaaaaaaaaaa");
+        logger.info("OrderController.addOrder()");
         boolean continueFlag = false;
         if (addOrderVo.getStatus() != Order.StatusEnum.INIT.getCode() && addOrderVo.getStatus() != Order.StatusEnum.UNEXECUTED.getCode()) {
             result.setMsg("销售合同号不能为空");

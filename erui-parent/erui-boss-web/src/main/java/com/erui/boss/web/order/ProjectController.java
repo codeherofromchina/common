@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,21 +43,28 @@ public class ProjectController {
             projectNoList = Arrays.asList(split);
         }
         String purchaseUid = params.get("purchaseUid");
-        List<Project> projectList = null;
+        // 初始化页码信息
+        int pageNum = 1;
+        int pageSize = 10;
+        String pageNumStr = params.get("pageNum");
+        String pageSizeStr = params.get("pageSize");
+        if (StringUtils.isNumeric(pageNumStr) && StringUtils.isNumeric(pageSizeStr)) {
+            try {
+                pageNum = Integer.parseInt(pageNumStr);
+                pageSize = Integer.parseInt(pageSizeStr);
+            }catch (NumberFormatException ex) {
+                logger.error("页面转换错误",ex);
+            }
+        }
+
+        //List<Project> projectList = null;
         String errMsg = null;
         try {
-            projectList = projectService.purchAbleList(projectNoList, purchaseUid);
+            //projectList = projectService.purchAbleList(projectNoList, purchaseUid);
+            // 分页查询可分页项目
+            Page<Map<String,Object>> projectPage = projectService.purchAbleByPage(projectNoList, purchaseUid,pageNum,pageSize);
 
-
-            List<Map<String, Object>> data = projectList.stream().map(project -> {
-                Map<String, Object> map = new HashMap<>();
-                map.put("id", project.getId());
-                map.put("projectNo", project.getProjectNo());
-                map.put("projectName", project.getProjectName());
-
-                return map;
-            }).collect(Collectors.toList());
-            return new Result<>(data);
+            return new Result<>(projectPage);
         } catch (Exception e) {
             errMsg = e.getMessage();
             e.printStackTrace();
