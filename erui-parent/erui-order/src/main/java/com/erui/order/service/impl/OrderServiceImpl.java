@@ -570,31 +570,31 @@ public class OrderServiceImpl implements OrderService {
             switch (orderLog.getOperation()) {
                 case "创建订单":
                     orderLog2.setOperation("Create Order");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
                 case "收到预付款":
                     orderLog2.setOperation("Receive advance payment");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
                 case "商品出库":
                     orderLog2.setOperation("Goods export");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
                 case "已收货":
                     orderLog2.setOperation("received");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
                 case "全部交收完成":
                     orderLog2.setOperation("Completed delivery");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
                 case "订单签约":
                     orderLog2.setOperation("Signing order");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
-                case "其他":
+                default:
                     orderLog2.setOperation("Other");
-                    orderLog2.setCreateTime(orderLog.getCreateTime());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
 
             }
