@@ -77,6 +77,7 @@ public class OrderOutController {
                     responseOutOrder.setPay_status(vo.getPayStatus());
                     responseOutOrder.setPo_no(vo.getPoNo());
                     responseOutOrder.setTrade_terms_bn(vo.getTradeTerms());
+                    responseOutOrder.setCreated_at(vo.getCreateTime());
                     responseOutOrder.setType(vo.getType());
                     responseOutOrder.setCurrency_bn(vo.getCurrencyBn());
                     responseOutOrder.setTo_country(vo.getToCountry());

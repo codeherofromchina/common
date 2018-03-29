@@ -262,8 +262,8 @@ public class ComplexOrder {
         this.show_status_text = show_status_text;
     }
 
-    public static enum StatusEnum {
-        INIT(1, "Proceeding"), Proceeding(2, "Proceeding"), Tobeconfirmed(3, "To be confirmed"), Finished(4, "Finished");
+    public enum StatusEnum {
+        Tobeconfirmed(1, "To be confirmed"),Tobeconfirmed2(2, "To be confirmed"), Proceeding(3, "Proceeding"), Finished(4, "Finished");
 
         public int code;
         public String msg;
@@ -281,14 +281,13 @@ public class ComplexOrder {
             return msg;
         }
     }
-
-    public static enum PayStatusEnum {
-        Unpaid(1, "Unpaid"), Partpaid(2, "Part paid"), PaymentComplete(3, "Payment Complete");
+    public enum StatusEnum02 {
+        Tobeconfirmed(1, "to_be_confirmed"),Tobeconfirmed2(2, "to_be_confirmed"), Proceeding(3, "proceeding"), Finished(4, "finished");
 
         public int code;
         public String msg;
 
-        PayStatusEnum(int code, String msg) {
+        StatusEnum02(int code, String msg) {
             this.code = code;
             this.msg = msg;
         }
@@ -301,7 +300,6 @@ public class ComplexOrder {
             return msg;
         }
     }
-
     public static String fromStatusCode(Integer code) {
         if (code != null) {
             for (StatusEnum statusEnum : StatusEnum.values()) {
@@ -312,12 +310,69 @@ public class ComplexOrder {
         }
         return null;
     }
+    public static Integer fromStatusMsg(String msg) {
+        if (msg != null) {
+            for (StatusEnum02 statusEnum : StatusEnum02.values()) {
+                if (StringUtils.equals(statusEnum.getMsg(),msg)) {
+                    return statusEnum.getCode();
+                }
+            }
+        }
+        return null;
+    }
+
+    public enum PayStatusEnum {
+        Unpaid(1, "Unpaid"), Partpaid(2, "Part Paid"), PaymentComplete(3, "Payment Completed");
+        public int code;
+
+        public String msg;
+
+        PayStatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+    public enum PayStatusEnum02 {
+        Unpaid(1, "unpaid"), Partpaid(2, "part_paid"), PaymentComplete(3, "payment_completed");
+        public int code;
+
+        public String msg;
+
+        PayStatusEnum02(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+        public String getMsg() {
+            return msg;
+        }
+    }
     public static String fromPayCode(Integer code) {
         if (code != null) {
             for (PayStatusEnum payStatusEnum : PayStatusEnum.values()) {
                 if (payStatusEnum.getCode() == code) {
                     return payStatusEnum.getMsg();
-
+                }
+            }
+        }
+        return null;
+    }
+    public static Integer fromPayMsg(String msg) {
+        if (StringUtils.isNotEmpty(msg)) {
+            for (PayStatusEnum02 payStatusEnum : PayStatusEnum02.values()) {
+                if (StringUtils.equals(payStatusEnum.getMsg(),msg)) {
+                    return payStatusEnum.getCode();
                 }
             }
         }

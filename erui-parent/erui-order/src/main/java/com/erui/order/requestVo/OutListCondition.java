@@ -10,8 +10,8 @@ public class OutListCondition {
    private String email;
    private String token;
    private Integer currentPage;
-   private Integer pay_status;
-   private Integer status;
+   private String pay_status;
+   private String status;
    private String term;
    private Date start_time;
    private Date end_time;
@@ -48,19 +48,19 @@ public class OutListCondition {
         this.currentPage = currentPage;
     }
 
-    public Integer getPay_status() {
+    public String getPay_status() {
         return pay_status;
     }
 
-    public void setPay_status(Integer pay_status) {
+    public void setPay_status(String pay_status) {
         this.pay_status = pay_status;
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

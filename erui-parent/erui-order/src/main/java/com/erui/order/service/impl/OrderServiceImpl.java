@@ -170,8 +170,8 @@ public class OrderServiceImpl implements OrderService {
                 List<Predicate> list = new ArrayList<>();
                 //根据订单日期查询
                 if (condition.getStart_time() != null && condition.getEnd_time() != null) {
-                    Date startT  = DateUtil.getOperationTime(condition.getStart_time(),0,0,0);
-                    Date endT  = DateUtil.getOperationTime(condition.getEnd_time(),23,59,59);
+                    Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
+                    Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
                     Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     list.add(startTime);
@@ -187,15 +187,19 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
                 }
                 //根据付款状态
-                if (condition.getPay_status() != null) {
-                    list.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPay_status()));
+                if (!StringUtils.isEmpty(condition.getPay_status())) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), ComplexOrder.fromPayMsg(condition.getPay_status())));
                 }
                 //根据订单状态
-                if (condition.getStatus() != null) {
-                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+                if (!StringUtils.isEmpty(condition.getStatus())) {
+                    if (!condition.getStatus().equals("to_be_confirmed")) {
+                        list.add(cb.equal(root.get("status").as(Integer.class), ComplexOrder.fromStatusMsg(condition.getStatus())));
+                    } else {
+                        Integer[] orderStatus = {1, 2};
+                        list.add(root.get("status").in(orderStatus));
+                    }
+
                 }
-
-
                 //  list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -561,16 +565,30 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderDao.findOne(id);
         List<OrderLog> logList = orderLogDao.findByOrderIdOrderByCreateTimeAsc(id);
         ArrayList<Object> logs = new ArrayList<>();
-        for (OrderLog orderLog:logList) {
+        for (OrderLog orderLog : logList) {
             OrderLog orderLog2 = new OrderLog();
-           switch (orderLog.getOperation()){
-                case "创建订单": orderLog2.setOperation("Create Order");break;
-                case "收到预付款": orderLog2.setOperation("Receive advance payment");break;
-                case "商品出库": orderLog2.setOperation("Goods export");break;
-                case "已收货": orderLog2.setOperation("received");break;
-                case "全部交收完成": orderLog2.setOperation("Completed delivery");break;
-                case "订单签约":orderLog2.setOperation("Signing order");break;
-                case "其他": orderLog2.setOperation("Other");break;
+            switch (orderLog.getOperation()) {
+                case "创建订单":
+                    orderLog2.setOperation("Create Order");
+                    break;
+                case "收到预付款":
+                    orderLog2.setOperation("Receive advance payment");
+                    break;
+                case "商品出库":
+                    orderLog2.setOperation("Goods export");
+                    break;
+                case "已收货":
+                    orderLog2.setOperation("received");
+                    break;
+                case "全部交收完成":
+                    orderLog2.setOperation("Completed delivery");
+                    break;
+                case "订单签约":
+                    orderLog2.setOperation("Signing order");
+                    break;
+                case "其他":
+                    orderLog2.setOperation("Other");
+                    break;
 
             }
             logs.add(orderLog2);
@@ -590,20 +608,20 @@ public class OrderServiceImpl implements OrderService {
             order.getOrderPayments().size();*/
             outOrderDetail = new OutOrderDetail();
             outOrderDetail.copyInfo(order);
-            for (Goods goods:order.getGoodsList()) {
+            for (Goods goods : order.getGoodsList()) {
                 OutGoods outGoods = new OutGoods();
                 outGoods.copyInfo(goods);
                 outGoods.setBuyer_id(null);
                 goodList.add(outGoods);
             }
             resultMap = new HashMap<>();
-            resultMap.put("orderinfo",outOrderDetail);
-            resultMap.put("ordergoods",goodList);
-            resultMap.put("orderlogs",logs);
-            resultMap.put("order_no",order.getContractNo());
-            resultMap.put("orderaddress",null);
-            resultMap.put("orderpayments",null);
-            resultMap.put("imgprefix",null);
+            resultMap.put("orderinfo", outOrderDetail);
+            resultMap.put("ordergoods", goodList);
+            resultMap.put("orderlogs", logs);
+            resultMap.put("order_no", order.getContractNo());
+            resultMap.put("orderaddress", null);
+            resultMap.put("orderpayments", null);
+            resultMap.put("imgprefix", null);
 
         }
         return resultMap;
