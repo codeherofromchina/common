@@ -41,7 +41,7 @@
         <property name="defaultAutoCommit" value="false"/>
         <property name="testOnBorrow" value="true"/>
         <property name="validationQuery" value="SELECT 1"/>
-    </bean>
+    </bean><!--
     <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxIdle" value="${spring.redis.maxIdle}" />
         <property name="maxTotal" value="1000"/>
@@ -59,7 +59,7 @@
         <property name="valueSerializer">
             <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
         </property>
-    </bean>
+    </bean>-->
     <!-- JPA实体管理工厂的配置 -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSourceOrder"/>
