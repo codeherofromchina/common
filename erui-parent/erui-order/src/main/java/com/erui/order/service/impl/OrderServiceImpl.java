@@ -593,7 +593,7 @@ public class OrderServiceImpl implements OrderService {
                     orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
                 default:
-                    orderLog2.setOperation("Other");
+                    orderLog2.setOperation(orderLog.getOperation());
                     orderLog2.setBusinessDate(orderLog.getBusinessDate());
                     break;
 
