@@ -4,6 +4,7 @@ import com.erui.order.entity.Area;
 import com.erui.order.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +19,11 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
 
 
     List<Project> findByPurchReqCreateAndPurchDoneAndPurchaseUid(Integer purchReqCreate, Boolean b,Integer purchaseUid);
+
+
+    @Modifying
+    @Query("update Project p set p.purchDone = true where p.id in :ids")
+    public void updateProjectPurchDone(@Param(value = "ids") List<Integer> ids);
 
     /**
      * 根据项目ID查找项目列表
