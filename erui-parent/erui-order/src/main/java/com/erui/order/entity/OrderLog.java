@@ -156,7 +156,6 @@ public class OrderLog {
     public static enum LogTypeEnum{
         CREATEORDER(1,"订单签约"),ADVANCE(2,"收到预付款"),GOODOUT(3,"商品出库"),DELIVERED(4,"已收货"),
         DELIVERYDONE(5,"全部交收完成"),OTHER(6,"其他");
-
         public int code;
         public String msg;
         LogTypeEnum(int code,String msg) {
