@@ -44,8 +44,6 @@ public class OrderOutController {
     private final static Logger logger = LoggerFactory.getLogger(OrderOutController.class);
     @Autowired
     private OrderService orderService;
-   /* @Autowired
-    private StringRedisTemplate stringRedisTemplate;*/
 
     private static final String api_key_order = "3a13749d4b3af3b2bb601552278a0051";
 
@@ -115,97 +113,6 @@ public class OrderOutController {
     }
 
     /**
-     *
-     *
-     * 新增订单
-     *
-     * @param addOrderVo
-     * @return
-     */
-    @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrder(@RequestBody AddOrderVo addOrderVo) {
-        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        boolean continueFlag = false;
-        if (addOrderVo.getStatus() != Order.StatusEnum.INIT.getCode() && addOrderVo.getStatus() != Order.StatusEnum.UNEXECUTED.getCode()) {
-            result.setMsg("销售合同号不能为空");
-        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) { // 提交
-            if (StringUtils.isBlank(addOrderVo.getContractNo())) {
-                result.setMsg("销售合同号不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo())) {
-                result.setMsg("物流报价单号不能为空");
-            } else if (addOrderVo.getOrderType() == null) {
-                result.setMsg("订单类型不能为空");
-            } else if (addOrderVo.getSigningDate() == null) {
-                result.setMsg("订单签约日期不能为空");
-            } else if (addOrderVo.getDeliveryDate() == null) {
-                result.setMsg("合同交货日期不能为空");
-            } else if (addOrderVo.getSigningCo() == null) {
-                result.setMsg("签约主体公司不能为空");
-            } else if (addOrderVo.getAgentId() == null) {
-                result.setMsg("市场经办人不能为空");
-            } else if (addOrderVo.getExecCoId() == null) {
-                result.setMsg("执行分公司不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getRegion())) {
-                result.setMsg("所属地区不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getDistributionDeptName())) {
-                result.setMsg("分销部不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getCountry())) {
-                result.setMsg("国家不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getCrmCode())) {
-                result.setMsg("CRM客户代码不能为空");
-            } else if (addOrderVo.getCustomerType() == null) {
-                result.setMsg("客户类型不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay())) {
-                result.setMsg("回款责任人不能为空");
-            } else if (addOrderVo.getBusinessUnitId() == null) {
-                result.setMsg("事业部不能为空");
-            } else if (addOrderVo.getTechnicalId() == null) {
-                result.setMsg("商务技术经办人不能为空");
-            } else if (addOrderVo.getGoodDesc().isEmpty()) {
-                result.setMsg("商品不能为空");
-            } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
-                result.setMsg("合同数量不能为空");
-            } else if (addOrderVo.getTotalPrice() == null) {
-                result.setMsg("合同总价不能为空");
-            } else if (addOrderVo.getTaxBearing() == null) {
-                result.setMsg("是否含税不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn())) {
-                result.setMsg("收款方式不能为空");
-            } else if (addOrderVo.getAcquireId() == null) {
-                result.setMsg("获取人不能为空");
-            } else if (StringUtils.isBlank(addOrderVo.getCurrencyBn())) {
-                result.setMsg("货币类型不能为空");
-            } else {
-                continueFlag = true;
-            }
-        } else {
-            continueFlag = true;
-        }
-
-        if (!continueFlag) {
-            return result;
-        }
-
-        try {
-            boolean flag;
-            if (addOrderVo.getId() != null) {
-                flag = orderService.updateOrder(addOrderVo);
-            } else {
-                flag = orderService.addOrder(addOrderVo);
-            }
-            if (flag) {
-                return new Result<>();
-            }
-        } catch (Exception ex) {
-            logger.error("订单操作失败：{}", addOrderVo, ex);
-            result.setMsg(ex.getMessage());
-        }
-
-        return result;
-
-    }
-
-    /**
      * 获取订单详情
      *
      * @return
@@ -263,15 +170,4 @@ public class OrderOutController {
         return result;
     }
 
-  /*  @RequestMapping(value = "orderTest", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public String saveUser() {
-        ValueOperations<String, String> vop = stringRedisTemplate.opsForValue();
-        String key = "string_redis_template";
-        String v = "use StringRedisTemplate set k v";
-        vop.set(key, v);
-        String value = vop.get(key);
-        System.out.println(value);
-        return value;
-    }
-    **/
 }
