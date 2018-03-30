@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -116,8 +117,8 @@ public class OrderController {
                 result.setMsg("商品不能为空");
             } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
                 result.setMsg("合同数量不能为空");
-            } else if (addOrderVo.getTotalPrice() == null) {
-                result.setMsg("合同总价不能为空");
+            } else if (addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1) {
+                result.setMsg("合同总价错误");
             } else if (addOrderVo.getTaxBearing() == null) {
                 result.setMsg("是否含税不能为空");
             } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn())) {
