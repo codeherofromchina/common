@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.erui.comm.util.data.string.StringUtil;
 
 public enum ExcelUploadTypeEnum {
-	CATEGORY_QUALITY(1, "品控",new String[]{"时间","报检总数（件）","产品入厂首检合格数（件）","产品入厂首检合格率","产品出厂总数（件）","出厂检验合格数（件）","产品出厂检验合格率","外派监造总数（件）","监造产品出厂合格数（件）","产品外派监造合格率"}), 
+	CATEGORY_QUALITY(1, "品控",new String[]{"时间","产品入厂报检总数","产品入厂首检合格数（件）","产品入厂首检合格率","外派检验总数（件）","外派检验合格数（件）","外派检验合格率"}),
 	CREDIT_EXTENSION(2, "授信数据",new String[]{"时间","区域","国家","信报代码","客户名称","批复信用额度（USD）","限额生效日期","限额失效日期","已用额度（USD）","可用额度（USD）"}), 
 	STORAGE_ORGANI_COUNT(3, "仓储物流-事业部",new String[]{"时间","事业部","托盘数量","产品数量","备注","单据类型"}),
 	HR_COUNT(4,"人力资源",new String[]{"日期","大部门","小部门","计划人数","在编人数","试用期人数","转正人数","中方","外籍","新进","集团转岗（进）","集团转岗（出）","离职"}), 
