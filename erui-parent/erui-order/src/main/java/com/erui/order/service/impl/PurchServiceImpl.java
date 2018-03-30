@@ -584,6 +584,7 @@ public class PurchServiceImpl implements PurchService {
         if (dbPurchGoodsMap.size() > 0) {
             Collection<PurchGoods> values = dbPurchGoodsMap.values();
             // 修改商品的预采购数量然后再删除
+            List<Goods> deleteGoods = new ArrayList<>();
             for (PurchGoods pg : values) {
                 Integer purchaseNum = pg.getPurchaseNum();
                 Goods one = goodsDao.findOne(pg.getGoods().getId());
@@ -592,13 +593,18 @@ public class PurchServiceImpl implements PurchService {
                     Goods parentOne = goodsDao.findOne(one.getParentId());
                     parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
                     goodsDao.save(parentOne);
-                    goodsDao.delete(one);
+                    //goodsDao.delete(one);
+                    deleteGoods.add(one);
                 } else {
                     one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
                     goodsDao.save(one);
                 }
             }
             purchGoodsDao.delete(values);
+            if (deleteGoods.size() > 0) {
+                // 后删除商品
+                goodsDao.delete(deleteGoods);
+            }
         }
         // 更新采购单
         purchDao.save(dbPurch);
@@ -751,10 +757,13 @@ public class PurchServiceImpl implements PurchService {
      * @param projectIds 项目ID列表
      */
     private void checkProjectPurchDone(List<Integer> projectIds) {
+        List<Integer> updateIds = new ArrayList<>();
         if (projectIds.size() > 0) {
             List<Project> projectList = projectDao.findByIdIn(projectIds);
-            projectList.parallelStream().forEach(project -> {
+
+            for (Project project :projectList) {
                 List<Goods> goodsList = project.getOrder().getGoodsList();
+
                 boolean purchDone = true;
                 for (Goods goods : goodsList) {
                     if (!goods.getExchanged() && goods.getPurchasedNum() < goods.getContractGoodsNum()) {
@@ -762,9 +771,13 @@ public class PurchServiceImpl implements PurchService {
                         break;
                     }
                 }
-                project.setPurchDone(purchDone);
-            });
-            projectDao.save(projectList);
+                if (purchDone) {
+                    updateIds.add(project.getId());
+                }
+            }
+            if (updateIds.size() > 0) {
+                projectDao.updateProjectPurchDone(updateIds);
+            }
         }
     }
 
