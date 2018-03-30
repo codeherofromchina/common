@@ -106,7 +106,7 @@ public class PurchRequisitionController {
                 logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
                 if (ex instanceof DataIntegrityViolationException) {
                     result.setCode(ResultStatusEnum.DUPLICATE_ERROR.getCode());
-                    result.setMsg("已存在项目");
+                    result.setMsg("项目号已存在");
                     return result;
                 }
             }
