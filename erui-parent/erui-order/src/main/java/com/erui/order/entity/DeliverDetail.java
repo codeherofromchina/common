@@ -28,6 +28,11 @@ public class DeliverDetail {
     @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
 
+    @OneToOne
+    @JoinColumn(name = "deliver_consign_id")
+    @JsonIgnore
+    private DeliverConsign deliverConsign;    //出库通知单ID
+
     // 销售合同号
     @Transient
     private String contractNo;
@@ -737,7 +742,13 @@ public class DeliverDetail {
         return projectNo;
     }
 
+    public DeliverConsign getDeliverConsign() {
+        return deliverConsign;
+    }
 
+    public void setDeliverConsign(DeliverConsign deliverConsign) {
+        this.deliverConsign = deliverConsign;
+    }
 
     public String getCreateUserName() {
         return createUserName;

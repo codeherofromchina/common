@@ -143,7 +143,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      * @param deliverD
      * @return
      */
-    @Override
+ /*   @Override
     @Transactional(readOnly = true)
     public Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception {
         PageRequest request = new PageRequest(deliverD.getPage() - 1, deliverD.getRows(), Sort.Direction.DESC, "id");
@@ -239,6 +239,110 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 notice.setContractNo(StringUtils.join(contractNos, ","));
                 notice.setProjectNo(StringUtils.join(projectNos, ","));
+            }
+        }
+
+        return page;
+    }
+*/
+
+    /**
+     * 出库管理
+     *
+     *  订单V2.0
+     *
+     *  根据出口通知单查询信息
+     *
+     * @param deliverD
+     * @return
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DeliverDetail> outboundManage(DeliverD deliverD) throws Exception {
+        PageRequest request = new PageRequest(deliverD.getPage() - 1, deliverD.getRows(), Sort.Direction.DESC, "id");
+
+        Page<DeliverDetail> page = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
+            @Override
+            public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+
+                List<Predicate> list = new ArrayList<>();
+
+                // 根据产品放行单号查询
+                if (StringUtil.isNotBlank(deliverD.getDeliverDetailNo())) {
+                    list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + deliverD.getDeliverDetailNo() + "%"));
+                }
+
+                //根据销售合同号   根据项目号
+                if (StringUtil.isNotBlank(deliverD.getContractNo()) || StringUtil.isNotBlank(deliverD.getProjectNo())) {
+                    Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");
+                    Join<DeliverConsign, Order> order = deliverConsign.join("order");
+                    if (StringUtil.isNotBlank(deliverD.getContractNo())) {
+                        list.add(cb.like(order.get("contractNo").as(String.class), "%" + deliverD.getContractNo() + "%"));
+                    }
+                    if (StringUtil.isNotBlank(deliverD.getProjectNo())) {
+                        Join<Order, Project> project = order.join("project");
+                        list.add(cb.like(project.get("projectNo").as(String.class), "%" + deliverD.getProjectNo() + "%"));
+                    }
+                }
+                //根据开单日期
+                if (deliverD.getBillingDate() != null) {
+                    list.add(cb.equal(root.get("billingDate").as(Date.class), deliverD.getBillingDate()));
+                }
+                //根据放行日期
+                if (deliverD.getReleaseDate() != null) {
+                    list.add(cb.equal(root.get("releaseDate").as(Date.class), deliverD.getReleaseDate()));
+                }
+                //根据仓库经办人
+                if (deliverD.getWareHouseman() != null) {
+                    Join<DeliverDetail, DeliverNotice> deliverDetailRoot = root.join("deliverNotice");
+                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
+                    Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
+                    Join<Order, Project> projectRoot = orderRoot.join("project");
+                    list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), deliverD.getWareHouseman()));
+                }
+                //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
+                if (deliverD.getStatus() != null) {
+                    if (deliverD.getStatus() == 1) {
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 2)); //未质检
+                    } else if (deliverD.getStatus() == 2) {
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));//质检中
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 4));
+                    } else if (deliverD.getStatus() == 3) {
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 3));//质检完成
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 5));
+                    } else if (deliverD.getStatus() == 4) {
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));//已出库
+                    }
+                }
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, request);
+
+
+        if (page.hasContent()) {
+            for (DeliverDetail notice : page.getContent()) {
+                // 列表报错后添加
+                notice.setAttachmentList(null);
+                notice.setDeliverConsignGoodsList(null);
+
+
+                DeliverConsign deliverConsign = notice.getDeliverConsign();    //出口发货通知单
+                if (deliverConsign == null) {
+                    throw new Exception("产品放行单号:" + notice.getDeliverDetailNo() + " 无出口发货通知单关系");
+                }
+                    Order order = deliverConsign.getOrder();    //获取订单关系
+                    if (order == null) {
+                        throw new Exception("出口发货通知单号：" + deliverConsign.getDeliverConsignNo() + " 缺少订单关系");
+                    }
+
+                    Project project = order.getProject();   //获取项目信息
+                    if (project == null) {
+                        throw new Exception("订单：" + order.getContractNo() + " 号缺少项目信息");
+                    }
+                notice.setContractNo(order.getContractNo());     //销售合同号
+                notice.setProjectNo(project.getProjectNo());//项目号
             }
         }
 
@@ -342,12 +446,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Transactional(rollbackFor = Exception.class)
     public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception {
 
-        //商品备注
+        //商品备注      出库备注
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
         if (deliverConsignGoodsList.size() != 0) {
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
                 DeliverConsignGoods one = deliverConsignGoodsDao.findOne(deliverConsignGoods.getId());
-                one.setOutboundRemark(deliverConsignGoods.getOutboundRemark());
+                one.setOutboundRemark(deliverConsignGoods.getOutboundRemark()); // 出库备注
                 deliverConsignGoodsDao.saveAndFlush(one);
             }
         }
@@ -445,8 +549,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverNotice.setPrepareReq(deliverDetail.getPrepareReq());
         }
         //状态
-        one.setStatus(deliverDetail.getStatus());
-        Integer status = deliverDetail.getStatus(); //状态
+        Integer status = deliverDetail.getStatus();
+        one.setStatus(status);//状态
+
+
+        deliverDetail.getDeliverNotice().getDeliverConsigns();
+
 
         Project project = null; //项目信息
 

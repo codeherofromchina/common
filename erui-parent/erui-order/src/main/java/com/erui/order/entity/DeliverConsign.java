@@ -28,6 +28,9 @@ public class DeliverConsign {
     @JsonIgnore
     private Order order;
 
+    @OneToOne(mappedBy = "deliverConsign", fetch = FetchType.LAZY)
+    private DeliverDetail deliverDetail;
+
     @Column(name = "dept_id")
     private Integer deptId;
     @Column(name = "co_id")
@@ -212,5 +215,13 @@ public class DeliverConsign {
 
     public void setDeliverConsignGoodsSet(List<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
+    }
+
+    public DeliverDetail getDeliverDetail() {
+        return deliverDetail;
+    }
+
+    public void setDeliverDetail(DeliverDetail deliverDetail) {
+        this.deliverDetail = deliverDetail;
     }
 }
