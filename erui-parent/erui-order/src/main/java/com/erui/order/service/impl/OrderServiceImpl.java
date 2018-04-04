@@ -108,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 }
                 //根据合同交货日期查询
-                if (condition.getDeliveryDate() != null) {
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
                     list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //根据crm客户代码查询
