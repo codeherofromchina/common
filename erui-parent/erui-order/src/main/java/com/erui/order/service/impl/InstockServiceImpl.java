@@ -257,6 +257,7 @@ public class InstockServiceImpl implements InstockService {
                     goods = goodsDao.findOne(goods.getParentId());
                 }
                 goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
+                goods.setInspectInstockNum(goods.getInspectInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
                 goodsDao.save(goods);
             }
         }

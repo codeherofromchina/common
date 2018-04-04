@@ -42,6 +42,9 @@ public class DeliverDetail {
     private String projectNo;
 
     @Transient
+    private String deliverConsignNo;    //出口通知单号
+
+    @Transient
     private String prepareReq;  //备货要求
 
     @Transient
@@ -752,6 +755,14 @@ public class DeliverDetail {
 
     public String getCreateUserName() {
         return createUserName;
+    }
+
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
     }
 
     /**

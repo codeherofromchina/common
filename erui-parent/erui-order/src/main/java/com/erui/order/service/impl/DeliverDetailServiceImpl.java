@@ -251,7 +251,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      *
      *  订单V2.0
      *
-     *  根据出口通知单查询信息
+     *  根据出口通知单查询出库信息
      *
      * @param deliverD
      * @return
@@ -272,10 +272,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + deliverD.getDeliverDetailNo() + "%"));
                 }
 
-                //根据销售合同号   根据项目号
-                if (StringUtil.isNotBlank(deliverD.getContractNo()) || StringUtil.isNotBlank(deliverD.getProjectNo())) {
-                    Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");
-                    Join<DeliverConsign, Order> order = deliverConsign.join("order");
+                //根据销售合同号   根据项目号   出口通知单号
+                if (StringUtil.isNotBlank(deliverD.getContractNo()) || StringUtil.isNotBlank(deliverD.getProjectNo()) || StringUtil.isNotBlank(deliverD.getDeliverConsignNo())) {
+                    Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");   //关联出库通知单
+                    if(StringUtil.isNotBlank(deliverD.getDeliverConsignNo())){
+                        list.add(cb.like(deliverConsign.get("deliverConsignNo").as(String.class), "%" + deliverD.getDeliverConsignNo() + "%"));
+                    }
+                    Join<DeliverConsign, Order> order = deliverConsign.join("order");   //关联订单
                     if (StringUtil.isNotBlank(deliverD.getContractNo())) {
                         list.add(cb.like(order.get("contractNo").as(String.class), "%" + deliverD.getContractNo() + "%"));
                     }
@@ -333,9 +336,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     throw new Exception("产品放行单号:" + notice.getDeliverDetailNo() + " 无出口发货通知单关系");
                 }
                     Order order = deliverConsign.getOrder();    //获取订单关系
-                    if (order == null) {
-                        throw new Exception("出口发货通知单号：" + deliverConsign.getDeliverConsignNo() + " 缺少订单关系");
+                String deliverConsignNo = deliverConsign.getDeliverConsignNo(); //出口发货通知单号
+                if (order == null) {
+                        throw new Exception("出口发货通知单号：" + deliverConsignNo + " 缺少订单关系");
                     }
+                notice.setDeliverConsignNo(deliverConsignNo);//出口发货通知单号
 
                     Project project = order.getProject();   //获取项目信息
                     if (project == null) {
@@ -448,11 +453,32 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         //商品备注      出库备注
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+
+        Integer outboundNums = 0; //出库总数量
+        Integer straightNums = 0;   //厂家直发总数量
         if (deliverConsignGoodsList.size() != 0) {
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
                 DeliverConsignGoods one = deliverConsignGoodsDao.findOne(deliverConsignGoods.getId());
                 one.setOutboundRemark(deliverConsignGoods.getOutboundRemark()); // 出库备注
+                // V2.0
+                Integer outboundNum = deliverConsignGoods.getOutboundNum();//出库数量
+                one.setOutboundNum(outboundNum);
+                Integer straightNum = deliverConsignGoods.getStraightNum();//厂家直发数量
+                one.setStraightNum(straightNum);
+
                 deliverConsignGoodsDao.saveAndFlush(one);
+                outboundNums = outboundNums+outboundNum; //出库数量累加
+                straightNums = straightNums+straightNum; //厂家直发数量累加
+
+                //V2.0  减少入库数量
+                Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());
+                if(outboundNum != null && outboundNum != 0){
+                    one1.setInspectInstockNum(one1.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                }
+                if(straightNum != null && straightNum != 0){
+                    one1.setNullInstockNum(one1.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
+                }
+                goodsDao.save(one1);
             }
         }
 
@@ -575,7 +601,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         }
 
+        //确认出库
         if (status == 5) {
+
+
+
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns) {
                 //推送商品出库

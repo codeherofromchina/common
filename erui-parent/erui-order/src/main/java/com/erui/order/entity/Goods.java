@@ -193,6 +193,11 @@ public class Goods {
     @Column(name = "accomplish_date")
     private Date accomplishDate;
 
+    @Column(name="inspect_instock_num")
+    private Integer inspectInstockNum;    //质检入库总数量
+
+    @Column(name="null_instock_num")
+    private Integer nullInstockNum;    //厂家直发总数量
 
     public Date getStartDate() {
         return startDate;
@@ -646,5 +651,19 @@ public class Goods {
         this.sendNum = sendNum;
     }
 
+    public Integer getInspectInstockNum() {
+        return inspectInstockNum;
+    }
 
+    public void setInspectInstockNum(Integer inspectInstockNum) {
+        this.inspectInstockNum = inspectInstockNum;
+    }
+
+    public void setNullInstockNum(Integer nullInstockNum) {
+        this.nullInstockNum = nullInstockNum;
+    }
+
+    public Integer getNullInstockNum() {
+        return nullInstockNum;
+    }
 }
