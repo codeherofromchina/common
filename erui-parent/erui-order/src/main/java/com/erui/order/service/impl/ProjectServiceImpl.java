@@ -175,6 +175,10 @@ public class ProjectServiceImpl implements ProjectService {
                     projectStatus = condition.getProjectStatus().split(",");
                     list.add(root.get("projectStatus").in(projectStatus));
                 }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");

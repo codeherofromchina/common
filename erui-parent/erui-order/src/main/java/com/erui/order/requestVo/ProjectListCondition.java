@@ -34,9 +34,18 @@ public class ProjectListCondition {
     private String projectStatus;
     //国家查询
     private String country;
+    //项目号
+    private String projectNo;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
 
     public String getCountry() {
         return country;

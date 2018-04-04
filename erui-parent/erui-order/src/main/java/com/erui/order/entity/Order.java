@@ -49,9 +49,9 @@ public class Order {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
 
     @Column(name = "signing_co")
     private String signingCo;
@@ -207,9 +207,17 @@ public class Order {
     private String businessUnitName;
     @Column(name = "acquire_id")
     private Integer acquireId;
+    //合同总价（美元）
+    @Column(name = "total_price_usd")
+    private BigDecimal totalPriceUsd;
+    //项目号
+    @Column(name = "project_no")
+    private String projectNo;
+    //利率
+    @Column(name = "exchange_rate")
+    private String exchangeRate;
     @Transient
     private int page = 0;
-
     @Transient
     private int rows = 50;
     //订单列表增加确认收货按钮标识
@@ -225,6 +233,30 @@ public class Order {
     private Integer buyerId;
     @Column(name = "inquiry_id")
     private Integer inquiryId;
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public BigDecimal getTotalPriceUsd() {
+        return totalPriceUsd;
+    }
+
+    public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
+        this.totalPriceUsd = totalPriceUsd;
+    }
+
+    public String getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(String exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
 
     public Integer getBuyerId() {
         return buyerId;
@@ -408,11 +440,11 @@ public class Order {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 

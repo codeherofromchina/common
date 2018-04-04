@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据合同交货日期查询
                 if (condition.getDeliveryDate() != null) {
-                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
+                    list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
@@ -134,12 +134,16 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getOrderSource())) {
                     list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
                 }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
                 //根据区域所在国家查询
-                String[] country = null;
+                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-                if (condition.getType() == 1) {
+               if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
                         list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }

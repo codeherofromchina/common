@@ -40,7 +40,7 @@ public class AddOrderVo {
     private Date signingDate;
 
     //合同签订日期
-    private Date deliveryDate;
+    private String deliveryDate;
 
     //签约主体公司
     private String signingCo;
@@ -138,7 +138,6 @@ public class AddOrderVo {
     //创建人
 
 
-
     //private Integer createUserId;
 
     //修改时间
@@ -165,6 +164,12 @@ public class AddOrderVo {
     private String createUserName;
     private Integer buyerId;
     private Integer inquiryId;
+    //合同总价（美元）
+    private BigDecimal totalPriceUsd;
+    //利率
+    private String exchangeRate;
+    //项目号
+    private String projectNo;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -172,6 +177,30 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public BigDecimal getTotalPriceUsd() {
+        return totalPriceUsd;
+    }
+
+    public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
+        this.totalPriceUsd = totalPriceUsd;
+    }
+
+    public String getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(String exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
 
     public Integer getBuyerId() {
         return buyerId;
@@ -311,11 +340,11 @@ public class AddOrderVo {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
@@ -656,6 +685,8 @@ public class AddOrderVo {
         order.setToPlace(this.toPlace);
         order.setToPort(this.toPort);
         order.setTotalPrice(this.totalPrice);
+        order.setTotalPriceUsd(this.totalPriceUsd);
+        order.setExchangeRate(this.exchangeRate);
         order.setCurrencyBn(this.currencyBn);
         order.setTaxBearing(this.taxBearing);
         order.setPaymentModeBn(this.paymentModeBn);
