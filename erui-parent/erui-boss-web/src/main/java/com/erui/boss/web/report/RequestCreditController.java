@@ -35,184 +35,21 @@ public class RequestCreditController {
     private static final DecimalFormat df = new DecimalFormat("0.00");
 
 
-    /**
-     * @Author:SHIGS
-     * @Description 2.应收账款总览
-     * @Date:14:40 2017/10/31
-     * @modified By
-     */
-    @ResponseBody
-    @RequestMapping(value = "receiveDetailOld", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object totalReceiveOld(@RequestBody Map<String, Object> map) throws Exception {
-        if (!map.containsKey("startTime")) {
-            throw new MissingServletRequestParameterException("startTime", "String");
-        }
-        if (!map.containsKey("endTime")) {
-            throw new MissingServletRequestParameterException("endTime", "String");
-        }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-        //截止时间
-        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        //当前时期
-        int days = DateUtil.getDayBetween(startTime, endTime);
-        //环比时段
-        Date chainTime = DateUtil.sometimeCalendar(startTime, days);
-        //当前时段
-        Map mapMount = requestCreditService.selectRequestTotal(startTime, endTime);
-        if (mapMount == null) {
-            mapMount = new HashMap();
-            mapMount.put("sdT", 0);     //应收order_amount
-            mapMount.put("sded", 0);    //已收
-            mapMount.put("sd", 0);      //未收  receive_amount
-        }
-        //应收金额
-        BigDecimal orderAmount = BigDecimal.ZERO;
-        if (mapMount.containsKey("sdT")) {
-            orderAmount = new BigDecimal(mapMount.get("sdT").toString());
-        }
-        //已收金额
-        BigDecimal receiveAmount = BigDecimal.ZERO;
-        if (mapMount.containsKey("sded")) {
-            receiveAmount = new BigDecimal(mapMount.get("sded").toString());
-        }
-        //应收未收
-        BigDecimal notreceiveAmount = BigDecimal.ZERO;
-        if (mapMount.containsKey("sd")) {
-            notreceiveAmount = new BigDecimal(mapMount.get("sd").toString());
-        }
-        //环比
-        Map mapChainMount = requestCreditService.selectRequestTotal(chainTime, startTime);
-        if (mapChainMount == null) {
-            mapChainMount = new HashMap();
-            mapChainMount.put("sdT", 0);
-            mapChainMount.put("sded", 0);
-            mapChainMount.put("sd", 0);
-        }
-        //环比应收金额
-        BigDecimal chainOrderAmount = BigDecimal.ZERO;
-        if (mapChainMount.containsKey("sdT")) {
-            chainOrderAmount = new BigDecimal(mapChainMount.get("sdT").toString());
-        }
-        //环比已收金额
-        BigDecimal chainReceiveAmount = BigDecimal.ZERO;
-        if (mapChainMount.containsKey("sded")) {
-            chainReceiveAmount = new BigDecimal(mapChainMount.get("sded").toString());
-        }
-        //应收未收
-        BigDecimal chainNotreceiveAmount = BigDecimal.ZERO;
-        if (mapChainMount.containsKey("sd")) {
-            chainNotreceiveAmount = new BigDecimal(mapChainMount.get("sd").toString());
-        }
-        Double orederAmountAdd = orderAmount.doubleValue() - chainOrderAmount.doubleValue();
-        //应收账款
-        Map<String, Object> receivable = new HashMap<>();
-        receivable.put("receive", df.format(orderAmount.doubleValue() / 10000) + "万$");
-        receivable.put("chainAdd", df.format(orederAmountAdd / 10000) + "万$");
-        receivable.put("chainRate", RateUtil.doubleChainRate(orederAmountAdd, chainOrderAmount.doubleValue()));
-        Double NotReceiveAmountAdd = notreceiveAmount.doubleValue() - chainNotreceiveAmount.doubleValue();
-        //应收未收
-        Map<String, Object> notReceive = new HashMap<>();
-        notReceive.put("receive", df.format(notreceiveAmount.doubleValue() / 10000) + "万$");
-        notReceive.put("chainAdd", df.format(NotReceiveAmountAdd / 10000) + "万$");
-        notReceive.put("chainRate", RateUtil.doubleChainRate(NotReceiveAmountAdd, chainNotreceiveAmount.doubleValue()));
-        Double ReceiveAmountAdd = receiveAmount.doubleValue() - chainReceiveAmount.doubleValue();
-        //应收已收
-        Map<String, Object> received = new HashMap<>();
-        received.put("receive", df.format(receiveAmount.doubleValue() / 10000) + "万$");
-        received.put("chainAdd", df.format(ReceiveAmountAdd / 10000) + "万$");
-        received.put("chainRate", RateUtil.doubleChainRate(ReceiveAmountAdd, chainReceiveAmount.doubleValue()));
-        //下周应收
-        Date curDate = new Date();
-        Date nextWeekEndTime = DateUtil.getWeek(curDate, 5);
-        Date nextWeekStartTime = DateUtil.getBeforeWeek(nextWeekEndTime, 6);
-        Map<String, Object> nextWeekMount = requestCreditService.selectRequestNextNew(nextWeekStartTime, nextWeekEndTime, "", "");
-        Date chainWeekStartTime = DateUtil.sometimeCalendar(nextWeekStartTime, 7);
-        Date chainWeekEndTime = DateUtil.getWeek(nextWeekEndTime, 5);
-        Map<String, Object> chainNextWeekMount = requestCreditService.selectRequestNextNew(chainWeekStartTime, chainWeekEndTime, "", "");
-        if (nextWeekMount == null) {
-            nextWeekMount = new HashMap();
-            nextWeekMount.put("sdT", 0);
-        }
-        BigDecimal nextWeekOrderAmount = BigDecimal.ZERO;
-        if (nextWeekMount.containsKey("sdT")) {
-            nextWeekOrderAmount = new BigDecimal(nextWeekMount.get("sdT").toString());
-        }
-        if (chainNextWeekMount == null) {
-            chainNextWeekMount = new HashMap();
-            chainNextWeekMount.put("sdT", 0);
-        }
-        BigDecimal chainWeekOrderAmount = BigDecimal.ZERO;
-        if (chainNextWeekMount.containsKey("sdT")) {
-            chainWeekOrderAmount = new BigDecimal(chainNextWeekMount.get("sdT").toString());
-        }
-        HashMap<Object, Object> nextWeekReceivable = new HashMap<>();
-        Double chainWeekOrderAmountAdd = nextWeekOrderAmount.doubleValue() - chainWeekOrderAmount.doubleValue();
-        nextWeekReceivable.put("receive", df.format(nextWeekOrderAmount.doubleValue() / 10000) + "万$");
-        nextWeekReceivable.put("chainAdd", df.format(chainWeekOrderAmountAdd / 10000) + "万$");
-        nextWeekReceivable.put("chainRate", RateUtil.doubleChainRate(chainWeekOrderAmountAdd, nextWeekOrderAmount.doubleValue()));
-        nextWeekReceivable.put("startTime", DateUtil.formatDate2String(nextWeekStartTime, DateUtil.SHORT_SLASH_FORMAT_STR));
-        nextWeekReceivable.put("endTime", DateUtil.formatDate2String(nextWeekEndTime, DateUtil.SHORT_SLASH_FORMAT_STR));
-        //下月应收
-        Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
-        Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
-        Map<String, Object> nextMonthMount = requestCreditService.selectRequestNextNew(nextMonthStartTime, nextMonthEndTime, "", "");
-        Date chainMonthFirstDay = DateUtil.getMonthFirstDay(curDate);
-        Date chainMonthLastDay = DateUtil.getMonthLastDay(curDate);
-        Map<String, Object> chainNextMonthMount = requestCreditService.selectRequestNextNew(chainMonthFirstDay, chainMonthLastDay, "", "");
-        if (nextMonthMount == null) {
-            nextMonthMount = new HashMap();
-            nextMonthMount.put("sdT", 0);
-        }
-        BigDecimal nextMonthOrderAmount = BigDecimal.ZERO;
-        if (nextMonthMount.containsKey("sdT")) {
-            nextMonthOrderAmount = new BigDecimal(nextMonthMount.get("sdT").toString());
-        }
-        if (chainNextMonthMount == null) {
-            chainNextMonthMount = new HashMap();
-            chainNextMonthMount.put("sdT", 0);
-        }
-        BigDecimal chainMonthOrderAmount = BigDecimal.ZERO;
-        if (chainNextMonthMount.containsKey("sdT")) {
-            chainMonthOrderAmount = new BigDecimal(chainNextMonthMount.get("sdT").toString());
-        }
-        HashMap<Object, Object> nextMonthReceivable = new HashMap<>();
-        Double chainMonthOrderAmountAdd = nextMonthOrderAmount.doubleValue() - chainMonthOrderAmount.doubleValue();
-        nextMonthReceivable.put("receive", df.format(nextMonthOrderAmount.doubleValue() / 10000) + "万$");
-        nextMonthReceivable.put("chainAdd", df.format(chainMonthOrderAmountAdd / 10000) + "万$");
-        nextMonthReceivable.put("chainRate", RateUtil.doubleChainRate(chainMonthOrderAmountAdd, nextMonthOrderAmount.doubleValue()));
-        nextMonthReceivable.put("startTime", DateUtil.formatDate2String(nextMonthStartTime, DateUtil.SHORT_SLASH_FORMAT_STR));
-        nextMonthReceivable.put("endTime", DateUtil.formatDate2String(nextMonthEndTime, DateUtil.SHORT_SLASH_FORMAT_STR));
-        Map<String, Object> data = new HashMap<>();
-        data.put("receive", receivable);
-        data.put("received", received);
-        data.put("notReceive", notReceive);
-        data.put("nextWeekReceivable", nextWeekReceivable);
-        data.put("nextMonthReceivable", nextMonthReceivable);
-        Result<Map<String, Object>> result = new Result<>(data);
-        return result;
-    }
 
     /**
      * @Author:lirb
-     * @Description 2.应收账款总览
-     * @Date:14:40 2017/12/21
+     * @Description 应收账款总览
+     * @Date:14:40 2018/4/1
      * @modified By
      */
     @ResponseBody
     @RequestMapping(value = "receiveDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object totalReceive(@RequestBody Map<String, Object> map) throws Exception {
-        if (!map.containsKey("startTime")) {
-            throw new MissingServletRequestParameterException("startTime", "String");
+    public Object totalReceive(@RequestBody Map<String, String> map) throws Exception {
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        if (!map.containsKey("endTime")) {
-            throw new MissingServletRequestParameterException("endTime", "String");
-        }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-        //截止时间
-        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
         //当前时期
         int days = DateUtil.getDayBetween(startTime, endTime);
@@ -226,14 +63,15 @@ public class RequestCreditController {
         Date nextMonthStartTime = DateUtil.getNextMonthFirstDay(curDate);
         Date nextMonthEndTime = DateUtil.getNextMonthLastDay(curDate);
 
-        //1.应收未收 \ 已收、应收账款、下周未收、下月未收
+        //1.应收未收 \ 已收、应收账款、应收余额、下周未收、下月未收
         double receive = requestCreditService.selectReceive(null, endTime, null, null, null, null);
         double backAmount = receiveService.selectBackAmount(startTime, endTime, null, null, null, null);
         double totalAmount = receive + backAmount;
+        double receiveBalance  = receiveService.selectReceiveBalance(startTime,endTime);
         double weekReceive = requestCreditService.selectReceive(nextWeekStartTime, nextWeekEndTime, null, null, null, null);
         double MothReceive = requestCreditService.selectReceive(nextMonthStartTime, nextMonthEndTime, null, null, null, null);
 
-        //2.环比时间的 应收未收 \ 已收、应收账款、下周未收、下月未收
+        //2.环比时间的 应收未收 \ 已收、应收账款、应收余额、下周未收、下月未收
         int d = DateUtil.getDayBetween(nextWeekStartTime, nextWeekEndTime);
         Date weekchainTime = DateUtil.sometimeCalendar(nextWeekStartTime, d);//下周环比时间
         int d2 = DateUtil.getDayBetween(nextMonthStartTime, nextMonthEndTime);
@@ -241,6 +79,7 @@ public class RequestCreditController {
         double chainReceive = requestCreditService.selectReceive(null, startTime, null, null, null, null);
         double chainBackAmount = receiveService.selectBackAmount(chainTime, startTime, null, null, null, null);
         double chainTotalAmount = chainReceive + chainBackAmount;
+        double chainBalance  = receiveService.selectReceiveBalance(chainTime,startTime);
         double chainWeekReceive = requestCreditService.selectReceive(weekchainTime, nextWeekStartTime, null, null, null, null);
         double chainMothReceive = requestCreditService.selectReceive(mothchainTime, nextMonthStartTime, null, null, null, null);
 
@@ -269,6 +108,14 @@ public class RequestCreditController {
         } else {
             received.put("chainRate", 0d);
         }
+        Map<String, Object> balanceData = new HashMap<>();
+        balanceData.put("receiveBalance", RateUtil.doubleChainRateTwo(receiveBalance, 10000) + "万$");
+        balanceData.put("chainAdd", RateUtil.doubleChainRateTwo(receiveBalance - chainBalance, 10000) + "万$");
+        if (chainBalance > 0) {
+            balanceData.put("chainRate", RateUtil.doubleChainRateTwo(receiveBalance - chainBalance, chainBalance));
+        } else {
+            balanceData.put("chainRate", 0d);
+        }
         Map<String, Object> nextWeekReceivable = new HashMap<>();
         nextWeekReceivable.put("receive", RateUtil.doubleChainRateTwo(weekReceive, 10000) + "万$");
         nextWeekReceivable.put("chainAdd", RateUtil.doubleChainRateTwo(weekReceive - chainWeekReceive, 10000) + "万$");
@@ -295,6 +142,7 @@ public class RequestCreditController {
         data.put("nextWeekReceivable", nextWeekReceivable);
         data.put("received", received);
         data.put("notReceive", notReceive);
+        data.put("balanceData", balanceData);
         data.put("nextMonthReceivable", nextMonthReceivable);
         return new Result<>().setData(data);
     }
@@ -756,4 +604,50 @@ public class RequestCreditController {
     }
 
 
+    /**
+     * @Author:lirb
+     * @Description 账龄统计饼图
+     * @Date:14:41 2018/4/3
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "agingPie", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object agingPie(@RequestBody Map<String,String> map){
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        map.put("startTime", fullStartTime);
+        map.put("endTime", fullEndTime);
+        Map<String,Object> data=requestCreditService.selectAgingSummary(map);
+        return data;
+    }
+
+
+    /**
+     * @Author:lirb
+     * @Description 账龄统计
+     * @Date:14:41 2018/4/3
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "agingDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object agingDetail(@RequestBody Map<String,String> map){
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        map.put("startTime", fullStartTime);
+        map.put("endTime", fullEndTime);
+        Map<String,Object> data=requestCreditService.selectAgingSummaryGroupByCompanyAndOrgAndArea(map);
+        return data;
+    }
 }

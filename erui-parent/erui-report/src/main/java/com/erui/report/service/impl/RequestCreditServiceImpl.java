@@ -526,4 +526,94 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         }
         return readMapper.selectReceiveGroupByOrg(example);
     }
+
+
+    @Override
+    public Map<String, Object> selectAgingSummary(Map<String, String> map) {
+        Map<String, Object> data = readMapper.selectAgingSummary(map);
+        if(data!=null){
+            data.put("thirty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("thirty").toString()),1));
+            data.put("sixty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("sixty").toString()),1));
+            data.put("ninety",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("ninety").toString()),1));
+            data.put("oneHundredTwenty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("oneHundredTwenty").toString()),1));
+            data.put("oneHundredFifty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("oneHundredFifty").toString()),1));
+            data.put("oneHundredEighty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("oneHundredEighty").toString()),1));
+            data.put("other",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("other").toString()),1));
+        }
+        return  data;
+    }
+
+    @Override
+    public Map<String, Object> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map) {
+       //查询综合的各大区账龄数据
+        map.put("company",null);
+        map.put("org",null);
+        List<Map<String,Object>> data =readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data= addAgingProportion(data);
+       //查询主体公司为易瑞国际 事业部为易瑞国际的各大区账龄数据
+        map.put("company","易瑞国际");
+        map.put("org","易瑞国际");
+        List<Map<String,Object>> data1 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data1= addAgingProportion(data1);
+       //查询主体公司为易瑞国际 事业部为其他事业部的各大区账龄数据
+        map.put("company","易瑞国际");
+        map.put("org",null);
+        map.put("removeOrg1","易瑞");
+        map.put("removeOrg2","易瑞国际");
+        map.put("removeOrg3","易瑞国际电子商务有限公司");
+        List<Map<String,Object>> data2 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data2= addAgingProportion(data2);
+        //查询主体公司为其他主体公司 事业部为易瑞的各大区账龄数据
+        map.put("company",null);
+        map.put("removeCompany1","易瑞");
+        map.put("removeCompany2","易瑞国际");
+        map.put("removeCompany3","易瑞国际电子商务有限公司");
+        map.put("org","易瑞");
+        map.put("removeOrg1",null);
+        map.put("removeOrg2",null);
+        map.put("removeOrg3",null);
+        List<Map<String,Object>> data3 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data3= addAgingProportion(data3);
+
+        Map<String,Object> result=new HashMap<>();
+        result.put("eruiAndErui",data1);
+        result.put("eruiAndOther",data2);
+        result.put("otherAndErui",data3);
+        result.put("totalData",data);
+        return result;
+    }
+
+    private  List<Map<String,Object>> addAgingProportion( List<Map<String,Object>> data){
+        //合并数据
+        data.stream().forEach(m->{
+            double totalAmount = Double.parseDouble(m.get("totalAmount").toString());
+            if(totalAmount>0){
+                double thirty = Double.parseDouble(m.get("thirty").toString());
+                m.put("thirtyProportion",RateUtil.doubleChainRate(thirty,totalAmount));
+                double sixty = Double.parseDouble(m.get("sixty").toString());
+                m.put("sixtyProportion",RateUtil.doubleChainRate(sixty,totalAmount));
+                double ninety = Double.parseDouble(m.get("ninety").toString());
+                m.put("ninetyProportion",RateUtil.doubleChainRate(ninety,totalAmount));
+                double oneHundredTwenty = Double.parseDouble(m.get("oneHundredTwenty").toString());
+                m.put("oneHundredTwentyProportion",RateUtil.doubleChainRate(oneHundredTwenty,totalAmount));
+                double oneHundredFifty = Double.parseDouble(m.get("oneHundredFifty").toString());
+                m.put("oneHundredFiftyProportion",RateUtil.doubleChainRate(oneHundredFifty,totalAmount));
+                double oneHundredEighty = Double.parseDouble(m.get("oneHundredEighty").toString());
+                m.put("oneHundredEightyProportion",RateUtil.doubleChainRate(oneHundredEighty,totalAmount));
+                double other = Double.parseDouble(m.get("other").toString());
+                m.put("otherProportion",RateUtil.doubleChainRate(other,totalAmount));
+
+            }else {
+                m.put("thirtyProportion",0d);
+                m.put("sixtyProportion",0d);
+                m.put("ninetyProportion",0d);
+                m.put("oneHundredTwentyProportion",0d);
+                m.put("oneHundredFiftyProportion",0d);
+                m.put("oneHundredEightyProportion",0d);
+                m.put("otherProportion",0d);
+            }
+        });
+
+        return  data;
+    }
 }

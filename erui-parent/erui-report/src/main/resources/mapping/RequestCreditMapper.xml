@@ -198,6 +198,66 @@
   SELECT  sales_main_company AS  area ,organization  AS country FROM request_credit group by sales_main_company ,organization
    HAVING sales_main_company IS NOT NULL
   </select>
+  <!--查询账龄分析数据-->
+  <select id="selectAgingSummary" resultType="java.util.Map" parameterType="java.util.Map" >
+    select
+    IFNULL( SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 30 THEN receive_amount ELSE 0 END) ,0) AS thirty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 30 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 60 THEN receive_amount ELSE 0 END)  ,0) AS sixty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 60 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 90 THEN receive_amount ELSE 0 END) ,0)  AS ninety,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 90 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]>120 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredTwenty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 120 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 150 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredFifty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 150 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 180 THEN receive_amount ELSE 0 END) ,0)  AS oneHundredEighty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 180  THEN receive_amount ELSE 0  END) ,0) AS other
+    FROM request_credit
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and create_at BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    <if test="area!=null">
+      and sales_area = #{area}
+    </if>
+    <if test="company!=null">
+     and sales_main_company = #{company}
+    </if>
+    <if test="org!=null">
+      and organization = #{org}
+    </if>
+  </select>
+  <!--根据条件查询个大区的账龄数据-->
+  <select id="selectAgingSummaryByConditionGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+    select
+    sales_main_company AS company,
+    organization AS  org,
+    sales_area AS  area,
+    IFNULL( SUM(IFNULL(receive_amount,0)),0) AS  totalAmount,
+    IFNULL( SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 30 THEN receive_amount ELSE 0 END) ,0) AS thirty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 30 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 60 THEN receive_amount ELSE 0 END)  ,0) AS sixty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 60 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 90 THEN receive_amount ELSE 0 END) ,0)  AS ninety,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 90 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]>120 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredTwenty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 120 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 150 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredFifty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 150 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 180 THEN receive_amount ELSE 0 END) ,0)  AS oneHundredEighty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 180  THEN receive_amount ELSE 0  END) ,0) AS other
+    FROM request_credit
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and create_at BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    <if test="company!=null">
+     and sales_main_company LIKE  "%${company}%"
+    </if>
+    <if test="org!=null">
+      and organization LIKE  "%${org}%"
+    </if>
+      <if test="removeCompany1!=null and removeCompany2!=null and removeComany3!=null">
+      and sales_main_company NOT IN (#{removeCompany1},#{removeCompany2},#{removeComany3})
+  </if>
+      <if test="org1!=null and org2!=null and org3!=null">
+          and organization NOT IN (#{removeOrg1},#{removeOrg2},#{removeOrg3})
+      </if>
+      GROUP  BY  sales_area HAVING sales_area IS NOT NULL
+  </select>
   <select id="selectByAreaOrCountry" resultType="map" parameterType="com.erui.report.model.RequestCreditExample" >
     SELECT SUM(IFNULL(order_amount,0)) AS oa,SUM(IFNULL(ABS(receive_amount),0)) AS ra,SUM(IFNULL(order_amount,0)-IFNULL(ABS(receive_amount),0)) AS received
     FROM request_credit
