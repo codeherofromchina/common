@@ -470,7 +470,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 outboundNums = outboundNums+outboundNum; //出库数量累加
                 straightNums = straightNums+straightNum; //厂家直发数量累加
 
-                //V2.0  减少入库数量
+                //V2.0  减少商品入库数量
                 Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());
                 if(outboundNum != null && outboundNum != 0){
                     one1.setInspectInstockNum(one1.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
