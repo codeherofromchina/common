@@ -23,6 +23,9 @@ public class DeliverDetail {
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
 
+    @OneToMany(mappedBy = "deliverDetail", fetch = FetchType.LAZY)
+    private Iogistics iogistics;    //物流表
+
     @OneToOne
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
@@ -763,6 +766,14 @@ public class DeliverDetail {
 
     public void setDeliverConsignNo(String deliverConsignNo) {
         this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public Iogistics getIogistics() {
+        return iogistics;
+    }
+
+    public void setIogistics(Iogistics iogistics) {
+        this.iogistics = iogistics;
     }
 
     /**

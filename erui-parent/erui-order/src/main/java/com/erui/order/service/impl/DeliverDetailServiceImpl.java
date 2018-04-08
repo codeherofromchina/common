@@ -67,6 +67,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     DeliverNoticeDao deliverNoticeDao;
 
+
+    @Autowired
+    IogisticsDao iogisticsDao;
+
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -601,6 +605,30 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         }
 
+
+        // 只接受仓储物流部的附件
+        List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
+            return "仓储物流部".equals(attachment.getGroup());
+        }).collect(Collectors.toList());
+
+        List<Attachment> attachmentList = new ArrayList(one.getAttachmentList());
+
+        List<Attachment> attachmentList02 = new ArrayList<>();
+        Iterator<Attachment> iterator = attachmentList.iterator();
+        while (iterator.hasNext()) {
+            Attachment next = iterator.next();
+
+            if (!"仓储物流部".equals(next.getGroup())) {
+                attachmentList02.add(next);
+                iterator.remove();
+            }
+        }
+
+        List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
+        attachmentList02.addAll(attachments);
+        one.setAttachmentList(attachmentList02);
+
+        DeliverDetail deliverDetail1 = deliverDetailDao.saveAndFlush(one);
         //确认出库
         if (status == 5) {
 
@@ -635,40 +663,36 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 project=project==null?deliverConsign.getOrder().getProject():project;
             }
 
+            String contractNo = project.getContractNo();//销售合同号
             Map<String,Object> map = new HashMap<>();
             map.put("qualityUid",project.getLogisticsUid());       //物流经办人id
-            map.put("projectNo", project.getContractNo());        //销售合同号
+            map.put("projectNo", contractNo);        //销售合同号
             map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
             map.put("wareHousemanName",one.getWareHousemanName());        //仓储经办人名字
             map.put("status",5);        //发送短信标识
             sendSms(map);
 
 
-        }
+            //V2.0  推送信息到物流表
+            Iogistics iogistics = new Iogistics();  //物流信息
 
-        // 只接受仓储物流部的附件
-        List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
-            return "仓储物流部".equals(attachment.getGroup());
-        }).collect(Collectors.toList());
-
-        List<Attachment> attachmentList = new ArrayList(one.getAttachmentList());
-
-        List<Attachment> attachmentList02 = new ArrayList<>();
-        Iterator<Attachment> iterator = attachmentList.iterator();
-        while (iterator.hasNext()) {
-            Attachment next = iterator.next();
-
-            if (!"仓储物流部".equals(next.getGroup())) {
-                attachmentList02.add(next);
-                iterator.remove();
+            iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
+            iogistics.setContractNo(contractNo);    //销售合同号
+            iogistics.setDeliverConsignNo(deliverDetail1.getDeliverConsign().getDeliverConsignNo());  //出口通知单号
+            iogistics.setProjectNo(project.getProjectNo());   //项目号
+            //外检
+            if(outboundNums > 0){
+                iogistics.setOutCheck(1);
+                iogisticsDao.save(iogistics);
+            }else if(straightNums > 0){ //不外检
+                iogistics.setOutCheck(0);
+                iogisticsDao.save(iogistics);
             }
+
+
+
+
         }
-
-        List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
-        attachmentList02.addAll(attachments);
-        one.setAttachmentList(attachmentList02);
-
-        deliverDetailDao.saveAndFlush(one);
 
         return true;
 

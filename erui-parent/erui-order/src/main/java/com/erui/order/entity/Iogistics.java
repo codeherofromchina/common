@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.xml.crypto.Data;
@@ -15,10 +16,22 @@ public class Iogistics {
     @Id
     private Integer id;
 
-    private Integer deliver_detail_id;  //出库表id
+    @ManyToOne
+    @Column(name ="deliver_detail_id")
+    @JsonIgnore
+    private DeliverDetail deliverDetailId;  //出库表id
 
     @Column(name="logistics_no")
     private String logisticsNo; //物流单号
+
+    @Column(name = "contract_no")
+     private String contractNo; //销售合同号
+
+    @Column(name = "deliver_consign_no")
+    private String deliverConsignNo;  //出口通知单号
+
+     @Column(name = "project_no")
+      private String projectNo;  // 项目号
 
     @Column(name = "logistics_user_id")
     private Integer logisticsUserId;    //物流经办人
@@ -77,9 +90,6 @@ public class Iogistics {
         this.id = id;
     }
 
-    public void setDeliver_detail_id(Integer deliver_detail_id) {
-        this.deliver_detail_id = deliver_detail_id;
-    }
 
     public void setLogisticsUserId(Integer logisticsUserId) {
         this.logisticsUserId = logisticsUserId;
@@ -149,8 +159,12 @@ public class Iogistics {
         return id;
     }
 
-    public Integer getDeliver_detail_id() {
-        return deliver_detail_id;
+    public DeliverDetail getDeliverDetailId() {
+        return deliverDetailId;
+    }
+
+    public void setDeliverDetailId(DeliverDetail deliverDetailId) {
+        this.deliverDetailId = deliverDetailId;
     }
 
     public Integer getLogisticsUserId() {
@@ -223,5 +237,29 @@ public class Iogistics {
 
     public Integer getOutCheck() {
         return outCheck;
+    }
+
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
     }
 }
