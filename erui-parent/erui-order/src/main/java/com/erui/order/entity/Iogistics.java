@@ -7,7 +7,7 @@ import javax.persistence.*;
 import javax.xml.crypto.Data;
 import java.util.Date;
 
-//物流表
+//出库分单表
 
 @Entity
 @Table(name="logistics")
@@ -22,6 +22,9 @@ public class Iogistics {
     @JsonIgnore
     private DeliverDetail deliverDetail;  //出库表id
 
+    @Column(name="deliver_detail_no")
+    private String deliverDetailNo; //产品放行单号
+
     @Column(name="logistics_no")
     private String logisticsNo; //物流单号
 
@@ -34,52 +37,6 @@ public class Iogistics {
      @Column(name = "project_no")
       private String projectNo;  // 项目号
 
-    @Column(name = "logistics_user_id")
-    private Integer logisticsUserId;    //物流经办人
-
-    @Column(name = "logistics_user_name")
-    private String logisticsUserName;    //物流经办人名称
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "logistics_date")
-    private Date logisticsDate; //物流经办时间
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "booking_time")
-    private Date bookingTime;   //订舱时间
-
-    @Column(name = "logi_invoice_no")
-    private String logiInvoiceNo;   //物流发票号
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "packing_time")
-    private Date packingTime;   //通知市场箱单时间
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "leave_factory")
-    private Date leaveFactory;  //离厂时间
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "sailing_date")
-    private Date sailingDate;   //船期或航班
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "customs_clearance")
-    private Date customsClearance;  //报关放行时间
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "leave_port_time")
-    private Date leavePortTime; //实际离港时间
-
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "arrival_port_time")
-    private Date arrivalPortTime;   //预计抵达时间
-
-    private String logs;    //动态描述
-
-    private String remarks; //备注
-
-    private Integer status; //物流状态 5：确认出库 6：完善物流状态中 7：项目完结
 
     private Integer pid;    //父信息id
 
@@ -89,8 +46,6 @@ public class Iogistics {
     @Column(name = "out_yn")
     private Integer outYn = 0;  //是否已合并  （0：否  1：是）
 
-
-
     @Transient
     private String handleDepartment;    //经办部门
 
@@ -99,6 +54,9 @@ public class Iogistics {
 
     @Transient
     private Date releaseDate;    //放行日期
+
+    @Transient
+    private String releaseDateList;    //放行日期List
 
     @Transient
     private Integer wareHouseman;    //仓库经办人id
@@ -131,61 +89,6 @@ public class Iogistics {
         return rows;
     }
 
-    public void setLogisticsUserId(Integer logisticsUserId) {
-        this.logisticsUserId = logisticsUserId;
-    }
-
-    public void setLogisticsUserName(String logisticsUserName) {
-        this.logisticsUserName = logisticsUserName;
-    }
-
-    public void setLogisticsDate(Date logisticsDate) {
-        this.logisticsDate = logisticsDate;
-    }
-
-    public void setBookingTime(Date bookingTime) {
-        this.bookingTime = bookingTime;
-    }
-
-    public void setLogiInvoiceNo(String logiInvoiceNo) {
-        this.logiInvoiceNo = logiInvoiceNo;
-    }
-
-    public void setPackingTime(Date packingTime) {
-        this.packingTime = packingTime;
-    }
-
-    public void setLeaveFactory(Date leaveFactory) {
-        this.leaveFactory = leaveFactory;
-    }
-
-    public void setSailingDate(Date sailingDate) {
-        this.sailingDate = sailingDate;
-    }
-
-    public void setCustomsClearance(Date customsClearance) {
-        this.customsClearance = customsClearance;
-    }
-
-    public void setLeavePortTime(Date leavePortTime) {
-        this.leavePortTime = leavePortTime;
-    }
-
-    public void setArrivalPortTime(Date arrivalPortTime) {
-        this.arrivalPortTime = arrivalPortTime;
-    }
-
-    public void setLogs(String logs) {
-        this.logs = logs;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 
     public void setPid(Integer pid) {
         this.pid = pid;
@@ -207,57 +110,6 @@ public class Iogistics {
         this.deliverDetail = deliverDetailId;
     }
 
-    public Integer getLogisticsUserId() {
-        return logisticsUserId;
-    }
-
-    public String getLogisticsUserName() {
-        return logisticsUserName;
-    }
-
-    public Date getLogisticsDate() {
-        return logisticsDate;
-    }
-
-    public Date getBookingTime() {
-        return bookingTime;
-    }
-
-    public String getLogiInvoiceNo() {
-        return logiInvoiceNo;
-    }
-
-    public Date getPackingTime() {
-        return packingTime;
-    }
-
-    public Date getLeaveFactory() {
-        return leaveFactory;
-    }
-
-    public Date getSailingDate() {
-        return sailingDate;
-    }
-
-    public Date getCustomsClearance() {
-        return customsClearance;
-    }
-
-    public Date getLeavePortTime() {
-        return leavePortTime;
-    }
-
-    public Date getArrivalPortTime() {
-        return arrivalPortTime;
-    }
-
-    public String getLogs() {
-        return logs;
-    }
-
-    public String getRemarks() {
-        return remarks;
-    }
 
     public String getLogisticsNo() {
         return logisticsNo;
@@ -267,9 +119,6 @@ public class Iogistics {
         this.logisticsNo = logisticsNo;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
 
     public Integer getPid() {
         return pid;
@@ -347,7 +196,25 @@ public class Iogistics {
         return outYn;
     }
 
+    public String getReleaseDateList() {
+        return releaseDateList;
+    }
+
+    public void setReleaseDateList(String releaseDateList) {
+        this.releaseDateList = releaseDateList;
+    }
+
     public void setOutYn(Integer outYn) {
         this.outYn = outYn;
     }
+
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
+
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
+    }
+
+
 }

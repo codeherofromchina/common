@@ -1,9 +1,10 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.AreaDao;
 import com.erui.order.dao.IogisticsDao;
+import com.erui.order.dao.IogisticsDataDao;
 import com.erui.order.entity.*;
+import com.erui.order.service.IogisticsDataService;
 import com.erui.order.service.IogisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import javax.persistence.criteria.Order;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -30,6 +31,8 @@ public class IogisticsServiceImpl implements IogisticsService {
     @Autowired
     private IogisticsDao iogisticsDao;
 
+    @Autowired
+    private IogisticsDataDao iogisticsDataDao;
 
     /**
      * 出库信息管理（V 2.0）   查询列表页
@@ -91,9 +94,6 @@ public class IogisticsServiceImpl implements IogisticsService {
                 //是否已合并  （0：否  1：是）     查询未合并
                 list.add(cb.equal(root.get("outYn").as(Integer.class),0));
 
-                //'物流的状态    5：确认出库  6:合并物流信息 7：完善物流状态中 8：项目完结',
-                list.add(cb.equal(root.get("status").as(Integer.class),5));
-
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
@@ -142,17 +142,22 @@ public class IogisticsServiceImpl implements IogisticsService {
             throw new Exception("未选择商品信息");
         }
 
-        Iogistics iogistics = new Iogistics();
-        iogistics.setStatus(6);
-        Iogistics save = iogisticsDao.save(iogistics);
+        IogisticsData iogisticsData = new IogisticsData();
+        iogisticsData.setTheAwbNo(createTheAwbNo());
+        iogisticsData.setStatus(5);
+        IogisticsData save = iogisticsDataDao.save(iogisticsData);
 
 
-        Integer id1 = save.getId();
+        Integer id1 = save.getId(); //物流信息id    （父id）
         for (String id : ids){
             Iogistics one = iogisticsDao.findOne(new Integer(id));
             if(one == null){
                 throw new Exception("出库详情信息id："+id+" 不存在");
             }
+            if (one.getOutYn() == 1){
+                throw new Exception("出库详情信息id："+id+" 已合并");
+            }
+
             one.setOutYn(1);
             one.setPid(id1);
             iogisticsDao.save(one);
@@ -161,6 +166,35 @@ public class IogisticsServiceImpl implements IogisticsService {
 
         return true;
     }
+
+
+
+    /**
+     * \//生成产品运单号
+     * @return
+     */
+
+    public String createTheAwbNo(){
+        SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
+
+        //查询最近插入的运单号
+        String theAwbNo= iogisticsDataDao.findTheAwbNo();
+        if(theAwbNo == null){
+            String formats = simpleDateFormats.format(new Date());  //当前年份
+            return formats+String.format("%04d",1);     //第一个
+        }else{
+            String substring = theAwbNo.substring(0, 4); //获取到产品放行单的年份
+            String formats = simpleDateFormats.format(new Date());  //当前年份
+            if(substring.equals(formats)){   //判断年份
+                String substring1 = theAwbNo.substring(4);
+                return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
+            }else{
+                return formats+String.format("%04d",1);     //第一个
+            }
+        }
+
+    }
+
 
 
 }

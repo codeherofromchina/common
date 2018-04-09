@@ -679,10 +679,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 Iogistics iogistics = new Iogistics();  //物流信息
 
                 iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
+                iogistics.setDeliverDetailNo(deliverDetail1.getDeliverDetailNo()); //产品放行单号
                 iogistics.setContractNo(contractNo);    //销售合同号
                 iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
                 iogistics.setProjectNo(projectNo);   //项目号
-                iogistics.setStatus(5); //确认出库
                 iogistics.setOutCheck(1);
                 iogisticsDao.save(iogistics);
             }
@@ -690,10 +690,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 Iogistics iogistics = new Iogistics();  //物流信息
 
                 iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
+                iogistics.setDeliverDetailNo(deliverDetail1.getDeliverDetailNo()); //产品放行单号
                 iogistics.setContractNo(contractNo);    //销售合同号
                 iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
                 iogistics.setProjectNo(projectNo);   //项目号
-                iogistics.setStatus(5); //确认出库
                 iogistics.setOutCheck(0);
                 iogisticsDao.save(iogistics);
             }
