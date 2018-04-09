@@ -32,7 +32,6 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
         if (type == 1) {
             //未执行
             order.setProcessProgress("未执行");
-            project.setProcessProgress("未执行");
         } else if (type == 2) {
             order.setProcessProgress("正常执行");
             project.setProcessProgress("正常执行");
