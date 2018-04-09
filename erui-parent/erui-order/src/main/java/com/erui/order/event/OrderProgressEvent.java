@@ -4,9 +4,9 @@ import org.springframework.context.ApplicationEvent;
 
 /**
  * 自定义事件
- * Created by wangxiaodan on 2018/4/2.
+ * Created by shigs on 2018/4/8.
  */
-public class MyEvent extends ApplicationEvent {
+public class OrderProgressEvent extends ApplicationEvent {
 
     private Integer type;
     /**
@@ -14,7 +14,7 @@ public class MyEvent extends ApplicationEvent {
      *
      * @param source the object on which the event initially occurred (never {@code null})
      */
-    public MyEvent(Object source,Integer type) {
+    public OrderProgressEvent(Object source, Integer type) {
         super(source);
         this.type = type;
     }

@@ -8,10 +8,13 @@ import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.entity.Purch;
+import com.erui.order.event.MyEvent;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +33,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ProjectServiceImpl implements ProjectService {
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private ProjectDao projectDao;
     @Autowired
@@ -118,6 +122,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
             );
             order.setStatus(Order.StatusEnum.EXECUTING.getCode());
+            applicationContext.publishEvent(new OrderProgressEvent(order,2));
             orderDao.save(order);
         }
         projectUpdate.setUpdateTime(new Date());
@@ -178,6 +183,14 @@ public class ProjectServiceImpl implements ProjectService {
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    list.add(cb.like(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {

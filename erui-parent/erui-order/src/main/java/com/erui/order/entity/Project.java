@@ -122,14 +122,45 @@ public class Project {
     //国际物流经办人
     @Column(name = "logistics_name")
     private String logisticsName;
-
+    //合同总价（美元）
+    @Column(name = "total_price_usd")
+    private BigDecimal totalPriceUsd;
     private String region;
     private String country;
     private String remarks;
-
+    //流程进度
+    @Column(name = "process_progress")
+    private String processProgress;
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<Goods> goodsList = new ArrayList<>();
+    //是否已生成出口通知单
+    @Column(name = "deliver_consign_has")
+    private Integer deliverConsignHas;
+
+    public Integer getDeliverConsignHas() {
+        return deliverConsignHas;
+    }
+
+    public void setDeliverConsignHas(Integer deliverConsignHas) {
+        this.deliverConsignHas = deliverConsignHas;
+    }
+
+    public String getProcessProgress() {
+        return processProgress;
+    }
+
+    public void setProcessProgress(String processProgress) {
+        this.processProgress = processProgress;
+    }
+
+    public BigDecimal getTotalPriceUsd() {
+        return totalPriceUsd;
+    }
+
+    public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
+        this.totalPriceUsd = totalPriceUsd;
+    }
 
     public Integer getId() {
         return id;

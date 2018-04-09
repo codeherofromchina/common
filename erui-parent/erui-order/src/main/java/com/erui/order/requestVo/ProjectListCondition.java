@@ -36,13 +36,34 @@ public class ProjectListCondition {
     private String country;
     //项目号
     private String projectNo;
+    //流程进度
+    private String processProgress;
+    //是否已生成出口通知单
+    private Integer deliverConsignHas;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
 
+    public Integer getDeliverConsignHas() {
+        return deliverConsignHas;
+    }
+
+    public void setDeliverConsignHas(Integer deliverConsignHas) {
+        this.deliverConsignHas = deliverConsignHas;
+    }
+
+    public String getProcessProgress() {
+        return processProgress;
+    }
+
+    public void setProcessProgress(String processProgress) {
+        this.processProgress = processProgress;
+    }
+
     public String getProjectNo() {
         return projectNo;
     }
+
     public void setProjectNo(String projectNo) {
         this.projectNo = projectNo;
     }
