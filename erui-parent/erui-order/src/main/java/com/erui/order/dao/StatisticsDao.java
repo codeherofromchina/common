@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
+
     /**
      * 查询复购率
      *
@@ -29,6 +30,20 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
             " from (select region,country,crm_code,count(crm_code) as nn from `order` where crm_code !='' and signing_date >= :startDate and signing_date < :endDate group by crm_code,region,country ) as t1" +
             " group by region,country", nativeQuery = true)
     List<Object> rePurchRate(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
+
+
+
+    /**
+     * 查询商品纬度的询单信息
+     *
+     * @return
+     */
+    @Query(value = "SELECT t1.sku,t2.area_bn,t2.country_bn,count(distinct t2.id),sum(IFNULL(t3.purchase_price_cur_bn,0) * quote_qty) " +
+            " FROM erui_rfq.inquiry_item t1,erui_rfq.inquiry t2,erui_rfq.quote_item t3" +
+            " where t1.inquiry_id = t2.id and t1.id = t3.inquiry_item_id" +
+            " and t1.created_at >= :startDate and t1.created_at < :endDate" +
+            " group by t1.sku,t2.area_bn,t2.country_bn", nativeQuery = true)
+    List<Object> inquiryStatisGroupBySku(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
 
     /**
      * 订单基本统计信息

@@ -1,5 +1,6 @@
 package com.erui.order.service;
 
+import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.SaleStatistics;
 
 import java.util.Date;
@@ -16,5 +17,12 @@ public interface StatisticsService {
      * @param condition {"startDate":"订单签约日期开始时间","endDate":"订单签约日期结束时间","region":"地区","country":"国家"}
      * @return
      */
-    public List<SaleStatistics> findSaleStatisticsByDate(SaleStatistics condition);
+    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition);
+
+    /**
+     * 查询商品统计信息
+     * @param goodsStatistics
+     * @return
+     */
+    List<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics);
 }
