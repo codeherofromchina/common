@@ -66,67 +66,82 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
-        // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
-        if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
-            if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                throw new Exception("参数状态错误");
-            }
-        } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
-            // 之前只保存了项目，则流程可以是提交到项目经理和执行
-            if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                throw new Exception("参数状态错误");
-            }
-            project.copyProjectDescTo(projectUpdate);
-            if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                // 提交到项目经理，则项目成员不能设置
-                projectUpdate.setPurchaseUid(null);
-                projectUpdate.setQualityName(null);
-                projectUpdate.setQualityUid(null);
-                projectUpdate.setLogisticsUid(null);
-                projectUpdate.setLogisticsName(null);
-                projectUpdate.setWarehouseName(null);
-                projectUpdate.setWarehouseUid(null);
-                projectUpdate.setPurchaseName(null);
-            }
-        } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-            // 交付配送中心项目经理只能保存后者执行
-            if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
-                throw new Exception("参数状态错误");
-            }
-            // 只设置项目成员
-            projectUpdate.setPurchaseUid(project.getPurchaseUid());
-            projectUpdate.setQualityName(project.getQualityName());
-            projectUpdate.setQualityUid(project.getQualityUid());
-            projectUpdate.setLogisticsUid(project.getLogisticsUid());
-            projectUpdate.setLogisticsName(project.getLogisticsName());
-            projectUpdate.setWarehouseName(project.getWarehouseName());
-            projectUpdate.setWarehouseUid(project.getWarehouseUid());
-            projectUpdate.setPurchaseName(project.getPurchaseName());
-            // 修改备注和执行单变更日期
-            projectUpdate.setRemarks(project.getRemarks());
-            projectUpdate.setExeChgDate(project.getExeChgDate());
-        } else {
-            // 其他分支，错误
-            throw new Exception("项目状态数据错误");
-        }
-        // 修改状态
-        projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
-        // 操作相关订单信息
-        if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+        //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
+        if (nowProjectStatusEnum.getNum() == 1 && paramProjectStatusEnum.getNum() == 11) {
             Order order = projectUpdate.getOrder();
-            order.getGoodsList().forEach(gd -> {
-                        gd.setStartDate(projectUpdate.getStartDate());
-                        gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                        gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
-                        gd.setExeChgDate(projectUpdate.getExeChgDate());
-                    }
-            );
-            order.setStatus(Order.StatusEnum.EXECUTING.getCode());
-            applicationContext.publishEvent(new OrderProgressEvent(order,2));
+            order.setStatus(1);
             orderDao.save(order);
+            projectDao.delete(projectUpdate);
+            return true;
+        } else {
+            // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
+            if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                    throw new Exception("参数状态错误");
+                }
+            } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
+                // 之前只保存了项目，则流程可以是提交到项目经理和执行
+                if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                    throw new Exception("参数状态错误");
+                }
+                project.copyProjectDescTo(projectUpdate);
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                    // 提交到项目经理，则项目成员不能设置
+                    projectUpdate.setPurchaseUid(null);
+                    projectUpdate.setQualityName(null);
+                    projectUpdate.setQualityUid(null);
+                    projectUpdate.setLogisticsUid(null);
+                    projectUpdate.setLogisticsName(null);
+                    projectUpdate.setWarehouseName(null);
+                    projectUpdate.setWarehouseUid(null);
+                    projectUpdate.setPurchaseName(null);
+                }
+            } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
+                    projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getMsg());
+                    projectDao.save(projectUpdate);
+                    return true;
+                } else {
+                    // 交付配送中心项目经理只能保存后者执行
+                    if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
+                        throw new Exception("参数状态错误");
+                    }
+                    // 只设置项目成员
+                    projectUpdate.setPurchaseUid(project.getPurchaseUid());
+                    projectUpdate.setQualityName(project.getQualityName());
+                    projectUpdate.setQualityUid(project.getQualityUid());
+                    projectUpdate.setLogisticsUid(project.getLogisticsUid());
+                    projectUpdate.setLogisticsName(project.getLogisticsName());
+                    projectUpdate.setWarehouseName(project.getWarehouseName());
+                    projectUpdate.setWarehouseUid(project.getWarehouseUid());
+                    projectUpdate.setPurchaseName(project.getPurchaseName());
+                    // 修改备注和执行单变更日期
+                    projectUpdate.setRemarks(project.getRemarks());
+                    projectUpdate.setExeChgDate(project.getExeChgDate());
+                }
+            } else {
+                // 其他分支，错误
+                throw new Exception("项目状态数据错误");
+            }
+            // 修改状态
+            projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+            // 操作相关订单信息
+            if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                Order order = projectUpdate.getOrder();
+                order.getGoodsList().forEach(gd -> {
+                            gd.setStartDate(projectUpdate.getStartDate());
+                            gd.setDeliveryDate(projectUpdate.getDeliveryDate());
+                            gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                            gd.setExeChgDate(projectUpdate.getExeChgDate());
+                        }
+                );
+                order.setStatus(Order.StatusEnum.EXECUTING.getCode());
+                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                orderDao.save(order);
+            }
+            projectUpdate.setUpdateTime(new Date());
+            projectDao.save(projectUpdate);
         }
-        projectUpdate.setUpdateTime(new Date());
-        projectDao.save(projectUpdate);
         return true;
     }
 
@@ -273,7 +288,7 @@ public class ProjectServiceImpl implements ProjectService {
             intPurchaseUid = Integer.parseInt(purchaseUid);
         }
 
-        List<Integer> projectIds = findAllPurchAbleProjectId(projectNoList,intPurchaseUid);
+        List<Integer> projectIds = findAllPurchAbleProjectId(projectNoList, intPurchaseUid);
 
         PageRequest pageRequest = new PageRequest(pageNum - 1, pageSize, new Sort(Sort.Direction.DESC, "updateTime"));
         Page<Map<String, Object>> result = null;
@@ -307,17 +322,17 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }, pageRequest);
 
-            List<Map<String,Object>> list = new ArrayList<>();
-            for (Project project:pageList) {
-                Map<String,Object> map = new HashMap<>();
-                map.put("id",project.getId());
-                map.put("projectNo",project.getProjectNo());
-                map.put("projectName",project.getProjectName());
+            List<Map<String, Object>> list = new ArrayList<>();
+            for (Project project : pageList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", project.getId());
+                map.put("projectNo", project.getProjectNo());
+                map.put("projectName", project.getProjectName());
                 list.add(map);
             }
-            result = new PageImpl<Map<String, Object>>(list,pageRequest,pageList.getTotalElements());
+            result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());
         } else {
-            result = new PageImpl<Map<String, Object>>(new ArrayList<>(),pageRequest,0);
+            result = new PageImpl<Map<String, Object>>(new ArrayList<>(), pageRequest, 0);
         }
 
         return result;
@@ -325,11 +340,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     /**
      * 查询所有可采购项目的id列表
+     *
      * @param projectNoList
      * @param purchaseUid
      * @return
      */
-    private List<Integer> findAllPurchAbleProjectId(List<String> projectNoList, Integer purchaseUid){
+    private List<Integer> findAllPurchAbleProjectId(List<String> projectNoList, Integer purchaseUid) {
         List<Project> list = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -343,16 +359,16 @@ public class ProjectServiceImpl implements ProjectService {
 
                 if (projectNoList != null && projectNoList.size() > 0) {
                     Predicate[] orPredicate = new Predicate[projectNoList.size()];
-                    int i =0;
-                    for (String projectNo:projectNoList) {
-                        orPredicate[i] = cb.like(root.get("projectNo").as(String.class), "%" +projectNo+ "%");
+                    int i = 0;
+                    for (String projectNo : projectNoList) {
+                        orPredicate[i] = cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%");
                         i++;
                     }
                     list.add(cb.or(orPredicate));
                 }
 
                 Join<Project, Goods> goodsJoin = root.join("goodsList");
-                list.add(cb.lt(goodsJoin.get("prePurchsedNum").as(Integer.class),goodsJoin.get("contractGoodsNum").as(Integer.class)));
+                list.add(cb.lt(goodsJoin.get("prePurchsedNum").as(Integer.class), goodsJoin.get("contractGoodsNum").as(Integer.class)));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
