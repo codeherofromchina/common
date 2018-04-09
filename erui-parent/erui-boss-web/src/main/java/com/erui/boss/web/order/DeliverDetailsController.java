@@ -180,32 +180,10 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
 
         //附件信息
-        //仓储物流部
-        List<Attachment> attachmentList = new ArrayList(deliverDetail.getAttachmentList());
-        List<Attachment> attachmentList02 = new ArrayList<>();
-        Iterator<Attachment> iterator = attachmentList.iterator();
-        while (iterator.hasNext()) {
-            Attachment next = iterator.next();
+        Map<String, Object> map = attachmentLists(deliverDetail.getAttachmentList());
 
-            if (!"仓储物流部".equals(next.getGroup())) {
-                attachmentList02.add(next);
-                iterator.remove();
-            }
-        }
-
-        //品控部
-        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
-        Iterator<Attachment> iterator3 = attachmentList03.iterator();
-        while (iterator3.hasNext()) {
-            Attachment next = iterator3.next();
-
-            if (!"品控部".equals(next.getGroup())) {
-                iterator3.remove();
-            }
-        }
-
-        deliverNoticeInfo.put("attachmentList2", attachmentList03);    //品控部
-        deliverNoticeInfo.put("attachmentList", attachmentList);    //仓储物流部
+        deliverNoticeInfo.put("attachmentList2", map.get("attachmentList2"));    //品控部
+        deliverNoticeInfo.put("attachmentList", map.get("attachmentList"));    //仓储物流部
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
@@ -333,32 +311,10 @@ public class DeliverDetailsController {
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
 
         //附件信息
-        //仓储物流部
-        List<Attachment> attachmentList = new ArrayList(deliverDetail.getAttachmentList());
-        List<Attachment> attachmentList02 = new ArrayList<>();
-        Iterator<Attachment> iterator = attachmentList.iterator();
-        while (iterator.hasNext()) {
-            Attachment next = iterator.next();
+        Map<String, Object> map = attachmentLists(deliverDetail.getAttachmentList());
 
-            if (!"仓储物流部".equals(next.getGroup())) {
-                attachmentList02.add(next);
-                iterator.remove();
-            }
-        }
-
-        //品控部
-        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
-        Iterator<Attachment> iterator3 = attachmentList03.iterator();
-        while (iterator3.hasNext()) {
-            Attachment next = iterator3.next();
-
-            if (!"品控部".equals(next.getGroup())) {
-                iterator3.remove();
-            }
-        }
-
-        deliverNoticeInfo.put("attachmentList2", attachmentList03);    //品控部
-        deliverNoticeInfo.put("attachmentList", attachmentList);    //仓储物流部
+        deliverNoticeInfo.put("attachmentList2", map.get("attachmentList2"));    //品控部
+        deliverNoticeInfo.put("attachmentList", map.get("attachmentList"));    //仓储物流部
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库通知单基本信息
 
 
@@ -410,7 +366,7 @@ public class DeliverDetailsController {
 
 
     //处理商品信息
-    public List<Map<String, Object>> goodsMessage(List<DeliverConsignGoods> deliverConsignGoodsList){
+    public static List<Map<String, Object>> goodsMessage(List<DeliverConsignGoods> deliverConsignGoodsList){
 
         List<Map<String, Object>> goodsInfoList = new ArrayList<>();
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
@@ -439,6 +395,41 @@ public class DeliverDetailsController {
             }
         }
         return  goodsInfoList;
+    }
+
+
+    //处理附件信息
+    public static Map<String, Object> attachmentLists(List<Attachment> attachmentLists){
+        Map<String, Object> deliverNoticeInfo = new HashMap<>();
+
+        //仓储物流部
+        List<Attachment> attachmentList = new ArrayList(attachmentLists);
+        List<Attachment> attachmentList02 = new ArrayList<>();
+        Iterator<Attachment> iterator = attachmentList.iterator();
+        while (iterator.hasNext()) {
+            Attachment next = iterator.next();
+
+            if (!"仓储物流部".equals(next.getGroup())) {
+                attachmentList02.add(next);
+                iterator.remove();
+            }
+        }
+
+        //品控部
+        List<Attachment> attachmentList03 = new ArrayList<>(attachmentList02);
+        Iterator<Attachment> iterator3 = attachmentList03.iterator();
+        while (iterator3.hasNext()) {
+            Attachment next = iterator3.next();
+
+            if (!"品控部".equals(next.getGroup())) {
+                iterator3.remove();
+            }
+        }
+
+        deliverNoticeInfo.put("attachmentList2",attachmentList03);//品控部
+        deliverNoticeInfo.put("attachmentList", attachmentList);    //仓储物流部
+
+        return  deliverNoticeInfo;
     }
 
 

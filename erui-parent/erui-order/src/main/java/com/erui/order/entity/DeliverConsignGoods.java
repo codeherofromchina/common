@@ -47,10 +47,10 @@ public class DeliverConsignGoods {
     private String outboundRemark;
 
     @Column(name = "outbound_num")
-    private Integer outboundNum;  //出库数量
+    private Integer outboundNum = 0;  //出库数量
 
     @Column(name = "straight_num")
-    private Integer straightNum; //厂家直发数量
+    private Integer straightNum = 0; //厂家直发数量
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",

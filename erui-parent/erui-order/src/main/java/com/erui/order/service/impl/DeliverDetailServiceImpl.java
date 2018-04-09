@@ -475,14 +475,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 straightNums = straightNums+straightNum; //厂家直发数量累加
 
                 //V2.0  减少商品入库数量
-                Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());
+                Goods goods = one.getGoods();
                 if(outboundNum != null && outboundNum != 0){
-                    one1.setInspectInstockNum(one1.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                    goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
                 }
                 if(straightNum != null && straightNum != 0){
-                    one1.setNullInstockNum(one1.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
+                    goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
                 }
-                goodsDao.save(one1);
+                goodsDao.save(goods);
             }
         }
 
@@ -583,9 +583,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         one.setStatus(status);//状态
 
 
-        deliverDetail.getDeliverNotice().getDeliverConsigns();
-
-
         Project project = null; //项目信息
 
         //出库通知：通知质检经办人办理质检质检经办人
@@ -674,17 +671,29 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             //V2.0  推送信息到物流表
-            Iogistics iogistics = new Iogistics();  //物流信息
 
-            iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
-            iogistics.setContractNo(contractNo);    //销售合同号
-            iogistics.setDeliverConsignNo(deliverDetail1.getDeliverConsign().getDeliverConsignNo());  //出口通知单号
-            iogistics.setProjectNo(project.getProjectNo());   //项目号
-            //外检
-            if(outboundNums > 0){
+            String projectNo = project.getProjectNo();//项目号
+            String deliverConsignNo = deliverDetail1.getDeliverConsign().getDeliverConsignNo();//出口通知单号
+
+            if(outboundNums > 0){    //外检
+                Iogistics iogistics = new Iogistics();  //物流信息
+
+                iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
+                iogistics.setContractNo(contractNo);    //销售合同号
+                iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
+                iogistics.setProjectNo(projectNo);   //项目号
+                iogistics.setStatus(5); //确认出库
                 iogistics.setOutCheck(1);
                 iogisticsDao.save(iogistics);
-            }else if(straightNums > 0){ //不外检
+            }
+            if(straightNums > 0){   //不外检
+                Iogistics iogistics = new Iogistics();  //物流信息
+
+                iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
+                iogistics.setContractNo(contractNo);    //销售合同号
+                iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
+                iogistics.setProjectNo(projectNo);   //项目号
+                iogistics.setStatus(5); //确认出库
                 iogistics.setOutCheck(0);
                 iogisticsDao.save(iogistics);
             }

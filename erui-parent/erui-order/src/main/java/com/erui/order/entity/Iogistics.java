@@ -10,16 +10,17 @@ import java.util.Date;
 //物流表
 
 @Entity
-@Table(name="Iogistics")
+@Table(name="logistics")
 public class Iogistics {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @Column(name ="deliver_detail_id")
+    @ManyToOne()
+    @JoinColumn(name ="deliver_detail_id")
     @JsonIgnore
-    private DeliverDetail deliverDetailId;  //出库表id
+    private DeliverDetail deliverDetail;  //出库表id
 
     @Column(name="logistics_no")
     private String logisticsNo; //物流单号
@@ -80,16 +81,55 @@ public class Iogistics {
 
     private Integer status; //物流状态 5：确认出库 6：完善物流状态中 7：项目完结
 
-    private Integer pid;    //子信息id（出库是否质检信息）
+    private Integer pid;    //父信息id
 
     @Column(name = "out_check")
     private Integer outCheck;  //是否外键（1：是 0：否）
+
+    @Column(name = "out_yn")
+    private Integer outYn = 0;  //是否已合并  （0：否  1：是）
+
+
+
+    @Transient
+    private String handleDepartment;    //经办部门
+
+    @Transient
+    private Date billingDate;    //开单日期
+
+    @Transient
+    private Date releaseDate;    //放行日期
+
+    @Transient
+    private Integer wareHouseman;    //仓库经办人id
+
+    @Transient
+    private Integer page;
+
+    @Transient
+    private Integer rows;
+
 
 
     public void setId(Integer id) {
         this.id = id;
     }
 
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
 
     public void setLogisticsUserId(Integer logisticsUserId) {
         this.logisticsUserId = logisticsUserId;
@@ -160,11 +200,11 @@ public class Iogistics {
     }
 
     public DeliverDetail getDeliverDetailId() {
-        return deliverDetailId;
+        return deliverDetail;
     }
 
     public void setDeliverDetailId(DeliverDetail deliverDetailId) {
-        this.deliverDetailId = deliverDetailId;
+        this.deliverDetail = deliverDetailId;
     }
 
     public Integer getLogisticsUserId() {
@@ -261,5 +301,53 @@ public class Iogistics {
 
     public String getProjectNo() {
         return projectNo;
+    }
+
+    public DeliverDetail getDeliverDetail() {
+        return deliverDetail;
+    }
+
+    public String getHandleDepartment() {
+        return handleDepartment;
+    }
+
+    public Date getBillingDate() {
+        return billingDate;
+    }
+
+    public Date getReleaseDate() {
+        return releaseDate;
+    }
+
+    public Integer getWareHouseman() {
+        return wareHouseman;
+    }
+
+    public void setDeliverDetail(DeliverDetail deliverDetail) {
+        this.deliverDetail = deliverDetail;
+    }
+
+    public void setHandleDepartment(String handleDepartment) {
+        this.handleDepartment = handleDepartment;
+    }
+
+    public void setBillingDate(Date billingDate) {
+        this.billingDate = billingDate;
+    }
+
+    public void setReleaseDate(Date releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public void setWareHouseman(Integer wareHouseman) {
+        this.wareHouseman = wareHouseman;
+    }
+
+    public Integer getOutYn() {
+        return outYn;
+    }
+
+    public void setOutYn(Integer outYn) {
+        this.outYn = outYn;
     }
 }

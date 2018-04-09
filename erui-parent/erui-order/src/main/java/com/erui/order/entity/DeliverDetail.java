@@ -23,9 +23,9 @@ public class DeliverDetail {
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
 
-    @OneToMany(mappedBy = "deliverDetail", fetch = FetchType.LAZY)
-    private Iogistics iogistics;    //物流表
-
+   /* @OneToMany(mappedBy = "deliverDetail", fetch = FetchType.LAZY)
+    private List<Iogistics> iogistics;    //物流表
+*/
     @OneToOne
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
@@ -768,13 +768,13 @@ public class DeliverDetail {
         this.deliverConsignNo = deliverConsignNo;
     }
 
-    public Iogistics getIogistics() {
+  /*  public List<Iogistics> getIogistics() {
         return iogistics;
     }
 
-    public void setIogistics(Iogistics iogistics) {
+    public void setIogistics(List<Iogistics> iogistics) {
         this.iogistics = iogistics;
-    }
+    }*/
 
     /**
      * 出库到物流的状态1：出库保存/草稿 2：出库提交 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结
