@@ -440,7 +440,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
-            applicationContext.publishEvent(new MyEvent(order1,1));
+            applicationContext.publishEvent(new OrderProgressEvent(order1,1));
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
