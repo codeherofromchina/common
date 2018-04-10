@@ -49,9 +49,9 @@ public class Order {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
 
     @Column(name = "signing_co")
     private String signingCo;
@@ -408,11 +408,11 @@ public class Order {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 

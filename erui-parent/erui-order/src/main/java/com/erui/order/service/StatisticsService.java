@@ -1,7 +1,9 @@
 package com.erui.order.service;
 
 import com.erui.order.model.GoodsStatistics;
+import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
+import org.springframework.data.domain.Page;
 
 import java.util.Date;
 import java.util.List;
@@ -25,4 +27,11 @@ public interface StatisticsService {
      * @return
      */
     List<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics);
+
+    /**
+     * 查询商品统计信息
+     * @param condition
+     * @return
+     */
+    Page<ProjectStatistics> findProjectStatistics(Map<String,String> condition);
 }

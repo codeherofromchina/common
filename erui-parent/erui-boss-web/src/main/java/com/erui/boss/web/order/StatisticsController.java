@@ -3,12 +3,14 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.model.GoodsStatistics;
+import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.RegionTotalAmount;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -80,5 +82,16 @@ public class StatisticsController {
 
         return new Result<>(data);
     }
+
+    // 产品统计信息
+    @RequestMapping("/projectStatistics")
+    public Result<Object> projectStatistics(@RequestBody Map<String,String> condition) {
+
+        // 获取统计数据
+        Page<ProjectStatistics> data = statisticsService.findProjectStatistics(condition);
+
+        return new Result<>(data);
+    }
+
 
 }

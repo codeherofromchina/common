@@ -3,16 +3,24 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.ProjectDao;
 import com.erui.order.dao.StatisticsDao;
-import com.erui.order.entity.*;
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
+import com.erui.order.entity.Project;
 import com.erui.order.model.GoodsStatistics;
+import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
-import com.erui.order.service.GoodsService;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -20,8 +28,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +42,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Autowired
     private StatisticsDao statisticsDao;
+    @Autowired
+    private ProjectDao projectDao;
 
 
     /**
@@ -163,8 +171,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                     StringUtils.defaultString(goodsStatistics1.getCountry(), "");
             if (inquiryMap.containsKey(key)) {
                 Object[] objects = inquiryMap.get(key);
-                goodsStatistics1.setQuotationNum(((BigInteger)objects[3]).longValue());
-                goodsStatistics1.setQuotationAmount(new BigDecimal((double)objects[4],new MathContext(2, RoundingMode.HALF_UP)));
+                goodsStatistics1.setQuotationNum(((BigInteger) objects[3]).longValue());
+                goodsStatistics1.setQuotationAmount((BigDecimal) objects[4]);
             }
             goodsStatistics1.setStartDate(condition.getStartDate());
             goodsStatistics1.setEndDate(condition.getEndDate());
@@ -253,6 +261,114 @@ public class StatisticsServiceImpl implements StatisticsService {
                 result.add(gs);
             }
         }
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
+        // 整理查询条件
+        int page = 0;
+        int rows = 50;
+        String pageStr = condition.get("page");
+        String rowsStr = condition.get("rows");
+        if (StringUtils.isNumeric(pageStr)) {
+            page = Integer.parseInt(pageStr) - 1;
+            if (page < 0) {
+                page = 0;
+            }
+        }
+        if (StringUtils.isNumeric(rowsStr)) {
+            rows = Integer.parseInt(rowsStr);
+            if (rows < 1) {
+                rows = 50;
+            }
+        }
+
+        PageRequest pageRequest = new PageRequest(page, rows, new Sort(Sort.Direction.DESC, "id"));
+        Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
+            @Override
+            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 销售合同号
+                String contractNo = condition.get("contractNo");
+                if (StringUtil.isNotBlank(contractNo)) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                }
+                // 海外销售合同号
+                String contractNoOs = condition.get("contractNoOs");
+                if (StringUtil.isNotBlank(contractNoOs)) {
+                    Join<Project, Order> orderRoot = root.join("order");
+                    list.add(cb.like(orderRoot.get("contractNoOs").as(String.class), "%" + contractNoOs + "%"));
+                }
+                // 项目号
+                String projectNo = condition.get("projectNo");
+                if (StringUtil.isNotBlank(projectNo)) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                }
+                //  项目名称
+                String projectName = condition.get("projectName");
+                if (StringUtil.isNotBlank(projectName)) {
+                    list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
+                }
+                // 分销部
+                String distributionDeptName = condition.get("distributionDeptName");
+                if (StringUtil.isNotBlank(distributionDeptName)) {
+                    list.add(cb.equal(root.get("distributionDeptName").as(String.class), distributionDeptName));
+                }
+                // 事业部
+                String businessUnitName = condition.get("businessUnitName");
+                if (StringUtil.isNotBlank(businessUnitName)) {
+                    list.add(cb.equal(root.get("businessUnitName").as(String.class), businessUnitName));
+                }
+                //执行单变更后日期
+                String exeChgDate = condition.get("exeChgDate");
+                if (StringUtil.isNotBlank(exeChgDate)) {
+                    Date date = DateUtil.str2Date(exeChgDate);
+                    if (date != null) {
+                        list.add(cb.equal(root.get("exeChgDate").as(Date.class), date));
+                    }
+                }
+                //执行单约定交付日期
+                String deliveryDate = condition.get("deliveryDate");
+                if (StringUtil.isNotBlank(deliveryDate)) {
+                    if (StringUtil.isNotBlank(deliveryDate)) {
+                        Date date = DateUtil.str2Date(deliveryDate);
+                        list.add(cb.equal(root.get("deliveryDate").as(Date.class), date));
+                    }
+                }
+                //根据执行分公司查询
+                String execCoName = condition.get("execCoName");
+                if (StringUtil.isNotBlank(execCoName)) {
+                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + execCoName + "%"));
+                }
+                //项目状态
+                String projectStatus = condition.get("projectStatus");
+                if (StringUtil.isNotBlank(projectStatus)) {
+                    list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
+                }
+                //流程进度
+                /*String processProgress = condition.get("processProgress");
+                if (StringUtil.isNotBlank(processProgress)) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
+                }*/
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, pageRequest);
+
+        List<ProjectStatistics> dataList = new ArrayList<>();
+        for (Project project : pageList) {
+            Order order = project.getOrder();
+            if (order != null) {
+                ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
+                dataList.add(projectStatistics);
+            }
+        }
+
+        Page<ProjectStatistics> result = new PageImpl<ProjectStatistics>(dataList, pageRequest, pageList.getTotalElements());
+
         return result;
     }
 }
