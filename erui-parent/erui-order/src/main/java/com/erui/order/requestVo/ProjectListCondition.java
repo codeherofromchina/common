@@ -40,9 +40,59 @@ public class ProjectListCondition {
     private String processProgress;
     //是否已生成出口通知单
     private Integer deliverConsignHas;
+    //采购经办人
+    private Integer purchaseUid;
+    //品控经办人
+    private Integer qualityUid;
+    //
+    private Integer managerUid;
+    //物流经办人
+    private Integer logisticsUid;
+    //仓库经办人
+    private Integer warehouseUid;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getPurchaseUid() {
+        return purchaseUid;
+    }
+
+    public void setPurchaseUid(Integer purchaseUid) {
+        this.purchaseUid = purchaseUid;
+    }
+
+    public Integer getQualityUid() {
+        return qualityUid;
+    }
+
+    public void setQualityUid(Integer qualityUid) {
+        this.qualityUid = qualityUid;
+    }
+
+    public Integer getManagerUid() {
+        return managerUid;
+    }
+
+    public void setManagerUid(Integer managerUid) {
+        this.managerUid = managerUid;
+    }
+
+    public Integer getLogisticsUid() {
+        return logisticsUid;
+    }
+
+    public void setLogisticsUid(Integer logisticsUid) {
+        this.logisticsUid = logisticsUid;
+    }
+
+    public Integer getWarehouseUid() {
+        return warehouseUid;
+    }
+
+    public void setWarehouseUid(Integer warehouseUid) {
+        this.warehouseUid = warehouseUid;
+    }
 
     public Integer getDeliverConsignHas() {
         return deliverConsignHas;

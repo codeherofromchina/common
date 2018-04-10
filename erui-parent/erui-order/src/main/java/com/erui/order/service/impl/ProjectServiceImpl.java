@@ -125,6 +125,10 @@ public class ProjectServiceImpl implements ProjectService {
             }
             // 修改状态
             projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+            //修改备注  在项目完成前商务技术可以修改项目备注
+            if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
+                projectUpdate.setRemarks(project.getRemarks());
+            }
             // 操作相关订单信息
             if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                 Order order = projectUpdate.getOrder();
@@ -195,17 +199,38 @@ public class ProjectServiceImpl implements ProjectService {
                     projectStatus = condition.getProjectStatus().split(",");
                     list.add(root.get("projectStatus").in(projectStatus));
                 }
-                //根据项目号
+                  //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
-                //根据流程进度
+              //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
                     list.add(cb.like(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //根据采购经办人   purchaseUid     qualityUid    managerUid logisticsUid warehouseUid
+                if (condition.getPurchaseUid() != null) {
+                    list.add(cb.equal(root.get("purchaseUid").as(Integer.class), condition.getPurchaseUid()));
+                }
+                //根据品控经办人
+                if (condition.getQualityUid() != null) {
+                    list.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
+                }
+                //
+                if (condition.getManagerUid() != null) {
+                    list.add(cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid()));
+
+                }
+                //根据物流经办人
+                if (condition.getLogisticsUid() != null) {
+                    list.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
+                }
+                //根据仓库经办人
+                if (condition.getWarehouseUid() != null) {
+                    list.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
