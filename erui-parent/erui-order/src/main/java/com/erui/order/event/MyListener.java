@@ -31,31 +31,31 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
         Integer type = orderProgressEvent.getType();
         if (type == 1) {
             //未执行
-            order.setProcessProgress("未执行");
+            order.setProcessProgress(Project.ProjectProgressEnum.SUBMIT.getNum().toString());
         } else if (type == 2) {
-            order.setProcessProgress("正常执行");
-            project.setProcessProgress("正常执行");
+            order.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
         } else if (type == 3) {
-            order.setProcessProgress("采购中");
-            project.setProcessProgress("采购中");
+            order.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
         } else if (type == 4) {
-            order.setProcessProgress("已报检");
-            project.setProcessProgress("已报检");
+            order.setProcessProgress(Project.ProjectProgressEnum.QUARANTINE.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.QUARANTINE.getNum().toString());
         } else if (type == 5) {
-            order.setProcessProgress("质检中");
-            project.setProcessProgress("质检中");
+            order.setProcessProgress(Project.ProjectProgressEnum.CHECKING.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.CHECKING.getNum().toString());
         } else if (type == 6) {
-            order.setProcessProgress("已入库");
-            project.setProcessProgress("已入库");
+            order.setProcessProgress(Project.ProjectProgressEnum.IN_STORAGE.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.IN_STORAGE.getNum().toString());
         } else if (type == 7) {
-            order.setProcessProgress("出库质检");
-            project.setProcessProgress("出库质检");
+            order.setProcessProgress(Project.ProjectProgressEnum.QUALITY_INSPECTION.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.QUALITY_INSPECTION.getNum().toString());
         } else if (type == 8) {
-            order.setProcessProgress("已出库");
-            project.setProcessProgress("已出库");
+            order.setProcessProgress(Project.ProjectProgressEnum.OUTSTORAGE.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.OUTSTORAGE.getNum().toString());
         } else if (type == 9) {
-            order.setProcessProgress("已发运");
-            project.setProcessProgress("已发运");
+            order.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
         }
         orderDao.save(order);
         projectDao.save(project);

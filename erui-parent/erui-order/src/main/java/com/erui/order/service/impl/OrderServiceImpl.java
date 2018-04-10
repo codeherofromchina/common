@@ -302,7 +302,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
-            projectAdd.setProcessProgress("未执行");
+            projectAdd.setProcessProgress("1");
             //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息

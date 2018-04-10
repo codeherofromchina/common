@@ -591,5 +591,45 @@ public class Project {
 
         }
     }
+    //流程进度
+    public static enum ProjectProgressEnum {
+        SUBMIT("SUBMIT", "未执行",1),EXECUTING("EXECUTING", "正常执行",2),
+        BUYING("BUYING", "采购中",3), QUARANTINE("DONE", "已报检",4), CHECKING("CHECKING", "质检中",5),
+        IN_STORAGE("IN_STORAGE", "已入库",6), QUALITY_INSPECTION("QUALITY_INSPECTION", "出库质检",7),
+        OUTSTORAGE("DELAYED_UNSHIPPED", "已出库",8), SHIPED("SHIPED", "已发运",9);
+        private String code;
+        private String msg;
 
+        private Integer num;
+
+        ProjectProgressEnum(String code, String msg,Integer num) {
+
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
+        public static ProjectProgressEnum fromCode(String code) {
+            if (StringUtils.isNotBlank(code)) {
+                for (ProjectProgressEnum statusEnum : ProjectProgressEnum.values()) {
+                    if (statusEnum.getCode().equals(code)) {
+                        return statusEnum;
+
+                    }
+                }
+            }
+            return null;
+        }
+    }
 }
