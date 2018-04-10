@@ -658,6 +658,14 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 Map<String, Object> map = orgMap.get(org);
                 map.put("totalNeedTime",Double.parseDouble(map.get("totalNeedTime").toString())+
                         Double.parseDouble(m.get("totalNeedTime").toString()));
+                map.put("wholeQuoteTime",Double.parseDouble(map.get("wholeQuoteTime").toString())+
+                        Double.parseDouble(m.get("wholeQuoteTime").toString()));
+                map.put("businessQuoteTime",Double.parseDouble(map.get("businessQuoteTime").toString())+
+                        Double.parseDouble(m.get("businessQuoteTime").toString()));
+                map.put("clearQuoteTime",Double.parseDouble(map.get("clearQuoteTime").toString())+
+                        Double.parseDouble(m.get("clearQuoteTime").toString()));
+                map.put("logisticsQuoteTime",Double.parseDouble(map.get("logisticsQuoteTime").toString())+
+                        Double.parseDouble(m.get("logisticsQuoteTime").toString()));
 
                 map.put("totalCount",Integer.parseInt(map.get("totalCount").toString())+
                         Integer.parseInt(m.get("totalCount").toString()));
@@ -673,10 +681,22 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                  while (iterator.hasNext()) {
                      Map<String, Object> m = iterator.next();
                      double totalNeedTime = Double.parseDouble(m.get("totalNeedTime").toString());
+                     double wholeQuoteTime = Double.parseDouble(m.get("wholeQuoteTime").toString());
+                     double businessQuoteTime = Double.parseDouble(m.get("businessQuoteTime").toString());
+                     double clearQuoteTime = Double.parseDouble(m.get("clearQuoteTime").toString());
+                     double logisticsQuoteTime = Double.parseDouble(m.get("logisticsQuoteTime").toString());
                      int totalCount1 = Integer.parseInt(m.get("totalCount").toString());
                      if (totalCount1 > 0) {
                          m.put("avgNeedTime", RateUtil.doubleChainRateTwo(totalNeedTime, totalCount1));
+                         m.put("avgWholeQuoteTime", RateUtil.doubleChainRateTwo(wholeQuoteTime, totalCount1));
+                         m.put("avgBusinessQuoteTime", RateUtil.doubleChainRateTwo(businessQuoteTime, totalCount1));
+                         m.put("avgClearQuoteTime", RateUtil.doubleChainRateTwo(clearQuoteTime, totalCount1));
+                         m.put("avgLogisticsQuoteTime", RateUtil.doubleChainRateTwo(logisticsQuoteTime, totalCount1));
                          m.remove("totalNeedTime");
+                         m.remove("wholeQuoteTime");
+                         m.remove("businessQuoteTime");
+                         m.remove("clearQuoteTime");
+                         m.remove("logisticsQuoteTime");
                          m.remove("totalCount");
                      }
                  }

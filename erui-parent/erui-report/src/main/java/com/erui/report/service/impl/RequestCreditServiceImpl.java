@@ -15,6 +15,8 @@ import com.erui.report.model.RequestCreditExample;
 import com.erui.report.model.RequestReceive;
 import com.erui.report.model.RequestReceiveExample;
 import com.erui.report.util.InquiryAreaVO;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -530,21 +532,25 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
     @Override
     public Map<String, Object> selectAgingSummary(Map<String, String> map) {
+        Map<String, Object> result=new HashMap<>();
         Map<String, Object> data = readMapper.selectAgingSummary(map);
-        if(data!=null){
-            data.put("thirty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("thirty").toString()),1));
-            data.put("sixty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("sixty").toString()),1));
-            data.put("ninety",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("ninety").toString()),1));
-            data.put("oneHundredTwenty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("oneHundredTwenty").toString()),1));
-            data.put("oneHundredFifty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("oneHundredFifty").toString()),1));
-            data.put("oneHundredEighty",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("oneHundredEighty").toString()),1));
-            data.put("other",RateUtil.doubleChainRateTwo(Double.parseDouble(data.get("other").toString()),1));
+        List<String> names=new ArrayList<>();
+        List<Double> values=new ArrayList<>();
+        if(MapUtils.isNotEmpty(data)) {
+             names = new ArrayList<>(data.keySet());
+             values = new ArrayList<>();
+            for (String name : names) {
+                double value = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(name).toString()), 1);
+                values.add(value);
+            }
         }
-        return  data;
+        result.put("names",names);
+        result.put("values",values);
+        return  result;
     }
 
     @Override
-    public Map<String, Object> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map) {
+    public  List<Map<String,Object>> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map) {
        //查询综合的各大区账龄数据
         map.put("company",null);
         map.put("org",null);
@@ -575,11 +581,50 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         List<Map<String,Object>> data3 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
         data3= addAgingProportion(data3);
 
-        Map<String,Object> result=new HashMap<>();
-        result.put("eruiAndErui",data1);
-        result.put("eruiAndOther",data2);
-        result.put("otherAndErui",data3);
-        result.put("totalData",data);
+        //主体公司为易瑞 事业部为易瑞  数据
+        Map<String,Object> eruiAndEruiMap=new HashMap<>();
+        eruiAndEruiMap.put("title","销售主体为易瑞隶属易瑞");
+        if(CollectionUtils.isNotEmpty(data1)){
+            eruiAndEruiMap.put("count",data1.size());
+        }else {
+            eruiAndEruiMap.put("count",0);
+        }
+        eruiAndEruiMap.put("detail",data1);
+
+        //主体公司为易瑞 事业部为除易瑞全部
+        Map<String,Object> eruiAndOtherMap=new HashMap<>();
+        eruiAndOtherMap.put("title","销售主体为易瑞隶属其它事业部");
+        if(CollectionUtils.isNotEmpty(data2)){
+            eruiAndOtherMap.put("count",data2.size());
+        }else {
+            eruiAndOtherMap.put("count",0);
+        }
+        eruiAndOtherMap.put("detail",data2);
+
+        //主体公司为除易瑞全部 事业部为易瑞
+        Map<String,Object> otherAndEruiMap=new HashMap<>();
+        otherAndEruiMap.put("title","销售主体为装备及分子公司隶属易瑞");
+        if(CollectionUtils.isNotEmpty(data3)){
+            otherAndEruiMap.put("count",data3.size());
+        }else {
+            otherAndEruiMap.put("count",0);
+        }
+        otherAndEruiMap.put("detail",data3);
+
+        //全部主体公司和全部事业部
+        Map<String,Object> totalMap=new HashMap<>();
+        totalMap.put("title","综合按大区分类");
+        if(CollectionUtils.isNotEmpty(data)){
+            totalMap.put("count",data.size());
+        }else {
+            totalMap.put("count",0);
+        }
+        totalMap.put("detail",data);
+        List<Map<String,Object>> result=new ArrayList<>();
+        result.add(eruiAndEruiMap);
+        result.add(eruiAndOtherMap);
+        result.add(otherAndEruiMap);
+        result.add(totalMap);
         return result;
     }
 
@@ -590,27 +635,27 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             if(totalAmount>0){
                 double thirty = Double.parseDouble(m.get("thirty").toString());
                 m.put("thirtyProportion",RateUtil.doubleChainRate(thirty,totalAmount));
-                double sixty = Double.parseDouble(m.get("sixty").toString());
-                m.put("sixtyProportion",RateUtil.doubleChainRate(sixty,totalAmount));
-                double ninety = Double.parseDouble(m.get("ninety").toString());
-                m.put("ninetyProportion",RateUtil.doubleChainRate(ninety,totalAmount));
-                double oneHundredTwenty = Double.parseDouble(m.get("oneHundredTwenty").toString());
-                m.put("oneHundredTwentyProportion",RateUtil.doubleChainRate(oneHundredTwenty,totalAmount));
-                double oneHundredFifty = Double.parseDouble(m.get("oneHundredFifty").toString());
-                m.put("oneHundredFiftyProportion",RateUtil.doubleChainRate(oneHundredFifty,totalAmount));
-                double oneHundredEighty = Double.parseDouble(m.get("oneHundredEighty").toString());
-                m.put("oneHundredEightyProportion",RateUtil.doubleChainRate(oneHundredEighty,totalAmount));
-                double other = Double.parseDouble(m.get("other").toString());
-                m.put("otherProportion",RateUtil.doubleChainRate(other,totalAmount));
+                double sixty = Double.parseDouble(m.get("thirtyToSixty").toString());
+                m.put("thirtyToSixtyProportion",RateUtil.doubleChainRate(sixty,totalAmount));
+                double ninety = Double.parseDouble(m.get("sixtyToNinety").toString());
+                m.put("sixtyToNinetyProportion",RateUtil.doubleChainRate(ninety,totalAmount));
+                double oneHundredTwenty = Double.parseDouble(m.get("ninetyToOneHundredTwenty").toString());
+                m.put("ninetyToOneHundredTwentyProportion",RateUtil.doubleChainRate(oneHundredTwenty,totalAmount));
+                double oneHundredFifty = Double.parseDouble(m.get("oneHundredTwentyToOneHundredFifty").toString());
+                m.put("oneHundredTwentyToOneHundredFiftyProportion",RateUtil.doubleChainRate(oneHundredFifty,totalAmount));
+                double oneHundredEighty = Double.parseDouble(m.get("oneHundredFiftyToOneHundredEighty").toString());
+                m.put("oneHundredFiftyToOneHundredEightyProportion",RateUtil.doubleChainRate(oneHundredEighty,totalAmount));
+                double other = Double.parseDouble(m.get("moreThanOneHundredEighty").toString());
+                m.put("moreThanOneHundredEightyProportion",RateUtil.doubleChainRate(other,totalAmount));
 
             }else {
                 m.put("thirtyProportion",0d);
-                m.put("sixtyProportion",0d);
-                m.put("ninetyProportion",0d);
-                m.put("oneHundredTwentyProportion",0d);
-                m.put("oneHundredFiftyProportion",0d);
-                m.put("oneHundredEightyProportion",0d);
-                m.put("otherProportion",0d);
+                m.put("thirtyToSixtyProportion",0d);
+                m.put("sixtyToNinetyProportion",0d);
+                m.put("ninetyToOneHundredTwentyProportion",0d);
+                m.put("oneHundredTwentyToOneHundredFiftyProportion",0d);
+                m.put("oneHundredFiftyToOneHundredEightyProportion",0d);
+                m.put("moreThanOneHundredEightyProportion",0d);
             }
         });
 

@@ -147,6 +147,6 @@ public interface RequestCreditService {
 	 * @Date:13:56 2018/4/3
 	 * @modified By
 	 */
-	Map<String, Object> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map);
+	List<Map<String,Object>> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map);
 
 }

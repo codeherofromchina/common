@@ -624,7 +624,7 @@ public class RequestCreditController {
         map.put("startTime", fullStartTime);
         map.put("endTime", fullEndTime);
         Map<String,Object> data=requestCreditService.selectAgingSummary(map);
-        return data;
+        return new Result<>(data);
     }
 
 
@@ -647,7 +647,7 @@ public class RequestCreditController {
         String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
         map.put("startTime", fullStartTime);
         map.put("endTime", fullEndTime);
-        Map<String,Object> data=requestCreditService.selectAgingSummaryGroupByCompanyAndOrgAndArea(map);
+        List<Map<String,Object>> data=requestCreditService.selectAgingSummaryGroupByCompanyAndOrgAndArea(map);
         return data;
     }
 }

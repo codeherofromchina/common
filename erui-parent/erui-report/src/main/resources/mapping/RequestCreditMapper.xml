@@ -214,13 +214,13 @@
       and create_at BETWEEN
       DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    <if test="area!=null">
+    <if test="area!=null  and  area !=''">
       and sales_area = #{area}
     </if>
-    <if test="company!=null">
+    <if test="company!=null and company!=''">
      and sales_main_company = #{company}
     </if>
-    <if test="org!=null">
+    <if test="org!=null and org!=''">
       and organization = #{org}
     </if>
   </select>
@@ -232,25 +232,25 @@
     sales_area AS  area,
     IFNULL( SUM(IFNULL(receive_amount,0)),0) AS  totalAmount,
     IFNULL( SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 30 THEN receive_amount ELSE 0 END) ,0) AS thirty,
-    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 30 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 60 THEN receive_amount ELSE 0 END)  ,0) AS sixty,
-    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 60 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 90 THEN receive_amount ELSE 0 END) ,0)  AS ninety,
-    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 90 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]>120 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredTwenty,
-    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 120 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 150 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredFifty,
-    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 150 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 180 THEN receive_amount ELSE 0 END) ,0)  AS oneHundredEighty,
-    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 180  THEN receive_amount ELSE 0  END) ,0) AS other
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 30 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 60 THEN receive_amount ELSE 0 END)  ,0) AS thirtyToSixty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 60 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 90 THEN receive_amount ELSE 0 END) ,0)  AS sixtyToNinety,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 90 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]>120 THEN receive_amount ELSE 0 END)  ,0) AS ninetyToOneHundredTwenty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 120 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 150 THEN receive_amount ELSE 0 END)  ,0) AS oneHundredTwentyToOneHundredFifty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 150 AND TO_DAYS(back_date)-TO_DAYS(create_at) <![CDATA[   <=  ]]> 180 THEN receive_amount ELSE 0 END) ,0)  AS oneHundredFiftyToOneHundredEighty,
+    IFNULL(	SUM( CASE WHEN TO_DAYS(back_date)-TO_DAYS(create_at) &gt; 180  THEN receive_amount ELSE 0  END) ,0) AS moreThanOneHundredEighty
     FROM request_credit
     WHERE 1=1
     <if test="startTime!=null and endTime!=null">
       and create_at BETWEEN
       DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    <if test="company!=null">
+    <if test="company!=null and company!=''">
      and sales_main_company LIKE  "%${company}%"
     </if>
-    <if test="org!=null">
+    <if test="org!=null and org!=''">
       and organization LIKE  "%${org}%"
     </if>
-      <if test="removeCompany1!=null and removeCompany2!=null and removeComany3!=null">
+      <if test="removeCompany1!=null  and removeCompany2!=null and removeComany3!=null">
       and sales_main_company NOT IN (#{removeCompany1},#{removeCompany2},#{removeComany3})
   </if>
       <if test="org1!=null and org2!=null and org3!=null">
