@@ -10,6 +10,8 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.MyEvent;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -39,7 +42,8 @@ import java.util.stream.Collectors;
 @Service
 public class DeliverDetailServiceImpl implements DeliverDetailService {
     private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private DeliverDetailDao deliverDetailDao;
 
@@ -456,6 +460,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for(DeliverConsign deliverConsign : deliverConsigns){
                 project=project==null?deliverConsign.getOrder().getProject():project;
+                //出库质检
+                applicationContext.publishEvent(new OrderProgressEvent(deliverConsign.getOrder(),7));
             }
 
             Map<String,Object> map = new HashMap<>();
@@ -464,7 +470,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
             map.put("status",2);        //发送短信标识
             sendSms(map);
-
         }
 
         if (status == 5) {
@@ -472,7 +477,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             for (DeliverConsign deliverConsign : deliverConsigns) {
                 //推送商品出库
                    /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
-
+                //已出库
+                applicationContext.publishEvent(new OrderProgressEvent(deliverConsign.getOrder(),8));
                 //  订单执行跟踪   推送运单号
                 OrderLog orderLog = new OrderLog();
                 try {
@@ -680,6 +686,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId());
                     one1.setAccomplishDate(date);
                     goodsDao.saveAndFlush(one1);
+                    //已发运
+                    applicationContext.publishEvent(new OrderProgressEvent(one1.getOrder(),9));
                 }
 
             }

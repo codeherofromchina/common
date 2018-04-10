@@ -5,10 +5,13 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.MyEvent;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,7 +29,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchServiceImpl implements PurchService {
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private PurchDao purchDao;
     @Autowired
@@ -332,6 +336,7 @@ public class PurchServiceImpl implements PurchService {
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             goodsDao.save(goods);
+            applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
         }
         if (purchGoodsList.size() == 0) {
             throw new Exception("必须存在要采购的商品");

@@ -20,7 +20,7 @@ public class OrderListCondition {
     //订单签约日期
     private Date signingDate;
     //合同交货日期
-    private Date deliveryDate;
+    private String deliveryDate;
     //CRM客户代码
     private String crmCode;
     //框架协议号
@@ -41,9 +41,39 @@ public class OrderListCondition {
     private Integer type;
     //创建人id
     private Integer createUserId;
+    //项目号
+    private String projectNo;
+    //流程进度
+    private String processProgress;
+    //是否已生成出口通知单
+    private Integer deliverConsignHas;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getDeliverConsignHas() {
+        return deliverConsignHas;
+    }
+
+    public void setDeliverConsignHas(Integer deliverConsignHas) {
+        this.deliverConsignHas = deliverConsignHas;
+    }
+
+    public String getProcessProgress() {
+        return processProgress;
+    }
+
+    public void setProcessProgress(String processProgress) {
+        this.processProgress = processProgress;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
 
     public Integer getCreateUserId() {
         return createUserId;
@@ -76,6 +106,7 @@ public class OrderListCondition {
     public void setAgentId(Integer agentId) {
         this.agentId = agentId;
     }
+
     public String getContractNo() {
         return contractNo;
     }
@@ -116,11 +147,11 @@ public class OrderListCondition {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
@@ -202,15 +233,21 @@ public class OrderListCondition {
                 "contractNo='" + contractNo + '\'' +
                 ", poNo='" + poNo + '\'' +
                 ", inquiryNo='" + inquiryNo + '\'' +
+                ", agentId=" + agentId +
                 ", agentName='" + agentName + '\'' +
                 ", signingDate=" + signingDate +
-                ", deliveryDate=" + deliveryDate +
+                ", deliveryDate='" + deliveryDate + '\'' +
                 ", crmCode='" + crmCode + '\'' +
+                ", frameworkNo='" + frameworkNo + '\'' +
                 ", orderType=" + orderType +
                 ", payStatus=" + payStatus +
                 ", status=" + status +
                 ", orderSource='" + orderSource + '\'' +
                 ", deleteFlag=" + deleteFlag +
+                ", country='" + country + '\'' +
+                ", type=" + type +
+                ", createUserId=" + createUserId +
+                ", projectNo='" + projectNo + '\'' +
                 ", page=" + page +
                 ", rows=" + rows +
                 '}';
