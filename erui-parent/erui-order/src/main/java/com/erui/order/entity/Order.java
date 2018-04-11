@@ -216,7 +216,7 @@ public class Order {
     private String projectNo;
     //利率
     @Column(name = "exchange_rate")
-    private String exchangeRate;
+    private BigDecimal exchangeRate;
     //流程进度
     @Column(name = "process_progress")
     private String processProgress;
@@ -274,11 +274,11 @@ public class Order {
         this.totalPriceUsd = totalPriceUsd;
     }
 
-    public String getExchangeRate() {
+    public BigDecimal getExchangeRate() {
         return exchangeRate;
     }
 
-    public void setExchangeRate(String exchangeRate) {
+    public void setExchangeRate(BigDecimal exchangeRate) {
         this.exchangeRate = exchangeRate;
     }
 

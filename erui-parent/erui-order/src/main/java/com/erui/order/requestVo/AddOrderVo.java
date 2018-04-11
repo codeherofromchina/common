@@ -167,7 +167,7 @@ public class AddOrderVo {
     //合同总价（美元）
     private BigDecimal totalPriceUsd;
     //利率
-    private String exchangeRate;
+    private BigDecimal exchangeRate;
     //项目号
     private String projectNo;
     //附件信息
@@ -194,11 +194,11 @@ public class AddOrderVo {
         this.totalPriceUsd = totalPriceUsd;
     }
 
-    public String getExchangeRate() {
+    public BigDecimal getExchangeRate() {
         return exchangeRate;
     }
 
-    public void setExchangeRate(String exchangeRate) {
+    public void setExchangeRate(BigDecimal exchangeRate) {
         this.exchangeRate = exchangeRate;
     }
 
