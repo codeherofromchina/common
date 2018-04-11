@@ -57,7 +57,9 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
             order.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
         }
-        orderDao.save(order);
-        projectDao.save(project);
+        orderDao.flush();
+        if (project != null) {
+            projectDao.save(project);
+        }
     }
 }
