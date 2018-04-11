@@ -287,7 +287,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional( rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
@@ -529,7 +529,7 @@ public class OrderServiceImpl implements OrderService {
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
-            project.setProcessProgress("未执行");
+            project.setProcessProgress("1");
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
