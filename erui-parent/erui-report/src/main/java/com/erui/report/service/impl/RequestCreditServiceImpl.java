@@ -12,12 +12,13 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.dao.RequestReceiveMapper;
 import com.erui.report.model.RequestCreditExample;
-import com.erui.report.model.RequestReceive;
 import com.erui.report.model.RequestReceiveExample;
+import com.erui.report.util.AreaEnum;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -126,14 +127,14 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         RequestCreditExample.Criteria criteria2 = Example2.createCriteria();
         RequestReceiveExample example = new RequestReceiveExample();//回款
         RequestReceiveExample.Criteria criteria1 = example.createCriteria();
-        if(nextMonthFirstDay!=null){
+        if (nextMonthFirstDay != null) {
             criteria2.andBackDateGreaterThanOrEqualTo(nextMonthFirstDay);
         }
-        if(nextMonthEndTime!=null){
+        if (nextMonthEndTime != null) {
             criteria2.andBackDateLessThan(nextMonthEndTime);
         }
         if (startTime != null) {
-          //  criteria.andBackDateGreaterThanOrEqualTo(startTime);
+            //  criteria.andBackDateGreaterThanOrEqualTo(startTime);
             criteria1.andBackDateGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -151,46 +152,46 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         Map<String, Map<String, Object>> reMap = receiveList.parallelStream().collect(Collectors.toMap(vo -> vo.get("backDate").toString(), vo -> vo));
         Map<String, Map<String, Object>> nextMap = nextList.parallelStream().collect(Collectors.toMap(vo -> vo.get("backDate").toString(), vo -> vo));
         Map<String, Map<String, Object>> backMap = backAmountList.parallelStream().collect(Collectors.toMap(vo -> vo.get("backDate").toString(), vo -> vo));
-        for (String date:nextDates ) {
-            if(nextMap.containsKey(date)){
-                nList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(nextMap.get(date).get("receiveAmount").toString()),1d));
-            }else {
+        for (String date : nextDates) {
+            if (nextMap.containsKey(date)) {
+                nList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(nextMap.get(date).get("receiveAmount").toString()), 1d));
+            } else {
                 nList.add(0d);
             }
         }
         for (String date : dates) {
             if (reMap.containsKey(date)) {
-                rList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(reMap.get(date).get("receiveAmount").toString()),1d));
+                rList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(reMap.get(date).get("receiveAmount").toString()), 1d));
             } else {
                 rList.add(0d);
             }
             if (backMap.containsKey(date)) {
-                bList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(backMap.get(date).get("backAmount").toString()),1d));
+                bList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(backMap.get(date).get("backAmount").toString()), 1d));
             } else {
                 bList.add(0d);
             }
         }
         for (int i = 0; i < dates.size(); i++) {
-            orderList.add(RateUtil.doubleChainRateTwo(rList.get(i) + bList.get(i),1d));
+            orderList.add(RateUtil.doubleChainRateTwo(rList.get(i) + bList.get(i), 1d));
         }
-        Map<String,Object> datas=new HashMap<>();
-        String[] types={"receivable","notReceive","received","nextMonth"};
-        if(receiveName.equals(types[0])){
-            datas.put("legend","应收账款");
-            datas.put("xAxis",dates);
-            datas.put("yAxis",orderList);
-        }else if(receiveName.equals(types[1])){
-            datas.put("legend","应收未收");
-            datas.put("xAxis",dates);
-            datas.put("yAxis",rList);
-        }else if(receiveName.equals(types[2])){
-            datas.put("legend","应收已收");
-            datas.put("xAxis",dates);
-            datas.put("yAxis",bList);
-        }else if(receiveName.equals(types[3])){
-            datas.put("legend","下月应收");
-            datas.put("xAxis",nextDates);
-            datas.put("yAxis",nList);
+        Map<String, Object> datas = new HashMap<>();
+        String[] types = {"receivable", "notReceive", "received", "nextMonth"};
+        if (receiveName.equals(types[0])) {
+            datas.put("legend", "应收账款");
+            datas.put("xAxis", dates);
+            datas.put("yAxis", orderList);
+        } else if (receiveName.equals(types[1])) {
+            datas.put("legend", "应收未收");
+            datas.put("xAxis", dates);
+            datas.put("yAxis", rList);
+        } else if (receiveName.equals(types[2])) {
+            datas.put("legend", "应收已收");
+            datas.put("xAxis", dates);
+            datas.put("yAxis", bList);
+        } else if (receiveName.equals(types[3])) {
+            datas.put("legend", "下月应收");
+            datas.put("xAxis", nextDates);
+            datas.put("yAxis", nList);
         }
         return datas;
     }
@@ -468,16 +469,16 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             criteria.andBackDateLessThan(endTime);
         }
         if (StringUtils.isNotEmpty(company)) {
-            if(company.equals("除易瑞全部")){
+            if (company.equals("除易瑞全部")) {
                 criteria.andSalesMainCompanyNotLike("%易瑞%");
-            }else {
+            } else {
                 criteria.andSalesMainCompanyEqualTo(company);
             }
         }
         if (StringUtils.isNotEmpty(org)) {
-            if(org.equals("除易瑞全部")){
+            if (org.equals("除易瑞全部")) {
                 criteria.andOrganizationNotLike("%易瑞%");
-            }else {
+            } else {
                 criteria.andOrganizationEqualTo(org);
             }
         }
@@ -532,95 +533,80 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
     @Override
     public Map<String, Object> selectAgingSummary(Map<String, String> map) {
-        Map<String, Object> result=new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = readMapper.selectAgingSummary(map);
-        List<String> names=new ArrayList<>();
-        List<Double> values=new ArrayList<>();
-        if(MapUtils.isNotEmpty(data)) {
-             names = new ArrayList<>(data.keySet());
-             values = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        if (!data.isEmpty()) {
+            names = new ArrayList<>(data.keySet());
+            values = new ArrayList<>();
             for (String name : names) {
                 double value = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(name).toString()), 1);
                 values.add(value);
             }
         }
-        result.put("names",names);
-        result.put("values",values);
-        return  result;
+        result.put("names", names);
+        result.put("values", values);
+        return result;
     }
 
     @Override
-    public  List<Map<String,Object>> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map) {
-       //查询综合的各大区账龄数据
-        map.put("company",null);
-        map.put("org",null);
-        List<Map<String,Object>> data =readMapper.selectAgingSummaryByConditionGroupByArea(map);
-        data= addAgingProportion(data);
-       //查询主体公司为易瑞国际 事业部为易瑞国际的各大区账龄数据
-        map.put("company","易瑞国际");
-        map.put("org","易瑞国际");
-        List<Map<String,Object>> data1 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
-        data1= addAgingProportion(data1);
-       //查询主体公司为易瑞国际 事业部为其他事业部的各大区账龄数据
-        map.put("company","易瑞国际");
-        map.put("org",null);
-        map.put("removeOrg1","易瑞");
-        map.put("removeOrg2","易瑞国际");
-        map.put("removeOrg3","易瑞国际电子商务有限公司");
-        List<Map<String,Object>> data2 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
-        data2= addAgingProportion(data2);
+    public List<Map<String, Object>> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map) {
+        //查询综合的各大区账龄数据
+        map.put("company", null);
+        map.put("org", null);
+        List<Map<String, Object>> data = readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data = addAgingProportion(data);
+        //查询主体公司为易瑞国际 事业部为易瑞国际的各大区账龄数据
+        map.put("company", "易瑞国际");
+        map.put("org", "易瑞国际");
+        List<Map<String, Object>> data1 = readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data1 = addAgingProportion(data1);
+        //查询主体公司为易瑞国际 事业部为其他事业部的各大区账龄数据
+        map.put("company", "易瑞国际");
+        map.put("org", null);
+        map.put("removeOrg1", "易瑞");
+        map.put("removeOrg2", "易瑞国际");
+        map.put("removeOrg3", "易瑞国际电子商务有限公司");
+        List<Map<String, Object>> data2 = readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data2 = addAgingProportion(data2);
         //查询主体公司为其他主体公司 事业部为易瑞的各大区账龄数据
-        map.put("company",null);
-        map.put("removeCompany1","易瑞");
-        map.put("removeCompany2","易瑞国际");
-        map.put("removeCompany3","易瑞国际电子商务有限公司");
-        map.put("org","易瑞");
-        map.put("removeOrg1",null);
-        map.put("removeOrg2",null);
-        map.put("removeOrg3",null);
-        List<Map<String,Object>> data3 =readMapper.selectAgingSummaryByConditionGroupByArea(map);
-        data3= addAgingProportion(data3);
+        map.put("company", null);
+        map.put("removeCompany1", "易瑞");
+        map.put("removeCompany2", "易瑞国际");
+        map.put("removeCompany3", "易瑞国际电子商务有限公司");
+        map.put("org", "易瑞");
+        map.put("removeOrg1", null);
+        map.put("removeOrg2", null);
+        map.put("removeOrg3", null);
+        List<Map<String, Object>> data3 = readMapper.selectAgingSummaryByConditionGroupByArea(map);
+        data3 = addAgingProportion(data3);
 
         //主体公司为易瑞 事业部为易瑞  数据
-        Map<String,Object> eruiAndEruiMap=new HashMap<>();
-        eruiAndEruiMap.put("title","销售主体为易瑞隶属易瑞");
-        if(CollectionUtils.isNotEmpty(data1)){
-            eruiAndEruiMap.put("count",data1.size());
-        }else {
-            eruiAndEruiMap.put("count",0);
-        }
-        eruiAndEruiMap.put("detail",data1);
+        Map<String, Object> eruiAndEruiMap = new HashMap<>();
+        eruiAndEruiMap.put("title", "销售主体为易瑞隶属易瑞");
+        eruiAndEruiMap.put("count", data1.size());
+        eruiAndEruiMap.put("detail", data1);
+
 
         //主体公司为易瑞 事业部为除易瑞全部
-        Map<String,Object> eruiAndOtherMap=new HashMap<>();
-        eruiAndOtherMap.put("title","销售主体为易瑞隶属其它事业部");
-        if(CollectionUtils.isNotEmpty(data2)){
-            eruiAndOtherMap.put("count",data2.size());
-        }else {
-            eruiAndOtherMap.put("count",0);
-        }
-        eruiAndOtherMap.put("detail",data2);
+        Map<String, Object> eruiAndOtherMap = new HashMap<>();
+        eruiAndOtherMap.put("title", "销售主体为易瑞隶属其它事业部");
+        eruiAndOtherMap.put("count", data2.size());
+        eruiAndOtherMap.put("detail", data2);
 
         //主体公司为除易瑞全部 事业部为易瑞
-        Map<String,Object> otherAndEruiMap=new HashMap<>();
-        otherAndEruiMap.put("title","销售主体为装备及分子公司隶属易瑞");
-        if(CollectionUtils.isNotEmpty(data3)){
-            otherAndEruiMap.put("count",data3.size());
-        }else {
-            otherAndEruiMap.put("count",0);
-        }
-        otherAndEruiMap.put("detail",data3);
+        Map<String, Object> otherAndEruiMap = new HashMap<>();
+        otherAndEruiMap.put("title", "销售主体为装备及分子公司隶属易瑞");
+        otherAndEruiMap.put("count", data3.size());
+        otherAndEruiMap.put("detail", data3);
 
         //全部主体公司和全部事业部
-        Map<String,Object> totalMap=new HashMap<>();
-        totalMap.put("title","综合按大区分类");
-        if(CollectionUtils.isNotEmpty(data)){
-            totalMap.put("count",data.size());
-        }else {
-            totalMap.put("count",0);
-        }
-        totalMap.put("detail",data);
-        List<Map<String,Object>> result=new ArrayList<>();
+        Map<String, Object> totalMap = new HashMap<>();
+        totalMap.put("title", "综合按大区分类");
+        totalMap.put("count", data.size());
+        totalMap.put("detail", data);
+        List<Map<String, Object>> result = new ArrayList<>();
         result.add(eruiAndEruiMap);
         result.add(eruiAndOtherMap);
         result.add(otherAndEruiMap);
@@ -628,37 +614,272 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         return result;
     }
 
-    private  List<Map<String,Object>> addAgingProportion( List<Map<String,Object>> data){
-        //合并数据
-        data.stream().forEach(m->{
-            double totalAmount = Double.parseDouble(m.get("totalAmount").toString());
-            if(totalAmount>0){
-                double thirty = Double.parseDouble(m.get("thirty").toString());
-                m.put("thirtyProportion",RateUtil.doubleChainRate(thirty,totalAmount));
-                double sixty = Double.parseDouble(m.get("thirtyToSixty").toString());
-                m.put("thirtyToSixtyProportion",RateUtil.doubleChainRate(sixty,totalAmount));
-                double ninety = Double.parseDouble(m.get("sixtyToNinety").toString());
-                m.put("sixtyToNinetyProportion",RateUtil.doubleChainRate(ninety,totalAmount));
-                double oneHundredTwenty = Double.parseDouble(m.get("ninetyToOneHundredTwenty").toString());
-                m.put("ninetyToOneHundredTwentyProportion",RateUtil.doubleChainRate(oneHundredTwenty,totalAmount));
-                double oneHundredFifty = Double.parseDouble(m.get("oneHundredTwentyToOneHundredFifty").toString());
-                m.put("oneHundredTwentyToOneHundredFiftyProportion",RateUtil.doubleChainRate(oneHundredFifty,totalAmount));
-                double oneHundredEighty = Double.parseDouble(m.get("oneHundredFiftyToOneHundredEighty").toString());
-                m.put("oneHundredFiftyToOneHundredEightyProportion",RateUtil.doubleChainRate(oneHundredEighty,totalAmount));
-                double other = Double.parseDouble(m.get("moreThanOneHundredEighty").toString());
-                m.put("moreThanOneHundredEightyProportion",RateUtil.doubleChainRate(other,totalAmount));
+    @Override
+    public void exportAgingData(List<Map<String, Object>> data) {
 
-            }else {
-                m.put("thirtyProportion",0d);
-                m.put("thirtyToSixtyProportion",0d);
-                m.put("sixtyToNinetyProportion",0d);
-                m.put("ninetyToOneHundredTwentyProportion",0d);
-                m.put("oneHundredTwentyToOneHundredFiftyProportion",0d);
-                m.put("oneHundredFiftyToOneHundredEightyProportion",0d);
-                m.put("moreThanOneHundredEightyProportion",0d);
+        //声明工作簿
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFCellStyle cellStyle = wb.createCellStyle();
+        HSSFFont font = wb.createFont();
+        //生成一个表格
+        HSSFSheet sheet = wb.createSheet();
+        sheet.setDefaultColumnWidth(20);
+        //产生标题行
+        HSSFRow row = sheet.getRow(0);
+        String[] headers = new String[]{"销售模式", "大区", "30天以内", "占比(%)", "30-60天", "占比(%)", "60-90天", "占比(%)", "90-120天",
+                "占比(%)", "120-150天", "占比(%)", "150-180天", "占比(%)", "180天以上", "占比(%)", "合计"};
+        for (int i = 0; i < headers.length; i++) {
+            HSSFCell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        //销售主体为易瑞隶属易瑞 表格并赋值
+        for (Map<String, Object> m : data) {
+            String title = m.get("title").toString();
+            List<Map<String, Object>> dataList = (List<Map<String, Object>>) m.get("detail");
+            Map<String, Map<String, Object>> dataMap = dataList.stream().collect(Collectors.toMap(m1 -> m1.get("area").toString(), m1 -> m1));
+            if (title.equals("销售主体为易瑞隶属易瑞")) {
+                createAppointRow(1,sheet,dataMap);
+            }else if(title.equals("销售主体为易瑞隶属其他事业部")) {
+                createAppointRow(1,sheet,dataMap);
+            }
+            HSSFRow row1 = sheet.getRow(1);
+            HSSFCell cell10 = row1.createCell(0);
+            cell10.setCellValue("销售主体为易瑞隶属易瑞");
+
+        }
+    }
+
+    private void createAppointRow(int index,HSSFSheet sheet, Map<String, Map<String, Object>> dataMap ){
+        for (int i = index; i < index+7; i++) {
+          HSSFRow  row = sheet.createRow(i);
+            HSSFCell cell0 = row.createCell(0);
+            if (i == 1) {
+                setCellValueUtil(row, dataMap, AreaEnum.BEIMEI.getMessage());
+            }
+            if (i == 2) {
+                setCellValueUtil(row, dataMap, AreaEnum.FANE.getMessage());
+            }
+            if (i == 3) {
+                setCellValueUtil(row, dataMap, AreaEnum.FEIZHOU.getMessage());
+            }
+            if (i == 4) {
+                setCellValueUtil(row, dataMap, AreaEnum.NANMEI.getMessage());
+            }
+            if (i == 5) {
+                setCellValueUtil(row, dataMap, AreaEnum.OUZHOU.getMessage());
+            }
+            if (i == 6) {
+                setCellValueUtil(row, dataMap, AreaEnum.YATAI.getMessage());
+            }
+            if (i == 7) {
+                setCellValueUtil(row, dataMap, AreaEnum.ZHONGDONG.getMessage());
+            }
+        }
+        //算出各大区相加的各区间值
+        List<Map<String, Object>> dataList = new ArrayList<>(dataMap.values());
+
+      double totalThirty=  dataList.stream().map(m -> {
+            double thirty = Double.valueOf(m.get("thirty").toString());
+            return thirty;
+        }).reduce(0d,(a,b)->a+b);
+      double totalSixty=  dataList.stream().map(m -> {
+            double thirtyToSixty = Double.valueOf(m.get("thirtyToSixty").toString());
+            return thirtyToSixty;
+        }).reduce(0d,(a,b)->a+b);
+      double totalNinety=  dataList.stream().map(m -> {
+            double sixtyToNinety = Double.valueOf(m.get("sixtyToNinety").toString());
+            return sixtyToNinety;
+        }).reduce(0d,(a,b)->a+b);
+      double totalOneHundredTwenty=  dataList.stream().map(m -> {
+            double ninetyToOneHundredTwenty = Double.valueOf(m.get("ninetyToOneHundredTwenty").toString());
+            return ninetyToOneHundredTwenty;
+        }).reduce(0d,(a,b)->a+b);
+      double totalOneHundredFifty=  dataList.stream().map(m -> {
+            double oneHundredTwentyToOneHundredFifty = Double.valueOf(m.get("oneHundredTwentyToOneHundredFifty").toString());
+            return oneHundredTwentyToOneHundredFifty;
+        }).reduce(0d,(a,b)->a+b);
+      double totalOneHundredEighty=  dataList.stream().map(m -> {
+            double oneHundredFiftyToOneHundredEighty = Double.valueOf(m.get("oneHundredFiftyToOneHundredEighty").toString());
+            return oneHundredFiftyToOneHundredEighty;
+        }).reduce(0d,(a,b)->a+b);
+      double totalMoreThanOneHundredEighty=  dataList.stream().map(m -> {
+            double moreThanOneHundredEighty = Double.valueOf(m.get("moreThanOneHundredEighty").toString());
+            return moreThanOneHundredEighty;
+        }).reduce(0d,(a,b)->a+b);
+        //添加合计行
+        HSSFRow  row = sheet.createRow(index+8);
+        HSSFCell cell0 = row.createCell(0);
+        HSSFCell cell1 = row.createCell(1);
+        cell1.setCellValue("合计");
+        HSSFCell cell2 = row.createCell(2);
+        cell2.setCellValue(totalThirty);
+
+    }
+//    private void addTotalRow(Map<String,Map<String,Object>> dataMap,)
+    private void setCellValueUtil(  HSSFRow row, Map<String, Map<String, Object>> dataMap,String message){
+        HSSFCell cell1 = row.createCell(1);
+        cell1.setCellValue(message);
+        Map<String, Object> areaMap = dataMap.get(message);
+        HSSFCell thirty = row.createCell(2);
+        thirty.setCellValue(Double.parseDouble(areaMap.get("thirty").toString()));
+        HSSFCell thirtyPropertion = row.createCell(3);
+        thirtyPropertion.setCellValue(Double.parseDouble(areaMap.get("thirtyProportion").toString()));
+        HSSFCell thirtyToSixty = row.createCell(4);
+        thirtyToSixty.setCellValue(Double.parseDouble(areaMap.get("thirtyToSixty").toString()));
+        HSSFCell thirtyToSixtyPropertion = row.createCell(5);
+        thirtyToSixtyPropertion.setCellValue(Double.parseDouble(areaMap.get("thirtyToSixtyProportion").toString()));
+        HSSFCell sixtyToNinety = row.createCell(6);
+        sixtyToNinety.setCellValue(Double.parseDouble(areaMap.get("sixtyToNinety").toString()));
+        HSSFCell sixtyToNinetyProportion = row.createCell(7);
+        sixtyToNinetyProportion.setCellValue(Double.parseDouble(areaMap.get("sixtyToNinetyProportion").toString()));
+        HSSFCell ninetyToOneHundredTwenty = row.createCell(8);
+        ninetyToOneHundredTwenty.setCellValue(Double.parseDouble(areaMap.get("ninetyToOneHundredTwenty").toString()));
+        HSSFCell ninetyToOneHundredTwentyProportion = row.createCell(9);
+        ninetyToOneHundredTwentyProportion.setCellValue(Double.parseDouble(areaMap.get("ninetyToOneHundredTwentyProportion").toString()));
+        HSSFCell oneHundredTwentyToOneHundredFifty = row.createCell(10);
+        oneHundredTwentyToOneHundredFifty.setCellValue(Double.parseDouble(areaMap.get("oneHundredTwentyToOneHundredFifty").toString()));
+        HSSFCell oneHundredTwentyToOneHundredFiftyProportion = row.createCell(11);
+        oneHundredTwentyToOneHundredFiftyProportion.setCellValue(Double.parseDouble(areaMap.get("oneHundredTwentyToOneHundredFiftyProportion").toString()));
+        HSSFCell oneHundredFiftyToOneHundredEighty = row.createCell(12);
+        oneHundredFiftyToOneHundredEighty.setCellValue(Double.parseDouble(areaMap.get("oneHundredFiftyToOneHundredEighty").toString()));
+        HSSFCell oneHundredFiftyToOneHundredEightyProportion = row.createCell(13);
+        oneHundredFiftyToOneHundredEightyProportion.setCellValue(Double.parseDouble(areaMap.get("oneHundredFiftyToOneHundredEightyProportion").toString()));
+        HSSFCell moreThanOneHundredEighty = row.createCell(14);
+        moreThanOneHundredEighty.setCellValue(Double.parseDouble(areaMap.get("moreThanOneHundredEighty").toString()));
+        HSSFCell moreThanOneHundredEightyProportion = row.createCell(15);
+        moreThanOneHundredEightyProportion.setCellValue(Double.parseDouble(areaMap.get("moreThanOneHundredEightyProportion").toString()));
+        HSSFCell totalAmount = row.createCell(16);
+        totalAmount.setCellValue(Double.parseDouble(areaMap.get("totalAmount").toString()));
+
+    }
+
+    private List<Map<String, Object>> addAgingProportion(List<Map<String, Object>> data) {
+        //合并数据
+        if(data.isEmpty()) data=new ArrayList<>();
+
+        Map<String, Map<String, Object>> dataMap = data.stream().collect(Collectors.toMap(m -> m.get("area").toString(), m -> m));
+            if( !dataMap.containsKey(AreaEnum.BEIMEI.getMessage())){
+                Map<String,Object> beimeiMap=new HashMap<>();
+                beimeiMap.put("area",AreaEnum.BEIMEI.getMessage());
+                beimeiMap.put("totalAmount",0d);
+                beimeiMap.put("thirty",0d);
+                beimeiMap.put("thirtyToSixty",0d);
+                beimeiMap.put("sixtyToNinety",0d);
+                beimeiMap.put("ninetyToOneHundredTwenty",0d);
+                beimeiMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                beimeiMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                beimeiMap.put("moreThanOneHundredEighty",0d);
+               data.add(beimeiMap);
+            }
+            if(!dataMap.containsKey(AreaEnum.NANMEI.getMessage())){
+                Map<String,Object> nameiMap=new HashMap<>();
+                nameiMap.put("area",AreaEnum.NANMEI.getMessage());
+                nameiMap.put("totalAmount",0d);
+                nameiMap.put("thirty",0d);
+                nameiMap.put("thirtyToSixty",0d);
+                nameiMap.put("sixtyToNinety",0d);
+                nameiMap.put("ninetyToOneHundredTwenty",0d);
+                nameiMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                nameiMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                nameiMap.put("moreThanOneHundredEighty",0d);
+                data.add(nameiMap);
+            }
+            if(!dataMap.containsKey(AreaEnum.OUZHOU.getMessage())){
+                Map<String,Object> ouzhouMap=new HashMap<>();
+                ouzhouMap.put("area",AreaEnum.OUZHOU.getMessage());
+                ouzhouMap.put("totalAmount",0d);
+                ouzhouMap.put("thirty",0d);
+                ouzhouMap.put("thirtyToSixty",0d);
+                ouzhouMap.put("sixtyToNinety",0d);
+                ouzhouMap.put("ninetyToOneHundredTwenty",0d);
+                ouzhouMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                ouzhouMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                ouzhouMap.put("moreThanOneHundredEighty",0d);
+                data.add(ouzhouMap);
+            }
+            if(!dataMap.containsKey(AreaEnum.YATAI.getMessage())){
+                Map<String,Object> yataiMap=new HashMap<>();
+                yataiMap.put("area",AreaEnum.YATAI.getMessage());
+                yataiMap.put("totalAmount",0d);
+                yataiMap.put("thirty",0d);
+                yataiMap.put("thirtyToSixty",0d);
+                yataiMap.put("sixtyToNinety",0d);
+                yataiMap.put("ninetyToOneHundredTwenty",0d);
+                yataiMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                yataiMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                yataiMap.put("moreThanOneHundredEighty",0d);
+                data.add(yataiMap);
+            }
+            if(!dataMap.containsKey(AreaEnum.FEIZHOU.getMessage())){
+                Map<String,Object> feizhouMap=new HashMap<>();
+                feizhouMap.put("area",AreaEnum.FEIZHOU.getMessage());
+                feizhouMap.put("totalAmount",0d);
+                feizhouMap.put("thirty",0d);
+                feizhouMap.put("thirtyToSixty",0d);
+                feizhouMap.put("sixtyToNinety",0d);
+                feizhouMap.put("ninetyToOneHundredTwenty",0d);
+                feizhouMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                feizhouMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                feizhouMap.put("moreThanOneHundredEighty",0d);
+                data.add(feizhouMap);
+            }
+            if(!dataMap.containsKey(AreaEnum.FANE.getMessage())){
+                Map<String,Object> faneMap=new HashMap<>();
+                faneMap.put("area",AreaEnum.FANE.getMessage());
+                faneMap.put("totalAmount",0d);
+                faneMap.put("thirty",0d);
+                faneMap.put("thirtyToSixty",0d);
+                faneMap.put("sixtyToNinety",0d);
+                faneMap.put("ninetyToOneHundredTwenty",0d);
+                faneMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                faneMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                faneMap.put("moreThanOneHundredEighty",0d);
+                data.add(faneMap);
+            }
+            if(!dataMap.containsKey(AreaEnum.ZHONGDONG.getMessage())){
+                Map<String,Object> zhongdongMap=new HashMap<>();
+                zhongdongMap.put("area",AreaEnum.ZHONGDONG.getMessage());
+                zhongdongMap.put("totalAmount",0d);
+                zhongdongMap.put("thirty",0d);
+                zhongdongMap.put("thirtyToSixty",0d);
+                zhongdongMap.put("sixtyToNinety",0d);
+                zhongdongMap.put("ninetyToOneHundredTwenty",0d);
+                zhongdongMap.put("oneHundredTwentyToOneHundredFifty",0d);
+                zhongdongMap.put("oneHundredFiftyToOneHundredEighty",0d);
+                zhongdongMap.put("moreThanOneHundredEighty",0d);
+                data.add(zhongdongMap);
+            }
+
+        data.stream().forEach(m -> {
+            double totalAmount = Double.parseDouble(m.get("totalAmount").toString());
+            if (totalAmount > 0) {
+                double thirty = Double.parseDouble(m.get("thirty").toString());
+                m.put("thirtyProportion", RateUtil.doubleChainRate(thirty, totalAmount));
+                double sixty = Double.parseDouble(m.get("thirtyToSixty").toString());
+                m.put("thirtyToSixtyProportion", RateUtil.doubleChainRate(sixty, totalAmount));
+                double ninety = Double.parseDouble(m.get("sixtyToNinety").toString());
+                m.put("sixtyToNinetyProportion", RateUtil.doubleChainRate(ninety, totalAmount));
+                double oneHundredTwenty = Double.parseDouble(m.get("ninetyToOneHundredTwenty").toString());
+                m.put("ninetyToOneHundredTwentyProportion", RateUtil.doubleChainRate(oneHundredTwenty, totalAmount));
+                double oneHundredFifty = Double.parseDouble(m.get("oneHundredTwentyToOneHundredFifty").toString());
+                m.put("oneHundredTwentyToOneHundredFiftyProportion", RateUtil.doubleChainRate(oneHundredFifty, totalAmount));
+                double oneHundredEighty = Double.parseDouble(m.get("oneHundredFiftyToOneHundredEighty").toString());
+                m.put("oneHundredFiftyToOneHundredEightyProportion", RateUtil.doubleChainRate(oneHundredEighty, totalAmount));
+                double other = Double.parseDouble(m.get("moreThanOneHundredEighty").toString());
+                m.put("moreThanOneHundredEightyProportion", RateUtil.doubleChainRate(other, totalAmount));
+
+            } else {
+                m.put("thirtyProportion", 0d);
+                m.put("thirtyToSixtyProportion", 0d);
+                m.put("sixtyToNinetyProportion", 0d);
+                m.put("ninetyToOneHundredTwentyProportion", 0d);
+                m.put("oneHundredTwentyToOneHundredFiftyProportion", 0d);
+                m.put("oneHundredFiftyToOneHundredEightyProportion", 0d);
+                m.put("moreThanOneHundredEightyProportion", 0d);
             }
         });
 
-        return  data;
+        return data;
     }
 }

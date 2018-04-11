@@ -650,4 +650,28 @@ public class RequestCreditController {
         List<Map<String,Object>> data=requestCreditService.selectAgingSummaryGroupByCompanyAndOrgAndArea(map);
         return data;
     }
+
+    /**
+     * @Author:lirb
+     * @Description 导出账龄分析数据到execel
+     * @Date:14:41 2018/4/3
+     * @modified By
+     */
+    @ResponseBody
+    @RequestMapping(value = "exportAgingToExecel", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object exportAgingToExecel(@RequestBody Map<String,String> map) {
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        map.put("startTime", fullStartTime);
+        map.put("endTime", fullEndTime);
+        List<Map<String,Object>> data=requestCreditService.selectAgingSummaryGroupByCompanyAndOrgAndArea(map);
+         requestCreditService.exportAgingData(data);
+    return null;
+    }
 }

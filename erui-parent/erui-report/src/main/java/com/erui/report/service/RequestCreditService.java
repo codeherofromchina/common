@@ -148,5 +148,12 @@ public interface RequestCreditService {
 	 * @modified By
 	 */
 	List<Map<String,Object>> selectAgingSummaryGroupByCompanyAndOrgAndArea(Map<String, String> map);
+	/**
+	 * @Author:lirb
+	 * @Description 导出账龄数据
+	 * @Date:13:56 2018/4/10
+	 * @modified By
+	 */
+	void exportAgingData(List<Map<String,Object>> data);
 
 }
