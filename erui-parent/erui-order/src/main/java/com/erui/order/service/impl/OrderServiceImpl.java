@@ -75,9 +75,6 @@ public class OrderServiceImpl implements OrderService {
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
 
-
-
-
     @Override
     @Transactional(readOnly = true)
     public Order findById(Integer id) {
@@ -150,6 +147,10 @@ public class OrderServiceImpl implements OrderService {
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //商务技术经办人
+                if (condition.getTechnicalId() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
                 }
                 //根据区域所在国家查询
                  String[] country = null;

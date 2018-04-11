@@ -47,9 +47,19 @@ public class OrderListCondition {
     private String processProgress;
     //是否已生成出口通知单
     private Integer deliverConsignHas;
+    //商务技术经办人
+    private Integer technicalId;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getTechnicalId() {
+        return technicalId;
+    }
+
+    public void setTechnicalId(Integer technicalId) {
+        this.technicalId = technicalId;
+    }
 
     public Integer getDeliverConsignHas() {
         return deliverConsignHas;

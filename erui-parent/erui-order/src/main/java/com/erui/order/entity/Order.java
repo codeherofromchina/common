@@ -215,14 +215,13 @@ public class Order {
     private String projectNo;
     //利率
     @Column(name = "exchange_rate")
-    private String exchangeRate;
+    private BigDecimal exchangeRate;
     //流程进度
     @Column(name = "process_progress")
     private String processProgress;
     //是否已生成出口通知单
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
-
     @Transient
     private int page = 0;
     @Transient
@@ -273,11 +272,11 @@ public class Order {
         this.totalPriceUsd = totalPriceUsd;
     }
 
-    public String getExchangeRate() {
+    public BigDecimal getExchangeRate() {
         return exchangeRate;
     }
 
-    public void setExchangeRate(String exchangeRate) {
+    public void setExchangeRate(BigDecimal exchangeRate) {
         this.exchangeRate = exchangeRate;
     }
 
