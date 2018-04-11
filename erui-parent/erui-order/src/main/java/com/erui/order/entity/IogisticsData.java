@@ -33,7 +33,7 @@ public class IogisticsData {
     private String releaseDateS;   //放行日期  数据库存储的拼接字段
 
     @Column(name = "logistics_user_id")
-    private Integer logisticsUserId;    //物流经办人
+    private Integer logisticsUserId;    //物流经办人id
 
     @Column(name = "logistics_user_name")
     private String logisticsUserName;    //物流经办人名称

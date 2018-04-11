@@ -33,6 +33,13 @@ public class Iogistics {
     @Column(name = "contract_no")
      private String contractNo; //销售合同号
 
+    @Column(name = "logistics_user_id")
+    private Integer logisticsUserId;    //物流经办人
+
+    @Column(name = "logistics_user_name")
+    private String logisticsUserName;    //物流经办人名称
+
+
     @Column(name = "deliver_consign_no")
     private String deliverConsignNo;  //出口通知单号
 
@@ -219,4 +226,19 @@ public class Iogistics {
     }
 
 
+    public Integer getLogisticsUserId() {
+        return logisticsUserId;
+    }
+
+    public void setLogisticsUserId(Integer logisticsUserId) {
+        this.logisticsUserId = logisticsUserId;
+    }
+
+    public void setLogisticsUserName(String logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
+    }
+
+    public String getLogisticsUserName() {
+        return logisticsUserName;
+    }
 }

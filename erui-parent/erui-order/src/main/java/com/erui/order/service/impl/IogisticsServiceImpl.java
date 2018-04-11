@@ -154,6 +154,9 @@ public class IogisticsServiceImpl implements IogisticsService {
         Set<String> contractNoSet = new HashSet<>();//销售合同号
         Set<String> deliverDetailNoSet = new HashSet<>(); //产品放行单号
         Set releaseDateSSet = new HashSet(); //放行日期  数据库存储的拼接字段
+
+        Iogistics iogistics = null; //获取分单信息，获取物流经办人信息
+
         int i = 0;
         for (String id : ids){
             Iogistics one = iogisticsDao.findOne(new Integer(id));
@@ -166,6 +169,8 @@ public class IogisticsServiceImpl implements IogisticsService {
 
             arr[i]=one.getContractNo(); //获取销售合同号
             i++;
+
+            iogistics=iogistics==null?one:iogistics;
 
             contractNoSet.add(one.getContractNo());//销售合同号
             deliverDetailNoSet.add(one.getDeliverDetailNo()); //产品放行单号
@@ -191,6 +196,9 @@ public class IogisticsServiceImpl implements IogisticsService {
         if(releaseDateSSet.size() != 0){
             save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet,","));//放行日期 拼接存库
         }
+
+        save.setLogisticsUserId(iogistics.getLogisticsUserId()); //物流经办人id
+        save.setLogisticsUserName(iogistics.getLogisticsUserName()); //物流经办人名称
 
         iogisticsDataDao.save(save);
 

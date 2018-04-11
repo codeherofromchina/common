@@ -587,19 +587,22 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         //出库通知：通知质检经办人办理质检质检经办人
         if(status == 2){
-            //获取项目信息
-            List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
-            for(DeliverConsign deliverConsign : deliverConsigns){
-                project=project==null?deliverConsign.getOrder().getProject():project;
+
+            if(outboundNums != 0 ){ //出库总数量不等于0  才发送信息
+                //获取项目信息
+                List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
+                for(DeliverConsign deliverConsign : deliverConsigns){
+                    project=project==null?deliverConsign.getOrder().getProject():project;
+                }
+
+                Map<String,Object> map = new HashMap<>();
+                map.put("qualityUid",project.getQualityUid());       //检质检经办人id
+                map.put("projectNo", project.getProjectNo());        //项目号
+                map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
+                map.put("status",2);        //发送短信标识
+
+                sendSms(map);
             }
-
-            Map<String,Object> map = new HashMap<>();
-            map.put("qualityUid",project.getQualityUid());       //检质检经办人id
-            map.put("projectNo", project.getProjectNo());        //项目号
-            map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
-            map.put("status",2);        //发送短信标识
-            sendSms(map);
-
         }
 
 
@@ -630,22 +633,22 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (status == 5) {
 
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
+            DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
 
-            deliverDetailDao.saveAndFlush(deliverDetail1);
 
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns) {
-                //推送商品出库
+                //推送
                    /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
 
-                //  订单执行跟踪   推送运单号
+                //  V2.0订单执行跟踪   推送商品出库
                 OrderLog orderLog = new OrderLog();
                 try {
                     orderLog.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
                     orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
                     orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
                     orderLog.setCreateTime(new Date());
-                    orderLog.setBusinessDate(one.getReleaseDate()); //放行日期
+                    orderLog.setBusinessDate(deliverDetail2.getLeaveDate()); //确认出库时间
                     orderLog.setOrdersGoodsId(null);
                     orderLogDao.save(orderLog);
                 } catch (Exception ex) {
@@ -675,6 +678,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //V2.0  推送信息到物流表
 
             String projectNo = project.getProjectNo();//项目号
+            Integer logisticsUid = project.getLogisticsUid();//物流经办人id
+            String logisticsName = project.getLogisticsName();//物流经办人名称
             String deliverConsignNo = deliverDetail1.getDeliverConsign().getDeliverConsignNo();//出口通知单号
 
             if(outboundNums > 0){    //外检
@@ -685,6 +690,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 iogistics.setContractNo(contractNo);    //销售合同号
                 iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
                 iogistics.setProjectNo(projectNo);   //项目号
+                iogistics.setLogisticsUserId(logisticsUid); //物流经办人id
+                iogistics.setLogisticsUserName(logisticsName);   //物流经办人名称
                 iogistics.setOutCheck(1);
                 iogisticsDao.save(iogistics);
             }
@@ -696,6 +703,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 iogistics.setContractNo(contractNo);    //销售合同号
                 iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
                 iogistics.setProjectNo(projectNo);   //项目号
+                iogistics.setLogisticsUserId(logisticsUid); //物流经办人id
+                iogistics.setLogisticsUserName(logisticsName);   //物流经办人名称
                 iogistics.setOutCheck(0);
                 iogisticsDao.save(iogistics);
             }
