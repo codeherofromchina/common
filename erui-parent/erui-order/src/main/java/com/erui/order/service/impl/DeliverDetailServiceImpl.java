@@ -512,6 +512,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             sendSms(map);
 
 
+            one.setLeaveDate(new Date()); //出库时间   确认出库推送
+
         }
 
         // 只接受仓储物流部的附件
