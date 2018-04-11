@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -100,7 +101,11 @@ public class OrderAccountController {
             orderAccount.setDesc(orderAcciuntAdd.getDesc());   //描述
             orderAccount.setMoney(orderAcciuntAdd.getMoney());  //回款金额
             orderAccount.setPaymentDate(orderAcciuntAdd.getPaymentDate());  //回款时间
-            orderAccount.setGoodsPrice(orderAcciuntAdd.getGoodsPrice());    //发货金额
+            if (orderAcciuntAdd.getGoodsPrice() == null) {
+                orderAccount.setGoodsPrice(new BigDecimal(""));    //发货金额
+            }else{
+                orderAccount.setGoodsPrice(orderAcciuntAdd.getGoodsPrice());    //发货金额
+            }
             orderAccount.setDeliverDate(orderAcciuntAdd.getDeliverDate());  //发货时间
             orderAccount.setDiscount(orderAcciuntAdd.getDiscount());
             orderAccount.setOrder(order);

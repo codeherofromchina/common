@@ -512,6 +512,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             sendSms(map);
 
 
+            one.setLeaveDate(new Date()); //出库时间   确认出库推送
+
         }
 
         // 只接受仓储物流部的附件
@@ -643,9 +645,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setRemarks(deliverDetail.getRemarks());
         }
         //实际创建时间 TODO
-        if (deliverDetail.getStatus() == 4) {
-            one.setAccomplishDate(new Date());
-        }
+//        if (deliverDetail.getStatus() == 7) {
+//            one.setAccomplishDate(new Date());
+//        }
         if (deliverDetail.getStatus() != null) {
             one.setStatus(deliverDetail.getStatus());
         }
