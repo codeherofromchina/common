@@ -70,9 +70,6 @@ public class AddOrderVo {
 
     //事业部
     private Integer businessUnitId;
-
-    //商务技术经办人
-    private Integer technicalId;
     /* //商务技术经办人部门
      private String technicalIdDept;*/
     //授信类型
@@ -136,8 +133,6 @@ public class AddOrderVo {
     private Date createTime;
 
     //创建人
-
-
     //private Integer createUserId;
 
     //修改时间
@@ -170,6 +165,8 @@ public class AddOrderVo {
     private BigDecimal exchangeRate;
     //项目号
     private String projectNo;
+    //商务技术
+    private Integer technicalId;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -177,6 +174,7 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
 
     public String getProjectNo() {
         return projectNo;

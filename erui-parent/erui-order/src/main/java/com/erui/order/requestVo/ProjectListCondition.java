@@ -50,9 +50,19 @@ public class ProjectListCondition {
     private Integer logisticsUid;
     //仓库经办人
     private Integer warehouseUid;
+    //商务技术
+    private Integer businessUid;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getBusinessUid() {
+        return businessUid;
+    }
+
+    public void setBusinessUid(Integer businessUid) {
+        this.businessUid = businessUid;
+    }
 
     public Integer getPurchaseUid() {
         return purchaseUid;

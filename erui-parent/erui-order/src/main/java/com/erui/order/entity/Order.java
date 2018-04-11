@@ -223,7 +223,6 @@ public class Order {
     //是否已生成出口通知单
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
-
     @Transient
     private int page = 0;
     @Transient

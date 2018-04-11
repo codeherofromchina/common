@@ -155,6 +155,10 @@ public class OrderServiceImpl implements OrderService {
                 if (condition.getDeliverConsignHas() != null) {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
+                //商务技术经办人
+                if (condition.getTechnicalId() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
+                }
                 //根据区域所在国家查询
                  String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
