@@ -97,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-                    projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getMsg());
+                    projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
                     projectDao.save(projectUpdate);
                     return true;
                 } else {
