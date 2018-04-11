@@ -643,9 +643,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setRemarks(deliverDetail.getRemarks());
         }
         //实际创建时间 TODO
-        if (deliverDetail.getStatus() == 4) {
-            one.setAccomplishDate(new Date());
-        }
+//        if (deliverDetail.getStatus() == 7) {
+//            one.setAccomplishDate(new Date());
+//        }
         if (deliverDetail.getStatus() != null) {
             one.setStatus(deliverDetail.getStatus());
         }
