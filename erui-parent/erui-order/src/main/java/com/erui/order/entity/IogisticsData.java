@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.*;
 
 //物流表
 
@@ -16,8 +16,21 @@ public class IogisticsData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "pid")
+    private List<Iogistics> iogistics  = new ArrayList<>();
+
     @Column(name = "the_awb_no")
     private String theAwbNo;    //运单号
+
+    @Column(name = "contract_no")
+    private String contractNo; //销售合同号
+
+    @Column(name="deliver_detail_no")
+    private String deliverDetailNo; //产品放行单号
+
+    @Column(name = "release_date")
+    private String releaseDateS;   //放行日期  数据库存储的拼接字段
 
     @Column(name = "logistics_user_id")
     private Integer logisticsUserId;    //物流经办人
@@ -70,6 +83,22 @@ public class IogisticsData {
 
     private Integer status; //物流状态 5：合并出库信息 6：完善物流状态中 7：项目完结
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "logistics_data_attach",
+            joinColumns = @JoinColumn(name = "logistics_data_id"),
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    private List<Attachment> attachmentList = new ArrayList<>();
+
+
+    @Column(name = "create_user_id")
+    private Integer createUserId;//创建人id
+
+    @Column(name="create_user_name")
+    private String createUserName;//创建人姓名
+
+    @Column(name = "confirm_the_goods")
+    private Date confirmTheGoods;   //确认收货
+
 
     @Transient
     private String handleDepartment;    //经办部门
@@ -78,7 +107,7 @@ public class IogisticsData {
     private Date billingDate;    //开单日期
 
     @Transient
-    private Date releaseDate;    //放行日期
+    private Date releaseDate;    //放行日期 (条件查询使用)
 
     @Transient
     private String releaseDateList;    //放行日期List
@@ -91,7 +120,6 @@ public class IogisticsData {
 
     @Transient
     private Integer rows;
-
 
 
     public void setId(Integer id) {
@@ -170,6 +198,13 @@ public class IogisticsData {
         this.status = status;
     }
 
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
+
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
+    }
 
     public Integer getLogisticsUserId() {
         return logisticsUserId;
@@ -223,6 +258,13 @@ public class IogisticsData {
         return remarks;
     }
 
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
 
     public String getHandleDepartment() {
         return handleDepartment;
@@ -289,4 +331,53 @@ public class IogisticsData {
     public void setTheAwbNo(String theAwbNo) {
         this.theAwbNo = theAwbNo;
     }
+
+    public List<Iogistics> getIogistics() {
+        return iogistics;
+    }
+
+    public void setIogistics(List<Iogistics> iogistics) {
+        this.iogistics = iogistics;
+    }
+
+    public String getReleaseDateS() {
+        return releaseDateS;
+    }
+
+    public void setReleaseDateS(String releaseDateS) {
+        this.releaseDateS = releaseDateS;
+    }
+
+    public List<Attachment> getAttachmentList() {
+        return attachmentList;
+    }
+
+    public void setAttachmentList(List<Attachment> attachmentList) {
+        this.attachmentList = attachmentList;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public Date getConfirmTheGoods() {
+        return confirmTheGoods;
+    }
+
+    public void setConfirmTheGoods(Date confirmTheGoods) {
+        this.confirmTheGoods = confirmTheGoods;
+    }
 }
+

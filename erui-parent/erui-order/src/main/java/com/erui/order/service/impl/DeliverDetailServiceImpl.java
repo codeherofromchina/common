@@ -629,7 +629,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //确认出库
         if (status == 5) {
 
+            deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
 
+            deliverDetailDao.saveAndFlush(deliverDetail1);
 
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns) {
@@ -854,7 +856,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
             }
-
 
         }
 

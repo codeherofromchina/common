@@ -1,12 +1,13 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.IogisticsDao;
+import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.IogisticsDataDao;
-import com.erui.order.entity.DeliverDetail;
-import com.erui.order.entity.Iogistics;
+import com.erui.order.dao.OrderDao;
+import com.erui.order.dao.OrderLogDao;
+import com.erui.order.entity.*;
+import com.erui.order.entity.Order;
 import com.erui.order.service.IogisticsDataService;
-import com.erui.order.service.IogisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -34,58 +33,65 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     @Autowired
     private IogisticsDataDao iogisticsDataDao;
 
-   /* *//**
+    @Autowired
+    OrderLogDao orderLogDao;
+
+    @Autowired
+    private OrderDao orderDao;
+
+    @Autowired
+    private AttachmentServiceImpl attachmentService;
+
+    @Autowired
+    private GoodsDao goodsDao;
+
+    /**
      * 物流跟踪管理（V 2.0）   列表页查询
      *
      * @param
      * @return
-     *//*
+     */
     @Override
-    public Page<Iogistics> trackingList(Iogistics iogistics) {
+    @Transactional(readOnly = true)
+    public Page<IogisticsData> trackingList(IogisticsData iogisticsData) {
 
-        PageRequest request = new PageRequest(iogistics.getPage()-1, iogistics.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(iogisticsData.getPage()-1, iogisticsData.getRows(), Sort.Direction.DESC, "id");
 
-        Page<Iogistics> page = iogisticsDao.findAll(new Specification<Iogistics>() {
+        Page<IogisticsData> page = iogisticsDataDao.findAll(new Specification<IogisticsData>() {
             @Override
-            public Predicate toPredicate(Root<Iogistics> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<IogisticsData> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
-
-
-                //根据 销售合同号
-                if(StringUtil.isNotBlank(iogistics.getContractNo())){
-                    list.add(cb.like(root.get("contractNo").as(String.class),"%"+iogistics.getContractNo()+"%"));
-                }
-
-              *//*  Join<Iogistics, DeliverDetail> deliverDetailRoot = root.join("deliverDetail"); //获取出库
-
-                //根据放行日期
-                if (iogistics.getReleaseDate() != null) {
-                    list.add(cb.equal(deliverDetailRoot.get("releaseDate").as(Date.class), iogistics.getReleaseDate()));
-                }
-*//*
                 //根据物流经办人id
-                if (iogistics.getLogisticsUserId() != null) {
-                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), iogistics.getLogisticsUserId()));
+                if (iogisticsData.getLogisticsUserId() != null) {
+                    list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), iogisticsData.getLogisticsUserId()));
                 }
 
                 //根据 物流经办日期
-                if (iogistics.getLogisticsDate() != null) {
-                    list.add(cb.equal(root.get("logisticsDate").as(Date.class), iogistics.getLogisticsDate()));
+                if (iogisticsData.getLogisticsDate() != null) {
+                    list.add(cb.equal(root.get("logisticsDate").as(Date.class), iogisticsData.getLogisticsDate()));
                 }
 
-                //根据 实际完成时间
-                if (iogistics.getAccomplishDate() != null) {
-                    list.add(cb.equal(root.get("accomplishDate").as(Date.class), iogistics.getAccomplishDate()));
+                //根据状态
+                if (iogisticsData.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Date.class), iogisticsData.getStatus()));
                 }
 
-                //'物流的状态   ( 5：确认出库 )   6:合并物流信息(待执行) 7：完善物流状态中（执行中） 8：项目完结'（已完成）,
-                if(iogistics.getStatus() != null){
-                    list.add(cb.equal(root.get("status").as(Integer.class), iogistics.getStatus()));
-                }else{  //查询 6,7,8
-                    list.add(cb.greaterThan(root.get("status").as(Integer.class), Integer.valueOf(5)));  //大于5
-                }
+                //根据 销售合同号    产品放行单号   根据放行日期
+                if(StringUtil.isNotBlank(iogisticsData.getContractNo()) || StringUtil.isNotBlank(iogisticsData.getDeliverDetailNo()) || iogisticsData.getReleaseDate() != null){
 
+                    Set<IogisticsData> IogisticsDataSet = findContractNoAndDeliverDetailNoAndReleaseDate(iogisticsData.getContractNo(), iogisticsData.getDeliverDetailNo(), iogisticsData.getReleaseDate());
+                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                    if (IogisticsDataSet != null && IogisticsDataSet.size() > 0) {
+                        for (IogisticsData p : IogisticsDataSet) {
+                            idIn.value(p.getId());
+                        }
+                    } else {
+                        // 查找失败
+                        idIn.value(-1);
+                    }
+                    list.add(idIn);
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -97,17 +103,264 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         return page;
     }
 
-    *//**
-     * 物流跟踪管理（V 2.0）   列表页查询  （查询列表信息）
+    /**
+     * 物流跟踪管理（V 2.0）  查询物流详情id
      *
-     * @param id
+     * @param
      * @return
-     *//*
+     */
     @Override
-    public  List<Iogistics> findByPid(Integer id) {
-        List<Iogistics> allByPid = iogisticsDao.findByPid(id);
-        return allByPid;
-    }*/
+    @Transactional(readOnly = true)
+    public IogisticsData iogisticsDataById(Integer id) throws Exception {
+        IogisticsData iogisticsDataById= iogisticsDataDao.findById(id);
+        if(iogisticsDataById == null){
+            throw new Exception("没有此id信息");
+        }
+        return  iogisticsDataById;
+    }
+
+
+    /**
+     * 物流跟踪管理（V 2.0）物流动态跟踪 ：动态更新-项目完结
+     *
+     * @param
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void logisticsActionAddOrSave(IogisticsData iogisticsData) {
+
+        IogisticsData one = iogisticsDataDao.findOne(iogisticsData.getId());
+        //物流经办人
+        if (iogisticsData.getLogisticsUserId() != null) {
+            one.setLogisticsUserId(iogisticsData.getLogisticsUserId());
+        }
+        //物流经办人姓名
+        if (StringUtil.isNotBlank(iogisticsData.getLogisticsUserName())) {
+            one.setLogisticsUserName(iogisticsData.getLogisticsUserName());
+        }
+        //经办日期
+        if (iogisticsData.getLogisticsDate() != null) {
+            one.setLogisticsDate(iogisticsData.getLogisticsDate());
+
+            /**
+             *  订单执行跟踪   推送运单号      经办日期
+             */
+            List<OrderLog> orderLogList = orderLogDao.findByIogisticsDataId(iogisticsData.getId());   //查询是否有记录
+            if(orderLogList.size() == 0){  //如果等于空，新增
+
+                List<Iogistics> iogisticsList = one.getIogistics(); //获取到出库分单
+
+                List<Integer> idList = new ArrayList<>();   //获取到出库id避免重复提交      如果一个物流中，有两个分单信息，避免出现两个物流跟踪 。  如果一个出库有两个分单信息，分别发物流，也不会出现不添加物流信息的情况
+
+                for(Iogistics iogistics :iogisticsList){
+
+                    DeliverDetail deliverDetail = iogistics.getDeliverDetail(); //获取出库信息
+
+                    if (!idList.contains(deliverDetail.getId())) {
+                        Order order = deliverDetail.getDeliverConsignGoodsList().get(0).getGoods().getOrder();//获取到订单id
+                        OrderLog orderLog1 = new OrderLog();
+                        try {
+                            orderLog1.setIogisticsDataId(iogisticsData.getId());
+                            orderLog1.setOrder(order);
+                            orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
+                            orderLog1.setOperation(one.getTheAwbNo());
+                            orderLog1.setCreateTime(new Date());
+                            orderLog1.setBusinessDate(iogisticsData.getLogisticsDate());
+                            orderLogDao.save(orderLog1);
+                        } catch (Exception ex) {
+                            logger.error("日志记录失败 {}", orderLog1.toString());
+                            logger.error("错误", ex);
+                            ex.printStackTrace();
+                        }
+
+                        idList.add(deliverDetail.getId());
+                    }
+
+                }
+            }else{  //不等于空，更新时间
+                for (OrderLog orderLog : orderLogList){
+                    orderLog.setBusinessDate(iogisticsData.getLogisticsDate());
+                    orderLogDao.save(orderLog);
+                }
+            }
+
+        }
+        //物流发票号
+        if (StringUtil.isNotBlank(iogisticsData.getLogiInvoiceNo())) {
+            one.setLogiInvoiceNo(iogisticsData.getLogiInvoiceNo());
+        }
+        //通知市场箱单时间
+        if (iogisticsData.getPackingTime() != null) {
+            one.setPackingTime(iogisticsData.getPackingTime());
+        }
+        //离厂时间          --
+        if (iogisticsData.getLeaveFactory() != null) {
+            one.setLeaveFactory(iogisticsData.getLeaveFactory());
+        }
+
+        //动态描述
+        if (StringUtil.isNotBlank(iogisticsData.getLogs())) {
+            one.setLogs(iogisticsData.getLogs());
+        }
+        //备注
+        if (StringUtil.isNotBlank(iogisticsData.getRemarks())) {
+            one.setRemarks(iogisticsData.getRemarks());
+        }
+        if (iogisticsData.getStatus() != null) {
+            one.setStatus(iogisticsData.getStatus());
+        }
+
+        List<Iogistics> iogisticsList = one.getIogistics(); //获取出库分单信息
+        for (Iogistics iogistics : iogisticsList){
+            List<DeliverConsignGoods> deliverConsignGoodsList = iogistics.getDeliverDetail().getDeliverConsignGoodsList();  //获取出口发货商品信息
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
+
+                /**
+                 * 推送项目跟踪
+                 */
+
+                Goods goods = deliverConsignGoods.getGoods();
+                //下发订舱时间
+                if (iogisticsData.getBookingTime() != null) {
+                    one.setBookingTime(iogisticsData.getBookingTime());//下发订舱时间
+                    goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
+                }
+                //船期或航班
+                if (iogisticsData.getSailingDate() != null) {
+                    one.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                    goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                }
+                //报关放行时间
+                if (iogisticsData.getCustomsClearance() != null) {
+                    one.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                    goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                }
+                //实际离港时间
+                if (iogisticsData.getLeavePortTime() != null) {
+                    one.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                    goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                }
+                //预计抵达时间
+                if (iogisticsData.getArrivalPortTime() != null) {
+                    one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                    goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                }
+                if (iogisticsData.getStatus() == 7) {
+                    Date date = new Date();
+                    one.setAccomplishDate(date);    // 物流动态更新 实际完成时间
+
+                    List<Iogistics> iogistics1 = one.getIogistics();
+
+                    for (Iogistics iogistics2 : iogistics1){
+                        List<DeliverConsignGoods> deliverConsignGoodsList1 = iogistics2.getDeliverDetail().getDeliverConsignGoodsList(); //获取出库信息，获取出口通知单商品
+                        for (DeliverConsignGoods deliverConsignGoodss : deliverConsignGoodsList1) {
+                            Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId()); //推送实际完成日期
+                            one1.setAccomplishDate(date);
+                            goodsDao.saveAndFlush(one1);
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        // 只接受国际物流部的附件
+        List<Attachment> collect = iogisticsData.getAttachmentList().stream().filter(attachment -> {
+            return "国际物流部".equals(attachment.getGroup());
+        }).collect(Collectors.toList());
+
+        List<Attachment> attachmentList = new ArrayList(one.getAttachmentList());
+
+        List<Attachment> attachmentList02 = new ArrayList<>();
+        Iterator<Attachment> iterator = attachmentList.iterator();
+        while (iterator.hasNext()) {
+            Attachment next = iterator.next();
+            if (!"国际物流部".equals(next.getGroup())) {
+                attachmentList02.add(next);
+                iterator.remove();
+            }
+        }
+
+        List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, iogisticsData.getCreateUserId(), iogisticsData.getCreateUserName());
+        attachmentList02.addAll(attachments);
+        one.setAttachmentList(attachmentList02);
+
+        iogisticsDataDao.saveAndFlush(one);
+
+    }
+
+    /**
+     * 订单执行跟踪(V2.0)  根据运单号（物流运单号）查询物流信息
+     * @param
+     * @return
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public IogisticsData queryByTheAwbNo(String theAwbNo) {
+        return iogisticsDataDao.findByTheAwbNo(theAwbNo); //根据物流运单号查询
+    }
+
+
+    /**
+     *  V2.0 订单执行跟踪  根据运单号（物流运单号）查询物流信息   确认收货
+     * @param
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData) {
+        IogisticsData one = iogisticsDataDao.findByTheAwbNo(iogisticsData.getTheAwbNo());
+        one.setConfirmTheGoods(iogisticsData.getConfirmTheGoods());
+        iogisticsDataDao.saveAndFlush(one);
+    }
+
+
+    //根据 销售合同号    产品放行单号   根据放行日期
+    public Set<IogisticsData> findContractNoAndDeliverDetailNoAndReleaseDate(String contractNo,String deliverDetailNo , Date releaseDate) {
+
+        Set<IogisticsData> result = null;
+
+        List<IogisticsData> page = iogisticsDataDao.findAll(new Specification<IogisticsData>() {
+            @Override
+            public Predicate toPredicate(Root<IogisticsData> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+
+                    Join<IogisticsData, Iogistics> iogisticsRoot = root.join("iogistics"); //获取合并出库
+
+                    //根据 销售合同号
+                    if(StringUtil.isNotBlank(contractNo)){
+                        list.add(cb.like(iogisticsRoot.get("contractNo").as(String.class),"%"+ contractNo +"%"));
+                    }
+
+                    //产品放行单号
+                    if(StringUtil.isNotBlank(deliverDetailNo)){
+                        list.add(cb.like(iogisticsRoot.get("deliverDetailNo").as(String.class),"%"+deliverDetailNo+"%"));
+                    }
+
+                    Join<Iogistics, DeliverDetail> deliverDetailRoot = iogisticsRoot.join("deliverDetail"); //获取出库
+
+                    //根据放行日期
+                    if (releaseDate != null) {
+                        list.add(cb.equal(deliverDetailRoot.get("releaseDate").as(Date.class), releaseDate));
+                    }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+
+            }
+        });
+
+        if (page != null && page.size() > 0) {
+            result = new HashSet<>(page);
+        }
+
+        return result;
+    }
+
 
 
 }

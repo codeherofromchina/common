@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 //出库分单表
 
@@ -37,8 +39,10 @@ public class Iogistics {
      @Column(name = "project_no")
       private String projectNo;  // 项目号
 
-
-    private Integer pid;    //父信息id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name ="pid")
+    @JsonIgnore
+    private IogisticsData iogisticsData;    //父信息id
 
     @Column(name = "out_check")
     private Integer outCheck;  //是否外键（1：是 0：否）
@@ -89,9 +93,8 @@ public class Iogistics {
         return rows;
     }
 
-
-    public void setPid(Integer pid) {
-        this.pid = pid;
+    public void setIogisticsData(IogisticsData iogisticsData) {
+        this.iogisticsData = iogisticsData;
     }
 
     public void setOutCheck(Integer outCheck) {
@@ -119,9 +122,8 @@ public class Iogistics {
         this.logisticsNo = logisticsNo;
     }
 
-
-    public Integer getPid() {
-        return pid;
+    public IogisticsData getIogisticsData() {
+        return iogisticsData;
     }
 
     public Integer getOutCheck() {

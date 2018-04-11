@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.data.string.StringUtils;
 import com.erui.order.dao.IogisticsDao;
 import com.erui.order.dao.IogisticsDataDao;
 import com.erui.order.entity.*;
@@ -143,12 +144,17 @@ public class IogisticsServiceImpl implements IogisticsService {
         }
 
         IogisticsData iogisticsData = new IogisticsData();
-        iogisticsData.setTheAwbNo(createTheAwbNo());
-        iogisticsData.setStatus(5);
-        IogisticsData save = iogisticsDataDao.save(iogisticsData);
+        iogisticsData.setTheAwbNo(createTheAwbNo());    //物流号
+        iogisticsData.setStatus(5); //物流状态
+        IogisticsData save = iogisticsDataDao.save(iogisticsData);  //物流信息
 
 
-        Integer id1 = save.getId(); //物流信息id    （父id）
+        String[] arr = new String[ids.length];  //销售合同号对比是否相同
+
+        Set<String> contractNoSet = new HashSet<>();//销售合同号
+        Set<String> deliverDetailNoSet = new HashSet<>(); //产品放行单号
+        Set releaseDateSSet = new HashSet(); //放行日期  数据库存储的拼接字段
+        int i = 0;
         for (String id : ids){
             Iogistics one = iogisticsDao.findOne(new Integer(id));
             if(one == null){
@@ -158,11 +164,35 @@ public class IogisticsServiceImpl implements IogisticsService {
                 throw new Exception("出库详情信息id："+id+" 已合并");
             }
 
+            arr[i]=one.getContractNo(); //获取销售合同号
+            i++;
+
+            contractNoSet.add(one.getContractNo());//销售合同号
+            deliverDetailNoSet.add(one.getDeliverDetailNo()); //产品放行单号
+            releaseDateSSet.add(new SimpleDateFormat("yyyy-MM-dd").format(one.getDeliverDetail().getReleaseDate())); //放行日期
+
             one.setOutYn(1);
-            one.setPid(id1);
+            one.setIogisticsData(save);
             iogisticsDao.save(one);
         }
 
+        String a = arr[0];  //获取随便一个销售合同号
+        for (String contractNo : arr){
+            if(!a.equals(contractNo)){    //判断销售合同号是否相同
+                throw new Exception("销售合同号不相同");
+            }
+        }
+        if(releaseDateSSet.size() != 0){
+            save.setContractNo(org.apache.commons.lang3.StringUtils.join(contractNoSet, ",")); //销售合同号 拼接存库
+        }
+        if(deliverDetailNoSet.size() != 0){
+            save.setDeliverDetailNo(org.apache.commons.lang3.StringUtils.join(deliverDetailNoSet,",")); //产品放行单号 拼接存库
+        }
+        if(releaseDateSSet.size() != 0){
+            save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet,","));//放行日期 拼接存库
+        }
+
+        iogisticsDataDao.save(save);
 
         return true;
     }

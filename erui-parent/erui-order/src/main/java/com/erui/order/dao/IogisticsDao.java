@@ -18,6 +18,4 @@ public interface IogisticsDao extends JpaRepository<Iogistics, Serializable> ,Jp
 
     Iogistics findById(Integer id);
 
-    List<Iogistics> findByPid(Integer id);
-
 }

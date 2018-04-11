@@ -199,6 +199,16 @@ public class Goods {
     @Column(name="null_instock_num")
     private Integer nullInstockNum;    //厂家直发总数量
 
+
+    @Transient
+    private Integer outboundNum = 0;  //出库数量
+
+    @Transient
+    private Integer straightNum = 0; //厂家直发数量
+
+    @Transient
+    private String deliverDetailNo; //产品放行单号
+
     public Date getStartDate() {
         return startDate;
     }
@@ -665,5 +675,29 @@ public class Goods {
 
     public Integer getNullInstockNum() {
         return nullInstockNum;
+    }
+
+    public Integer getOutboundNum() {
+        return outboundNum;
+    }
+
+    public void setOutboundNum(Integer outboundNum) {
+        this.outboundNum = outboundNum;
+    }
+
+    public void setStraightNum(Integer straightNum) {
+        this.straightNum = straightNum;
+    }
+
+    public Integer getStraightNum() {
+        return straightNum;
+    }
+
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
+
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
     }
 }

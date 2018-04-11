@@ -57,7 +57,14 @@ public class OrderLog {
 
     @Column(name="deliver_detail_id")
     @JsonIgnore
-    private Integer deliverDetailId;    //物流id
+    private Integer deliverDetailId;    //V1.0物流id
+
+
+    @Column(name="logistics_data_id")
+    @JsonIgnore
+    private Integer iogisticsDataId;    //V2.0物流id
+
+
 
     public Integer getId() {
         return id;
@@ -146,6 +153,14 @@ public class OrderLog {
 
     public void setDeliverDetailId(Integer deliverDetailId) {
         this.deliverDetailId = deliverDetailId;
+    }
+
+    public Integer getIogisticsDataId() {
+        return iogisticsDataId;
+    }
+
+    public void setIogisticsDataId(Integer iogisticsDataId) {
+        this.iogisticsDataId = iogisticsDataId;
     }
 
     @Override
