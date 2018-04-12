@@ -693,8 +693,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
             }
-
-
         }
 
 

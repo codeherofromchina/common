@@ -492,7 +492,7 @@ public class Project {
         project.setProfit(this.profit);
         project.setCurrencyBn(this.currencyBn);
         project.setProfitPercent(this.profitPercent);
-        project.setTotalPriceUsd(this.getTotalPriceUsd());
+        project.setTotalPriceUsd(this.totalPriceUsd);
         project.setHasManager(this.hasManager);
         project.setExeChgDate(this.exeChgDate);
         project.setRequirePurchaseDate(this.requirePurchaseDate);

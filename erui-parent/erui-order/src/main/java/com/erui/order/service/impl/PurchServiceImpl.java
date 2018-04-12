@@ -348,7 +348,6 @@ public class PurchServiceImpl implements PurchService {
         // 检查项目是否已经采购完成
         List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIds);
-
         return true;
     }
 
