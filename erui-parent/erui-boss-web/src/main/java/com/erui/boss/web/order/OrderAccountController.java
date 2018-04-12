@@ -147,7 +147,25 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
-        orderAccountService.updateGatheringRecord(request,orderAccount);
+        Result<Object> result = new Result<>();
+        if(orderAccount == null ){
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (orderAccount.getId()==null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("收款id为空");
+        }else if (StringUtils.isBlank(orderAccount.getDesc()) || StringUtils.equals(orderAccount.getDesc(), "")) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("描述不能为空");
+        }else if (orderAccount.getMoney() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("回款金额不能为空");
+        }else if (orderAccount.getPaymentDate() == null) {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("回款时间不能为空");
+        }else {
+            orderAccountService.updateGatheringRecord(request,orderAccount);
+        }
         return new Result<>();
     }
 
