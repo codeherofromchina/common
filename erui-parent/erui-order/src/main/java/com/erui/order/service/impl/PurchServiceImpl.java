@@ -462,6 +462,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
@@ -562,6 +563,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
