@@ -37,7 +37,7 @@ public class RequestCreditController {
     private static final DecimalFormat df = new DecimalFormat("0.00");
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RequestCreditController.class);
 
-    /**
+    /**1
      * @Author:lirb
      * @Description 应收账款总览
      * @Date:14:40 2018/4/1

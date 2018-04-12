@@ -853,7 +853,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     }
     /**
      * @Author:lirb
-     * @Description  添加各账龄数据占比数据
+     * @Description  添加各账龄数据占比数据和添加合计数据
      * @Date:13:56 2018/4/10
      * @modified By
      */
@@ -983,6 +983,55 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             }
         });
 
+        //添加合计数据
+        Map<String,Object> totalMap=new HashMap<>();
+        double totalThirty = data.stream().map(m -> {
+            double thirty = Double.valueOf(m.get("thirty").toString());
+            return thirty;
+        }).reduce(0d, (a, b) -> a + b);
+        double totalSixty = data.stream().map(m -> {
+            double thirtyToSixty = Double.valueOf(m.get("thirtyToSixty").toString());
+            return thirtyToSixty;
+        }).reduce(0d, (a, b) -> a + b);
+        double totalNinety = data.stream().map(m -> {
+            double sixtyToNinety = Double.valueOf(m.get("sixtyToNinety").toString());
+            return sixtyToNinety;
+        }).reduce(0d, (a, b) -> a + b);
+        double totalOneHundredTwenty = data.stream().map(m -> {
+            double ninetyToOneHundredTwenty = Double.valueOf(m.get("ninetyToOneHundredTwenty").toString());
+            return ninetyToOneHundredTwenty;
+        }).reduce(0d, (a, b) -> a + b);
+        double totalOneHundredFifty = data.stream().map(m -> {
+            double oneHundredTwentyToOneHundredFifty = Double.valueOf(m.get("oneHundredTwentyToOneHundredFifty").toString());
+            return oneHundredTwentyToOneHundredFifty;
+        }).reduce(0d, (a, b) -> a + b);
+        double totalOneHundredEighty = data.stream().map(m -> {
+            double oneHundredFiftyToOneHundredEighty = Double.valueOf(m.get("oneHundredFiftyToOneHundredEighty").toString());
+            return oneHundredFiftyToOneHundredEighty;
+        }).reduce(0d, (a, b) -> a + b);
+        double totalMoreThanOneHundredEighty = data.stream().map(m -> {
+            double moreThanOneHundredEighty = Double.valueOf(m.get("moreThanOneHundredEighty").toString());
+            return moreThanOneHundredEighty;
+        }).reduce(0d, (a, b) -> a + b);
+        double total=totalThirty+totalSixty+totalNinety+totalOneHundredTwenty+
+                totalOneHundredFifty+totalOneHundredEighty+totalMoreThanOneHundredEighty;
+        totalMap.put("thirty",totalThirty);
+        totalMap.put("thirtyProportion",RateUtil.doubleChainRateTwo(totalThirty*100,total));
+        totalMap.put("thirtyToSixty",totalSixty);
+        totalMap.put("thirtyToSixtyProportion",RateUtil.doubleChainRateTwo(totalSixty*100,total));
+        totalMap.put("sixtyToNinety",totalNinety);
+        totalMap.put("sixtyToNinetyProportion",RateUtil.doubleChainRateTwo(totalNinety*100,total));
+        totalMap.put("ninetyToOneHundredTwenty",totalOneHundredTwenty);
+        totalMap.put("ninetyToOneHundredTwentyProportion",RateUtil.doubleChainRateTwo(totalOneHundredTwenty*100,total));
+        totalMap.put("oneHundredTwentyToOneHundredFifty",totalOneHundredFifty);
+        totalMap.put("oneHundredTwentyToOneHundredFiftyProportion",RateUtil.doubleChainRateTwo(totalOneHundredFifty*100,total));
+        totalMap.put("oneHundredFiftyToOneHundredEighty",totalOneHundredEighty);
+        totalMap.put("oneHundredFiftyToOneHundredEightyProportion",RateUtil.doubleChainRateTwo(totalOneHundredEighty*100,total));
+        totalMap.put("moreThanOneHundredEighty",totalMoreThanOneHundredEighty);
+        totalMap.put("moreThanOneHundredEightyProportion",RateUtil.doubleChainRateTwo(totalThirty*100,total));
+        totalMap.put("totalAmount",total);
+        totalMap.put("area","合计");
+        data.add(totalMap);
         return data;
     }
 
