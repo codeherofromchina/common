@@ -18,7 +18,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH,CascadeType.REFRESH})
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
@@ -492,6 +492,7 @@ public class Project {
         project.setProfit(this.profit);
         project.setCurrencyBn(this.currencyBn);
         project.setProfitPercent(this.profitPercent);
+        project.setTotalPriceUsd(this.getTotalPriceUsd());
         project.setHasManager(this.hasManager);
         project.setExeChgDate(this.exeChgDate);
         project.setRequirePurchaseDate(this.requirePurchaseDate);
