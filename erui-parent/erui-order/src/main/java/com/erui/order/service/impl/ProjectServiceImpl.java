@@ -70,7 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (nowProjectStatusEnum.getNum() == 1 && paramProjectStatusEnum.getNum() == 11) {
             Order order = projectUpdate.getOrder();
             order.setStatus(Order.StatusEnum.UNEXECUTED.getCode());
-            orderDao.save(order);
+            orderDao.flush();
             projectDao.delete(projectUpdate);
         } else {
             // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
