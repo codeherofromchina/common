@@ -331,12 +331,12 @@ public class PurchServiceImpl implements PurchService {
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
             }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             goodsDao.save(goods);
-            applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
         }
         if (purchGoodsList.size() == 0) {
             throw new Exception("必须存在要采购的商品");

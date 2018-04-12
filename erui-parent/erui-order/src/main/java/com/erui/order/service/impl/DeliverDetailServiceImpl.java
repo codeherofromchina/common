@@ -460,8 +460,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for(DeliverConsign deliverConsign : deliverConsigns){
                 project=project==null?deliverConsign.getOrder().getProject():project;
-                //出库质检
-                applicationContext.publishEvent(new OrderProgressEvent(deliverConsign.getOrder(),7));
             }
 
             Map<String,Object> map = new HashMap<>();
@@ -979,6 +977,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 Goods one1 = goodsDao.findOne(goods.getId());
                 one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
                 goodsDao.save(one1);
+                //出库质检
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),7));
             }
 
             //出库质检结果通知：将合格商品通知仓库经办人（合格）（如果仓库经办人不是徐健，那么还要单独发给徐健）

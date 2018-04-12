@@ -69,9 +69,10 @@ public class ProjectServiceImpl implements ProjectService {
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
         if (nowProjectStatusEnum.getNum() == 1 && paramProjectStatusEnum.getNum() == 11) {
             Order order = projectUpdate.getOrder();
-            order.setStatus(Order.StatusEnum.UNEXECUTED.getCode());
+            order.setStatus(Order.StatusEnum.INIT.getCode());
+            order.setProject(null);
             orderDao.save(order);
-            projectDao.delete(projectUpdate);
+            projectDao.delete(projectUpdate.getId());
             return true;
         } else {
             // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
