@@ -198,13 +198,13 @@ public class ProjectServiceImpl implements ProjectService {
                     projectStatus = condition.getProjectStatus().split(",");
                     list.add(root.get("projectStatus").in(projectStatus));
                 }
-                  //根据项目号
+                //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
-              //根据流程进度
+                //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.like(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
+                    list.add(cb.like(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {

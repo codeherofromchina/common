@@ -149,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
+                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {

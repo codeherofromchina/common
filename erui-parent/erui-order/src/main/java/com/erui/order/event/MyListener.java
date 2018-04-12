@@ -25,7 +25,6 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
     private ProjectDao projectDao;
 
     @Override
-    @Async
     public void onApplicationEvent(OrderProgressEvent orderProgressEvent) {
         Order order = (Order) orderProgressEvent.getSource();
         Project project = order.getProject();
@@ -59,6 +58,8 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
             project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
         }
         orderDao.flush();
+
+
         if (project != null) {
             projectDao.save(project);
         }
