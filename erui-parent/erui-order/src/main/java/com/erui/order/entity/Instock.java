@@ -54,6 +54,9 @@ public class Instock {
     @Column(name = "current_user_name")
     private String currentUserName;
 
+    @Column(name = "out_check")
+    private Integer outCheck; //是否外检（ 0：否   1：是）
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "instock_id")
     private List<InstockGoods> instockGoodsList = new ArrayList<>();
@@ -184,6 +187,14 @@ public class Instock {
 
     public void setCurrentUserName(String currentUserName) {
         this.currentUserName = currentUserName;
+    }
+
+    public Integer getOutCheck() {
+        return outCheck;
+    }
+
+    public void setOutCheck(Integer outCheck) {
+        this.outCheck = outCheck;
     }
 
     public static enum StatusEnum {

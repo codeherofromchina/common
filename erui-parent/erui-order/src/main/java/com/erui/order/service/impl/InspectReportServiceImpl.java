@@ -440,6 +440,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 instockGoodsList.add(instockGoods);
             }
             instock.setInstockGoodsList(instockGoodsList);
+            instock.setOutCheck(1); //是否外检（ 0：否   1：是）
 
             instockDao.save(instock);
         }

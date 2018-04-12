@@ -146,6 +146,7 @@ public class InstockServiceImpl implements InstockService {
                 map.put("status", instock.getStatus());
                 map.put("uname", instock.getUname());
                 map.put("uid",instock.getUid());
+                map.put("outCheck",instock.getOutCheck());//是否外检（ 0：否   1：是）
 
                 list.add(map);
             }

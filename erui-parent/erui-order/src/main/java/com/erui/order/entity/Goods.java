@@ -194,10 +194,10 @@ public class Goods {
     private Date accomplishDate;
 
     @Column(name="inspect_instock_num")
-    private Integer inspectInstockNum;    //质检入库总数量
+    private Integer inspectInstockNum = 0;    //质检入库总数量
 
     @Column(name="null_instock_num")
-    private Integer nullInstockNum;    //厂家直发总数量
+    private Integer nullInstockNum = 0;    //厂家直发总数量
 
 
     @Transient
