@@ -74,7 +74,7 @@
   <select id="selectCountGroupByRtnSeason" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
     COUNT(1) AS total,COUNT(DISTINCT(quotation_num)) AS inqCount, return_season  AS reason
-    from inq_rtn_reason
+    from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -86,7 +86,7 @@
   <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
     COUNT(1) AS total,inquiry_area AS area, return_season  AS reason
-    from inq_rtn_reason
+    from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -98,7 +98,7 @@
   <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
     COUNT(1) AS total,organization AS org, return_season  AS reason
-    from inq_rtn_reason
+    from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>

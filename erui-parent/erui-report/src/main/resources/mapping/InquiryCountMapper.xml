@@ -279,32 +279,11 @@
     from erui_rfq.v_inquiry_count
     group by inquiry_area,organization  HAVING  inquiry_area IS  NOT  NULL AND  organization IS  NOT  NULL
   </select>
-  <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT  COUNT(1) as proCountTotal FROM erui_rfq.v_inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectProTop3" resultType="map" parameterType="Object" >
-    SELECT COUNT(1) as proCount ,pro_category as proCategory FROM inquiry_count
-      <where >
-        <if test="startTime != null" >
-          and rollin_time >= #{startTime}
-        </if>
-        <if test="endTime != null " >
-           and rollin_time &lt; #{endTime}
-        </if>
-      </where>
-      group by pro_category HAVING pro_category IS  NOT  NULL  ORDER BY proCount DESC LIMIT 0,3;
-  </select>
 
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) as totalPrice
-    from inquiry_count
+    from erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -313,17 +292,6 @@
     </if>
   </select>
 
-  <select id="selectProCountByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
-    select
-    IFNULL(SUM(IFNULL(pro_count,0)),0) AS count
-    from inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
     <include refid="Base_Column_List" />
@@ -331,22 +299,6 @@
     where id = #{id,jdbcType=BIGINT}
   </select>
 
-  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
-    select
-	    count(1) as total,
-        sum(case is_oil_gas when '油气' then 1 else 0 end) as oil,
-	    sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil,
-        sum(ifnull(quotation_price,0)) as amount,
-        sum(case is_oil_gas when '油气' then ifnull(quotation_price,0) else 0 end) as oilAmount,
-	    sum(case is_oil_gas when '非油气' then ifnull(quotation_price,0) else 0 end) as noNoilAmount
-    from inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
     <!--查询各个时间段报价询单个数-->
   <select id="selectInqCountGroupByQuoteTime" resultType="java.util.Map" parameterType="java.util.Map" >
       SELECT
@@ -376,7 +328,7 @@
   t3.ordCustCount+t4.ordCustNullCount AS ordCustCount
   from
     (SELECT COUNT(1) AS inqCount,COUNT(DISTINCT(cust_description)) AS inqCustCount
-       FROM inquiry_count WHERE 1=1
+       FROM erui_rfq.v_inquiry_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and rollin_time BETWEEN
           DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -384,7 +336,7 @@
        AND cust_description IS NOT NULL)
      AS t1,
     (SELECT COUNT(1) AS inqNullCount,COUNT(1) AS inqCustNullCount
-       FROM inquiry_count WHERE 1=1
+       FROM erui_rfq.v_inquiry_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and rollin_time BETWEEN
           DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -410,7 +362,7 @@
 
   </select>
 
-
+<!--已放弃-->
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
     select t.pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from
 		(
@@ -435,7 +387,7 @@
 
   <select id="findCountByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT organization,count(1) as total
-      FROM erui_report.inquiry_count
+      FROM erui_rfq.v_inquiry_count
       <if test="_parameter != null" >
         <include refid="Example_Where_Clause" />
       </if>
@@ -444,7 +396,7 @@
     <!--查询各事业部的平均报价用时和单数-->
   <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime,COUNT(1) AS  total
-    FROM erui_report.inquiry_count
+    FROM erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -478,7 +430,7 @@
   </select>
   <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT inquiry_area as area,count(1) as total,sum(IFNULL(quotation_price,0)) as totalAmount
-    FROM erui_report.inquiry_count
+    FROM erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>

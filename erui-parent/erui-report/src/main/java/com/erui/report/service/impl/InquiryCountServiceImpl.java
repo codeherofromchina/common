@@ -398,70 +398,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return response;
     }
 
-    // 根据时间和产品类别查询产品数量
-    @Override
-    public int selectProCountByExample(Date startTime, Date endTime, String isOil, String proCategory) {
-        InquiryCountExample example = new InquiryCountExample();
-        InquiryCountExample.Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        if (isOil != null && !isOil.equals("")) {
-            criteria.andIsOilGasEqualTo(isOil);
-        }
-        if (proCategory != null && !proCategory.equals("")) {
-            criteria.andPlatProCategoryEqualTo(proCategory);
-        }
-        int proCount = readMapper.selectProCountByExample(example);
-        return proCount;
-    }
-
-    // 查询产品Top3
-    @Override
-    public List<Map<String, Object>> selectProTop3(Map<String, Object> params) {
-        List<Map<String, Object>> list = readMapper.selectProTop3(params);
-        if (list == null) {
-            list = new ArrayList<>();
-        }
-        return list;
-    }
-
-    /**
-     * @Author:SHIGS
-     * @Description 查询产品Top3
-     * @Date:2:03 2017/11/2
-     * @modified By
-     */
-    @Override
-    public Map<String, Object> selectProTop3Total(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return this.readMapper.selectProTop3TotalByExample(example);
-    }
-
-    // 查询品类明细
-    @Override
-    public List<CateDetailVo> selectInqDetailByCategory(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        criteria.andProCategoryIsNotNull(); // 按照品类统计，品类不能为空D
-        return readMapper.selectInqDetailByCategoryByExample(example);
-    }
 
     // 查询事业部列表
     @Override
@@ -470,13 +406,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         Criteria criteria = example.createCriteria();
         criteria.andOrganizationIsNotNull();
         return readMapper.selectOrgListByExample(example);
-    }
-
-    // 销售大区列表
-    @Override
-    public List<String> selectAreaList() {
-        InquiryCountExample example = new InquiryCountExample();
-        return readMapper.selectAreaListByExample(example);
     }
 
     // 根据时间查询询单列表
@@ -600,27 +529,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         Double amount = readMapper.selectTotalAmountByExample(example);
         return amount;
-    }
-
-    @Override
-    public CustomerNumSummaryVO numSummary(Date startTime, Date endTime, String area, String country) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        if (StringUtils.isNoneBlank(area)) {
-            criteria = criteria.andInquiryAreaEqualTo(area);
-        }
-        if (StringUtils.isNoneBlank(country)) {
-            criteria.andInquiryUnitEqualTo(country);
-        }
-        CustomerNumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
-
-        return vo;
     }
 
     @Override
@@ -769,21 +677,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
         return result;
     }
-
-    @Override
-    public CustomerNumSummaryVO selectNumSummaryByExample(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return readMapper.selectNumSummaryByExample(example);
-    }
-
 
     /**
      * 按照转入日期区间统计事业部的询单数量

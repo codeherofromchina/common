@@ -47,34 +47,9 @@ public interface InquiryCountService {
 	 */
 	 ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
 	/*
-	* 根据油气类别查询产品数量
-	* */
-	int selectProCountByExample(Date startTime,Date endTime,String isOil,String proCategory);
-
-
-	/*
-	* 查询产品Top3
-	* */
-	List<Map<String,Object>> selectProTop3(Map<String,Object>params);
-	 /**
-	  * @Author:SHIGS
-	  * @Description 查询产品Top3总数
-	  * @Date:2:02 2017/11/2
-	  * @modified By
-	  */
-	Map<String,Object> selectProTop3Total(Date startTime,Date endTime);
-
-    List<CateDetailVo> selectInqDetailByCategory(Date startTime,Date endTime);
-
-
-	/*
 	* 查询事业部列表
 	* */
 	List<String>   selectOrgList();
-	/*
-   * 查询销售大区列表
-   * */
-	  List<String>   selectAreaList();
 	/*
    * 根据时间查询询单列表
    * */
@@ -93,13 +68,6 @@ public interface InquiryCountService {
      List<InquiryAreaVO> selectAllAreaAndOrgList() ;
 
 	/**
-	 * 获取询单数据汇总
-	 * @param area
-	 * @param country
-	 * @return
-	 */
-	 CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
-	/**
 	 * 获取询单报价用时分析数据
 	 * @param params
 	 * @return
@@ -111,9 +79,8 @@ public interface InquiryCountService {
 	 * @param platCategory	指定分类
 	 * @return
 	 */
+	@Deprecated
 	 List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
-
-	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
 
 	/**
 	 * 按照转入日期区间统计事业部的询单数量
