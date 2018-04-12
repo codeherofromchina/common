@@ -229,24 +229,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             }
         }
 
-        if (orderAccount.getDesc() != null) {
-            orderAccounts.setDesc(orderAccount.getDesc());
-        }
-        if (orderAccount.getMoney() != null) {
-            orderAccounts.setMoney(orderAccount.getMoney());
-        }
-        /*if (orderAccount.getDiscount() != null) {*/
+        orderAccounts.setDesc(orderAccount.getDesc());
+        orderAccounts.setMoney(orderAccount.getMoney());
         orderAccounts.setDiscount(orderAccount.getDiscount());
-       /*}*/
-        if (orderAccount.getPaymentDate() != null) {
-            orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
-        }
-        if (orderAccount.getGoodsPrice() != null) {
-            orderAccounts.setGoodsPrice(orderAccount.getGoodsPrice());
-        }
-        if (orderAccount.getDeliverDate() != null) {
-            orderAccounts.setDeliverDate(orderAccount.getDeliverDate());
-        }
+        orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
+        orderAccounts.setGoodsPrice(orderAccount.getGoodsPrice());
+        orderAccounts.setDeliverDate(orderAccount.getDeliverDate());
+
         orderAccounts.setUpdateTime(new Date());
         orderAccountDao.saveAndFlush(orderAccounts);
 
