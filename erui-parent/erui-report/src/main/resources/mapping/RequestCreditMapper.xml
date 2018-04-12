@@ -218,10 +218,16 @@
       and sales_area = #{area}
     </if>
     <if test="company!=null and company!=''">
-     and sales_main_company = #{company}
+      and sales_main_company LIKE  "%${company}%"
+    </if>
+    <if test="removeCompany1!=null  and removeCompany2!=null and removeComany3!=null">
+      and sales_main_company NOT IN (#{removeCompany1},#{removeCompany2},#{removeComany3})
     </if>
     <if test="org!=null and org!=''">
-      and organization = #{org}
+      and organization LIKE  "%${org}%"
+    </if>
+    <if test="removeOrg1!=null and removeOrg2!=null and removeOrg3!=null">
+      and organization NOT IN (#{removeOrg1},#{removeOrg2},#{removeOrg3})
     </if>
   </select>
   <!--根据条件查询个大区的账龄数据-->
@@ -250,10 +256,10 @@
     <if test="org!=null and org!=''">
       and organization LIKE  "%${org}%"
     </if>
-      <if test="removeCompany1!=null  and removeCompany2!=null and removeComany3!=null">
+    <if test="removeCompany1!=null  and removeCompany2!=null and removeComany3!=null">
       and sales_main_company NOT IN (#{removeCompany1},#{removeCompany2},#{removeComany3})
   </if>
-      <if test="org1!=null and org2!=null and org3!=null">
+      <if test="removeOrg1!=null and removeOrg2!=null and removeOrg3!=null">
           and organization NOT IN (#{removeOrg1},#{removeOrg2},#{removeOrg3})
       </if>
       GROUP  BY  sales_area HAVING sales_area IS NOT NULL

@@ -7,6 +7,7 @@ import java.util.Map;
 import com.erui.report.util.ImportDataResponse;
 
 import com.erui.report.util.InquiryAreaVO;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public interface RequestCreditService {
 	/**
@@ -154,6 +155,6 @@ public interface RequestCreditService {
 	 * @Date:13:56 2018/4/10
 	 * @modified By
 	 */
-	void exportAgingData(List<Map<String,Object>> data);
+	XSSFWorkbook exportAgingData(List<Map<String,Object>> data);
 
 }
