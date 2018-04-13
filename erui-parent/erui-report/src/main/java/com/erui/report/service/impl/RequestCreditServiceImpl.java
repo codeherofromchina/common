@@ -820,7 +820,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         cell1.setCellValue(area);
         Map<String, Object> areaMap = dataMap.get(area);
         XSSFCell thirty = row.createCell(2);
-        thirty.setCellValue(Double.parseDouble(areaMap.get("thirty").toString()));
+        thirty.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(areaMap.get("thirty").toString()),1));
         XSSFCell thirtyPropertion = row.createCell(3);
         thirtyPropertion.setCellValue(Double.parseDouble(areaMap.get("thirtyProportion").toString()));
         XSSFCell thirtyToSixty = row.createCell(4);
@@ -958,18 +958,25 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
             double totalAmount = Double.parseDouble(m.get("totalAmount").toString());
             if (totalAmount > 0) {
                 double thirty = Double.parseDouble(m.get("thirty").toString());
+                m.put("thirty",RateUtil.doubleChainRateTwo(thirty,1));
                 m.put("thirtyProportion", RateUtil.doubleChainRateTwo(thirty*100, totalAmount));
                 double sixty = Double.parseDouble(m.get("thirtyToSixty").toString());
+                m.put("thirtyToSixty",RateUtil.doubleChainRateTwo(sixty,1));
                 m.put("thirtyToSixtyProportion", RateUtil.doubleChainRateTwo(sixty*100, totalAmount));
                 double ninety = Double.parseDouble(m.get("sixtyToNinety").toString());
+                m.put("sixtyToNinety",RateUtil.doubleChainRateTwo(ninety,1));
                 m.put("sixtyToNinetyProportion", RateUtil.doubleChainRateTwo(ninety*100, totalAmount));
                 double oneHundredTwenty = Double.parseDouble(m.get("ninetyToOneHundredTwenty").toString());
+                m.put("ninetyToOneHundredTwenty",RateUtil.doubleChainRateTwo(oneHundredTwenty,1));
                 m.put("ninetyToOneHundredTwentyProportion", RateUtil.doubleChainRateTwo(oneHundredTwenty*100, totalAmount));
                 double oneHundredFifty = Double.parseDouble(m.get("oneHundredTwentyToOneHundredFifty").toString());
+                m.put("oneHundredTwentyToOneHundredFifty",RateUtil.doubleChainRateTwo(oneHundredFifty,1));
                 m.put("oneHundredTwentyToOneHundredFiftyProportion", RateUtil.doubleChainRateTwo(oneHundredFifty*100, totalAmount));
                 double oneHundredEighty = Double.parseDouble(m.get("oneHundredFiftyToOneHundredEighty").toString());
+                m.put("oneHundredFiftyToOneHundredEighty",RateUtil.doubleChainRateTwo(oneHundredEighty,1));
                 m.put("oneHundredFiftyToOneHundredEightyProportion", RateUtil.doubleChainRateTwo(oneHundredEighty*100, totalAmount));
                 double other = Double.parseDouble(m.get("moreThanOneHundredEighty").toString());
+                m.put("moreThanOneHundredEighty",RateUtil.doubleChainRateTwo(other,1));
                 m.put("moreThanOneHundredEightyProportion", RateUtil.doubleChainRateTwo(other*100, totalAmount));
 
             } else {
@@ -1015,21 +1022,21 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         }).reduce(0d, (a, b) -> a + b);
         double total=totalThirty+totalSixty+totalNinety+totalOneHundredTwenty+
                 totalOneHundredFifty+totalOneHundredEighty+totalMoreThanOneHundredEighty;
-        totalMap.put("thirty",totalThirty);
+        totalMap.put("thirty",RateUtil.doubleChainRateTwo(totalThirty,1));
         totalMap.put("thirtyProportion",RateUtil.doubleChainRateTwo(totalThirty*100,total));
-        totalMap.put("thirtyToSixty",totalSixty);
+        totalMap.put("thirtyToSixty",RateUtil.doubleChainRateTwo(totalSixty,1));
         totalMap.put("thirtyToSixtyProportion",RateUtil.doubleChainRateTwo(totalSixty*100,total));
-        totalMap.put("sixtyToNinety",totalNinety);
+        totalMap.put("sixtyToNinety",RateUtil.doubleChainRateTwo(totalNinety,1));
         totalMap.put("sixtyToNinetyProportion",RateUtil.doubleChainRateTwo(totalNinety*100,total));
-        totalMap.put("ninetyToOneHundredTwenty",totalOneHundredTwenty);
+        totalMap.put("ninetyToOneHundredTwenty",RateUtil.doubleChainRateTwo(totalOneHundredTwenty,1));
         totalMap.put("ninetyToOneHundredTwentyProportion",RateUtil.doubleChainRateTwo(totalOneHundredTwenty*100,total));
-        totalMap.put("oneHundredTwentyToOneHundredFifty",totalOneHundredFifty);
+        totalMap.put("oneHundredTwentyToOneHundredFifty",RateUtil.doubleChainRateTwo(totalOneHundredFifty,1));
         totalMap.put("oneHundredTwentyToOneHundredFiftyProportion",RateUtil.doubleChainRateTwo(totalOneHundredFifty*100,total));
-        totalMap.put("oneHundredFiftyToOneHundredEighty",totalOneHundredEighty);
+        totalMap.put("oneHundredFiftyToOneHundredEighty",RateUtil.doubleChainRateTwo(totalOneHundredEighty,1));
         totalMap.put("oneHundredFiftyToOneHundredEightyProportion",RateUtil.doubleChainRateTwo(totalOneHundredEighty*100,total));
-        totalMap.put("moreThanOneHundredEighty",totalMoreThanOneHundredEighty);
+        totalMap.put("moreThanOneHundredEighty",RateUtil.doubleChainRateTwo(totalMoreThanOneHundredEighty,1));
         totalMap.put("moreThanOneHundredEightyProportion",RateUtil.doubleChainRateTwo(totalThirty*100,total));
-        totalMap.put("totalAmount",total);
+        totalMap.put("totalAmount",RateUtil.doubleChainRateTwo(total,1));
         totalMap.put("area","合计");
         data.add(totalMap);
         return data;
