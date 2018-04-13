@@ -379,5 +379,6 @@ public class IogisticsData {
     public void setConfirmTheGoods(Date confirmTheGoods) {
         this.confirmTheGoods = confirmTheGoods;
     }
+
 }
 

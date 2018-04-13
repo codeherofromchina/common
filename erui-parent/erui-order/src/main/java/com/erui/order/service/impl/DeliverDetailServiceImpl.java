@@ -1227,7 +1227,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     //订单id查询
                     Join<DeliverNotice, DeliverConsign> deliverConsign = root.join("deliverConsigns");
                     Join<DeliverConsign, Order> order = deliverConsign.join("order");
-                    list.add(cb.equal(order.get("id").as(Integer.class), orderId));
+                    list.add(cb.equal(order.get("id").as(Integer.class), orderId)); //订单id
 
                     Predicate[] predicates = new Predicate[list.size()];
                     predicates = list.toArray(predicates);
@@ -1235,7 +1235,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
             });
             //获取物流-出库单详情
-        if(companyList.size() != 0 && companyList.size()== deliverConsignDao.findByOrderId(orderId).size()){
+        if(companyList.size() != 0 && companyList.size()== deliverConsignDao.findByOrderId(orderId).size()){    //有出口发货通知单
                 for (DeliverNotice deliverNotice :companyList){
 
                     DeliverDetail deliverDetail = deliverNotice.getDeliverDetail();     //获取出库信息

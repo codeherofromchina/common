@@ -21,6 +21,7 @@ import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverDetailService;
+import com.erui.order.service.IogisticsDataService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -60,6 +61,10 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private DeliverDetailService deliverDetailService;
+
+    @Autowired
+    private IogisticsDataService iogisticsDataService;
+
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
 
@@ -178,7 +183,7 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
                 }
-                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                if (iogisticsDataService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
                 vo.setGoodsList(null);

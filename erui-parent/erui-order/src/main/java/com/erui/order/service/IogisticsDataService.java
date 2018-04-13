@@ -20,4 +20,6 @@ public interface IogisticsDataService {
     IogisticsData queryByTheAwbNo(String theAwbNo);
 
     void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData);
+
+    Boolean findStatusAndNumber(Integer orderId);
 }

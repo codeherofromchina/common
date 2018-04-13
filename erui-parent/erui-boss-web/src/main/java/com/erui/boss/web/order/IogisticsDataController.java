@@ -227,4 +227,12 @@ public class IogisticsDataController {
     }
 
 
+    @RequestMapping(value = "/aaa", method = RequestMethod.POST)
+    public Result<Object> a(@RequestBody IogisticsData iogisticsData) {
+        Boolean statusAndNumber = iogisticsDataService.findStatusAndNumber(iogisticsData.getId());
+        return new Result<>(statusAndNumber);
+
+    }
+
+
 }

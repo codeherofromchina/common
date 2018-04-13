@@ -1,11 +1,13 @@
 package com.erui.order.dao;
 
+import com.erui.order.entity.Iogistics;
 import com.erui.order.entity.IogisticsData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -18,4 +20,5 @@ public interface IogisticsDataDao extends JpaRepository<IogisticsData, Serializa
     IogisticsData findById(Integer id);
 
     IogisticsData findByTheAwbNo(String theAwbNo);
+
 }

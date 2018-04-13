@@ -1,7 +1,9 @@
 package com.erui.order.dao;
 
 import com.erui.order.entity.Area;
+import com.erui.order.entity.DeliverDetail;
 import com.erui.order.entity.Iogistics;
+import com.erui.order.entity.IogisticsData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,5 +19,8 @@ import java.util.List;
 public interface IogisticsDao extends JpaRepository<Iogistics, Serializable> ,JpaSpecificationExecutor<Iogistics> {
 
     Iogistics findById(Integer id);
+
+
+    List<Iogistics> findByDeliverDetail(DeliverDetail id);
 
 }

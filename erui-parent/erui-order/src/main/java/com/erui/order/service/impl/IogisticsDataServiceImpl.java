@@ -1,10 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.IogisticsDataDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.IogisticsDataService;
@@ -31,19 +28,25 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    private IogisticsDataDao iogisticsDataDao;
+    private IogisticsDao iogisticsDao;
 
     @Autowired
     OrderLogDao orderLogDao;
 
     @Autowired
-    private OrderDao orderDao;
+    IogisticsDataDao iogisticsDataDao;
 
     @Autowired
     private AttachmentServiceImpl attachmentService;
 
     @Autowired
     private GoodsDao goodsDao;
+
+    @Autowired
+    DeliverConsignDao deliverConsignDao;
+
+    @Autowired
+    private DeliverDetailDao deliverDetailDao;
 
     /**
      * 物流跟踪管理（V 2.0）   列表页查询
@@ -361,6 +364,88 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         return result;
     }
 
+
+
+
+
+
+    /**
+     *  V2.0订单列表增加确认收货按钮：
+     *  2、所有出口发货通知单中的商品全部出库并在物流跟踪管理中“跟踪状态”为“执行中”。
+     *
+     * @param
+     * @return
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean findStatusAndNumber(Integer orderId) {
+
+
+
+        //根据订单id查询全部出库信息
+        // 出口通知单 查询信息
+        List<DeliverDetail> companyList = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
+            @Override
+            public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+
+                //订单id查询
+                Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");
+                Join<DeliverConsign, Order> order = deliverConsign.join("order");
+                list.add(cb.equal(order.get("id").as(Integer.class), orderId)); //订单id
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        });
+
+
+        //出库
+        if(companyList.size() != 0){    //如果出库信息为0的话，说明没有出口发货通知单，  出口发货通知单新建会推送到出库管理  一对一的关系
+            for (DeliverDetail DeliverDetail :companyList){
+                if(DeliverDetail.getStatus() < 5){     //出库信息必须为 确认出库 因为后面进行了分单
+                    return false;
+                }
+
+                List<Integer> iogisticsDataIdList = new ArrayList<>();  //分单父级id （物流id）    避免一个出口两次发货
+
+                List<Iogistics> iogisticsList =iogisticsDao.findByDeliverDetail(DeliverDetail);    //根据出库信息  查询有几条分单信息
+
+                if(iogisticsList.size() != 0){      //如果没有分单数据  说明没有进行分单
+                    for (Iogistics iogistics : iogisticsList){  //计算有几条物流信息（父级信息）
+                        IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
+                        if(iogisticsData != null){  //如果没有父级信息（物流），说明没有进行合单
+                            Integer id1 = iogisticsData.getId();//物流id （分单父级id）
+                            if(!iogisticsDataIdList.contains(id1)){ //避免父级信息重复
+                                iogisticsDataIdList.add(id1);
+                            }
+                        }else{
+                            return false;
+                        }
+                    }
+
+                    if(iogisticsDataIdList.size() != 0){    //如果没有父级id  说明没有出库
+                        for (Integer iogisticsDataId : iogisticsDataIdList){
+                            IogisticsData byId = iogisticsDataDao.findOne(iogisticsDataId); //获取父级信息，一个出口，可能又两个父级信息
+                            if(byId == null || byId.getStatus() == 5 ){ //判断物流 跟踪状态”为“执行中（6）”，必须大于5（确认出库）
+                                return false;
+                            }
+                        }
+                    }else{
+                        return false;
+                    }
+
+                }else{
+                    return false;
+                }
+            }
+        }else{
+            return false;
+        }
+
+        return true;
+    }
 
 
 }
