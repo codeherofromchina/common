@@ -433,7 +433,12 @@ public class StatisticsServiceImpl implements StatisticsService {
         List<GoodsBookDetail> result = findGoodsListOfOrder(orderId);
 
         List<Integer> goodsIds = result.parallelStream().map(vo -> vo.getGoodsId()).collect(Collectors.toList());
+        // 完善采购信息
         result = mergePurchGoodsInfo(result,statisticsDao.findPurchGoods(goodsIds));
+        // 完善报检申请信息
+        result = mergeInspectApplyGoodsInfo(result,statisticsDao.findInspectApplyGoods(goodsIds));
+        // 完善出库物流信息
+        result = mergeDeliverConsignGoodsInfo(result,statisticsDao.findDeliverConsignGoods(goodsIds));
 
         return result;
     }
@@ -488,6 +493,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                 BigDecimal purchasePrice = (BigDecimal) objArr[2];
                 BigDecimal purchaseTotalPrice = (BigDecimal) objArr[3];
                 String purchNo = (String) objArr[4];
+                Date signingDate = (Date) objArr[5];
+                Date arrivalDate = (Date) objArr[6];
+                Integer payType = (Integer) objArr[7];
+                Date payFactoryDate = (Date) objArr[8];
                 contractGoodsNum -= purchaseNum;
 
                 GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
@@ -496,10 +505,162 @@ public class StatisticsServiceImpl implements StatisticsService {
                 clone.setPurchasePrice(purchasePrice);
                 clone.setPurchaseTotalPrice(purchaseTotalPrice);
                 clone.setPurchNo(purchNo);
+                clone.setSigningDate(signingDate);
+                clone.setArrivalDate(arrivalDate);
+                clone.setPayType(payType);
+                clone.setPayFactoryDate(payFactoryDate);
+
                 innerList.add(clone);
             }
             if (contractGoodsNum > 0) {
                 innerList.get(0).setContractGoodsNum(contractGoodsNum);
+            } else {
+                innerList.remove(0);
+            }
+            result.addAll(innerList);
+        }
+        return result;
+    }
+
+
+    /**
+     * 商品台账合并报检信息并返回
+     *
+     * @param list
+     * @param inspectApplyGoodsInfo
+     * @return
+     */
+    private List<GoodsBookDetail> mergeInspectApplyGoodsInfo(List<GoodsBookDetail> list, List<Object> inspectApplyGoodsInfo) throws CloneNotSupportedException {
+        if (inspectApplyGoodsInfo == null || inspectApplyGoodsInfo.size() == 0) {
+            return list;
+        }
+        List<GoodsBookDetail> result = new ArrayList<>();
+        for (GoodsBookDetail goodsBookDetail : list) {
+            List<GoodsBookDetail> innerList = new ArrayList<>();
+            innerList.add(goodsBookDetail);
+            Integer purchaseNum = goodsBookDetail.getPurchaseNum();
+            if (purchaseNum == null || purchaseNum < 1) {
+                result.addAll(innerList);
+                continue;
+            }
+            for (Object obj : inspectApplyGoodsInfo) {
+                Object[] objArr = (Object[]) obj;
+                int goodsId = (Integer) objArr[0];
+                int iInspectNum = (Integer) objArr[1];
+                int qualifiedNum = ((Number) objArr[2]).intValue();
+                Date inspectDate = (Date) objArr[3];
+                String supplierName = (String) objArr[4];
+                Date checkDate = (Date) objArr[5];
+                Date instockDate = (Date) objArr[6];
+                if (goodsBookDetail.getGoodsId() != goodsId || qualifiedNum == 0) {
+                    continue;
+                }
+                int onceQualifiedNum = 0;
+                if (qualifiedNum > purchaseNum) {
+                    qualifiedNum -= purchaseNum;
+                    onceQualifiedNum = purchaseNum;
+                    purchaseNum = 0;
+                } else {
+                    purchaseNum -= qualifiedNum;
+                    onceQualifiedNum = qualifiedNum;
+                    qualifiedNum = 0;
+                }
+                objArr[2] = qualifiedNum;
+
+                GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
+                clone.setPurchaseNum(iInspectNum);
+                clone.setQualifiedNum(onceQualifiedNum);
+                clone.setInspectDate(inspectDate);
+                clone.setSupplierName(supplierName);
+                clone.setCheckDate(checkDate);
+                clone.setInstockDate(instockDate);
+                innerList.add(clone);
+
+                if (purchaseNum == 0) {
+                    break;
+                }
+            }
+            if (purchaseNum > 0) {
+                innerList.get(0).setPurchaseNum(purchaseNum);
+            } else {
+                innerList.remove(0);
+            }
+            result.addAll(innerList);
+        }
+        return result;
+    }
+
+
+    /**
+     * 商品台账合并出库物流信息并返回
+     *
+     * @param list
+     * @param deliverConsignGoodsInfo
+     * @return
+     */
+    private List<GoodsBookDetail> mergeDeliverConsignGoodsInfo(List<GoodsBookDetail> list, List<Object> deliverConsignGoodsInfo) throws CloneNotSupportedException {
+        if (deliverConsignGoodsInfo == null || deliverConsignGoodsInfo.size() == 0) {
+            return list;
+        }
+        List<GoodsBookDetail> result = new ArrayList<>();
+        for (GoodsBookDetail goodsBookDetail : list) {
+            List<GoodsBookDetail> innerList = new ArrayList<>();
+            innerList.add(goodsBookDetail);
+            Integer qualifiedNum = goodsBookDetail.getQualifiedNum();
+            if (qualifiedNum == null || qualifiedNum < 1) {
+                result.addAll(innerList);
+                continue;
+            }
+            for (Object obj : deliverConsignGoodsInfo) {
+                Object[] objArr = (Object[]) obj;
+                int goodsId = (Integer) objArr[0];
+                int sendNum = (Integer) objArr[1];
+                Date requireBookingDate = (Date) objArr[2];
+                Date packDoneDate = (Date) objArr[3];
+                Date bookingTime = (Date) objArr[4];
+                String logisticsUserName = (String) objArr[5];
+                Date leaveFactory = (Date) objArr[6];
+                String logiInvoiceNo = (String) objArr[7];
+                Date packingTime = (Date) objArr[8];
+                Date sailingDate = (Date) objArr[9];
+                Date arrivalPortTime = (Date) objArr[10];
+                Date accomplishDate = (Date) objArr[11];
+                if (goodsBookDetail.getGoodsId() != goodsId || sendNum == 0) {
+                    continue;
+                }
+                int onceSendNum = 0;
+                if (sendNum > qualifiedNum) {
+                    sendNum -= qualifiedNum;
+                    onceSendNum = qualifiedNum;
+                    qualifiedNum = 0;
+                } else {
+                    qualifiedNum -= sendNum;
+                    onceSendNum = sendNum;
+                    sendNum = 0;
+                }
+                objArr[1] = sendNum;
+
+                GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
+                clone.setSendNum(onceSendNum);
+                clone.setQualifiedNum(onceSendNum);
+                clone.setRequireBookingDate(requireBookingDate);
+                clone.setPackDoneDate(packDoneDate);
+                clone.setBookingTime(bookingTime);
+                clone.setLogisticsUserName(logisticsUserName);
+                clone.setLeaveFactory(leaveFactory);
+                clone.setLogiInvoiceNo(logiInvoiceNo);
+                clone.setPackingTime(packingTime);
+                clone.setSailingDate(sailingDate);
+                clone.setArrivalPortTime(arrivalPortTime);
+                clone.setAccomplishDate(accomplishDate);
+                innerList.add(clone);
+
+                if (qualifiedNum == 0) {
+                    break;
+                }
+            }
+            if (qualifiedNum > 0) {
+                innerList.get(0).setQualifiedNum(qualifiedNum);
             } else {
                 innerList.remove(0);
             }
