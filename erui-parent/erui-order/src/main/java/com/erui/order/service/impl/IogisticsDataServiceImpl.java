@@ -410,7 +410,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                 List<Integer> iogisticsDataIdList = new ArrayList<>();  //分单父级id （物流id）    避免一个出口两次发货
 
-                List<Iogistics> iogisticsList =iogisticsDao.findByDeliverDetail(DeliverDetail);    //根据出库信息  查询有几条分单信息
+                List<Iogistics> iogisticsList =DeliverDetail.getIogistics();    //根据出库信息  查询有几条分单信息
 
                 if(iogisticsList.size() != 0){      //如果没有分单数据  说明没有进行分单
                     for (Iogistics iogistics : iogisticsList){  //计算有几条物流信息（父级信息）
