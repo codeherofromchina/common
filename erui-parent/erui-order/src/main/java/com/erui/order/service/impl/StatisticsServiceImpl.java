@@ -166,14 +166,14 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 对最后日期时间+1天处理
         handleAfterEdate = NewDateUtil.plusDays(handleAfterEdate, 1);
         List<Object> inquiry = statisticsDao.inquiryStatisGroupBySku(handleAfterSdate, handleAfterEdate);
-        Map<String, Object[]> inquiryMap = inquiry.parallelStream().collect(Collectors.toMap(vo -> {
-            Object[] objArr = (Object[]) vo;
-            return StringUtils.defaultString((String) objArr[0], "") + "&" +
+        Map<String, Object[]> inquiryMap = new HashMap<>();
+        for (int i=0;i<inquiry.size();i++) {
+            Object[] objArr = (Object[]) inquiry.get(i);
+            String key = StringUtils.defaultString((String) objArr[0], "") + "&" +
                     StringUtils.defaultString((String) objArr[1], "") + "&" +
                     StringUtils.defaultString((String) objArr[2], "");
-        }, vo -> {
-            return (Object[]) vo;
-        }));
+            inquiryMap.put(key,objArr);
+        }
         // 合并询单和订单统计信息
         for (GoodsStatistics goodsStatistics1 : goodsStatisticsList) {
             String key = StringUtils.defaultString(goodsStatistics1.getSku(), "") + "&" +
