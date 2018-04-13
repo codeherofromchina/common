@@ -404,8 +404,10 @@ public class DateUtil {
             return new SimpleDateFormat("yyyy-MM-dd").parse(strdate);
         } catch (ParseException e) {
             e.printStackTrace();
-            return null;
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        return null;
     }
     /**
      * @author lirb
