@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.report.model.InquiryVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.erui.report.model.CateDetailVo;
@@ -38,7 +39,11 @@ public interface InquiryCountMapper {
 
     Date selectStart();
     Date selectEnd();
-
+    /**
+     * 查询询单视图列表
+     * @return
+     */
+    List<InquiryVo> selectInquiryListByTime(Map<String,Object> params);
     /**
      * 查询总金额
      * @return

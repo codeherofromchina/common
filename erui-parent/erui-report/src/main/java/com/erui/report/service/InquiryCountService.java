@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
+import com.erui.report.model.InquiryVo;
 import com.erui.report.util.*;
 
 /*
@@ -50,12 +51,11 @@ public interface InquiryCountService {
 	* 查询事业部列表
 	* */
 	List<String>   selectOrgList();
-	/*
-   * 根据时间查询询单列表
-   * */
-	List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes,String area,String country);
-	
-	
+	/**
+	 * 查询询单视图列表
+	 * @return
+	 */
+	List<InquiryVo> selectListByTime(Map<String,Object> params);
 	/**
      * 查询所有询单中的所有大区和城市列表（
      * @return

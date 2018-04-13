@@ -410,25 +410,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     // 根据时间查询询单列表
     @Override
-    public List<InquiryCount> selectListByTime(Date startTime, Date endTime, String[] quotes, String area, String country) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        if (quotes != null && quotes.length > 0) {
-            criteria.andQuotedStatusIn(Arrays.asList(quotes));
-        }
-        if (StringUtil.isNotBlank(area)) {
-            criteria.andInquiryAreaEqualTo(area);
-        }
-        if (StringUtil.isNotBlank(country)) {
-            criteria.andInquiryUnitEqualTo(country);
-        }
-        return readMapper.selectByExample(example);
+    public List<InquiryVo> selectListByTime(Map<String,Object> params) {
+        return readMapper.selectInquiryListByTime(params);
     }
 
     /**

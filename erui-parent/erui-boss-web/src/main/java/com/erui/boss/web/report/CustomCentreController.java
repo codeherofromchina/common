@@ -8,6 +8,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
+import com.erui.report.model.InquiryVo;
 import com.erui.report.service.*;
 import com.erui.report.util.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -157,7 +159,6 @@ public class CustomCentreController {
             return new Result<>(ResultStatusEnum.FAIL);
         }
         // 获取需要环比的开始时间
-        // 获取需要环比的开始时间
         long differenTime = endDate.getTime() - startDate.getTime();
         Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
         String[] quotes = {QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
@@ -179,8 +180,13 @@ public class CustomCentreController {
         inquiryMap.put("chainRate", chainRate);
 
         //油气产品统计
-        List<InquiryCount> inquiryCounts = inquiryService.selectListByTime(startDate, endDate, quotes, null, null);
-        List<InquiryCount> chainCounts = inquiryService.selectListByTime(rateStartDate, endDate, quotes, null, null);
+        Map<String,Object> map=new HashMap<>();
+        map.put("startTime",params.get("startTime"));
+        map.put("endTime",params.get("endTime"));
+        List<InquiryVo> inquiryCounts = inquiryService.selectListByTime(map);
+        map.put("endTime",params.get("startTime"));
+        map.put("startTime",DateUtil.formatDateToString(rateStartDate,DateUtil.FULL_FORMAT_STR2));
+        List<InquiryVo> chainCounts = inquiryService.selectListByTime(map);
         List<IsOilVo> oilList = null;
         List<IsOilVo> oilChainList = null;
         List<String> nums = null;
@@ -1006,13 +1012,13 @@ public class CustomCentreController {
 //        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
         //询单数量和金额
         double inAmount = inquiryService.inquiryAmountByTime(startTime, endTime, areaName, countryName, null);
-        List<InquiryCount> inList = inquiryService.selectListByTime(startTime, endTime, null, areaName, countryName);
+        List<InquiryVo> inList = inquiryService.selectListByTime(map);
         //定义询单数量
         int inCount = 0;
         List<String> nums = new ArrayList<>();
         if (inList != null && inList.size() > 0) {
             inCount = inList.size();
-            for (InquiryCount inq : inList) {
+            for (InquiryVo inq : inList) {
                 nums.add(inq.getQuotationNum());
             }
         }
@@ -1200,19 +1206,19 @@ public class CustomCentreController {
      */
     @RequestMapping(value = "/inqDetailPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailPie(@RequestBody Map<String, String> map){
+    public Object inqDetailPie(@RequestBody Map<String, Object> map){
 
         Result<Object> result = new Result<>();
         InqDetailPievo inqDetailPievo = new InqDetailPievo();
 
         // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime").toString(), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime").toString(), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("quoteStatus")) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
 
-        String quoteStatus = map.get("quoteStatus");
+        String quoteStatus = map.get("quoteStatus").toString();
 
         //1.获取报价状态中各状态数据  如 报价中 ： 未报价 、报价中
         String[] quotes = null;
@@ -1234,16 +1240,20 @@ public class CustomCentreController {
         } else if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus())) {//已完成
             quotes = new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
                     QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
-            List<InquiryCount> finishList = inquiryService.selectListByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()}, null, null);
-            List<InquiryCount> quotedList = inquiryService.selectListByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()}, null, null);
+            map.put("quoteStatus", QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus());
+            List<InquiryVo> finishList = inquiryService.selectListByTime(map);
+            map.put("quoteStatus",QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus());
+            List<InquiryVo> quotedList = inquiryService.selectListByTime(map);
             quoteCounts = new Integer[]{finishList.size(), quotedList.size()};
             inqDetailPievo.setFinishQuoteList(quotes);
             inqDetailPievo.setFinishQuoteCountList(quoteCounts);
         } else if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus())) {//报价中
             quotes = new String[]{QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus(),
                     QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus()};
-            List<InquiryCount> quotingList = inquiryService.selectListByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()}, null, null);
-            List<InquiryCount> quotNoList = inquiryService.selectListByTime(startTime, endTime, new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus()}, null, null);
+            map.put("quoteStatus",QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus());
+            List<InquiryVo> quotingList = inquiryService.selectListByTime(map);
+            map.put("quoteStatus",QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus());
+            List<InquiryVo> quotNoList = inquiryService.selectListByTime(map);
             quoteCounts = new Integer[]{quotingList.size(), quotNoList.size()};
             inqDetailPievo.setQuotingQuoteList(quotes);
             inqDetailPievo.setQuotingQuoteCountList(quoteCounts);

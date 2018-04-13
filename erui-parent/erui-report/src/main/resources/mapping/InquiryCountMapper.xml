@@ -186,19 +186,42 @@
     quoted_status, return_count, remark, quote_overtime_category, quote_overtime_cause,
     is_success_order, lose_order_category, lose_order_cause
   </sql>
+    <sql id="V_Base_Column_List" >
+     quotation_num, inquiry_unit, inquiry_area, organization, cust_name,
+    cust_description,rollin_time, profit_margin,  quotation_price,quote_need_time,
+    whole_quote_time,business_quote_time,clear_quote_time,logistics_quote_time, quoted_status,
+     return_count
+  </sql>
   <select id="selectStart" resultType="java.util.Date">
     SELECT rollin_time FROM erui_rfq.v_inquiry_count WHERE rollin_time IS NOT NULL ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
     SELECT rollin_time FROM erui_rfq.v_inquiry_count ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
   </select>
+    <select id="selectInquiryListByTime" resultType="com.erui.report.model.InquiryVo" parameterType="java.util.Map">
+        SELECT
+        <if test="distinct" >
+            distinct
+        </if>
+        <include refid="V_Base_Column_List" />
+        from erui_rfq.v_inquiry_count
+        WHERE  1=1
+        <if test="startTime!=null and endTime!=null">
+            AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        <if test="quoteStatus!=null ">
+            AND  quoted_status = #{quoteStatus}
+        </if>
+
+    </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     <if test="distinct" >
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from erui_rfq.v_inquiry_count
+    from inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
