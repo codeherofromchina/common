@@ -1,6 +1,7 @@
 package com.erui.boss.web.report;
 
 
+import com.erui.boss.web.util.ParamsUtils;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.RateUtil;
@@ -38,114 +39,113 @@ public class CustomCentreController {
 
     @Autowired
     private InquiryCountService inquiryService;
-    @Autowired
-    private OrderCountService orderService;
-    @Autowired
-    private InquirySKUService inquirySKUService;
+        @Autowired
+        private OrderCountService orderService;
+        @Autowired
+        private InquirySKUService inquirySKUService;
 
-    @Autowired
-    private InqRtnReasonService inqRtnReasonService;
-    @Autowired
-    private TargetService targetService;
+        @Autowired
+        private InqRtnReasonService inqRtnReasonService;
+        @Autowired
+        private TargetService targetService;
 
-    private static DecimalFormat df = new DecimalFormat("0.00");
+        private static DecimalFormat df = new DecimalFormat("0.00");
 
-    /*
-     * 询单总览
-     * */
-    @ResponseBody
-    @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, String> params) {
-        // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-        if (startDate == null || endDate == null || startDate.after(endDate)) {
-            return new Result<>(ResultStatusEnum.FAIL);
-        }
-        // 获取需要环比的开始时间
-        long differenTime = endDate.getTime() - startDate.getTime();
-        Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
-        //当期询单数量和金额
-        int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
-        double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null, null);
-        // 上期询单数量
-        int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, null, 0, 0, "", "");
-        Integer chain = count - chainCount;
-        Double chainRate = null;
-        if (chainCount > 0) {
-            chainRate = RateUtil.intChainRate(chain, chainCount);//环比
-        }
-        // 询单数据修改
-        Map<String, Object> inquiryMap = new HashMap<>();//询单统计信息
-        inquiryMap.put("count", count);
-        inquiryMap.put("amount", df.format(amount / 10000) + "万$");
-        inquiryMap.put("chainAdd", chain);
-        inquiryMap.put("chainRate", chainRate);
+        /*
+         * 询单总览
+         * */
+        @ResponseBody
+        @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+        public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, String> params) {
+            // 获取参数并转换成时间格式
+            Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
+            Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
+            if (startDate == null || endDate == null || startDate.after(endDate)) {
+                return new Result<>(ResultStatusEnum.FAIL);
+            }
+            // 获取需要环比的开始时间
+            long differenTime = endDate.getTime() - startDate.getTime();
+            Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
+            //当期询单数量和金额
+            int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
+            double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null, null);
+            // 上期询单数量
+            int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, null, 0, 0, "", "");
+            Integer chain = count - chainCount;
+            Double chainRate = null;
+            if (chainCount > 0) {
+                chainRate = RateUtil.intChainRate(chain, chainCount);//环比
+            }
+            // 询单数据修改
+            Map<String, Object> inquiryMap = new HashMap<>();//询单统计信息
+            inquiryMap.put("count", count);
+            inquiryMap.put("amount", df.format(amount / 10000) + "万$");
+            inquiryMap.put("chainAdd", chain);
+            inquiryMap.put("chainRate", chainRate);
 
-        //平台产品统计
-        Map<String, Object> platMap = new HashMap<>();
-        List<Map<String, Object>> platList = inquirySKUService.selectCountGroupByIsPlat(startDate, endDate);
-        List<Map<String, Object>> chainPlatList = inquirySKUService.selectCountGroupByIsPlat(rateStartDate, startDate);
-        int platCount = 0, notPlatCount = 0, chainPlatCount = 0;
-        double platProportion = 0.00, platChainRate = 0.00;
-        if (platList != null && platList.size() > 0) {
-            for (Map<String, Object> map : platList) {
-                String plat = map.get("isPlat").toString();
-                int skuCount = Integer.parseInt(map.get("skuCount").toString());
-                if ("平台".equals(plat)) {
-                    platCount = skuCount;
-                } else {
-                    notPlatCount += skuCount;
+            //平台产品统计
+            Map<String, Object> platMap = new HashMap<>();
+            List<Map<String, Object>> platList = inquirySKUService.selectCountGroupByIsPlat(startDate, endDate);
+            List<Map<String, Object>> chainPlatList = inquirySKUService.selectCountGroupByIsPlat(rateStartDate, startDate);
+            int platCount = 0, notPlatCount = 0, chainPlatCount = 0;
+            double platProportion = 0.00, platChainRate = 0.00;
+            if (platList != null && platList.size() > 0) {
+                for (Map<String, Object> map : platList) {
+                    String plat = map.get("isPlat").toString();
+                    int skuCount = Integer.parseInt(map.get("skuCount").toString());
+                    if ("平台".equals(plat)) {
+                        platCount = skuCount;
+                    } else {
+                        notPlatCount += skuCount;
+                    }
                 }
             }
-        }
-        if (chainPlatList != null && chainPlatList.size() > 0) {
-            for (Map<String, Object> map : chainPlatList) {
-                String plat = map.get("isPlat").toString();
-                if (plat.equals("平台")) {
-                    chainPlatCount = Integer.parseInt(map.get("skuCount").toString());
+            if (chainPlatList != null && chainPlatList.size() > 0) {
+                for (Map<String, Object> map : chainPlatList) {
+                    String plat = map.get("isPlat").toString();
+                    if (plat.equals("平台")) {
+                        chainPlatCount = Integer.parseInt(map.get("skuCount").toString());
+                    }
                 }
             }
+            if (platCount > 0) {
+                platProportion = RateUtil.intChainRate(platCount, platCount + notPlatCount);
+            }
+            if (chainPlatCount > 0) {
+                platChainRate = RateUtil.intChainRate(platCount - chainPlatCount, chainPlatCount);
+            }
+            platMap.put("platCount", platCount);
+            platMap.put("notPlatCount", notPlatCount);
+            platMap.put("platProportion", platProportion);
+            platMap.put("planChainRate", platChainRate);
+            // 询单Top 3 产品分类
+            int skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, null);
+            List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(startDate, endDate, null);
+            if (listTop3 != null && listTop3.size() > 0) {
+                listTop3.parallelStream().forEach(m -> {
+                    BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
+                    if (skuCount > 0) {
+                        m.put("proProportionl", RateUtil.intChainRate(s.intValue(), skuCount));
+                    } else {
+                        m.put("proProportionl", 0d);
+                    }
+                });
+            }
+            //询价商品数
+            Integer skuCountChain = inquirySKUService.selectSKUCountByTime(rateStartDate, startDate, null);
+            Map<String, Object> goodsMap = new HashMap<>();
+            if (skuCountChain == null) {
+                skuCountChain = 0;
+            }
+            goodsMap.put("goodsCount", skuCount);
+            goodsMap.put("goodsChainAdd", skuCount - skuCountChain);
+            Map<String, Object> datas = new HashMap<>();
+            datas.put("inquiry", inquiryMap);
+            datas.put("proTop3", listTop3);
+            datas.put("goodsMap", goodsMap);
+            datas.put("platMap", platMap);
+            return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
         }
-        if (platCount > 0) {
-            platProportion = RateUtil.intChainRate(platCount, platCount + notPlatCount);
-        }
-        if (chainPlatCount > 0) {
-            platChainRate = RateUtil.intChainRate(platCount - chainPlatCount, chainPlatCount);
-        }
-        platMap.put("platCount", platCount);
-        platMap.put("notPlatCount", notPlatCount);
-        platMap.put("platProportion", platProportion);
-        platMap.put("planChainRate", platChainRate);
-        // 询单Top 3 产品分类
-        int skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, null);
-        List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(startDate, endDate, null);
-        if (listTop3 != null && listTop3.size() > 0) {
-            listTop3.parallelStream().forEach(m -> {
-                BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
-                if (skuCount > 0) {
-                    m.put("proProportionl", RateUtil.intChainRate(s.intValue(), skuCount));
-                } else {
-                    m.put("proProportionl", 0d);
-                }
-            });
-        }
-        //询价商品数
-        Integer skuCountChain = inquirySKUService.selectSKUCountByTime(rateStartDate, startDate, null);
-        Map<String, Object> goodsMap = new HashMap<>();
-        if (skuCountChain == null) {
-            skuCountChain = 0;
-        }
-        goodsMap.put("goodsCount", skuCount);
-        goodsMap.put("goodsChainAdd", skuCount - skuCountChain);
-        Map<String, Object> datas = new HashMap<>();
-        datas.put("inquiry", inquiryMap);
-        datas.put("proTop3", listTop3);
-        datas.put("goodsMap", goodsMap);
-        datas.put("platMap", platMap);
-        return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
-    }
-
     /*
      * 报价总览
      * */

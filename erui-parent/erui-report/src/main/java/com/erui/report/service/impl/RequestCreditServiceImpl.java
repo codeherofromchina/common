@@ -956,6 +956,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
 
         data.stream().forEach(m -> {
             double totalAmount = Double.parseDouble(m.get("totalAmount").toString());
+            m.put("totalAmount",RateUtil.doubleChainRateTwo(totalAmount,1));
             if (totalAmount > 0) {
                 double thirty = Double.parseDouble(m.get("thirty").toString());
                 m.put("thirty",RateUtil.doubleChainRateTwo(thirty,1));
