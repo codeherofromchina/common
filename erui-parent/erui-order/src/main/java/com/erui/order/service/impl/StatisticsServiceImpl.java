@@ -1,18 +1,23 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.middle.redis.ShardedJedisUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.dao.StatisticsDao;
 import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.model.GoodsBookDetail;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,7 +41,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
-
+    private final static Logger LOGGER = LoggerFactory.getLogger(StatisticsServiceImpl.class);
+    private static final String STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY = "STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY";
+    private static final int PAGESIZE = 25;
     @Autowired
     private EntityManager entityManager;
 
@@ -44,6 +51,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     private StatisticsDao statisticsDao;
     @Autowired
     private ProjectDao projectDao;
+    @Autowired
+    private OrderDao orderDao;
 
 
     /**
@@ -68,7 +77,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
         // 对最后日期时间+1天处理
         handleAfterEdate = NewDateUtil.plusDays(handleAfterEdate, 1);
-
 
         // 查询基本订单统计信息
         List<SaleStatistics> list = statisticsDao.orderBaseSaleStatisInfo(handleAfterSdate, handleAfterEdate);
@@ -120,9 +128,9 @@ public class StatisticsServiceImpl implements StatisticsService {
             Number[] rePurchRateNum = rePurchRateMap.get(key);
             if (rePurchRateNum != null) {
                 saleStatistics.setVipNum(rePurchRateNum[0].longValue());
-                saleStatistics.setTwo_re_purch(rePurchRateNum[1].longValue());
-                saleStatistics.setThree_re_purch(rePurchRateNum[2].longValue());
-                saleStatistics.setMore_re_purch(rePurchRateNum[3].longValue());
+                saleStatistics.setTwoRePurch(rePurchRateNum[1].longValue());
+                saleStatistics.setThreeRePurch(rePurchRateNum[2].longValue());
+                saleStatistics.setMoreRePurch(rePurchRateNum[3].longValue());
             }
 
             Number[] inquiryStatisInfoNum = inquiryStatisInfoMap.get(key);
@@ -132,18 +140,20 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
             saleStatistics.setStartDate(startDate);
             saleStatistics.setEndDate(endDate);
-
-            saleStatistics.computRateInfo();
         }
         // 返回
         return list;
     }
 
     @Override
-    public List<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition) {
+    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum) {
+        LOGGER.info("查询商品统计基本信息");
+        if (pageNum <= 0) {
+            pageNum = 1;
+        }
         // 查询sku的订单统计信息
-        List<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition);
-
+        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum);
+        LOGGER.info("查询商品统计的询单信息");
         // 查询sku的询单统计信息
         Date handleAfterSdate = condition.getStartDate();
         Date handleAfterEdate = condition.getEndDate();
@@ -177,7 +187,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             goodsStatistics1.setStartDate(condition.getStartDate());
             goodsStatistics1.setEndDate(condition.getEndDate());
         }
-
+        LOGGER.info("返回商品统计信息");
         return goodsStatisticsList;
     }
 
@@ -187,7 +197,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    private List<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics) {
+    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
         Root<Goods> root = query.from(Goods.class);
@@ -202,6 +212,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         Path<String> countryPath = orderRoot.get("country");
         Path<BigDecimal> totalPricePath = orderRoot.get("totalPrice");
         Path<Date> signingDatePath = orderRoot.get("signingDate");
+        Path<Integer> orderStatus = orderRoot.get("status");
 
         List<Predicate> predicateList = new ArrayList<>();
         String sku = goodsStatistics.getSku();
@@ -233,16 +244,39 @@ public class StatisticsServiceImpl implements StatisticsService {
             endDate = NewDateUtil.plusDays(endDate, 1);
             predicateList.add(cb.lessThan(signingDatePath, endDate));
         }
+        predicateList.add(cb.greaterThanOrEqualTo(orderStatus, 3)); // 过滤订单状态
 
         Predicate[] predicates = new Predicate[predicateList.size()];
         predicates = predicateList.toArray(predicates);
-        query.where(predicates);//where条件加上
 
+        // 查询记录
+        query.where(predicates);//where条件加上
         query.select(cb.tuple(skuPath, proTypePath, nameEnPath, nameZhPath, brandPath, regionPath, countryPath, cb.count(orderRoot), cb.sum(totalPricePath)));
         query.groupBy(skuPath, proTypePath, nameEnPath, nameZhPath, brandPath, regionPath, countryPath);
-
         TypedQuery<Tuple> q = entityManager.createQuery(query);
-        List<Tuple> tupleList = q.getResultList();
+
+        int firstResult = (pageNum - 1) * PAGESIZE;
+        List<Tuple> tupleList = null;
+        Integer totalEles = totalEles = ShardedJedisUtil.getInteger(getRedisKey(goodsStatistics));
+        if (totalEles != null) {
+            if (firstResult > totalEles) {
+                tupleList = new ArrayList<>();
+            } else {
+                q.setFirstResult(firstResult);
+                q.setMaxResults(PAGESIZE);
+                tupleList = q.getResultList();
+            }
+        } else {
+            List<Tuple> list = q.getResultList();
+            totalEles = list.size();
+            ShardedJedisUtil.setExpire(getRedisKey(goodsStatistics), String.valueOf(totalEles), "NX", "EX", 30 * 60); // 设置60分钟过期
+            if (firstResult > totalEles) {
+                tupleList = new ArrayList<>();
+            } else {
+                int endIndex = Math.min(firstResult + PAGESIZE, list.size());
+                tupleList = list.subList(firstResult, endIndex);
+            }
+        }
 
         List<GoodsStatistics> result = new ArrayList<>();
         if (tupleList.size() > 0) {
@@ -257,11 +291,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                 gs.setCountry((String) tp.get(6));
                 gs.setOrderNum((long) tp.get(7));
                 gs.setOrderAmount((BigDecimal) tp.get(8));
-
                 result.add(gs);
             }
         }
-        return result;
+
+        Page<GoodsStatistics> resultPage = new PageImpl<GoodsStatistics>(result, new PageRequest(pageNum - 1, PAGESIZE), totalEles);
+
+        return resultPage;
     }
 
     @Transactional(readOnly = true)
@@ -369,6 +405,106 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         Page<ProjectStatistics> result = new PageImpl<ProjectStatistics>(dataList, pageRequest, pageList.getTotalElements());
 
+        return result;
+    }
+
+
+    private String getRedisKey(GoodsStatistics goodsStatistics) {
+        String sku = goodsStatistics.getSku();
+        String proType = goodsStatistics.getProType();
+        String brand = goodsStatistics.getBrand();
+        String region = goodsStatistics.getRegion();
+        String country = goodsStatistics.getCountry();
+        Date endDate = goodsStatistics.getEndDate();
+        Date startDate = goodsStatistics.getStartDate();
+
+        return STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY +
+                "&" + StringUtils.defaultIfBlank(sku, "") +
+                "&" + StringUtils.defaultIfBlank(proType, "") +
+                "&" + StringUtils.defaultIfBlank(brand, "") +
+                "&" + StringUtils.defaultIfBlank(region, "") +
+                "&" + StringUtils.defaultIfBlank(country, "") +
+                "&" + String.valueOf(startDate == null ? -1 : startDate.getTime()) +
+                "&" + String.valueOf(endDate == null ? -1 : endDate.getTime());
+    }
+
+    @Transactional(readOnly = true)
+    public List<GoodsBookDetail> goodsBookDetail(Integer orderId) throws Exception {
+        List<GoodsBookDetail> result = findGoodsListOfOrder(orderId);
+
+        List<Integer> goodsIds = result.parallelStream().map(vo -> vo.getGoodsId()).collect(Collectors.toList());
+        result = mergePurchGoodsInfo(result,statisticsDao.findPurchGoods(goodsIds));
+
+        return result;
+    }
+
+    /**
+     * 查询订单的基本商品信息
+     *
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    private List<GoodsBookDetail> findGoodsListOfOrder(Integer orderId) throws Exception {
+        Order order = orderDao.findOne(orderId);
+        if (order == null) {
+            throw new Exception("订单不存在");
+        }
+        List<Goods> goodsList = order.getGoodsList();
+        List<GoodsBookDetail> resultList = new ArrayList<>();
+        if (goodsList != null && goodsList.size() > 0) {
+            for (Goods goods : goodsList) {
+                GoodsBookDetail goodsBookDetail = new GoodsBookDetail();
+                goodsBookDetail.setGoods(goods);
+                resultList.add(goodsBookDetail);
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 商品台账合并采购信息并返回
+     *
+     * @param list
+     * @param purchGoodsInfo
+     * @return
+     */
+    private List<GoodsBookDetail> mergePurchGoodsInfo(List<GoodsBookDetail> list, List<Object> purchGoodsInfo) throws CloneNotSupportedException {
+        if (purchGoodsInfo == null || purchGoodsInfo.size() == 0) {
+            return list;
+        }
+        List<GoodsBookDetail> result = new ArrayList<>();
+        for (GoodsBookDetail goodsBookDetail : list) {
+            List<GoodsBookDetail> innerList = new ArrayList<>();
+            innerList.add(goodsBookDetail);
+            int contractGoodsNum = goodsBookDetail.getContractGoodsNum();
+            for (Object obj : purchGoodsInfo) {
+                Object[] objArr = (Object[]) obj;
+                int goodsId = (Integer) objArr[0];
+                if (goodsBookDetail.getGoodsId() != goodsId) {
+                    continue;
+                }
+                int purchaseNum = (Integer) objArr[1];
+                BigDecimal purchasePrice = (BigDecimal) objArr[2];
+                BigDecimal purchaseTotalPrice = (BigDecimal) objArr[3];
+                String purchNo = (String) objArr[4];
+                contractGoodsNum -= purchaseNum;
+
+                GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
+                clone.setContractGoodsNum(purchaseNum);
+                clone.setPurchaseNum(purchaseNum);
+                clone.setPurchasePrice(purchasePrice);
+                clone.setPurchaseTotalPrice(purchaseTotalPrice);
+                clone.setPurchNo(purchNo);
+                innerList.add(clone);
+            }
+            if (contractGoodsNum > 0) {
+                innerList.get(0).setContractGoodsNum(contractGoodsNum);
+            } else {
+                innerList.remove(0);
+            }
+            result.addAll(innerList);
+        }
         return result;
     }
 }

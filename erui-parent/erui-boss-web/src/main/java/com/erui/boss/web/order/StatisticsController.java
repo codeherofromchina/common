@@ -1,14 +1,14 @@
 package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.order.model.GoodsStatistics;
-import com.erui.order.model.ProjectStatistics;
-import com.erui.order.model.RegionTotalAmount;
-import com.erui.order.model.SaleStatistics;
+import com.erui.order.model.*;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/order/statistics")
 public class StatisticsController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatisticsController.class);
 
     @Autowired
     private StatisticsService statisticsService;
@@ -39,16 +40,16 @@ public class StatisticsController {
         saleStatistics.setCountry(params.get("country"));
         saleStatistics.setStartDate(DateUtil.str2Date(params.get("startDate")));
         saleStatistics.setEndDate(DateUtil.str2Date(params.get("endDate")));
-
+        Map<String, Object> resultData = new HashedMap();
         // 获取统计数据
         List<SaleStatistics> data = statisticsService.findSaleStatistics(saleStatistics);
+        resultData.put("statistics", data);
         // 计算各个大区的总金额
         Map<String, RegionTotalAmount> regionTotalAmountMap = new HashedMap();
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (SaleStatistics statistics : data) {
             String region = StringUtils.defaultString(statistics.getRegion(), "");
             BigDecimal orderAmount = statistics.getOrderAmount();
-
             if (regionTotalAmountMap.containsKey(region)) {
                 RegionTotalAmount regionTotalAmount = regionTotalAmountMap.get(region);
                 regionTotalAmount.setTotalAmount(regionTotalAmount.getTotalAmount().add(orderAmount));
@@ -59,16 +60,12 @@ public class StatisticsController {
             }
             totalAmount = totalAmount.add(orderAmount);
         }
+        // 整合统计信息和总计信息
+        Collection<RegionTotalAmount> values = new ArrayList<>(regionTotalAmountMap.values());
         RegionTotalAmount regionTotalAmount = new RegionTotalAmount("总计", 0);
         regionTotalAmount.setTotalAmount(totalAmount);
-
-        // 整合统计信息和总计信息
-        Map<String, Object> resultData = new HashedMap();
-        resultData.put("statistics", data);
-        Collection<RegionTotalAmount> values = new ArrayList<>(regionTotalAmountMap.values());
         values.add(regionTotalAmount);
         resultData.put("totalAmount", values);
-
         return new Result<>(resultData);
     }
 
@@ -76,22 +73,37 @@ public class StatisticsController {
     // 商品统计信息
     @RequestMapping("/goodsStatistics")
     public Result<Object> goodsStatistics(@RequestBody GoodsStatistics goodsStatistics) {
-
         // 获取统计数据
-        List<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics);
-
+        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,1);
         return new Result<>(data);
     }
 
     // 产品统计信息
     @RequestMapping("/projectStatistics")
     public Result<Object> projectStatistics(@RequestBody Map<String,String> condition) {
-
         // 获取统计数据
         Page<ProjectStatistics> data = statisticsService.findProjectStatistics(condition);
-
         return new Result<>(data);
     }
 
+
+    // 商品台账详情
+    @RequestMapping("/goodsBookDetail")
+    public Result<Object> goodsBookDetail(@RequestBody Map<String,Integer> params) {
+        Integer orderId = params.get("orderId");
+        if (orderId == null || orderId < 1) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        String errMsg = null;
+        try {
+            List<GoodsBookDetail> data = statisticsService.goodsBookDetail(orderId);
+            return new Result<>(data);
+        }catch (Exception ex) {
+            ex.printStackTrace();
+            LOGGER.error("异常 ： {}" ,ex);
+            errMsg = ex.getMessage();
+        }
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
+    }
 
 }

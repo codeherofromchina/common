@@ -1,5 +1,6 @@
 package com.erui.order.service;
 
+import com.erui.order.model.GoodsBookDetail;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
@@ -26,7 +27,7 @@ public interface StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    List<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics);
+    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics,int pageNum);
 
     /**
      * 查询商品统计信息
@@ -34,4 +35,11 @@ public interface StatisticsService {
      * @return
      */
     Page<ProjectStatistics> findProjectStatistics(Map<String,String> condition);
+
+    /**
+     * 查询订单下商品的台账
+     * @param orderId
+     * @return
+     */
+    List<GoodsBookDetail> goodsBookDetail(Integer orderId) throws Exception;
 }

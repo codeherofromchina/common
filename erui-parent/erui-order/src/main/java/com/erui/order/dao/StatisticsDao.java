@@ -1,5 +1,6 @@
 package com.erui.order.dao;
 
+import com.erui.order.entity.Order;
 import com.erui.order.entity.Purch;
 import com.erui.order.model.SaleStatistics;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +28,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
             "sum(case when nn = 2 then 1 else 0 end) as two_re_purch," +
             "sum(case when nn = 3 then 1 else 0 end) as three_re_purch," +
             "sum(case when t1.nn > 3 then 1 else 0 end) as more_re_purch" +
-            " from (select region,country,crm_code,count(crm_code) as nn from `order` where crm_code !='' and signing_date >= :startDate and signing_date < :endDate group by crm_code,region,country ) as t1" +
+            " from (select region,country,crm_code,count(crm_code) as nn from `order` where `status` >= 3 and crm_code !='' and signing_date >= :startDate and signing_date < :endDate group by crm_code,region,country ) as t1" +
             " group by region,country", nativeQuery = true)
     List<Object> rePurchRate(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
 
@@ -47,7 +48,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
     /**
      * 订单基本统计信息
-     *
+     *  执行中的订单
      * @return
      */
     @Query(value = "select " +
@@ -55,8 +56,10 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
             " sum(case when customerType = 1 then 1 else 0 end) as oilOrderNum," +
             " sum(case when customerType = 1 then totalPrice else 0 end) as oilOrderAmount," +
             " sum(case when customerType != 1 then 1 else 0 end) as nonOilOrderNum," +
-            " sum(case when customerType != 1 then totalPrice else 0 end) as nonOilOrderAmount)" +
-            " from Order where signingDate >= :startDate and signingDate < :endDate" +
+            " sum(case when customerType != 1 then totalPrice else 0 end) as nonOilOrderAmount," +
+            " sum(case when crmCode <> '' then 1 else 0 end) as crmOrderNum," +
+            " sum(case when crmCode <> '' then totalPrice else 0 end)  as crmOrderAmount)" +
+            " from Order where status >= 3 and signingDate >= :startDate and signingDate < :endDate" +
             " group by region,country")
     List<SaleStatistics> orderBaseSaleStatisInfo(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
 
@@ -66,4 +69,9 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
      */
     @Query(value = "select inquiry_area,inquiry_unit,count(1) as totalNum,sum(ifnull(quotation_price,0)) as totalAmount from erui_rfq.v_inquiry_count where rollin_time >= :startDate and rollin_time < :endDate group by inquiry_unit,inquiry_area", nativeQuery = true)
     List<Object> inquiryStatisInfo(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
+
+
+    //@Query(value = "select t1.goods_id,t1.purchase_num,t1.purchase_price,t1.purchase_total_price,t2.purch_no  from purch_goods t1,purch t2 where t1.purch_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
+    @Query(value = "select t1.goods_id,t1.purchase_num,t1.purchase_price,t1.purchase_total_price,t2.purch_no  from purch_goods t1,purch t2 where t1.purch_id = t2.id and t1.goods_id in :goodsIds",nativeQuery = true)
+    List<Object> findPurchGoods(@Param("goodsIds") List<Integer> goodsIds);
 }

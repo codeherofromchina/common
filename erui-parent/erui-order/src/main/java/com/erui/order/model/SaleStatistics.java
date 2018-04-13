@@ -18,7 +18,8 @@ public class SaleStatistics {
     public SaleStatistics(String region, String country,
                           Long orderNum, BigDecimal orderAmount,
                           Long oilOrderNum, BigDecimal oilOrderAmount,
-                          Long nonOilOrderNum, BigDecimal nonOilOrderAmount) {
+                          Long nonOilOrderNum, BigDecimal nonOilOrderAmount,
+                          Long crmOrderNum, BigDecimal crmOrderAmount) {
         this.region = region;
         this.country = country;
         this.orderNum = orderNum;
@@ -27,12 +28,13 @@ public class SaleStatistics {
         this.oilOrderAmount = oilOrderAmount;
         this.nonOilOrderNum = nonOilOrderNum;
         this.nonOilOrderAmount = nonOilOrderAmount;
+        this.crmOrderNum = crmOrderNum;
+        this.crmOrderAmount = crmOrderAmount;
     }
 
 
     private Date startDate; //
     private Date endDate; //
-
 
     private String region;// 地区（大区）
     private String country; // 国家
@@ -50,16 +52,19 @@ public class SaleStatistics {
     private BigDecimal nonOilOrderAmount = BigDecimal.ZERO; // 非油气订单总金额
     private BigDecimal nonOilOrderNumRate = BigDecimal.ZERO; // 油气订单总数量占比
     private BigDecimal nonOilOrderAmountRate = BigDecimal.ZERO; // 非油气订单总金额占比
+    private long crmOrderNum = 0; //
+    private BigDecimal crmOrderAmount = BigDecimal.ZERO;
+    private BigDecimal crmOrderNumRate = BigDecimal.ZERO; // 询单总数量占比率
+    private BigDecimal crmOrderAmountRate = BigDecimal.ZERO; // 询单总金额占比率
 
     private long quotationNum = 0; // 询单总数量
     private BigDecimal quotationAmount = BigDecimal.ZERO; // 询单总金额
-    private BigDecimal quotationNumConversionRate = BigDecimal.ZERO; // 询单总数量转化率
-    private BigDecimal quotationAmountConversionRate = BigDecimal.ZERO; // 询单总金额转化率
+
 
     private long vipNum = 0; // 会员总数量
-    private long two_re_purch = 0; // 2次复购率会员数量
-    private long three_re_purch = 0; // 3次复购率会员数量
-    private long more_re_purch = 0; // 3次以上复购率会员数量
+    private long twoRePurch = 0; // 2次复购率会员数量
+    private long threeRePurch = 0; // 3次复购率会员数量
+    private long moreRePurch = 0; // 3次以上复购率会员数量
 
 
     public Date getStartDate() {
@@ -78,7 +83,6 @@ public class SaleStatistics {
         this.endDate = endDate;
     }
 
-
     public String getRegion() {
         return region;
     }
@@ -95,18 +99,15 @@ public class SaleStatistics {
         this.country = country;
     }
 
-    public Long getOrderNum() {
+    public long getOrderNum() {
         return orderNum;
     }
 
-    public void setOrderNum(Integer orderNum) {
+    public void setOrderNum(long orderNum) {
         this.orderNum = orderNum;
     }
 
     public BigDecimal getOrderAmount() {
-        if (orderAmount == null) {
-            return BigDecimal.ZERO;
-        }
         return orderAmount;
     }
 
@@ -114,11 +115,11 @@ public class SaleStatistics {
         this.orderAmount = orderAmount;
     }
 
-    public Long getOilOrderNum() {
+    public long getOilOrderNum() {
         return oilOrderNum;
     }
 
-    public void setOilOrderNum(Long oilOrderNum) {
+    public void setOilOrderNum(long oilOrderNum) {
         this.oilOrderNum = oilOrderNum;
     }
 
@@ -131,26 +132,25 @@ public class SaleStatistics {
     }
 
     public BigDecimal getOilOrderNumRate() {
+        if (orderNum > 0) {
+            oilOrderNumRate = new BigDecimal(oilOrderNum / 1.0 / orderNum, new MathContext(4, RoundingMode.HALF_UP));
+        }
         return oilOrderNumRate;
     }
 
-    public void setOilOrderNumRate(BigDecimal oilOrderNumRate) {
-        this.oilOrderNumRate = oilOrderNumRate;
-    }
 
     public BigDecimal getOilOrderAmountRate() {
+        if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
+            oilOrderAmountRate = oilOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
+        }
         return oilOrderAmountRate;
     }
 
-    public void setOilOrderAmountRate(BigDecimal oilOrderAmountRate) {
-        this.oilOrderAmountRate = oilOrderAmountRate;
-    }
-
-    public Long getNonOilOrderNum() {
+    public long getNonOilOrderNum() {
         return nonOilOrderNum;
     }
 
-    public void setNonOilOrderNum(Long nonOilOrderNum) {
+    public void setNonOilOrderNum(long nonOilOrderNum) {
         this.nonOilOrderNum = nonOilOrderNum;
     }
 
@@ -163,26 +163,57 @@ public class SaleStatistics {
     }
 
     public BigDecimal getNonOilOrderNumRate() {
+        if (orderNum > 0) {
+            nonOilOrderNumRate = new BigDecimal(nonOilOrderNum / 1.0 / orderNum, new MathContext(4, RoundingMode.HALF_UP));
+        }
         return nonOilOrderNumRate;
     }
 
-    public void setNonOilOrderNumRate(BigDecimal nonOilOrderNumRate) {
-        this.nonOilOrderNumRate = nonOilOrderNumRate;
-    }
 
     public BigDecimal getNonOilOrderAmountRate() {
+        if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
+            nonOilOrderAmountRate = nonOilOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
+        }
         return nonOilOrderAmountRate;
     }
 
-    public void setNonOilOrderAmountRate(BigDecimal nonOilOrderAmountRate) {
-        this.nonOilOrderAmountRate = nonOilOrderAmountRate;
+    public long getCrmOrderNum() {
+        return crmOrderNum;
     }
 
-    public Long getQuotationNum() {
+    public void setCrmOrderNum(long crmOrderNum) {
+        this.crmOrderNum = crmOrderNum;
+    }
+
+    public BigDecimal getCrmOrderAmount() {
+        return crmOrderAmount;
+    }
+
+    public void setCrmOrderAmount(BigDecimal crmOrderAmount) {
+        this.crmOrderAmount = crmOrderAmount;
+    }
+
+    public BigDecimal getCrmOrderNumRate() {
+        if (orderNum > 0) {
+            crmOrderNumRate = new BigDecimal(crmOrderNum / 1.0 / orderNum, new MathContext(4, RoundingMode.HALF_UP));
+        }
+        return crmOrderNumRate;
+    }
+
+
+    public BigDecimal getCrmOrderAmountRate() {
+        if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
+            crmOrderAmountRate = crmOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
+        }
+        return crmOrderAmountRate;
+    }
+
+
+    public long getQuotationNum() {
         return quotationNum;
     }
 
-    public void setQuotationNum(Long quotationNum) {
+    public void setQuotationNum(long quotationNum) {
         this.quotationNum = quotationNum;
     }
 
@@ -194,75 +225,35 @@ public class SaleStatistics {
         this.quotationAmount = quotationAmount;
     }
 
-    public BigDecimal getQuotationNumConversionRate() {
-        return quotationNumConversionRate;
-    }
-
-    public void setQuotationNumConversionRate(BigDecimal quotationNumConversionRate) {
-        this.quotationNumConversionRate = quotationNumConversionRate;
-    }
-
-    public BigDecimal getQuotationAmountConversionRate() {
-        return quotationAmountConversionRate;
-    }
-
-    public void setQuotationAmountConversionRate(BigDecimal quotationAmountConversionRate) {
-        this.quotationAmountConversionRate = quotationAmountConversionRate;
-    }
-
-    public Long getVipNum() {
+    public long getVipNum() {
         return vipNum;
     }
 
-    public void setVipNum(Long vipNum) {
+    public void setVipNum(long vipNum) {
         this.vipNum = vipNum;
     }
 
-    public Long getTwo_re_purch() {
-        return two_re_purch;
+    public long getTwoRePurch() {
+        return twoRePurch;
     }
 
-    public void setTwo_re_purch(Long two_re_purch) {
-        this.two_re_purch = two_re_purch;
+    public void setTwoRePurch(long twoRePurch) {
+        this.twoRePurch = twoRePurch;
     }
 
-    public Long getThree_re_purch() {
-        return three_re_purch;
+    public long getThreeRePurch() {
+        return threeRePurch;
     }
 
-    public void setThree_re_purch(Long three_re_purch) {
-        this.three_re_purch = three_re_purch;
+    public void setThreeRePurch(long threeRePurch) {
+        this.threeRePurch = threeRePurch;
     }
 
-    public Long getMore_re_purch() {
-        return more_re_purch;
+    public long getMoreRePurch() {
+        return moreRePurch;
     }
 
-    public void setMore_re_purch(Long more_re_purch) {
-        this.more_re_purch = more_re_purch;
-    }
-
-
-    // 计算占比例等信息
-    public void computRateInfo() {
-        // 计算  油气/非油气订单总数量占比
-        if (orderNum > 0) {
-            oilOrderNumRate = new BigDecimal(oilOrderNum / 1.0 / orderNum, new MathContext(4, RoundingMode.HALF_UP));
-            nonOilOrderNumRate = new BigDecimal(nonOilOrderNum / 1.0 / orderNum, new MathContext(4, RoundingMode.HALF_UP));
-
-        }
-        // 询单总数量转化率
-        if (quotationNum > 0) {
-            quotationNumConversionRate = new BigDecimal(orderNum / 1.0 / quotationNum, new MathContext(4, RoundingMode.HALF_UP));
-        }
-        // 计算  油气/非油气订单总金额占比
-        if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
-            oilOrderAmountRate = oilOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
-            nonOilOrderAmountRate = nonOilOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
-        }
-        // 询单总金额转化率
-        if (orderAmount != null && quotationAmount != null && quotationAmount.compareTo(BigDecimal.ZERO) > 0) {
-            quotationAmountConversionRate = orderAmount.divide(quotationAmount, 4, RoundingMode.HALF_UP);
-        }
+    public void setMoreRePurch(long moreRePurch) {
+        this.moreRePurch = moreRePurch;
     }
 }
