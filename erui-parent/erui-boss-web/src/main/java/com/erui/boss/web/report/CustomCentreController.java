@@ -1,14 +1,12 @@
 package com.erui.boss.web.report;
 
 
-import com.erui.boss.web.util.ParamsUtils;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CateDetailVo;
-import com.erui.report.model.InquiryCount;
 import com.erui.report.model.InquiryVo;
 import com.erui.report.service.*;
 import com.erui.report.util.*;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -51,106 +48,46 @@ public class CustomCentreController {
 
         private static DecimalFormat df = new DecimalFormat("0.00");
 
-        /*
-         * 询单总览
-         * */
-        @ResponseBody
-        @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-        public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, String> params) {
-            // 获取参数并转换成时间格式
-            Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-            Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-            if (startDate == null || endDate == null || startDate.after(endDate)) {
-                return new Result<>(ResultStatusEnum.FAIL);
-            }
-            // 获取需要环比的开始时间
-            long differenTime = endDate.getTime() - startDate.getTime();
-            Date rateStartDate = DateUtil.getBeforTime(startDate, differenTime);
-            //当期询单数量和金额
-            int count = inquiryService.inquiryCountByTime(startDate, endDate, null, 0, 0, "", "");
-            double amount = inquiryService.inquiryAmountByTime(startDate, endDate, "", null, null);
-            // 上期询单数量
-            int chainCount = inquiryService.inquiryCountByTime(rateStartDate, startDate, null, 0, 0, "", "");
-            Integer chain = count - chainCount;
-            Double chainRate = null;
-            if (chainCount > 0) {
-                chainRate = RateUtil.intChainRate(chain, chainCount);//环比
-            }
-            // 询单数据修改
-            Map<String, Object> inquiryMap = new HashMap<>();//询单统计信息
-            inquiryMap.put("count", count);
-            inquiryMap.put("amount", df.format(amount / 10000) + "万$");
-            inquiryMap.put("chainAdd", chain);
-            inquiryMap.put("chainRate", chainRate);
 
-            //平台产品统计
-            Map<String, Object> platMap = new HashMap<>();
-            List<Map<String, Object>> platList = inquirySKUService.selectCountGroupByIsPlat(startDate, endDate);
-            List<Map<String, Object>> chainPlatList = inquirySKUService.selectCountGroupByIsPlat(rateStartDate, startDate);
-            int platCount = 0, notPlatCount = 0, chainPlatCount = 0;
-            double platProportion = 0.00, platChainRate = 0.00;
-            if (platList != null && platList.size() > 0) {
-                for (Map<String, Object> map : platList) {
-                    String plat = map.get("isPlat").toString();
-                    int skuCount = Integer.parseInt(map.get("skuCount").toString());
-                    if ("平台".equals(plat)) {
-                        platCount = skuCount;
-                    } else {
-                        notPlatCount += skuCount;
-                    }
-                }
-            }
-            if (chainPlatList != null && chainPlatList.size() > 0) {
-                for (Map<String, Object> map : chainPlatList) {
-                    String plat = map.get("isPlat").toString();
-                    if (plat.equals("平台")) {
-                        chainPlatCount = Integer.parseInt(map.get("skuCount").toString());
-                    }
-                }
-            }
-            if (platCount > 0) {
-                platProportion = RateUtil.intChainRate(platCount, platCount + notPlatCount);
-            }
-            if (chainPlatCount > 0) {
-                platChainRate = RateUtil.intChainRate(platCount - chainPlatCount, chainPlatCount);
-            }
-            platMap.put("platCount", platCount);
-            platMap.put("notPlatCount", notPlatCount);
-            platMap.put("platProportion", platProportion);
-            platMap.put("planChainRate", platChainRate);
-            // 询单Top 3 产品分类
-            int skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, null);
-            List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(startDate, endDate, null);
-            if (listTop3 != null && listTop3.size() > 0) {
-                listTop3.parallelStream().forEach(m -> {
-                    BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
-                    if (skuCount > 0) {
-                        m.put("proProportionl", RateUtil.intChainRate(s.intValue(), skuCount));
-                    } else {
-                        m.put("proProportionl", 0d);
-                    }
-                });
-            }
-            //询价商品数
-            Integer skuCountChain = inquirySKUService.selectSKUCountByTime(rateStartDate, startDate, null);
-            Map<String, Object> goodsMap = new HashMap<>();
-            if (skuCountChain == null) {
-                skuCountChain = 0;
-            }
-            goodsMap.put("goodsCount", skuCount);
-            goodsMap.put("goodsChainAdd", skuCount - skuCountChain);
-            Map<String, Object> datas = new HashMap<>();
-            datas.put("inquiry", inquiryMap);
-            datas.put("proTop3", listTop3);
-            datas.put("goodsMap", goodsMap);
-            datas.put("platMap", platMap);
-            return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
+    /*
+     * 询单总览
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/inquiryPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> inquiryPandect(@RequestBody(required = true) Map<String, Object> params) {
+       //验证参数
+        params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR2, null);
+        if(params==null){
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
+
+        //获取询单基本信息  询单数量、金额 、环比新增、环比率
+        Map<String,Object> inqInfo=this.inquiryService.selectInqInfoByCondition(params);
+        //获取询单商品信息   商品数量、环比新增 、环比率
+            params=ParamsUtils.getCurrentParams(params);
+        Map<String,Object> goodsMap=inquirySKUService.selectInqGoodsInfoByCondition(params);
+        //获取询单商品平台数据  平台数量 、非平台数量、平台占比、平台环比新增、平台环比率
+            params=ParamsUtils.getCurrentParams(params);
+        Map<String,Object> platMap=inquirySKUService.selectPlatInfoByCondition(params);
+        //获取分类 询价商品次数 Top3
+            params=ParamsUtils.getCurrentParams(params);
+        List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(params);
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("inquiry", inqInfo);
+        datas.put("proTop3", listTop3);
+        datas.put("goodsMap", goodsMap);
+        datas.put("platMap", platMap);
+        return new Result<>(datas);
+    }
+
+
+
+
     /*
      * 报价总览
      * */
     @ResponseBody
-    @RequestMapping(value = "/quotePandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    @RequestMapping(value = "/quotePandect2", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Result<Object> quotePandect(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
         Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
@@ -233,20 +170,10 @@ public class CustomCentreController {
         proIsOilMap.put("chainRate", oilChainRate);
         // 询单Top 3 产品分类
         int skuCount = inquirySKUService.selectSKUCountByTime(startDate, endDate, nums);
-        List<Map<String, Object>> listTop3 = null;
-        if (nums != null && nums.size() > 0) {
-            listTop3 = inquirySKUService.selectProTop3(startDate, endDate, nums);
-        }
-        if (listTop3 != null && listTop3.size() > 0) {
-            listTop3.parallelStream().forEach(m -> {
-                BigDecimal s = new BigDecimal(String.valueOf(m.get("proCount")));
-                if (skuCount > 0) {
-                    m.put("proProportionl", RateUtil.intChainRate(s.intValue(), skuCount));
-                } else {
-                    m.put("proProportionl", 0d);
-                }
-            });
-        }
+            List<Map<String, Object>> listTop3 = null;
+//        inquirySKUService.selectProTop3(params);
+
+
         Map<String, Object> datas = new HashMap<>();
         datas.put("quote", inquiryMap);
         datas.put("isOil", proIsOilMap);
@@ -254,7 +181,35 @@ public class CustomCentreController {
         return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
     }
 
+    /*
+     * 报价总览
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/quotePandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> quotePandect2(@RequestBody(required = true) Map<String, Object> params) {
+        //验证请求参数
+        params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR2, null);
+        if(params==null){
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
 
+        //获取报价询单基本信息  询单数量、金额 、环比新增、环比率
+        String[] quotes=new String[]{QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus(),
+                QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
+        params.put("quotes",quotes);
+        Map<String,Object> inquiryMap=this.inquiryService.selectInqInfoByCondition(params);
+        //获取报价询单商品油气数据
+        params=ParamsUtils.getCurrentParams(params);
+        Map<String,Object> proIsOilMap=inquirySKUService.selectIsOilInfoByCondition(params);
+        //获取报价询单商品次数分类 Top3
+        params=ParamsUtils.getCurrentParams(params);
+        List<Map<String, Object>> listTop3 = inquirySKUService.selectProTop3(params);
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("quote", inquiryMap);
+        datas.put("isOil", proIsOilMap);
+        datas.put("proTop3", listTop3);
+        return new Result<>(ResultStatusEnum.SUCCESS).setData(datas);
+    }
     /*
      * 订单总览
      */

@@ -104,6 +104,66 @@
     </if>
   </select>
 
+  <!--查询询价商品次数-->
+  <select id="selectInqGoodsCountByTime" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    SELECT
+    COUNT(1) as goodsCount
+    from erui_rfq.v_inquiry_sku
+    WHERE 1=1
+    AND quotation_num IN
+    (SELECT  quotation_num FROM erui_rfq.v_inquiry_count
+     WHERE  1=1
+    <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    AND quotation_num IS NOT NULL
+     )
+  </select>
+
+  <!--查询询价平台和非平台商品次数-->
+  <select id="selectPlatInfoByTime" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+    IFNULL(SUM(CASE plat_pro_category WHEN '平台' THEN 1 ELSE 0 END),0) as platCount,
+    IFNULL(SUM(CASE plat_pro_category WHEN '非平台' THEN 1 ELSE 0 END),0) as notPlatCount
+    from erui_rfq.v_inquiry_sku
+    WHERE 1=1
+    AND quotation_num IN
+    (SELECT  quotation_num FROM erui_rfq.v_inquiry_count
+     WHERE  1=1
+    <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    AND quotation_num IS NOT NULL
+     )
+  </select>
+
+  <!--查询询价油气和非油气商品次数-->
+  <select id="selectIsOilInfoByCondition" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+    IFNULL(SUM(CASE is_oil_gas WHEN '是' THEN 1 ELSE 0 END),0) as oil,
+    IFNULL(SUM(CASE is_oil_gas WHEN '否' THEN 1 ELSE 0 END),0)+
+    IFNULL(SUM(CASE is_oil_gas WHEN NULL  THEN 1 ELSE 0 END),0)  as notOil
+    from erui_rfq.v_inquiry_sku
+    WHERE 1=1
+    AND quotation_num IN
+    (SELECT  quotation_num FROM erui_rfq.v_inquiry_count
+     WHERE  1=1
+    <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    <if test="quotes!=null">
+      AND quoted_status IN
+      <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+        #{quote}
+      </foreach>
+    </if>
+    AND quotation_num IS NOT NULL
+     )
+  </select>
+
   <!--查询商品数量按是否为油气分类-->
   <select id="selectCountGroupByIsOil" resultType="com.erui.report.util.IsOilVo" parameterType="com.erui.report.model.InquirySkuExample" >
     SELECT
@@ -137,19 +197,29 @@
         GROUP  BY  plat_pro_category HAVING  plat_pro_category IS  NOT  NULL
     </select>
 
-  <select id="selectProTop3" resultType="map" parameterType="com.erui.report.model.InquirySkuExample" >
+  <select id="selectProTop3" resultType="java.util.Map" parameterType="java.util.Map" >
 
     SELECT
       COUNT(*) AS proCount,
     pro_category AS proCategory
     FROM
     erui_rfq.v_inquiry_sku
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
+      WHERE 1=1
+      AND quotation_num IN
+      (SELECT  quotation_num FROM erui_rfq.v_inquiry_count
+      WHERE  1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+    <if test="quotes!=null">
+      AND quoted_status IN
+      <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+        #{quote}
+      </foreach>
     </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
+      AND quotation_num IS NOT NULL
+      )
     group by pro_category HAVING pro_category IS  NOT  NULL  ORDER BY proCount DESC LIMIT 0,3;
   </select>
 
@@ -170,7 +240,7 @@
     category HAVING  category IS  NOT  NULL
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from inquiry_sku
     where id = #{id,jdbcType=BIGINT}
@@ -193,8 +263,8 @@
   </delete>
   <insert id="insertSKUList" parameterType="java.util.List" >
     insert into inquiry_sku (rollin_time, quotation_num,
-      is_oil_gas, plat_pro_category, pro_category, 
-      cate_count, is_kerui_equip_parts, pro_brand, 
+      is_oil_gas, plat_pro_category, pro_category,
+      cate_count, is_kerui_equip_parts, pro_brand,
       quote_unit_price, quote_total_price)
     values
     <foreach collection="list" item="sku" separator="," index="index">

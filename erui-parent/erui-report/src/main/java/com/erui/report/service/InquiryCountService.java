@@ -39,6 +39,12 @@ public interface InquiryCountService {
     * */
 	 Double inquiryAmountByTime(Date startDate,Date endDate,String area,String country,String[] quotedStatus) ;
 
+	/**
+	 * 获取询单基本信息根据条件
+	 * @param params
+	 * @return count : 数量  amount ：金额  ， chainAdd ：环比新增  ，chainRate ：环比率
+	 */
+	Map<String,Object> selectInqInfoByCondition(Map<String,Object> params);
 
 	/**
 	 * 导入客户中心-询单数据
@@ -51,10 +57,6 @@ public interface InquiryCountService {
 	* 查询事业部列表
 	* */
 	List<String>   selectOrgList();
-	/*
-   * 根据时间查询询单列表
-   * */
-	List<InquiryCount> selectListByTime(Date startTime, Date endTime,String[] quotes,String area,String country);
 	/**
 	 * 查询询单视图列表
 	 * @return

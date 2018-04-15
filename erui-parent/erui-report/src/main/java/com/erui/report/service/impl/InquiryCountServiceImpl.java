@@ -10,6 +10,7 @@ import com.erui.comm.RateUtil;
 import com.erui.report.model.*;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.util.*;
+import com.sun.deploy.util.ParameterUtil;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -512,6 +513,26 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         }
         Double amount = readMapper.selectTotalAmountByExample(example);
         return amount;
+    }
+
+    @Override
+    public Map<String, Object> selectInqInfoByCondition(Map<String, Object> params) {
+        Map<String,Object> inqMap=readMapper.selectInqCountAndAmount(params);
+        //查询环比数据
+        Map<String, Object> chainParams = ParamsUtils.getChainParams(params);
+        Map<String,Object> chainInqMap=readMapper.selectInqCountAndAmount(chainParams);
+        int inqCount = Integer.parseInt(inqMap.get("inqCount").toString());
+       double inqAmount = Double.parseDouble(inqMap.get("inqAmount").toString());
+        int chainInqCount = Integer.parseInt(chainInqMap.get("inqCount").toString());
+        inqMap.put("chainAdd",inqCount-chainInqCount);
+        if(chainInqCount>0) {
+            inqMap.put("chainRate", RateUtil.intChainRateTwo(inqCount - chainInqCount, chainInqCount));
+        }else {
+            inqMap.put("chainRate",0);
+        }
+        inqMap.put("amount",RateUtil.doubleChainRateTwo(inqAmount,10000)+"万$");
+        inqMap.put("count",inqCount);
+        return inqMap;
     }
 
     @Override

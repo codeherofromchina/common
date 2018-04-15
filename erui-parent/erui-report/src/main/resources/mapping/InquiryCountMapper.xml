@@ -314,6 +314,24 @@
       order by ${orderByClause}
     </if>
   </select>
+    <!--查询询单数量和金额-->
+  <select id="selectInqCountAndAmount" resultType="java.util.Map" parameterType="java.util.Map" >
+    select
+    COUNT(1) AS  inqCount,
+    IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) as inqAmount
+    from erui_rfq.v_inquiry_count
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+        and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    <if test="quotes!=null">
+        AND quoted_status IN
+        <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+            #{quote}
+        </foreach>
+    </if>
+</select>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select

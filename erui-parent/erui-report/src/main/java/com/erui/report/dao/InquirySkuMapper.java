@@ -36,10 +36,34 @@ public interface InquirySkuMapper {
     int updateByPrimaryKey(InquirySku record);
 
     Integer selectSKUCountByTime(InquirySkuExample example);
-    List<IsOilVo> selectCountGroupByIsOil(InquirySkuExample example);
 
-    //查询产品Top3
-    List<Map<String,Object>> selectProTop3(InquirySkuExample example);
+    /**
+     * 查询询单商品次数
+     * @param params  startTime endTime
+     * @return
+     */
+     int selectInqGoodsCountByTime(Map<String,Object> params);
+    /**
+     * 查询平台和非平台的询价商品次数
+     * @param params  startTime endTime
+     * @return
+     */
+    Map<String,Object> selectPlatInfoByTime(Map<String,Object> params);
+    /**
+     * 查询油气和非油气的询价商品次数
+     * @param params  startTime endTime
+     * @return
+     */
+    Map<String,Object> selectIsOilInfoByCondition(Map<String,Object> params);
+
+    /**
+     * 查询分类 的 询价商品次数top3
+     * @param params  startTime endTime
+     * @return  proCategory ：分类  proCount ： 次数
+     */
+    List<Map<String,Object>> selectProTop3(Map<String,Object> params);
+
+    List<IsOilVo> selectCountGroupByIsOil(InquirySkuExample example);
     List<Map<String, Object>> selectCountGroupByIsPlat(InquirySkuExample example);
 
     List<CateDetailVo> selectSKUDetailByCategory(InquirySkuExample example);

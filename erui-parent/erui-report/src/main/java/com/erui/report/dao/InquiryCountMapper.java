@@ -50,6 +50,11 @@ public interface InquiryCountMapper {
      */
     Double selectTotalAmountByExample(InquiryCountExample example);
     /**
+     * 查询询单数量和金额
+     * @return
+     */
+    Map<String,Object> selectInqCountAndAmount(Map<String,Object> params);
+    /**
      * 查询事业部列表
      * @return
      */
