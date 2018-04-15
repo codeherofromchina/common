@@ -87,8 +87,8 @@ public class CustomCentreController {
      * 报价总览
      * */
     @ResponseBody
-    @RequestMapping(value = "/quotePandect2", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result<Object> quotePandect(@RequestBody(required = true) Map<String, String> params) {
+    @RequestMapping(value = "/quotePandectOld", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> quotePandectOld(@RequestBody(required = true) Map<String, String> params) {
         // 获取参数并转换成时间格式
         Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
         Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
@@ -186,7 +186,7 @@ public class CustomCentreController {
      * */
     @ResponseBody
     @RequestMapping(value = "/quotePandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result<Object> quotePandect2(@RequestBody(required = true) Map<String, Object> params) {
+    public Result<Object> quotePandect(@RequestBody(required = true) Map<String, Object> params) {
         //验证请求参数
         params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR2, null);
         if(params==null){
