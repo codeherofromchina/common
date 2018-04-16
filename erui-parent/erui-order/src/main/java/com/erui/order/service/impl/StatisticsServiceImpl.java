@@ -108,8 +108,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             return numbers;
         }));
         // 查询中文地区和国家
-        Map<String,String> bnMapZhCountry = this.findBnMapZhCountry();
-        Map<String,String> bnMapZhRegion = this.findBnMapZhRegion();
+        Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
+        Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
         // 整合到基本统计中
         for (Iterator<SaleStatistics> iterator = list.iterator(); iterator.hasNext(); ) {
             SaleStatistics saleStatistics = iterator.next();
@@ -185,8 +185,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             inquiryMap.put(key, objArr);
         }
         // 查询中文地区和国家
-        Map<String,String> bnMapZhCountry = this.findBnMapZhCountry();
-        Map<String,String> bnMapZhRegion = this.findBnMapZhRegion();
+        Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
+        Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
         // 合并询单和订单统计信息
         for (GoodsStatistics goodsStatistics1 : goodsStatisticsList) {
             String region = goodsStatistics1.getRegion();
@@ -731,36 +731,26 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public Map<String, String> findBnMapZhCountry() {
-        Map<String, String> result = null;
+        Map<String, String> result = new HashMap<>();
         List<Object> countrys = statisticsDao.findBnMapZhCountry();
         if (countrys != null && countrys.size() > 0) {
-            result = countrys.parallelStream().collect(Collectors.toMap(vo -> {
-                String[] strArr = (String[]) vo;
-                return strArr[0];
-            }, vo -> {
-                String[] strArr = (String[]) vo;
-                return strArr[1];
-            }));
-        } else {
-            result = new HashMap<>();
+            for (Object vo : countrys) {
+                Object[] strArr = (Object[]) vo;
+                result.put((String) strArr[0], (String) strArr[1]);
+            }
         }
         return result;
     }
 
     @Override
     public Map<String, String> findBnMapZhRegion() {
-        Map<String, String> result = null;
-        List<Object> countrys = statisticsDao.findBnMapZhRegion();
-        if (countrys != null && countrys.size() > 0) {
-            result = countrys.parallelStream().collect(Collectors.toMap(vo -> {
-                String[] strArr = (String[]) vo;
-                return strArr[0];
-            }, vo -> {
-                String[] strArr = (String[]) vo;
-                return strArr[1];
-            }));
-        } else {
-            result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
+        List<Object> regions = statisticsDao.findBnMapZhRegion();
+        if (regions != null && regions.size() > 0) {
+            for (Object vo : regions) {
+                Object[] strArr = (Object[]) vo;
+                result.put((String) strArr[0], (String) strArr[1]);
+            }
         }
         return result;
     }
