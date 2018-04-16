@@ -99,6 +99,7 @@ public class CustomCentreController {
                 QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus()};
         params.put("quotes",quotes);
         Map<String,Object> inquiryMap=this.inquiryService.selectInqInfoByCondition(params);
+
         //获取报价询单商品油气数据
         params=ParamsUtils.getCurrentParams(params);
         Map<String,Object> proIsOilMap=inquirySKUService.selectIsOilInfoByCondition(params);
