@@ -132,10 +132,9 @@ public interface InquiryCountService {
 	List<Map<String,Object>> selectRejectCount(Date startTime, Date endTime);
 	/**
 	 * 获取退回询单数
-	 * @param startTime
-	 * @param endTime
+	 * @param params
 	 */
-	int selectInqRtnCountByTime(Date startTime, Date endTime);
+	int selectInqRtnCountByTime(Map<String,Object> params);
 	/**
 	 * 查询询单、交易的人数和单数
 	 * @param params

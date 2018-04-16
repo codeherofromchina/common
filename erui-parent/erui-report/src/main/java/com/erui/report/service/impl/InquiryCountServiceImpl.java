@@ -1011,17 +1011,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public int selectInqRtnCountByTime(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        criteria.andReturnCountGreaterThanOrEqualTo(1);
-        return readMapper.selectInqRtnCountByTime(example);
+    public int selectInqRtnCountByTime(Map<String,Object> params) {
+        return readMapper.selectInqRtnCountByTime(params);
     }
 
     @Override

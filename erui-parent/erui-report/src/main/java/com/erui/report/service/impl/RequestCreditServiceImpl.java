@@ -535,18 +535,21 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     public Map<String, Object> selectAgingSummary(Map<String, String> map) {
         String company = map.get("company");
         String org = map.get("org");
-
-        if (company.equals("others")) {
-            map.put("company", null);
-            map.put("removeCompany1", "易瑞");
-            map.put("removeCompany2", "易瑞国际");
-            map.put("removeCompany3", "易瑞国际电子商务有限公司");
+        if(StringUtils.isNotEmpty(company)) {
+            if (company.equals("others")) {
+                map.put("company", null);
+                map.put("removeCompany1", "易瑞");
+                map.put("removeCompany2", "易瑞国际");
+                map.put("removeCompany3", "易瑞国际电子商务有限公司");
+            }
         }
-        if (org.equals("others")) {
-            map.put("org", null);
-            map.put("removeOrg1", "易瑞");
-            map.put("removeOrg2", "易瑞国际");
-            map.put("removeOrg3", "易瑞国际电子商务有限公司");
+        if(StringUtils.isNotEmpty(org)) {
+            if (org.equals("others")) {
+                map.put("org", null);
+                map.put("removeOrg1", "易瑞");
+                map.put("removeOrg2", "易瑞国际");
+                map.put("removeOrg3", "易瑞国际电子商务有限公司");
+            }
         }
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = readMapper.selectAgingSummary(map);

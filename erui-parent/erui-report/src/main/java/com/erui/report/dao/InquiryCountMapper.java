@@ -130,10 +130,10 @@ public interface InquiryCountMapper {
     List<Map<String, Object>> selectRejectCount(InquiryCountExample example);
     /**
      * 退回询单数量
-     * @param example
+     * @param params
      * @return
      */
-    int selectInqRtnCountByTime(InquiryCountExample example);
+    int selectInqRtnCountByTime(Map<String, Object> params);
 
     /**
      * 查询询单、交易的人数和单数

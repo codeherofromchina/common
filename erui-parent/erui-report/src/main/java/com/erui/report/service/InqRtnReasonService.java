@@ -6,9 +6,9 @@ import java.util.Map;
 
 public interface InqRtnReasonService {
     /*
-    * 查询退回原因明细
+    * 查询各退回原因 的退回次数 和 询单数
     * */
-    List<Map<String,Object>>   selectCountGroupByRtnSeason(Date startTime,Date endTime,Object area,Object org);
+    List<Map<String,Object>>   selectCountGroupByRtnSeason(Map<String,Object> params);
     /*
     * 查询各地区的退回原因明细
     * */

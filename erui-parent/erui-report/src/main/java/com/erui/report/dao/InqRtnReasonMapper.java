@@ -35,7 +35,7 @@ public interface InqRtnReasonMapper {
     /*
      * 查询退回原因明细
      * */
-    List<Map<String, Object>> selectCountGroupByRtnSeason(InqRtnReasonExample example);
+    List<Map<String, Object>> selectCountGroupByRtnSeason(Map<String,Object> params);
     /*
      * 查询各地区的退回原因明细
      * */

@@ -71,17 +71,20 @@
   <sql id="Base_Column_List" >
     id, quotation_num, rollin_time, inquiry_unit, inquiry_area, organization, return_season
   </sql>
-  <select id="selectCountGroupByRtnSeason" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
+
+  <!--查询各退回原因的退回次数和询单数-->
+  <select id="selectCountGroupByRtnSeason" resultType="java.util.Map" parameterType="java.util.Map" >
     select
-    COUNT(1) AS total,COUNT(DISTINCT(quotation_num)) AS inqCount, return_season  AS reason
+    COUNT(1) AS total,
+    COUNT(DISTINCT(quotation_num)) AS inqCount,
+    (CASE WHEN return_season IS NULL OR return_season='' THEN "其他" ELSE return_season END ) AS reason
     from erui_rfq.v_inq_rtn_reason
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP BY return_season HAVING return_season IS  NOT  NULL
+    GROUP BY return_season
   </select>
   <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
