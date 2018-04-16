@@ -280,7 +280,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             map.put("projectNos", purch.getPurchNo());  //采购合同号
             map.put("purchaseNames", purchaseNames);
             map.put("inspectApplyNo", inspectApplyNo);
-            sendSms(map);
+           /* sendSms(map);*/
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -416,7 +416,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             pushDataToInspectReport(dbInspectApply);
 
             //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-            disposeSmsDate(dbInspectApply,inspectApply);
+           /* disposeSmsDate(dbInspectApply,inspectApply);*/
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -530,7 +530,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         pushDataToInspectReport(newInspectApply);
 
         //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-        disposeSmsDate(newInspectApply,inspectApply);
+       /* disposeSmsDate(newInspectApply,inspectApply);*/
 
         return true;
     }
@@ -714,7 +714,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             map.put("inspectApplyNo",inspectApplyNo);
         }*/
         map.put("inspectApplyNo",inspectApplyNo1);
-        sendSms(map);
+       /* sendSms(map);*/
     }
 
 

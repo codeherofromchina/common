@@ -368,7 +368,6 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
 
 
-
     /**
      *  V2.0订单列表增加确认收货按钮：
      *  2、所有出口发货通知单中的商品全部出库并在物流跟踪管理中“跟踪状态”为“执行中”。
@@ -386,12 +385,12 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         // 出口通知单 查询信息
         List<DeliverDetail> companyList = deliverDetailDao.findAll(new Specification<DeliverDetail>() {
             @Override
-            public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<DeliverDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {    //根据订单id查询出库信息
                 List<Predicate> list = new ArrayList<>();
 
                 //订单id查询
-                Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");
-                Join<DeliverConsign, Order> order = deliverConsign.join("order");
+                Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");   //关联出口发货通知单
+                Join<DeliverConsign, Order> order = deliverConsign.join("order");   //关联订单
                 list.add(cb.equal(order.get("id").as(Integer.class), orderId)); //订单id
 
                 Predicate[] predicates = new Predicate[list.size()];

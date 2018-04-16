@@ -231,11 +231,11 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             map.put("deliverConsignNo",one.getDeliverConsignNo());  //出口通知单号
             map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
             map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
-            try {
+           /* try {
                 sendSms(map);
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
 
         }
         return true;
@@ -351,11 +351,11 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     map.put("deliverConsignNo",one.getDeliverConsigns().get(0).getDeliverConsignNo());  //出口通知单号
                     map.put("deliverDetailNo",deliverDetail.getDeliverDetailNo());  //产品放行单号
                     map.put("logisticsName",project.getLogisticsName());  //国际物流经办人名字
-                    try {
+                  /*  try {
                         sendSms(map);
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
                 }
 

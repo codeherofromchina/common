@@ -364,8 +364,8 @@ public class InspectReportServiceImpl implements InspectReportService {
         // 提交动作 则设置第一次质检，和相应的报检信息
         if (statusEnum == InspectReport.StatusEnum.DONE) {
 
-            //质检结果通知：质检人员将不合格商品通知采购经办人
-            disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);
+            //入库质检结果通知：质检人员将不合格商品通知采购经办人
+            /*disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);*/
 
 
             dbInspectReport.setProcess(false);

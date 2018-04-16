@@ -227,12 +227,15 @@ public class IogisticsDataController {
     }
 
 
+    /*
+
+    确认收货按钮  测试用（避免出问题）
     @RequestMapping(value = "/aaa", method = RequestMethod.POST)
     public Result<Object> a(@RequestBody IogisticsData iogisticsData) {
         Boolean statusAndNumber = iogisticsDataService.findStatusAndNumber(iogisticsData.getId());
         return new Result<>(statusAndNumber);
 
-    }
+    }*/
 
 
 }

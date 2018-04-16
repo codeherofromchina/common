@@ -309,7 +309,8 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("CRM返回信息：" + s);
             }
 
-            sendSms(order);
+            //销售订单通知：销售订单下达后通知商务技术经办人
+           /* sendSms(order);*/
         }
         return order.getId();
     }
@@ -464,7 +465,8 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
 
-            sendSms(order);
+           // 销售订单通知：销售订单下达后通知商务技术经办人
+         /*   sendSms(order);*/
 
         }
         return order1.getId();
@@ -570,7 +572,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-    //订单下达后通知商务技术经办人
+    //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws  Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();

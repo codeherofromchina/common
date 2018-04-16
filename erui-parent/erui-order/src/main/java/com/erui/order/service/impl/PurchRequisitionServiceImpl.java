@@ -103,13 +103,13 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             project1.setProjectNo(purchRequisition1.getProjectNo());
             projectDao.save(project1);
-
+/*
             try {
-                //采购申请通知：采购申请单下达后通知采购经办人
-                sendSms(project1);
+                //TODO 采购申请通知：采购申请单下达后通知采购经办人
+              sendSms(project1);
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
 
         }
         return true;
@@ -168,13 +168,13 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             projectDao.save(project1);
 
-            try {
-                //采购申请通知：采购申请单下达后通知采购经办人
+         /*   try {
+                // TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+*/
         }
         return true;
     }

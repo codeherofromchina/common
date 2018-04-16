@@ -21,5 +21,5 @@ public interface IogisticsDataService {
 
     void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData);
 
-    Boolean findStatusAndNumber(Integer orderId);
+   Boolean findStatusAndNumber(Integer orderId);
 }

@@ -585,7 +585,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         Project project = null; //项目信息
 
-        //出库通知：通知质检经办人办理质检质检经办人
+        //出库通知：通知质检经办人办理质检
         if(status == 2){
 
             if(outboundNums != 0 ){ //出库总数量不等于0  才发送信息
@@ -601,7 +601,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
                 map.put("status",2);        //发送短信标识
 
-                sendSms(map);
+               /* sendSms(map);*/
             }
         }
 
@@ -672,7 +672,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
             map.put("wareHousemanName",one.getWareHousemanName());        //仓储经办人名字
             map.put("status",5);        //发送短信标识
-            sendSms(map);
+          /*  sendSms(map);*/
 
 
             //V2.0  推送信息到物流表
@@ -1166,7 +1166,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             map.put("projectNo", project.getProjectNo());        //项目号
             map.put("deliverDetailNo",dbDeliverDetail.getDeliverDetailNo());        //产品放行单号
             map.put("status",4);        //发送短信标识
-            sendSms(map);
+          /*  sendSms(map);*/
 
 
         }
@@ -1206,18 +1206,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
     /**
-     *  订单列表增加确认收货按钮：
+     * V1.0 订单列表增加确认收货按钮：
      *  2、所有出口发货通知单中的商品全部出库并在物流跟踪管理中“跟踪状态”为“执行中”。
      *
      * @param
      * @return
      */
+/**
     @Transactional(readOnly = true)
     @Override
     public Boolean findStatusAndNumber(Integer orderId) {
-        /**
-         * 判断出库状态
-         */
             // 看货通知单 查询信息
             List<DeliverNotice> companyList = deliverNoticeDao.findAll(new Specification<DeliverNotice>() {
                 @Override
@@ -1252,7 +1250,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         return true;
     }
-
+ */
     //出库通知
     public void sendSms(Map<String,Object> map1) throws  Exception {
 
@@ -1332,6 +1330,5 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         }
     }
-
 
 }
