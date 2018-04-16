@@ -193,85 +193,11 @@ public class CustomCentreController {
         return new Result<>().setData(datas);
     }
 
+
     // 询单分析
     @ResponseBody
     @RequestMapping(value = "/inquiryDetail", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object inquiryDetail(@RequestBody(required = true) Map<String, String> params) {
-        // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-        if (startDate == null || endDate == null || startDate.after(endDate)) {
-            return new Result<>(ResultStatusEnum.FAIL);
-        }
-//        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]
-        int quotedCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()},
-                0, 0, "", "");//已完成询单数量
-        int quotingCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_NO.getQuotedStatus(), QuotedStatusEnum.STATUS_QUOTED_ING.getQuotedStatus()},
-                0, 0, "", "");//报价中询单数量
-        int cancelCount = inquiryService.inquiryCountByTime(startDate, endDate,
-                new String[]{QuotedStatusEnum.STATUS_QUOTED_CANCEL.getQuotedStatus()},
-                0, 0, "", "");//询单取消数量
-        Map<String,Object> map=new HashMap<>();
-        map.put("startTime",startDate);
-        map.put("endTime",endDate);
-        int rtnCount = inquiryService.selectInqRtnCountByTime(map);//询单退回数量
-        int totalCount = quotedCount + quotingCount + cancelCount;
-        Double quotedInquiryRate = null;
-        Double quotingInquiryRate = null;
-        Double cancelInquiryRate = null;
-        if (totalCount > 0) {
-            quotedInquiryRate = RateUtil.intChainRate(quotedCount, totalCount);
-            quotingInquiryRate = RateUtil.intChainRate(quotingCount, totalCount);
-            cancelInquiryRate = RateUtil.intChainRate(cancelCount, totalCount);
-        }
-
-        //获取询单退回原因分析数据
-        List<Map<String, Object>> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(map);
-        List<Map<String, Object>> tableData = getRtnTable(dataList);
-
-        //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
-        int totalRtnCount = 0;
-        Double avgRtnCount = 0d;
-        Double rtnInqProportion = 0d;
-        if (CollectionUtils.isNotEmpty(dataList)) {
-            for (Map<String, Object> m : dataList) {
-                if (m.get("total") != null) {
-                    totalRtnCount += Integer.parseInt(m.get("total").toString());//退回次数
-                }
-            }
-        }
-        if (rtnCount > 0) {
-            avgRtnCount = RateUtil.intChainRateTwo(totalRtnCount, rtnCount);
-        }
-        if (totalCount > 0) {
-            rtnInqProportion = RateUtil.intChainRate(rtnCount, totalCount);
-        }
-        Map<String, Object> rtnSummary = new HashMap<>();
-        rtnSummary.put("totalRtnInqCount", rtnCount);
-        rtnSummary.put("totalRtnCount", totalRtnCount);
-        rtnSummary.put("avgRtnCount", avgRtnCount);
-        rtnSummary.put("rtnInqProportion", rtnInqProportion);
-        //组装数据
-        HashMap<String, Object> data = new HashMap<>();
-        HashMap<String, Object> inquiryDetailMap = new HashMap<>();
-        inquiryDetailMap.put("quotedCount", quotedCount);
-        inquiryDetailMap.put("quotingCount", quotingCount);
-        inquiryDetailMap.put("cancelCount", cancelCount);
-        inquiryDetailMap.put("quotedInquiryRate", quotedInquiryRate);
-        inquiryDetailMap.put("quotingInquiryRate", quotingInquiryRate);
-        inquiryDetailMap.put("cancelInquiryRate", cancelInquiryRate);
-        data.put("quoteSummary", inquiryDetailMap);
-        data.put("rtnTable", tableData);
-        data.put("rtnSummary", rtnSummary);
-        return new Result<>(data);
-    }
-
-    // 询单分析
-    @ResponseBody
-    @RequestMapping(value = "/inquiryDetail2", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object inquiryDetail2(@RequestBody(required = true) Map<String, Object> params) {
+    public Object inquiryDetail(@RequestBody(required = true) Map<String, Object> params) {
         //验证请求参数
         params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR2, null);
         if(params==null){
@@ -301,9 +227,9 @@ public class CustomCentreController {
         int quotingCount=Integer.parseInt(String.valueOf(quotingMap.get("count")));
         int cancelCount=Integer.parseInt(String.valueOf(cancelMap.get("count")));
         int totalCount = quotedCount + quotingCount + cancelCount;
-        Double quotedInquiryRate = null;
-        Double quotingInquiryRate = null;
-        Double cancelInquiryRate = null;
+        Double quotedInquiryRate = 0d;
+        Double quotingInquiryRate = 0d;
+        Double cancelInquiryRate = 0d;
         if (totalCount > 0) {
             quotedInquiryRate = RateUtil.intChainRate(quotedCount, totalCount);
             quotingInquiryRate = RateUtil.intChainRate(quotingCount, totalCount);
@@ -329,17 +255,14 @@ public class CustomCentreController {
         List<Map<String, Object>> tableData = getRtnTable(dataList);
 
         //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
-        int totalRtnCount = 0;
+
+        Integer totalRtnCount = dataList.stream().map(m -> {
+            Integer total = Integer.valueOf(m.get("total").toString());
+            return total;
+        }).reduce(0, (a, b) -> a + b);
         Double avgRtnCount = 0d;
         Double rtnInqProportion = 0d;
-        if (CollectionUtils.isNotEmpty(dataList)) {
-            for (Map<String, Object> m : dataList) {
-                if (m.get("total") != null) {
-                    totalRtnCount += Integer.parseInt(m.get("total").toString());//退回次数
-                }
-            }
-        }
-        if (rtnCount > 0) {
+        if (rtnCount > 0 &&totalRtnCount!=null) {
             avgRtnCount = RateUtil.intChainRateTwo(totalRtnCount, rtnCount);
         }
         if (totalCount > 0) {
