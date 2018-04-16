@@ -93,4 +93,18 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
     @Query(value = "select order_id,sum(money),min(payment_date) from order_account where del_yn=1 and order_id in :orderIds group by order_id",nativeQuery = true)
     List<Object> findOrderAccount(@Param("orderIds") List<Integer> orderIds);
+
+    /**
+     * 查询国家的中英文对应
+     * @return
+     */
+    @Query(value = "SELECT bn,`name` FROM erui_dict.country where lang = 'zh'",nativeQuery = true)
+    List<Object> findBnMapZhCountry();
+
+    /**
+     * 查询地区的中英文对应
+     * @return
+     */
+    @Query(value = "SELECT bn,`name` FROM erui_operation.market_area where lang = 'zh'",nativeQuery = true)
+    List<Object> findBnMapZhRegion();
 }

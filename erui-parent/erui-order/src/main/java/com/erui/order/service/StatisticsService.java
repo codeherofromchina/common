@@ -42,4 +42,16 @@ public interface StatisticsService {
      * @return
      */
     List<GoodsBookDetail> goodsBookDetail(Integer orderId) throws Exception;
+
+    /**
+     * 通过编码获取中文国家的映射
+     * @return
+     */
+    Map<String,String> findBnMapZhCountry();
+
+    /**
+     * 通过编码获取中文地区的映射
+     * @return
+     */
+    Map<String,String> findBnMapZhRegion();
 }

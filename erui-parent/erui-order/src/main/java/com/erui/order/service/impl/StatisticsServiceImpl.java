@@ -107,6 +107,9 @@ public class StatisticsServiceImpl implements StatisticsService {
             numbers[1] = (BigDecimal) rpp[3];
             return numbers;
         }));
+        // 查询中文地区和国家
+        Map<String,String> bnMapZhCountry = this.findBnMapZhCountry();
+        Map<String,String> bnMapZhRegion = this.findBnMapZhRegion();
         // 整合到基本统计中
         for (Iterator<SaleStatistics> iterator = list.iterator(); iterator.hasNext(); ) {
             SaleStatistics saleStatistics = iterator.next();
@@ -124,6 +127,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             String region = saleStatistics.getRegion();
             String country = saleStatistics.getCountry();
             String key = StringUtils.defaultIfBlank(region, "") + "&" + StringUtils.defaultIfBlank(country, "");
+            saleStatistics.setRegionZh(bnMapZhRegion.get(region));
+            saleStatistics.setCountryZh(bnMapZhCountry.get(country));
 
             Number[] rePurchRateNum = rePurchRateMap.get(key);
             if (rePurchRateNum != null) {
@@ -147,7 +152,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum,int pageSize) {
+    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");
         if (pageNum <= 0) {
             pageNum = 1;
@@ -156,7 +161,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             pageSize = 50;
         }
         // 查询sku的订单统计信息
-        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum,pageSize);
+        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum, pageSize);
         LOGGER.info("查询商品统计的询单信息");
         // 查询sku的询单统计信息
         Date handleAfterSdate = condition.getStartDate();
@@ -179,11 +184,18 @@ public class StatisticsServiceImpl implements StatisticsService {
                     StringUtils.defaultString((String) objArr[2], "");
             inquiryMap.put(key, objArr);
         }
+        // 查询中文地区和国家
+        Map<String,String> bnMapZhCountry = this.findBnMapZhCountry();
+        Map<String,String> bnMapZhRegion = this.findBnMapZhRegion();
         // 合并询单和订单统计信息
         for (GoodsStatistics goodsStatistics1 : goodsStatisticsList) {
+            String region = goodsStatistics1.getRegion();
+            String country = goodsStatistics1.getCountry();
+            goodsStatistics1.setRegionZh(bnMapZhRegion.get(region));
+            goodsStatistics1.setCountryZh(bnMapZhCountry.get(country));
             String key = StringUtils.defaultString(goodsStatistics1.getSku(), "") + "&" +
-                    StringUtils.defaultString(goodsStatistics1.getRegion(), "") + "&" +
-                    StringUtils.defaultString(goodsStatistics1.getCountry(), "");
+                    StringUtils.defaultString(region, "") + "&" +
+                    StringUtils.defaultString(country, "");
             if (inquiryMap.containsKey(key)) {
                 Object[] objects = inquiryMap.get(key);
                 goodsStatistics1.setQuotationNum(((BigInteger) objects[3]).longValue());
@@ -202,7 +214,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum,int pageSize) {
+    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum, int pageSize) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
         Root<Goods> root = query.from(Goods.class);
@@ -334,15 +346,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                 String startDateStr = condition.get("startDate");
                 String endDateStr = condition.get("endDate");
                 if (StringUtils.isNotBlank(startDateStr)) {
-                    Date startDate = DateUtil.parseString2DateNoException(startDateStr,"yyyy-MM-dd");
+                    Date startDate = DateUtil.parseString2DateNoException(startDateStr, "yyyy-MM-dd");
                     if (startDate != null) {
                         list.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startDate));
                     }
                 }
                 if (StringUtils.isNotBlank(endDateStr)) {
-                    Date endDate = DateUtil.parseString2DateNoException(endDateStr,"yyyy-MM-dd");
+                    Date endDate = DateUtil.parseString2DateNoException(endDateStr, "yyyy-MM-dd");
                     if (endDate != null) {
-                        endDate =  NewDateUtil.plusDays(endDate,1);
+                        endDate = NewDateUtil.plusDays(endDate, 1);
                         list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
                     }
                 }
@@ -418,10 +430,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         List<ProjectStatistics> dataList = new ArrayList<>();
         List<Integer> orderIds = new ArrayList<>();
+        // 查询地区的中英文对应列表
+        Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
         for (Project project : pageList) {
             Order order = project.getOrder();
             if (order != null) {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
+                projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
                 orderIds.add(order.getId());
                 dataList.add(projectStatistics);
             }
@@ -709,6 +724,43 @@ public class StatisticsServiceImpl implements StatisticsService {
                 innerList.remove(0);
             }
             result.addAll(innerList);
+        }
+        return result;
+    }
+
+
+    @Override
+    public Map<String, String> findBnMapZhCountry() {
+        Map<String, String> result = null;
+        List<Object> countrys = statisticsDao.findBnMapZhCountry();
+        if (countrys != null && countrys.size() > 0) {
+            result = countrys.parallelStream().collect(Collectors.toMap(vo -> {
+                String[] strArr = (String[]) vo;
+                return strArr[0];
+            }, vo -> {
+                String[] strArr = (String[]) vo;
+                return strArr[1];
+            }));
+        } else {
+            result = new HashMap<>();
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, String> findBnMapZhRegion() {
+        Map<String, String> result = null;
+        List<Object> countrys = statisticsDao.findBnMapZhRegion();
+        if (countrys != null && countrys.size() > 0) {
+            result = countrys.parallelStream().collect(Collectors.toMap(vo -> {
+                String[] strArr = (String[]) vo;
+                return strArr[0];
+            }, vo -> {
+                String[] strArr = (String[]) vo;
+                return strArr[1];
+            }));
+        } else {
+            result = new HashMap<>();
         }
         return result;
     }

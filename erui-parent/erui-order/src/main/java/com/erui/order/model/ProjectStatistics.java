@@ -69,12 +69,13 @@ public class ProjectStatistics {
     private String poNo;
     //执行分公司
     private String execCoName;
-    //分销部
+    //分销部 / 分销部(获取人所在分类销售)
     private String distributionDeptName;
     //事业部
     private String businessUnitName;
     //所属地区
     private String region;
+    private String regionZh;
     //CRM客户代码
     private String crmCode;
     //客户类型
@@ -82,7 +83,6 @@ public class ProjectStatistics {
     //订单类型
     private Integer orderType;
     //海外销类型 TODO
-
     //项目金额（美元）
     private BigDecimal totalPrice;
     // 前期报价（美元）  TODO
@@ -105,8 +105,6 @@ public class ProjectStatistics {
     //执行单变更后日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date exeChgDate;
-    //分销部(获取人所在分类销售)   TODO 待完善
-
     //市场经办人
     private String agentName;
     //获取人
@@ -119,7 +117,7 @@ public class ProjectStatistics {
     // 物流延期时间（天）   TODO 待完善
     //项目状态
     private String projectStatus;
-    //流程进度 TODO 待完善
+    //流程进度
     private String processProgress;
     // 原因类型  TODO
     // 原因描述  TODO
@@ -275,6 +273,14 @@ public class ProjectStatistics {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public String getRegionZh() {
+        return regionZh;
+    }
+
+    public void setRegionZh(String regionZh) {
+        this.regionZh = regionZh;
     }
 
     public String getCrmCode() {
