@@ -41,7 +41,7 @@ public class AddOrderVo {
     private Date signingDate;
 
     //合同签订日期
-    private Date deliveryDate;
+    private String deliveryDate;
 
     //签约主体公司
     private String signingCo;
@@ -71,9 +71,6 @@ public class AddOrderVo {
 
     //事业部
     private Integer businessUnitId;
-
-    //商务技术经办人
-    private Integer technicalId;
     /* //商务技术经办人部门
      private String technicalIdDept;*/
     //授信类型
@@ -137,9 +134,6 @@ public class AddOrderVo {
     private Date createTime;
 
     //创建人
-
-
-
     //private Integer createUserId;
 
     //修改时间
@@ -166,6 +160,14 @@ public class AddOrderVo {
     private String createUserName;
     private Integer buyerId;
     private Integer inquiryId;
+    //合同总价（美元）
+    private BigDecimal totalPriceUsd;
+    //利率
+    private BigDecimal exchangeRate;
+    //项目号
+    private String projectNo;
+    //商务技术
+    private Integer technicalId;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -173,6 +175,31 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public BigDecimal getTotalPriceUsd() {
+        return totalPriceUsd;
+    }
+
+    public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
+        this.totalPriceUsd = totalPriceUsd;
+    }
+
+    public BigDecimal getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(BigDecimal exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
 
     public Integer getBuyerId() {
         return buyerId;
@@ -312,11 +339,11 @@ public class AddOrderVo {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
@@ -630,7 +657,8 @@ public class AddOrderVo {
         order.setOrderType(this.orderType);
         order.setOrderSource(this.orderSource);
         order.setSigningDate(this.signingDate);
-        order.setDeliveryDate(DateUtil.formatDate2String(this.deliveryDate,"yyyy-MM-dd"));
+//        order.setDeliveryDate(DateUtil.formatDate2String(this.deliveryDate,"yyyy-MM-dd"));
+        order.setDeliveryDate(this.deliveryDate);
         order.setSigningCo(this.signingCo);
         order.setAgentId(this.agentId);
         order.setAgentName(this.agentName);
@@ -657,6 +685,8 @@ public class AddOrderVo {
         order.setToPlace(this.toPlace);
         order.setToPort(this.toPort);
         order.setTotalPrice(this.totalPrice);
+        order.setTotalPriceUsd(this.totalPriceUsd);
+        order.setExchangeRate(this.exchangeRate);
         order.setCurrencyBn(this.currencyBn);
         order.setTaxBearing(this.taxBearing);
         order.setPaymentModeBn(this.paymentModeBn);

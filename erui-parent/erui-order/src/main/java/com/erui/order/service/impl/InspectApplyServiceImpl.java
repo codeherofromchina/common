@@ -10,14 +10,15 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectApplyService;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,9 @@ import java.util.stream.Collectors;
 public class InspectApplyServiceImpl implements InspectApplyService {
 
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     private InspectApplyDao inspectApplyDao;
@@ -48,7 +52,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportDao inspectReportDao;
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
-
+    private OrderDao orderDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -161,6 +165,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     goods.setInspectDate(inspectApply.getInspectDate());
                 }
                 goodsDao.save(goods);
+                //已报检
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),4));
             }
             // 设置预报检商品数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum);
@@ -180,9 +186,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             pushDataToInspectReport(inspectApply);
-
             //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-
             /*Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多*/
             Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
             Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
@@ -312,6 +316,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     goods.setInspectDate(dbInspectApply.getInspectDate());
                 }
                 goodsDao.save(goods);
+                //已报检
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),4));
             }
             // 更新预报检数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum - oldInspectNum);
@@ -534,6 +540,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             InspectApplyGoods iag = new InspectApplyGoods();
             iag.setId(vo.getId());
             inspectApplyGoodsList.add(iag);
+            Goods goods = vo.getGoods();
+            //质检中
+            applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),5));
         });
         report.setInspectGoodsList(inspectApplyGoodsList);
         // 保存推送的质检信息并等待人工质检

@@ -447,7 +447,6 @@ public class InspectReportServiceImpl implements InspectReportService {
         return true;
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public List<InspectReport> history(Integer id) {

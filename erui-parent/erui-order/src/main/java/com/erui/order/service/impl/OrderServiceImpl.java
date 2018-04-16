@@ -16,6 +16,8 @@ import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
+import com.erui.order.event.MyEvent;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
@@ -27,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -51,6 +54,8 @@ public class OrderServiceImpl implements OrderService {
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired
     private OrderDao orderDao;
     @Autowired
     OrderLogDao orderLogDao;
@@ -69,9 +74,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
-
-
-
 
     @Override
     @Transactional(readOnly = true)
@@ -108,8 +110,8 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 }
                 //根据合同交货日期查询
-                if (condition.getDeliveryDate() != null) {
-                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
@@ -134,12 +136,28 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getOrderSource())) {
                     list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
                 }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //商务技术经办人
+                if (condition.getTechnicalId() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
+                }
                 //根据区域所在国家查询
-                String[] country = null;
+                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-                if (condition.getType() == 1) {
+               if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
                         list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
@@ -267,6 +285,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
+            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate,1));
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -276,13 +295,16 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setRegion(orderUpdate.getRegion());
             projectAdd.setCountry(orderUpdate.getCountry());
+            projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
-            projectAdd.setBusinessName(orderUpdate.getBusinessName());   //商务技术经办人名称
+            projectAdd.setBusinessName(orderUpdate.getBusinessName());
+            projectAdd.setProcessProgress("1");
+            //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -419,6 +441,8 @@ public class OrderServiceImpl implements OrderService {
             signingDate = order1.getSigningDate();
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            //添加订单未执行事件
+            applicationContext.publishEvent(new OrderProgressEvent(order1,1));
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
@@ -433,10 +457,12 @@ public class OrderServiceImpl implements OrderService {
             project.setCountry(order1.getCountry());
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
+            project.setTotalPriceUsd(order1.getTotalPriceUsd());
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
+            project.setProcessProgress("未执行");
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();

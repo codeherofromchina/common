@@ -7,6 +7,8 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
+import com.erui.order.event.MyEvent;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InstockService;
 import javassist.expr.NewArray;
@@ -14,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +37,8 @@ import java.util.stream.Collectors;
 @Service
 public class InstockServiceImpl implements InstockService {
     private static Logger logger = LoggerFactory.getLogger(InstockServiceImpl.class);
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private InstockDao instockDao;
     @Autowired
@@ -217,15 +221,12 @@ public class InstockServiceImpl implements InstockService {
                 one.setInstockDate(dbInstock.getInstockDate()); //入库日期
                 one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
                 goodsDao.saveAndFlush(one);
+                applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(),6));
             }
         }
-
-
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
         dbInstock.setAttachmentList(attachments);
-
-
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {

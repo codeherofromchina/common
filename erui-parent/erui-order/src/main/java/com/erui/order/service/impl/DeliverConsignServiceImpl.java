@@ -1,10 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.DeliverConsignDao;
-import com.erui.order.dao.DeliverNoticeDao;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.OrderDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
@@ -43,7 +40,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
-
+    @Autowired
+    ProjectDao projectDao;
     @Override
     @Transactional(readOnly = true)
     public DeliverConsign findById(Integer id) {
@@ -164,6 +162,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign.getStatus() == 3) {
+            Project project = order.getProject();
+            order.setDeliverConsignHas(2);
+            project.setDeliverConsignHas(2);
+            orderDao.save(order);
+            projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);
         }
         return true;
