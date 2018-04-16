@@ -83,16 +83,18 @@ public class StatisticsController {
         goodsStatistics.setEndDate(DateUtil.str2Date(params.get("endDate")));
 
         int pageNum = 1;
-        String pageNumStr = params.get("pageNum");
+        int pageSize = 50;
+        String pageNumStr = params.get("page");
+        String pageSizeStr = params.get("rows");
         if (StringUtils.isNumeric(pageNumStr)) {
             pageNum = Integer.parseInt(pageNumStr);
         }
-        if (pageNum < 1) {
-            pageNum = 1;
+        if (StringUtils.isNumeric(pageSizeStr)) {
+            pageSize = Integer.parseInt(pageSizeStr);
         }
 
         // 获取统计数据
-        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,pageNum);
+        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,pageNum,pageSize);
         return new Result<>(data);
     }
 

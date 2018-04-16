@@ -45,7 +45,7 @@ public class ProjectStatistics {
         this.businessName = order.getBusinessName();
         this.tradeTerms = order.getTradeTerms();
         this.projectStatus = project.getProjectStatus();
-
+        this.processProgress = project.getProcessProgress();
     }
 
     //订单ID

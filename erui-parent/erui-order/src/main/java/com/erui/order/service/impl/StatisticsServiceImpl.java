@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 public class StatisticsServiceImpl implements StatisticsService {
     private final static Logger LOGGER = LoggerFactory.getLogger(StatisticsServiceImpl.class);
     private static final String STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY = "STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY";
-    private static final int PAGESIZE = 25;
     @Autowired
     private EntityManager entityManager;
 
@@ -148,13 +147,16 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum) {
+    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum,int pageSize) {
         LOGGER.info("查询商品统计基本信息");
         if (pageNum <= 0) {
             pageNum = 1;
         }
+        if (pageSize < 0) {
+            pageSize = 50;
+        }
         // 查询sku的订单统计信息
-        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum);
+        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum,pageSize);
         LOGGER.info("查询商品统计的询单信息");
         // 查询sku的询单统计信息
         Date handleAfterSdate = condition.getStartDate();
@@ -167,6 +169,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
         // 对最后日期时间+1天处理
         handleAfterEdate = NewDateUtil.plusDays(handleAfterEdate, 1);
+        // 询单信息的统计
         List<Object> inquiry = statisticsDao.inquiryStatisGroupBySku(handleAfterSdate, handleAfterEdate);
         Map<String, Object[]> inquiryMap = new HashMap<>();
         for (int i = 0; i < inquiry.size(); i++) {
@@ -199,7 +202,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum) {
+    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum,int pageSize) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
         Root<Goods> root = query.from(Goods.class);
@@ -257,7 +260,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         query.groupBy(skuPath, proTypePath, nameEnPath, nameZhPath, brandPath, regionPath, countryPath);
         TypedQuery<Tuple> q = entityManager.createQuery(query);
 
-        int firstResult = (pageNum - 1) * PAGESIZE;
+        int firstResult = (pageNum - 1) * pageSize;
         List<Tuple> tupleList = null;
         Integer totalEles = totalEles = ShardedJedisUtil.getInteger(getRedisKey(goodsStatistics));
         if (totalEles != null) {
@@ -265,7 +268,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 tupleList = new ArrayList<>();
             } else {
                 q.setFirstResult(firstResult);
-                q.setMaxResults(PAGESIZE);
+                q.setMaxResults(pageSize);
                 tupleList = q.getResultList();
             }
         } else {
@@ -275,7 +278,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (firstResult > totalEles) {
                 tupleList = new ArrayList<>();
             } else {
-                int endIndex = Math.min(firstResult + PAGESIZE, list.size());
+                int endIndex = Math.min(firstResult + pageSize, list.size());
                 tupleList = list.subList(firstResult, endIndex);
             }
         }
@@ -297,7 +300,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         }
 
-        Page<GoodsStatistics> resultPage = new PageImpl<GoodsStatistics>(result, new PageRequest(pageNum - 1, PAGESIZE), totalEles);
+        Page<GoodsStatistics> resultPage = new PageImpl<GoodsStatistics>(result, new PageRequest(pageNum - 1, pageSize), totalEles);
 
         return resultPage;
     }
@@ -328,6 +331,22 @@ public class StatisticsServiceImpl implements StatisticsService {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
+                String startDateStr = condition.get("startDate");
+                String endDateStr = condition.get("endDate");
+                if (StringUtils.isNotBlank(startDateStr)) {
+                    Date startDate = DateUtil.parseString2DateNoException(startDateStr,"yyyy-MM-dd");
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startDate));
+                    }
+                }
+                if (StringUtils.isNotBlank(endDateStr)) {
+                    Date endDate = DateUtil.parseString2DateNoException(endDateStr,"yyyy-MM-dd");
+                    if (endDate != null) {
+                        endDate =  NewDateUtil.plusDays(endDate,1);
+                        list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
+                    }
+                }
+
                 // 销售合同号
                 String contractNo = condition.get("contractNo");
                 if (StringUtil.isNotBlank(contractNo)) {
@@ -386,10 +405,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                     list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
                 }
                 //流程进度
-                /*String processProgress = condition.get("processProgress");
+                String processProgress = condition.get("processProgress");
                 if (StringUtil.isNotBlank(processProgress)) {
                     list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
-                }*/
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
