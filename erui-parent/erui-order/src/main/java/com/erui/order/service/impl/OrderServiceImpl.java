@@ -500,6 +500,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockApplyNum(0);
             goods.setOutstockNum(0);
             goods.setExchanged(false);
+            goods.setOrder(order);
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
