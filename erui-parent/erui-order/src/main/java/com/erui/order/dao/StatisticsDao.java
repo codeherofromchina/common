@@ -25,9 +25,10 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
      * @return
      */
     @Query(value = "select region,country,count(nn) as total," +
-            "sum(case when nn = 2 then 1 else 0 end) as two_re_purch," +
-            "sum(case when nn = 3 then 1 else 0 end) as three_re_purch," +
-            "sum(case when t1.nn > 3 then 1 else 0 end) as more_re_purch" +
+            "sum(case when nn = 2 then 1 else 0 end) as one_re_purch," +
+            "sum(case when nn = 3 then 1 else 0 end) as two_re_purch," +
+            "sum(case when nn = 4 then 1 else 0 end) as three_re_purch," +
+            "sum(case when t1.nn > 4 then 1 else 0 end) as more_re_purch" +
             " from (select region,country,crm_code,count(crm_code) as nn from `order` where `status` >= 3 and crm_code !='' and signing_date >= :startDate and signing_date < :endDate group by crm_code,region,country ) as t1" +
             " group by region,country", nativeQuery = true)
     List<Object> rePurchRate(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
@@ -89,4 +90,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
             " from deliver_consign_goods t1,deliver_consign t2 left outer join deliver_detail t3 on t2.id = t3.deliver_consign_id " +
             "where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
     List<Object> findDeliverConsignGoods(@Param("goodsIds") List<Integer> goodsIds);
+
+    @Query(value = "select order_id,sum(money),min(payment_date) from order_account where del_yn=1 and order_id in :orderIds group by order_id",nativeQuery = true)
+    List<Object> findOrderAccount(@Param("orderIds") List<Integer> orderIds);
 }

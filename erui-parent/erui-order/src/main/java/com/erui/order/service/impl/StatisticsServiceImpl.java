@@ -90,11 +90,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             return StringUtils.defaultIfEmpty((String) rpp[0], "") + "&" + StringUtils.defaultIfEmpty((String) rpp[1], "");
         }, vo -> {
             Object[] rpp = (Object[]) vo;
-            Number[] numbers = new Number[4];
+            Number[] numbers = new Number[5];
             numbers[0] = (BigInteger) rpp[2];
             numbers[1] = (BigDecimal) rpp[3];
             numbers[2] = (BigDecimal) rpp[4];
             numbers[3] = (BigDecimal) rpp[5];
+            numbers[4] = (BigDecimal) rpp[6];
             return numbers;
         }));
         Map<String, Number[]> inquiryStatisInfoMap = inquiryStatisInfoList.parallelStream().collect(Collectors.toMap(vo -> {
@@ -128,9 +129,10 @@ public class StatisticsServiceImpl implements StatisticsService {
             Number[] rePurchRateNum = rePurchRateMap.get(key);
             if (rePurchRateNum != null) {
                 saleStatistics.setVipNum(rePurchRateNum[0].longValue());
-                saleStatistics.setTwoRePurch(rePurchRateNum[1].longValue());
-                saleStatistics.setThreeRePurch(rePurchRateNum[2].longValue());
-                saleStatistics.setMoreRePurch(rePurchRateNum[3].longValue());
+                saleStatistics.setOneRePurch(rePurchRateNum[1].longValue());
+                saleStatistics.setTwoRePurch(rePurchRateNum[2].longValue());
+                saleStatistics.setThreeRePurch(rePurchRateNum[3].longValue());
+                saleStatistics.setMoreRePurch(rePurchRateNum[4].longValue());
             }
 
             Number[] inquiryStatisInfoNum = inquiryStatisInfoMap.get(key);
@@ -167,12 +169,12 @@ public class StatisticsServiceImpl implements StatisticsService {
         handleAfterEdate = NewDateUtil.plusDays(handleAfterEdate, 1);
         List<Object> inquiry = statisticsDao.inquiryStatisGroupBySku(handleAfterSdate, handleAfterEdate);
         Map<String, Object[]> inquiryMap = new HashMap<>();
-        for (int i=0;i<inquiry.size();i++) {
+        for (int i = 0; i < inquiry.size(); i++) {
             Object[] objArr = (Object[]) inquiry.get(i);
             String key = StringUtils.defaultString((String) objArr[0], "") + "&" +
                     StringUtils.defaultString((String) objArr[1], "") + "&" +
                     StringUtils.defaultString((String) objArr[2], "");
-            inquiryMap.put(key,objArr);
+            inquiryMap.put(key, objArr);
         }
         // 合并询单和订单统计信息
         for (GoodsStatistics goodsStatistics1 : goodsStatisticsList) {
@@ -300,7 +302,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         return resultPage;
     }
 
-    @Transactional(readOnly = true)
+    // TODO 会修改order表，回头查找问题
+    @Transactional
     public Page<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
         // 整理查询条件
         int page = 0;
@@ -395,13 +398,35 @@ public class StatisticsServiceImpl implements StatisticsService {
         }, pageRequest);
 
         List<ProjectStatistics> dataList = new ArrayList<>();
+        List<Integer> orderIds = new ArrayList<>();
         for (Project project : pageList) {
             Order order = project.getOrder();
             if (order != null) {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
+                orderIds.add(order.getId());
                 dataList.add(projectStatistics);
             }
         }
+        // 查询所有订单的回款总金额信息
+        if (dataList.size() > 0) {
+            List<Object> orderAccountList = statisticsDao.findOrderAccount(orderIds);
+            Map<Integer, Object[]> orderAccountMap = orderAccountList.parallelStream().collect(Collectors.toMap(vo -> {
+                Object[] objArr = (Object[]) vo;
+                return (Integer) objArr[0];
+            }, vo -> {
+                Object[] objArr = (Object[]) vo;
+                return objArr;
+            }));
+            for (ProjectStatistics projectStatistics : dataList) {
+                Integer orderId = projectStatistics.getOrderId();
+                Object[] objArr = orderAccountMap.get(orderId);
+                if (objArr != null) {
+                    projectStatistics.setPaymentDate((Date) objArr[2]);
+                    projectStatistics.setMoney((BigDecimal) objArr[1]);
+                }
+            }
+        }
+
 
         Page<ProjectStatistics> result = new PageImpl<ProjectStatistics>(dataList, pageRequest, pageList.getTotalElements());
 
@@ -434,11 +459,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         List<Integer> goodsIds = result.parallelStream().map(vo -> vo.getGoodsId()).collect(Collectors.toList());
         // 完善采购信息
-        result = mergePurchGoodsInfo(result,statisticsDao.findPurchGoods(goodsIds));
+        result = mergePurchGoodsInfo(result, statisticsDao.findPurchGoods(goodsIds));
         // 完善报检申请信息
-        result = mergeInspectApplyGoodsInfo(result,statisticsDao.findInspectApplyGoods(goodsIds));
+        result = mergeInspectApplyGoodsInfo(result, statisticsDao.findInspectApplyGoods(goodsIds));
         // 完善出库物流信息
-        result = mergeDeliverConsignGoodsInfo(result,statisticsDao.findDeliverConsignGoods(goodsIds));
+        result = mergeDeliverConsignGoodsInfo(result, statisticsDao.findDeliverConsignGoods(goodsIds));
 
         return result;
     }

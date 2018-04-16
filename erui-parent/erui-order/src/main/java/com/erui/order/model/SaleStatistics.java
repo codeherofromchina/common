@@ -36,7 +36,7 @@ public class SaleStatistics {
     private Date startDate; //
     private Date endDate; //
 
-    private String region;// 地区（大区）
+    private String region;// 所属地区（大区）
     private String country; // 国家
 
     private long orderNum = 0; // 订单总数量
@@ -50,7 +50,7 @@ public class SaleStatistics {
 
     private long nonOilOrderNum = 0; // 非油气订单总数量
     private BigDecimal nonOilOrderAmount = BigDecimal.ZERO; // 非油气订单总金额
-    private BigDecimal nonOilOrderNumRate = BigDecimal.ZERO; // 油气订单总数量占比
+    private BigDecimal nonOilOrderNumRate = BigDecimal.ZERO; // 非油气订单总数量占比
     private BigDecimal nonOilOrderAmountRate = BigDecimal.ZERO; // 非油气订单总金额占比
     private long crmOrderNum = 0; //
     private BigDecimal crmOrderAmount = BigDecimal.ZERO;
@@ -62,6 +62,7 @@ public class SaleStatistics {
 
 
     private long vipNum = 0; // 会员总数量
+    private long oneRePurch = 0; // 1次复购率会员数量
     private long twoRePurch = 0; // 2次复购率会员数量
     private long threeRePurch = 0; // 3次复购率会员数量
     private long moreRePurch = 0; // 3次以上复购率会员数量
@@ -231,6 +232,14 @@ public class SaleStatistics {
 
     public void setVipNum(long vipNum) {
         this.vipNum = vipNum;
+    }
+
+    public long getOneRePurch() {
+        return oneRePurch;
+    }
+
+    public void setOneRePurch(long oneRePurch) {
+        this.oneRePurch = oneRePurch;
     }
 
     public long getTwoRePurch() {

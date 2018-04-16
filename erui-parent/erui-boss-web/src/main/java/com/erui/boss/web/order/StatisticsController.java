@@ -72,9 +72,27 @@ public class StatisticsController {
 
     // 商品统计信息
     @RequestMapping("/goodsStatistics")
-    public Result<Object> goodsStatistics(@RequestBody GoodsStatistics goodsStatistics) {
+    public Result<Object> goodsStatistics(@RequestBody Map<String,String> params) {
+        GoodsStatistics goodsStatistics = new GoodsStatistics();
+        goodsStatistics.setRegion(params.get("region"));
+        goodsStatistics.setCountry(params.get("country"));
+        goodsStatistics.setProType(params.get("proType"));
+        goodsStatistics.setSku(params.get("sku"));
+        goodsStatistics.setBrand(params.get("brand"));
+        goodsStatistics.setStartDate(DateUtil.str2Date(params.get("startDate")));
+        goodsStatistics.setEndDate(DateUtil.str2Date(params.get("endDate")));
+
+        int pageNum = 1;
+        String pageNumStr = params.get("pageNum");
+        if (StringUtils.isNumeric(pageNumStr)) {
+            pageNum = Integer.parseInt(pageNumStr);
+        }
+        if (pageNum < 1) {
+            pageNum = 1;
+        }
+
         // 获取统计数据
-        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,1);
+        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,pageNum);
         return new Result<>(data);
     }
 
