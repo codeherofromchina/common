@@ -27,7 +27,7 @@ public interface StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics,int pageNum);
+    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics,int pageNum,int pageSize);
 
     /**
      * 查询商品统计信息

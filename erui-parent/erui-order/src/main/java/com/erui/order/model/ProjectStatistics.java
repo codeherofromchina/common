@@ -34,6 +34,7 @@ public class ProjectStatistics {
         this.customerType = order.getCustomerType();
         this.orderType = order.getOrderType();
         this.totalPrice = order.getTotalPrice();
+        this.paymentModeBn = order.getPaymentModeBn();
         this.profitPercent = project.getProfitPercent();
         this.grantType = order.getGrantType();
         this.deliveryDate = order.getDeliveryDate();
@@ -44,14 +45,14 @@ public class ProjectStatistics {
         this.businessName = order.getBusinessName();
         this.tradeTerms = order.getTradeTerms();
         this.projectStatus = project.getProjectStatus();
-
+        this.processProgress = project.getProcessProgress();
     }
 
     //订单ID
     private Integer orderId;
     // 项目开始日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date startDate;
+    private Date startDate; // 项目开始时间
     //销售合同号
     private String contractNo;
     //询单号
@@ -80,10 +81,18 @@ public class ProjectStatistics {
     private Integer customerType;
     //订单类型
     private Integer orderType;
-    //海外销类型 TODO 待完善
+    //海外销类型 TODO
 
     //项目金额（美元）
     private BigDecimal totalPrice;
+    // 前期报价（美元）  TODO
+    // 前期物流报价（美元） TODO
+    // 收款方式
+    private String paymentModeBn;
+    // 回款时间
+    private Date paymentDate;   //回款时间
+    // 回款金额（美元）
+    private BigDecimal money;   //回款金额
     //初步利润率
     private BigDecimal profitPercent;
     //授信情况
@@ -96,8 +105,8 @@ public class ProjectStatistics {
     //执行单变更后日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date exeChgDate;
-    //分销部(获取人所在分类销售)
-    //private String distributionDeptName;
+    //分销部(获取人所在分类销售)   TODO 待完善
+
     //市场经办人
     private String agentName;
     //获取人
@@ -106,10 +115,14 @@ public class ProjectStatistics {
     private String businessName;
     //贸易术语
     private String tradeTerms;
+    // 采购延期时间（天）  TODO 待完善
+    // 物流延期时间（天）   TODO 待完善
     //项目状态
     private String projectStatus;
-    //流程进度
+    //流程进度 TODO 待完善
     private String processProgress;
+    // 原因类型  TODO
+    // 原因描述  TODO
 
 
     public Integer getOrderId() {
@@ -294,6 +307,30 @@ public class ProjectStatistics {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getPaymentModeBn() {
+        return paymentModeBn;
+    }
+
+    public void setPaymentModeBn(String paymentModeBn) {
+        this.paymentModeBn = paymentModeBn;
+    }
+
+    public Date getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(Date paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public BigDecimal getMoney() {
+        return money;
+    }
+
+    public void setMoney(BigDecimal money) {
+        this.money = money;
     }
 
     public BigDecimal getProfitPercent() {

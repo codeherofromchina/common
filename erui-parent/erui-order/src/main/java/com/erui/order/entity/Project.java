@@ -39,7 +39,7 @@ public class Project {
     @Column(name = "start_date")
     private Date startDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    //@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
