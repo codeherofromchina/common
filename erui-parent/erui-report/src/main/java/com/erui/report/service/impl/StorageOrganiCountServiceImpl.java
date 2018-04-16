@@ -84,6 +84,7 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
             }
 
             soc.setRemark(strArr[4]);
+            soc.setDocType(strArr[5]);
 
             try {
                 if (!testOnly) {
@@ -120,7 +121,11 @@ public class StorageOrganiCountServiceImpl extends BaseService<StorageOrganiCoun
         int totalCount = Integer.parseInt(totalMap.get("totalCount").toString());
         double totalAmount = Double.parseDouble(totalMap.get("totalAmount").toString());
         outEntryData.put("totalCount",totalCount);
-        outEntryData.put("totalAmount",RateUtil.doubleChainRateTwo(totalAmount,1));
+        if(totalAmount>0){
+            outEntryData.put("totalAmount",RateUtil.doubleChainRateTwo(totalAmount,1));
+        }else {
+            outEntryData.put("totalAmount",0.00);
+        }
         return outEntryData;
     }
 

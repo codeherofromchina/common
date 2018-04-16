@@ -168,5 +168,9 @@ public interface InquiryCountService {
 	 * @param params
 	 */
 	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,String> params);
-
+	/**
+	 * 查询询单、交易的人数和单数
+	 * @param org
+	 */
+	 String getStandardOrg(String org);
 }

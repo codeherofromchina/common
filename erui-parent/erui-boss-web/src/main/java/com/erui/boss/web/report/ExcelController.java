@@ -162,14 +162,14 @@ public class ExcelController {
             return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
         }
         //转成file类型
-        CommonsMultipartFile cf= (CommonsMultipartFile)file;
-        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
-        File saveFile = fi.getStoreLocation();
+//        CommonsMultipartFile cf= (CommonsMultipartFile)file;
+//        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
+//        File saveFile = fi.getStoreLocation();
 
         ExcelReader excelReader = new ExcelReader();
         try {
             // 读取excel所有的数据
-            List<String[]> excelContent = excelReader.readExcel(saveFile);
+            List<String[]> excelContent = excelReader.readExcel(file.getInputStream());
             // 判断数据和标题的正确性
             int dataRowSize = excelContent.size();
             if (dataRowSize < 1) {
@@ -246,14 +246,14 @@ public class ExcelController {
 
                 try {
                     // 删除数据导入成功的文件
-                    Integer dCode = FastDFSUtil.deleteFile("group1", fileName);
-                    if(dCode!=null&&dCode==0){
-                        logger.info("FastDFS文件删除成功");
-                    }else{
-                        logger.info("FastDFS文件删除失败");
-                    }
+//                    Integer dCode = FastDFSUtil.deleteFile("group1", fileName);
+//                    if(dCode!=null&&dCode==0){
+//                        logger.info("FastDFS文件删除成功");
+//                    }else{
+//                        logger.info("FastDFS文件删除失败");
+//                    }
                     FileUtils.forceDelete(file);
-                } catch (IOException | MyException ex) {
+                } catch (IOException  ex) {
                     logger.debug("异常:" + ex.getMessage(), ex);
                 }
             } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {

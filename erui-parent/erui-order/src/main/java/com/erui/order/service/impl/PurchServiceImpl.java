@@ -331,12 +331,12 @@ public class PurchServiceImpl implements PurchService {
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
             }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             goodsDao.save(goods);
-            applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
         }
         if (purchGoodsList.size() == 0) {
             throw new Exception("必须存在要采购的商品");
@@ -348,7 +348,6 @@ public class PurchServiceImpl implements PurchService {
         // 检查项目是否已经采购完成
         List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIds);
-
         return true;
     }
 
@@ -463,6 +462,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
@@ -563,6 +563,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {

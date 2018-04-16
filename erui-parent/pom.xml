@@ -8,6 +8,7 @@
     <artifactId>erui-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
+        <module>erui-out-web</module>
         <module>erui-boss-web</module>
         <module>erui-comm</module>
         <module>erui-power</module>

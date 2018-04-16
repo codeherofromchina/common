@@ -4,6 +4,7 @@ import com.erui.order.util.GoodsUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -644,6 +645,10 @@ public class Order {
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
+        if (totalPrice == null){
+            BigDecimal bigDecimal = new BigDecimal(0.00);
+            totalPrice = bigDecimal;
+        }
         this.totalPrice = totalPrice;
     }
 
