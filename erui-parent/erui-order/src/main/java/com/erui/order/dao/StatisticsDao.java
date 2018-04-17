@@ -40,11 +40,10 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
      *
      * @return
      */
-    @Query(value = "SELECT t1.sku,t2.area_bn,t2.country_bn,count(distinct t2.id),sum(IFNULL(t3.total_quote_price,0) * t1.qty)  " +
-            " from erui_rfq.inquiry_item t1,erui_rfq.inquiry t2,erui_rfq.final_quote_item t3 " +
-            " where t1.inquiry_id = t2.id and t1.id = t3.inquiry_item_id " +
-            " and t1.created_at >= :startDate and t1.created_at < :endDate " +
-            " group by t1.sku,t2.area_bn,t2.country_bn", nativeQuery = true)
+    @Query(value = "select t2.sku,t1.region,t1.country,count(distinct t1.id),sum(t1.total_price_usd) from `order` t1,goods t2 " +
+            " where t1.id = t2.order_id and t1.order_source = 2 and t1.`status` >= 3 " +
+            " and t2.signing_date >= :startDate and t2.signing_date < :endDate" +
+            " group by t2.sku,t1.region,t1.country", nativeQuery = true)
     List<Object> inquiryStatisGroupBySku(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
 
     /**
