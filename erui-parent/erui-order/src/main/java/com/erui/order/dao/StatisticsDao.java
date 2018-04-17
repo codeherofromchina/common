@@ -25,9 +25,9 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
      * @return
      */
     @Query(value = "select region,country,count(nn) as total," +
-            "sum(case when nn = 2 then 1 else 0 end) as one_re_purch," +
-            "sum(case when nn = 3 then 1 else 0 end) as two_re_purch," +
-            "sum(case when nn = 4 then 1 else 0 end) as three_re_purch," +
+            "sum(case when nn >= 2 then 1 else 0 end) as one_re_purch," +
+            "sum(case when nn >= 3 then 1 else 0 end) as two_re_purch," +
+            "sum(case when nn >= 4 then 1 else 0 end) as three_re_purch," +
             "sum(case when t1.nn > 4 then 1 else 0 end) as more_re_purch" +
             " from (select region,country,crm_code,count(crm_code) as nn from `order` where `status` >= 3 and crm_code !='' and signing_date >= :startDate and signing_date < :endDate group by crm_code,region,country ) as t1" +
             " group by region,country", nativeQuery = true)

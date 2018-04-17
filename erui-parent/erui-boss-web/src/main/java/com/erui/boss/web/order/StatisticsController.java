@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wangxiaodan on 2018/4/2.
@@ -32,17 +29,24 @@ public class StatisticsController {
     @Autowired
     private StatisticsService statisticsService;
 
+
     // 销售业绩统计
     @RequestMapping("/saleStatistics")
     public Result<Object> saleStatistics(@RequestBody Map<String, String> params) {
         SaleStatistics saleStatistics = new SaleStatistics();
         saleStatistics.setRegion(params.get("region"));
         saleStatistics.setCountry(params.get("country"));
+        String countriesStr = params.get("countries");
+        Set<String> countries = null;
+        if (StringUtils.isNotBlank(countriesStr)) {
+            String[] split = countriesStr.split(",");
+            countries = new HashSet<>(Arrays.asList(split));
+        }
         saleStatistics.setStartDate(DateUtil.str2Date(params.get("startDate")));
         saleStatistics.setEndDate(DateUtil.str2Date(params.get("endDate")));
         Map<String, Object> resultData = new HashedMap();
         // 获取统计数据
-        List<SaleStatistics> data = statisticsService.findSaleStatistics(saleStatistics);
+        List<SaleStatistics> data = statisticsService.findSaleStatistics(saleStatistics,countries);
         resultData.put("statistics", data);
         // 计算各个大区的总金额
         Map<String, RegionTotalAmount> regionTotalAmountMap = new HashedMap();
@@ -81,7 +85,12 @@ public class StatisticsController {
         goodsStatistics.setBrand(params.get("brand"));
         goodsStatistics.setStartDate(DateUtil.str2Date(params.get("startDate")));
         goodsStatistics.setEndDate(DateUtil.str2Date(params.get("endDate")));
-
+        String countriesStr = params.get("countries");
+        Set<String> countries = null;
+        if (StringUtils.isNotBlank(countriesStr)) {
+            String[] split = countriesStr.split(",");
+            countries = new HashSet<>(Arrays.asList(split));
+        }
         int pageNum = 1;
         int pageSize = 50;
         String pageNumStr = params.get("page");
@@ -92,9 +101,8 @@ public class StatisticsController {
         if (StringUtils.isNumeric(pageSizeStr)) {
             pageSize = Integer.parseInt(pageSizeStr);
         }
-
         // 获取统计数据
-        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,pageNum,pageSize);
+        Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,countries,pageNum,pageSize);
         return new Result<>(data);
     }
 

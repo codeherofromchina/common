@@ -61,7 +61,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @return
      */
     @Override
-    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition) {
+    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition, Set<String> countries) {
         Date startDate = condition.getStartDate();
         Date endDate = condition.getEndDate();
         String region2 = condition.getRegion();
@@ -113,14 +113,19 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 整合到基本统计中
         for (Iterator<SaleStatistics> iterator = list.iterator(); iterator.hasNext(); ) {
             SaleStatistics saleStatistics = iterator.next();
+            String iCountry = saleStatistics.getCountry();
             // 过滤地区
             if (StringUtils.isNotBlank(region2) && !StringUtils.equals(region2, saleStatistics.getRegion())) {
                 iterator.remove();
                 continue;
             }
             // 过滤国家
-            if (StringUtils.isNotBlank(country1) && !StringUtils.equals(country1, saleStatistics.getCountry())) {
+            if (StringUtils.isNotBlank(country1) && !StringUtils.equals(country1, iCountry)) {
                 iterator.remove();
+                continue;
+            }
+            // 必须在传入的国家范围内
+            if (countries != null && !countries.contains(iCountry)) {
                 continue;
             }
 
@@ -152,7 +157,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum, int pageSize) {
+    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, Set<String> countries, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");
         if (pageNum <= 0) {
             pageNum = 1;
@@ -161,7 +166,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             pageSize = 50;
         }
         // 查询sku的订单统计信息
-        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum, pageSize);
+        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, countries, pageNum, pageSize);
         LOGGER.info("查询商品统计的询单信息");
         // 查询sku的询单统计信息
         Date handleAfterSdate = condition.getStartDate();
@@ -214,7 +219,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum, int pageSize) {
+    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, Set<String> countries, int pageNum, int pageSize) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
         Root<Goods> root = query.from(Goods.class);
@@ -253,6 +258,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
         if (StringUtils.isNotBlank(country)) {
             predicateList.add(cb.equal(countryPath, country));
+        }
+        if (countries != null && countries.size() > 0) {
+            predicateList.add(countryPath.in(countries.toArray(new String[countries.size()])));
         }
         if (startDate != null) {
             predicateList.add(cb.greaterThanOrEqualTo(signingDatePath, startDate));
@@ -317,7 +325,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         return resultPage;
     }
 
-    // TODO 会修改order表，回头查找问题
+    // TODO
     @Transactional
     public Page<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
         // 整理查询条件
@@ -361,6 +369,12 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 Join<Project, Order> orderRoot = root.join("order");
                 list.add(cb.greaterThanOrEqualTo(orderRoot.get("status").as(Integer.class), 3));
+                String countriesStr = condition.get("countries");
+                if (StringUtils.isNotBlank(countriesStr)) {
+                    String[] countriesArr = countriesStr.split(",");
+                    list.add(orderRoot.get("country").in(countriesArr));
+                }
+
                 // 销售合同号
                 String contractNo = condition.get("contractNo");
                 if (StringUtil.isNotBlank(contractNo)) {
