@@ -227,7 +227,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         Join<Goods, Order> orderRoot = root.join("order");
         Path<String> regionPath = orderRoot.get("region");
         Path<String> countryPath = orderRoot.get("country");
-        Path<BigDecimal> totalPricePath = orderRoot.get("totalPrice");
+        Path<BigDecimal> totalPricePath = orderRoot.get("totalPriceUsd");
         Path<Date> signingDatePath = orderRoot.get("signingDate");
         Path<Integer> orderStatus = orderRoot.get("status");
 
@@ -359,6 +359,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                     }
                 }
 
+                Join<Project, Order> orderRoot = root.join("order");
+                list.add(cb.greaterThanOrEqualTo(orderRoot.get("status").as(Integer.class), 3));
                 // 销售合同号
                 String contractNo = condition.get("contractNo");
                 if (StringUtil.isNotBlank(contractNo)) {
@@ -367,7 +369,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 // 海外销售合同号
                 String contractNoOs = condition.get("contractNoOs");
                 if (StringUtil.isNotBlank(contractNoOs)) {
-                    Join<Project, Order> orderRoot = root.join("order");
                     list.add(cb.like(orderRoot.get("contractNoOs").as(String.class), "%" + contractNoOs + "%"));
                 }
                 // 项目号

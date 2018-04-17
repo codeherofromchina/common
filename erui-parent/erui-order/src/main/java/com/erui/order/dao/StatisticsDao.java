@@ -53,13 +53,13 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
      * @return
      */
     @Query(value = "select " +
-            "new com.erui.order.model.SaleStatistics(region,country,count(id) as orderNum,sum(totalPrice) as orderAmount," +
+            "new com.erui.order.model.SaleStatistics(region,country,count(id) as orderNum,sum(totalPriceUsd) as orderAmount," +
             " sum(case when customerType = 1 then 1 else 0 end) as oilOrderNum," +
-            " sum(case when customerType = 1 then totalPrice else 0 end) as oilOrderAmount," +
+            " sum(case when customerType = 1 then totalPriceUsd else 0 end) as oilOrderAmount," +
             " sum(case when customerType != 1 then 1 else 0 end) as nonOilOrderNum," +
-            " sum(case when customerType != 1 then totalPrice else 0 end) as nonOilOrderAmount," +
+            " sum(case when customerType != 1 then totalPriceUsd else 0 end) as nonOilOrderAmount," +
             " sum(case when crmCode <> '' then 1 else 0 end) as crmOrderNum," +
-            " sum(case when crmCode <> '' then totalPrice else 0 end)  as crmOrderAmount)" +
+            " sum(case when crmCode <> '' then totalPriceUsd else 0 end)  as crmOrderAmount)" +
             " from Order where status >= 3 and signingDate >= :startDate and signingDate < :endDate" +
             " group by region,country")
     List<SaleStatistics> orderBaseSaleStatisInfo(@Param("startDate") Date startDate,@Param("endDate") Date endDate);

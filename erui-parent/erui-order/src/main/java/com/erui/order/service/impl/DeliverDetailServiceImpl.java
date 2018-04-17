@@ -184,6 +184,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverD.getReleaseDate() != null) {
                     list.add(cb.equal(root.get("releaseDate").as(Date.class), deliverD.getReleaseDate()));
                 }
+                //根据出库日期
+                if (deliverD.getLeaveDate() != null) {
+                    list.add(cb.equal(root.get("leaveDate"),deliverD.getLeaveDate()));
+                }
                 //根据仓库经办人
                 if (deliverD.getWareHouseman() != null) {
                     Join<DeliverDetail, DeliverNotice> deliverDetailRoot = root.join("deliverNotice");
