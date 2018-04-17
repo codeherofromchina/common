@@ -99,13 +99,21 @@
       AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
+    <if test="area!=null and area!=''">
+      AND  inquiry_area = #{area}
+    </if>
+    <if test="org!=null and org!=''">
+      AND  organization = #{org}
+    </if>
        group by quotation_num
 
       ) as t;
   </select>
   <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
-    COUNT(1) AS total,inquiry_area AS area, return_season  AS reason
+    COUNT(1) AS total,
+    (case WHEN inquiry_area IS NULL THEN '其他' ELSE inquiry_area END)  AS area,
+    return_season  AS reason
     from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -113,11 +121,13 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
-    GROUP BY inquiry_area ,return_season HAVING inquiry_area  IS NOT NULL AND return_season IS NOT NULL
+    GROUP BY inquiry_area ,return_season
   </select>
   <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
-    COUNT(1) AS total,organization AS org, return_season  AS reason
+    COUNT(1) AS total,
+    (case WHEN organization IS NULL THEN '其他事业部' ELSE organization END)  AS org,
+    return_season  AS reason
     from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -125,7 +135,7 @@
     <if test="orderByClause != null" >
       order by ${orderByClause}
     </if>
-      GROUP BY organization ,return_season HAVING organization  IS NOT NULL AND return_season IS NOT NULL
+      GROUP BY organization ,return_season
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select

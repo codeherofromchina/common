@@ -15,6 +15,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.helper.DataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -1023,9 +1024,9 @@ public class CustomCentreController {
             rtnInqProportion = RateUtil.intChainRate(rtnInqCount, inqCount);
         }
 
-        Map<String, Object> dataList = inqRtnReasonService.selectCountGroupByRtnSeason(params);
+        Map<String, Object> dataMap = inqRtnReasonService.selectCountGroupByRtnSeason(params);
         //退回次数和平均退回次数
-        int rejectCount = getRtnCount(dataList);//退回次数
+        int rejectCount = getRtnCount(dataMap);//退回次数
         double avgRejectCount = 0d;//平均退回次数
         if (rtnInqCount > 0) {
             avgRejectCount = RateUtil.intChainRateTwo(rejectCount, rtnInqCount);
@@ -1073,7 +1074,6 @@ public class CustomCentreController {
         return result.setData(data);
 
     }
-
     /**
      * 客户中心-询单详细分析: 询单详细分析饼图
      *
@@ -1242,27 +1242,20 @@ public class CustomCentreController {
     /**
      * 客户中心-询单详细分析: 退回原因饼图
      *
-     * @param map 大区
+     * @param params 大区
      *            <p>
      *            事业部
      * @return
      */
     @RequestMapping(value = "/inqDetailRtnPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
-    public Object inqDetailRtnPie(@RequestBody Map<String, String> map) {
-        Result<Object> result = new Result<>();
-        // 获取参数并转换成时间格式
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-        if (startTime == null || endTime == null || startTime.after(endTime) || !map.containsKey("area")) {
+    public Object inqDetailRtnPie(@RequestBody Map<String, Object> params) {
+        String[] other=new String[]{"area"};
+        params=ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR2,other);
+        if (params == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("startTime", startTime);
-        map1.put("endTime", endTime);
-        map1.put("area", map.get("area"));
-        map1.put("org", map.get("org"));
-        Map<String, Object> rtnMap = inqRtnReasonService.selectCountGroupByRtnSeason(map1);
+        Map<String, Object> rtnMap = inqRtnReasonService.selectCountGroupByRtnSeason(params);
         List<Map<String, Object>> tableData = getRtnTable(rtnMap);
         List<String> reasons = tableData.stream().map(m -> m.get("reason").toString()).collect(Collectors.toList());
         List<String> totals = tableData.stream().map(m -> m.get("total").toString()).collect(Collectors.toList());
@@ -1272,7 +1265,7 @@ public class CustomCentreController {
         pieData.put("counts", totals);
         data.put("tableData", tableData);
         data.put("pieData", pieData);
-        return result.setData(data);
+        return new Result<>(data);
     }
 
     //处理结果获取退回表格数据
@@ -1353,7 +1346,7 @@ public class CustomCentreController {
         dataList.add(mm5);
         return dataList;
     }
-
+    //获取退回迅询单总次数
     private int getRtnCount(Map<String, Object> rtnMap) {
         //获取项目澄清数据 projectClear
         int projectClearCount = 0;
