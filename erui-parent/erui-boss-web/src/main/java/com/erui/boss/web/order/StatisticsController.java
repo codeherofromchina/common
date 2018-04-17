@@ -48,7 +48,7 @@ public class StatisticsController {
         Map<String, RegionTotalAmount> regionTotalAmountMap = new HashedMap();
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (SaleStatistics statistics : data) {
-            String region = StringUtils.defaultString(statistics.getRegion(), "");
+            String region = StringUtils.defaultString(statistics.getRegionZh(), "");
             BigDecimal orderAmount = statistics.getOrderAmount();
             if (regionTotalAmountMap.containsKey(region)) {
                 RegionTotalAmount regionTotalAmount = regionTotalAmountMap.get(region);
@@ -70,7 +70,7 @@ public class StatisticsController {
     }
 
 
-    // 商品统计信息
+    // 商品（产品）统计信息
     @RequestMapping("/goodsStatistics")
     public Result<Object> goodsStatistics(@RequestBody Map<String,String> params) {
         GoodsStatistics goodsStatistics = new GoodsStatistics();
@@ -98,7 +98,7 @@ public class StatisticsController {
         return new Result<>(data);
     }
 
-    // 产品统计信息
+    // 项目统计信息
     @RequestMapping("/projectStatistics")
     public Result<Object> projectStatistics(@RequestBody Map<String,String> condition) {
         // 获取统计数据

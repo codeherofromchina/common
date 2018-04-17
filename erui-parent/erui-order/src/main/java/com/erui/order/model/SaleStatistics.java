@@ -39,6 +39,9 @@ public class SaleStatistics {
     private String region;// 所属地区（大区）
     private String country; // 国家
 
+    private String regionZh;// 所属地区——中文（大区）
+    private String countryZh; // 国家--中文
+
     private long orderNum = 0; // 订单总数量
     private BigDecimal orderAmount = BigDecimal.ZERO; // 订单总金额
 
@@ -98,6 +101,22 @@ public class SaleStatistics {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getRegionZh() {
+        return regionZh;
+    }
+
+    public void setRegionZh(String regionZh) {
+        this.regionZh = regionZh;
+    }
+
+    public void setCountryZh(String countryZh) {
+        this.countryZh = countryZh;
+    }
+
+    public String getCountryZh() {
+        return countryZh;
     }
 
     public long getOrderNum() {

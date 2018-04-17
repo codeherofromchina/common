@@ -18,7 +18,9 @@ public class GoodsStatistics  {
     private String nameZh;
     private String brand;
     private String region;
+    private String regionZh;
     private String country;
+    private String countryZh;
     private long orderNum = 0;
     private BigDecimal orderAmount = BigDecimal.ZERO;
     private long quotationNum = 0; // 询单总数量
@@ -86,6 +88,22 @@ public class GoodsStatistics  {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public String getCountryZh() {
+        return countryZh;
+    }
+
+    public String getRegionZh() {
+        return regionZh;
+    }
+
+    public void setCountryZh(String countryZh) {
+        this.countryZh = countryZh;
+    }
+
+    public void setRegionZh(String regionZh) {
+        this.regionZh = regionZh;
     }
 
     public String getCountry() {
