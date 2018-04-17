@@ -33,7 +33,7 @@ public class ProjectStatistics {
         this.crmCode = order.getCrmCode();
         this.customerType = order.getCustomerType();
         this.orderType = order.getOrderType();
-        this.totalPrice = order.getTotalPrice();
+        this.totalPrice = project.getTotalPriceUsd();
         this.paymentModeBn = order.getPaymentModeBn();
         this.profitPercent = project.getProfitPercent();
         this.grantType = order.getGrantType();
