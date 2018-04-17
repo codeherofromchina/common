@@ -325,7 +325,6 @@ public class OrderServiceImpl implements OrderService {
                 // 已经存在的sku，返回错误
                 throw new Exception("同一sku不可以重复添加");
             }
-
             goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -543,10 +542,8 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProjectNo(project2.getProjectNo());
             });
             goodsDao.save(goodsList1);
-
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
-
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -556,9 +553,7 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
-
             sendSms(order);
-
         }
         return order1.getId();
     }
