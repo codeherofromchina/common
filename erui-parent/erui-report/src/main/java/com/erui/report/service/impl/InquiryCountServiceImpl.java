@@ -791,7 +791,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
-        criteria.andInquiryAreaIsNotNull();
         List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
         if (result == null) {
             result = new ArrayList<>();
