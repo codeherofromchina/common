@@ -78,7 +78,7 @@ public interface InquiryCountService {
 	 * @param params
 	 * @return
 	 */
-	Map<String,Object> selectQuoteTimeSummaryData(Map<String,String> params);
+	Map<String,Object> selectQuoteTimeSummaryData(Map<String,Object> params);
 	/**
 	 * 询订单分类 TOP N
 	 * @param topN
@@ -90,11 +90,10 @@ public interface InquiryCountService {
 
 	/**
 	 * 按照转入日期区间统计事业部的询单数量
-	 * @param startDate
-	 * @param endDate
+	 * @param params
 	 * @return  {"total":'总询单数量--Long',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,int rtnCount,String[] quotes);
+	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Map<String,Object> params);
 
 	/**
 	 * 询订单趋势图数据
@@ -114,11 +113,10 @@ public interface InquiryCountService {
 
 	/**
 	 * 按照转入日期区间统计事业部的平均报价时间
-	 * @param startDate
-	 * @param endDate
+	 * @param params
 	 * @return  {"avgNeedTime":'平均响应时间--BigDecimal',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate);
+	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Map<String,Object> params);
 	/**
 	 * 从boss读取询单数据
 	 * @param list

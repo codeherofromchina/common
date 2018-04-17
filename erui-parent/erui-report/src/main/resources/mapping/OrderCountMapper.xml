@@ -321,11 +321,13 @@
 
 
   <!-- 按条件统计事业部的订单数量和金额 -->
-  <select id="findCountAndAmountByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.OrderCountExample" >
+  <select id="findCountAndAmountByExampleGroupOrigation" resultType="java.util.Map" parameterType="java.util.Map" >
     SELECT organization,count(1) as totalNum,sum(IFNULL(project_account,0)) as totalAmount
     FROM erui_report.order_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
     group by organization
   </select>

@@ -255,7 +255,6 @@ public class CustomCentreController {
         List<Map<String, Object>> tableData = getRtnTable(dataList);
 
         //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
-
         Integer totalRtnCount = dataList.stream().map(m -> {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
@@ -384,13 +383,14 @@ public class CustomCentreController {
     // 询单时间分布分析
     @ResponseBody
     @RequestMapping(value = "/inquiryTimeDistrbute", method = RequestMethod.POST, produces = "application/json;charset=utf8")
-    public Object inquiryTimeDistrbute(@RequestBody(required = true) Map<String, String> params) {
+    public Object inquiryTimeDistrbute(@RequestBody(required = true) Map<String, Object> params) {
         // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-        if (startDate == null || endDate == null || startDate.after(endDate)) {
-            return new Result<>(ResultStatusEnum.FAIL);
+        params=ParamsUtils.verifyParam(params,DateUtil.FULL_FORMAT_STR2,null);
+        if(params==null){
+            return  new Result<>(ResultStatusEnum.FAIL);
         }
+        String[] quotes=new String[]{"已报价","已完成"};
+        params.put("quotes",quotes);
        Map<String,Object> data= this.inquiryService.selectQuoteTimeSummaryData(params);
         return new Result<>(data);
     }
@@ -398,21 +398,21 @@ public class CustomCentreController {
     // 事业部明细
     @ResponseBody
     @RequestMapping(value = "/busUnitDetail", method = RequestMethod.POST)
-    public Object busUnitDetail(@RequestBody(required = true) Map<String, String> params) {
-        // 获取参数并转换成时间格式
-        Date startDate = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endDate = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
-        if (startDate == null || endDate == null || startDate.after(endDate)) {
-            return new Result<>(ResultStatusEnum.FAIL);
-        }
-//        endDate = NewDateUtil.plusDays(endDate, 1); // 得到的时间区间为(startDate,endDate]x`
-
+    public Object busUnitDetail(@RequestBody(required = true) Map<String, Object> params) {
+        //验证参数
+       params=ParamsUtils.verifyParam(params,DateUtil.FULL_FORMAT_STR2,null);
+       if(params==null){
+           return  new Result<>(ResultStatusEnum.FAIL);
+       }
         //1查询给定时间的事业部询单数量
-        List<Map<String, Object>> quiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(startDate, endDate,0, null);
+        List<Map<String, Object>> quiryList = inquiryService.findCountByRangRollinTimeGroupOrigation(params);
         // 查询给定时间段的事业部订单数量和金额
-        List<Map<String, Object>> derList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(startDate, endDate);
+        List<Map<String, Object>> derList = orderService.findCountAndAmountByRangProjectStartGroupOrigation(params);
         //查询给定时间段的事业部平均报价时间
-        List<Map<String, Object>> NeedTimeList = inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(startDate, endDate);
+        String[] quotes=new String[]{QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
+        QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus()};
+        params.put("quotes",quotes);
+        List<Map<String, Object>> NeedTimeList = inquiryService.findAvgNeedTimeByRollinTimeGroupOrigation(params);
 
         //2.整理数据成标准的事业部数据
         List<Map<String, Object>> inquiryList = new ArrayList<>();
@@ -1170,9 +1170,12 @@ public class CustomCentreController {
         //3.根据状态获取获取各事业部的数据
         List<Map<String, Object>> orgDataList = null;
         if (quoteStatus.equals(QuotedStatusEnum.STATUS_QUOTED_RETURNED.getQuotedStatus())) {//已退回
-            orgDataList= this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime,1, quotes);
+            map.put("quotes",quotes);
+            map.put("rtnCount",1);
+            orgDataList= this.inquiryService.findCountByRangRollinTimeGroupOrigation(map);
         }else {
-            orgDataList= this.inquiryService.findCountByRangRollinTimeGroupOrigation(startTime, endTime, 0,quotes);
+            map.put("quotes",quotes);
+            orgDataList= this.inquiryService.findCountByRangRollinTimeGroupOrigation(map);
         }
 
         List<String> orgs = new ArrayList<>();//事业部列表

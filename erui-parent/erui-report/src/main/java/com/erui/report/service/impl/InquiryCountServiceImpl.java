@@ -535,11 +535,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public Map<String, Object> selectQuoteTimeSummaryData(Map<String, String> params) {
+    public Map<String, Object> selectQuoteTimeSummaryData(Map<String, Object> params) {
+
         //查询各个时间段报价询单个数
-        params.put("finished","已完成");
-        params.put("quoted","已报价");
         Map<String,Object> data=readMapper.selectInqCountGroupByQuoteTime(params);
+
+        //添加占比
         Integer totalCount = Integer.parseInt(data.get("totalCount").toString());
         double oneCountRate=0.00,fourCountRate=0.00,eightCountRate=0.00,
                 twentyFourCountRate=0.00,otherCountRate=0.00;
@@ -560,6 +561,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         data.put("eightCountRate",eightCountRate);
         data.put("twentyFourCountRate",twentyFourCountRate);
         data.put("otherCountRate",otherCountRate);
+
         //查询各事业部的 报价总用时和总单数 （用于合并事业部平均报价用时）
         List<Map<String, Object>> orgData = readMapper.findTotalNeedTimeAndCountGroupByOrg(params);
         Map<String,Map<String,Object>> orgMap=new HashMap<>();
@@ -689,22 +691,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,int rtnCount, String[] quotes) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startDate != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
-        }
-        if (endDate != null) {
-            criteria.andRollinTimeLessThan(endDate);
-        }
-        if(rtnCount>0){
-            criteria.andReturnCountGreaterThanOrEqualTo(rtnCount);
-        }
-        if (quotes != null && quotes.length > 0) {
-            criteria.andQuotedStatusIn(Arrays.asList(quotes));
-        }
-        List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Map<String,Object> params) {
+        List<Map<String, Object>> result = readMapper.findCountGroupByOrg(params);
         if (result == null) {
             result = new ArrayList<>();
         }
@@ -813,19 +801,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public List<Map<String, Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startDate != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
-        }
-        if (endDate != null) {
-            criteria.andRollinTimeLessThan(endDate);
-        }
-        criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
-                QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus());
-
-        List<Map<String, Object>> result = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(example);
+    public List<Map<String, Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Map<String,Object> params) {
+        List<Map<String, Object>> result = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(params);
         if (result == null) {
             result = new ArrayList<>();
         }
