@@ -368,7 +368,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
                 Join<Project, Order> orderRoot = root.join("order");
-                list.add(cb.greaterThanOrEqualTo(orderRoot.get("status").as(Integer.class), 3));
                 String countriesStr = condition.get("countries");
                 if (StringUtils.isNotBlank(countriesStr)) {
                     String[] countriesArr = countriesStr.split(",");
@@ -431,6 +430,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(projectStatus)) {
                     list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
                 }
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "DRAFT")); // 不等于待确定的
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "SUBMIT")); // 不等于待确定的
                 //流程进度
                 String processProgress = condition.get("processProgress");
                 if (StringUtil.isNotBlank(processProgress)) {
