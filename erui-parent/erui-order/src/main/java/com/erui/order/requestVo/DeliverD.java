@@ -23,6 +23,8 @@ public class DeliverD {
 
     private Integer status;   //仓库出库管理状态
 
+    private Date leaveDate; //出库时间
+
     private Integer page;
 
     private Integer rows;
@@ -97,5 +99,13 @@ public class DeliverD {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
     }
 }
