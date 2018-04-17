@@ -13,6 +13,7 @@ import com.erui.report.util.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -1276,18 +1277,33 @@ public class CustomCentreController {
 
     //处理结果获取退回表格数据
     public List<Map<String, Object>> getRtnTable(List<Map<String, Object>> dataList) {
-        Integer totalCount = dataList.stream().map(m -> {
+
+       Map<String,Map<String,Object>> dataMap=new HashMap<>();
+        dataList.stream().forEach(m -> {
+            String reason=String.valueOf(m.get("reason"));
+            if(dataMap.containsKey(reason)){
+                Map<String, Object> m2 = dataMap.get(reason);
+                m2.put("total",Integer.valueOf(m2.get("total").toString())+Integer.valueOf(m.get("total").toString()));
+                m2.put("inqCount",Integer.valueOf(m2.get("inqCount").toString())+Integer.valueOf(m.get("inqCount").toString()));
+            }else {
+                dataMap.put(reason,m);
+            }
+        });
+        //添加占比
+        List<Map<String,Object>> valueList=new ArrayList<>(dataMap.values());
+        Integer totalCount = valueList.stream().map(m -> {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
         }).reduce(0, (a, b) -> a + b);
-
-        dataList.stream().forEach(m -> {
-            if (totalCount != null && totalCount > 0) {
-                m.put("totalProportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
-            }
-        });
+       valueList.stream().forEach(m->{
+           if (totalCount != null && totalCount > 0) {
+               m.put("totalProportion", RateUtil.intChainRate(Integer.valueOf(m.get("total").toString()), totalCount));
+           }else {
+               m.put("totalProportion", 0d);
+           }
+       });
         //原因排序
-        List<Map<String, Object>> tableData = reasonDataListSort(dataList);
+        List<Map<String, Object>> tableData = reasonDataListSort(valueList);
         return tableData;
     }
 
