@@ -137,7 +137,7 @@ public interface InquiryCountService {
 	 * 查询询单、交易的人数和单数
 	 * @param params
 	 */
-	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,String> params);
+	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,Object> params);
 	/**
 	 * 查询询单、交易的人数和单数
 	 * @param org

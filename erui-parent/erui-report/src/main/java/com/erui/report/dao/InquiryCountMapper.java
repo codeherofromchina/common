@@ -140,5 +140,5 @@ public interface InquiryCountMapper {
      * @param params
      * @return
      */
-    Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, String> params);
+    Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, Object> params);
 }

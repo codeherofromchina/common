@@ -211,7 +211,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     }
 
     @Override
-    public Map<String, Object> selectOperateSummaryData(Map<String, String> params) {
+    public Map<String, Object> selectOperateSummaryData(Map<String, Object> params) {
         Map<String, Object> custData = readMapper.selectOperateSummaryData(params);
         InquiryCountMapper inqMapper = readerSession.getMapper(InquiryCountMapper.class);
         Map<String, Object> inqAndOrdData = inqMapper.selectInqAndOrdCountAndPassengers(params);
@@ -265,7 +265,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     }
 
     @Override
-    public Map<String, Integer> selectRegisterSummaryData(Map<String, String> params) {
+    public Map<String, Integer> selectRegisterSummaryData(Map<String, Object> params) {
         Map<String, Object> operateData = readMapper.selectOperateSummaryData(params);
         int registerCount = Integer.parseInt(operateData.get("registerCount").toString());//注册会员量
         int seniorCount = Integer.parseInt(operateData.get("seniorCount").toString());//高级会员量
@@ -352,7 +352,7 @@ public class MemberServiceImpl extends BaseService<MemberMapper> implements Memb
     }
 
     @Override
-    public Map<String, Integer> selectCustInqSummaryData(Map<String, String> params) {
+    public Map<String, Integer> selectCustInqSummaryData(Map<String, Object> params) {
 
         //查询会员询单总览数据firstInqCount,seniorCount
         Map<String, Integer> data = readMapper.selectCustInqSummaryData(params);

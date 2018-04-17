@@ -686,8 +686,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     /**
      * 按照转入日期区间统计事业部的询单数量
      *
-     * @param startDate
-     * @param endDate
+     * @param params
      * @return
      */
     @Override
@@ -992,7 +991,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, String> params) {
+    public Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, Object> params) {
 
         return readMapper.selectInqAndOrdCountAndPassengers(params);
     }
