@@ -77,7 +77,7 @@
     select
     COUNT(1) AS total,
     COUNT(DISTINCT(quotation_num)) AS inqCount,
-    (CASE WHEN return_season IS NULL OR return_season='' THEN "其他" ELSE return_season END ) AS reason
+    (CASE WHEN return_season IS NULL OR return_season='' THEN "空值" ELSE return_season END ) AS reason
     from erui_rfq.v_inq_rtn_reason
     WHERE 1=1
     <if test="startTime!=null and endTime!=null">
