@@ -25,6 +25,8 @@ public class DeliverD {
 
     private String deliverConsignNo; //出口通知单号
 
+    private Date leaveDate; //出库时间
+
     private Integer page;
 
     private Integer rows;
@@ -107,5 +109,13 @@ public class DeliverD {
 
     public void setDeliverConsignNo(String deliverConsignNo) {
         this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
     }
 }
