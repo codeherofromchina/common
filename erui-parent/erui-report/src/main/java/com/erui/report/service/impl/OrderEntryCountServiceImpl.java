@@ -47,22 +47,12 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
             }
             oec = new OrderEntryCount();
 
-            try {
-                oec.setCreateAt(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
-                        DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "时间字段格式错误");
-                continue;
-            }
-            oec.setEntryNum(strArr[1]);
-            oec.setExecuteNum(strArr[2]);
-
-            oec.setContractNum(strArr[3]);
+            oec.setEntryNum(strArr[0]);
+            oec.setExecuteNum(strArr[1]);
+            oec.setContractNum(strArr[2]);
 
             try {
-                oec.setEntryCount(new BigDecimal(strArr[4]).intValue());
+                oec.setEntryCount(new BigDecimal(strArr[3]).intValue());
             } catch (NumberFormatException e) {
                 logger.error(e.getMessage());
                 response.incrFail();
@@ -70,7 +60,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
                 continue;
             }
             try {
-                oec.setAmounts(new BigDecimal(strArr[5]));
+                oec.setAmounts(new BigDecimal(strArr[4]));
             } catch (NumberFormatException e) {
                 logger.error(e.getMessage());
                 response.incrFail();
@@ -78,7 +68,7 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
                 continue;
             }
             try {
-                oec.setStorageDate(DateUtil.parseString2Date(strArr[6], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+                oec.setStorageDate(DateUtil.parseString2Date(strArr[5], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
                         DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -86,10 +76,17 @@ public class OrderEntryCountServiceImpl extends BaseService<OrderEntryCountMappe
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "入库时间格式错误");
                 continue;
             }
-            oec.setBuyer(strArr[7]);
-            oec.setSuppliName(strArr[8]);
-            oec.setRemark(strArr[9]);
 
+            oec.setRemark(strArr[6]);
+            oec.setDocType(strArr[7]);
+            try {
+                oec.setStockCount(new BigDecimal(strArr[8]).intValue());
+            } catch (NumberFormatException e) {
+                logger.error(e.getMessage());
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_ENTRY_COUNT.getTable(), cellIndex, "库存字段不是数字");
+                continue;
+            }
             try {
                 if (!testOnly) {
                     writeMapper.insertSelective(oec);

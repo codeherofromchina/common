@@ -1,5 +1,6 @@
 package com.erui.order.requestVo;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
@@ -656,6 +657,7 @@ public class AddOrderVo {
         order.setOrderType(this.orderType);
         order.setOrderSource(this.orderSource);
         order.setSigningDate(this.signingDate);
+//        order.setDeliveryDate(DateUtil.formatDate2String(this.deliveryDate,"yyyy-MM-dd"));
         order.setDeliveryDate(this.deliveryDate);
         order.setSigningCo(this.signingCo);
         order.setAgentId(this.agentId);

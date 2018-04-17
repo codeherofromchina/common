@@ -258,6 +258,9 @@ public class OrderListCondition {
                 ", type=" + type +
                 ", createUserId=" + createUserId +
                 ", projectNo='" + projectNo + '\'' +
+                ", processProgress='" + processProgress + '\'' +
+                ", deliverConsignHas=" + deliverConsignHas +
+                ", technicalId=" + technicalId +
                 ", page=" + page +
                 ", rows=" + rows +
                 '}';

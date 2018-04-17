@@ -46,22 +46,13 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
             }
             ooc = new OrderOutboundCount();
 
-            try {
-                ooc.setCreateAt(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
-                        DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, "时间字段格式错误");
-                continue;
-            }
-            ooc.setOutboundNum(strArr[1]);
-            ooc.setContractNum(strArr[2]);
-            ooc.setDestination(strArr[3]);
-            ooc.setExecuteNum(strArr[4]);
+            ooc.setOutboundNum(strArr[0]);
+            ooc.setContractNum(strArr[1]);
+            ooc.setDestination(strArr[2]);
+            ooc.setExecuteNum(strArr[3]);
 
             try {
-                ooc.setPackCount(new BigDecimal(strArr[5]).intValue());
+                ooc.setPackCount(new BigDecimal(strArr[4]).intValue());
             } catch (NumberFormatException e) {
                 logger.error(e.getMessage());
                 response.incrFail();
@@ -70,7 +61,7 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
             }
 
             try {
-                ooc.setOutboundDate(DateUtil.parseString2Date(strArr[6], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
+                ooc.setOutboundDate(DateUtil.parseString2Date(strArr[5], "yyyy/M/d", "yyyy/M/d HH:mm:ss",
                         DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -79,15 +70,15 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
                 continue;
             }
             try {
-                ooc.setAmounts(new BigDecimal(strArr[7]));
+                ooc.setAmounts(new BigDecimal(strArr[6]));
             } catch (NumberFormatException e) {
                 logger.error(e.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, "金额字段不是数字");
                 continue;
             }
-            ooc.setRemark(strArr[8]);
-
+            ooc.setRemark(strArr[7]);
+            ooc.setDocType(strArr[8]);
             try {
                 if (!testOnly) {
                     writeMapper.insertSelective(ooc);

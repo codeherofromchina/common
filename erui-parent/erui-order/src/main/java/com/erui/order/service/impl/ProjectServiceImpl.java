@@ -69,9 +69,11 @@ public class ProjectServiceImpl implements ProjectService {
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
         if (nowProjectStatusEnum.getNum() == 1 && paramProjectStatusEnum.getNum() == 11) {
             Order order = projectUpdate.getOrder();
-            order.setStatus(Order.StatusEnum.UNEXECUTED.getCode());
+            order.setStatus(Order.StatusEnum.INIT.getCode());
+            order.setProject(null);
             orderDao.save(order);
-            projectDao.delete(projectUpdate);
+            projectDao.delete(projectUpdate.getId());
+            return true;
         } else {
             // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
             if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -97,7 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-                    projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getMsg());
+                    projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
                     projectDao.save(projectUpdate);
                     return true;
                 } else {
@@ -198,13 +200,13 @@ public class ProjectServiceImpl implements ProjectService {
                     projectStatus = condition.getProjectStatus().split(",");
                     list.add(root.get("projectStatus").in(projectStatus));
                 }
-                  //根据项目号
+                //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
-              //根据流程进度
+                //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.like(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
+                    list.add(cb.like(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {

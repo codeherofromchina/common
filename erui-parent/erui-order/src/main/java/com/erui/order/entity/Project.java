@@ -18,7 +18,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH,CascadeType.PERSIST})
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
@@ -39,7 +39,7 @@ public class Project {
     @Column(name = "start_date")
     private Date startDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    //@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -492,6 +492,7 @@ public class Project {
         project.setProfit(this.profit);
         project.setCurrencyBn(this.currencyBn);
         project.setProfitPercent(this.profitPercent);
+        project.setTotalPriceUsd(this.totalPriceUsd);
         project.setHasManager(this.hasManager);
         project.setExeChgDate(this.exeChgDate);
         project.setRequirePurchaseDate(this.requirePurchaseDate);

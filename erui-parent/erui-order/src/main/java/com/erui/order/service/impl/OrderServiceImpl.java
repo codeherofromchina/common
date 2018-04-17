@@ -21,6 +21,9 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.PGoods;
+import com.erui.order.dao.*;
+import com.erui.order.entity.*;
+import com.erui.order.requestVo.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverDetailService;
 import com.erui.order.service.OrderService;
@@ -42,6 +45,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sound.sampled.Line;
+import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,6 +78,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+
+    @Autowired
+    private ComplexOrderDao complexOrderDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -142,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), "%" + condition.getProcessProgress() + "%"));
+                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
@@ -206,6 +213,70 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Page<ComplexOrder> findByOutList(OutListCondition condition) {
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
+            @Override
+            public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                //根据订单日期查询
+                if (condition.getStart_time() != null && condition.getEnd_time() != null) {
+                    Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
+                    Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
+                    list.add(startTime);
+                    list.add(endTime);
+                }
+
+                /*//根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getBuyer_no())) {
+                    list.add(cb.equal(root.get("buyer_no").as(String.class), condition.getBuyer_no()));
+                }*/
+                //根据客户ID
+                if (condition.getBuyer_id() != null) {
+                    list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
+                }
+                //根据付款状态
+                if (!StringUtils.isEmpty(condition.getPay_status())) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), ComplexOrder.fromPayMsg(condition.getPay_status())));
+                }
+                //根据订单状态
+                if (!StringUtils.isEmpty(condition.getStatus())) {
+                    if (!condition.getStatus().equals("to_be_confirmed")) {
+                        list.add(cb.equal(root.get("status").as(Integer.class), ComplexOrder.fromStatusMsg(condition.getStatus())));
+                    } else {
+                        Integer[] orderStatus = {1, 2};
+                        list.add(root.get("status").in(orderStatus));
+                    }
+
+                }
+                //  list.add(cb.equal(root.get("deleteFlag"), false));
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, pageRequest);
+    /*    if (pageList.hasContent()) {
+            pageList.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    vo.setDeliverConsignC(flag);
+                } else {
+                    vo.setDeliverConsignC(Boolean.FALSE);
+                }
+                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                    vo.setOrderFinish(Boolean.TRUE);
+                }
+                vo.setGoodsList(null);
+            });
+        }*/
+        return pageList;
+    }
+
+    @Override
     @Transactional
     public void deleteOrder(Integer[] ids) {
         List<Order> orderList = orderDao.findByIdIn(ids);
@@ -220,7 +291,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional( rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
@@ -429,6 +500,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockApplyNum(0);
             goods.setOutstockNum(0);
             goods.setExchanged(false);
+            goods.setOrder(order);
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
@@ -462,7 +534,7 @@ public class OrderServiceImpl implements OrderService {
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
-            project.setProcessProgress("未执行");
+            project.setProcessProgress("1");
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
@@ -591,6 +663,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+
     //订单下达后通知商务技术经办人
     public void sendSms(Order order) throws  Exception {
         //获取token
@@ -634,4 +707,79 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> findByIdOut(Integer id) {
+        Order order = orderDao.findOne(id);
+        List<OrderLog> logList = orderLogDao.findByOrderIdOrderByCreateTimeAsc(id);
+        ArrayList<Object> logs = new ArrayList<>();
+        for (OrderLog orderLog : logList) {
+            OrderLog orderLog2 = new OrderLog();
+            switch (orderLog.getOperation()) {
+                case "创建订单":
+                    orderLog2.setOperation("Create Order");
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+                case "收到预付款":
+                    orderLog2.setOperation("Receive advance payment");
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+                case "商品出库":
+                    orderLog2.setOperation("Goods export");
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+                case "已收货":
+                    orderLog2.setOperation("received");
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+                case "全部交收完成":
+                    orderLog2.setOperation("Completed delivery");
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+                case "订单签约":
+                    orderLog2.setOperation("Signing order");
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+                default:
+                    orderLog2.setOperation(orderLog.getOperation());
+                    orderLog2.setBusinessDate(orderLog.getBusinessDate());
+                    break;
+
+            }
+            logs.add(orderLog2);
+        }
+        OutOrderDetail outOrderDetail = null;
+        List<OutGoods> goodList = new ArrayList<>();
+        HashMap<String, Object> resultMap = null;
+        if (order != null) {
+            if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
+                order.setDeliverConsignC(flag);
+            } else {
+                order.setDeliverConsignC(Boolean.FALSE);
+            }
+           /* order.getGoodsList().size();
+            order.getAttachmentSet().size();
+            order.getOrderPayments().size();*/
+            outOrderDetail = new OutOrderDetail();
+            outOrderDetail.copyInfo(order);
+            for (Goods goods : order.getGoodsList()) {
+                OutGoods outGoods = new OutGoods();
+                outGoods.copyInfo(goods);
+                outGoods.setBuyer_id(null);
+                goodList.add(outGoods);
+            }
+            resultMap = new HashMap<>();
+            resultMap.put("orderinfo", outOrderDetail);
+            resultMap.put("ordergoods", goodList);
+            resultMap.put("orderlogs", logs);
+            resultMap.put("order_no", order.getContractNo());
+            resultMap.put("orderaddress", null);
+            resultMap.put("orderpayments", null);
+            resultMap.put("imgprefix", null);
+
+        }
+        return resultMap;
+    }
 }
