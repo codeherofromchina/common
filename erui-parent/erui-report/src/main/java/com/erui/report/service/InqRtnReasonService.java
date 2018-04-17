@@ -8,7 +8,7 @@ public interface InqRtnReasonService {
     /*
     * 查询各退回原因 的退回次数 和 询单数
     * */
-    List<Map<String,Object>>   selectCountGroupByRtnSeason(Map<String,Object> params);
+    Map<String,Object>   selectCountGroupByRtnSeason(Map<String,Object> params);
     /*
     * 查询各地区的退回原因明细
     * */

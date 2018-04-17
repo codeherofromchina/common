@@ -74,25 +74,34 @@
 
   <!--查询各退回原因的退回次数和询单数-->
   <select id="selectCountGroupByRtnSeason" resultType="java.util.Map" parameterType="java.util.Map" >
-    select
-    COUNT(1) AS total,
-    COUNT(DISTINCT(quotation_num)) AS inqCount,
-    (
-    CASE
-    WHEN return_season LIKE '%项目澄清%' then "项目澄清"
-    WHEN return_season LIKE '%非事业部业务范围%' then "非事业部业务范围"
-    WHEN return_season LIKE '%无供应渠道%' then "无供应渠道"
-    WHEN return_season LIKE '%系统问题%' then "系统问题"
-    WHEN return_season LIKE '%其他%' then "其他"
-    ELSE  "其他" END
-    ) AS reason
-    from erui_rfq.v_inq_rtn_reason
-    WHERE 1=1
+
+  select
+    IFNULL(sum(case when a>0 then 1 else 0 end),0) as projectClearInqCount ,
+    IFNULL(sum(a),0) AS projectClearCount,
+    IFNULL(sum(case when b>0 then 1 else 0 end),0) as notOrgInqCount ,
+    IFNULL(sum(b),0) AS notOrgCount,
+    IFNULL(sum(case when c>0 then 1 else 0 end),0) as notSupplyInqCount ,
+    IFNULL(sum(c) ,0) AS notSupplyCount,
+    IFNULL(sum(case when d>0 then 1 else 0 end),0) as systemProblemsInqCount ,
+    IFNULL(sum(d),0)  AS systemProblemsCount,
+    IFNULL(sum(case when e>0 then 1 else 0 end),0) as otherInqCount ,
+    IFNULL(sum(a),0) AS otherCount
+  from (
+      select
+      quotation_num,
+      sum(CASE WHEN return_season LIKE '%项目澄清%' then 1 else 0 end) as a,
+      sum(CASE WHEN return_season LIKE '%非事业部业务范围%' then 1 else 0 end) as b,
+      sum(CASE WHEN return_season LIKE '%无供应渠道%' then 1 else 0 end) as c,
+      sum(CASE WHEN return_season LIKE '%系统问题%' then 1 else 0 end) as d,
+      sum(CASE WHEN return_season LIKE '%其他%' OR return_season='' OR return_season IS NULL  then 1 else 0 end) as e
+      from erui_rfq.v_inq_rtn_reason  WHERE 1=1
     <if test="startTime!=null and endTime!=null">
       AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    GROUP BY return_season
+       group by quotation_num
+
+      ) as t;
   </select>
   <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select

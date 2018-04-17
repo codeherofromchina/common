@@ -14,7 +14,7 @@ import java.util.Map;
 public class InqRtnReasonServiceImpl extends  BaseService<InqRtnReasonMapper> implements InqRtnReasonService {
 
     @Override
-    public List<Map<String, Object>> selectCountGroupByRtnSeason(Map<String, Object> params) {
+    public Map<String, Object> selectCountGroupByRtnSeason(Map<String, Object> params) {
         return readMapper.selectCountGroupByRtnSeason(params);
     }
 
