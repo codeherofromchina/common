@@ -47,8 +47,8 @@ public class OutOrderDetail {
     private String trans_mode;
     private String show_status_text;
     private String pay_status_text;
-    //合同交货日期
-    private Date delivery_at;
+    //合同交货日期 (修改为文本格式)
+    private String delivery_at;
     private String delivery_left;
     private String show_name;
     private String user_name;
@@ -289,11 +289,11 @@ public class OutOrderDetail {
         this.pay_status_text = pay_status_text;
     }
 
-    public Date getDelivery_at() {
+    public String getDelivery_at() {
         return delivery_at;
     }
 
-    public void setDelivery_at(Date delivery_at) {
+    public void setDelivery_at(String delivery_at) {
         this.delivery_at = delivery_at;
     }
 
