@@ -31,7 +31,7 @@ public class ParamsUtils {
 
         if(!ArrayUtils.isEmpty(otherParamsKey)){
             for (String param:otherParamsKey) {
-                if(String.valueOf(params.get(param)).isEmpty()){
+                if(params.get(param)==null){
                     return null;
                 }
             }

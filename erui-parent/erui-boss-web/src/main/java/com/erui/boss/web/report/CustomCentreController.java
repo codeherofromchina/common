@@ -1230,7 +1230,7 @@ public class CustomCentreController {
     @RequestMapping(value = "/inqDetailRtnPie", method = RequestMethod.POST, produces = "application/json;charset=utf8")
     @ResponseBody
     public Object inqDetailRtnPie(@RequestBody Map<String, Object> params) {
-        String[] other=new String[]{"area"};
+        String[] other=new String[]{"area","org"};
         params=ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR2,other);
         if (params == null) {
             return new Result<>(ResultStatusEnum.FAIL);
