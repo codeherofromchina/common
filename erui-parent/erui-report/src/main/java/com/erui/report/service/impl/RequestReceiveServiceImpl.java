@@ -209,6 +209,20 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
     }
 
     @Override
+    public Double selectReceiveBalance(Date startTime, Date endTime) {
+        RequestReceiveExample example = new RequestReceiveExample();
+        RequestReceiveExample.Criteria criteria = example.createCriteria();
+        if(startTime!=null){
+            criteria.andBackDateGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime!=null){
+            criteria.andBackDateLessThan(endTime);
+        }
+
+        return readMapper.selectReceiveBalance(example);
+    }
+
+    @Override
     public List<Map<String, Object>> selectBackAmountGroupByArea(Date startTime, Date endTime) {
         RequestReceiveExample example = new RequestReceiveExample();
         RequestReceiveExample.Criteria criteria = example.createCriteria();
@@ -247,4 +261,5 @@ public class RequestReceiveServiceImpl extends  BaseService<RequestReceiveMapper
         }
         return readMapper.selectBackAmoutGroupByOrg(example);
     }
+
 }

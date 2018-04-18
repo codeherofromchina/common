@@ -176,20 +176,9 @@
         </repository>
     </repositories>
 
+
+
     <profiles>
-    <!--    <profile>
-            <id>default</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.erui</groupId>
-                    <artifactId>erui-sso-client-dev</artifactId>
-                    <version>1.0</version>
-                </dependency>
-            </dependencies>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>-->
 
         <profile>
             <id>zhengshi</id>
@@ -203,7 +192,6 @@
         </profile>
         <profile>
             <id>production</id>
-
            <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>

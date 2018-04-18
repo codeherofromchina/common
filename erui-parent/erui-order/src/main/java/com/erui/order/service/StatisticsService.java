@@ -4,11 +4,13 @@ import com.erui.order.model.GoodsBookDetail;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.data.domain.Page;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by wangxiaodan on 2018/4/2.
@@ -20,14 +22,15 @@ public interface StatisticsService {
      * @param condition {"startDate":"订单签约日期开始时间","endDate":"订单签约日期结束时间","region":"地区","country":"国家"}
      * @return
      */
-    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition);
+    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition,Set<String> countries);
+    public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries);
 
     /**
      * 查询商品统计信息
      * @param goodsStatistics
      * @return
      */
-    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics,int pageNum,int pageSize);
+    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics,Set<String> countries,int pageNum,int pageSize);
 
     /**
      * 查询商品统计信息

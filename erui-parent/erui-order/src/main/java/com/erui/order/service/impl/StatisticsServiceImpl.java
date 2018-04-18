@@ -1,9 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.middle.redis.ShardedJedisUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.dao.StatisticsDao;
@@ -16,6 +20,7 @@ import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +66,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @return
      */
     @Override
-    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition) {
+    public List<SaleStatistics> findSaleStatistics(SaleStatistics condition, Set<String> countries) {
         Date startDate = condition.getStartDate();
         Date endDate = condition.getEndDate();
         String region2 = condition.getRegion();
@@ -113,14 +118,19 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 整合到基本统计中
         for (Iterator<SaleStatistics> iterator = list.iterator(); iterator.hasNext(); ) {
             SaleStatistics saleStatistics = iterator.next();
+            String iCountry = saleStatistics.getCountry();
             // 过滤地区
             if (StringUtils.isNotBlank(region2) && !StringUtils.equals(region2, saleStatistics.getRegion())) {
                 iterator.remove();
                 continue;
             }
             // 过滤国家
-            if (StringUtils.isNotBlank(country1) && !StringUtils.equals(country1, saleStatistics.getCountry())) {
+            if (StringUtils.isNotBlank(country1) && !StringUtils.equals(country1, iCountry)) {
                 iterator.remove();
+                continue;
+            }
+            // 必须在传入的国家范围内
+            if (countries != null && !countries.contains(iCountry)) {
                 continue;
             }
 
@@ -151,8 +161,20 @@ public class StatisticsServiceImpl implements StatisticsService {
         return list;
     }
 
+
     @Override
-    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, int pageNum, int pageSize) {
+    public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries) {
+        List<SaleStatistics> saleStatistics = findSaleStatistics(condition, countries);
+        String[] header = new String[] { "所属地区","国家","订单总数量","订单总额","油气数量","油气订单金额","订单数量占比%","订单金额占比%","非油气数量","非油气订单金额","订单数量占比%","订单金额占比%","询单总数量","询单总金额","订单金额占比%","订单数量占比%","会员总数","1次复购率（会员数量）","2次复购率（会员数量）","次复购率（会员数量）","3次以上复购率（会员数量）"};
+        String[] keys = new String[] { "regionZh", "countryZh", "orderNum","orderAmount","oilOrderNum","oilOrderAmount","oilOrderNumRate","oilOrderAmountRate","nonOilOrderNum","nonOilOrderAmount","nonOilOrderNumRate","nonOilOrderAmountRate","quotationNum","quotationAmount","crmOrderNumRate","crmOrderAmountRate","vipNum","oneRePurch","twoRePurch","threeRePurch","moreRePurch"};
+        BuildExcel buildExcel = new BuildExcelImpl();
+        Object objArr = JSON.toJSON(saleStatistics);
+        HSSFWorkbook workbook = buildExcel.buildExcel((List)objArr, header, keys,"销售业绩统计");
+        return workbook;
+    }
+
+    @Override
+    public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, Set<String> countries, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");
         if (pageNum <= 0) {
             pageNum = 1;
@@ -161,7 +183,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             pageSize = 50;
         }
         // 查询sku的订单统计信息
-        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, pageNum, pageSize);
+        Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, countries, pageNum, pageSize);
         LOGGER.info("查询商品统计的询单信息");
         // 查询sku的询单统计信息
         Date handleAfterSdate = condition.getStartDate();
@@ -214,7 +236,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, int pageNum, int pageSize) {
+    private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, Set<String> countries, int pageNum, int pageSize) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
         Root<Goods> root = query.from(Goods.class);
@@ -253,6 +275,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
         if (StringUtils.isNotBlank(country)) {
             predicateList.add(cb.equal(countryPath, country));
+        }
+        if (countries != null && countries.size() > 0) {
+            predicateList.add(countryPath.in(countries.toArray(new String[countries.size()])));
         }
         if (startDate != null) {
             predicateList.add(cb.greaterThanOrEqualTo(signingDatePath, startDate));
@@ -317,7 +342,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         return resultPage;
     }
 
-    // TODO 会修改order表，回头查找问题
+    // TODO
     @Transactional
     public Page<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
         // 整理查询条件
@@ -360,7 +385,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
                 Join<Project, Order> orderRoot = root.join("order");
-                list.add(cb.greaterThanOrEqualTo(orderRoot.get("status").as(Integer.class), 3));
+                String countriesStr = condition.get("countries");
+                if (StringUtils.isNotBlank(countriesStr)) {
+                    String[] countriesArr = countriesStr.split(",");
+                    list.add(orderRoot.get("country").in(countriesArr));
+                }
+
                 // 销售合同号
                 String contractNo = condition.get("contractNo");
                 if (StringUtil.isNotBlank(contractNo)) {
@@ -417,6 +447,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(projectStatus)) {
                     list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
                 }
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "DRAFT")); // 不等于待确定的
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "SUBMIT")); // 不等于待确定的
                 //流程进度
                 String processProgress = condition.get("processProgress");
                 if (StringUtil.isNotBlank(processProgress)) {
