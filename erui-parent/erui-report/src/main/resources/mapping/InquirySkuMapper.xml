@@ -239,7 +239,7 @@
     SELECT
     IFNULL(sum(IFNULL(quote_unit_price,0.00)*IFNULL(cate_count,0)),0) AS inqCatePrice,
     COUNT(*) AS inqCateCount,
-    pro_category AS category
+    (CASE WHEN pro_category IS  NULL  OR  pro_category ='' THEN  '其他' ELSE  pro_category  END ) AS category
     FROM
     erui_rfq.v_inquiry_sku
     <if test="_parameter != null" >
@@ -249,7 +249,7 @@
       order by ${orderByClause}
     </if>
     GROUP BY
-    category HAVING  category IS  NOT  NULL
+    category
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
