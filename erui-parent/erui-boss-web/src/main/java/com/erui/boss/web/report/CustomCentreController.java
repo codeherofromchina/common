@@ -1458,15 +1458,15 @@ public class CustomCentreController {
     //获取退回原因的英文名
     private String getReasonEn(String reason) {
 
-        if (reason.equals(InqRtnSeasonEnum.NOT_ORG.getCh())) {
+        if (reason.contains(InqRtnSeasonEnum.NOT_ORG.getCh())) {
             return InqRtnSeasonEnum.NOT_ORG.getEn();
-        } else if (reason.equals(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
+        } else if (reason.contains(InqRtnSeasonEnum.NOT_SUPPLY.getCh())) {
             return InqRtnSeasonEnum.NOT_SUPPLY.getEn();
-        } else if (reason.equals(InqRtnSeasonEnum.OTHER.getCh())) {
+        } else if (reason.contains(InqRtnSeasonEnum.OTHER.getCh())) {
             return InqRtnSeasonEnum.OTHER.getEn();
-        } else if (reason.equals(InqRtnSeasonEnum.PROJECT_CLEAR.getCh())) {
+        } else if (reason.contains(InqRtnSeasonEnum.PROJECT_CLEAR.getCh())) {
             return InqRtnSeasonEnum.PROJECT_CLEAR.getEn();
-        } else if (reason.equals(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
+        } else if (reason.contains(InqRtnSeasonEnum.SYSTEM_PROBLEMS.getCh())) {
             return InqRtnSeasonEnum.SYSTEM_PROBLEMS.getEn();
         } else {
             return InqRtnSeasonEnum.OTHER.getEn();
