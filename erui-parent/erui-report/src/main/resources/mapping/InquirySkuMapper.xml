@@ -242,12 +242,21 @@
     (CASE WHEN pro_category IS  NULL  OR  pro_category ='' THEN  '其他' ELSE  pro_category  END ) AS category
     FROM
     erui_rfq.v_inquiry_sku
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
+    WHERE quotation_num IN
+      (SELECT  quotation_num FROM erui_rfq.v_inquiry_count
+      WHERE  1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      <if test="quotes!=null">
+          AND quoted_status IN
+          <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+              #{quote}
+          </foreach>
+      </if>
+      AND quotation_num IS NOT NULL
+      )
     GROUP BY
     category
   </select>

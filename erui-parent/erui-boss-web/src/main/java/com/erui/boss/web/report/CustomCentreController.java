@@ -707,11 +707,11 @@ public class CustomCentreController {
     // 品类明细
     @ResponseBody
     @RequestMapping(value = "/catesDetail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object catesDetail(@RequestBody Map<String, String> map) throws Exception {
+    public Object catesDetail(@RequestBody Map<String, Object> map) throws Exception {
         Result<Object> result = new Result<>();
         //开始时间
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), DateUtil.FULL_FORMAT_STR2);
-        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime"), DateUtil.FULL_FORMAT_STR2);
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime").toString(), DateUtil.FULL_FORMAT_STR2);
+        Date endTime = DateUtil.parseString2DateNoException(map.get("endTime").toString(), DateUtil.FULL_FORMAT_STR2);
         if (startTime == null || endTime == null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.PARAM_TYPE_ERROR);
         }
@@ -721,7 +721,7 @@ public class CustomCentreController {
         BigDecimal inqTotalAmount = BigDecimal.ZERO;
         BigDecimal ordTotalAmount = BigDecimal.ZERO;
 
-        List<CateDetailVo> inqList = inquirySKUService.selectSKUDetailByCategory(startTime, endTime);
+        List<CateDetailVo> inqList = inquirySKUService.selectSKUDetailByCategory(map);
         List<CateDetailVo> ordList = orderService.selecOrdDetailByCategory(startTime, endTime);
         //1.饼图数据 inqCateCount,category
         List<String> inqCateList = new ArrayList<>();

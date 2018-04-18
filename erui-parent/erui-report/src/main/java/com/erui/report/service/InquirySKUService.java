@@ -24,7 +24,7 @@ public interface InquirySKUService {
     /*
      * sku品类明细
      * */
-    List<CateDetailVo> selectSKUDetailByCategory(Date startTime, Date endTime);
+    List<CateDetailVo> selectSKUDetailByCategory(Map<String,Object> params);
 
     /*
      * 查询平台非平台产品数量

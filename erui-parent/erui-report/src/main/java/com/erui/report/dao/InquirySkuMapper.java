@@ -65,13 +65,17 @@ public interface InquirySkuMapper {
     /**
      * 查询油气和非油气商品次数
      * @param params  startTime endTime
-     * @return  proCategory ：分类  proCount ： 次数
+     * @return
      */
     List<IsOilVo> selectCountGroupByIsOil(Map<String,Object> params);
 
     List<Map<String, Object>> selectCountGroupByIsPlat(InquirySkuExample example);
-
-    List<CateDetailVo> selectSKUDetailByCategory(InquirySkuExample example);
+    /**
+     * 查询各分类的询单商品次数和金额
+     * @param params  startTime endTime
+     * @return
+     */
+    List<CateDetailVo> selectSKUDetailByCategory(Map<String,Object> params);
 
      void  deleteByQuotetionNum(String quotetionNum);
      //获取sku区域数据汇总

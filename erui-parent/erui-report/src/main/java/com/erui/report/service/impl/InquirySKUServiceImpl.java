@@ -63,16 +63,8 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
     }
 
     @Override
-    public List<CateDetailVo> selectSKUDetailByCategory(Date startTime,Date endTime) {
-        InquirySkuExample example = new InquirySkuExample();
-        InquirySkuExample.Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return readMapper. selectSKUDetailByCategory(example);
+    public List<CateDetailVo> selectSKUDetailByCategory(Map<String,Object> params) {
+        return readMapper. selectSKUDetailByCategory(params);
     }
 
     @Override
