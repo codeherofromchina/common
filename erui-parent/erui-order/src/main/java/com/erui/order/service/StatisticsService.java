@@ -4,6 +4,7 @@ import com.erui.order.model.GoodsBookDetail;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.data.domain.Page;
 
 import java.util.Date;
@@ -22,6 +23,7 @@ public interface StatisticsService {
      * @return
      */
     public List<SaleStatistics> findSaleStatistics(SaleStatistics condition,Set<String> countries);
+    public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries);
 
     /**
      * 查询商品统计信息
