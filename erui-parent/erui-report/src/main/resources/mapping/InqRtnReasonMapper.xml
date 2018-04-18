@@ -85,7 +85,7 @@
     IFNULL(sum(case when d>0 then 1 else 0 end),0) as systemProblemsInqCount ,
     IFNULL(sum(d),0)  AS systemProblemsCount,
     IFNULL(sum(case when e>0 then 1 else 0 end),0) as otherInqCount ,
-    IFNULL(sum(a),0) AS otherCount
+    IFNULL(sum(e),0) AS otherCount
   from (
       select
       quotation_num,
