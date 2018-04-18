@@ -112,7 +112,7 @@
   <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
     COUNT(1) AS total,
-    (case WHEN inquiry_area IS NULL THEN '其他' ELSE inquiry_area END)  AS area,
+    (case WHEN inquiry_area IS NULL OR inquiry_area ='' THEN '其他' ELSE inquiry_area END)  AS area,
     return_season  AS reason
     from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >
@@ -126,7 +126,7 @@
   <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
     COUNT(1) AS total,
-    (case WHEN organization IS NULL THEN '其他事业部' ELSE organization END)  AS org,
+    (case WHEN organization IS NULL OR  organization ='' THEN  '其他事业部' ELSE organization END)  AS org,
     return_season  AS reason
     from erui_rfq.v_inq_rtn_reason
     <if test="_parameter != null" >

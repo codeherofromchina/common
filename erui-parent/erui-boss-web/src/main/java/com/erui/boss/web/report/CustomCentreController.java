@@ -1269,7 +1269,7 @@ public class CustomCentreController {
     }
 
     //处理结果获取退回表格数据
-    public List<Map<String, Object>> getRtnTable(Map<String, Object> rtnMap) {
+    private  List<Map<String, Object>> getRtnTable(Map<String, Object> rtnMap) {
         //获取项目澄清数据 projectClear
         int projectClearInqCount = Integer.parseInt(rtnMap.get("projectClearInqCount").toString());
         int projectClearCount = Integer.parseInt(rtnMap.get("projectClearCount").toString());
@@ -1397,6 +1397,7 @@ public class CustomCentreController {
             Integer total = Integer.valueOf(m.get("total").toString());
             return total;
         }).reduce(0, (a, b) -> a + b);
+
         dataList.stream().forEach(m -> {
             if (totalCount != null && totalCount > 0) {
                 if (!areaData.containsKey(m.get("area").toString())) {
@@ -1408,7 +1409,12 @@ public class CustomCentreController {
                 } else {
                     Map<String, Object> areaMap = areaData.get(m.get("area").toString());
                     String reasonEn = this.getReasonEn(String.valueOf(m.get("reason")));
-                    areaMap.put(reasonEn, Integer.valueOf(m.get("total").toString()));
+                    if(areaMap.containsKey(reasonEn)){
+                        Integer t = Integer.valueOf(areaMap.get(reasonEn).toString());
+                        areaMap.put(reasonEn,t+ Integer.valueOf(m.get("total").toString()));
+                    }else {
+                        areaMap.put(reasonEn,Integer.valueOf(m.get("total").toString()));
+                    }
                 }
             }
         });
