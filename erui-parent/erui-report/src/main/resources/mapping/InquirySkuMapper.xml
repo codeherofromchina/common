@@ -143,8 +143,11 @@
   <select id="selectIsOilInfoByCondition" resultType="java.util.Map" parameterType="java.util.Map" >
       SELECT
       IFNULL(SUM(CASE is_oil_gas WHEN '是' THEN 1 ELSE 0 END),0) as oil,
+      IFNULL(SUM(CASE is_oil_gas WHEN '是' THEN quote_total_price ELSE 0 END),0) AS  oilAmount,
       IFNULL(SUM(CASE is_oil_gas WHEN '否' THEN 1 ELSE 0 END),0)+
-      IFNULL(SUM(CASE WHEN is_oil_gas IS NULL OR  is_oil_gas ='' THEN 1 ELSE 0 END),0)   as notOil
+      IFNULL(SUM(CASE WHEN is_oil_gas IS NULL OR  is_oil_gas ='' THEN 1 ELSE 0 END),0)   as notOil,
+      IFNULL(SUM(CASE is_oil_gas WHEN '否' THEN quote_total_price ELSE 0 END),0)+
+      IFNULL(SUM(CASE WHEN is_oil_gas IS NULL OR  is_oil_gas ='' THEN quote_total_price ELSE 0 END),0)   as notOilAmount
       from erui_rfq.v_inquiry_sku
       WHERE 1=1
       AND quotation_num IN
@@ -160,6 +163,15 @@
           #{quote}
         </foreach>
       </if>
+
+      <if test="area!=null and area!=''">
+        AND  inquiry_area =#{area}
+      </if>
+
+      <if test="country!=null and country!=''">
+         AND  inquiry_unit =#{country}
+      </if>
+
       AND quotation_num IS NOT NULL
        )
   </select>

@@ -62,8 +62,13 @@ public interface InquirySkuMapper {
      * @return  proCategory ：分类  proCount ： 次数
      */
     List<Map<String,Object>> selectProTop3(Map<String,Object> params);
+    /**
+     * 查询油气和非油气商品次数
+     * @param params  startTime endTime
+     * @return  proCategory ：分类  proCount ： 次数
+     */
+    List<IsOilVo> selectCountGroupByIsOil(Map<String,Object> params);
 
-    List<IsOilVo> selectCountGroupByIsOil(InquirySkuExample example);
     List<Map<String, Object>> selectCountGroupByIsPlat(InquirySkuExample example);
 
     List<CateDetailVo> selectSKUDetailByCategory(InquirySkuExample example);

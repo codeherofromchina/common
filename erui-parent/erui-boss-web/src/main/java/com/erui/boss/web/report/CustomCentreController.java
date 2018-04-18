@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -891,36 +892,17 @@ public class CustomCentreController {
         String areaName = (String) map.get("area");
         String countryName = (String) map.get("country");
         CustomerNumSummaryVO orderNumSummary = orderService.numSummary(startTime, endTime, areaName, countryName);
-//        CustomerNumSummaryVO inquiryNumSummary = inquiryService.numSummary(startTime, endTime, areaName, countryName);
         //询单数量和金额
-        double inAmount = inquiryService.inquiryAmountByTime(startTime, endTime, areaName, countryName, null);
-        List<InquiryVo> inList = inquiryService.selectListByTime(map);
-        //定义询单数量
-        int inCount = 0;
-        List<String> nums = new ArrayList<>();
-        if (inList != null && inList.size() > 0) {
-            inCount = inList.size();
-            for (InquiryVo inq : inList) {
-                nums.add(inq.getQuotationNum());
-            }
-        }
+        Map<String, Object> inqMap = inquiryService.selectInqInfoByCondition(map);
+        double inAmount = Double.parseDouble(inqMap.get("inqAmount").toString());
+        int inCount = Integer.parseInt(inqMap.get("count").toString());
         //油气分类数量和金额
-        int oil = 0;
-        int notOil = 0;
-        BigDecimal oilAmount = new BigDecimal(0);
-        BigDecimal notOilAmount = new BigDecimal(0);
-        List<IsOilVo> isOilList = inquirySKUService.selectCountGroupByIsOil(startTime, endTime, nums);
-        if (isOilList != null && isOilList.size() > 0) {
-            for (IsOilVo vo : isOilList) {
-                if (vo.getIsOil().equals("油气")) {
-                    oil = vo.getSkuCount();
-                    oilAmount = vo.getSkuAmount();
-                } else if (vo.getIsOil().equals("非油气")) {
-                    notOil = vo.getSkuCount();
-                    notOilAmount = vo.getSkuAmount();
-                }
-            }
-        }
+        Map<String, Object> oilMap = inquirySKUService.selectIsOilInfoByCondition(map);
+        int oil = Integer.parseInt(oilMap.get("oil").toString());
+        int notOil = Integer.parseInt(oilMap.get("notOil").toString());
+        BigDecimal oilAmount = new BigDecimal(Double.parseDouble(oilMap.get("oilAmount").toString()));
+        BigDecimal notOilAmount = new BigDecimal(Double.parseDouble(oilMap.get("notOilAmount").toString()));
+
         Map<String, Object> numData = new HashMap<>();
 
         String[] xTitleArr = new String[]{"询单数量", "油气数量", "非油气数量", "订单数量", "油气数量", "非油气数量",};
@@ -949,8 +931,6 @@ public class CustomCentreController {
 
         return new Result<>().setData(data);
     }
-
-
     /**
      * 客户中心-询单详细分析：所有大区和大区中的所有事业部列表
      *

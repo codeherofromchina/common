@@ -35,21 +35,9 @@ public class InquirySKUServiceImpl extends  BaseService<InquirySkuMapper> implem
     }
 
     @Override
-    public List<IsOilVo> selectCountGroupByIsOil(Date startDate, Date endDate,List<String> inquiryNums) {
-        InquirySkuExample e = new InquirySkuExample();
-        InquirySkuExample.Criteria criteria = e.createCriteria();
-        if(startDate!=null){
-            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
-        }
-        if(endDate!=null){
-            criteria.andRollinTimeLessThan(endDate);
-        }
-        if(inquiryNums!=null&&inquiryNums.size()>0){
-            criteria.andQuotationNumIn(inquiryNums);
-        }else {
-           return  new ArrayList<IsOilVo>();
-        }
-        return readMapper.selectCountGroupByIsOil(e);
+    public List<IsOilVo> selectCountGroupByIsOil(Map<String,Object> map) {
+
+        return readMapper.selectCountGroupByIsOil(map);
     }
 
 

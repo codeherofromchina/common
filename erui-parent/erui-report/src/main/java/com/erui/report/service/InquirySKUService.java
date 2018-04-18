@@ -11,7 +11,7 @@ public interface InquirySKUService {
 
     Integer selectSKUCountByTime(Date startDate, Date endDate, List<String> inquiryNums);
 
-    List<IsOilVo> selectCountGroupByIsOil(Date startDate, Date endDate, List<String> inquiryNums);
+    List<IsOilVo> selectCountGroupByIsOil(Map<String,Object> map);
 
 
     /**
