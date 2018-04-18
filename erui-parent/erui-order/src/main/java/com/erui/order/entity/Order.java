@@ -645,7 +645,7 @@ public class Order {
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
-        if (totalPrice == null){
+        if (totalPrice == null) {
             BigDecimal bigDecimal = new BigDecimal(0.00);
             totalPrice = bigDecimal;
         }
@@ -827,6 +827,16 @@ public class Order {
         }
     }
 
+    public static StatusEnum fromCode(Integer code) {
+        if (code != null) {
+            for (StatusEnum statusEnum : StatusEnum.values()) {
+                if (statusEnum.getCode() == code) {
+                    return statusEnum;
+                }
+            }
+        }
+        return null;
+    }
 
 
 }

@@ -4,12 +4,18 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
+import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
+import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +24,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -196,6 +207,7 @@ public class OrderController {
         }
         return new Result<>(logList);
     }
+
     /**
      * 确认订单
      *
@@ -207,11 +219,114 @@ public class OrderController {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         boolean flag;
         flag = orderService.orderFinish(order);
-        if (flag){
+        if (flag) {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
             return result;
         }
         return result;
+    }
+
+    /**
+     * 订单列表导出
+     *
+     * @return
+     */
+    @RequestMapping(value = "orderListExport", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderListExport(@RequestBody OrderListCondition condition) {
+        //页数不能小于1
+        if (condition.getPage() < 1) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        // 准备数据容器
+        String[] header = new String[]{"ID", "销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
+                "CRM客户代码", "订单类型", "合同总价", "款项状态", "订单来源", "订单状态", "项目状态", "流程进度"};
+        List<Object[]> datas = new ArrayList<Object[]>();
+
+        Page<Order> orderPage = orderService.findByPage(condition);
+        if (orderPage.hasContent()) {
+            orderPage.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                vo.setGoodsList(null);
+                Object[] rowData = new Object[header.length];
+                rowData[0] = vo.getId();
+                rowData[1] = vo.getContractNo();
+                rowData[2] = vo.getProjectNo();
+                rowData[3] = vo.getPoNo();
+                rowData[4] = vo.getInquiryNo();
+                rowData[5] = vo.getAgentName();
+                rowData[7] = vo.getBusinessName();
+                rowData[8] = vo.getDeliveryDate();
+                rowData[9] = vo.getSigningDate();
+                rowData[10] = vo.getCrmCode();
+                if (vo.getOrderType() == 1) {
+                    rowData[11] = "油气";
+                } else {
+                    rowData[11] = "非油气";
+                }
+                rowData[12] = vo.getTotalPrice();
+                // 1:未付款 2:部分付款 3:收款完成
+                if (vo.getPayStatus() == 1) {
+                    rowData[13] = "未付款";
+                } else if (vo.getPayStatus() == 2) {
+                    rowData[13] = "部分付款";
+                } else {
+                    rowData[13] = "收款完成";
+                }
+
+
+                // 1 门户订单 2 门户询单 3 线下订单',
+                if (vo.getOrderSource() == 1) {
+                    rowData[14] = "门户订单";
+                } else if (vo.getOrderSource() == 2) {
+                    rowData[14] = "门户询单";
+                } else {
+                    rowData[14] = "线下订单";
+                }
+                rowData[15] = Order.fromCode(vo.getStatus()).getMsg();
+                rowData[16] = Project.ProjectProgressEnum.ProjectProgressFromCode(vo.getProcessProgress()).getMsg();
+                if (vo.getOrderType() == 1) {
+                    rowData[17] = "油气";
+                } else {
+                    rowData[17] = "非油气";
+                }
+                rowData[18] = vo.getTotalPrice();
+                datas.add(rowData);
+            });
+        }
+
+
+        BuildExcel buildExcel = new BuildExcelImpl();
+
+
+        HSSFWorkbook workbook = buildExcel.buildExcel(datas, header, null,
+                "订单列表");
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        // 如果要加入标题
+       /* ExcelCustomStyle.insertRow(workbook, 0, 0 , 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "提现审核列表");*/
+        FileOutputStream out = null;
+        try {
+            HSSFSheet sheet = workbook.getSheetAt(0);
+            int lastRowNum = sheet.getLastRowNum();
+            System.out.println(lastRowNum);
+            out = new FileOutputStream("E:/order/order/订单列表.xls");
+            workbook.write(out);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return new Result<>(orderPage);
     }
 }

@@ -621,7 +621,7 @@ public class Project {
         public Integer getNum() {
             return num;
         }
-        public static ProjectProgressEnum fromCode(String code) {
+        public static ProjectProgressEnum ProjectProgressFromCode(String code) {
             if (StringUtils.isNotBlank(code)) {
                 for (ProjectProgressEnum statusEnum : ProjectProgressEnum.values()) {
                     if (statusEnum.getCode().equals(code)) {
