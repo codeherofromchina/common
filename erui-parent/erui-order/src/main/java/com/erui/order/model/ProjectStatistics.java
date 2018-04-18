@@ -1,5 +1,6 @@
 package com.erui.order.model;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -37,7 +38,9 @@ public class ProjectStatistics {
         this.paymentModeBn = order.getPaymentModeBn();
         this.profitPercent = project.getProfitPercent();
         this.grantType = order.getGrantType();
-        this.deliveryDate = order.getDeliveryDate();
+        if (project.getDeliveryDate() != null) {
+            this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR,project.getDeliveryDate());
+        }
         this.requirePurchaseDate = project.getRequirePurchaseDate();
         this.exeChgDate = project.getExeChgDate();
         this.agentName = order.getAgentName();
