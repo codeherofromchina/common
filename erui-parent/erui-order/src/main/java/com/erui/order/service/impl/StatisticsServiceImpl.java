@@ -131,6 +131,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
             // 必须在传入的国家范围内
             if (countries != null && !countries.contains(iCountry)) {
+                iterator.remove();
                 continue;
             }
 
@@ -964,7 +965,11 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (countrys != null && countrys.size() > 0) {
             for (Object vo : countrys) {
                 Object[] strArr = (Object[]) vo;
-                result.put((String) strArr[0], (String) strArr[1]);
+                String s0 = (String) strArr[0];
+                String s1 = (String) strArr[1];
+                if (StringUtils.isNotBlank(s1)) {
+                    result.put(s0, s1);
+                }
             }
         }
         return result;
@@ -977,7 +982,11 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (regions != null && regions.size() > 0) {
             for (Object vo : regions) {
                 Object[] strArr = (Object[]) vo;
-                result.put((String) strArr[0], (String) strArr[1]);
+                String s0 = (String) strArr[0];
+                String s1 = (String) strArr[1];
+                if (StringUtils.isNotBlank(s1)) {
+                    result.put(s0, s1);
+                }
             }
         }
         return result;
