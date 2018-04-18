@@ -13,10 +13,13 @@ public interface InquirySKUService {
 
     List<IsOilVo> selectCountGroupByIsOil(Date startDate, Date endDate, List<String> inquiryNums);
 
-    /*
-     * 查询产品Top3
-     * */
-    public List<Map<String, Object>> selectProTop3(Date startTime, Date endTime, List<String> numList);
+
+    /**
+     * 获取分类询价商品次数top3
+     * @param params
+     * @return  proCount : 次数   proCategory ：分类 proProportionl：占比
+     */
+    List<Map<String, Object>> selectProTop3(Map<String,Object> params);
 
     /*
      * sku品类明细
@@ -28,7 +31,24 @@ public interface InquirySKUService {
      * */
     List<Map<String, Object>> selectCountGroupByIsPlat(Date startTime, Date endTime);
 
-
+    /**
+     * 获取询单商品基本信息根据条件
+     * @param params
+     * @return  goodsCount : 数量   chainAdd ：环比新增  ，chainRate ：环比率
+     */
+    Map<String,Object> selectInqGoodsInfoByCondition(Map<String,Object> params);
+    /**
+     * 获取询单平台分类基本信息根据条件
+     * @param params
+     * @return  platCount:平台数量 ,notPlatCount:非平台数量, platProportion:平台占比,planChainAdd:平台环比新增, planChainRate:平台环比
+     */
+    Map<String,Object> selectPlatInfoByCondition(Map<String,Object> params);
+    /**
+     * 获取询单油气分类基本信息根据条件
+     * @param params
+     * @return  oil:油气商品次数 ,notOil:非油气次数, oiProportionl:油气占比,oilChainAdd:油气环比新增, chainRate:油气环比
+     */
+    Map<String,Object> selectIsOilInfoByCondition(Map<String,Object> params);
 
 
 }

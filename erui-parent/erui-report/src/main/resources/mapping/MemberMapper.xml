@@ -205,7 +205,7 @@
     SELECT
       COUNT(cust_description) inqCount,
       `cust_description` custName
-      FROM  inquiry_count
+      FROM  erui_rfq.v_inquiry_count
 	  WHERE 1=1
     <if test="startTime!=null and endTime!=null">
       and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
@@ -227,7 +227,7 @@
   from
       (
           SELECT  COUNT(distinct(cust_description)) AS fristCustCount
-          FROM inquiry_count as t1
+          FROM erui_rfq.v_inquiry_count as t1
           WHERE 1=1 AND cust_description IS NOT NULL
                 <if test="startTime!=null and endTime!=null">
                 and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
@@ -241,7 +241,7 @@
       ) AS t1,
       (
           SELECT COUNT(DISTINCT(cust_description)) AS seniorCount
-          FROM inquiry_count WHERE 1=1
+          FROM erui_rfq.v_inquiry_count WHERE 1=1
                     <if test="startTime!=null and endTime!=null">
                        and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -258,7 +258,7 @@
     SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
            COUNT(1) AS inqTimes  ,
            inquiry_area AS area
-    FROM  inquiry_count
+    FROM  erui_rfq.v_inquiry_count
     WHERE 1=1 and  cust_description is not null
     <if test="startTime!=null and endTime!=null">
       and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
@@ -273,7 +273,7 @@
         SELECT COUNT(1) AS custCount ,
         COUNT(1) AS inqTimes  ,
         inquiry_area AS area
-        FROM  inquiry_count
+        FROM  erui_rfq.v_inquiry_count
         WHERE 1=1 and  cust_description is  null
         <if test="startTime!=null and endTime!=null">
             and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
@@ -292,7 +292,7 @@
       from
 
       (
-      SELECT COUNT(DISTINCT(cust_description)) AS oneMothCount FROM inquiry_count WHERE 1=1
+      SELECT COUNT(DISTINCT(cust_description)) AS oneMothCount FROM erui_rfq.v_inquiry_count WHERE 1=1
       AND cust_description IS NOT NULL  AND cust_description !=''
       AND cust_description IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
       IS NOT NULL AND buyer_code!='' AND DATE_ADD(created_at,INTERVAL 1 MONTH) >= NOW())
@@ -301,7 +301,7 @@
       )
       as oneTable,
       (
-      SELECT COUNT(DISTINCT(cust_description)) AS threeMothCount FROM inquiry_count
+      SELECT COUNT(DISTINCT(cust_description)) AS threeMothCount FROM erui_rfq.v_inquiry_count
       WHERE 1=1
       AND cust_description IS NOT NULL  AND cust_description !=''
       and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
@@ -314,7 +314,7 @@
       as threeTable,
       (
       SELECT COUNT(DISTINCT(cust_description)) AS moreThanThreeMothCount
-      FROM inquiry_count WHERE 1=1
+      FROM erui_rfq.v_inquiry_count WHERE 1=1
       AND cust_description IS NOT NULL  AND cust_description !=''
       and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
