@@ -2,6 +2,7 @@ package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.middle.redis.ShardedJedisUtil;
 import com.erui.comm.util.data.date.DateUtil;
@@ -50,7 +51,6 @@ public class StatisticsServiceImpl implements StatisticsService {
     private static final String STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY = "STATISTICSSERVICEIMPL_GOODSBASESTATISTICS_TOTAL_KEY";
     @Autowired
     private EntityManager entityManager;
-
     @Autowired
     private StatisticsDao statisticsDao;
     @Autowired
@@ -165,23 +165,17 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries) {
         List<SaleStatistics> saleStatistics = findSaleStatistics(condition, countries);
-        String[] header = new String[] { "所属地区","国家","订单总数量","订单总额","油气数量","油气订单金额","订单数量占比%","订单金额占比%","非油气数量","非油气订单金额","订单数量占比%","订单金额占比%","询单总数量","询单总金额","订单金额占比%","订单数量占比%","会员总数","1次复购率（会员数量）","2次复购率（会员数量）","次复购率（会员数量）","3次以上复购率（会员数量）"};
-        String[] keys = new String[] { "regionZh", "countryZh", "orderNum","orderAmount","oilOrderNum","oilOrderAmount","oilOrderNumRate","oilOrderAmountRate","nonOilOrderNum","nonOilOrderAmount","nonOilOrderNumRate","nonOilOrderAmountRate","quotationNum","quotationAmount","crmOrderNumRate","crmOrderAmountRate","vipNum","oneRePurch","twoRePurch","threeRePurch","moreRePurch"};
+        String[] header = new String[]{"所属地区", "国家", "订单总数量", "订单总额", "油气数量", "油气订单金额", "订单数量占比%", "订单金额占比%", "非油气数量", "非油气订单金额", "订单数量占比%", "订单金额占比%", "询单总数量", "询单总金额", "订单金额占比%", "订单数量占比%", "会员总数", "1次复购率（会员数量）", "2次复购率（会员数量）", "次复购率（会员数量）", "3次以上复购率（会员数量）"};
+        String[] keys = new String[]{"regionZh", "countryZh", "orderNum", "orderAmount", "oilOrderNum", "oilOrderAmount", "oilOrderNumRate", "oilOrderAmountRate", "nonOilOrderNum", "nonOilOrderAmount", "nonOilOrderNumRate", "nonOilOrderAmountRate", "quotationNum", "quotationAmount", "crmOrderNumRate", "crmOrderAmountRate", "vipNum", "oneRePurch", "twoRePurch", "threeRePurch", "moreRePurch"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(saleStatistics);
-        HSSFWorkbook workbook = buildExcel.buildExcel((List)objArr, header, keys,"销售业绩统计");
+        HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "销售业绩统计");
         return workbook;
     }
 
     @Override
     public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, Set<String> countries, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        if (pageSize < 0) {
-            pageSize = 50;
-        }
         // 查询sku的订单统计信息
         Page<GoodsStatistics> goodsStatisticsList = goodsBaseStatistics(condition, countries, pageNum, pageSize);
         LOGGER.info("查询商品统计的询单信息");
@@ -230,10 +224,28 @@ public class StatisticsServiceImpl implements StatisticsService {
         return goodsStatisticsList;
     }
 
+
+    @Override
+    public HSSFWorkbook generateGoodsStatisticsExcel(GoodsStatistics goodsStatistics, Set<String> countries) {
+        Page<GoodsStatistics> goodsStatisticsPage = findGoodsStatistics(goodsStatistics, countries, -1, -1);
+        String[] header = new String[]{"平台SKU", "产品分类", "英文品名", "中文品牌", "品牌", "所属地区", "国家", "询单数量", "询单金额", "订单数量", "订单金额"};
+        String[] keys = new String[]{"sku", "proType", "nameEn", "nameZh", "brand", "regionZh", "countryZh", "quotationNum", "quotationAmount", "orderNum", "orderAmount"};
+        BuildExcel buildExcel = new BuildExcelImpl();
+        List<JSONObject> data = new ArrayList<>();
+        for (GoodsStatistics goodsStat : goodsStatisticsPage) {
+            data.add((JSONObject) JSON.toJSON(goodsStat));
+        }
+        HSSFWorkbook workbook = buildExcel.buildExcel(data, header, keys, "产品统计");
+        return workbook;
+    }
+
     /**
      * 商品基本统计信息
+     * pageNum和pageSize要大于0，否则分页失效
      *
      * @param goodsStatistics
+     * @param pageNum
+     * @param pageSize
      * @return
      */
     private Page<GoodsStatistics> goodsBaseStatistics(GoodsStatistics goodsStatistics, Set<String> countries, int pageNum, int pageSize) {
@@ -297,27 +309,33 @@ public class StatisticsServiceImpl implements StatisticsService {
         query.groupBy(skuPath, proTypePath, nameEnPath, nameZhPath, brandPath, regionPath, countryPath);
         TypedQuery<Tuple> q = entityManager.createQuery(query);
 
-        int firstResult = (pageNum - 1) * pageSize;
         List<Tuple> tupleList = null;
-        Integer totalEles = totalEles = ShardedJedisUtil.getInteger(getRedisKey(goodsStatistics));
-        if (totalEles != null) {
-            if (firstResult > totalEles) {
-                tupleList = new ArrayList<>();
+        Integer totalEles = null;
+        if (pageNum > 0 && pageSize > 0) {
+            int firstResult = (pageNum - 1) * pageSize;
+            totalEles = ShardedJedisUtil.getInteger(getRedisKey(goodsStatistics));
+            if (totalEles != null) {
+                if (firstResult > totalEles) {
+                    tupleList = new ArrayList<>();
+                } else {
+                    q.setFirstResult(firstResult);
+                    q.setMaxResults(pageSize);
+                    tupleList = q.getResultList();
+                }
             } else {
-                q.setFirstResult(firstResult);
-                q.setMaxResults(pageSize);
-                tupleList = q.getResultList();
+                List<Tuple> list = q.getResultList();
+                totalEles = list.size();
+                ShardedJedisUtil.setExpire(getRedisKey(goodsStatistics), String.valueOf(totalEles), "NX", "EX", 30 * 60); // 设置60分钟过期
+                if (firstResult > totalEles) {
+                    tupleList = new ArrayList<>();
+                } else {
+                    int endIndex = Math.min(firstResult + pageSize, list.size());
+                    tupleList = list.subList(firstResult, endIndex);
+                }
             }
         } else {
-            List<Tuple> list = q.getResultList();
-            totalEles = list.size();
-            ShardedJedisUtil.setExpire(getRedisKey(goodsStatistics), String.valueOf(totalEles), "NX", "EX", 30 * 60); // 设置60分钟过期
-            if (firstResult > totalEles) {
-                tupleList = new ArrayList<>();
-            } else {
-                int endIndex = Math.min(firstResult + pageSize, list.size());
-                tupleList = list.subList(firstResult, endIndex);
-            }
+            tupleList = q.getResultList();
+
         }
 
         List<GoodsStatistics> result = new ArrayList<>();
@@ -336,15 +354,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                 result.add(gs);
             }
         }
-
-        Page<GoodsStatistics> resultPage = new PageImpl<GoodsStatistics>(result, new PageRequest(pageNum - 1, pageSize), totalEles);
+        Page<GoodsStatistics> resultPage = null;
+        if (pageNum > 0 && pageSize > 0) {
+            resultPage = new PageImpl<GoodsStatistics>(result, new PageRequest(pageNum - 1, pageSize), totalEles);
+        } else {
+            resultPage = new PageImpl<GoodsStatistics>(result, new PageRequest(1, result.size()), result.size());
+        }
 
         return resultPage;
     }
 
     // TODO
     @Transactional
-    public Page<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
+    public Page<ProjectStatistics> findProjectStatisticsByPage(Map<String, String> condition) {
         // 整理查询条件
         int page = 0;
         int rows = 50;
@@ -500,6 +522,161 @@ public class StatisticsServiceImpl implements StatisticsService {
         return result;
     }
 
+    // TODO
+    @Transactional
+    public List<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
+        List<Project> pageList = projectDao.findAll(new Specification<Project>() {
+            @Override
+            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                String startDateStr = condition.get("startDate");
+                String endDateStr = condition.get("endDate");
+                if (StringUtils.isNotBlank(startDateStr)) {
+                    Date startDate = DateUtil.parseString2DateNoException(startDateStr, "yyyy-MM-dd");
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startDate));
+                    }
+                }
+                if (StringUtils.isNotBlank(endDateStr)) {
+                    Date endDate = DateUtil.parseString2DateNoException(endDateStr, "yyyy-MM-dd");
+                    if (endDate != null) {
+                        endDate = NewDateUtil.plusDays(endDate, 1);
+                        list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
+                    }
+                }
+
+                Join<Project, Order> orderRoot = root.join("order");
+                String countriesStr = condition.get("countries");
+                if (StringUtils.isNotBlank(countriesStr)) {
+                    String[] countriesArr = countriesStr.split(",");
+                    list.add(orderRoot.get("country").in(countriesArr));
+                }
+
+                // 销售合同号
+                String contractNo = condition.get("contractNo");
+                if (StringUtil.isNotBlank(contractNo)) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                }
+                // 海外销售合同号
+                String contractNoOs = condition.get("contractNoOs");
+                if (StringUtil.isNotBlank(contractNoOs)) {
+                    list.add(cb.like(orderRoot.get("contractNoOs").as(String.class), "%" + contractNoOs + "%"));
+                }
+                // 项目号
+                String projectNo = condition.get("projectNo");
+                if (StringUtil.isNotBlank(projectNo)) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                }
+                //  项目名称
+                String projectName = condition.get("projectName");
+                if (StringUtil.isNotBlank(projectName)) {
+                    list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
+                }
+                // 分销部
+                String distributionDeptName = condition.get("distributionDeptName");
+                if (StringUtil.isNotBlank(distributionDeptName)) {
+                    list.add(cb.equal(root.get("distributionDeptName").as(String.class), distributionDeptName));
+                }
+                // 事业部
+                String businessUnitName = condition.get("businessUnitName");
+                if (StringUtil.isNotBlank(businessUnitName)) {
+                    list.add(cb.equal(root.get("businessUnitName").as(String.class), businessUnitName));
+                }
+                //执行单变更后日期
+                String exeChgDate = condition.get("exeChgDate");
+                if (StringUtil.isNotBlank(exeChgDate)) {
+                    Date date = DateUtil.str2Date(exeChgDate);
+                    if (date != null) {
+                        list.add(cb.equal(root.get("exeChgDate").as(Date.class), date));
+                    }
+                }
+                //执行单约定交付日期
+                String deliveryDate = condition.get("deliveryDate");
+                if (StringUtil.isNotBlank(deliveryDate)) {
+                    if (StringUtil.isNotBlank(deliveryDate)) {
+                        Date date = DateUtil.str2Date(deliveryDate);
+                        list.add(cb.equal(root.get("deliveryDate").as(Date.class), date));
+                    }
+                }
+                //根据执行分公司查询
+                String execCoName = condition.get("execCoName");
+                if (StringUtil.isNotBlank(execCoName)) {
+                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + execCoName + "%"));
+                }
+                //项目状态
+                String projectStatus = condition.get("projectStatus");
+                if (StringUtil.isNotBlank(projectStatus)) {
+                    list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
+                }
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "DRAFT")); // 不等于待确定的
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "SUBMIT")); // 不等于待确定的
+                //流程进度
+                String processProgress = condition.get("processProgress");
+                if (StringUtil.isNotBlank(processProgress)) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        });
+
+        List<ProjectStatistics> dataList = new ArrayList<>();
+        List<Integer> orderIds = new ArrayList<>();
+        // 查询地区的中英文对应列表
+        Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
+        for (Project project : pageList) {
+            Order order = project.getOrder();
+            if (order != null) {
+                ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
+                projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
+                orderIds.add(order.getId());
+                dataList.add(projectStatistics);
+            }
+        }
+        // 查询所有订单的回款总金额信息
+        if (dataList.size() > 0) {
+            List<Object> orderAccountList = statisticsDao.findOrderAccount(orderIds);
+            Map<Integer, Object[]> orderAccountMap = orderAccountList.parallelStream().collect(Collectors.toMap(vo -> {
+                Object[] objArr = (Object[]) vo;
+                return (Integer) objArr[0];
+            }, vo -> {
+                Object[] objArr = (Object[]) vo;
+                return objArr;
+            }));
+            for (ProjectStatistics projectStatistics : dataList) {
+                Integer orderId = projectStatistics.getOrderId();
+                Object[] objArr = orderAccountMap.get(orderId);
+                if (objArr != null) {
+                    projectStatistics.setPaymentDate((Date) objArr[2]);
+                    projectStatistics.setMoney((BigDecimal) objArr[1]);
+                }
+            }
+        }
+        return dataList;
+    }
+
+
+    @Override
+    public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
+        List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
+        String[] header = new String[]{"项目开始日期", "销售合同号", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
+                "PO号", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "海外销类型", "项目金额（美元）",
+                "前期报价（美元）", "前期物流报价（美元）", "收款方式", "回款时间", "回款金额（美元）", "初步利润率%", "授信情况", "执行单约定交付日期",
+                "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
+                "采购延期时间（天）", "物流延期时间（天）", "项目状态", "流程进度", "原因类型", "原因描述"};
+        String[] keys = new String[]{"startDate", "contractNo", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
+                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerType", "orderType", "XXXXXXX", "totalPrice",
+                "XXXXXXX", "XXXXXXX", "paymentModeBn", "paymentDate", "money", "profitPercent", "grantType", "deliveryDate",
+                "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "businessName", "tradeTerms",
+                "XXXXXXX", "XXXXXXX", "projectStatus", "processProgress", "XXXXXXX", "XXXXXXX"};
+        BuildExcel buildExcel = new BuildExcelImpl();
+        Object objArr = JSON.toJSON(projectStatistics);
+        HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目执行统计");
+        return workbook;
+
+    }
 
     private String getRedisKey(GoodsStatistics goodsStatistics) {
         String sku = goodsStatistics.getSku();
@@ -533,6 +710,24 @@ public class StatisticsServiceImpl implements StatisticsService {
         result = mergeDeliverConsignGoodsInfo(result, statisticsDao.findDeliverConsignGoods(goodsIds));
 
         return result;
+    }
+
+
+    @Override
+    public HSSFWorkbook generateGoodsBookDetailExcel(Integer orderId) throws Exception {
+        List<GoodsBookDetail> goodsBookDetails = goodsBookDetail(orderId);
+        String[] header = new String[]{"平台SKU", "产品分类", "外文品名", "中文品名", "单位", "品牌", "规格型号", "采购数量",
+                "单价", "采购金额（美元）", "采购合同号", "供应商", "采购合同签订日期", "合同约定到货日期", "采购给供应商付款方式",
+                "给工厂付款日期", "采购到货日期", "报检日期", "检验完成日期", "入库日期", "下发订舱日期", "市场要求订舱时间",
+                "物流经办人", "包装完成日期", "离厂日期", "物流发票号", "通知市场箱单日期", "船期或航班", "预计抵达日期"};
+        String[] keys = new String[]{"sku", "proType", "nameEn", "nameZh", "unit", "brand", "model", "purchaseNum",
+                "purchasePrice", "purchaseTotalPrice", "purchNo", "supplierName", "signingDate", "arrivalDate", "payType",
+                "payFactoryDate", "inspectDate", "inspectDate", "checkDate", "instockDate", "bookingTime", "requireBookingDate",
+                "logisticsUserName", "packDoneDate", "leaveFactory", "logiInvoiceNo", "packingTime", "sailingDate", "arrivalPortTime"};
+        BuildExcel buildExcel = new BuildExcelImpl();
+        Object data = JSON.toJSON(goodsBookDetails);
+        HSSFWorkbook workbook = buildExcel.buildExcel((List) data, header, keys, "项目详情信息");
+        return workbook;
     }
 
     /**
