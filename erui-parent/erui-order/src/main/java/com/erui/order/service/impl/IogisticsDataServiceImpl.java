@@ -70,6 +70,11 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                     list.add(cb.equal(root.get("logisticsUserId").as(Integer.class), iogisticsData.getLogisticsUserId()));
                 }
 
+                //根据运单号
+                if (iogisticsData.getTheAwbNo() != null) {
+                    list.add(cb.like(root.get("theAwbNo").as(String.class), "%"+ iogisticsData.getTheAwbNo() +"%"));
+                }
+
                 //根据 物流经办日期
                 if (iogisticsData.getLogisticsDate() != null) {
                     list.add(cb.equal(root.get("logisticsDate").as(Date.class), iogisticsData.getLogisticsDate()));
