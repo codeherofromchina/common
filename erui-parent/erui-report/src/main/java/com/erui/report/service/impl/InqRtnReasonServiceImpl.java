@@ -18,29 +18,15 @@ public class InqRtnReasonServiceImpl extends  BaseService<InqRtnReasonMapper> im
         return readMapper.selectCountGroupByRtnSeason(params);
     }
 
+
+
     @Override
-    public List<Map<String, Object>> selectCountGroupByRtnSeasonAndArea(Date startTime, Date endTime) {
-        InqRtnReasonExample example = new InqRtnReasonExample();
-        InqRtnReasonExample.Criteria criteria = example.createCriteria();
-        if(startTime!=null){
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if(endTime!=null){
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return readMapper.selectCountGroupByRtnSeasonAndArea(example);
+    public List<Map<String, Object>> selectCountGroupByRtnSeasonAndArea(Map<String, Object> params) {
+        return readMapper.selectCountGroupByRtnSeasonAndArea(params);
     }
 
     @Override
-    public List<Map<String, Object>> selectCountGroupByRtnSeasonAndOrg(Date startTime, Date endTime) {
-        InqRtnReasonExample example = new InqRtnReasonExample();
-        InqRtnReasonExample.Criteria criteria = example.createCriteria();
-        if(startTime!=null){
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if(endTime!=null){
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return  readMapper.selectCountGroupByRtnSeasonAndOrg(example);
+    public List<Map<String, Object>> selectCountGroupByRtnSeasonAndOrg(Map<String, Object> params) {
+        return  readMapper.selectCountGroupByRtnSeasonAndOrg(params);
     }
 }
