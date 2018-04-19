@@ -1,12 +1,16 @@
 package com.erui.boss.web.order;
 
 import com.alibaba.fastjson.JSON;
+import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.model.GoodsStatistics;
+import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.ProjectListCondition;
@@ -22,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +59,7 @@ public class ExportDataController {
      */
 
     @RequestMapping(value = "/saleStatistics")
-    public ModelAndView saleStatistics(HttpServletResponse response, HttpServletRequest request) {
+    public void saleStatistics(HttpServletResponse response, HttpServletRequest request) {
         Map<String, String> params = getParameters(request);
         SaleStatistics saleStatistics = new SaleStatistics();
         saleStatistics.setRegion(params.get("region"));
@@ -78,6 +82,78 @@ public class ExportDataController {
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "提现审核列表");
         downExcel(workbook,response,"销售业绩统计");
         return null;
+        downExcel(workbook, response, "销售业绩统计");
+    }
+
+    // 商品（产品）统计信息
+    @RequestMapping("/goodsStatistics")
+    public void goodsStatistics(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> params = getParameters(request);
+        GoodsStatistics goodsStatistics = new GoodsStatistics();
+        goodsStatistics.setRegion(params.get("region"));
+        goodsStatistics.setCountry(params.get("country"));
+        goodsStatistics.setProType(params.get("proType"));
+        goodsStatistics.setSku(params.get("sku"));
+        goodsStatistics.setBrand(params.get("brand"));
+        goodsStatistics.setStartDate(DateUtil.str2Date(params.get("startDate")));
+        goodsStatistics.setEndDate(DateUtil.str2Date(params.get("endDate")));
+        String countriesStr = params.get("countries");
+        Set<String> countries = null;
+        if (StringUtils.isNotBlank(countriesStr)) {
+            String[] split = countriesStr.split(",");
+            countries = new HashSet<>(Arrays.asList(split));
+        }
+        // 获取统计数据
+        HSSFWorkbook data = statisticsService.generateGoodsStatisticsExcel(goodsStatistics, countries);
+        downExcel(data, response, "产品统计");
+    }
+
+
+
+    // 项目统计信息
+    @RequestMapping("/projectStatistics")
+    public void projectStatistics(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> condition = getParameters(request);
+        // 获取统计数据
+        HSSFWorkbook data = statisticsService.generateProjectStatisticsExcel(condition);
+        downExcel(data, response, "项目执行统计");
+    }
+
+
+    // 商品台账详情excel
+    @RequestMapping("/goodsBookDetail")
+    public void goodsBookDetail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String orderIdStr = request.getParameter("orderId");
+        Integer orderId = null;
+        if (StringUtils.isNumeric(orderIdStr)) {
+            orderId = Integer.parseInt(orderIdStr);
+        }
+        Result<Object> result = null;
+        if (orderId != null && orderId > 0) {
+            try {
+                HSSFWorkbook workbook = statisticsService.generateGoodsBookDetailExcel(orderId);
+                downExcel(workbook, response, "项目详情信息");
+                return;
+            } catch (Exception ex) {
+                LOGGER.error("异常 ： {}", ex);
+                result = new Result<>(ResultStatusEnum.FAIL).setMsg(ex.getMessage());
+            }
+        } else {
+            result = new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        if (result != null) {
+            OutputStream out = null;
+            try {
+                response.setContentType("application/json;charset=UTF-8");
+                out = response.getOutputStream();
+                result.printResult(out);
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
+        }
+
     }
     /**
      * 导出订单列表信息
@@ -154,11 +230,17 @@ public class ExportDataController {
     }
     /**
      * 下载excel到客户端
+     *
      * @param workbook
      * @param response
      * @param title
      */
     private void downExcel(HSSFWorkbook workbook, HttpServletResponse response, String title) {
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, title);
         OutputStream out = null;
         try {
             response.setContentType("application/ms-excel;charset=UTF-8");
@@ -186,6 +268,7 @@ public class ExportDataController {
 
     /**
      * 获取request中的参数
+     *
      * @param request
      * @return
      */

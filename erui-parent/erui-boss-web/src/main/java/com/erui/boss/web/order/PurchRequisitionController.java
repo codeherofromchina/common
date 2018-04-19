@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,25 @@ public class PurchRequisitionController {
     private PurchRequisitionService purchRequisitionService;
     @Autowired
     private ProjectService projectService;
+
+    /**
+     * 采购申请列表
+     * @param condition
+     *  { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
+     *      要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
+     * @return {
+     *          contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
+     *          businessName:商务技术经办人,startDate:项目开始日期,
+     *          submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
+     *      }
+     */
+    @RequestMapping(value = "listByPage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> listByPage(@RequestBody Map<String,String> condition) {
+        Page<Map<String,Object>> page =  purchRequisitionService.listByPage(condition);
+        return new Result<>(page);
+    }
+
+
 
     @RequestMapping(value = "queryPurchRequisition", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<PurchRequisition> queryPurchRequisition(@RequestBody Map<String, Integer> map) {

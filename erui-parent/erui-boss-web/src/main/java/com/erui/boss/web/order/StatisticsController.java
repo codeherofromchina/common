@@ -98,8 +98,14 @@ public class StatisticsController {
         if (StringUtils.isNumeric(pageNumStr)) {
             pageNum = Integer.parseInt(pageNumStr);
         }
+        if (pageNum < 1) {
+            pageNum = 1;
+        }
         if (StringUtils.isNumeric(pageSizeStr)) {
             pageSize = Integer.parseInt(pageSizeStr);
+        }
+        if (pageSize < 1) {
+            pageSize = 50;
         }
         // 获取统计数据
         Page<GoodsStatistics> data = statisticsService.findGoodsStatistics(goodsStatistics,countries,pageNum,pageSize);
@@ -110,7 +116,7 @@ public class StatisticsController {
     @RequestMapping("/projectStatistics")
     public Result<Object> projectStatistics(@RequestBody Map<String,String> condition) {
         // 获取统计数据
-        Page<ProjectStatistics> data = statisticsService.findProjectStatistics(condition);
+        Page<ProjectStatistics> data = statisticsService.findProjectStatisticsByPage(condition);
         return new Result<>(data);
     }
 
@@ -126,7 +132,7 @@ public class StatisticsController {
         try {
             List<GoodsBookDetail> data = statisticsService.goodsBookDetail(orderId);
             return new Result<>(data);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             LOGGER.error("异常 ： {}" ,ex);
             errMsg = ex.getMessage();
