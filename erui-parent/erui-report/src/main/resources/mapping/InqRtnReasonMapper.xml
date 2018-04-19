@@ -85,7 +85,7 @@
     IFNULL(sum(case when d>0 then 1 else 0 end),0) as systemProblemsInqCount ,
     IFNULL(sum(d),0)  AS systemProblemsCount,
     IFNULL(sum(case when e>0 then 1 else 0 end),0) as otherInqCount ,
-    IFNULL(sum(e),0) AS otherCount
+    IFNULL(sum(a),0) AS otherCount
   from (
       select
       quotation_num,
@@ -109,33 +109,35 @@
 
       ) as t;
   </select>
-  <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
+  <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="java.util.Map" >
     select
-    COUNT(1) AS total,
     (case WHEN inquiry_area IS NULL OR inquiry_area ='' THEN '其他' ELSE inquiry_area END)  AS area,
-    return_season  AS reason
-    from erui_rfq.v_inq_rtn_reason
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
+    sum(CASE WHEN return_season LIKE '%项目澄清%' then 1 else 0 end) as projectClear,
+    sum(CASE WHEN return_season LIKE '%非事业部业务范围%' then 1 else 0 end) as notOrg,
+    sum(CASE WHEN return_season LIKE '%无供应渠道%' then 1 else 0 end) as notSupply,
+    sum(CASE WHEN return_season LIKE '%系统问题%' then 1 else 0 end) as systemProblems,
+    sum(CASE WHEN return_season LIKE '%其他%' OR return_season='' OR return_season IS NULL  then 1 else 0 end) as other
+    from erui_rfq.v_inq_rtn_reason  WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-    GROUP BY inquiry_area ,return_season
+    group by inquiry_area
   </select>
   <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
-    COUNT(1) AS total,
-    (case WHEN organization IS NULL OR  organization ='' THEN  '其他事业部' ELSE organization END)  AS org,
-    return_season  AS reason
-    from erui_rfq.v_inq_rtn_reason
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
+    (case WHEN organization IS NULL OR organization ='' THEN '其他' ELSE organization END)  AS org,
+    sum(CASE WHEN return_season LIKE '%项目澄清%' then 1 else 0 end) as projectClear,
+    sum(CASE WHEN return_season LIKE '%非事业部业务范围%' then 1 else 0 end) as notOrg,
+    sum(CASE WHEN return_season LIKE '%无供应渠道%' then 1 else 0 end) as notSupply,
+    sum(CASE WHEN return_season LIKE '%系统问题%' then 1 else 0 end) as systemProblems,
+    sum(CASE WHEN return_season LIKE '%其他%' OR return_season='' OR return_season IS NULL  then 1 else 0 end) as other
+    from erui_rfq.v_inq_rtn_reason  WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-      GROUP BY organization ,return_season
+    group by organization
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
