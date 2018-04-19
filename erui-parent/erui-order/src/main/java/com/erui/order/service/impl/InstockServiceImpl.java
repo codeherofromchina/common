@@ -76,12 +76,12 @@ public class InstockServiceImpl implements InstockService {
                     list.add(cb.like(root.get("supplierName").as(String.class), "%" + condition.get("supplierName") + "%"));
                 }
                 //TODO 入库状态
-                Integer s = Integer.valueOf(condition.get("status"));
-                if (s != null) {
+                if (StringUtil.isNotBlank(condition.get("status"))) {
                     //Status   0未入库   1已入库
-                    if(s == 0){
+                    int status = Integer.parseInt(condition.get("status"));
+                    if(status == 0){
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 3)); //小于
-                    }else if(s == 1){
+                    }else if(status == 1){
                         list.add(cb.greaterThan(root.get("status").as(Integer.class), 2));  //大于
                     }
                 }
