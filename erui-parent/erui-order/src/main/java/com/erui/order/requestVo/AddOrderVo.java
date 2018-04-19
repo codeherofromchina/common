@@ -40,7 +40,7 @@ public class AddOrderVo {
     private Date signingDate;
 
     //合同签订日期
-    private Date deliveryDate;
+    private String deliveryDate;
 
     //签约主体公司
     private String signingCo;
@@ -311,11 +311,11 @@ public class AddOrderVo {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
