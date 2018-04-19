@@ -44,7 +44,6 @@ public class ProjectStatistics {
         this.requirePurchaseDate = project.getRequirePurchaseDate();
         this.exeChgDate = project.getExeChgDate();
         this.agentName = order.getAgentName();
-        this.acquireId = order.getAcquireId();
         this.businessName = order.getBusinessName();
         this.tradeTerms = order.getTradeTerms();
         this.projectStatus = project.getProjectStatus();
@@ -110,8 +109,8 @@ public class ProjectStatistics {
     private Date exeChgDate;
     //市场经办人
     private String agentName;
-    //获取人
-    private Integer acquireId;
+    //获取人 -- 由integer改为String,前端不用修改
+    private String acquireId;
     //商务技术经办人
     private String businessName;
     //贸易术语
@@ -222,11 +221,11 @@ public class ProjectStatistics {
         this.agentName = agentName;
     }
 
-    public Integer getAcquireId() {
+    public String getAcquireId() {
         return acquireId;
     }
 
-    public void setAcquireId(Integer acquireId) {
+    public void setAcquireId(String acquireId) {
         this.acquireId = acquireId;
     }
 
