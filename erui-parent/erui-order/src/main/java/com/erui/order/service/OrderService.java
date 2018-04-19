@@ -84,4 +84,11 @@ public interface OrderService {
       * @modified By
       */
     Map<String,Object> findByIdOut(Integer id);
+     /**
+      * @Author:SHIGS
+      * @Description订单列表导出
+      * @Date:19:04 2018/4/18
+      * @modified By
+      */
+    List<Order> findOrderExport(final OrderListCondition condition);
 }

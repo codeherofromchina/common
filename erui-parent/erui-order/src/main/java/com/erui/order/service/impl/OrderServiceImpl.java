@@ -778,4 +778,126 @@ public class OrderServiceImpl implements OrderService {
         }
         return resultMap;
     }
+    @Transactional(readOnly = true)
+    @Override
+    public List<Order> findOrderExport(final OrderListCondition condition) {
+        Sort sort = new Sort(Sort.Direction.DESC, "id");
+        List<Order> pageList = orderDao.findAll(new Specification<Order>() {
+            @Override
+            public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 根据销售同号模糊查询
+                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据Po号模糊查询
+                if (StringUtil.isNotBlank(condition.getPoNo())) {
+                    list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
+                }
+                //根据询单号查询
+                if (StringUtil.isNotBlank(condition.getInquiryNo())) {
+                    list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
+                }
+                //根据订单签订时间查询
+                if (condition.getSigningDate() != null) {
+                    list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
+                }
+                //根据合同交货日期查询
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
+                }
+                //根据框架协议号查询
+                if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
+                    list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
+                }
+                //根据订单类型
+                if (condition.getOrderType() != null) {
+                    list.add(cb.equal(root.get("orderType").as(Integer.class), condition.getOrderType()));
+                }
+                //根据汇款状态
+                if (condition.getPayStatus() != null) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
+                }
+                if (condition.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+                }
+                //根据订单来源查询
+                if (StringUtil.isNotBlank(condition.getOrderSource())) {
+                    list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //商务技术经办人
+                if (condition.getTechnicalId() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
+                }
+                //根据区域所在国家查询
+                String[] country = null;
+                if (StringUtils.isNotBlank(condition.getCountry())) {
+                    country = condition.getCountry().split(",");
+                }
+                if (condition.getType() == 1) {
+                    if (country != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                } else if (condition.getType() == 2) {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                } else {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    if (country != null) {
+                        list.add(root.get("country").in(country));
+                    }
+                }
+                list.add(cb.equal(root.get("deleteFlag"), false));
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, sort);
+        try {
+            if (pageList.size()>0) {
+                for (Order order:pageList) {
+                    order.setAttachmentSet(null);
+                    order.setOrderPayments(null);
+                    if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                        boolean flag = order.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                        order.setDeliverConsignC(flag);
+                    } else {
+                        order.setDeliverConsignC(Boolean.FALSE);
+                    }
+                    if (deliverDetailService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
+                        order.setOrderFinish(Boolean.TRUE);
+                    }
+                    order.setGoodsList(null);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return pageList;
+    }
 }
