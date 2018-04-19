@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -81,8 +82,6 @@ public class ExportDataController {
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "提现审核列表");
         downExcel(workbook,response,"销售业绩统计");
-        return null;
-        downExcel(workbook, response, "销售业绩统计");
     }
 
     // 商品（产品）统计信息
@@ -156,9 +155,10 @@ public class ExportDataController {
 
     }
     /**
-     * 导出订单列表信息
-     *
-     * @return
+     * @Author:SHIGS
+     * @Description 订单列表导出
+     * @Date:18:15 2018/4/19
+     * @modified By
      */
 
     @RequestMapping(value = "/orderExport")
@@ -195,11 +195,12 @@ public class ExportDataController {
         }
         return null;
     }
-    /**
-     * 导出项目列表信息
-     *
-     * @return
-     */
+     /**
+      * @Author:SHIGS
+      * @Description 项目导出
+      * @Date:18:16 2018/4/19
+      * @modified By
+      */
     @RequestMapping(value = "/projectExport")
     public ModelAndView projectExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
