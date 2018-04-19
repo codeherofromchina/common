@@ -513,6 +513,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (objArr != null) {
                     projectStatistics.setPaymentDate((Date) objArr[2]);
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
+                    projectStatistics.setAcquireId((String)objArr[3]);
                 }
             }
         }

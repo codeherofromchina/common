@@ -303,6 +303,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 if (StringUtils.isNotBlank(businessName)) {
                     list.add(cb.like(projectPath.get("businessName").as(String.class), "%" + businessName + "%"));
                 }
+                // 采购经办人过滤
+                String purchaseUid = condition.get("purchaseUid");
+                if (StringUtils.isNotBlank(purchaseUid)) {
+                    list.add(cb.equal(projectPath.get("purchaseUid"), purchaseUid));
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
