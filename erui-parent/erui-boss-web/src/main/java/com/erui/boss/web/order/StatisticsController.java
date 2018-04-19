@@ -132,7 +132,7 @@ public class StatisticsController {
         try {
             List<GoodsBookDetail> data = statisticsService.goodsBookDetail(orderId);
             return new Result<>(data);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             LOGGER.error("异常 ： {}" ,ex);
             errMsg = ex.getMessage();
