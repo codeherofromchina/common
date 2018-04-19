@@ -56,6 +56,11 @@ public class IogisticsServiceImpl implements IogisticsService {
                     list.add(cb.like(root.get("contractNo").as(String.class),"%"+iogistics.getContractNo()+"%"));
                 }
 
+                //根据 产品放行单号
+                if(StringUtil.isNotBlank(iogistics.getDeliverDetailNo())){
+                    list.add(cb.like(root.get("deliverDetailNo").as(String.class),"%"+iogistics.getDeliverDetailNo()+"%"));
+                }
+
                 //根据出口通知单号
                 if(StringUtil.isNotBlank(iogistics.getDeliverConsignNo())){
                     list.add(cb.like(root.get("deliverConsignNo").as(String.class),"%"+iogistics.getDeliverConsignNo()+"%"));
