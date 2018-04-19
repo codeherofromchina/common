@@ -75,6 +75,20 @@ public class InstockServiceImpl implements InstockService {
                 if (StringUtil.isNotBlank(condition.get("supplierName"))) {
                     list.add(cb.like(root.get("supplierName").as(String.class), "%" + condition.get("supplierName") + "%"));
                 }
+                //TODO 入库状态
+                Integer s = Integer.valueOf(condition.get("status"));
+                if (s != null) {
+                    //Status   0未入库   1已入库
+                    if(s == 0){
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 3)); //小于
+                    }else if(s == 1){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 2));  //大于
+                    }
+                }
+                //是否外检（ 0：否   1：是）
+                if (StringUtil.isNotBlank(condition.get("outCheck"))){
+                    list.add(cb.equal(root.get("outCheck").as(Integer.class), condition.get("outCheck")));
+                }
                 // 根据入库日期查询
                 if (StringUtil.isNotBlank(condition.get("instockDate"))) {
                     try {
