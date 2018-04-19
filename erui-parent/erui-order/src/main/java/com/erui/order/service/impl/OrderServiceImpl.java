@@ -113,7 +113,7 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 }
                 //根据合同交货日期查询
-                if (condition.getDeliveryDate() != null) {
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
                     list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //根据crm客户代码查询
@@ -138,6 +138,22 @@ public class OrderServiceImpl implements OrderService {
                 //根据订单来源查询
                 if (StringUtil.isNotBlank(condition.getOrderSource())) {
                     list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //商务技术经办人
+                if (condition.getTechnicalId() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
                 }
                 //根据区域所在国家查询
                 String[] country = null;
@@ -183,7 +199,7 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
                 }
-                if (iogisticsDataService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                if(iogisticsDataService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
                 vo.setGoodsList(null);
@@ -191,7 +207,6 @@ public class OrderServiceImpl implements OrderService {
         }
         return pageList;
     }
-
     @Override
     @Transactional
     public void deleteOrder(Integer[] ids) {
