@@ -63,7 +63,7 @@ public class ProjectController {
         String errMsg = null;
         try {
             //projectList = projectService.purchAbleList(projectNoList, purchaseUid);
-            // 分页查询可分页项目
+            // 分页查询可采购项目
             Page<Map<String,Object>> projectPage = projectService.purchAbleByPage(projectNoList, purchaseUid,pageNum,pageSize);
 
             return new Result<>(projectPage);
