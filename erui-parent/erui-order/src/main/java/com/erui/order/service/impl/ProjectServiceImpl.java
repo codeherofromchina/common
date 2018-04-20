@@ -322,7 +322,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<Integer> projectIds = findAllPurchAbleProjectId(projectNoList, intPurchaseUid);
 
-        PageRequest pageRequest = new PageRequest(pageNum - 1, pageSize, new Sort(Sort.Direction.DESC, "updateTime"));
+        PageRequest pageRequest = new PageRequest(pageNum - 1, pageSize, new Sort(Sort.Direction.DESC, "id"));
         Page<Map<String, Object>> result = null;
         if (projectIds.size() > 0) {
             Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
