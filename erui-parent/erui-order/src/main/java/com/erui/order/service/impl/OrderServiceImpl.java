@@ -160,11 +160,11 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
                 }
                 //根据区域所在国家查询
-                 String[] country = null;
+                String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-               if (condition.getType() == 1) {
+                if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
                         list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
@@ -291,7 +291,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional( rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
@@ -355,7 +355,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
-            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate,1));
+            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -514,7 +514,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
-            applicationContext.publishEvent(new OrderProgressEvent(order1,1));
+            applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
@@ -659,14 +659,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-
     //订单下达后通知商务技术经办人
-    public void sendSms(Order order) throws  Exception {
+    public void sendSms(Order order) throws Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         logger.info("发送短信的用户token:" + eruiToken);
         if (StringUtils.isNotBlank(eruiToken)) {
-            try{
+            try {
                 // 根据id获取商务经办人信息
                 String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -680,28 +679,27 @@ public class OrderServiceImpl implements OrderService {
                 JSONObject jsonObject = JSONObject.parseObject(s);
                 Integer code = jsonObject.getInteger("code");
                 String mobile = null;  //商务经办人手机号
-                if(code == 1){
+                if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     mobile = data.getString("mobile");
                     //发送短信
-                    Map<String,String> map= new HashMap();
-                    map.put("areaCode","86");
-                    map.put("to","[\""+mobile+"\"]");
-                    map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人："+order.getAgentName()+"，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
-                    map.put("subType","0");
-                    map.put("groupSending","0");
-                    map.put("useType","订单");
+                    Map<String, String> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", "[\"" + mobile + "\"]");
+                    map.put("content", "您好，销售合同号：" + order.getContractNo() + "，市场经办人：" + order.getAgentName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送短信返回状态"+s1);
+                    logger.info("发送短信返回状态" + s1);
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new Exception("发送短信异常失败");
             }
 
         }
     }
-
 
 
     @Override
@@ -778,6 +776,7 @@ public class OrderServiceImpl implements OrderService {
         }
         return resultMap;
     }
+
     @Transactional(readOnly = true)
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
@@ -787,6 +786,8 @@ public class OrderServiceImpl implements OrderService {
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
                 // 根据销售同号模糊查询
+
+
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
@@ -879,8 +880,8 @@ public class OrderServiceImpl implements OrderService {
             }
         }, sort);
         try {
-            if (pageList.size()>0) {
-                for (Order order:pageList) {
+            if (pageList.size() > 0) {
+                for (Order order : pageList) {
                     order.setAttachmentSet(null);
                     order.setOrderPayments(null);
                     if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
@@ -895,7 +896,7 @@ public class OrderServiceImpl implements OrderService {
                     order.setGoodsList(null);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return pageList;
