@@ -76,11 +76,6 @@ public class ExportDataController {
         Map<String, Object> resultData = new HashedMap();
         // 获取统计数据
         HSSFWorkbook workbook = statisticsService.generateSaleStatisticsExcel(saleStatistics, countries);
-        // 设置样式
-        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
-        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "提现审核列表");
         downExcel(workbook, response, "销售业绩统计");
     }
 
@@ -164,9 +159,10 @@ public class ExportDataController {
     @RequestMapping(value = "/orderExport")
     public ModelAndView orderExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
-
         try {
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
+            obj.setOrderType(1);
+            obj.setStatus(1);
             List<Order> orderList = orderService.findOrderExport(obj);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
@@ -177,9 +173,9 @@ public class ExportDataController {
                 });
             }
             String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
-                    "CRM客户代码", "订单类型", "合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
+                    "CRM客户代码", "订单类型", "币种","合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
             String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
-                    "crmCode", "orderTypeName", "totalPrice", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
+                    "crmCode", "orderTypeName", "currencyBn","totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
@@ -235,9 +231,9 @@ public class ExportDataController {
     private void downExcel(HSSFWorkbook workbook, HttpServletResponse response, String title) {
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
-        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, title);
+        //ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        //ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        //ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, title);
         OutputStream out = null;
         try {
             response.setContentType("application/ms-excel;charset=UTF-8");
