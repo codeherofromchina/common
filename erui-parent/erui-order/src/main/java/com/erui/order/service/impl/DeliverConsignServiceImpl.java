@@ -47,8 +47,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private DeliverNoticeDao deliverNoticeDao;
 
 
+
     @Autowired
     private DeliverDetailDao deliverDetailDao;
+
+
+    @Autowired
+    ProjectDao projectDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -174,6 +179,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         DeliverConsign deliverConsign1=deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign.getStatus() == 3) {
+            Project project = order.getProject();
+            order.setDeliverConsignHas(2);
+            project.setDeliverConsignHas(2);
+            orderDao.save(order);
+            projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);
 
             //推送出库信息

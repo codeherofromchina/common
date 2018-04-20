@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
 import com.erui.comm.util.http.HttpRequest;
-import com.erui.order.dao.AreaDao;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.ProjectDao;
-import com.erui.order.dao.PurchRequisitionDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.service.AreaService;
 import com.erui.order.service.AttachmentService;
@@ -36,6 +33,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private PurchRequisitionDao purchRequisitionDao;
     @Autowired
     ProjectDao projectDao;
+    @Autowired
+    OrderDao orderDao;
     @Autowired
     private GoodsDao goodsDao;
     @Autowired
@@ -102,7 +101,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             project1.setProjectNo(purchRequisition1.getProjectNo());
+            Order order = project1.getOrder();
+            order.setProjectNo(purchRequisition1.getProjectNo());
+            orderDao.save(order);
             projectDao.save(project1);
+
 /*
             try {
                 //TODO 采购申请通知：采购申请单下达后通知采购经办人

@@ -5,6 +5,7 @@
        xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:task="http://www.springframework.org/schema/task"
        xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
@@ -49,12 +50,28 @@
         <property name="defaultAutoCommit" value="false"/>
         <property name="testOnBorrow" value="true"/>
         <property name="validationQuery" value="SELECT 1"/>
+    </bean><!--
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${spring.redis.maxIdle}" />
+        <property name="maxTotal" value="1000"/>
+        <property name="testOnBorrow" value="${spring.redis.testOnBorrow}" />
     </bean>
 
+    <bean id="connectionRedis" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" destroy-method="destroy"
+          p:host-name="${spring.redis.host}" p:port="${spring.redis.port}" p:password="${spring.redis.password}"
+          p:database="${spring.redis.database}"  p:pool-config-ref="poolConfig"/>
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+        <property name="connectionFactory"   ref="connectionRedis" />
+        <property name="keySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+        </property>
+        <property name="valueSerializer">
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
+        </property>
+    </bean>-->
     <!-- JPA实体管理工厂的配置 -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSourceOrder"/>
-
         <property name="packagesToScan" value="com.erui.order.entity"/><!--待扫描的实体类包，不再需要persistence.xml了-->
         <property name="persistenceProvider">
             <bean class="org.hibernate.jpa.HibernatePersistenceProvider"/>
@@ -68,7 +85,7 @@
             <props>
                 <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
                 <prop key="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</prop>
-                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.hbm2ddl.auto">none</prop>
             </props>
         </property>

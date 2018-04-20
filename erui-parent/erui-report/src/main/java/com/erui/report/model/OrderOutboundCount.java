@@ -23,7 +23,7 @@ public class OrderOutboundCount {
     private BigDecimal amounts;
 
     private String remark;
-
+    private String docType;
     public Integer getId() {
         return id;
     }
@@ -102,5 +102,13 @@ public class OrderOutboundCount {
 
     public void setRemark(String remark) {
         this.remark = remark == null ? null : remark.trim();
+    }
+
+    public String getDocType() {
+        return docType;
+    }
+
+    public void setDocType(String docType) {
+        this.docType = docType ==null? null:docType.trim();
     }
 }

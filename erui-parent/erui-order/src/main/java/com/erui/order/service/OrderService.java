@@ -1,11 +1,13 @@
 package com.erui.order.service;
 
 
+import com.erui.order.entity.ComplexOrder;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.OutListCondition;
 import org.springframework.data.domain.Page;
 
 import java.util.Date;
@@ -30,6 +32,12 @@ public interface OrderService {
      * @return
      */
     Page<Order> findByPage(OrderListCondition condition);
+    /**
+     * 根据条件查询门户订单列表
+     * @param condition
+     * @return
+     */
+    Page<ComplexOrder> findByOutList(OutListCondition condition);
     /**
      * 删除订单
      * @param ids
@@ -69,4 +77,11 @@ public interface OrderService {
      * @return
      */
     boolean orderFinish(Order order);
+     /**
+      * @Author:SHIGS
+      * @Description对接门户订单详情
+      * @Date:14:47 2018/3/19
+      * @modified By
+      */
+    Map<String,Object> findByIdOut(Integer id);
 }

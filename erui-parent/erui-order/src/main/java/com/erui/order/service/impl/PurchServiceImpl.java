@@ -5,10 +5,13 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.MyEvent;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,7 +29,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchServiceImpl implements PurchService {
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private PurchDao purchDao;
     @Autowired
@@ -327,6 +331,7 @@ public class PurchServiceImpl implements PurchService {
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
             }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
@@ -343,7 +348,6 @@ public class PurchServiceImpl implements PurchService {
         // 检查项目是否已经采购完成
         List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIds);
-
         return true;
     }
 
@@ -458,6 +462,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
@@ -558,6 +563,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {

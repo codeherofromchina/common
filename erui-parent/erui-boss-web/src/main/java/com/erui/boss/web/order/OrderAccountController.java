@@ -102,7 +102,7 @@ public class OrderAccountController {
             orderAccount.setPaymentDate(orderAcciuntAdd.getPaymentDate());  //回款时间
             orderAccount.setGoodsPrice(orderAcciuntAdd.getGoodsPrice());    //发货金额
             orderAccount.setDeliverDate(orderAcciuntAdd.getDeliverDate());  //发货时间
-            orderAccount.setDiscount(orderAcciuntAdd.getDiscount());
+            orderAccount.setDiscount(orderAcciuntAdd.getDiscount());    //其他扣款金额
             orderAccount.setOrder(order);
             try {
                 orderAccountService.addGatheringRecord(orderAccount,request);

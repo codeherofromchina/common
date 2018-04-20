@@ -39,7 +39,7 @@ public class Project {
     @Column(name = "start_date")
     private Date startDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    //@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
@@ -122,14 +122,45 @@ public class Project {
     //国际物流经办人
     @Column(name = "logistics_name")
     private String logisticsName;
-
+    //合同总价（美元）
+    @Column(name = "total_price_usd")
+    private BigDecimal totalPriceUsd;
     private String region;
     private String country;
     private String remarks;
-
+    //流程进度
+    @Column(name = "process_progress")
+    private String processProgress;
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<Goods> goodsList = new ArrayList<>();
+    //是否已生成出口通知单
+    @Column(name = "deliver_consign_has")
+    private Integer deliverConsignHas;
+
+    public Integer getDeliverConsignHas() {
+        return deliverConsignHas;
+    }
+
+    public void setDeliverConsignHas(Integer deliverConsignHas) {
+        this.deliverConsignHas = deliverConsignHas;
+    }
+
+    public String getProcessProgress() {
+        return processProgress;
+    }
+
+    public void setProcessProgress(String processProgress) {
+        this.processProgress = processProgress;
+    }
+
+    public BigDecimal getTotalPriceUsd() {
+        return totalPriceUsd;
+    }
+
+    public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
+        this.totalPriceUsd = totalPriceUsd;
+    }
 
     public Integer getId() {
         return id;
@@ -461,6 +492,7 @@ public class Project {
         project.setProfit(this.profit);
         project.setCurrencyBn(this.currencyBn);
         project.setProfitPercent(this.profitPercent);
+        project.setTotalPriceUsd(this.totalPriceUsd);
         project.setHasManager(this.hasManager);
         project.setExeChgDate(this.exeChgDate);
         project.setRequirePurchaseDate(this.requirePurchaseDate);
@@ -523,7 +555,7 @@ public class Project {
         SUBMIT("SUBMIT", "未执行",1),HASMANAGER("HASMANAGER", "有项目经理",2),
         EXECUTING("EXECUTING", "正常执行",3), DONE("DONE", "正常完成",4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行",5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成",6), UNSHIPPED("UNSHIPPED", "正常待发运",7),
-        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运",8), PAUSE("PAUSE", "项目暂停",9), CANCEL("CANCEL", "项目取消",10);
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运",8), PAUSE("PAUSE", "项目暂停",9), CANCEL("CANCEL", "项目取消",10) ,TURNDOWN("TURNDOWN","驳回",11);
         private String code;
         private String msg;
 
@@ -560,5 +592,45 @@ public class Project {
 
         }
     }
+    //流程进度
+    public static enum ProjectProgressEnum {
+        SUBMIT("SUBMIT", "未执行",1),EXECUTING("EXECUTING", "正常执行",2),
+        BUYING("BUYING", "采购中",3), QUARANTINE("DONE", "已报检",4), CHECKING("CHECKING", "质检中",5),
+        IN_STORAGE("IN_STORAGE", "已入库",6), QUALITY_INSPECTION("QUALITY_INSPECTION", "出库质检",7),
+        OUTSTORAGE("DELAYED_UNSHIPPED", "已出库",8), SHIPED("SHIPED", "已发运",9);
+        private String code;
+        private String msg;
 
+        private Integer num;
+
+        ProjectProgressEnum(String code, String msg,Integer num) {
+
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
+        public static ProjectProgressEnum fromCode(String code) {
+            if (StringUtils.isNotBlank(code)) {
+                for (ProjectProgressEnum statusEnum : ProjectProgressEnum.values()) {
+                    if (statusEnum.getCode().equals(code)) {
+                        return statusEnum;
+
+                    }
+                }
+            }
+            return null;
+        }
+    }
 }

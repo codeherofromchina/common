@@ -120,6 +120,12 @@ public interface InquiryCountMapper {
      */
     List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(InquiryCountExample example);
     /**
+     * 统计事业部的询单数量和响应平均时间
+     * @param params
+     * @return  {"totalNeedTime":'总报价用时',"totalCount":'总单数',"organization":'事业部'}
+     */
+    List<Map<String,Object>> findTotalNeedTimeAndCountGroupByOrg(Map<String,String> params);
+    /**
      * 询单退回次数和退回平均次数
      * @param example
      * @return

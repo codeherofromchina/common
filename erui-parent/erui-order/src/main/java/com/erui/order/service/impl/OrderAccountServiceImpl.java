@@ -235,6 +235,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
         orderAccounts.setGoodsPrice(orderAccount.getGoodsPrice());
         orderAccounts.setDeliverDate(orderAccount.getDeliverDate());
+
+
+
+
         orderAccounts.setUpdateTime(new Date());
         orderAccountDao.saveAndFlush(orderAccounts);
 

@@ -36,8 +36,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
         ImportDataResponse response = new ImportDataResponse(
-                new String[]{"inspectionTotal","proInfactoryCheckPassCount","proOutfactoryTotal",
-                        "proOutfactoryCheckCount","assignmentsTotal","productsQualifiedCount"}
+                new String[]{"inspectionTotal","proInfactoryCheckPassCount","assignmentsTotal","productsQualifiedCount"}
         );
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
@@ -96,37 +95,7 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
             }
             if (strArr[4] != null) {
                 try {
-                    cq.setProOutfactoryTotal(new BigDecimal(strArr[4]).intValue());
-                } catch (NumberFormatException e) {
-                    logger.error(e.getMessage());
-                    response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品出厂总数不是数字");
-                    continue;
-                }
-            }
-            if (strArr[5] != null) {
-                try {
-                    cq.setProOutfactoryCheckCount(new BigDecimal(strArr[5]).intValue());
-                } catch (NumberFormatException e) {
-                    logger.error(e.getMessage());
-                    response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "出厂检验合格数不是数字");
-                    continue;
-                }
-            }
-            if (strArr[6] != null) {
-                try {
-                    cq.setProOutfactoryCheckRate(new BigDecimal(strArr[6]));
-                } catch (NumberFormatException e) {
-                    logger.error(e.getMessage());
-                    response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.CATEGORY_QUALITY.getTable(), cellIndex, "产品出厂检验合格率不是数字");
-                    continue;
-                }
-            }
-            if (strArr[7] != null) {
-                try {
-                    cq.setAssignmentsTotal(new BigDecimal(strArr[7]).intValue());
+                    cq.setAssignmentsTotal(new BigDecimal(strArr[4]).intValue());
                 } catch (NumberFormatException e) {
                     logger.error(e.getMessage());
                     response.incrFail();
@@ -134,9 +103,9 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
                     continue;
                 }
             }
-            if (strArr[8] != null) {
+            if (strArr[5] != null) {
                 try {
-                    cq.setProductsQualifiedCount(new BigDecimal(strArr[8]).intValue());
+                    cq.setProductsQualifiedCount(new BigDecimal(strArr[5]).intValue());
                 } catch (NumberFormatException e) {
                     logger.error(e.getMessage());
                     response.incrFail();
@@ -144,9 +113,9 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
                     continue;
                 }
             }
-            if (strArr[9] != null) {
+            if (strArr[6] != null) {
                 try {
-                    cq.setProductsAssignmentsQualifiedRate(new BigDecimal(strArr[9]));
+                    cq.setProductsAssignmentsQualifiedRate(new BigDecimal(strArr[6]));
                 } catch (NumberFormatException e) {
                     logger.error(e.getMessage());
                     response.incrFail();
@@ -187,12 +156,6 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
         }else {
             data.put("inspectPassRate",0.00);
         }
-        if(data.get("outfactoryPassRate")!=null){
-            double outfactoryPassRate = Double.parseDouble(data.get("outfactoryPassRate").toString());
-            data.put("outfactoryPassRate",RateUtil.doubleChainRate(outfactoryPassRate,1));
-        }else {
-            data.put("outfactoryPassRate",0.00);
-        }
         if(data.get("assignPassRate")!=null){
             double assignPassRate = Double.parseDouble(data.get("assignPassRate").toString());
             data.put("assignPassRate",RateUtil.doubleChainRate(assignPassRate,1));
@@ -220,8 +183,6 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
         //3.处理数据
         List<Integer> inspectList = new ArrayList<>(); //报检总数列表
         List<Integer> inspectPassList = new ArrayList<>(); //首检合格数列表
-        List<Integer> factoryList = new ArrayList<>(); //出厂总数列表
-        List<Integer> factoryPassList = new ArrayList<>(); //出厂合格数列表
         List<Integer> assignList = new ArrayList<>(); //外派监造总数列表
         List<Integer> assignPassList = new ArrayList<>(); //外派监造合格数列表
         Map<String, Map<String, Object>> trendMap =
@@ -231,15 +192,11 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
                 Map<String, Object> data = trendMap.get(date);
                 inspectList.add(Integer.parseInt(data.get("inspectTotal").toString()));
                 inspectPassList.add(Integer.parseInt(data.get("inspectPassCount").toString()));
-                factoryList.add(Integer.parseInt(data.get("outfactoryTotal").toString()));
-                factoryPassList.add(Integer.parseInt(data.get("outfactoryPassCount").toString()));
                 assignList.add(Integer.parseInt(data.get("assignTotal").toString()));
                 assignPassList.add(Integer.parseInt(data.get("assignPassCount").toString()));
             }else {
                 inspectList.add(0);
                 inspectPassList.add(0);
-                factoryList.add(0);
-                factoryPassList.add(0);
                 assignList.add(0);
                 assignPassList.add(0);
             }
@@ -251,11 +208,6 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
             datas.put("yAxis", inspectList);
             datas.put("passList", inspectPassList);
         }
-        if(type.equals(FACTORY)){
-            datas.put("legend",FACTORY);
-            datas.put("yAxis", factoryList);
-            datas.put("passList", factoryPassList);
-        }
         if(type.equals(FOREIGN)){
             datas.put("legend",FOREIGN);
             datas.put("yAxis", assignList);
@@ -266,6 +218,5 @@ public class CategoryQualityServiceImpl extends BaseService<CategoryQualityMappe
     }
 
     private  final static  String INSPECTION ="inspection";
-    private  final static  String FACTORY ="factory";
     private  final static  String FOREIGN ="foreign";
 }
