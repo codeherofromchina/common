@@ -209,7 +209,7 @@ LIMIT 1
     </select>
 
     <select id="selectArea" resultType="map">
-    SELECT area FROM procurement_count GROUP BY area HAVING  area IS  NOT  NULL
+    SELECT area FROM procurement_count GROUP BY area HAVING  area IS  NOT  NULL AND area !=''
   </select>
     <select id="selectCountry" resultType="map" parameterType="com.erui.report.model.ProcurementCountExample">
         SELECT DISTINCT country FROM procurement_count
