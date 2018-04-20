@@ -366,8 +366,6 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
 
-
-
     // TODO
     @Transactional
     public Page<ProjectStatistics> findProjectStatisticsByPage(Map<String, String> condition) {
@@ -421,7 +419,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (objArr != null) {
                     projectStatistics.setPaymentDate((Date) objArr[2]);
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
-                    projectStatistics.setAcquireId((String)objArr[3]);
+                    projectStatistics.setAcquireId((String) objArr[3]);
                 }
             }
         }
@@ -563,6 +561,10 @@ public class StatisticsServiceImpl implements StatisticsService {
             for (Goods goods : goodsList) {
                 GoodsBookDetail goodsBookDetail = new GoodsBookDetail();
                 goodsBookDetail.setGoods(goods);
+                Project.ProjectProgressEnum progressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(order.getProcessProgress());
+                if (progressEnum != null && progressEnum.getNum() >= Project.ProjectProgressEnum.QUARANTINE.getNum()) {
+                    goodsBookDetail.setProType(goods.getProType());
+                }
                 resultList.add(goodsBookDetail);
             }
         }
@@ -811,7 +813,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
 
-    private Specification specificationCondition(Map<String,String> condition) {
+    private Specification specificationCondition(Map<String, String> condition) {
         return new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

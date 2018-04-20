@@ -333,7 +333,7 @@ public class GoodsBookDetail implements Cloneable {
         this.goodsId = goods.getId();
         this.sku = goods.getSku();
         this.contractGoodsNum = goods.getContractGoodsNum();
-        this.proType = goods.getProType();
+        //this.proType = goods.getProType();
         this.nameEn = goods.getNameEn();
         this.nameZh = goods.getNameZh();
         this.unit = goods.getUnit();
