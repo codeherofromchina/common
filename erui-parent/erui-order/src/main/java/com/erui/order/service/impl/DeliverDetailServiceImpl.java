@@ -109,7 +109,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Transactional(readOnly = true)
     public DeliverDetail findDetailById(Integer id) {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
-        deliverDetail.getDeliverNotice().getId();
+        /*deliverDetail.getDeliverNotice().getId();*/
         deliverDetail.getAttachmentList().size();
         deliverDetail.getDeliverConsignGoodsList().size();
         return deliverDetail;
