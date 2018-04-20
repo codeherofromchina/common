@@ -161,8 +161,6 @@ public class ExportDataController {
         Map<String, String> params = getParameters(request);
         try {
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
-            obj.setOrderType(1);
-            obj.setStatus(1);
             List<Order> orderList = orderService.findOrderExport(obj);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
