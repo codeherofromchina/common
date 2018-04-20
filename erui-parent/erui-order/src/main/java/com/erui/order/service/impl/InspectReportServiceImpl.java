@@ -8,6 +8,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectReportService;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,7 +37,8 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 public class InspectReportServiceImpl implements InspectReportService {
 
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private InspectReportDao inspectReportDao;
     @Autowired
@@ -425,10 +428,11 @@ public class InspectReportServiceImpl implements InspectReportService {
                     // 全部不合格商品则不添加到入库
                     continue;
                 }
+                Goods goods = inspectGoods.getGoods();
                 InstockGoods instockGoods = new InstockGoods();
                 instockGoods.setInstock(instock);
-                instockGoods.setContractNo(inspectGoods.getGoods().getContractNo());
-                instockGoods.setProjectNo(inspectGoods.getGoods().getProjectNo());
+                instockGoods.setContractNo(goods.getContractNo());
+                instockGoods.setProjectNo(goods.getProjectNo());
                 instockGoods.setInspectApplyGoods(inspectGoods);
                 instockGoods.setQualifiedNum(qualifiedNum);
                 instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
@@ -438,10 +442,12 @@ public class InspectReportServiceImpl implements InspectReportService {
                 instockGoods.setCreateUserId(dbInspectReport.getCreateUserId());
 
                 instockGoodsList.add(instockGoods);
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),5));
             }
             instock.setInstockGoodsList(instockGoodsList);
 
             instockDao.save(instock);
+
         }
 
         return true;
