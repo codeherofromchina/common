@@ -599,6 +599,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Date arrivalDate = (Date) objArr[6];
                 Integer payType = (Integer) objArr[7];
                 Date payFactoryDate = (Date) objArr[8];
+                String currencyBn = (String) objArr[9];
                 contractGoodsNum -= purchaseNum;
 
                 GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
@@ -611,6 +612,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 clone.setArrivalDate(arrivalDate);
                 clone.setPayType(payType);
                 clone.setPayFactoryDate(payFactoryDate);
+                clone.setCurrencyBn(currencyBn);
 
                 innerList.add(clone);
             }
