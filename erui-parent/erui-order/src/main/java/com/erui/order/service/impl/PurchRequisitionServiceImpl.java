@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -258,7 +255,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 rows = 50;
             }
         }
-        Pageable pageRequest = new PageRequest(page - 1, rows);
+        Pageable pageRequest = new PageRequest(page - 1, rows, Sort.Direction.DESC,"id");
         Page<PurchRequisition> pageList = purchRequisitionDao.findAll(new Specification<PurchRequisition>() {
             @Override
             public Predicate toPredicate(Root<PurchRequisition> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
