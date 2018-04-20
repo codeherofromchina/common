@@ -72,7 +72,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
 
     @Query(value = "select t1.goods_id,t1.purchase_num,t1.purchase_price,t1.purchase_total_price,t2.purch_no,t2.signing_date," +
-            " t2.arrival_date,t2.pay_type,t2.pay_factory_date from purch_goods t1,purch t2 where t1.purch_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
+            " t2.arrival_date,t2.pay_type,t2.pay_factory_date from purch_goods t1,purch t2 where t1.purch_id = t2.id and t2.`status` >= 2 and t1.goods_id in :goodsIds",nativeQuery = true)
     List<Object> findPurchGoods(@Param("goodsIds") List<Integer> goodsIds);
 
 
