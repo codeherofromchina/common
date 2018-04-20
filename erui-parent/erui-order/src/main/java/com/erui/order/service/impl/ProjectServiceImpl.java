@@ -251,7 +251,9 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }, pageRequest);
         for (Project project : pageList) {
-            project.setoId(project.getOrder().getId());
+            if (project.getOrder() != null) {
+                project.setoId(project.getOrder().getId());
+            }
         }
         return pageList;
     }
@@ -431,5 +433,110 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
     }
 
+    @Override
+    public List<Project> findProjectExport(ProjectListCondition condition) {
+        Sort sort = new Sort(Sort.Direction.DESC, "id");
+        List<Project> proList = projectDao.findAll(new Specification<Project>() {
+            @Override
+            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 根据销售同号模糊查询
+                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据项目名称模糊查询
+                if (StringUtil.isNotBlank(condition.getProjectName())) {
+                    list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
+                }
+                //根据项目开始时间查询
+                if (condition.getStartDate() != null) {
+                    list.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
+                }
+                //根据执行分公司查询
+                if (StringUtil.isNotBlank(condition.getExecCoName())) {
+                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                }
+                //执行单约定交付日期
+                if (condition.getDeliveryDate() != null) {
+                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
+                }
+                //要求采购到货日期
+                if (condition.getRequirePurchaseDate() != null) {
+                    list.add(cb.equal(root.get("requirePurchaseDate").as(Date.class), NewDateUtil.getDate(condition.getRequirePurchaseDate())));
+                }
+                //根据事业部
+                if (StringUtil.isNotBlank(condition.getBusinessUnitName())) {
+                    list.add(cb.like(root.get("businessUnitName").as(String.class), "%" + condition.getBusinessUnitName() + "%"));
+                }
+                //执行单变更后日期
+                if (condition.getExeChgDate() != null) {
+                    list.add(cb.equal(root.get("exeChgDate").as(Date.class), NewDateUtil.getDate(condition.getExeChgDate())));
+                }
+                //根据分销部
+                if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
+                    list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
+                }
+                String[] projectStatus = null;
+                //根据项目状态
+                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
+                    projectStatus = condition.getProjectStatus().split(",");
+                    list.add(root.get("projectStatus").in(projectStatus));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    list.add(cb.like(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //根据采购经办人   purchaseUid     qualityUid    managerUid logisticsUid warehouseUid
+                if (condition.getPurchaseUid() != null) {
+                    list.add(cb.equal(root.get("purchaseUid").as(Integer.class), condition.getPurchaseUid()));
+                }
+                //根据品控经办人
+                if (condition.getQualityUid() != null) {
+                    list.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
+                }
+                //
+                if (condition.getManagerUid() != null) {
+                    list.add(cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid()));
 
+                }
+                //根据物流经办人
+                if (condition.getLogisticsUid() != null) {
+                    list.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
+                }
+                //根据仓库经办人
+                if (condition.getWarehouseUid() != null) {
+                    list.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
+                }
+                //根据商务技术经办人
+                if (condition.getBusinessUid() != null) {
+                    list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
+                }
+                String[] country = null;
+                if (StringUtils.isNotBlank(condition.getCountry())) {
+                    country = condition.getCountry().split(",");
+                }
+                if (country != null) {
+                    Join<Project, Order> orderRoot = root.join("order");
+                    list.add(orderRoot.get("country").in(country));
+                }
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, sort);
+        for (Project project : proList) {
+            if (project.getOrder() != null) {
+                project.setoId(project.getOrder().getId());
+            }
+        }
+        return proList;
+    }
 }
