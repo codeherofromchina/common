@@ -105,6 +105,7 @@
     <if test="org!=null and org!=''">
       AND  organization = #{org}
     </if>
+    AND  quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count)
        group by quotation_num
 
       ) as t;
@@ -122,6 +123,7 @@
       AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
+     AND quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count)
     group by inquiry_area
   </select>
   <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
@@ -137,6 +139,7 @@
       AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
+    AND quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count)
     group by organization
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InqRtnReasonExample" >
