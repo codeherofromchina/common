@@ -81,7 +81,7 @@ public class ExportDataController {
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "提现审核列表");
-        downExcel(workbook,response,"销售业绩统计");
+        downExcel(workbook, response, "销售业绩统计");
     }
 
     // 商品（产品）统计信息
@@ -106,7 +106,6 @@ public class ExportDataController {
         HSSFWorkbook data = statisticsService.generateGoodsStatisticsExcel(goodsStatistics, countries);
         downExcel(data, response, "产品统计");
     }
-
 
 
     // 项目统计信息
@@ -154,6 +153,7 @@ public class ExportDataController {
         }
 
     }
+
     /**
      * @Author:SHIGS
      * @Description 订单列表导出
@@ -164,53 +164,48 @@ public class ExportDataController {
     @RequestMapping(value = "/orderExport")
     public ModelAndView orderExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
-        try{
-        OrderListCondition orderListCondition = new OrderListCondition();
-        OrderListCondition obj = orderListCondition.getClass().newInstance();
-        BeanUtils.populate(obj, params);
-        obj.setType(1);
-        obj.setOrderType(1);
-        List<Order> orderList = orderService.findOrderExport(obj);
-        if (orderList.size()>0) {
-            orderList.forEach(vo -> {
-                vo.setAttachmentSet(null);
-                vo.setOrderPayments(null);
-                vo.setGoodsList(null);
-                vo.setProject(null);
-            });
-        }
-        String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
-                "CRM客户代码", "订单类型", "合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
-        String[] keys = new String[] {"contractNo", "projectNo","poNo","inquiryNo","agentName","businessName","deliveryDate","signingDate",
-                "crmCode","orderTypeName","totalPrice","payStatusName","orderSourceName","orderStatusName","processProgressName"};
-        BuildExcel buildExcel = new BuildExcelImpl();
-        Object objArr = JSON.toJSON(orderList);
-        HSSFWorkbook workbook = buildExcel.buildExcel((List)objArr, header, keys,"订单列表");
-        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
-        downExcel(workbook, response, "订单列表");
-        //  }
-        }catch (Exception e){
+
+        try {
+            OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
+            List<Order> orderList = orderService.findOrderExport(obj);
+            if (orderList.size() > 0) {
+                orderList.forEach(vo -> {
+                    vo.setAttachmentSet(null);
+                    vo.setOrderPayments(null);
+                    vo.setGoodsList(null);
+                    vo.setProject(null);
+                });
+            }
+            String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
+                    "CRM客户代码", "订单类型", "合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
+            String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
+                    "crmCode", "orderTypeName", "totalPrice", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
+            BuildExcel buildExcel = new BuildExcelImpl();
+            Object objArr = JSON.toJSON(orderList);
+            HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
+            ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+            ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+            downExcel(workbook, response, "订单列表");
+            //  }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
-     /**
-      * @Author:SHIGS
-      * @Description 项目导出
-      * @Date:18:16 2018/4/19
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description 项目导出
+     * @Date:18:16 2018/4/19
+     * @modified By
+     */
     @RequestMapping(value = "/projectExport")
     public ModelAndView projectExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
-        ProjectListCondition projectListCondition = new ProjectListCondition();
-        //将map转化为Object
-        ProjectListCondition projectCon = projectListCondition.getClass().newInstance();
-        BeanUtils.populate(projectCon, params);
-        List<Project> projectList = projectService.findProjectExport(projectCon);
-        if (projectList.size()>0) {
-            for (Project project:projectList) {
+        ProjectListCondition projectListCondition = JSON.parseObject(JSON.toJSONString(params), ProjectListCondition.class);
+        List<Project> projectList = projectService.findProjectExport(projectListCondition);
+        if (projectList.size() > 0) {
+            for (Project project : projectList) {
                 project.setGoodsList(null);
                 project.setPurchRequisition(null);
                 project.setOrder(null);
@@ -218,17 +213,18 @@ public class ExportDataController {
 
         }
         String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
-                "项目开始日期", "执行单约定交付日期","执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};
-        String[] keys = new String[] {"contractNo", "projectNo","projectName","execCoName","distributionDeptName","businessUnitName","businessName","region",
-                "startDate","deliveryDate","exeChgDate","requirePurchaseDate","projectStatusName","processProgressName"};
+                "项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};
+        String[] keys = new String[]{"contractNo", "projectNo", "projectName", "execCoName", "distributionDeptName", "businessUnitName", "businessName", "region",
+                "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectList);
-        HSSFWorkbook workbook = buildExcel.buildExcel((List)objArr, header, keys,"项目列表");
+        HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目列表");
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
         downExcel(workbook, response, "项目列表");
         return null;
     }
+
     /**
      * 下载excel到客户端
      *

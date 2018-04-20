@@ -1,5 +1,7 @@
 package com.erui.order.requestVo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 /**
@@ -18,6 +20,7 @@ public class OrderListCondition {
     //市场经办人
     private String agentName;
     //订单签约日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date signingDate;
     //合同交货日期
     private String deliveryDate;
