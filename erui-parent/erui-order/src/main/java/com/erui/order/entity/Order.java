@@ -278,15 +278,16 @@ public class Order {
     public BigDecimal getTotalPriceUsd() {
         return totalPriceUsd;
     }
-    public BigDecimal getTotalPriceUsdSplit() {
-        if (getTotalPrice()!=null){
+
+    public String getTotalPriceUsdSplit() {
+        if (getTotalPrice() != null) {
             DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
             String format = decimalFormat.format(getTotalPrice());
-            BigDecimal decimal = new BigDecimal(format);
-            return decimal;
+            return format;
         }
         return null;
     }
+
     public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
         this.totalPriceUsd = totalPriceUsd;
     }

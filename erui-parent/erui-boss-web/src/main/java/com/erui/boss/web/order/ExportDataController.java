@@ -173,7 +173,7 @@ public class ExportDataController {
             String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
                     "CRM客户代码", "订单类型", "币种","合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
             String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
-                    "crmCode", "orderTypeName", "currencyBn","totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
+                    "crmCode", "orderTypeName", "currencyBn","totalPriceUsdSplit","payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
@@ -198,11 +198,13 @@ public class ExportDataController {
         Map<String, String> params = getParameters(request);
         ProjectListCondition projectListCondition = JSON.parseObject(JSON.toJSONString(params), ProjectListCondition.class);
         List<Project> projectList = projectService.findProjectExport(projectListCondition);
+        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
         if (projectList.size() > 0) {
             for (Project project : projectList) {
                 project.setGoodsList(null);
                 project.setPurchRequisition(null);
                 project.setOrder(null);
+                project.setRegion(bnMapZhRegion.get(project.getRegion()));
             }
 
         }
