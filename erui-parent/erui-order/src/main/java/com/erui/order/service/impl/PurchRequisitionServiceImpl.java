@@ -264,6 +264,9 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             public Predicate toPredicate(Root<PurchRequisition> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
                 Join<PurchRequisition, Project> projectPath = root.join("project");
+                // 提交了
+                list.add(cb.equal(root.get("status").as(Integer.class), PurchRequisition.StatusEnum.SUBMITED.getCode()));
+                list.add(cb.equal(projectPath.get("purchDone").as(Boolean.class), Boolean.FALSE));
                 // 销售合同号查询
                 String contractNo = condition.get("contractNo");
                 if (StringUtils.isNotBlank(contractNo)) {

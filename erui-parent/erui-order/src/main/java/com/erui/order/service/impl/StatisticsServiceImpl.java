@@ -365,6 +365,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         return resultPage;
     }
 
+
+
+
     // TODO
     @Transactional
     public Page<ProjectStatistics> findProjectStatisticsByPage(Map<String, String> condition) {
@@ -387,102 +390,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
 
         PageRequest pageRequest = new PageRequest(page, rows, new Sort(Sort.Direction.DESC, "id"));
-        Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
-            @Override
-            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
-                String startDateStr = condition.get("startDate");
-                String endDateStr = condition.get("endDate");
-                if (StringUtils.isNotBlank(startDateStr)) {
-                    Date startDate = DateUtil.parseString2DateNoException(startDateStr, "yyyy-MM-dd");
-                    if (startDate != null) {
-                        list.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startDate));
-                    }
-                }
-                if (StringUtils.isNotBlank(endDateStr)) {
-                    Date endDate = DateUtil.parseString2DateNoException(endDateStr, "yyyy-MM-dd");
-                    if (endDate != null) {
-                        endDate = NewDateUtil.plusDays(endDate, 1);
-                        list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
-                    }
-                }
-
-                Join<Project, Order> orderRoot = root.join("order");
-                String countriesStr = condition.get("countries");
-                if (StringUtils.isNotBlank(countriesStr)) {
-                    String[] countriesArr = countriesStr.split(",");
-                    list.add(orderRoot.get("country").in(countriesArr));
-                }
-
-                // 销售合同号
-                String contractNo = condition.get("contractNo");
-                if (StringUtil.isNotBlank(contractNo)) {
-                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + contractNo + "%"));
-                }
-                // 海外销售合同号
-                String contractNoOs = condition.get("contractNoOs");
-                if (StringUtil.isNotBlank(contractNoOs)) {
-                    list.add(cb.like(orderRoot.get("contractNoOs").as(String.class), "%" + contractNoOs + "%"));
-                }
-                // 项目号
-                String projectNo = condition.get("projectNo");
-                if (StringUtil.isNotBlank(projectNo)) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
-                }
-                //  项目名称
-                String projectName = condition.get("projectName");
-                if (StringUtil.isNotBlank(projectName)) {
-                    list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
-                }
-                // 分销部
-                String distributionDeptName = condition.get("distributionDeptName");
-                if (StringUtil.isNotBlank(distributionDeptName)) {
-                    list.add(cb.equal(root.get("distributionDeptName").as(String.class), distributionDeptName));
-                }
-                // 事业部
-                String businessUnitName = condition.get("businessUnitName");
-                if (StringUtil.isNotBlank(businessUnitName)) {
-                    list.add(cb.equal(root.get("businessUnitName").as(String.class), businessUnitName));
-                }
-                //执行单变更后日期
-                String exeChgDate = condition.get("exeChgDate");
-                if (StringUtil.isNotBlank(exeChgDate)) {
-                    Date date = DateUtil.str2Date(exeChgDate);
-                    if (date != null) {
-                        list.add(cb.equal(root.get("exeChgDate").as(Date.class), date));
-                    }
-                }
-                //执行单约定交付日期
-                String deliveryDate = condition.get("deliveryDate");
-                if (StringUtil.isNotBlank(deliveryDate)) {
-                    if (StringUtil.isNotBlank(deliveryDate)) {
-                        Date date = DateUtil.str2Date(deliveryDate);
-                        list.add(cb.equal(root.get("deliveryDate").as(Date.class), date));
-                    }
-                }
-                //根据执行分公司查询
-                String execCoName = condition.get("execCoName");
-                if (StringUtil.isNotBlank(execCoName)) {
-                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + execCoName + "%"));
-                }
-                //项目状态
-                String projectStatus = condition.get("projectStatus");
-                if (StringUtil.isNotBlank(projectStatus)) {
-                    list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
-                }
-                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "DRAFT")); // 不等于待确定的
-                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "SUBMIT")); // 不等于待确定的
-                //流程进度
-                String processProgress = condition.get("processProgress");
-                if (StringUtil.isNotBlank(processProgress)) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
-                }
-
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                return cb.and(predicates);
-            }
-        }, pageRequest);
+        Page<Project> pageList = projectDao.findAll(specificationCondition(condition), pageRequest);
 
         List<ProjectStatistics> dataList = new ArrayList<>();
         List<Integer> orderIds = new ArrayList<>();
@@ -527,102 +435,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     // TODO
     @Transactional
     public List<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
-        List<Project> pageList = projectDao.findAll(new Specification<Project>() {
-            @Override
-            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
-                String startDateStr = condition.get("startDate");
-                String endDateStr = condition.get("endDate");
-                if (StringUtils.isNotBlank(startDateStr)) {
-                    Date startDate = DateUtil.parseString2DateNoException(startDateStr, "yyyy-MM-dd");
-                    if (startDate != null) {
-                        list.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startDate));
-                    }
-                }
-                if (StringUtils.isNotBlank(endDateStr)) {
-                    Date endDate = DateUtil.parseString2DateNoException(endDateStr, "yyyy-MM-dd");
-                    if (endDate != null) {
-                        endDate = NewDateUtil.plusDays(endDate, 1);
-                        list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
-                    }
-                }
-
-                Join<Project, Order> orderRoot = root.join("order");
-                String countriesStr = condition.get("countries");
-                if (StringUtils.isNotBlank(countriesStr)) {
-                    String[] countriesArr = countriesStr.split(",");
-                    list.add(orderRoot.get("country").in(countriesArr));
-                }
-
-                // 销售合同号
-                String contractNo = condition.get("contractNo");
-                if (StringUtil.isNotBlank(contractNo)) {
-                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + contractNo + "%"));
-                }
-                // 海外销售合同号
-                String contractNoOs = condition.get("contractNoOs");
-                if (StringUtil.isNotBlank(contractNoOs)) {
-                    list.add(cb.like(orderRoot.get("contractNoOs").as(String.class), "%" + contractNoOs + "%"));
-                }
-                // 项目号
-                String projectNo = condition.get("projectNo");
-                if (StringUtil.isNotBlank(projectNo)) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
-                }
-                //  项目名称
-                String projectName = condition.get("projectName");
-                if (StringUtil.isNotBlank(projectName)) {
-                    list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
-                }
-                // 分销部
-                String distributionDeptName = condition.get("distributionDeptName");
-                if (StringUtil.isNotBlank(distributionDeptName)) {
-                    list.add(cb.equal(root.get("distributionDeptName").as(String.class), distributionDeptName));
-                }
-                // 事业部
-                String businessUnitName = condition.get("businessUnitName");
-                if (StringUtil.isNotBlank(businessUnitName)) {
-                    list.add(cb.equal(root.get("businessUnitName").as(String.class), businessUnitName));
-                }
-                //执行单变更后日期
-                String exeChgDate = condition.get("exeChgDate");
-                if (StringUtil.isNotBlank(exeChgDate)) {
-                    Date date = DateUtil.str2Date(exeChgDate);
-                    if (date != null) {
-                        list.add(cb.equal(root.get("exeChgDate").as(Date.class), date));
-                    }
-                }
-                //执行单约定交付日期
-                String deliveryDate = condition.get("deliveryDate");
-                if (StringUtil.isNotBlank(deliveryDate)) {
-                    if (StringUtil.isNotBlank(deliveryDate)) {
-                        Date date = DateUtil.str2Date(deliveryDate);
-                        list.add(cb.equal(root.get("deliveryDate").as(Date.class), date));
-                    }
-                }
-                //根据执行分公司查询
-                String execCoName = condition.get("execCoName");
-                if (StringUtil.isNotBlank(execCoName)) {
-                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + execCoName + "%"));
-                }
-                //项目状态
-                String projectStatus = condition.get("projectStatus");
-                if (StringUtil.isNotBlank(projectStatus)) {
-                    list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
-                }
-                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "DRAFT")); // 不等于待确定的
-                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "SUBMIT")); // 不等于待确定的
-                //流程进度
-                String processProgress = condition.get("processProgress");
-                if (StringUtil.isNotBlank(processProgress)) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
-                }
-
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                return cb.and(predicates);
-            }
-        });
+        List<Project> pageList = projectDao.findAll(specificationCondition(condition));
 
         List<ProjectStatistics> dataList = new ArrayList<>();
         List<Integer> orderIds = new ArrayList<>();
@@ -786,6 +599,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Date arrivalDate = (Date) objArr[6];
                 Integer payType = (Integer) objArr[7];
                 Date payFactoryDate = (Date) objArr[8];
+                String currencyBn = (String) objArr[9];
+                String supplierName = (String) objArr[10];
                 contractGoodsNum -= purchaseNum;
 
                 GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
@@ -798,6 +613,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 clone.setArrivalDate(arrivalDate);
                 clone.setPayType(payType);
                 clone.setPayFactoryDate(payFactoryDate);
+                clone.setCurrencyBn(currencyBn);
+                clone.setSupplierName(supplierName);
 
                 innerList.add(clone);
             }
@@ -860,7 +677,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 clone.setPurchaseNum(iInspectNum);
                 clone.setQualifiedNum(onceQualifiedNum);
                 clone.setInspectDate(inspectDate);
-                clone.setSupplierName(supplierName);
+                //clone.setSupplierName(supplierName);
                 clone.setCheckDate(checkDate);
                 clone.setInstockDate(instockDate);
                 innerList.add(clone);
@@ -991,5 +808,106 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         }
         return result;
+    }
+
+
+    private Specification specificationCondition(Map<String,String> condition) {
+        return new Specification<Project>() {
+            @Override
+            public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                String startDateStr = condition.get("startDate");
+                String endDateStr = condition.get("endDate");
+                if (StringUtils.isNotBlank(startDateStr)) {
+                    Date startDate = DateUtil.parseString2DateNoException(startDateStr, "yyyy-MM-dd");
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startDate));
+                    }
+                }
+                if (StringUtils.isNotBlank(endDateStr)) {
+                    Date endDate = DateUtil.parseString2DateNoException(endDateStr, "yyyy-MM-dd");
+                    if (endDate != null) {
+                        endDate = NewDateUtil.plusDays(endDate, 1);
+                        list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
+                    }
+                }
+
+                Join<Project, Order> orderRoot = root.join("order");
+                String countriesStr = condition.get("countries");
+                if (StringUtils.isNotBlank(countriesStr)) {
+                    String[] countriesArr = countriesStr.split(",");
+                    list.add(orderRoot.get("country").in(countriesArr));
+                }
+
+                // 销售合同号
+                String contractNo = condition.get("contractNo");
+                if (StringUtil.isNotBlank(contractNo)) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                }
+                // 海外销售合同号
+                String contractNoOs = condition.get("contractNoOs");
+                if (StringUtil.isNotBlank(contractNoOs)) {
+                    list.add(cb.like(orderRoot.get("contractNoOs").as(String.class), "%" + contractNoOs + "%"));
+                }
+                // 项目号
+                String projectNo = condition.get("projectNo");
+                if (StringUtil.isNotBlank(projectNo)) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
+                }
+                //  项目名称
+                String projectName = condition.get("projectName");
+                if (StringUtil.isNotBlank(projectName)) {
+                    list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
+                }
+                // 分销部
+                String distributionDeptName = condition.get("distributionDeptName");
+                if (StringUtil.isNotBlank(distributionDeptName)) {
+                    list.add(cb.equal(root.get("distributionDeptName").as(String.class), distributionDeptName));
+                }
+                // 事业部
+                String businessUnitName = condition.get("businessUnitName");
+                if (StringUtil.isNotBlank(businessUnitName)) {
+                    list.add(cb.equal(root.get("businessUnitName").as(String.class), businessUnitName));
+                }
+                //执行单变更后日期
+                String exeChgDate = condition.get("exeChgDate");
+                if (StringUtil.isNotBlank(exeChgDate)) {
+                    Date date = DateUtil.str2Date(exeChgDate);
+                    if (date != null) {
+                        list.add(cb.equal(root.get("exeChgDate").as(Date.class), date));
+                    }
+                }
+                //执行单约定交付日期
+                String deliveryDate = condition.get("deliveryDate");
+                if (StringUtil.isNotBlank(deliveryDate)) {
+                    if (StringUtil.isNotBlank(deliveryDate)) {
+                        Date date = DateUtil.str2Date(deliveryDate);
+                        list.add(cb.equal(root.get("deliveryDate").as(Date.class), date));
+                    }
+                }
+                //根据执行分公司查询
+                String execCoName = condition.get("execCoName");
+                if (StringUtil.isNotBlank(execCoName)) {
+                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + execCoName + "%"));
+                }
+                //项目状态
+                String projectStatus = condition.get("projectStatus");
+                if (StringUtil.isNotBlank(projectStatus)) {
+                    list.add(cb.equal(root.get("projectStatus").as(String.class), projectStatus));
+                }
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "DRAFT")); // 不等于待确定的
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "SUBMIT")); // 不等于待确定的
+                list.add(cb.notEqual(root.get("projectStatus").as(String.class), "HASMANAGER")); // 不等于有项目经理的的
+                //流程进度
+                String processProgress = condition.get("processProgress");
+                if (StringUtil.isNotBlank(processProgress)) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        };
     }
 }

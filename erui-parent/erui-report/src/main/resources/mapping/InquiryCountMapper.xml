@@ -331,6 +331,12 @@
             #{quote}
         </foreach>
     </if>
+    <if test="area!=null and area!='' ">
+        AND  inquiry_area =#{area}
+    </if>
+      <if test="country!=null and country!='' ">
+          AND  inquiry_unit =#{country}
+      </if>
 </select>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >

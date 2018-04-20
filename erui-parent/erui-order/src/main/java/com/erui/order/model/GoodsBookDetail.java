@@ -28,6 +28,7 @@ public class GoodsBookDetail implements Cloneable {
     private Date inspectDate; // 报检时间 / 采购到货日期
     private Integer payType; // 采购给供应商付款方式
     private Date payFactoryDate; // 给工厂付款日期
+    private String currencyBn; // 货币类型
     private Integer inspectNum; // 报检数量
     private Integer qualifiedNum; // 合格数量
     private String supplierName; // 供应商
@@ -189,6 +190,14 @@ public class GoodsBookDetail implements Cloneable {
 
     public void setPayFactoryDate(Date payFactoryDate) {
         this.payFactoryDate = payFactoryDate;
+    }
+
+    public String getCurrencyBn() {
+        return currencyBn;
+    }
+
+    public void setCurrencyBn(String currencyBn) {
+        this.currencyBn = currencyBn;
     }
 
     public Integer getInspectNum() {
