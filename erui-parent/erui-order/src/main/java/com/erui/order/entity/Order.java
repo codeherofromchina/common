@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.util.GoodsUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -276,7 +278,15 @@ public class Order {
     public BigDecimal getTotalPriceUsd() {
         return totalPriceUsd;
     }
-
+    public BigDecimal getTotalPriceUsdSplit() {
+        if (getTotalPrice()!=null){
+            DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
+            String format = decimalFormat.format(getTotalPrice());
+            BigDecimal decimal = new BigDecimal(format);
+            return decimal;
+        }
+        return null;
+    }
     public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
         this.totalPriceUsd = totalPriceUsd;
     }
@@ -405,7 +415,7 @@ public class Order {
         if (getOrderSource() == 1) {
             return "门户订单";
         } else if (getOrderSource() == 2) {
-            return "门户询单";
+            return "市场询单";
         } else if (getOrderSource() == 3) {
             return "线下订单";
         }
@@ -719,9 +729,9 @@ public class Order {
     public String getPayStatusName() {
         // 1:未付款 2:部分付款 3:收款完成
         if (getPayStatus() == 1) {
-            return "未付款";
+            return "未收款";
         } else if (getPayStatus() == 2) {
-            return "部分付款";
+            return "部分收款";
         } else if (getPayStatus() == 3) {
             return "收款完成";
         }
