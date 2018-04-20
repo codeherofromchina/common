@@ -4,10 +4,12 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.IogisticsDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +28,9 @@ import java.util.stream.Collectors;
 public class IogisticsDataServiceImpl implements IogisticsDataService {
 
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     private IogisticsDao iogisticsDao;
@@ -254,6 +259,12 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                     one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
                     goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
                 }
+
+                if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
+                    //已发运
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
+                }
+
                 if (iogisticsData.getStatus() == 7) {
                     Date date = new Date();
                     one.setAccomplishDate(date);    // 物流动态更新 实际完成时间
