@@ -105,14 +105,14 @@
     <if test="org!=null and org!=''">
       AND  organization = #{org}
     </if>
-    AND  quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count)
+    AND  quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count  WHERE return_count > 0 )
        group by quotation_num
 
       ) as t;
   </select>
   <select id="selectCountGroupByRtnSeasonAndArea" resultType="java.util.Map" parameterType="java.util.Map" >
     select
-    (case WHEN inquiry_area IS NULL OR inquiry_area ='' THEN '其他' ELSE inquiry_area END)  AS area,
+    (case WHEN inquiry_area IS NULL OR inquiry_area ='' THEN '其他地区' ELSE inquiry_area END)  AS area,
     sum(CASE WHEN return_season LIKE '%项目澄清%' then 1 else 0 end) as projectClear,
     sum(CASE WHEN return_season LIKE '%非事业部业务范围%' then 1 else 0 end) as notOrg,
     sum(CASE WHEN return_season LIKE '%无供应渠道%' then 1 else 0 end) as notSupply,
@@ -123,12 +123,12 @@
       AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-     AND quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count)
+     AND quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count  WHERE return_count > 0 )
     group by inquiry_area
   </select>
   <select id="selectCountGroupByRtnSeasonAndOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InqRtnReasonExample" >
     select
-    (case WHEN organization IS NULL OR organization ='' THEN '其他' ELSE organization END)  AS org,
+    (case WHEN organization IS NULL OR organization ='' THEN '其他事业部' ELSE organization END)  AS org,
     sum(CASE WHEN return_season LIKE '%项目澄清%' then 1 else 0 end) as projectClear,
     sum(CASE WHEN return_season LIKE '%非事业部业务范围%' then 1 else 0 end) as notOrg,
     sum(CASE WHEN return_season LIKE '%无供应渠道%' then 1 else 0 end) as notSupply,
@@ -139,7 +139,7 @@
       AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    AND quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count)
+    AND quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count  WHERE return_count > 0 )
     group by organization
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InqRtnReasonExample" >

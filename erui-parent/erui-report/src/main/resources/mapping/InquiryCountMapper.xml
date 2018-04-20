@@ -250,7 +250,7 @@
             AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
             and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         </if>
-        AND  quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE return_count &gt;= 1 )
+        AND  quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE return_count > 0 )
     </select>
 
 
