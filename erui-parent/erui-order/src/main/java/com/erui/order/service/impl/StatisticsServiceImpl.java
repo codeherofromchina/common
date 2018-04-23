@@ -166,8 +166,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries) {
         List<SaleStatistics> saleStatistics = findSaleStatistics(condition, countries);
-        String[] header = new String[]{"所属地区", "国家", "订单总数量", "订单总额", "油气数量", "油气订单金额", "订单数量占比%", "订单金额占比%", "非油气数量", "非油气订单金额", "订单数量占比%", "订单金额占比%", "询单总数量", "询单总金额", "订单金额占比%", "订单数量占比%", "会员总数", "1次复购率（会员数量）", "2次复购率（会员数量）", "次复购率（会员数量）", "3次以上复购率（会员数量）"};
-        String[] keys = new String[]{"regionZh", "countryZh", "orderNum", "orderAmount", "oilOrderNum", "oilOrderAmount", "oilOrderNumRate", "oilOrderAmountRate", "nonOilOrderNum", "nonOilOrderAmount", "nonOilOrderNumRate", "nonOilOrderAmountRate", "quotationNum", "quotationAmount", "crmOrderNumRate", "crmOrderAmountRate", "vipNum", "oneRePurch", "twoRePurch", "threeRePurch", "moreRePurch"};
+        String[] header = new String[]{"所属地区", "国家", "订单总数量", "订单总额", "油气数量", "油气订单金额", "油气订单数量占比%", "油气订单金额占比%", "非油气数量", "非油气订单金额", "非油气订单数量占比%", "非油气订单金额占比%", "询单总数量", "询单总金额", "询单订单金额占比%", "询单订单数量占比%", "会员总数", "1次复购率（会员数量）", "2次复购率（会员数量）", "次复购率（会员数量）", "3次以上复购率（会员数量）"};
+        String[] keys = new String[]{"regionZh", "countryZh", "orderNum", "orderAmount", "oilOrderNum", "oilOrderAmount", "100*oilOrderNumRate,oilOrderNumRate", "oilOrderAmountRate*100,oilOrderAmountRate", "nonOilOrderNum", "nonOilOrderAmount", "nonOilOrderNumRate*100,nonOilOrderNumRate", "nonOilOrderAmountRate*100,nonOilOrderAmountRate", "quotationNum", "quotationAmount", "crmOrderNumRate*100,crmOrderNumRate", "crmOrderAmountRate*100,crmOrderAmountRate", "vipNum", "oneRePurch", "twoRePurch", "threeRePurch", "moreRePurch"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(saleStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "销售业绩统计");
