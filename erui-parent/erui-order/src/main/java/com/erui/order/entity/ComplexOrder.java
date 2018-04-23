@@ -36,7 +36,7 @@ public class ComplexOrder {
     private String signingDate;
     // 合同交货日期
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
     // 合同总价
     @Column(name = "total_price")
     private String totalPrice;
@@ -150,12 +150,16 @@ public class ComplexOrder {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public String getShow_status_text() {
+        return show_status_text;
     }
 
     public String getTotalPrice() {

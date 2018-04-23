@@ -20,7 +20,7 @@ public class ResponseOutOrder {
     //订单日期
     private Date created_at;
     //交货日期
-    private Date delivery_at;
+    private String delivery_at;
     //订单金额
     private BigDecimal amount;
     private Integer type;
@@ -85,11 +85,11 @@ public class ResponseOutOrder {
         this.created_at = created_at;
     }
 
-    public Date getDelivery_at() {
+    public String getDelivery_at() {
         return delivery_at;
     }
 
-    public void setDelivery_at(Date delivery_at) {
+    public void setDelivery_at(String delivery_at) {
         this.delivery_at = delivery_at;
     }
 

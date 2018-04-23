@@ -44,6 +44,7 @@ public class UserVerifyFilter implements Filter {
             String buyerNo = jsonObject.getString("buyer_no");
             String reqTime = jsonObject.getString("req_time");
             String hash = jsonObject.getString("hash");
+
             if (buyerId == null || StringUtils.isAnyBlank(buyerNo, reqTime, hash)) {
                 logger.info("用户验证参数失败");
                 throw new Exception("用户验证参数失败");
