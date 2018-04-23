@@ -23,10 +23,20 @@ public class DeliverDetail {
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "deliver_detail_id")
+    @JsonIgnore
+    private List<Iogistics> iogistics = new ArrayList<>();    //物流表
+
     @OneToOne
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
+
+    @OneToOne
+    @JoinColumn(name = "deliver_consign_id")
+    @JsonIgnore
+    private DeliverConsign deliverConsign;    //出库通知单ID
 
     // 销售合同号
     @Transient
@@ -35,6 +45,9 @@ public class DeliverDetail {
     // 项目号
     @Transient
     private String projectNo;
+
+    @Transient
+    private String deliverConsignNo;    //出口通知单号
 
     @Transient
     private String prepareReq;  //备货要求
@@ -737,10 +750,32 @@ public class DeliverDetail {
         return projectNo;
     }
 
+    public DeliverConsign getDeliverConsign() {
+        return deliverConsign;
+    }
 
+    public void setDeliverConsign(DeliverConsign deliverConsign) {
+        this.deliverConsign = deliverConsign;
+    }
 
     public String getCreateUserName() {
         return createUserName;
+    }
+
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public List<Iogistics> getIogistics() {
+        return iogistics;
+    }
+
+    public void setIogistics(List<Iogistics> iogistics) {
+        this.iogistics = iogistics;
     }
 
     /**

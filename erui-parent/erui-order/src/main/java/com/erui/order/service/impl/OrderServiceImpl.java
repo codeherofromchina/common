@@ -26,6 +26,7 @@ import com.erui.order.entity.*;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.DeliverDetailService;
+import com.erui.order.service.IogisticsDataService;
 import com.erui.order.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -69,6 +70,10 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private DeliverDetailService deliverDetailService;
+
+    @Autowired
+    private IogisticsDataService iogisticsDataService;
+
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
 
@@ -203,7 +208,7 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
                 }
-                if (deliverDetailService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                if(iogisticsDataService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
                 vo.setGoodsList(null);
@@ -211,7 +216,6 @@ public class OrderServiceImpl implements OrderService {
         }
         return pageList;
     }
-
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
@@ -396,7 +400,8 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("CRM返回信息：" + s);
             }
 
-            sendSms(order);
+            //销售订单通知：销售订单下达后通知商务技术经办人
+           /* sendSms(order);*/
         }
         return order.getId();
     }
@@ -554,6 +559,10 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
+
+           // 销售订单通知：销售订单下达后通知商务技术经办人
+         /*   sendSms(order);*/
+
             sendSms(order);
         }
         return order1.getId();
@@ -659,8 +668,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+
+    //销售订单通知：销售订单下达后通知商务技术经办人
+    public void sendSms(Order order) throws  Exception {
     //订单下达后通知商务技术经办人
-    public void sendSms(Order order) throws Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         logger.info("发送短信的用户token:" + eruiToken);
@@ -888,7 +899,7 @@ public class OrderServiceImpl implements OrderService {
                     } else {
                         order.setDeliverConsignC(Boolean.FALSE);
                     }
-                    if (deliverDetailService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
+                    if (iogisticsDataService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
                         order.setOrderFinish(Boolean.TRUE);
                     }
                     order.setGoodsList(null);

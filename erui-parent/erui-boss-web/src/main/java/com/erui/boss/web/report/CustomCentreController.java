@@ -248,27 +248,17 @@ public class CustomCentreController {
         inquiryDetailMap.put("quotingInquiryRate", quotingInquiryRate);
         inquiryDetailMap.put("cancelInquiryRate", cancelInquiryRate);
 
-        //获取退回询单数量
-        params = ParamsUtils.getCurrentParams(params);
-        int rtnCount = inquiryService.selectInqRtnCountByTime(params);//询单退回数量
+
 
         //获取询单退回原因分析数据
         params = ParamsUtils.getCurrentParams(params);
         Map<String, Object> rtnMap = inqRtnReasonService.selectCountGroupByRtnSeason(params);
-        //获取项目澄清数据 projectClear
-        int projectClearCount = Integer.parseInt(rtnMap.get("projectClearCount").toString());
-        //获取非事业部业务范围 notOrg
-        int notOrgCount = Integer.parseInt(rtnMap.get("notOrgCount").toString());
-        //获取无供应渠道 notSupply
-        int notSupplyCount = Integer.parseInt(rtnMap.get("notSupplyCount").toString());
-        //获取系统问题 systemProblems
-        int systemProblemsCount = Integer.parseInt(rtnMap.get("systemProblemsCount").toString());
-        //获取其他  other
-        int otherCount = Integer.parseInt(rtnMap.get("otherCount").toString());
-        List<Map<String, Object>> tableData = getRtnTable(rtnMap);
 
         //获取退回询单汇总数据  {退回询单总数，退回总次数，平均退回次数，退回询单总占比}
-        int totalRtnCount = projectClearCount + notOrgCount + notSupplyCount + systemProblemsCount + otherCount;
+//        int rtnCount = getRtnInqCount(rtnMap);
+        params = ParamsUtils.getCurrentParams(params);
+        int rtnCount = inquiryService.selectInqRtnCountByTime(params);//询单退回数量
+        int totalRtnCount = getRtnCount(rtnMap);
         Double avgRtnCount = 0d;
         Double rtnInqProportion = 0d;
         if (rtnCount > 0) {
@@ -283,6 +273,7 @@ public class CustomCentreController {
         rtnSummary.put("avgRtnCount", avgRtnCount);
         rtnSummary.put("rtnInqProportion", rtnInqProportion);
         //组长退回原因表格数据
+        List<Map<String, Object>> tableData = getRtnTable(rtnMap);
 
         //组装数据
         HashMap<String, Object> data = new HashMap<>();
@@ -1353,6 +1344,31 @@ public class CustomCentreController {
         int totalRtnCount = projectClearCount + notOrgCount + notSupplyCount + systemProblemsCount + otherCount;
         return totalRtnCount;
     }
+    private int getRtnInqCount(Map<String, Object> rtnMap) {
+        int projectClearInqCount = 0;
+        int notOrgInqCount = 0;
+        int notSupplyInqCount = 0;
+        int systemProblemsInqCount = 0;
+        int otherInqCount = 0;
+        if (rtnMap.containsKey("projectClearInqCount")) {
+            projectClearInqCount = Integer.parseInt(rtnMap.get("projectClearInqCount").toString());
+        }
+        if (rtnMap.containsKey("notOrgInqCount")) {
+            notOrgInqCount = Integer.parseInt(rtnMap.get("notOrgInqCount").toString());
+        }
+        if (rtnMap.containsKey("notSupplyInqCount")) {
+            notSupplyInqCount = Integer.parseInt(rtnMap.get("notSupplyInqCount").toString());
+        }
+
+        if (rtnMap.containsKey("systemProblemsInqCount")) {
+            systemProblemsInqCount = Integer.parseInt(rtnMap.get("systemProblemsInqCount").toString());
+        }
+        if (rtnMap.containsKey("otherInqCount")) {
+            otherInqCount = Integer.parseInt(rtnMap.get("otherInqCount").toString());
+        }
+        int totalRtnInqCount = projectClearInqCount + notOrgInqCount + notSupplyInqCount + systemProblemsInqCount + otherInqCount;
+        return totalRtnInqCount;
+    }
 
     /**
      * 客户中心-询单详细分析: 区域和事业部退回原因明细
@@ -1364,7 +1380,7 @@ public class CustomCentreController {
     @ResponseBody
     public Object inqDetailRtnDetail(@RequestBody Map<String, Object> params) {
         // 验证参数
-       params=ParamsUtils.verifyParam(params,DateUtil.FULL_FORMAT_STR2,null);
+        params=ParamsUtils.verifyParam(params,DateUtil.FULL_FORMAT_STR2,null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1393,20 +1409,20 @@ public class CustomCentreController {
                 int notSupply=Integer.parseInt(m.get("notSupply").toString());
                 int systemProblems=Integer.parseInt(m.get("systemProblems").toString());
                 int other=Integer.parseInt(m.get("other").toString());
-               int total=projectClear+notOrg+notSupply+systemProblems+other;
-               if(total>0){
-                   m.put("projectClearProportion",RateUtil.intChainRate(projectClear,total));
-                   m.put("notOrgProportion",RateUtil.intChainRate(notOrg,total));
-                   m.put("notSupplyProportion",RateUtil.intChainRate(notSupply,total));
-                   m.put("systemProblemsProportion",RateUtil.intChainRate(systemProblems,total));
-                   m.put("otherProportion",RateUtil.intChainRate(other,total));
-               }else {
-                   m.put("projectClearProportion",0d);
-                   m.put("notOrgProportion",0d);
-                   m.put("notSupplyProportion",0d);
-                   m.put("systemProblemsProportion",0d);
-                   m.put("otherProportion",0d);
-               }
+                int total=projectClear+notOrg+notSupply+systemProblems+other;
+                if(total>0){
+                    m.put("projectClearProportion",RateUtil.intChainRate(projectClear,total));
+                    m.put("notOrgProportion",RateUtil.intChainRate(notOrg,total));
+                    m.put("notSupplyProportion",RateUtil.intChainRate(notSupply,total));
+                    m.put("systemProblemsProportion",RateUtil.intChainRate(systemProblems,total));
+                    m.put("otherProportion",RateUtil.intChainRate(other,total));
+                }else {
+                    m.put("projectClearProportion",0d);
+                    m.put("notOrgProportion",0d);
+                    m.put("notSupplyProportion",0d);
+                    m.put("systemProblemsProportion",0d);
+                    m.put("otherProportion",0d);
+                }
             });
         }
 

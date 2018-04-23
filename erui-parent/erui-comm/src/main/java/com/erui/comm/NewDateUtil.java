@@ -216,6 +216,7 @@ public class NewDateUtil {
                 return duration.toHours();
             }
             return duration.toDays();
+
         }
 
         return 0;

@@ -297,7 +297,12 @@ public class Project {
     }
 
     public String getProjectStatusName() {
-        Project.ProjectStatusEnum statusEnum = Project.ProjectStatusEnum.fromCode(getProjectStatus());
+        Project.ProjectStatusEnum statusEnum = null;
+        if (StringUtils.equals(getProjectStatus(), "HASMANAGER")) {
+            statusEnum = Project.ProjectStatusEnum.fromCode("SUBMIT");
+        }else {
+            statusEnum = Project.ProjectStatusEnum.fromCode(getProjectStatus());
+        }
         if (statusEnum != null) {
             return statusEnum.getMsg();
         }

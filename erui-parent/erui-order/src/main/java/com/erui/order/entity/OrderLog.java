@@ -57,7 +57,14 @@ public class OrderLog {
 
     @Column(name="deliver_detail_id")
     @JsonIgnore
-    private Integer deliverDetailId;    //物流id
+    private Integer deliverDetailId;    //V1.0物流id
+
+
+    @Column(name="logistics_data_id")
+    @JsonIgnore
+    private Integer iogisticsDataId;    //V2.0物流id
+
+
 
     public Integer getId() {
         return id;
@@ -148,6 +155,14 @@ public class OrderLog {
         this.deliverDetailId = deliverDetailId;
     }
 
+    public Integer getIogisticsDataId() {
+        return iogisticsDataId;
+    }
+
+    public void setIogisticsDataId(Integer iogisticsDataId) {
+        this.iogisticsDataId = iogisticsDataId;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this).toString();
@@ -156,6 +171,7 @@ public class OrderLog {
     public static enum LogTypeEnum{
         CREATEORDER(1,"订单签约"),ADVANCE(2,"收到预付款"),GOODOUT(3,"商品出库"),DELIVERED(4,"已收货"),
         DELIVERYDONE(5,"全部交收完成"),OTHER(6,"其他");
+
         public int code;
         public String msg;
         LogTypeEnum(int code,String msg) {
