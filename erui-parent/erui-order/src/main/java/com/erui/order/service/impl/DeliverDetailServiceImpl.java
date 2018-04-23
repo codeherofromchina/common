@@ -541,20 +541,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
             DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
 
-
-            List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns) {
+            DeliverConsign deliverConsign1 = deliverDetail2.getDeliverConsign();
                 //推送
                    /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
 
                 //已出库
-                applicationContext.publishEvent(new OrderProgressEvent(deliverConsign.getOrder(), 8));
+                applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
 
 
                 //  V2.0订单执行跟踪   推送商品出库
                 OrderLog orderLog = new OrderLog();
                 try {
-                    orderLog.setOrder(orderDao.findOne(deliverConsign.getOrder().getId()));
+                    orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
                     orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
                     orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
                     orderLog.setCreateTime(new Date());
@@ -567,13 +565,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     ex.printStackTrace();
                 }
 
-            }
 
             //出库通知：出库单下达后通知物流经办人（确认出库）
             //获取项目信息
-            for (DeliverConsign deliverConsign : deliverConsigns) {
-                project = project == null ? deliverConsign.getOrder().getProject() : project;
-            }
+
+                project = deliverConsign1.getOrder().getProject();
 
 
             String contractNo = project.getContractNo();//销售合同号
