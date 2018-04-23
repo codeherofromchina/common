@@ -297,10 +297,10 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             return null;
         }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+     /*   if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
-        }
+        }*/
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
         //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
@@ -401,7 +401,7 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
-    // 检查和贸易术语相关字段的完整性
+  /*  // 检查和贸易术语相关字段的完整性
     private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
         String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
         String toCountry = addOrderVo.getToCountry(); // 目的国
@@ -444,15 +444,15 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("目的地不能为空");
                 }
                 break;
-            /*
+            *//*
                 case "FOB":
                 case "FAS":
                     break;
                 default:
                     throw new Exception("不存在的贸易术语");
-            */
+            *//*
         }
-    }
+    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -460,10 +460,10 @@ public class OrderServiceImpl implements OrderService {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
         }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+      /*  if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
-        }
+        }*/
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
         order.setCreateUserId(addOrderVo.getCreateUserId());
