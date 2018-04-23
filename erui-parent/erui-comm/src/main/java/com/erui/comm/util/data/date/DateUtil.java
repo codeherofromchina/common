@@ -11,9 +11,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.data.string.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class DateUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
     public static final String FULL_FORMAT_STR2 = "yyyy/MM/dd HH:mm:ss";
     public static final String FULL_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
     public static final String SHORT_FORMAT_STR = "yyyy-MM-dd";
@@ -403,8 +406,14 @@ public class DateUtil {
         try {
             return new SimpleDateFormat("yyyy-MM-dd").parse(strdate);
         } catch (ParseException e) {
+<<<<<<< HEAD
             e.printStackTrace();
             return null;
+=======
+            LOGGER.info("转换异常[data:{},err:{}]",strdate,e);
+        } catch (Exception ex) {
+            LOGGER.info("转换异常[data:{},err:{}]",strdate,ex);
+>>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
         }
     }
     /**

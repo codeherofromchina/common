@@ -36,7 +36,7 @@ public interface MemberService {
 	 * @Date:17:59 2018/03/06
 	 * @modified By
 	 */
-	Map<String,Object> selectOperateSummaryData(Map<String,String> params);
+	Map<String,Object> selectOperateSummaryData(Map<String,Object> params);
 	/**
 	 * @Author:lirb
 	 * @Description 运营数据趋势图
@@ -50,7 +50,7 @@ public interface MemberService {
 	 * @Date:17:59 2018/03/08
 	 * @modified By
 	 */
-	Map<String,Integer> selectRegisterSummaryData(Map<String,String> params);
+	Map<String,Integer> selectRegisterSummaryData(Map<String,Object> params);
 	/**
 	 * @Author:lirb
 	 * @Description 查询各区域的注册数量
@@ -78,7 +78,7 @@ public interface MemberService {
 	 * @Date:17:59 2018/03/09
 	 * @modified By
 	 */
-	Map<String,Integer> selectCustInqSummaryData(Map<String,String> params);
+	Map<String,Integer> selectCustInqSummaryData(Map<String,Object> params);
 	/**
 	 * @Author:lirb
 	 * @Description 查询 各区域的会员询单数据

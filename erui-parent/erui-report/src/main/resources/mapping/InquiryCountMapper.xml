@@ -186,12 +186,35 @@
     quoted_status, return_count, remark, quote_overtime_category, quote_overtime_cause,
     is_success_order, lose_order_category, lose_order_cause
   </sql>
+    <sql id="V_Base_Column_List" >
+     quotation_num, inquiry_unit, inquiry_area, organization, cust_name,
+    cust_description,rollin_time, profit_margin,  quotation_price,quote_need_time,
+    whole_quote_time,business_quote_time,clear_quote_time,logistics_quote_time, quoted_status,
+     return_count
+  </sql>
   <select id="selectStart" resultType="java.util.Date">
-    SELECT rollin_time FROM inquiry_count WHERE rollin_time IS NOT NULL ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
+    SELECT rollin_time FROM erui_rfq.v_inquiry_count WHERE rollin_time IS NOT NULL ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
   </select>
   <select id="selectEnd" resultType="java.util.Date">
-    SELECT rollin_time FROM inquiry_count ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
+    SELECT rollin_time FROM erui_rfq.v_inquiry_count ORDER BY DATE_FORMAT(rollin_time,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
   </select>
+    <select id="selectInquiryListByTime" resultType="com.erui.report.model.InquiryVo" parameterType="java.util.Map">
+        SELECT
+        <if test="distinct" >
+            distinct
+        </if>
+        <include refid="V_Base_Column_List" />
+        from erui_rfq.v_inquiry_count
+        WHERE  1=1
+        <if test="startTime!=null and endTime!=null">
+            AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        <if test="quoteStatus!=null ">
+            AND  quoted_status = #{quoteStatus}
+        </if>
+
+    </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     <if test="distinct" >
@@ -209,7 +232,7 @@
   <!--询单退回次数和平均退回次数-->
   <select id="selectRejectCount" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT  SUM(return_count) AS  sumCount,avg(return_count) AS  avgCount
-    FROM inquiry_count
+    FROM erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -219,22 +242,22 @@
   </select>
 
     <!--退回询单数量-->
-    <select id="selectInqRtnCountByTime" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
-        SELECT  COUNT(1)
-        FROM inquiry_count
-        <if test="_parameter != null" >
-            <include refid="Example_Where_Clause" />
+    <select id="selectInqRtnCountByTime" resultType="java.lang.Integer" parameterType="java.util.Map" >
+        SELECT  COUNT(DISTINCT quotation_num)
+        FROM erui_rfq.v_inq_rtn_reason
+       WHERE  1=1
+        <if test="startTime!=null and endTime!=null">
+            AND  rollin_time  BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         </if>
-        <if test="orderByClause != null" >
-            order by ${orderByClause}
-        </if>
+        AND  quotation_num IN (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE return_count > 0 )
     </select>
 
 
   <!--询单趋势图-->
   <select id="inqTrendByTime" resultType="map" parameterType="com.erui.report.model.InquiryCountExample" >
     SELECT COUNT(1) as count ,FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
-    FROM inquiry_count
+    FROM erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -246,7 +269,7 @@
   <!--查询事业部列表-->
   <select id="selectOrgListByExample" resultType="java.lang.String" parameterType="com.erui.report.model.InquiryCountExample" >
     select DISTINCT(organization)
-    from inquiry_count
+    from erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -258,7 +281,7 @@
   <!--查询销售大区列表-->
   <select id="selectAreaListByExample" resultType="java.lang.String" parameterType="com.erui.report.model.InquiryCountExample" >
     select DISTINCT(inquiry_area)
-    from inquiry_count
+    from erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -270,41 +293,20 @@
   <!--查询所有销售大区和国家列表列表-->
   <select id="selectAllAreaAndCountryList" resultType="java.util.Map" >
     select inquiry_area as area,inquiry_unit as country
-    from inquiry_count
+    from erui_rfq.v_inquiry_count
     group by inquiry_area,inquiry_unit  HAVING  inquiry_area IS  NOT  NULL
   </select>
   <!--查询所有销售大区和国家列表列表-->
   <select id="selectAllAreaAndOrgList" resultType="java.util.Map" >
     select inquiry_area as area,organization as org
-    from inquiry_count
+    from erui_rfq.v_inquiry_count
     group by inquiry_area,organization  HAVING  inquiry_area IS  NOT  NULL AND  organization IS  NOT  NULL
-  </select>
-  <select id="selectProTop3TotalByExample" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT  COUNT(1) as proCountTotal FROM inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectProTop3" resultType="map" parameterType="Object" >
-    SELECT COUNT(1) as proCount ,pro_category as proCategory FROM inquiry_count
-      <where >
-        <if test="startTime != null" >
-          and rollin_time >= #{startTime}
-        </if>
-        <if test="endTime != null " >
-           and rollin_time &lt; #{endTime}
-        </if>
-      </where>
-      group by pro_category HAVING pro_category IS  NOT  NULL  ORDER BY proCount DESC LIMIT 0,3;
   </select>
 
   <select id="selectTotalAmountByExample" resultType="java.lang.Double" parameterType="com.erui.report.model.InquiryCountExample" >
     select
     IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) as totalPrice
-    from inquiry_count
+    from erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -312,18 +314,31 @@
       order by ${orderByClause}
     </if>
   </select>
-
-  <select id="selectProCountByExample" resultType="java.lang.Integer" parameterType="com.erui.report.model.InquiryCountExample" >
+    <!--查询询单数量和金额-->
+  <select id="selectInqCountAndAmount" resultType="java.util.Map" parameterType="java.util.Map" >
     select
-    IFNULL(SUM(IFNULL(pro_count,0)),0) AS count
-    from inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
+    COUNT(1) AS  inqCount,
+    IFNULL(sum(IFNULL(quotation_price,0.00)),0.00) as inqAmount
+    from erui_rfq.v_inquiry_count
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+        and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
+    <if test="quotes!=null">
+        AND quoted_status IN
+        <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+            #{quote}
+        </foreach>
     </if>
-  </select>
+    <if test="area!=null and area!='' ">
+        AND  inquiry_area =#{area}
+    </if>
+      <if test="country!=null and country!='' ">
+          AND  inquiry_unit =#{country}
+      </if>
+</select>
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
     <include refid="Base_Column_List" />
@@ -331,22 +346,6 @@
     where id = #{id,jdbcType=BIGINT}
   </select>
 
-  <select id="selectNumSummaryByExample" resultType="com.erui.report.util.CustomerNumSummaryVO" parameterType="com.erui.report.model.InquiryCountExample" >
-    select
-	    count(1) as total,
-        sum(case is_oil_gas when '油气' then 1 else 0 end) as oil,
-	    sum(case is_oil_gas when '非油气' then 1 else 0 end) as nonoil,
-        sum(ifnull(quotation_price,0)) as amount,
-        sum(case is_oil_gas when '油气' then ifnull(quotation_price,0) else 0 end) as oilAmount,
-	    sum(case is_oil_gas when '非油气' then ifnull(quotation_price,0) else 0 end) as noNoilAmount
-    from inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
     <!--查询各个时间段报价询单个数-->
   <select id="selectInqCountGroupByQuoteTime" resultType="java.util.Map" parameterType="java.util.Map" >
       SELECT
@@ -356,10 +355,13 @@
       SUM(CASE  WHEN quote_need_time>8  AND quote_need_time &lt;=24 THEN 1 ELSE 0 END) AS eightCount,
       SUM(CASE  WHEN quote_need_time>24  AND  quote_need_time &lt;=48 THEN 1 ELSE 0 END) AS twentyFourCount,
       SUM(CASE  WHEN quote_need_time>48   THEN 1 ELSE 0 END) AS otherCount
-      from inquiry_count
+      from erui_rfq.v_inquiry_count
       WHERE 1=1
-      <if test="finished!=null and quoted!=null">
-         and quoted_status in (#{finished},#{quoted})
+      <if test="quotes!=null ">
+          AND quoted_status IN
+          <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+              #{quote}
+          </foreach>
       </if>
 
       <if test="startTime!=null and endTime!=null">
@@ -376,7 +378,7 @@
   t3.ordCustCount+t4.ordCustNullCount AS ordCustCount
   from
     (SELECT COUNT(1) AS inqCount,COUNT(DISTINCT(cust_description)) AS inqCustCount
-       FROM inquiry_count WHERE 1=1
+       FROM erui_rfq.v_inquiry_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and rollin_time BETWEEN
           DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -384,7 +386,7 @@
        AND cust_description IS NOT NULL)
      AS t1,
     (SELECT COUNT(1) AS inqNullCount,COUNT(1) AS inqCustNullCount
-       FROM inquiry_count WHERE 1=1
+       FROM erui_rfq.v_inquiry_count WHERE 1=1
       <if test="startTime!=null and endTime!=null">
           and rollin_time BETWEEN
           DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -410,7 +412,7 @@
 
   </select>
 
-
+<!--已放弃-->
    <select id="selectinquiryOrderCategoryNumByCondition" resultType="com.erui.report.util.CustomerCategoryNumVO" parameterType="java.util.Map" >
     select t.pro_category as category,sum(t.xdCount) as inquiryNum,sum(t.ddCount) as orderNum,sum(t.ddCount + t.xdCount) as totalNum from
 		(
@@ -433,36 +435,63 @@
   </select>
 
 
-  <select id="findCountByExampleGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT organization,count(1) as total
-      FROM erui_report.inquiry_count
-      <if test="_parameter != null" >
-        <include refid="Example_Where_Clause" />
+  <select id="findCountGroupByOrg" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+      (case WHEN organization IS NULL THEN '其他事业部' ELSE organization END) AS  organization,
+      count(1) as total
+      FROM erui_rfq.v_inquiry_count
+      WHERE 1=1
+      <if test="quotes!=null ">
+          AND quoted_status IN
+          <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+              #{quote}
+          </foreach>
       </if>
-      group by organization HAVING  organization IS  NOT NULL
+      <if test="rtnCount !=null ">
+         AND   return_count &gt;= 1
+      </if>
+
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      group by organization
   </select>
     <!--查询各事业部的平均报价用时和单数-->
-  <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
+  <select id="findAvgNeedTimeByRollinTimeGroupOrigation" resultType="java.util.Map" parameterType="java.util.Map" >
     SELECT organization,avg(ifnull(quote_need_time,0)) as avgNeedTime,COUNT(1) AS  total
-    FROM erui_report.inquiry_count
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-      <if test="orderByClause != null" >
-          order by ${orderByClause}
+    FROM erui_rfq.v_inquiry_count
+   WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      <if test="quotes!=null ">
+          AND quoted_status IN
+          <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+              #{quote}
+          </foreach>
       </if>
     group by organization HAVING  organization IS  NOT NULL
   </select>
-
     <!--查询各事业部的总报价用时和总单数-->
   <select id="findTotalNeedTimeAndCountGroupByOrg" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT organization ,ifnull(SUM(ifnull(quote_need_time,0)),0) as totalNeedTime,COUNT(1) AS  totalCount
-    FROM erui_report.inquiry_count
+    SELECT
+      organization ,
+      ifnull(SUM(ifnull(quote_need_time,0)),0) as totalNeedTime,
+      ifnull(SUM(ifnull(whole_quote_time,0)),0) as wholeQuoteTime,
+      ifnull(SUM(ifnull(business_quote_time,0)),0) as businessQuoteTime,
+      ifnull(SUM(ifnull(clear_quote_time,0)),0) as clearQuoteTime,
+      ifnull(SUM(ifnull(logistics_quote_time,0)),0) as logisticsQuoteTime,
+      COUNT(1) AS  totalCount
+    FROM erui_rfq.v_inquiry_count
    where 1=1
-   <if test="finished!=null and quoted!=null">
-       and quoted_status in (#{finished},#{quoted})
+   <if test="quotes!=null ">
+     AND quoted_status IN
+       <foreach collection="quotes" item="quote"  open="(" separator="," close=")">
+         #{quote}
+       </foreach>
    </if>
-
    <if test="startTime!=null and endTime !=null">
        and rollin_time BETWEEN
        DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -470,12 +499,15 @@
     group by organization HAVING  organization IS  NOT NULL
   </select>
   <select id="findCountAndPriceByRangRollinTimeGroupArea" resultType="java.util.Map" parameterType="com.erui.report.model.InquiryCountExample" >
-    SELECT inquiry_area as area,count(1) as total,sum(IFNULL(quotation_price,0)) as totalAmount
-    FROM erui_report.inquiry_count
+    SELECT
+      (case WHEN inquiry_area IS NULL THEN '其他' ELSE inquiry_area END) as area,
+      count(1) as total,
+      sum(IFNULL(quotation_price,0)) as totalAmount
+    FROM erui_rfq.v_inquiry_count
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
-    group by inquiry_area HAVING  inquiry_area IS  NOT  NULL
+    group by inquiry_area
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
@@ -854,7 +886,7 @@
         </trim>
     </insert>
     <select id="countByExample" parameterType="com.erui.report.model.InquiryCountExample" resultType="java.lang.Integer" >
-        select count(*) from inquiry_count
+        select count(*) from erui_rfq.v_inquiry_count
         <if test="_parameter != null" >
             <include refid="Example_Where_Clause" />
         </if>

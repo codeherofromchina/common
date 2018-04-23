@@ -1,5 +1,7 @@
 package com.erui.order.requestVo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 /**
@@ -18,6 +20,7 @@ public class OrderListCondition {
     //市场经办人
     private String agentName;
     //订单签约日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date signingDate;
     //合同交货日期
     private String deliveryDate;
@@ -50,7 +53,7 @@ public class OrderListCondition {
     //商务技术经办人
     private Integer technicalId;
     // 分页信息参数
-    private int page = 0; // 默认从0开始
+    private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
 
     public Integer getTechnicalId() {

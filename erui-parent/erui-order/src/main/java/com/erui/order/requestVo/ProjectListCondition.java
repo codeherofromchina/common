@@ -1,5 +1,7 @@
 package com.erui.order.requestVo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -17,6 +19,7 @@ public class ProjectListCondition {
     //执行分公司名称
     private String execCoName;
     //项目开始时期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date startDate;
     //分销部
     private String distributionDeptName;
@@ -25,10 +28,13 @@ public class ProjectListCondition {
     //所属区域
     private String region;
     //执行单约定交付日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
     //要求采购到货日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date requirePurchaseDate;
     //执行单变更后日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date exeChgDate;
     //项目状态
     private String projectStatus;

@@ -70,10 +70,10 @@ public interface OrderCountMapper {
 
     /**
      * 按条件统计事业部的订单数量和金额
-     * @param example
+     * @param params
      * @return {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
      */
-    List<Map<String,Object>> findCountAndAmountByExampleGroupOrigation(OrderCountExample example);
+    List<Map<String,Object>> findCountAndAmountByExampleGroupOrigation(Map<String,Object> params);
 
     /**
      * 订单趋势图

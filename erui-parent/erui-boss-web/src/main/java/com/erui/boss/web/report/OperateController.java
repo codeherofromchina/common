@@ -6,6 +6,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.InquiryCountService;
 import com.erui.report.service.MemberService;
 import com.erui.report.service.OrderCountService;
+import com.erui.report.util.ParamsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,10 +29,6 @@ public class OperateController {
 
     @Autowired
     private MemberService memberService;
-    @Autowired
-    private InquiryCountService inquiryService;
-    @Autowired
-    private OrderCountService orderService;
 
     /**
      * 运营数据总览
@@ -41,21 +38,14 @@ public class OperateController {
      */
     @ResponseBody
     @RequestMapping(value = "/operatePandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result operatePandect(@RequestBody(required = true) Map<String, String> params) {
+    public Result operatePandect(@RequestBody(required = true) Map<String, Object> params) {
         // 获取参数并转换成时间格式
-        Result<Object> result = new Result<>();
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || end == null || startTime.after(end)) {
+       params= ParamsUtils.verifyParam(params,DateUtil.SHORT_SLASH_FORMAT_STR,null);
+        if (params == null) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
-        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        params.put("startTime", fullStartTime);
-        params.put("endTime", fullEndTime);
         Map<String, Object> data = memberService.selectOperateSummaryData(params);
-        return result.setData(data);
+        return new Result().setData(data);
     }
 
     /**
@@ -87,21 +77,14 @@ public class OperateController {
      */
     @ResponseBody
     @RequestMapping(value = "/registerDetailPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result registerDetailPandect(@RequestBody(required = true) Map<String, String> params) {
+    public Result registerDetailPandect(@RequestBody(required = true) Map<String, Object> params) {
         // 获取参数并转换成时间格式
-        Result<Object> result = new Result<>();
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || end == null || startTime.after(end)) {
-            return new Result<>(ResultStatusEnum.PARAM_ERROR);
-        }
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
-        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        params.put("startTime", fullStartTime);
-        params.put("endTime", fullEndTime);
+       params=ParamsUtils.verifyParam(params,DateUtil.SHORT_SLASH_FORMAT_STR,null);
+       if(params==null){
+           return new Result<>(ResultStatusEnum.PARAM_ERROR);
+       }
         Map<String, Integer> data = memberService.selectRegisterSummaryData(params);
-        return result.setData(data);
+        return new Result(data);
     }
 
     /**
@@ -171,21 +154,13 @@ public class OperateController {
      */
     @ResponseBody
     @RequestMapping(value = "/inqDetailPandect", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result inqDetailPandect(@RequestBody(required = true) Map<String, String> params) {
-        // 获取参数并转换成时间格式
-        Result<Object> result = new Result<>();
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || end == null || startTime.after(end)) {
+    public Result inqDetailPandect(@RequestBody(required = true) Map<String, Object> params) {
+         params=ParamsUtils.verifyParam(params,DateUtil.SHORT_SLASH_FORMAT_STR,null);
+        if (params == null) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
-        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        params.put("startTime", fullStartTime);
-        params.put("endTime", fullEndTime);
         Map<String,Integer> data=memberService.selectCustInqSummaryData(params);
-        return result.setData(data);
+        return new Result(data);
     }
     /**
      * 运营数据-会员询单 区域明细

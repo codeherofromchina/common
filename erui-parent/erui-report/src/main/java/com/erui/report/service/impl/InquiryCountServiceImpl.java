@@ -398,70 +398,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return response;
     }
 
-    // 根据时间和产品类别查询产品数量
-    @Override
-    public int selectProCountByExample(Date startTime, Date endTime, String isOil, String proCategory) {
-        InquiryCountExample example = new InquiryCountExample();
-        InquiryCountExample.Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        if (isOil != null && !isOil.equals("")) {
-            criteria.andIsOilGasEqualTo(isOil);
-        }
-        if (proCategory != null && !proCategory.equals("")) {
-            criteria.andPlatProCategoryEqualTo(proCategory);
-        }
-        int proCount = readMapper.selectProCountByExample(example);
-        return proCount;
-    }
-
-    // 查询产品Top3
-    @Override
-    public List<Map<String, Object>> selectProTop3(Map<String, Object> params) {
-        List<Map<String, Object>> list = readMapper.selectProTop3(params);
-        if (list == null) {
-            list = new ArrayList<>();
-        }
-        return list;
-    }
-
-    /**
-     * @Author:SHIGS
-     * @Description 查询产品Top3
-     * @Date:2:03 2017/11/2
-     * @modified By
-     */
-    @Override
-    public Map<String, Object> selectProTop3Total(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return this.readMapper.selectProTop3TotalByExample(example);
-    }
-
-    // 查询品类明细
-    @Override
-    public List<CateDetailVo> selectInqDetailByCategory(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        criteria.andProCategoryIsNotNull(); // 按照品类统计，品类不能为空D
-        return readMapper.selectInqDetailByCategoryByExample(example);
-    }
 
     // 查询事业部列表
     @Override
@@ -472,34 +408,10 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return readMapper.selectOrgListByExample(example);
     }
 
-    // 销售大区列表
-    @Override
-    public List<String> selectAreaList() {
-        InquiryCountExample example = new InquiryCountExample();
-        return readMapper.selectAreaListByExample(example);
-    }
-
     // 根据时间查询询单列表
     @Override
-    public List<InquiryCount> selectListByTime(Date startTime, Date endTime, String[] quotes, String area, String country) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        if (quotes != null && quotes.length > 0) {
-            criteria.andQuotedStatusIn(Arrays.asList(quotes));
-        }
-        if (StringUtil.isNotBlank(area)) {
-            criteria.andInquiryAreaEqualTo(area);
-        }
-        if (StringUtil.isNotBlank(country)) {
-            criteria.andInquiryUnitEqualTo(country);
-        }
-        return readMapper.selectByExample(example);
+    public List<InquiryVo> selectListByTime(Map<String,Object> params) {
+        return readMapper.selectInquiryListByTime(params);
     }
 
     /**
@@ -603,32 +515,32 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public CustomerNumSummaryVO numSummary(Date startTime, Date endTime, String area, String country) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
+    public Map<String, Object> selectInqInfoByCondition(Map<String, Object> params) {
+        Map<String,Object> inqMap=readMapper.selectInqCountAndAmount(params);
+        //查询环比数据
+        Map<String, Object> chainParams = ParamsUtils.getChainParams(params);
+        Map<String,Object> chainInqMap=readMapper.selectInqCountAndAmount(chainParams);
+        int inqCount = Integer.parseInt(inqMap.get("inqCount").toString());
+       double inqAmount = Double.parseDouble(inqMap.get("inqAmount").toString());
+        int chainInqCount = Integer.parseInt(chainInqMap.get("inqCount").toString());
+        inqMap.put("chainAdd",inqCount-chainInqCount);
+        if(chainInqCount>0) {
+            inqMap.put("chainRate", RateUtil.intChainRateTwo(inqCount - chainInqCount, chainInqCount));
+        }else {
+            inqMap.put("chainRate",0);
         }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        if (StringUtils.isNoneBlank(area)) {
-            criteria = criteria.andInquiryAreaEqualTo(area);
-        }
-        if (StringUtils.isNoneBlank(country)) {
-            criteria.andInquiryUnitEqualTo(country);
-        }
-        CustomerNumSummaryVO vo = readMapper.selectNumSummaryByExample(example);
-
-        return vo;
+        inqMap.put("amount",RateUtil.doubleChainRateTwo(inqAmount,10000)+"万$");
+        inqMap.put("count",inqCount);
+        return inqMap;
     }
 
     @Override
-    public Map<String, Object> selectQuoteTimeSummaryData(Map<String, String> params) {
+    public Map<String, Object> selectQuoteTimeSummaryData(Map<String, Object> params) {
+
         //查询各个时间段报价询单个数
-        params.put("finished","已完成");
-        params.put("quoted","已报价");
         Map<String,Object> data=readMapper.selectInqCountGroupByQuoteTime(params);
+
+        //添加占比
         Integer totalCount = Integer.parseInt(data.get("totalCount").toString());
         double oneCountRate=0.00,fourCountRate=0.00,eightCountRate=0.00,
                 twentyFourCountRate=0.00,otherCountRate=0.00;
@@ -649,6 +561,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         data.put("eightCountRate",eightCountRate);
         data.put("twentyFourCountRate",twentyFourCountRate);
         data.put("otherCountRate",otherCountRate);
+
         //查询各事业部的 报价总用时和总单数 （用于合并事业部平均报价用时）
         List<Map<String, Object>> orgData = readMapper.findTotalNeedTimeAndCountGroupByOrg(params);
         Map<String,Map<String,Object>> orgMap=new HashMap<>();
@@ -658,6 +571,14 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                 Map<String, Object> map = orgMap.get(org);
                 map.put("totalNeedTime",Double.parseDouble(map.get("totalNeedTime").toString())+
                         Double.parseDouble(m.get("totalNeedTime").toString()));
+                map.put("wholeQuoteTime",Double.parseDouble(map.get("wholeQuoteTime").toString())+
+                        Double.parseDouble(m.get("wholeQuoteTime").toString()));
+                map.put("businessQuoteTime",Double.parseDouble(map.get("businessQuoteTime").toString())+
+                        Double.parseDouble(m.get("businessQuoteTime").toString()));
+                map.put("clearQuoteTime",Double.parseDouble(map.get("clearQuoteTime").toString())+
+                        Double.parseDouble(m.get("clearQuoteTime").toString()));
+                map.put("logisticsQuoteTime",Double.parseDouble(map.get("logisticsQuoteTime").toString())+
+                        Double.parseDouble(m.get("logisticsQuoteTime").toString()));
 
                 map.put("totalCount",Integer.parseInt(map.get("totalCount").toString())+
                         Integer.parseInt(m.get("totalCount").toString()));
@@ -673,10 +594,22 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
                  while (iterator.hasNext()) {
                      Map<String, Object> m = iterator.next();
                      double totalNeedTime = Double.parseDouble(m.get("totalNeedTime").toString());
+                     double wholeQuoteTime = Double.parseDouble(m.get("wholeQuoteTime").toString());
+                     double businessQuoteTime = Double.parseDouble(m.get("businessQuoteTime").toString());
+                     double clearQuoteTime = Double.parseDouble(m.get("clearQuoteTime").toString());
+                     double logisticsQuoteTime = Double.parseDouble(m.get("logisticsQuoteTime").toString());
                      int totalCount1 = Integer.parseInt(m.get("totalCount").toString());
                      if (totalCount1 > 0) {
                          m.put("avgNeedTime", RateUtil.doubleChainRateTwo(totalNeedTime, totalCount1));
+                         m.put("avgWholeQuoteTime", RateUtil.doubleChainRateTwo(wholeQuoteTime, totalCount1));
+                         m.put("avgBusinessQuoteTime", RateUtil.doubleChainRateTwo(businessQuoteTime, totalCount1));
+                         m.put("avgClearQuoteTime", RateUtil.doubleChainRateTwo(clearQuoteTime, totalCount1));
+                         m.put("avgLogisticsQuoteTime", RateUtil.doubleChainRateTwo(logisticsQuoteTime, totalCount1));
                          m.remove("totalNeedTime");
+                         m.remove("wholeQuoteTime");
+                         m.remove("businessQuoteTime");
+                         m.remove("clearQuoteTime");
+                         m.remove("logisticsQuoteTime");
                          m.remove("totalCount");
                      }
                  }
@@ -750,45 +683,15 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         return result;
     }
 
-    @Override
-    public CustomerNumSummaryVO selectNumSummaryByExample(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        return readMapper.selectNumSummaryByExample(example);
-    }
-
-
     /**
      * 按照转入日期区间统计事业部的询单数量
      *
-     * @param startDate
-     * @param endDate
+     * @param params
      * @return
      */
     @Override
-    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate,int rtnCount, String[] quotes) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startDate != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
-        }
-        if (endDate != null) {
-            criteria.andRollinTimeLessThan(endDate);
-        }
-        if(rtnCount>0){
-            criteria.andReturnCountGreaterThanOrEqualTo(rtnCount);
-        }
-        if (quotes != null && quotes.length > 0) {
-            criteria.andQuotedStatusIn(Arrays.asList(quotes));
-        }
-        List<Map<String, Object>> result = readMapper.findCountByExampleGroupOrigation(example);
+    public List<Map<String, Object>> findCountByRangRollinTimeGroupOrigation(Map<String,Object> params) {
+        List<Map<String, Object>> result = readMapper.findCountGroupByOrg(params);
         if (result == null) {
             result = new ArrayList<>();
         }
@@ -888,7 +791,6 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
         if (quotes != null && quotes.length > 0) {
             criteria.andQuotedStatusIn(Arrays.asList(quotes));
         }
-        criteria.andInquiryAreaIsNotNull();
         List<Map<String, Object>> result = readMapper.findCountAndPriceByRangRollinTimeGroupArea(example);
         if (result == null) {
             result = new ArrayList<>();
@@ -897,19 +799,8 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public List<Map<String, Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startDate != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startDate);
-        }
-        if (endDate != null) {
-            criteria.andRollinTimeLessThan(endDate);
-        }
-        criteria.andQuotedStatusBetween(QuotedStatusEnum.STATUS_QUOTED_FINISHED.getQuotedStatus(),
-                QuotedStatusEnum.STATUS_QUOTED_ED.getQuotedStatus());
-
-        List<Map<String, Object>> result = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(example);
+    public List<Map<String, Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Map<String,Object> params) {
+        List<Map<String, Object>> result = readMapper.findAvgNeedTimeByRollinTimeGroupOrigation(params);
         if (result == null) {
             result = new ArrayList<>();
         }
@@ -1094,21 +985,12 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
     }
 
     @Override
-    public int selectInqRtnCountByTime(Date startTime, Date endTime) {
-        InquiryCountExample example = new InquiryCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startTime != null) {
-            criteria.andRollinTimeGreaterThanOrEqualTo(startTime);
-        }
-        if (endTime != null) {
-            criteria.andRollinTimeLessThan(endTime);
-        }
-        criteria.andReturnCountGreaterThanOrEqualTo(1);
-        return readMapper.selectInqRtnCountByTime(example);
+    public int selectInqRtnCountByTime(Map<String,Object> params) {
+        return readMapper.selectInqRtnCountByTime(params);
     }
 
     @Override
-    public Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, String> params) {
+    public Map<String, Object> selectInqAndOrdCountAndPassengers(Map<String, Object> params) {
 
         return readMapper.selectInqAndOrdCountAndPassengers(params);
     }

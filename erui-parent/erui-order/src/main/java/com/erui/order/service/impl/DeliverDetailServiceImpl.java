@@ -196,7 +196,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 //根据出库日期
                 if (deliverD.getLeaveDate() != null) {
+<<<<<<< HEAD
                     list.add(cb.equal(root.get("leaveDate"),deliverD.getLeaveDate() ));
+=======
+                    list.add(cb.equal(root.get("leaveDate"),deliverD.getLeaveDate()));
+>>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
                 }
                 //根据仓库经办人
                 if (deliverD.getWareHouseman() != null) {

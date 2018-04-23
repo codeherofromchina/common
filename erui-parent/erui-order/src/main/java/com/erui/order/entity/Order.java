@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.util.GoodsUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -249,6 +251,14 @@ public class Order {
         this.deliverConsignHas = deliverConsignHas;
     }
 
+    public String getProcessProgressName() {
+        Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(getProcessProgress());
+        if (projectProgressEnum != null) {
+            return projectProgressEnum.getMsg();
+        }
+        return null;
+    }
+
     public String getProcessProgress() {
         return processProgress;
     }
@@ -267,6 +277,15 @@ public class Order {
 
     public BigDecimal getTotalPriceUsd() {
         return totalPriceUsd;
+    }
+
+    public String getTotalPriceUsdSplit() {
+        if (getTotalPrice() != null) {
+            DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
+            String format = decimalFormat.format(getTotalPrice());
+            return format;
+        }
+        return null;
     }
 
     public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
@@ -392,6 +411,18 @@ public class Order {
         return orderSource;
     }
 
+    public String getOrderSourceName() {
+        // 1 门户订单 2 门户询单 3 线下订单',
+        if (getOrderSource() == 1) {
+            return "门户订单";
+        } else if (getOrderSource() == 2) {
+            return "市场询单";
+        } else if (getOrderSource() == 3) {
+            return "线下订单";
+        }
+        return null;
+    }
+
     public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
     }
@@ -449,6 +480,14 @@ public class Order {
 
     public Integer getOrderType() {
         return orderType;
+    }
+
+    public String getOrderTypeName() {
+        if (getOrderType() == 1) {
+            return "油气";
+        } else {
+            return "非油气";
+        }
     }
 
     public void setOrderType(Integer orderType) {
@@ -645,7 +684,7 @@ public class Order {
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
-        if (totalPrice == null){
+        if (totalPrice == null) {
             BigDecimal bigDecimal = new BigDecimal(0.00);
             totalPrice = bigDecimal;
         }
@@ -688,12 +727,32 @@ public class Order {
         return payStatus;
     }
 
+    public String getPayStatusName() {
+        // 1:未付款 2:部分付款 3:收款完成
+        if (getPayStatus() == 1) {
+            return "未收款";
+        } else if (getPayStatus() == 2) {
+            return "部分收款";
+        } else if (getPayStatus() == 3) {
+            return "收款完成";
+        }
+        return null;
+    }
+
     public void setPayStatus(Integer payStatus) {
         this.payStatus = payStatus;
     }
 
     public Integer getStatus() {
         return status;
+    }
+
+    public String getOrderStatusName() {
+        Order.StatusEnum statusEnum = Order.fromCode(getStatus());
+        if (statusEnum != null) {
+            return statusEnum.getMsg();
+        }
+        return null;
     }
 
     public void setStatus(Integer status) {
@@ -827,6 +886,16 @@ public class Order {
         }
     }
 
+    public static StatusEnum fromCode(Integer code) {
+        if (code != null) {
+            for (StatusEnum statusEnum : StatusEnum.values()) {
+                if (statusEnum.getCode() == code) {
+                    return statusEnum;
+                }
+            }
+        }
+        return null;
+    }
 
 
 }

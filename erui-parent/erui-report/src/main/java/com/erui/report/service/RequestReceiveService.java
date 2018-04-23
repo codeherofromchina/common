@@ -21,6 +21,10 @@ public interface RequestReceiveService {
      */
     Double selectBackAmount(Date startTime, Date endTime,String company,String org,String area,String country);
     /**
+     *根据条件查询应收余额
+     */
+    Double selectReceiveBalance(Date startTime, Date endTime);
+    /**
      * @Author:lirb
      * @Description 查询各区域的回款金额
      * @Date:13:56 2017/12/20
@@ -41,4 +45,5 @@ public interface RequestReceiveService {
      * @modified By
      */
     List<Map<String,Object>> selectBackAmountGroupByOrg(Date startTime,Date endTime);
+
 }

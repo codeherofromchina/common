@@ -165,11 +165,11 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
                 }
                 //根据区域所在国家查询
-                 String[] country = null;
+                String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }
-               if (condition.getType() == 1) {
+                if (condition.getType() == 1) {
                     if (country != null || condition.getCreateUserId() != null) {
                         list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
@@ -295,7 +295,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional( rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
@@ -329,7 +329,6 @@ public class OrderServiceImpl implements OrderService {
                 // 已经存在的sku，返回错误
                 throw new Exception("同一sku不可以重复添加");
             }
-
             goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
             goods.setNameEn(pGoods.getNameEn());
@@ -360,7 +359,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
-            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate,1));
+            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
             Project projectAdd = new Project();
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -520,7 +519,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
-            applicationContext.publishEvent(new OrderProgressEvent(order1,1));
+            applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
@@ -549,10 +548,8 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProjectNo(project2.getProjectNo());
             });
             goodsDao.save(goodsList1);
-
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
-
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -562,10 +559,14 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
+<<<<<<< HEAD
 
            // 销售订单通知：销售订单下达后通知商务技术经办人
          /*   sendSms(order);*/
 
+=======
+            sendSms(order);
+>>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
         }
         return order1.getId();
     }
@@ -670,14 +671,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+<<<<<<< HEAD
 
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws  Exception {
+=======
+    //订单下达后通知商务技术经办人
+    public void sendSms(Order order) throws Exception {
+>>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         logger.info("发送短信的用户token:" + eruiToken);
         if (StringUtils.isNotBlank(eruiToken)) {
-            try{
+            try {
                 // 根据id获取商务经办人信息
                 String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -691,28 +697,27 @@ public class OrderServiceImpl implements OrderService {
                 JSONObject jsonObject = JSONObject.parseObject(s);
                 Integer code = jsonObject.getInteger("code");
                 String mobile = null;  //商务经办人手机号
-                if(code == 1){
+                if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     mobile = data.getString("mobile");
                     //发送短信
-                    Map<String,String> map= new HashMap();
-                    map.put("areaCode","86");
-                    map.put("to","[\""+mobile+"\"]");
-                    map.put("content","您好，销售合同号："+order.getContractNo()+"，市场经办人："+order.getAgentName()+"，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
-                    map.put("subType","0");
-                    map.put("groupSending","0");
-                    map.put("useType","订单");
+                    Map<String, String> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", "[\"" + mobile + "\"]");
+                    map.put("content", "您好，销售合同号：" + order.getContractNo() + "，市场经办人：" + order.getAgentName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送短信返回状态"+s1);
+                    logger.info("发送短信返回状态" + s1);
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new Exception("发送短信异常失败");
             }
 
         }
     }
-
 
 
     @Override
@@ -788,5 +793,128 @@ public class OrderServiceImpl implements OrderService {
 
         }
         return resultMap;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Order> findOrderExport(final OrderListCondition condition) {
+        Sort sort = new Sort(Sort.Direction.DESC, "id");
+        List<Order> pageList = orderDao.findAll(new Specification<Order>() {
+            @Override
+            public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 根据销售同号模糊查询
+                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据Po号模糊查询
+                if (StringUtil.isNotBlank(condition.getPoNo())) {
+                    list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
+                }
+                //根据询单号查询
+                if (StringUtil.isNotBlank(condition.getInquiryNo())) {
+                    list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
+                }
+                //根据订单签订时间查询
+                if (condition.getSigningDate() != null) {
+                    list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
+                }
+                //根据合同交货日期查询
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
+                }
+                //根据框架协议号查询
+                if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
+                    list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
+                }
+                //根据订单类型
+                if (condition.getOrderType() != null) {
+                    list.add(cb.equal(root.get("orderType").as(Integer.class), condition.getOrderType()));
+                }
+                //根据汇款状态
+                if (condition.getPayStatus() != null) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
+                }
+                if (condition.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+                }
+                //根据订单来源查询
+                if (StringUtil.isNotBlank(condition.getOrderSource())) {
+                    list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //商务技术经办人
+                if (condition.getTechnicalId() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
+                }
+                //根据区域所在国家查询
+                String[] country = null;
+                if (StringUtils.isNotBlank(condition.getCountry())) {
+                    country = condition.getCountry().split(",");
+                }
+                if (condition.getType() == 1) {
+                    if (country != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                } else if (condition.getType() == 2) {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    }
+                } else {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    if (country != null) {
+                        list.add(root.get("country").in(country));
+                    }
+                }
+                list.add(cb.equal(root.get("deleteFlag"), false));
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, sort);
+        try {
+            if (pageList.size() > 0) {
+                for (Order order : pageList) {
+                    order.setAttachmentSet(null);
+                    order.setOrderPayments(null);
+                    if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                        boolean flag = order.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                        order.setDeliverConsignC(flag);
+                    } else {
+                        order.setDeliverConsignC(Boolean.FALSE);
+                    }
+                    if (deliverDetailService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
+                        order.setOrderFinish(Boolean.TRUE);
+                    }
+                    order.setGoodsList(null);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pageList;
     }
 }

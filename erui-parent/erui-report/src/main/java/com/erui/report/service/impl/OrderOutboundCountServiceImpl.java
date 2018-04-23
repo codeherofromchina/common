@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -69,12 +70,18 @@ public class OrderOutboundCountServiceImpl extends BaseService<OrderOutboundCoun
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, "出库时间字段格式错误");
                 continue;
             }
-            try {
-                ooc.setAmounts(new BigDecimal(strArr[6]));
-            } catch (NumberFormatException e) {
-                logger.error(e.getMessage());
+            if(strArr[6]!=null) {
+                try {
+                    ooc.setAmounts(new BigDecimal(strArr[6]));
+                } catch (NumberFormatException e) {
+                    logger.error(e.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, "金额字段不是数字");
+                    continue;
+                }
+            }else {
                 response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, "金额字段不是数字");
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_OUTBOUND_COUNT.getTable(), cellIndex, "金额字段为空");
                 continue;
             }
             ooc.setRemark(strArr[7]);

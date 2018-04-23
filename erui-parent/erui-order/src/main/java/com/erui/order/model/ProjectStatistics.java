@@ -1,5 +1,6 @@
 package com.erui.order.model;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -33,15 +34,16 @@ public class ProjectStatistics {
         this.crmCode = order.getCrmCode();
         this.customerType = order.getCustomerType();
         this.orderType = order.getOrderType();
-        this.totalPrice = order.getTotalPrice();
+        this.totalPrice = project.getTotalPriceUsd();
         this.paymentModeBn = order.getPaymentModeBn();
         this.profitPercent = project.getProfitPercent();
         this.grantType = order.getGrantType();
-        this.deliveryDate = order.getDeliveryDate();
+        if (project.getDeliveryDate() != null) {
+            this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR,project.getDeliveryDate());
+        }
         this.requirePurchaseDate = project.getRequirePurchaseDate();
         this.exeChgDate = project.getExeChgDate();
         this.agentName = order.getAgentName();
-        this.acquireId = order.getAcquireId();
         this.businessName = order.getBusinessName();
         this.tradeTerms = order.getTradeTerms();
         this.projectStatus = project.getProjectStatus();
@@ -107,8 +109,8 @@ public class ProjectStatistics {
     private Date exeChgDate;
     //市场经办人
     private String agentName;
-    //获取人
-    private Integer acquireId;
+    //获取人 -- 由integer改为String,前端不用修改
+    private String acquireId;
     //商务技术经办人
     private String businessName;
     //贸易术语
@@ -219,11 +221,11 @@ public class ProjectStatistics {
         this.agentName = agentName;
     }
 
-    public Integer getAcquireId() {
+    public String getAcquireId() {
         return acquireId;
     }
 
-    public void setAcquireId(Integer acquireId) {
+    public void setAcquireId(String acquireId) {
         this.acquireId = acquireId;
     }
 

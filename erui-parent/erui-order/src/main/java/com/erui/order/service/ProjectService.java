@@ -77,4 +77,11 @@ public interface ProjectService {
      * @return
      */
     Project findByIdOrOrderId(Integer id, Integer orderId);
+     /**
+      * @Author:SHIGS
+      * @Description 项目列表导出
+      * @Date:19:48 2018/4/18
+      * @modified By
+      */
+    List<Project> findProjectExport(ProjectListCondition condition);
 }

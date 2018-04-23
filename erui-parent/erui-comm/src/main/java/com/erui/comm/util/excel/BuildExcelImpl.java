@@ -2,10 +2,12 @@ package com.erui.comm.util.excel;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.excel.graphbuilder.math.Expression;
 import com.erui.comm.util.excel.graphbuilder.math.ExpressionTree;
 import com.erui.comm.util.excel.graphbuilder.math.VarMap;
@@ -73,6 +75,8 @@ public class BuildExcelImpl implements BuildExcel {
 			            cellStyle.setDataFormat(format.getFormat("#,##0.00")); 
 						cell.setCellStyle(cellStyle);
 						cell.setCellValue(((Double)objs[j]));
+					}else if (objs[j] instanceof Date){
+						cell.setCellValue(DateUtil.formatDate2String((Date)objs[j],DateUtil.SHORT_FORMAT_STR));
 					}else{
 						cell.setCellValue(objs[j]==null?"":objs[j].toString());
 					}
@@ -133,6 +137,8 @@ public class BuildExcelImpl implements BuildExcel {
 					            cellStyle.setDataFormat(format.getFormat("#,##0.00")); 
 								cell.setCellStyle(cellStyle);
 								cell.setCellValue(((Double)obj));
+							}else if (obj instanceof Date){
+								cell.setCellValue(DateUtil.formatDate2String((Date)obj,DateUtil.SHORT_FORMAT_STR));
 							}else{
 								cell.setCellValue(obj==null?"":obj.toString());
 							}

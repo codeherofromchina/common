@@ -75,11 +75,10 @@ public interface OrderCountService {
     /**
      * 按照项目开始区间统计事业部的订单数量和金额
      *
-     * @param startDate
-     * @param endDate
+     * @param params
      * @return {"totalAmount":'总订单金额--BigDecimal',"totalNum":'总订单数量--Long',"organization":'事业部--String'}
      */
-    List<Map<String, Object>> findCountAndAmountByRangProjectStartGroupOrigation(Date startDate, Date endDate);
+    List<Map<String, Object>> findCountAndAmountByRangProjectStartGroupOrigation(Map<String,Object> params);
 
     /**
      * 按照项目开始区间统计区域的订单数量和金额

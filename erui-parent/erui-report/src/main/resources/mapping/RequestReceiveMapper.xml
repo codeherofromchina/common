@@ -114,6 +114,19 @@
             order by ${orderByClause}
         </if>
     </select>
+    <!--根据条件查询应收余额-->
+    <select id="selectReceiveBalance" resultType="java.lang.Double"
+            parameterType="com.erui.report.model.RequestReceiveExample">
+        select
+        IFNULL(SUM(IFNULL(receive_amount,0)),0) AS receiveBalance
+        from request_receive
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
 
     <!--查询各区域的回款金额-->
     <select id="selectBackAmountGroupByArea" resultType="java.util.Map"
