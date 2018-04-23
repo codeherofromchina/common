@@ -559,14 +559,11 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
-<<<<<<< HEAD
 
            // 销售订单通知：销售订单下达后通知商务技术经办人
          /*   sendSms(order);*/
 
-=======
             sendSms(order);
->>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
         }
         return order1.getId();
     }
@@ -671,14 +668,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-<<<<<<< HEAD
 
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws  Exception {
-=======
     //订单下达后通知商务技术经办人
-    public void sendSms(Order order) throws Exception {
->>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         logger.info("发送短信的用户token:" + eruiToken);
@@ -906,7 +899,7 @@ public class OrderServiceImpl implements OrderService {
                     } else {
                         order.setDeliverConsignC(Boolean.FALSE);
                     }
-                    if (deliverDetailService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
+                    if (iogisticsDataService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
                         order.setOrderFinish(Boolean.TRUE);
                     }
                     order.setGoodsList(null);

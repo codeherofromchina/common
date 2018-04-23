@@ -23,11 +23,8 @@ public class DeliverD {
 
     private Integer status;   //仓库出库管理状态
 
-<<<<<<< HEAD
     private String deliverConsignNo; //出口通知单号
 
-=======
->>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
     private Date leaveDate; //出库时间
 
     private Integer page;
@@ -106,7 +103,6 @@ public class DeliverD {
         this.status = status;
     }
 
-<<<<<<< HEAD
     public String getDeliverConsignNo() {
         return deliverConsignNo;
     }
@@ -115,8 +111,6 @@ public class DeliverD {
         this.deliverConsignNo = deliverConsignNo;
     }
 
-=======
->>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
     public Date getLeaveDate() {
         return leaveDate;
     }

@@ -406,15 +406,12 @@ public class DateUtil {
         try {
             return new SimpleDateFormat("yyyy-MM-dd").parse(strdate);
         } catch (ParseException e) {
-<<<<<<< HEAD
             e.printStackTrace();
-            return null;
-=======
             LOGGER.info("转换异常[data:{},err:{}]",strdate,e);
         } catch (Exception ex) {
             LOGGER.info("转换异常[data:{},err:{}]",strdate,ex);
->>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
         }
+        return null;
     }
     /**
      * @author lirb

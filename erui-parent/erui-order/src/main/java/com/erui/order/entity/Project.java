@@ -19,11 +19,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-<<<<<<< HEAD
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-=======
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
->>>>>>> e6cd1ef494549e2ed3943b012ddc52274b6b583f
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
