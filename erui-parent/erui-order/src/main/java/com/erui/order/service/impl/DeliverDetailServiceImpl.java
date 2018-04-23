@@ -503,6 +503,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                /* sendSms(map);*/
             }
+
+            //如果不外检  是厂家直发的话，直接修改状态
+            if(straightNums == 0){  //判断出库总数量
+                one.setStatus(4);
+            }
+
+
         }
 
         // 只接受仓储物流部的附件
