@@ -354,6 +354,13 @@ public class OrderServiceImpl implements OrderService {
             signingDate = orderUpdate.getSigningDate();
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
+            if (orderLog.size() > 0) {
+                Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
+                if (collect.containsKey("1")) {
+                    orderLogDao.delete(collect.get("1").getId());
+                }
+            }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
             Project projectAdd = new Project();
@@ -515,6 +522,13 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
+            List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
+            if (orderLog.size() > 0) {
+                Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
+                if (collect.containsKey("1")) {
+                    orderLogDao.delete(collect.get("1").getId());
+                }
+            }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
