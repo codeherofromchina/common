@@ -379,14 +379,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 straightNums = straightNums+straightNum; //厂家直发数量累加
 
                 //V2.0  减少商品入库数量
-                Goods goods = one.getGoods();
-                if(outboundNum != null && outboundNum != 0){
-                    goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                if(status == 2){
+                    Goods goods = one.getGoods();
+                    if(outboundNum != null && outboundNum != 0){
+                        goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                    }
+                    if(straightNum != null && straightNum != 0){
+                        goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
+                    }
+                    goodsDao.save(goods);
                 }
-                if(straightNum != null && straightNum != 0){
-                    goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
-                }
-                goodsDao.save(goods);
             }
         }
 
