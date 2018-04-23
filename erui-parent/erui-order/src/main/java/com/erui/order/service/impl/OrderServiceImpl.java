@@ -215,48 +215,53 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
-        Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
-            @Override
-            public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
-                //根据订单日期查询
-                if (condition.getStart_time() != null && condition.getEnd_time() != null) {
-                    Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
-                    Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
-                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
-                    list.add(startTime);
-                    list.add(endTime);
-                }
+        try {
+            Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
+                @Override
+                public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+                    //根据订单日期查询
+                    if (condition.getStart_time() != null && condition.getEnd_time() != null) {
+                        Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
+                        Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
+                        Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                        Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
+                        list.add(startTime);
+                        list.add(endTime);
+                    }
 
                 /*//根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getBuyer_no())) {
                     list.add(cb.equal(root.get("buyer_no").as(String.class), condition.getBuyer_no()));
                 }*/
-                //根据客户ID
-                if (condition.getBuyer_id() != null) {
-                    list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
-                }
-                //根据付款状态
-                if (!StringUtils.isEmpty(condition.getPay_status())) {
-                    list.add(cb.equal(root.get("payStatus").as(Integer.class), ComplexOrder.fromPayMsg(condition.getPay_status())));
-                }
-                //根据订单状态
-                if (!StringUtils.isEmpty(condition.getStatus())) {
-                    if (!condition.getStatus().equals("to_be_confirmed")) {
-                        list.add(cb.equal(root.get("status").as(Integer.class), ComplexOrder.fromStatusMsg(condition.getStatus())));
-                    } else {
-                        Integer[] orderStatus = {1, 2};
-                        list.add(root.get("status").in(orderStatus));
+                    //根据客户ID
+                    if (condition.getBuyer_id() != null) {
+                        list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
                     }
+                    //根据付款状态
+                    if (!StringUtils.isEmpty(condition.getPay_status())) {
+                        list.add(cb.equal(root.get("payStatus").as(Integer.class), ComplexOrder.fromPayMsg(condition.getPay_status())));
+                    }
+                    //根据订单状态
+                    if (!StringUtils.isEmpty(condition.getStatus())) {
+                        if (!condition.getStatus().equals("to_be_confirmed")) {
+                            list.add(cb.equal(root.get("status").as(Integer.class), ComplexOrder.fromStatusMsg(condition.getStatus())));
+                        } else {
+                            Integer[] orderStatus = {1, 2};
+                            list.add(root.get("status").in(orderStatus));
+                        }
 
+                    }
+                    //  list.add(cb.equal(root.get("deleteFlag"), false));
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
                 }
-                //  list.add(cb.equal(root.get("deleteFlag"), false));
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                return cb.and(predicates);
-            }
-        }, pageRequest);
+            }, pageRequest);
+            return pageList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     /*    if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 vo.setAttachmentSet(null);
@@ -273,7 +278,7 @@ public class OrderServiceImpl implements OrderService {
                 vo.setGoodsList(null);
             });
         }*/
-        return pageList;
+        return null;
     }
 
     @Override
