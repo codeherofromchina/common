@@ -179,7 +179,11 @@ public class IogisticsServiceImpl implements IogisticsService {
 
             contractNoSet.add(one.getContractNo());//销售合同号
             deliverDetailNoSet.add(one.getDeliverDetailNo()); //产品放行单号
-            releaseDateSSet.add(new SimpleDateFormat("yyyy-MM-dd").format(one.getDeliverDetail().getReleaseDate())); //放行日期
+            Date releaseDate = one.getDeliverDetail().getReleaseDate();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            if(releaseDate != null){
+                releaseDateSSet.add(simpleDateFormat.format(releaseDate)); //放行日期
+            }
 
             one.setOutYn(1);
             one.setIogisticsData(save);
