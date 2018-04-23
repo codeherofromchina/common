@@ -331,12 +331,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (page.hasContent()) {
             for (DeliverDetail notice : page.getContent()) {
                 List<String> contractNos = new ArrayList<String>();    //销售合同号
-                List<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns) {
-                    Order order = deliverConsign.getOrder();
+                DeliverConsign deliverConsign1 = notice.getDeliverConsign();
+                    Order order = deliverConsign1.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
-                }
-                notice.setContractNo(StringUtils.join(contractNos, ","));
+                     notice.setContractNo(StringUtils.join(contractNos, ","));
             }
         }
 
