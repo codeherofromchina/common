@@ -547,7 +547,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
             DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
 
-            DeliverConsign deliverConsign1 = deliverDetail2.getDeliverConsign();
+            DeliverConsign deliverConsign1 = deliverDetail1.getDeliverConsign();
                 //推送
                    /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
 

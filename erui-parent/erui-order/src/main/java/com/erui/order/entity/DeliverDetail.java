@@ -33,7 +33,7 @@ public class DeliverDetail {
     @JsonIgnore
     private DeliverNotice deliverNotice;    //看货通知单ID
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinColumn(name = "deliver_consign_id")
     @JsonIgnore
     private DeliverConsign deliverConsign;    //出库通知单ID

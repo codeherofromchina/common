@@ -245,7 +245,7 @@ public class InstockServiceImpl implements InstockService {
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
-            if (instockGoods.getInstockNum() == null || StringUtils.isBlank(instockGoods.getInstockStock())) {
+            if (instockGoods.getInstockNum() == null ) {
                 return false;
             }
             InstockGoods instockGoods02 = instockGoodsMap.remove(instockGoods.getId());
@@ -269,12 +269,11 @@ public class InstockServiceImpl implements InstockService {
 
 
                 Goods goods = inspectApplyGoods.getGoods();
-                if (goods.getParentId() != null) {
-                    goods = goodsDao.findOne(goods.getParentId());
+                if (goods!= null) {
+                    goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
+                    goods.setInspectInstockNum(goods.getInspectInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
+                    goodsDao.save(goods);
                 }
-                goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
-                goods.setInspectInstockNum(goods.getInspectInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
-                goodsDao.save(goods);
             }
         }
         if (instockGoodsMap.size() > 0) {
