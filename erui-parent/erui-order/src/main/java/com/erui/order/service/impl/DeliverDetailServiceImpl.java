@@ -354,6 +354,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Transactional(rollbackFor = Exception.class)
     public boolean outboundSaveOrAdd(DeliverDetail deliverDetail) throws Exception {
 
+        //状态
+        Integer status = deliverDetail.getStatus();
+
         //商品备注      出库备注
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
 
@@ -365,9 +368,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 one.setOutboundRemark(deliverConsignGoods.getOutboundRemark()); // 出库备注
                 // V2.0
                 Integer outboundNum = deliverConsignGoods.getOutboundNum();//出库数量
-                one.setOutboundNum(outboundNum);
                 Integer straightNum = deliverConsignGoods.getStraightNum();//厂家直发数量
-                one.setStraightNum(straightNum);
+                if(status == 2){
+                    one.setOutboundNum(outboundNum); //出库数量
+                    one.setStraightNum(straightNum); //厂家直发数量
+                }
 
                 deliverConsignGoodsDao.saveAndFlush(one);
                 outboundNums = outboundNums+outboundNum; //出库数量累加
@@ -477,8 +482,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (StringUtil.isNotBlank(deliverDetail.getPrepareReq())) {
             deliverNotice.setPrepareReq(deliverDetail.getPrepareReq());
         }
-        //状态
-        Integer status = deliverDetail.getStatus();
+
         one.setStatus(status);//状态
 
 
