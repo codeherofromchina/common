@@ -134,8 +134,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         Map<Integer, PurchGoods> purchGoodsMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         // 处理报检商品信息
         List<InspectApplyGoods> handledApplyGoods = new ArrayList<>();
-        Integer inspectNum = 0;
+
         for (InspectApplyGoods iaGoods : inspectApply.getInspectApplyGoodsList()) {
+            Integer inspectNum = 0;
             PurchGoods purchGoods = purchGoodsMap.get(iaGoods.getPurchGid());
             Goods goods = purchGoods.getGoods();
             iaGoods.setId(null);
@@ -362,6 +363,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             // 厂家直接发货且是提交，则直接设置为合格状态
             dbInspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+
 
             pushInspectApply(inspectApply);
 
