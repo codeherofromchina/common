@@ -4,6 +4,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class ProjectStatistics {
         this.profitPercent = project.getProfitPercent();
         this.grantType = order.getGrantType();
         if (project.getDeliveryDate() != null) {
-            this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR,project.getDeliveryDate());
+            this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
         }
         this.requirePurchaseDate = project.getRequirePurchaseDate();
         this.exeChgDate = project.getExeChgDate();
@@ -253,12 +254,28 @@ public class ProjectStatistics {
         this.projectStatus = projectStatus;
     }
 
+    public String getProjectStatusName() {
+        Project.ProjectStatusEnum projectStatusEnum = Project.ProjectStatusEnum.fromCode(projectStatus);
+        if (projectStatusEnum != null) {
+            return projectStatusEnum.getMsg();
+        }
+        return null;
+    }
+
     public String getProcessProgress() {
         return processProgress;
     }
 
     public void setProcessProgress(String processProgress) {
         this.processProgress = processProgress;
+    }
+
+    public String getProcessProgressName() {
+        Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(processProgress);
+        if (projectProgressEnum != null) {
+            return projectProgressEnum.getMsg();
+        }
+        return null;
     }
 
     public String getBusinessUnitName() {
@@ -301,12 +318,32 @@ public class ProjectStatistics {
         this.customerType = customerType;
     }
 
+    public String getCustomerTypeName() {
+        if (customerType != null) {
+            return coverOilInt2Str(customerType);
+        }
+        return null;
+    }
+
+
     public Integer getOrderType() {
         return orderType;
     }
 
     public void setOrderType(Integer orderType) {
         this.orderType = orderType;
+    }
+
+    public String getOrderTypeName() {
+        if (orderType != null) {
+            return coverOilInt2Str(orderType);
+        }
+        return null;
+    }
+
+
+    private String coverOilInt2Str(int code) {
+        return code == 1 ? "油气" : (code == 2 ? "非油气" : null);
     }
 
     public BigDecimal getTotalPrice() {
@@ -323,6 +360,31 @@ public class ProjectStatistics {
 
     public void setPaymentModeBn(String paymentModeBn) {
         this.paymentModeBn = paymentModeBn;
+    }
+
+
+    public String getPaymentModeBnName() {
+        String result = null;
+        if (StringUtils.isNotBlank(paymentModeBn)) {
+            switch (paymentModeBn) {
+                case "1":
+                    result = "信用证";
+                    break;
+                case "2":
+                    result = "托收";
+                    break;
+                case "3":
+                    result = "电汇";
+                    break;
+                case "4":
+                    result = "信汇";
+                    break;
+                case "5":
+                    result = "票汇";
+                    break;
+            }
+        }
+        return result;
     }
 
     public Date getPaymentDate() {
@@ -355,6 +417,20 @@ public class ProjectStatistics {
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
+    }
+
+    public String getGrantTypeName() {
+        if (StringUtils.isNotBlank(grantType)) {
+            switch (grantType) {
+                case "1":
+                    return "中保信";
+                case "2":
+                    return "集团授信";
+                default:
+                    return "其他";
+            }
+        }
+        return null;
     }
 
     public String getDeliveryDate() {

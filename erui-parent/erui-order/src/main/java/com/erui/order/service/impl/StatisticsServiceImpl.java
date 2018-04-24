@@ -433,7 +433,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     // TODO
     @Transactional
     public List<ProjectStatistics> findProjectStatistics(Map<String, String> condition) {
-        List<Project> pageList = projectDao.findAll(specificationCondition(condition));
+        List<Project> pageList = projectDao.findAll(specificationCondition(condition), new Sort(Sort.Direction.DESC, "id"));
 
         List<ProjectStatistics> dataList = new ArrayList<>();
         List<Integer> orderIds = new ArrayList<>();
@@ -464,9 +464,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (objArr != null) {
                     projectStatistics.setPaymentDate((Date) objArr[2]);
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
+                    projectStatistics.setAcquireId((String) objArr[3]);
                 }
             }
         }
+
         return dataList;
     }
 
@@ -480,15 +482,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
                 "采购延期时间（天）", "物流延期时间（天）", "项目状态", "流程进度", "原因类型", "原因描述"};
         String[] keys = new String[]{"startDate", "contractNo", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
-                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerType", "orderType", "XXXXXXX", "totalPrice",
-                "XXXXXXX", "XXXXXXX", "paymentModeBn", "paymentDate", "money", "profitPercent", "grantType", "deliveryDate",
-                "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "businessName", "tradeTerms",
-                "XXXXXXX", "XXXXXXX", "projectStatus", "processProgress", "XXXXXXX", "XXXXXXX"};
+                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "XXXXXXX", "totalPrice",
+                "XXXXXXX", "XXXXXXX", "paymentModeBnName", "paymentDate", "money", "100*profitPercent,profitPercent", "grantType", "deliveryDate",
+                "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
+                "XXXXXXX", "XXXXXXX", "projectStatusName", "processProgressName", "XXXXXXX", "XXXXXXX"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目执行统计");
         return workbook;
-
     }
 
     private String getRedisKey(GoodsStatistics goodsStatistics) {
