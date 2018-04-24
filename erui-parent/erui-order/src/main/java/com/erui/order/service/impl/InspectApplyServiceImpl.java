@@ -193,6 +193,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             inspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
 
+            //推送数据到入库部门
             pushInspectApply(inspectApply);
 
         }
@@ -364,7 +365,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
 
 
-            pushInspectApply(inspectApply);
+            //推送数据到入库部门
+            pushInspectApply(dbInspectApply);
 
         }
         // 保存报检单
