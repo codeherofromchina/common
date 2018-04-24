@@ -172,10 +172,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
-            project1.setProjectNo(purchRequisition1.getProjectNo());
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
+            project1.setProjectNo(purchRequisition1.getProjectNo());
+            Order order = project1.getOrder();
+            order.setProjectNo(purchRequisition1.getProjectNo());
+            orderDao.save(order);
             projectDao.save(project1);
-
          /*   try {
                 // TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
