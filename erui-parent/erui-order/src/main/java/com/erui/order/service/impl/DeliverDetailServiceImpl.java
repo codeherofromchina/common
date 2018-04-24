@@ -494,10 +494,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             if (outboundNums != 0) { //出库总数量不等于0  才发送信息
                 //获取项目信息
-                List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns) {
-                    project = project == null ? deliverConsign.getOrder().getProject() : project;
-                }
+                DeliverConsign deliverConsign1 = one.getDeliverConsign();
+
+                project = deliverConsign1.getOrder().getProject();
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("qualityUid", project.getQualityUid());       //检质检经办人id
