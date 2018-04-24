@@ -136,7 +136,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         List<InspectApplyGoods> handledApplyGoods = new ArrayList<>();
 
         for (InspectApplyGoods iaGoods : inspectApply.getInspectApplyGoodsList()) {
-            Integer inspectNum = 0;
             PurchGoods purchGoods = purchGoodsMap.get(iaGoods.getPurchGid());
             Goods goods = purchGoods.getGoods();
             iaGoods.setId(null);
@@ -146,7 +145,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iaGoods.setPurchaseNum(purchGoods.getPurchaseNum());
 
             // 报检数量
-            inspectNum = iaGoods.getInspectNum();
+            Integer inspectNum = iaGoods.getInspectNum();
             if (inspectNum == null || inspectNum == 0) {
                 continue;
             }
