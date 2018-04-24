@@ -46,6 +46,12 @@ public class DeliverConsignGoods {
     @Column(name = "outbound_remark")
     private String outboundRemark;
 
+    @Column(name = "outbound_num")
+    private Integer outboundNum = 0;  //出库数量
+
+    @Column(name = "straight_num")
+    private Integer straightNum = 0; //厂家直发数量
+
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_consign_goods_id"),
@@ -133,5 +139,21 @@ public class DeliverConsignGoods {
 
     public void setDeliverDetail(DeliverDetail deliverDetail) {
         this.deliverDetail = deliverDetail;
+    }
+
+    public Integer getOutboundNum() {
+        return outboundNum;
+    }
+
+    public Integer getStraightNum() {
+        return straightNum;
+    }
+
+    public void setOutboundNum(Integer outboundNum) {
+        this.outboundNum = outboundNum;
+    }
+
+    public void setStraightNum(Integer straightNum) {
+        this.straightNum = straightNum;
     }
 }

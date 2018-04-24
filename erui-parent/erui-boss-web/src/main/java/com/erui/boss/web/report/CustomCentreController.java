@@ -1380,7 +1380,7 @@ public class CustomCentreController {
     @ResponseBody
     public Object inqDetailRtnDetail(@RequestBody Map<String, Object> params) {
         // 验证参数
-       params=ParamsUtils.verifyParam(params,DateUtil.FULL_FORMAT_STR2,null);
+        params=ParamsUtils.verifyParam(params,DateUtil.FULL_FORMAT_STR2,null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -1409,20 +1409,20 @@ public class CustomCentreController {
                 int notSupply=Integer.parseInt(m.get("notSupply").toString());
                 int systemProblems=Integer.parseInt(m.get("systemProblems").toString());
                 int other=Integer.parseInt(m.get("other").toString());
-               int total=projectClear+notOrg+notSupply+systemProblems+other;
-               if(total>0){
-                   m.put("projectClearProportion",RateUtil.intChainRate(projectClear,total));
-                   m.put("notOrgProportion",RateUtil.intChainRate(notOrg,total));
-                   m.put("notSupplyProportion",RateUtil.intChainRate(notSupply,total));
-                   m.put("systemProblemsProportion",RateUtil.intChainRate(systemProblems,total));
-                   m.put("otherProportion",RateUtil.intChainRate(other,total));
-               }else {
-                   m.put("projectClearProportion",0d);
-                   m.put("notOrgProportion",0d);
-                   m.put("notSupplyProportion",0d);
-                   m.put("systemProblemsProportion",0d);
-                   m.put("otherProportion",0d);
-               }
+                int total=projectClear+notOrg+notSupply+systemProblems+other;
+                if(total>0){
+                    m.put("projectClearProportion",RateUtil.intChainRate(projectClear,total));
+                    m.put("notOrgProportion",RateUtil.intChainRate(notOrg,total));
+                    m.put("notSupplyProportion",RateUtil.intChainRate(notSupply,total));
+                    m.put("systemProblemsProportion",RateUtil.intChainRate(systemProblems,total));
+                    m.put("otherProportion",RateUtil.intChainRate(other,total));
+                }else {
+                    m.put("projectClearProportion",0d);
+                    m.put("notOrgProportion",0d);
+                    m.put("notSupplyProportion",0d);
+                    m.put("systemProblemsProportion",0d);
+                    m.put("otherProportion",0d);
+                }
             });
         }
 

@@ -79,6 +79,20 @@ public class InstockServiceImpl implements InstockService {
                 if (StringUtil.isNotBlank(condition.get("supplierName"))) {
                     list.add(cb.like(root.get("supplierName").as(String.class), "%" + condition.get("supplierName") + "%"));
                 }
+                //TODO 入库状态
+                if (StringUtil.isNotBlank(condition.get("status"))) {
+                    //Status   0未入库   1已入库
+                    int status = Integer.parseInt(condition.get("status"));
+                    if(status == 0){
+                        list.add(cb.lessThan(root.get("status").as(Integer.class), 3)); //小于
+                    }else if(status == 1){
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 2));  //大于
+                    }
+                }
+                //是否外检（ 0：否   1：是）
+                if (StringUtil.isNotBlank(condition.get("outCheck"))){
+                    list.add(cb.equal(root.get("outCheck").as(Integer.class), condition.get("outCheck")));
+                }
                 // 根据入库日期查询
                 if (StringUtil.isNotBlank(condition.get("instockDate"))) {
                     try {
@@ -150,6 +164,7 @@ public class InstockServiceImpl implements InstockService {
                 map.put("status", instock.getStatus());
                 map.put("uname", instock.getUname());
                 map.put("uid",instock.getUid());
+                map.put("outCheck",instock.getOutCheck());//是否外检（ 0：否   1：是）
 
                 list.add(map);
             }
@@ -230,7 +245,7 @@ public class InstockServiceImpl implements InstockService {
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
-            if (instockGoods.getInstockNum() == null || StringUtils.isBlank(instockGoods.getInstockStock())) {
+            if (instockGoods.getInstockNum() == null ) {
                 return false;
             }
             InstockGoods instockGoods02 = instockGoodsMap.remove(instockGoods.getId());
@@ -254,11 +269,17 @@ public class InstockServiceImpl implements InstockService {
 
 
                 Goods goods = inspectApplyGoods.getGoods();
-                if (goods.getParentId() != null) {
-                    goods = goodsDao.findOne(goods.getParentId());
+                if (goods!= null) {
+                    goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
+
+                    if(instock.getOutCheck() == 0 ) {  //是否外检（ 0：否   1：是）
+                        goods.setNullInstockNum(goods.getNullInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
+                    }else{
+                        goods.setInspectInstockNum(goods.getInspectInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
+                    }
+
+                    goodsDao.save(goods);
                 }
-                goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
-                goodsDao.save(goods);
             }
         }
         if (instockGoodsMap.size() > 0) {

@@ -124,10 +124,10 @@ public class InstockController {
 
         // 商品信息数据转换
         List<Map<String, Object>> goodsInfoList = new ArrayList<>();
-        List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
-        for (InstockGoods instockGoods : instockGoodsList) {
+        List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();    //出库商品LIst
+        for (InstockGoods instockGoods : instockGoodsList) {    //出库商品
             if(instockGoods.getInstockNum() != 0){
-                InspectApplyGoods inspectApplyGoods = instockGoods.getInspectApplyGoods();
+                InspectApplyGoods inspectApplyGoods = instockGoods.getInspectApplyGoods();  //报检商品信息
                 PurchGoods purchGoods = inspectApplyGoods.getPurchGoods();
                 Goods goods = inspectApplyGoods.getGoods();
                 Map<String, Object> map = new HashMap();

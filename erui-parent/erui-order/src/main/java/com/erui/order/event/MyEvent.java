@@ -8,18 +8,20 @@ import org.springframework.context.ApplicationEvent;
  */
 public class MyEvent extends ApplicationEvent {
 
-    private Integer type;
+
     /**
      * Create a new ApplicationEvent.
      *
      * @param source the object on which the event initially occurred (never {@code null})
      */
-    public MyEvent(Object source,Integer type) {
+    public MyEvent(Object source) {
         super(source);
-        this.type = type;
     }
 
-    public Integer getType() {
-        return type;
+
+    public void executeBusiness() {
+
+        System.out.println("00000****00000");
+
     }
 }

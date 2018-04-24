@@ -231,7 +231,7 @@ public class ExportDataController {
     private void downExcel(HSSFWorkbook workbook, HttpServletResponse response, String title) {
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        //ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
         //ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         //ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, title);
         OutputStream out = null;

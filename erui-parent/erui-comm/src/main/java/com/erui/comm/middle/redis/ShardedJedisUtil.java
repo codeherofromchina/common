@@ -2,7 +2,7 @@ package com.erui.comm.middle.redis;
 
 import redis.clients.jedis.ShardedJedis;
 
-public class ShardedJedisUtil {
+public  class ShardedJedisUtil {
 
     public static void main(String[] aa) {
 
