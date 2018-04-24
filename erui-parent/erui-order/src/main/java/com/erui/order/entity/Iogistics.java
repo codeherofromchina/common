@@ -46,7 +46,7 @@ public class Iogistics {
      @Column(name = "project_no")
       private String projectNo;  // 项目号
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name ="pid")
     @JsonIgnore
     private IogisticsData iogisticsData;    //父信息id
