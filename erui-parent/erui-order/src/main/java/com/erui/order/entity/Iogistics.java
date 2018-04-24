@@ -73,6 +73,12 @@ public class Iogistics {
     private Integer wareHouseman;    //仓库经办人id
 
     @Transient
+    private String wareHousemanName;   //仓库经办人姓名
+
+    @Transient
+    private Date leaveDate; //出库时间
+
+    @Transient
     private Integer page;
 
     @Transient
@@ -240,5 +246,21 @@ public class Iogistics {
 
     public String getLogisticsUserName() {
         return logisticsUserName;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
     }
 }

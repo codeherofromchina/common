@@ -331,12 +331,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (page.hasContent()) {
             for (DeliverDetail notice : page.getContent()) {
                 List<String> contractNos = new ArrayList<String>();    //销售合同号
-                List<DeliverConsign> deliverConsigns = notice.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns) {
-                    Order order = deliverConsign.getOrder();
+                DeliverConsign deliverConsign1 = notice.getDeliverConsign();
+                    Order order = deliverConsign1.getOrder();
                     contractNos.add(order.getContractNo());  //销售合同号
-                }
-                notice.setContractNo(StringUtils.join(contractNos, ","));
+                     notice.setContractNo(StringUtils.join(contractNos, ","));
             }
         }
 
@@ -379,14 +377,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 straightNums = straightNums+straightNum; //厂家直发数量累加
 
                 //V2.0  减少商品入库数量
-                Goods goods = one.getGoods();
-                if(outboundNum != null && outboundNum != 0){
-                    goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                if(status == 2){
+                    Goods goods = one.getGoods();
+                    if(outboundNum != null && outboundNum != 0){
+                        goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                    }
+                    if(straightNum != null && straightNum != 0){
+                        goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
+                    }
+                    goodsDao.save(goods);
                 }
-                if(straightNum != null && straightNum != 0){
-                    goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
-                }
-                goodsDao.save(goods);
             }
         }
 
@@ -489,33 +489,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         Project project = null; //项目信息
 
 
-        //出库通知：通知质检经办人办理质检
-        if(status == 2) {
-
-            if (outboundNums != 0) { //出库总数量不等于0  才发送信息
-                //获取项目信息
-                List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns) {
-                    project = project == null ? deliverConsign.getOrder().getProject() : project;
-                }
-
-                Map<String, Object> map = new HashMap<>();
-                map.put("qualityUid", project.getQualityUid());       //检质检经办人id
-                map.put("projectNo", project.getProjectNo());        //项目号
-                map.put("deliverDetailNo", one.getDeliverDetailNo());        //产品放行单号
-                map.put("status", 2);        //发送短信标识
-
-               /* sendSms(map);*/
-            }
-
-            //如果不外检  是厂家直发的话，直接修改状态
-            if(outboundNums == 0){  //判断出库总数量
-                one.setStatus(4);
-            }
-
-
-        }
-
         // 只接受仓储物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "仓储物流部".equals(attachment.getGroup());
@@ -539,13 +512,65 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         one.setAttachmentList(attachmentList02);
 
         DeliverDetail deliverDetail1 = deliverDetailDao.saveAndFlush(one);
+
+
+
+        //获取项目信息
+        DeliverConsign deliverConsign1 = one.getDeliverConsign();
+
+        project = deliverConsign1.getOrder().getProject();
+        String contractNo = project.getContractNo();//销售合同号
+        //V2.0  推送信息到物流表
+        String projectNo = project.getProjectNo();//项目号
+        Integer logisticsUid = project.getLogisticsUid();//物流经办人id
+        String logisticsName = project.getLogisticsName();//物流经办人名称
+        String deliverConsignNo = deliverDetail1.getDeliverConsign().getDeliverConsignNo();//出口通知单号
+
+
+
+
+
+        //出库通知：通知质检经办人办理质检
+        if(status == 2) {
+
+            if (outboundNums != 0) { //出库总数量不等于0  才发送信息
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("qualityUid", project.getQualityUid());       //检质检经办人id
+                map.put("projectNo", project.getProjectNo());        //项目号
+                map.put("deliverDetailNo", one.getDeliverDetailNo());        //产品放行单号
+                map.put("status", 2);        //发送短信标识
+
+               /* sendSms(map);*/
+            }
+
+            //如果不外检  是厂家直发的话，直接修改状态
+            if(outboundNums == 0){  //判断出库总数量
+                one.setStatus(5);
+                Iogistics iogistics = new Iogistics();  //物流信息
+
+                iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
+                iogistics.setDeliverDetailNo(deliverDetail1.getDeliverDetailNo()); //产品放行单号
+                iogistics.setContractNo(contractNo);    //销售合同号
+                iogistics.setDeliverConsignNo(deliverConsignNo);  //出口通知单号
+                iogistics.setProjectNo(projectNo);   //项目号
+                iogistics.setLogisticsUserId(logisticsUid); //物流经办人id
+                iogistics.setLogisticsUserName(logisticsName);   //物流经办人名称
+                iogistics.setOutCheck(0);
+                iogisticsDao.save(iogistics);
+
+            }
+        }
+
+
+
+
         //确认出库
         if (status == 5) {
 
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
             DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
 
-            DeliverConsign deliverConsign1 = deliverDetail2.getDeliverConsign();
                 //推送
                    /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
 
@@ -576,7 +601,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 project = deliverConsign1.getOrder().getProject();
 
 
-            String contractNo = project.getContractNo();//销售合同号
+
             Map<String,Object> map = new HashMap<>();
             map.put("qualityUid",project.getLogisticsUid());       //物流经办人id
             map.put("projectNo", contractNo);        //销售合同号
@@ -586,12 +611,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
           /*  sendSms(map);*/
 
 
-            //V2.0  推送信息到物流表
-
-            String projectNo = project.getProjectNo();//项目号
-            Integer logisticsUid = project.getLogisticsUid();//物流经办人id
-            String logisticsName = project.getLogisticsName();//物流经办人名称
-            String deliverConsignNo = deliverDetail1.getDeliverConsign().getDeliverConsignNo();//出口通知单号
 
             if(outboundNums > 0){    //外检
                 Iogistics iogistics = new Iogistics();  //物流信息
@@ -1073,10 +1092,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             Project project = null; //项目信息
             //获取项目信息
-            List<DeliverConsign> deliverConsigns = dbDeliverDetail.getDeliverNotice().getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns) {
-                project = project == null ? deliverConsign.getOrder().getProject() : project;
-            }
+            DeliverConsign deliverConsign1 = dbDeliverDetail.getDeliverConsign();
+                project = deliverConsign1.getOrder().getProject();
 
             Map<String, Object> map = new HashMap<>();
             map.put("qualityUid", project.getWarehouseUid());       //仓库经办人id

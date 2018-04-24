@@ -43,6 +43,15 @@ public class IogisticsController {
         Page<Iogistics> iogisticsList ;
         try {
             iogisticsList = iogisticsService.queIogistics(iogistics);
+            for (Iogistics iogistics1 : iogisticsList){
+                DeliverDetail deliverDetail = iogistics1.getDeliverDetail();
+                iogistics1.setHandleDepartment(deliverDetail.getHandleDepartment()); //经办部门
+                iogistics1.setBillingDate(deliverDetail.getBillingDate());  //开单日期
+                iogistics1.setReleaseDate(deliverDetail.getReleaseDate());   //放行日期
+                iogistics1.setWareHousemanName(deliverDetail.getWareHousemanName()); //仓库经办人姓名
+                iogistics1.setLeaveDate(deliverDetail.getLeaveDate());  //出库时间
+            }
+
         }catch (Exception e){
             String message = e.getMessage();
             return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
