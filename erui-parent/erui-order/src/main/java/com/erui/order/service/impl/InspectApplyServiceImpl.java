@@ -193,62 +193,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             inspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
 
-
-
-            // 推送数据到入库部门
-            Instock instock = new Instock();
-            instock.setInspectReport(null);
-
-
-            Project project = null; //项目信息
-            Set<Project> projects = inspectApply.getPurch().getProjects();
-            for (Project project2 : projects){
-                project=project==null?project2:project;
-            }
-
-            if(project != null){
-                instock.setUid(project.getWarehouseUid());
-                instock.setUname(project.getWarehouseName());
-            }
-            instock.setInspectApplyNo(inspectApply.getInspectApplyNo()); // 报检单号
-            instock.setSupplierName(inspectApply.getPurch().getSupplierName()); // 供应商
-            instock.setStatus(Instock.StatusEnum.INIT.getStatus());
-            instock.setCreateTime(new Date());
-            List<InstockGoods> instockGoodsList = new ArrayList<>();
-            // 添加入库商品
-
-            List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();    //报检商品信息
-            for (InspectApplyGoods applyGoods : inspectApplyGoodsList){ //报检商品
-
-                InstockGoods instockGoods = new InstockGoods(); //添加出库商品
-
-                instockGoods.setInstock(instock);
-                instockGoods.setContractNo(applyGoods.getGoods().getContractNo());
-                instockGoods.setProjectNo(applyGoods.getGoods().getProjectNo());
-                instockGoods.setInspectApplyGoods(applyGoods);
-                instockGoods.setQualifiedNum(applyGoods.getInspectNum());   //合格数量  (报检数量)
-                instockGoods.setInstockNum(applyGoods.getInspectNum()); // 入库数量  (报检数量)
-                Date date = new Date();
-                instockGoods.setCreateTime(date);
-                instockGoods.setUpdateTime(date);
-                instockGoods.setCreateUserId(inspectApply.getCreateUserId());       //获取报检人
-
-                instockGoodsList.add(instockGoods);
-
-
-            }
-
-
-
-            instock.setInstockGoodsList(instockGoodsList);
-            instock.setOutCheck(0); //是否外检（ 0：否   1：是）
-
-            instockDao.save(instock);
-
-
-
-
-
+            pushInspectApply(inspectApply);
 
         }
 
@@ -417,6 +362,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             // 厂家直接发货且是提交，则直接设置为合格状态
             dbInspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+
+            pushInspectApply(inspectApply);
+
         }
         // 保存报检单
         inspectApplyDao.save(dbInspectApply);
@@ -828,6 +776,65 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             }
 
         }
+    }
+
+    /**
+     *  推送数据到入库部门
+     * @param inspectApply
+     */
+    public  void pushInspectApply(InspectApply inspectApply){
+        // 推送数据到入库部门
+        Instock instock = new Instock();
+        instock.setInspectReport(null);
+
+
+        Project project = null; //项目信息
+        Set<Project> projects = inspectApply.getPurch().getProjects();
+        for (Project project2 : projects){
+            project=project==null?project2:project;
+        }
+
+        if(project != null){
+            instock.setUid(project.getWarehouseUid());
+            instock.setUname(project.getWarehouseName());
+        }
+        instock.setInspectApplyNo(inspectApply.getInspectApplyNo()); // 报检单号
+        instock.setSupplierName(inspectApply.getPurch().getSupplierName()); // 供应商
+        instock.setStatus(Instock.StatusEnum.INIT.getStatus());
+        instock.setCreateTime(new Date());
+        List<InstockGoods> instockGoodsList = new ArrayList<>();
+        // 添加入库商品
+
+        List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();    //报检商品信息
+        for (InspectApplyGoods applyGoods : inspectApplyGoodsList){ //报检商品
+
+            InstockGoods instockGoods = new InstockGoods(); //添加出库商品
+
+            instockGoods.setInstock(instock);
+            instockGoods.setContractNo(applyGoods.getGoods().getContractNo());
+            instockGoods.setProjectNo(applyGoods.getGoods().getProjectNo());
+            instockGoods.setInspectApplyGoods(applyGoods);
+            instockGoods.setQualifiedNum(applyGoods.getInspectNum());   //合格数量  (报检数量)
+            instockGoods.setInstockNum(applyGoods.getInspectNum()); // 入库数量  (报检数量)
+            Date date = new Date();
+            instockGoods.setCreateTime(date);
+            instockGoods.setUpdateTime(date);
+            instockGoods.setCreateUserId(inspectApply.getCreateUserId());       //获取报检人
+
+            instockGoodsList.add(instockGoods);
+
+
+        }
+
+
+
+        instock.setInstockGoodsList(instockGoodsList);
+        instock.setOutCheck(0); //是否外检（ 0：否   1：是）
+
+        instockDao.save(instock);
+
+
+
     }
 
 
