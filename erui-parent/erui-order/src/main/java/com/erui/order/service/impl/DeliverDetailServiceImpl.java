@@ -1072,10 +1072,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             Project project = null; //项目信息
             //获取项目信息
-            List<DeliverConsign> deliverConsigns = dbDeliverDetail.getDeliverNotice().getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns) {
-                project = project == null ? deliverConsign.getOrder().getProject() : project;
-            }
+            DeliverConsign deliverConsign1 = dbDeliverDetail.getDeliverConsign();
+                project = deliverConsign1.getOrder().getProject();
 
             Map<String, Object> map = new HashMap<>();
             map.put("qualityUid", project.getWarehouseUid());       //仓库经办人id
