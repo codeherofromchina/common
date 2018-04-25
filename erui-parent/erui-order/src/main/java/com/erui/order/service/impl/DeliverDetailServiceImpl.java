@@ -548,6 +548,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if(outboundNums == 0){  //判断出库总数量
 
                 one.setStatus(5);   //出库状态
+                one.setOutCheck(0); //设置不外检
                 one.setLeaveDate(new Date());   //出库时间
 
 
@@ -915,6 +916,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (StringUtil.isNotBlank(condition.get("checkerName"))) {
                     list.add(cb.like(root.get("checkerName").as(String.class), "%" + condition.get("checkerName") + "%"));
                 }
+
+                //查询需要外检
+                list.add(cb.equal(root.get("outCheck").as(Integer.class), 1 ));
+
                 // 检验员ID精确查询
                 String checkerUid = condition.get("checkerUid");
                 if (StringUtil.isNotBlank(checkerUid) && StringUtils.isNumeric(checkerUid)) {
