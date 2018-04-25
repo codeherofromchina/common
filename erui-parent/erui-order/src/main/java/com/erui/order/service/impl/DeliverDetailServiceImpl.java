@@ -546,7 +546,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             //如果不外检  是厂家直发的话，直接修改状态
             if(outboundNums == 0){  //判断出库总数量
-                one.setStatus(5);
+
+                one.setStatus(5);   //出库状态
+                one.setLeaveDate(new Date());   //出库时间
+
+
                 Iogistics iogistics = new Iogistics();  //物流信息
 
                 iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
