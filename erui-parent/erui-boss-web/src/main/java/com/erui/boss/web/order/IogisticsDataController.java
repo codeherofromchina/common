@@ -95,20 +95,28 @@ public class IogisticsDataController {
                     }
 
                 } else {
+                    Goods newGoods = new Goods();
                     Goods goods = deliverConsignGoods.getGoods();
                     if (outCheck == 0) {
-                        goods.setOutboundNum(0);   //出库数量
-                        goods.setStraightNum(deliverConsignGoods.getStraightNum()); //厂家直发数量
+                        newGoods.setOutboundNum(0);   //出库数量
+                        newGoods.setStraightNum(deliverConsignGoods.getStraightNum()); //厂家直发数量
                     } else {
-                        goods.setOutboundNum(deliverConsignGoods.getOutboundNum());   //出库数量
-                        goods.setStraightNum(0); //厂家直发数量
+                        newGoods.setOutboundNum(deliverConsignGoods.getOutboundNum());   //出库数量
+                        newGoods.setStraightNum(0); //厂家直发数量
                     }
-                    goods.setDeliverDetailNo(iogistics.getDeliverDetailNo()); //产品放行单号
-                    goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 本批次发货数量
-                    goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注  出口商品备注
-                    goods.setPackRequire(null);// TODO 包装要求   取看货通知包装要求
-                    goodsList.add(goods);
-                    idSet.put(dcgId,goods);
+                    newGoods.setContractNo(goods.getContractNo()); //销售合同号
+                    newGoods.setDeliverDetailNo(iogistics.getDeliverDetailNo()); //产品放行单号
+                    newGoods.setNameZh(goods.getNameZh()) ; //商品名称
+                    newGoods.setClientDesc(goods.getClientDesc()); //描述
+                    newGoods.setModel(goods.getModel());    //规格型号
+                    newGoods.setOutstockNum(deliverConsignGoods.getSendNum()); // 本批次发货数量
+                    newGoods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注  出口商品备注
+
+
+                    newGoods.setUnit(goods.getUnit());  //单位
+
+                    goodsList.add(newGoods);
+                    idSet.put(dcgId,newGoods);
 
                 }
             }
