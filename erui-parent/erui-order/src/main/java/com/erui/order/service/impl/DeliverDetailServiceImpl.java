@@ -367,7 +367,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 // V2.0
                 Integer outboundNum = deliverConsignGoods.getOutboundNum();//出库数量
                 Integer straightNum = deliverConsignGoods.getStraightNum();//厂家直发数量
-                if(status == 2){
+                if(status == 2 || status == 1){
                     one.setOutboundNum(outboundNum); //出库数量
                     one.setStraightNum(straightNum); //厂家直发数量
                 }
