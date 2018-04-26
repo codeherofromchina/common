@@ -164,7 +164,7 @@ public class IogisticsServiceImpl implements IogisticsService {
 
         int i = 0;
         for (String id : ids){
-            Iogistics one = iogisticsDao.findOne(new Integer(id));
+            Iogistics one = iogisticsDao.findById(new Integer(id));
             if(one == null){
                 throw new Exception("出库详情信息id："+id+" 不存在");
             }
