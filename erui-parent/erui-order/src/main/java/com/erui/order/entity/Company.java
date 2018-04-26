@@ -27,6 +27,9 @@ public class Company {
     //所属地区
     @Column(name="area_bn",insertable=false,updatable=false)
     private String areaBn;
+    //英文名称
+    @Column(name = "en_name")
+    private String enName;
     @Column(name = "create_time")
     private Date createTime;
 
@@ -34,6 +37,12 @@ public class Company {
     @JoinColumn(name = "company_id")
     private Set<Dept> deptSet = new HashSet<>();
 
+    public String getEnName() {
+        return enName;
+    }
+    public void setEnName(String enName) {
+        this.enName = enName;
+    }
     public Integer getId() {
         return id;
     }

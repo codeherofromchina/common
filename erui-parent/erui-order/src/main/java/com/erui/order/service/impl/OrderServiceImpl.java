@@ -192,7 +192,6 @@ public class OrderServiceImpl implements OrderService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 vo.setAttachmentSet(null);
@@ -250,7 +249,6 @@ public class OrderServiceImpl implements OrderService {
                             Integer[] orderStatus = {1, 2};
                             list.add(root.get("status").in(orderStatus));
                         }
-
                     }
                     //  list.add(cb.equal(root.get("deleteFlag"), false));
                     Predicate[] predicates = new Predicate[list.size()];

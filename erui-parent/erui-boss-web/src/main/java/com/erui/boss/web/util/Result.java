@@ -18,6 +18,7 @@ public class Result<T> {
     private final static Logger LOGGER = LoggerFactory.getLogger(Result.class);
     private int code;
     private String msg;
+    private String enMsg;
     private T data;
 
     public Result() {
@@ -27,6 +28,7 @@ public class Result<T> {
     public Result(ResultStatusEnum resultStatus) {
         this.code = resultStatus.getCode();
         this.msg = resultStatus.getMsg();
+        this.enMsg = resultStatus.getMsg();
     }
 
     public Result(T data) {
@@ -37,6 +39,7 @@ public class Result<T> {
     public Result<T> setStatus(ResultStatusEnum resultStatus) {
         this.code = resultStatus.getCode();
         this.msg = resultStatus.getMsg();
+        this.enMsg = resultStatus.getEnMsg();
         return this;
     }
 
@@ -46,6 +49,17 @@ public class Result<T> {
 
     public String getMsg() {
         return msg;
+    }
+
+    public String getEnMsg() {
+        return enMsg;
+    }
+
+    public Result<T> setEnMsg(String enMsg) {
+        if (StringUtils.isNotBlank(enMsg)) {
+            this.enMsg = enMsg;
+        }
+        return this;
     }
 
     public void setCode(int code) {
@@ -80,7 +94,11 @@ public class Result<T> {
 
     @Override
     public String toString() {
-        return "Result [code=" + code + ", msg=" + msg + ", data=" + data + "]";
+        return "Result{" +
+                "code=" + code +
+                ", msg='" + msg + '\'' +
+                ", enMsg='" + enMsg + '\'' +
+                ", data=" + data +
+                '}';
     }
-
 }
