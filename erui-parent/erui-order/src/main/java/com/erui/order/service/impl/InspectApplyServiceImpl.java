@@ -798,8 +798,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
 
         if(project != null){
-            instock.setUid(project.getWarehouseUid());
-            instock.setUname(project.getWarehouseName());
+            instock.setUid(project.getWarehouseUid());      //仓库经办人ID
+            instock.setUname(project.getWarehouseName());   //仓库经办人名字
         }
         instock.setInspectApplyNo(inspectApply.getInspectApplyNo()); // 报检单号
         instock.setSupplierName(inspectApply.getPurch().getSupplierName()); // 供应商
