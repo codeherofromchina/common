@@ -101,18 +101,31 @@ public class InstockServiceImpl implements InstockService {
                         logger.error("日期转换错误", e);
                     }
                 }
-                // 仓库经办人
+                  // 仓库经办人
                 if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
 
-                    int wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
+                    Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
+                    /*Join<Instock,InstockGoods> instockGoodsRoot = root.join("instockGoodsList");
+                    Join<InstockGoods, InspectApplyGoods> inspectApplyGoodsRoot = instockGoodsRoot.join("inspectApplyGoods");
+                    Join<InspectApplyGoods, Goods> goodsRoot = inspectApplyGoodsRoot.join("goods");
+                    Join<Goods, Project> projectRoot = goodsRoot.join("project");*/
+
+                    list.add(cb.equal(root.get("uid").as(Integer.class), wareHouseman));
+
+                }
+
+              /*  // 仓库经办人
+                if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
+
+                    Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
 
                     Join<Instock,InspectReport> inspectReportRoot = root.join("inspectReport");
                     Join<InspectReport,InspectApply> inspectApplyRoot = inspectReportRoot.join("inspectApply");
                     Join<InspectApply, Purch> purchRoot = inspectApplyRoot.join("purch");
-                    Join<Project, Project> projectRoot = purchRoot.join("projects");
+                    Join<Purch, Project> projectRoot = purchRoot.join("projects");
                     list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), wareHouseman));
 
-                }
+                }*/
 
                 // 销售合同号 、 项目号查询
                 if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
