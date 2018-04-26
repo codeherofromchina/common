@@ -546,6 +546,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //如果不外检  是厂家直发的话，直接修改状态
             if(outboundNums == 0){  //判断出库总数量
 
+                if(straightNums == 0){      //没有出库商品的时候不让出库
+                    throw new Exception("没有出库商品数量");
+                }
+
                 one.setStatus(5);   //出库状态
                 one.setOutCheck(0); //设置不外检
                 one.setLeaveDate(new Date());   //出库时间
@@ -615,6 +619,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
           /*  sendSms(map);*/
 
 
+            if(outboundNums == 0 && straightNums == 0){ //没有出库商品的时候不让出库
+                throw new Exception("没有出库商品数量");
+            }
 
             if(outboundNums > 0){    //外检
                 Iogistics iogistics = new Iogistics();  //物流信息
