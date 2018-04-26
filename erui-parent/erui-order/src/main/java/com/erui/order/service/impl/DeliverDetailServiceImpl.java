@@ -200,8 +200,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 //根据仓库经办人
                 if (deliverD.getWareHouseman() != null) {
-                    Join<DeliverDetail, DeliverNotice> deliverDetailRoot = root.join("deliverNotice");
-                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = deliverDetailRoot.join("deliverConsigns");
+                    Join<DeliverNotice, DeliverConsign> deliverConsignRoot = root.join("deliverConsigns");
                     Join<DeliverConsign, Order> orderRoot = deliverConsignRoot.join("order");
                     Join<Order, Project> projectRoot = orderRoot.join("project");
                     list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), deliverD.getWareHouseman()));
