@@ -170,25 +170,30 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                     DeliverDetail deliverDetail = iogistics.getDeliverDetail(); //获取出库信息
 
-                    if (!idList.contains(deliverDetail.getId())) {
-                        Order order = deliverDetail.getDeliverConsignGoodsList().get(0).getGoods().getOrder();//获取到订单id
-                        OrderLog orderLog1 = new OrderLog();
-                        try {
-                            orderLog1.setIogisticsDataId(iogisticsData.getId());
-                            orderLog1.setOrder(order);
-                            orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
-                            orderLog1.setOperation(one.getTheAwbNo());
-                            orderLog1.setCreateTime(new Date());
-                            orderLog1.setBusinessDate(iogisticsData.getLogisticsDate());
-                            orderLogDao.save(orderLog1);
-                        } catch (Exception ex) {
-                            logger.error("日志记录失败 {}", orderLog1.toString());
-                            logger.error("错误", ex);
-                            ex.printStackTrace();
-                        }
+                    List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+                    for (DeliverConsignGoods deliverConsignGoods :deliverConsignGoodsList){
+                        Order order =deliverConsignGoods.getGoods().getOrder();//获取到订单id
+                        if (!idList.contains(order.getId())) {
+                            OrderLog orderLog1 = new OrderLog();
+                            try {
+                                orderLog1.setIogisticsDataId(iogisticsData.getId());
+                                orderLog1.setOrder(order);
+                                orderLog1.setLogType(OrderLog.LogTypeEnum.OTHER.getCode());
+                                orderLog1.setOperation(one.getTheAwbNo());
+                                orderLog1.setCreateTime(new Date());
+                                orderLog1.setBusinessDate(iogisticsData.getLogisticsDate());
+                                orderLogDao.save(orderLog1);
+                            } catch (Exception ex) {
+                                logger.error("日志记录失败 {}", orderLog1.toString());
+                                logger.error("错误", ex);
+                                ex.printStackTrace();
+                            }
 
-                        idList.add(deliverDetail.getId());
+                            idList.add(order.getId());
+                        }
                     }
+
+
 
                 }
             }else{  //不等于空，更新时间

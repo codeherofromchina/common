@@ -236,6 +236,10 @@ public class DeliverDetail {
     private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
 
 
+    @Column(name = "out_check")
+    private Integer outCheck = 1;  //是否外键（1：是 0：否）
+
+
     private String reason; //特殊情况产品放行原因
 
     private String logs;    //动态描述
@@ -776,6 +780,14 @@ public class DeliverDetail {
 
     public void setIogistics(List<Iogistics> iogistics) {
         this.iogistics = iogistics;
+    }
+
+    public Integer getOutCheck() {
+        return outCheck;
+    }
+
+    public void setOutCheck(Integer outCheck) {
+        this.outCheck = outCheck;
     }
 
     /**

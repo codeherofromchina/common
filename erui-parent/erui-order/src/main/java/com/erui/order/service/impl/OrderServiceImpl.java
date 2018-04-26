@@ -208,7 +208,7 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
                 }
-                if(iogisticsDataService.findStatusAndNumber(vo.getId()) && vo.getDeliverConsignC() == false) {
+                if(vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
                 vo.setGoodsList(null);
