@@ -97,53 +97,77 @@ public class OrderController {
         boolean continueFlag = false;
         if (addOrderVo.getStatus() != Order.StatusEnum.INIT.getCode() && addOrderVo.getStatus() != Order.StatusEnum.UNEXECUTED.getCode()) {
             result.setMsg("销售合同号不能为空");
+            result.setEnMsg("The order No. must be filled in");
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) { // 提交
             if (StringUtils.isBlank(addOrderVo.getContractNo())) {
                 result.setMsg("销售合同号不能为空");
+                result.setEnMsg("The order No. must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo())) {
                 result.setMsg("物流报价单号不能为空");
+                result.setEnMsg("Logistics quotation No. must be filled in");
             } else if (addOrderVo.getOrderType() == null) {
                 result.setMsg("订单类型不能为空");
+                result.setEnMsg("Order type must be filled in");
             } else if (addOrderVo.getSigningDate() == null) {
                 result.setMsg("订单签约日期不能为空");
+                result.setEnMsg("Order contract date must be filled in");
             } else if (addOrderVo.getDeliveryDate() == null) {
                 result.setMsg("合同交货日期不能为空");
+                result.setEnMsg("Contract delivery date must be filled in");
             } else if (addOrderVo.getSigningCo() == null) {
                 result.setMsg("签约主体公司不能为空");
+                result.setEnMsg("Order contract company must be filled in");
             } else if (addOrderVo.getAgentId() == null) {
                 result.setMsg("市场经办人不能为空");
+                result.setEnMsg("Market manager must be filled in");
             } else if (addOrderVo.getExecCoId() == null) {
                 result.setMsg("执行分公司不能为空");
+                result.setEnMsg("Executing company must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getRegion())) {
                 result.setMsg("所属地区不能为空");
+                result.setEnMsg("Affiliating area must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getDistributionDeptName())) {
                 result.setMsg("分销部不能为空");
+                result.setEnMsg("Distribution must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getCountry())) {
                 result.setMsg("国家不能为空");
+                result.setEnMsg("Country name must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getCrmCode())) {
                 result.setMsg("CRM客户代码不能为空");
+                result.setEnMsg("CRM No. must be filled in");
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
+                result.setEnMsg("Customer type must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay())) {
                 result.setMsg("回款责任人不能为空");
+                result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {
                 result.setMsg("事业部不能为空");
+                result.setEnMsg("Distribution must be filled in");
             } else if (addOrderVo.getTechnicalId() == null) {
                 result.setMsg("商务技术经办人不能为空");
+                result.setEnMsg("Business technical manager must be filled in");
             } else if (addOrderVo.getGoodDesc().isEmpty()) {
                 result.setMsg("商品不能为空");
+                result.setEnMsg("Product must be filled in");
             } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
                 result.setMsg("合同数量不能为空");
+                result.setEnMsg("Quantity must be filled in");
             } else if (addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1) {
                 result.setMsg("合同总价错误");
+                result.setEnMsg("Contract price error");
             } else if (addOrderVo.getTaxBearing() == null) {
                 result.setMsg("是否含税不能为空");
+                result.setEnMsg("Tax-inclusive or not must be filled in ");
             } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn())) {
                 result.setMsg("收款方式不能为空");
+                result.setEnMsg("Payment term must be filled in");
             } else if (addOrderVo.getAcquireId() == null) {
                 result.setMsg("获取人不能为空");
+                result.setEnMsg("Obtainer must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getCurrencyBn())) {
                 result.setMsg("货币类型不能为空");
+                result.setEnMsg("Currency type must be filled in");
             } else {
                 continueFlag = true;
             }
@@ -169,9 +193,11 @@ public class OrderController {
             }
         } catch (Exception ex) {
             logger.error("订单操作失败：{}", addOrderVo, ex);
-            result.setMsg(ex.getMessage());
+            String message = ex.getMessage();
+            String[] splitMsg = message.split("&&");
+            result.setMsg(splitMsg[0]);
+            result.setEnMsg(splitMsg[1]);
         }
-
         return result;
 
     }

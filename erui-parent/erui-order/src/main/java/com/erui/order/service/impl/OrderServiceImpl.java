@@ -324,13 +324,13 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
                 if (goods == null) {
-                    throw new Exception("不存在的商品标识");
+                    throw new Exception("不存在的商品标识&&Non-existent product identifier");
                 }
             }
             String sku = pGoods.getSku();
             if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
                 // 已经存在的sku，返回错误
-                throw new Exception("同一sku不可以重复添加");
+                throw new Exception("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
@@ -473,7 +473,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
-            throw new Exception("销售合同号已存在");
+            throw new Exception("销售合同号已存在&&The order No. already exists");
         }
       /*  if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
@@ -494,7 +494,7 @@ public class OrderServiceImpl implements OrderService {
             String sku = pGoods.getSku();
             if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
                 // 已经存在的sku，返回错误
-                throw new Exception("同一sku不可以重复添加");
+                throw new Exception("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
             goods.setOutstockNum(0);

@@ -179,7 +179,7 @@
 
 
     <profiles>
-        <profile>
+       <!-- <profile>
             <id>default</id>
             <dependencies>
                 <dependency>
@@ -191,7 +191,7 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-        </profile>
+        </profile>-->
 
         <profile>
             <id>zhengshi</id>
