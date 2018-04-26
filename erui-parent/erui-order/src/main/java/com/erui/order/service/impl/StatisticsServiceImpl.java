@@ -557,13 +557,13 @@ public class StatisticsServiceImpl implements StatisticsService {
             throw new Exception("订单不存在");
         }
         List<Goods> goodsList = order.getGoodsList();
+        Project project = order.getProject();
         List<GoodsBookDetail> resultList = new ArrayList<>();
         if (goodsList != null && goodsList.size() > 0) {
             for (Goods goods : goodsList) {
                 GoodsBookDetail goodsBookDetail = new GoodsBookDetail();
                 goodsBookDetail.setGoods(goods);
-                Project.ProjectProgressEnum progressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(order.getProcessProgress());
-                if (progressEnum != null && progressEnum.getNum() >= Project.ProjectProgressEnum.QUARANTINE.getNum()) {
+                if (project != null && Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) == Project.PurchReqCreateEnum.SUBMITED) {
                     goodsBookDetail.setProType(goods.getProType());
                 }
                 resultList.add(goodsBookDetail);

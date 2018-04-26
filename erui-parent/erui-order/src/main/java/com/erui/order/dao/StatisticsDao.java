@@ -77,8 +77,8 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
 
 
-    @Query(value = "select t1.goods_id,t1.inspect_num,(t1.inspect_num - t1.unqualified),t2.inspect_date,t2.supplier_name,t3.check_date,t4.instock_date " +
-            " from inspect_apply_goods t1,inspect_apply t2 left outer join inspect_report t3 on t2.id = t3.inspect_apply_id left outer join instock t4 on t4.inspect_report_id = t3.id and t4.`status` = 3  " +
+    @Query(value = "select t1.goods_id,t1.inspect_num,(t1.inspect_num - t1.unqualified),t2.inspect_date,t2.supplier_name,t3.last_done_date,t4.instock_date " +
+            " from inspect_apply_goods t1,inspect_apply t2 left outer join inspect_report t3 on t2.id = t3.inspect_apply_id and t3.`status` >= 3 left outer join instock t4 on t4.inspect_report_id = t3.id and t4.`status` = 3  " +
             " where t1.inspect_apply_id = t2.id and t2.`status`>1 and t1.goods_id in :goodsIds",nativeQuery = true)
     List<Object> findInspectApplyGoods(@Param("goodsIds") List<Integer> goodsIds);
 

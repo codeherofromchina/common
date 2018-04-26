@@ -67,7 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
-        if (nowProjectStatusEnum.getNum() == 1 && paramProjectStatusEnum.getNum() == 11) {
+        if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT && paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
             Order order = projectUpdate.getOrder();
             order.setStatus(Order.StatusEnum.INIT.getCode());
             order.setProject(null);
