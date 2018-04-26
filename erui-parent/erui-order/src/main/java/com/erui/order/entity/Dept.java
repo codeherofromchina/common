@@ -23,7 +23,9 @@ public class Dept {
     @JoinColumn(name = "company_id")
     @JsonIgnore
     private Company company;*/
-
+    //英文名称
+    @Column(name = "en_name")
+    private String enName;
     /**
      * 分销部名称
      */
@@ -47,6 +49,18 @@ public class Dept {
     public void setCompany(Company company) {
         this.company = company;
     }*/
+
+    public String getEnName() {
+        return enName;
+    }
+
+    public void setEnName(String enName) {
+        this.enName = enName;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

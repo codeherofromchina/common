@@ -74,7 +74,6 @@ public class ProjectController {
 
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
-
     /**
      * 获取项目列表
      *

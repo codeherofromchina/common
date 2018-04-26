@@ -197,7 +197,6 @@ public class OrderServiceImpl implements OrderService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 vo.setAttachmentSet(null);
@@ -219,48 +218,52 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
-        Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
-            @Override
-            public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
-                //根据订单日期查询
-                if (condition.getStart_time() != null && condition.getEnd_time() != null) {
-                    Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
-                    Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
-                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
-                    list.add(startTime);
-                    list.add(endTime);
-                }
+        try {
+            Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
+                @Override
+                public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+                    //根据订单日期查询
+                    if (condition.getStart_time() != null && condition.getEnd_time() != null) {
+                        Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
+                        Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
+                        Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                        Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
+                        list.add(startTime);
+                        list.add(endTime);
+                    }
 
                 /*//根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getBuyer_no())) {
                     list.add(cb.equal(root.get("buyer_no").as(String.class), condition.getBuyer_no()));
                 }*/
-                //根据客户ID
-                if (condition.getBuyer_id() != null) {
-                    list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
-                }
-                //根据付款状态
-                if (!StringUtils.isEmpty(condition.getPay_status())) {
-                    list.add(cb.equal(root.get("payStatus").as(Integer.class), ComplexOrder.fromPayMsg(condition.getPay_status())));
-                }
-                //根据订单状态
-                if (!StringUtils.isEmpty(condition.getStatus())) {
-                    if (!condition.getStatus().equals("to_be_confirmed")) {
-                        list.add(cb.equal(root.get("status").as(Integer.class), ComplexOrder.fromStatusMsg(condition.getStatus())));
-                    } else {
-                        Integer[] orderStatus = {1, 2};
-                        list.add(root.get("status").in(orderStatus));
+                    //根据客户ID
+                    if (condition.getBuyer_id() != null) {
+                        list.add(cb.equal(root.get("buyerId").as(Integer.class), condition.getBuyer_id()));
                     }
-
+                    //根据付款状态
+                    if (!StringUtils.isEmpty(condition.getPay_status())) {
+                        list.add(cb.equal(root.get("payStatus").as(Integer.class), ComplexOrder.fromPayMsg(condition.getPay_status())));
+                    }
+                    //根据订单状态
+                    if (!StringUtils.isEmpty(condition.getStatus())) {
+                        if (!condition.getStatus().equals("to_be_confirmed")) {
+                            list.add(cb.equal(root.get("status").as(Integer.class), ComplexOrder.fromStatusMsg(condition.getStatus())));
+                        } else {
+                            Integer[] orderStatus = {1, 2};
+                            list.add(root.get("status").in(orderStatus));
+                        }
+                    }
+                    //  list.add(cb.equal(root.get("deleteFlag"), false));
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
                 }
-                //  list.add(cb.equal(root.get("deleteFlag"), false));
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                return cb.and(predicates);
-            }
-        }, pageRequest);
+            }, pageRequest);
+            return pageList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     /*    if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 vo.setAttachmentSet(null);
@@ -277,7 +280,7 @@ public class OrderServiceImpl implements OrderService {
                 vo.setGoodsList(null);
             });
         }*/
-        return pageList;
+        return null;
     }
 
     @Override
@@ -301,10 +304,10 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             return null;
         }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+     /*   if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
-        }
+        }*/
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
         //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
@@ -358,6 +361,13 @@ public class OrderServiceImpl implements OrderService {
             signingDate = orderUpdate.getSigningDate();
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
+            if (orderLog.size() > 0) {
+                Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
+                if (collect.containsKey("1")) {
+                    orderLogDao.delete(collect.get("1").getId());
+                }
+            }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
             Project projectAdd = new Project();
@@ -406,7 +416,7 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
-    // 检查和贸易术语相关字段的完整性
+  /*  // 检查和贸易术语相关字段的完整性
     private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
         String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
         String toCountry = addOrderVo.getToCountry(); // 目的国
@@ -449,15 +459,15 @@ public class OrderServiceImpl implements OrderService {
                     throw new Exception("目的地不能为空");
                 }
                 break;
-            /*
+            *//*
                 case "FOB":
                 case "FAS":
                     break;
                 default:
                     throw new Exception("不存在的贸易术语");
-            */
+            *//*
         }
-    }
+    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -465,10 +475,10 @@ public class OrderServiceImpl implements OrderService {
         if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在");
         }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+      /*  if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
-        }
+        }*/
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
         order.setCreateUserId(addOrderVo.getCreateUserId());
@@ -520,6 +530,13 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
+            List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
+            if (orderLog.size() > 0) {
+                Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
+                if (collect.containsKey("1")) {
+                    orderLogDao.delete(collect.get("1").getId());
+                }
+            }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
