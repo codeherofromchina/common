@@ -6,12 +6,10 @@ import com.erui.order.entity.Area;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.service.AreaService;
-import com.erui.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 /**
  * Created by wangxiaodan on 2018/4/2.
@@ -25,6 +23,7 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
     private ProjectDao projectDao;
 
     @Override
+    @Async
     public void onApplicationEvent(OrderProgressEvent orderProgressEvent) {
         Order order = (Order) orderProgressEvent.getSource();
         Project project = order.getProject();
@@ -58,8 +57,6 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
             project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
         }
         orderDao.flush();
-
-
         if (project != null) {
             projectDao.save(project);
         }

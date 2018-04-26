@@ -11,6 +11,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.excel.graphbuilder.math.Expression;
 import com.erui.comm.util.excel.graphbuilder.math.ExpressionTree;
 import com.erui.comm.util.excel.graphbuilder.math.VarMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
@@ -23,8 +24,8 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 
 
 public class BuildExcelImpl implements BuildExcel {
-	DecimalFormat df = new DecimalFormat("#.00");
-	DecimalFormat df1 = new DecimalFormat("#.00%");
+	DecimalFormat df = new DecimalFormat("0.00");
+	DecimalFormat df1 = new DecimalFormat("0.00%");
 	private Map<String,Map<String,String>> special = new HashMap<String,Map<String,String>>();     // 需要转换的值      x=y1_z1%y2_z2     x:变量   y1:x对应的值   z1:需要转换的值
 	/**
 	 * 创建excel头
@@ -67,7 +68,10 @@ public class BuildExcelImpl implements BuildExcel {
 				for(int j=0;j<objs.length;j++){
 					HSSFCell cell = row.createCell(j);
 					if(objs[j] instanceof BigDecimal){
-						cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+						HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
+						HSSFDataFormat format= hssfWorkBook.createDataFormat();
+						cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+						cell.setCellStyle(cellStyle);
 						cell.setCellValue(((BigDecimal)objs[j]).doubleValue());
 					} else if (objs[j] instanceof Double){
 						HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();  
@@ -129,7 +133,10 @@ public class BuildExcelImpl implements BuildExcel {
 							Object obj = m.get(keys[j]);
 							HSSFCell cell = row.createCell(j);
 							if(obj instanceof BigDecimal){
-								cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+								HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
+								HSSFDataFormat format= hssfWorkBook.createDataFormat();
+								cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+								cell.setCellStyle(cellStyle);
 								cell.setCellValue(((BigDecimal)obj).doubleValue());
 							} else if (obj instanceof Double){
 								HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();  
@@ -253,4 +260,6 @@ public class BuildExcelImpl implements BuildExcel {
 		}
 		return hssfWorkBook;
 	}
+
+
 }

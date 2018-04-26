@@ -289,7 +289,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         boolean hegeFlag = true;
         int hegeNum = 0;    //合格商品总数量
 
-        int sum=0;  //不合格商品总数量
+        int sum = 0;  //不合格商品总数量
         Project project = null; //项目信息
 
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
@@ -318,13 +318,13 @@ public class InspectReportServiceImpl implements InspectReportService {
             applyGoods.setUnqualified(unqualified);
             // 如果有不合格商品，则必须有不合格描述
             if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedDesc()) && unqualified > 0) {
-                throw new Exception("商品(SKU:"+goods.getSku()+")的不合格描述不能为空");
+                throw new Exception("商品(SKU:" + goods.getSku() + ")的不合格描述不能为空");
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
 
-                project=project==null?goods.getProject():project;
+                project = project == null ? goods.getProject() : project;
 
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
@@ -357,7 +357,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         // 设置父质检单的最后检验完成日期
         InspectApply inspectApply = dbInspectReport.getInspectApply();
         InspectApply inspectApplyParent = inspectApply.getParent();
-        if(!dbInspectReport.getReportFirst()){
+        if (!dbInspectReport.getReportFirst()) {
             InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(inspectApplyParent.getId());
             firstInspectReport.setLastDoneDate(dbInspectReport.getDoneDate());
             inspectReportDao.save(firstInspectReport);
@@ -367,8 +367,8 @@ public class InspectReportServiceImpl implements InspectReportService {
         // 提交动作 则设置第一次质检，和相应的报检信息
         if (statusEnum == InspectReport.StatusEnum.DONE) {
 
-            //质检结果通知：质检人员将不合格商品通知采购经办人
-            disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);
+            //入库质检结果通知：质检人员将不合格商品通知采购经办人
+            /*disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);*/
 
 
             dbInspectReport.setProcess(false);
@@ -412,10 +412,10 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
-           if(project != null){
-               instock.setUid(project.getWarehouseUid());
-               instock.setUname(project.getWarehouseName());
-           }
+            if (project != null) {
+                instock.setUid(project.getWarehouseUid());       //仓库经办人ID
+                instock.setUname(project.getWarehouseName());   //仓库经办人名字
+            }
             instock.setInspectApplyNo(dbInspectReport.getInspectApplyNo()); // 报检单号
             instock.setSupplierName(dbInspectReport.getInspectApply().getPurch().getSupplierName()); // 供应商
             instock.setStatus(Instock.StatusEnum.INIT.getStatus());
@@ -424,27 +424,26 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 入库商品
             for (InspectApplyGoods inspectGoods : dbInspectReport.getInspectGoodsList()) {
                 int qualifiedNum = inspectGoods.getInspectNum() - inspectGoods.getUnqualified();
-                if (qualifiedNum <= 0) {
-                    // 全部不合格商品则不添加到入库
-                    continue;
-                }
                 Goods goods = inspectGoods.getGoods();
-                InstockGoods instockGoods = new InstockGoods();
-                instockGoods.setInstock(instock);
-                instockGoods.setContractNo(goods.getContractNo());
-                instockGoods.setProjectNo(goods.getProjectNo());
-                instockGoods.setInspectApplyGoods(inspectGoods);
-                instockGoods.setQualifiedNum(qualifiedNum);
-                instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
-                Date date = new Date();
-                instockGoods.setCreateTime(date);
-                instockGoods.setUpdateTime(date);
-                instockGoods.setCreateUserId(dbInspectReport.getCreateUserId());
+                if (qualifiedNum > 0) {
+                    InstockGoods instockGoods = new InstockGoods();
+                    instockGoods.setInstock(instock);
+                    instockGoods.setContractNo(goods.getContractNo());
+                    instockGoods.setProjectNo(goods.getProjectNo());
+                    instockGoods.setInspectApplyGoods(inspectGoods);
+                    instockGoods.setQualifiedNum(qualifiedNum);
+                    instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
+                    Date date = new Date();
+                    instockGoods.setCreateTime(date);
+                    instockGoods.setUpdateTime(date);
+                    instockGoods.setCreateUserId(dbInspectReport.getCreateUserId());
 
-                instockGoodsList.add(instockGoods);
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),5));
+                    instockGoodsList.add(instockGoods);
+                }
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5));
             }
             instock.setInstockGoodsList(instockGoodsList);
+            instock.setOutCheck(1); //是否外检（ 0：否   1：是）
 
             instockDao.save(instock);
 
@@ -473,13 +472,12 @@ public class InspectReportServiceImpl implements InspectReportService {
     }
 
 
-
     //质检结果通知：质检人员将不合格商品通知采购经办人
-    public void sendSms(Map<String,Object> map1) throws  Exception {
+    public void sendSms(Map<String, Object> map1) throws Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            try{
+            try {
                 Map<String, String> header = new HashMap<>();
                 header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
@@ -494,46 +492,46 @@ public class InspectReportServiceImpl implements InspectReportService {
                 String s = queryMessage(purchaseUid, eruiToken);    //将不合格发送给采购经办人
                 String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
 
-                Map<String,String> map= new HashMap();
-                map.put("areaCode","86");
-                map.put("subType","0");
-                map.put("groupSending","0");
-                map.put("useType","订单");
+                Map<String, String> map = new HashMap();
+                map.put("areaCode", "86");
+                map.put("subType", "0");
+                map.put("groupSending", "0");
+                map.put("useType", "订单");
 
                 //判断状态
-                if (yn == 1){   //  1:  部分合格,部分不合格
+                if (yn == 1) {   //  1:  部分合格,部分不合格
 
-                    if(s != null){
+                    if (s != null) {
                         //发送短信
-                        map.put("to","[\""+s+"\"]");
-                        map.put("content","您好，采购合同号："+map1.get("purchNo")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("to", "[\"" + s + "\"]");
+                        map.put("content", "您好，采购合同号：" + map1.get("purchNo") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("sum") + "件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
                     }
 
-                    if(s2 != null){
+                    if (s2 != null) {
                         //发送短信
-                        map.put("to","[\""+s2+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("hegeNum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("to", "[\"" + s2 + "\"]");
+                        map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
                     }
-                }else if(yn == 2){  // 2 全部不合格
+                } else if (yn == 2) {  // 2 全部不合格
                     // 根据id获取人员信息
-                    if(s != null){
+                    if (s != null) {
                         //发送短信
-                        map.put("to","[\""+s+"\"]");
-                        map.put("content","您好，采购合同号："+map1.get("purchNo")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("sum")+"件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("to", "[\"" + s + "\"]");
+                        map.put("content", "您好，采购合同号：" + map1.get("purchNo") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("sum") + "件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
                     }
-                }else{   // 3 全部合格
-                    if(s2 != null){
+                } else {   // 3 全部合格
+                    if (s2 != null) {
                         //发送短信
-                        map.put("to","[\""+s2+"\"]");
-                        map.put("content","您好，项目号："+map1.get("purchaseNames")+"，报检单号："+map1.get("inspectApplyNo")+"，共计"+map1.get("hegeNum")+"件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("to", "[\"" + s2 + "\"]");
+                        map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
 
                     }
                 }
 
                 String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                logger.info("发送短信返回状态"+s1);
+                logger.info("发送短信返回状态" + s1);
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new Exception("发送短信失败");
             }
 
@@ -543,8 +541,8 @@ public class InspectReportServiceImpl implements InspectReportService {
 
     //查询人员信息
 
-    public String  queryMessage(Integer id , String eruiToken){
-        if( id != null ){
+    public String queryMessage(Integer id, String eruiToken) {
+        if (id != null) {
             String jsonParam = "{\"id\":\"" + id + "\"}";
             Map<String, String> header = new HashMap<>();
             header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
@@ -556,39 +554,38 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 获取人员手机号
             JSONObject jsonObject = JSONObject.parseObject(s);
             Integer code = jsonObject.getInteger("code");
-            if(code == 1) {
+            if (code == 1) {
                 JSONObject data = jsonObject.getJSONObject("data");
                 return data.getString("mobile");    //获取手机号
             }
         }
-        return  null;
+        return null;
     }
 
 
-
     //处理数据信息
-    public void disposeData(boolean hegeFlag , int hegeNum , int sum ,InspectReport dbInspectReport , Project project) throws Exception {
+    public void disposeData(boolean hegeFlag, int hegeNum, int sum, InspectReport dbInspectReport, Project project) throws Exception {
         //yn    1:部分合格,部分不合格     2.全部不合格     3.全部合格
 
-        Map<String,Object> map = new HashMap<>();
-        map.put("inspectApplyNo",dbInspectReport.getInspectApplyNo());    //报检单号
-        if (project != null){
-            map.put("purchaseUid",project.getPurchaseUid());       //采购经办人id
-            map.put("warehouseUid",project.getWarehouseUid());       //仓库经办人id
-            map.put("purchaseNames",project.getProjectNo());      //项目号
+        Map<String, Object> map = new HashMap<>();
+        map.put("inspectApplyNo", dbInspectReport.getInspectApplyNo());    //报检单号
+        if (project != null) {
+            map.put("purchaseUid", project.getPurchaseUid());       //采购经办人id
+            map.put("warehouseUid", project.getWarehouseUid());       //仓库经办人id
+            map.put("purchaseNames", project.getProjectNo());      //项目号
         }
-        map.put("purchNo",dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
-        map.put("sum",sum);   //商品不合格数量
-        map.put("hegeNum",hegeNum);   //商品合格数量
+        map.put("purchNo", dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
+        map.put("sum", sum);   //商品不合格数量
+        map.put("hegeNum", hegeNum);   //商品合格数量
 
         if (!hegeFlag) {
-            if(hegeNum != 0){   //部分合格,部分不合格
-                map.put("yn",1);
-            }else {//全部不合格
-                map.put("yn",2);
+            if (hegeNum != 0) {   //部分合格,部分不合格
+                map.put("yn", 1);
+            } else {//全部不合格
+                map.put("yn", 2);
             }
-        }else { // 全部合格
-            map.put("yn",3);
+        } else { // 全部合格
+            map.put("yn", 3);
         }
 
         sendSms(map);

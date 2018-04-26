@@ -2,12 +2,10 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.order.entity.Area;
-import com.erui.order.event.MyEvent;
 import com.erui.order.service.AreaService;
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,13 +21,14 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/order/area")
 public class AreaController {
+
     @Autowired
     private AreaService areaService;
 
     /**
      * 根据ID获取地区信息
      *
-     * @param map;
+     * @param map
      * @return
      */
     @RequestMapping(value = "get")
@@ -45,6 +44,7 @@ public class AreaController {
     public void setStr(String str) {
         this.str = str;
     }
+
     /**
      * 根据ID获取地区信息
      *
@@ -57,4 +57,5 @@ public class AreaController {
         return new Result<>(map1);
 
     }
+
 }
