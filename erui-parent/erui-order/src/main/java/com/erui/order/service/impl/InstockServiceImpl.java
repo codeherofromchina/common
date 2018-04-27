@@ -242,14 +242,14 @@ public class InstockServiceImpl implements InstockService {
         dbInstock.setDepartment(instock.getDepartment());
 
         List<InstockGoods> instockGoodsList = dbInstock.getInstockGoodsList();
-        if(instock.getStatus() == 3){
-            for (InstockGoods instockGoods : instockGoodsList){
+        if (instock.getStatus() == 3) {
+            for (InstockGoods instockGoods : instockGoodsList) {
                 //当入库提交的时候才保存  入库日期
                 Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
                 one.setInstockDate(dbInstock.getInstockDate()); //入库日期
                 one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
                 goodsDao.saveAndFlush(one);
-                applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(),6));
+                applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(), 6));
             }
         }
         // 保存附件信息
@@ -258,7 +258,7 @@ public class InstockServiceImpl implements InstockService {
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
-            if (instockGoods.getInstockNum() == null ) {
+            if (instockGoods.getInstockNum() == null) {
                 return false;
             }
             InstockGoods instockGoods02 = instockGoodsMap.remove(instockGoods.getId());
@@ -282,30 +282,31 @@ public class InstockServiceImpl implements InstockService {
 
 
                 Goods goods = inspectApplyGoods.getGoods();
-                if (goods!= null) {
+                if (goods != null) {
                     goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
 
-                    if(instock.getOutCheck() != null){
-                        if(instock.getOutCheck() == 0 ) {  //是否外检（ 0：否   1：是）
-                            goods.setNullInstockNum(goods.getNullInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
-                        }else{
-                            goods.setInspectInstockNum(goods.getInspectInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
+                    if (instock.getOutCheck() != null) {
+                        if (instock.getOutCheck() == 0) {  //是否外检（ 0：否   1：是）
+                            Integer nullInstockNum = goods.getNullInstockNum();
+                            goods.setNullInstockNum(nullInstockNum = nullInstockNum == null ? 0 : nullInstockNum + instockGoods02.getInstockNum());  //质检入库数量
+                        } else {
+                            Integer inspectInstockNum = goods.getInspectInstockNum();
+                            goods.setInspectInstockNum(inspectInstockNum = inspectInstockNum == null ? 0 : inspectInstockNum + instockGoods02.getInstockNum());  //质检入库数量
                         }
+
+                        goodsDao.save(goods);
                     }
-
-
-                    goodsDao.save(goods);
                 }
             }
+            if (instockGoodsMap.size() > 0) {
+                throw new Exception("入库商品数量错误");
+            }
         }
-        if (instockGoodsMap.size() > 0) {
-            throw new Exception("入库商品数量错误");
+            instockDao.save(dbInstock);
+
+            return true;
         }
 
-        instockDao.save(dbInstock);
-
-        return true;
-    }
 
 
     @Override

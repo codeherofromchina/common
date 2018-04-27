@@ -42,4 +42,7 @@ public interface InstockService {
      * @return
      */
     Instock detail(Integer id);
+
+
+
 }
