@@ -19,7 +19,7 @@ public interface IogisticsDataService {
 
     IogisticsData queryByTheAwbNo(String theAwbNo);
 
-    void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData);
+    void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData) throws Exception;
 
    Boolean findStatusAndNumber(Integer orderId);
 }

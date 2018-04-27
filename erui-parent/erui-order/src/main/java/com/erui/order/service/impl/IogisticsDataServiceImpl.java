@@ -335,8 +335,11 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData) {
+    public void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData)throws Exception {
         IogisticsData one = iogisticsDataDao.findByTheAwbNo(iogisticsData.getTheAwbNo());
+        if(one == null){
+            throw new Exception("未查到此条运单号信息");
+        }
         one.setConfirmTheGoods(iogisticsData.getConfirmTheGoods());
         iogisticsDataDao.saveAndFlush(one);
     }
