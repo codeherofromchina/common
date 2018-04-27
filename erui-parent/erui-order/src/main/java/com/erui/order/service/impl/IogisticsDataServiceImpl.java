@@ -87,7 +87,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                 //根据状态
                 if (iogisticsData.getStatus() != null) {
-                    list.add(cb.equal(root.get("status").as(Date.class), iogisticsData.getStatus()));
+                    list.add(cb.equal(root.get("status").as(Integer.class), iogisticsData.getStatus()));
                 }
 
                 //根据 销售合同号    产品放行单号   根据放行日期
