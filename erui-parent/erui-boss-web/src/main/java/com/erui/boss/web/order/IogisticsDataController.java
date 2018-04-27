@@ -236,7 +236,7 @@ public class IogisticsDataController {
             logger.error("异常错误", ex);
         }
 
-        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
+        return new Result<>(ResultStatusEnum.NULL_DATA).setMsg(errMsg);
 
     }
 

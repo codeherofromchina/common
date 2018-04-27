@@ -15,6 +15,7 @@ public enum ResultStatusEnum {
     MEDIA_TYPE_NOT_SUPPORT(6, "不支持的MediaType","Media type unsupported"),
     DATA_NULL(7, "数据为空","Lack of data"),
     PARAM_ERROR(8, "参数错误","Parameter error"),
+    NULL_DATA(-1,"数据为空","Lack of data"),
     //-----------excel----------
     EXCEL_TYPE_NOT_SUPPORT(10, "不支持的Excel模板文件类型","Excel template file type unsupported"),
     EXCEL_CONTENTYPE_ERROR(11, "错误的Excel文件类型","Excel file type incorrect"),
