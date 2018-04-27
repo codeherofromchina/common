@@ -167,7 +167,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries) {
         List<SaleStatistics> saleStatistics = findSaleStatistics(condition, countries);
         String[] header = new String[]{"所属地区", "国家", "订单总数量", "订单总额", "油气数量", "油气订单金额", "油气订单数量占比%", "油气订单金额占比%", "非油气数量", "非油气订单金额", "非油气订单数量占比%", "非油气订单金额占比%", "询单总数量", "询单总金额", "询单订单金额占比%", "询单订单数量占比%", "会员总数", "1次复购率（会员数量）", "2次复购率（会员数量）", "次复购率（会员数量）", "3次以上复购率（会员数量）"};
-        String[] keys = new String[]{"regionZh", "countryZh", "orderNum", "orderAmount", "oilOrderNum", "oilOrderAmount", "100*oilOrderNumRate,oilOrderNumRate", "oilOrderAmountRate*100,oilOrderAmountRate", "nonOilOrderNum", "nonOilOrderAmount", "nonOilOrderNumRate*100,nonOilOrderNumRate", "nonOilOrderAmountRate*100,nonOilOrderAmountRate", "quotationNum", "quotationAmount", "crmOrderNumRate*100,crmOrderNumRate", "crmOrderAmountRate*100,crmOrderAmountRate", "vipNum", "oneRePurch", "twoRePurch", "threeRePurch", "moreRePurch"};
+        String[] keys = new String[]{"regionZh", "countryZh", "orderNum", "orderAmount", "oilOrderNum", "oilOrderAmount", "oilOrderNumRateStr", "oilOrderAmountRateStr", "nonOilOrderNum", "nonOilOrderAmount", "nonOilOrderNumRateStr", "nonOilOrderAmountRateStr", "quotationNum", "quotationAmount", "crmOrderNumRateStr", "crmOrderAmountRateStr", "vipNum", "oneRePurch", "twoRePurch", "threeRePurch", "moreRePurch"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(saleStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "销售业绩统计");
@@ -229,7 +229,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public HSSFWorkbook generateGoodsStatisticsExcel(GoodsStatistics goodsStatistics, Set<String> countries) {
         Page<GoodsStatistics> goodsStatisticsPage = findGoodsStatistics(goodsStatistics, countries, -1, -1);
-        String[] header = new String[]{"平台SKU", "产品分类", "英文品名", "中文品牌", "品牌", "所属地区", "国家", "询单数量", "询单金额", "订单数量", "订单金额"};
+        String[] header = new String[]{"平台SKU", "产品分类", "英文品名", "中文品名", "品牌", "所属地区", "国家", "询单数量", "询单金额", "订单数量", "订单金额"};
         String[] keys = new String[]{"sku", "proType", "nameEn", "nameZh", "brand", "regionZh", "countryZh", "quotationNum", "quotationAmount", "orderNum", "orderAmount"};
         BuildExcel buildExcel = new BuildExcelImpl();
         List<JSONObject> data = new ArrayList<>();
@@ -477,15 +477,15 @@ public class StatisticsServiceImpl implements StatisticsService {
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
         String[] header = new String[]{"项目开始日期", "销售合同号", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
-                "PO号", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "海外销类型", "项目金额（美元）",
-                "前期报价（美元）", "前期物流报价（美元）", "收款方式", "回款时间", "回款金额（美元）", "初步利润率%", "授信情况", "执行单约定交付日期",
+                "PO号", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "项目金额（美元）",
+                 "收款方式", "回款时间", "回款金额（美元）", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
-                "采购延期时间（天）", "物流延期时间（天）", "项目状态", "流程进度", "原因类型", "原因描述"};
+                 "项目状态", "流程进度"};
         String[] keys = new String[]{"startDate", "contractNo", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
-                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "XXXXXXX", "totalPrice",
-                "XXXXXXX", "XXXXXXX", "paymentModeBnName", "paymentDate", "money", "100*profitPercent,profitPercent", "grantType", "deliveryDate",
+                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "totalPrice",
+                "paymentModeBnName", "paymentDate", "money", "profitPercentStr", "grantTypeName", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
-                "XXXXXXX", "XXXXXXX", "projectStatusName", "processProgressName", "XXXXXXX", "XXXXXXX"};
+                "projectStatusName", "processProgressName"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目执行统计");

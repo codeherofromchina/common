@@ -158,12 +158,25 @@ public class SaleStatistics {
         return oilOrderNumRate;
     }
 
+    public String getOilOrderNumRateStr() {
+        BigDecimal oilOrderNumRate = getOilOrderNumRate();
+        BigDecimal bigDecimal = oilOrderNumRate.movePointRight(2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.toString() + "%";
+    }
+
 
     public BigDecimal getOilOrderAmountRate() {
         if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
             oilOrderAmountRate = oilOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
         }
         return oilOrderAmountRate;
+    }
+
+
+    public String getOilOrderAmountRateStr() {
+        BigDecimal oilOrderNumRate = getOilOrderAmountRate();
+        BigDecimal bigDecimal = oilOrderNumRate.movePointRight(2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.toString() + "%";
     }
 
     public long getNonOilOrderNum() {
@@ -190,11 +203,25 @@ public class SaleStatistics {
     }
 
 
+    public String getNonOilOrderNumRateStr() {
+        BigDecimal nonOilOrderNumRate = getNonOilOrderNumRate();
+        BigDecimal bigDecimal = nonOilOrderNumRate.movePointRight(2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.toString() + "%";
+    }
+
+
     public BigDecimal getNonOilOrderAmountRate() {
         if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
             nonOilOrderAmountRate = nonOilOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
         }
         return nonOilOrderAmountRate;
+    }
+
+
+    public String getNonOilOrderAmountRateStr() {
+        BigDecimal nonOilOrderAmountRate = getNonOilOrderAmountRate();
+        BigDecimal bigDecimal = nonOilOrderAmountRate.movePointRight(2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.toString() + "%";
     }
 
     public long getCrmOrderNum() {
@@ -220,12 +247,24 @@ public class SaleStatistics {
         return crmOrderNumRate;
     }
 
+    public String getCrmOrderNumRateStr() {
+        BigDecimal crmOrderNumRate = getCrmOrderNumRate();
+        BigDecimal bigDecimal = crmOrderNumRate.movePointRight(2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.toString() + "%";
+    }
+
 
     public BigDecimal getCrmOrderAmountRate() {
         if (orderAmount != null && orderAmount.compareTo(BigDecimal.ZERO) > 0) {
             crmOrderAmountRate = crmOrderAmount.divide(orderAmount, 4, RoundingMode.HALF_UP);
         }
         return crmOrderAmountRate;
+    }
+
+    public String getCrmOrderAmountRateStr() {
+        BigDecimal crmOrderAmountRate = getCrmOrderAmountRate();
+        BigDecimal bigDecimal = crmOrderAmountRate.movePointRight(2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.toString() + "%";
     }
 
 
