@@ -286,9 +286,11 @@ public class InstockServiceImpl implements InstockService {
                     goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
 
                     if(instock.getOutCheck() == 0 ) {  //是否外检（ 0：否   1：是）
-                        goods.setNullInstockNum(goods.getNullInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
+                        Integer nullInstockNum = goods.getNullInstockNum();
+                        goods.setNullInstockNum(nullInstockNum = nullInstockNum == null ? 0 :  nullInstockNum + instockGoods02.getInstockNum());  //质检入库数量
                     }else{
-                        goods.setInspectInstockNum(goods.getInspectInstockNum() + instockGoods02.getInstockNum());  //质检入库数量
+                        Integer inspectInstockNum = goods.getInspectInstockNum();
+                        goods.setInspectInstockNum(inspectInstockNum = inspectInstockNum == null ? 0 : inspectInstockNum + instockGoods02.getInstockNum());  //质检入库数量
                     }
 
                     goodsDao.save(goods);
