@@ -407,6 +407,15 @@ public class ProjectStatistics {
         return profitPercent;
     }
 
+    public String getProfitPercentStr() {
+        BigDecimal profitPercent = getProfitPercent();
+        if (profitPercent == null) {
+            profitPercent = BigDecimal.ZERO;
+        }
+        profitPercent = profitPercent.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return profitPercent.toString() + "%";
+    }
+
     public void setProfitPercent(BigDecimal profitPercent) {
         this.profitPercent = profitPercent;
     }
