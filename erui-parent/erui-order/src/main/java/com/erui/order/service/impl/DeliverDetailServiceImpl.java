@@ -372,8 +372,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
                 deliverConsignGoodsDao.saveAndFlush(one);
-                outboundNums = outboundNums+outboundNum; //出库数量累加
-                straightNums = straightNums+straightNum; //厂家直发数量累加
+                if(outboundNum != null && straightNum != null){
+                    outboundNums = outboundNums+outboundNum; //出库数量累加
+                    straightNums = straightNums+straightNum; //厂家直发数量累加
+                }
 
                 //V2.0  减少商品入库数量
                 if(status == 2){
@@ -381,7 +383,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Goods goods = one.getGoods();
 
                     if(outboundNum == 0 && straightNum == 0){
-                        throw new  Exception("商品名称："+goods.getNameZh()+" 无出库商品数量");
+                        throw new  Exception("商品名称："+goods.getNameZh()+"  无出库商品数量");
                     }
 
                     if(outboundNum != null && outboundNum != 0){
