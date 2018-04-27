@@ -580,7 +580,6 @@ public class OrderServiceImpl implements OrderService {
            // 销售订单通知：销售订单下达后通知商务技术经办人
          /*   sendSms(order);*/
 
-            sendSms(order);
         }
         return order1.getId();
     }
