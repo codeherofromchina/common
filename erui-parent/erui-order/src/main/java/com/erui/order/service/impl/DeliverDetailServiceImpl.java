@@ -377,7 +377,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 //V2.0  减少商品入库数量
                 if(status == 2){
+
                     Goods goods = one.getGoods();
+
+                    if(outboundNum == 0 && straightNum == 0){
+                        throw new  Exception("商品名称："+goods.getNameZh()+" 无出库商品数量");
+                    }
+
                     if(outboundNum != null && outboundNum != 0){
                         goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
                     }
