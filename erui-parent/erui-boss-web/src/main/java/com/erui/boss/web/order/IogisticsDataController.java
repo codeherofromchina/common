@@ -229,8 +229,14 @@ public class IogisticsDataController {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
         }
 
-        iogisticsDataService.confirmTheGoodsByTheAwbNo(iogisticsData);
-        return new Result<>();
+        try {
+            iogisticsDataService.confirmTheGoodsByTheAwbNo(iogisticsData);
+        }catch (Exception ex){
+            errMsg = ex.getMessage();
+            logger.error("异常错误", ex);
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
 
     }
 
