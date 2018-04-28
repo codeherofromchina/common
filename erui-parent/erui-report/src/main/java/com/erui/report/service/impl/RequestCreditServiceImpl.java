@@ -745,72 +745,90 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
     private void createTotalRow(Map<String, Map<String, Object>> dataMap, int index, XSSFSheet sheet) {
         List<Map<String, Object>> dataList = new ArrayList<>(dataMap.values());
 
-        double totalThirty = dataList.stream().map(m -> {
-            double thirty = Double.valueOf(m.get("thirty").toString());
-            return thirty;
-        }).reduce(0d, (a, b) -> a + b);
-        double totalSixty = dataList.stream().map(m -> {
-            double thirtyToSixty = Double.valueOf(m.get("thirtyToSixty").toString());
-            return thirtyToSixty;
-        }).reduce(0d, (a, b) -> a + b);
-        double totalNinety = dataList.stream().map(m -> {
-            double sixtyToNinety = Double.valueOf(m.get("sixtyToNinety").toString());
-            return sixtyToNinety;
-        }).reduce(0d, (a, b) -> a + b);
-        double totalOneHundredTwenty = dataList.stream().map(m -> {
-            double ninetyToOneHundredTwenty = Double.valueOf(m.get("ninetyToOneHundredTwenty").toString());
-            return ninetyToOneHundredTwenty;
-        }).reduce(0d, (a, b) -> a + b);
-        double totalOneHundredFifty = dataList.stream().map(m -> {
-            double oneHundredTwentyToOneHundredFifty = Double.valueOf(m.get("oneHundredTwentyToOneHundredFifty").toString());
-            return oneHundredTwentyToOneHundredFifty;
-        }).reduce(0d, (a, b) -> a + b);
-        double totalOneHundredEighty = dataList.stream().map(m -> {
-            double oneHundredFiftyToOneHundredEighty = Double.valueOf(m.get("oneHundredFiftyToOneHundredEighty").toString());
-            return oneHundredFiftyToOneHundredEighty;
-        }).reduce(0d, (a, b) -> a + b);
-        double totalMoreThanOneHundredEighty = dataList.stream().map(m -> {
-            double moreThanOneHundredEighty = Double.valueOf(m.get("moreThanOneHundredEighty").toString());
-            return moreThanOneHundredEighty;
-        }).reduce(0d, (a, b) -> a + b);
-        double total=totalThirty+totalSixty+totalNinety+totalOneHundredTwenty+
-                totalOneHundredFifty+totalOneHundredEighty+totalMoreThanOneHundredEighty;
+//        double totalThirty = dataList.stream().map(m -> {
+//            double thirty = Double.valueOf(m.get("thirty").toString());
+//            return thirty;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double totalSixty = dataList.stream().map(m -> {
+//            double thirtyToSixty = Double.valueOf(m.get("thirtyToSixty").toString());
+//            return thirtyToSixty;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double totalNinety = dataList.stream().map(m -> {
+//            double sixtyToNinety = Double.valueOf(m.get("sixtyToNinety").toString());
+//            return sixtyToNinety;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double totalOneHundredTwenty = dataList.stream().map(m -> {
+//            double ninetyToOneHundredTwenty = Double.valueOf(m.get("ninetyToOneHundredTwenty").toString());
+//            return ninetyToOneHundredTwenty;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double totalOneHundredFifty = dataList.stream().map(m -> {
+//            double oneHundredTwentyToOneHundredFifty = Double.valueOf(m.get("oneHundredTwentyToOneHundredFifty").toString());
+//            return oneHundredTwentyToOneHundredFifty;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double totalOneHundredEighty = dataList.stream().map(m -> {
+//            double oneHundredFiftyToOneHundredEighty = Double.valueOf(m.get("oneHundredFiftyToOneHundredEighty").toString());
+//            return oneHundredFiftyToOneHundredEighty;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double totalMoreThanOneHundredEighty = dataList.stream().map(m -> {
+//            double moreThanOneHundredEighty = Double.valueOf(m.get("moreThanOneHundredEighty").toString());
+//            return moreThanOneHundredEighty;
+//        }).reduce(0d, (a, b) -> a + b);
+//        double total=totalThirty+totalSixty+totalNinety+totalOneHundredTwenty+
+//                totalOneHundredFifty+totalOneHundredEighty+totalMoreThanOneHundredEighty;
         //添加合计行
+        Map<String,Object> totalRowMap=getTotalRowMap(dataList);
+        Double thirty = Double.valueOf(totalRowMap.get("thirty").toString());
+        Double thirtyProportion = Double.valueOf(totalRowMap.get("thirtyProportion").toString());
+        Double thirtyToSixty = Double.valueOf(totalRowMap.get("thirtyToSixty").toString());
+        Double thirtyToSixtyProportion = Double.valueOf(totalRowMap.get("thirtyToSixtyProportion").toString());
+        Double sixtyToNinety = Double.valueOf(totalRowMap.get("sixtyToNinety").toString());
+        Double sixtyToNinetyProportion = Double.valueOf(totalRowMap.get("sixtyToNinetyProportion").toString());
+        Double ninetyToOneHundredTwenty = Double.valueOf(totalRowMap.get("ninetyToOneHundredTwenty").toString());
+        Double ninetyToOneHundredTwentyProportion = Double.valueOf(totalRowMap.get("ninetyToOneHundredTwentyProportion").toString());
+        Double oneHundredTwentyToOneHundredFifty = Double.valueOf(totalRowMap.get("oneHundredTwentyToOneHundredFifty").toString());
+        Double oneHundredTwentyToOneHundredFiftyProportion = Double.valueOf(totalRowMap.get("oneHundredTwentyToOneHundredFiftyProportion").toString());
+        Double oneHundredFiftyToOneHundredEighty = Double.valueOf(totalRowMap.get("oneHundredFiftyToOneHundredEighty").toString());
+        Double oneHundredFiftyToOneHundredEightyProportion = Double.valueOf(totalRowMap.get("oneHundredFiftyToOneHundredEightyProportion").toString());
+        Double moreThanOneHundredEighty = Double.valueOf(totalRowMap.get("moreThanOneHundredEighty").toString());
+        Double moreThanOneHundredEightyProportion = Double.valueOf(totalRowMap.get("moreThanOneHundredEightyProportion").toString());
+        Double total = Double.valueOf(totalRowMap.get("totalAmount").toString());
         XSSFRow row = sheet.createRow(index + 7);
         XSSFCell cell0 = row.createCell(0);
         XSSFCell cell1 = row.createCell(1);
         cell1.setCellValue("合计");
 
         XSSFCell cell2 = row.createCell(2);
-        cell2.setCellValue(totalThirty);
+        cell2.setCellValue(thirty);
         XSSFCell cell3 = row.createCell(3);
-        cell3.setCellValue(RateUtil.doubleChainRateTwo(totalThirty*100,total));
+        cell3.setCellValue(thirtyProportion);
         XSSFCell cell4 = row.createCell(4);
-        cell4.setCellValue(totalSixty);
+        cell4.setCellValue(thirtyToSixty);
         XSSFCell cell5 = row.createCell(5);
-        cell5.setCellValue(RateUtil.doubleChainRateTwo(totalSixty*100,total));
+        cell5.setCellValue(thirtyToSixtyProportion);
         XSSFCell cell6 = row.createCell(6);
-        cell6.setCellValue(totalNinety);
+        cell6.setCellValue(sixtyToNinety);
         XSSFCell cell7 = row.createCell(7);
-        cell7.setCellValue(RateUtil.doubleChainRateTwo(totalNinety*100,total));
+        cell7.setCellValue(sixtyToNinetyProportion);
         XSSFCell cell8 = row.createCell(8);
-        cell8.setCellValue(totalOneHundredTwenty);
+        cell8.setCellValue(ninetyToOneHundredTwenty);
         XSSFCell cell9 = row.createCell(9);
-        cell9.setCellValue(RateUtil.doubleChainRateTwo(totalOneHundredTwenty*100,total));
+        cell9.setCellValue(ninetyToOneHundredTwentyProportion);
         XSSFCell cell10 = row.createCell(10);
-        cell10.setCellValue(totalOneHundredFifty);
+        cell10.setCellValue(oneHundredTwentyToOneHundredFifty);
         XSSFCell cell11 = row.createCell(11);
-        cell11.setCellValue(RateUtil.doubleChainRateTwo(totalOneHundredFifty*100,total));
+        cell11.setCellValue(oneHundredTwentyToOneHundredFiftyProportion);
         XSSFCell cell12 = row.createCell(12);
-        cell12.setCellValue(totalOneHundredEighty);
+        cell12.setCellValue(oneHundredFiftyToOneHundredEighty);
         XSSFCell cell13 = row.createCell(13);
-        cell13.setCellValue(RateUtil.doubleChainRateTwo(totalOneHundredEighty*100,total));
+        cell13.setCellValue(oneHundredFiftyToOneHundredEightyProportion);
         XSSFCell cell14 = row.createCell(14);
-        cell14.setCellValue(totalMoreThanOneHundredEighty);
+        cell14.setCellValue(moreThanOneHundredEighty);
         XSSFCell cell15 = row.createCell(15);
-        cell15.setCellValue(RateUtil.doubleChainRateTwo(totalMoreThanOneHundredEighty*100,total));
+        cell15.setCellValue(moreThanOneHundredEightyProportion);
         XSSFCell cell16 = row.createCell(16);
         cell16.setCellValue(RateUtil.doubleChainRateTwo(total,1));
+
+
     }
     /**
      * @Author:lirb
@@ -995,6 +1013,19 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         });
 
         //添加合计数据
+       data.add(getTotalRowMap(data));
+        return data;
+    }
+
+    /**
+     * @Author:lirb
+     * @Description 获取合计行数据
+     * @Date:13:56 2018/4/28
+     * @Params data 数据
+     * @Return map
+     */
+    private  Map<String,Object> getTotalRowMap(List<Map<String,Object>> data){
+        //添加合计数据
         Map<String,Object> totalMap=new HashMap<>();
         double totalThirty = data.stream().map(m -> {
             double thirty = Double.valueOf(m.get("thirty").toString());
@@ -1042,8 +1073,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
         totalMap.put("moreThanOneHundredEightyProportion",RateUtil.doubleChainRateTwo(totalThirty*100,total));
         totalMap.put("totalAmount",RateUtil.doubleChainRateTwo(total,1));
         totalMap.put("area","合计");
-        data.add(totalMap);
-        return data;
-    }
 
+        return  totalMap;
+    }
 }
