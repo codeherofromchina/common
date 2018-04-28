@@ -1,10 +1,10 @@
 package com.erui.order.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.ChineseAndEnglish;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
@@ -17,7 +17,6 @@ import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.entity.Project;
-import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
@@ -25,10 +24,7 @@ import com.erui.order.requestVo.PGoods;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.*;
-import com.erui.order.service.AttachmentService;
-import com.erui.order.service.DeliverDetailService;
-import com.erui.order.service.IogisticsDataService;
-import com.erui.order.service.OrderService;
+import com.erui.order.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +42,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.sound.sampled.Line;
-import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,9 +60,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderLogDao orderLogDao;
     @Autowired
+    private DeptService deptService;
+    @Autowired
     private GoodsDao goodsDao;
     @Autowired
     private ProjectDao projectDao;
+    @Autowired
+    private CompanyService companyService;
     @Autowired
     private DeliverDetailService deliverDetailService;
 
@@ -92,9 +90,36 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Order findById(Integer id) {
         Order order = orderDao.findOne(id);
-        order.getGoodsList().size();
-        order.getAttachmentSet().size();
-        order.getOrderPayments().size();
+        if (order != null) {
+            order.getGoodsList().size();
+            order.getAttachmentSet().size();
+            order.getOrderPayments().size();
+        }
+        return order;
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Order findByIdLang(Integer id, String lang) {
+        Order order = orderDao.findOne(id);
+        if (order != null) {
+            order.getGoodsList().size();
+            order.getAttachmentSet().size();
+            order.getOrderPayments().size();
+            // 获取执行分公司、分销部
+            Integer execCoId = order.getExecCoId();
+            if (execCoId != null) {
+                Company company = companyService.findById(execCoId);
+                if ("en".equals(lang)) {
+                    order.setExecCoName(company.getEnName());
+                } else {
+                    order.setExecCoName(company.getName());
+                }
+            }
+            String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            order.setDistributionDeptName(distributionDeptName);
+        }
         return order;
     }
 
@@ -208,14 +233,46 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     vo.setDeliverConsignC(Boolean.FALSE);
                 }
-                if(vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
+                if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
+                // 获取执行分公司、分销部
+                Integer execCoId = vo.getExecCoId();
+                if (execCoId != null) {
+                    Company company = companyService.findById(execCoId);
+                    if ("en".equals(condition.getLang()) && company != null) {
+                        vo.setExecCoName(company.getEnName());
+                    } else if (company != null) {
+                        vo.setExecCoName(company.getName());
+                    }
+                }
+                String distributionDeptName = getDeptNameByLang(condition.getLang(), vo.getDistributionDeptName());
+                vo.setDistributionDeptName(distributionDeptName);
                 vo.setGoodsList(null);
             });
         }
         return pageList;
     }
+
+
+    private String getDeptNameByLang(String lang, String deptName) {
+        Dept dept = null;
+        if (StringUtils.isNotBlank(lang)) {
+            if ("en".equals(lang) && ChineseAndEnglish.isChinese(deptName)) {
+                dept = deptService.findTop1ByName(deptName);
+                if (dept != null) {
+                    return dept.getEnName();
+                }
+            } else if ("zh".equals(lang) && !ChineseAndEnglish.isChinese(deptName)) {
+                dept = deptService.findTop1ByEnName(deptName);
+                if (dept != null) {
+                    return dept.getName();
+                }
+            }
+        }
+        return deptName;
+    }
+
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
@@ -404,7 +461,7 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
@@ -571,14 +628,14 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
 
-           // 销售订单通知：销售订单下达后通知商务技术经办人
+            // 销售订单通知：销售订单下达后通知商务技术经办人
          /*   sendSms(order);*/
 
         }
@@ -686,10 +743,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-
     //销售订单通知：销售订单下达后通知商务技术经办人
-    public void sendSms(Order order) throws  Exception {
-    //订单下达后通知商务技术经办人
+    public void sendSms(Order order) throws Exception {
+        //订单下达后通知商务技术经办人
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         logger.info("发送短信的用户token:" + eruiToken);
@@ -698,7 +754,7 @@ public class OrderServiceImpl implements OrderService {
                 // 根据id获取商务经办人信息
                 String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
@@ -724,7 +780,7 @@ public class OrderServiceImpl implements OrderService {
                 }
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s","发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Sending SMS exceptions to failure"));
+                throw new Exception(String.format("%s%s%s", "发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
             }
 
         }

@@ -7,15 +7,15 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 
 /**
  * SSO的token工具
  * Created by wangxiaodan on 2018/2/28.
  */
-public class EruitokenUtil {
-    private static Logger logger = LoggerFactory.getLogger(EruitokenUtil.class);
+public class CookiesUtil {
+    private static Logger logger = LoggerFactory.getLogger(CookiesUtil.class);
     public static String TOKEN_NAME = "eruitoken";
+    public static String LANG_KEY_NAME = "lang";
 
     /**
      * 获取sso的token
@@ -42,5 +42,22 @@ public class EruitokenUtil {
         return token;
     }
 
+
+    /**
+     * 获取sso的token
+     *
+     * @param request
+     * @return
+     */
+    public static String getLang(ServletRequest request) {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        // 获取cookie中的lang - 语言
+        Cookie langCookie = WebUtils.getCookie(httpRequest, LANG_KEY_NAME);
+        if (langCookie != null) {
+            logger.info("lang-cookie : " + langCookie.getValue());
+            return langCookie.getValue();
+        }
+        return null;
+    }
 
 }

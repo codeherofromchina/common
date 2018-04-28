@@ -52,6 +52,8 @@ public class OrderListCondition {
     private Integer deliverConsignHas;
     //商务技术经办人
     private Integer technicalId;
+    // 语言 en / zh
+    private String lang;
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
@@ -62,6 +64,14 @@ public class OrderListCondition {
 
     public void setTechnicalId(Integer technicalId) {
         this.technicalId = technicalId;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public Integer getDeliverConsignHas() {

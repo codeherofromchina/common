@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
@@ -457,7 +457,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                 // 根据id获取人员信息
                 String jsonParam = "{\"id\":\"" + map1.get("warehouseUid") + "\"}";
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);

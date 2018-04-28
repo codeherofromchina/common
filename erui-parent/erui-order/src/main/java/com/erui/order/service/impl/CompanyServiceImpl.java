@@ -31,11 +31,20 @@ public class CompanyServiceImpl implements CompanyService {
     @Autowired
     private CompanyDao companyDao;
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public Company findByIdLazy(Integer id) {
+        return companyDao.findOne(id);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Company findById(Integer id) {
         Company companyDaoOne = companyDao.findOne(id);
-        companyDaoOne.getDeptSet().size();
+        if (companyDaoOne != null) {
+            companyDaoOne.getDeptSet().size();
+        }
         return companyDaoOne;
     }
     @Override
