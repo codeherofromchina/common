@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
             // 获取执行分公司、分销部
             Integer execCoId = order.getExecCoId();
             if (execCoId != null) {
-                Company company = companyService.findById(execCoId);
+                Company company = companyService.findByIdLazy(execCoId);
                 if ("en".equals(lang)) {
                     order.setExecCoName(company.getEnName());
                 } else {
@@ -239,7 +239,7 @@ public class OrderServiceImpl implements OrderService {
                 // 获取执行分公司、分销部
                 Integer execCoId = vo.getExecCoId();
                 if (execCoId != null) {
-                    Company company = companyService.findById(execCoId);
+                    Company company = companyService.findByIdLazy(execCoId);
                     if ("en".equals(condition.getLang()) && company != null) {
                         vo.setExecCoName(company.getEnName());
                     } else if (company != null) {
