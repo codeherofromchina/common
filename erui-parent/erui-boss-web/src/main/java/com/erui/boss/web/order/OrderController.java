@@ -193,8 +193,8 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map) {
-        Order order = orderService.findById(map.get("id"));
+    public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map,HttpServletRequest request) {
+        Order order = orderService.findByIdLang(map.get("id"),CookiesUtil.getLang(request));
         if (order != null) {
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                 boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
