@@ -168,7 +168,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
@@ -204,29 +205,14 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         String currencyBn = orderAccounts.getOrder().getCurrencyBn();   //金额类型
 
         NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
-        if (StringUtil.isNotBlank(orderAccount.getDesc()) && orderAccount.getMoney() != null) {
+        if (orderAccount.getMoney() != null) {
             //获取回款时间
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
             }
-            orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
             orderLogDao.save(orderLog);
-        } else if (StringUtil.isNotBlank(orderAccount.getDesc()) || orderAccount.getMoney() != null) {
-            if (StringUtil.isNotBlank(orderAccount.getDesc())) {
-                //获取回款时间
-                if (orderAccount.getPaymentDate() != null) {
-                    orderLog.setBusinessDate(orderAccount.getPaymentDate());
-                }
-                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccount.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccounts.getMoney()) + " " + currencyBn);
-                orderLogDao.save(orderLog);
-            } else if (orderAccount.getMoney() != null) {
-                //获取回款时间
-                if (orderAccount.getPaymentDate() != null) {
-                    orderLog.setBusinessDate(orderAccount.getPaymentDate());
-                }
-                orderLog.setOperation(StringUtils.defaultIfBlank(orderAccounts.getDesc(), OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
-                orderLogDao.save(orderLog);
-            }
         }
 
         orderAccounts.setDesc(orderAccount.getDesc());
