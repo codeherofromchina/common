@@ -31,6 +31,10 @@ public class OrderLog {
     // 操作说明
     private String operation;
 
+
+    @Column(name = "en_operation")
+    private String enoperation;   //英文操作说明翻译
+
     // 业务日期
     @Column(name = "business_date")
     private Date businessDate;
@@ -163,20 +167,30 @@ public class OrderLog {
         this.iogisticsDataId = iogisticsDataId;
     }
 
+    public String getEnoperation() {
+        return enoperation;
+    }
+
+    public void setEnoperation(String enoperation) {
+        this.enoperation = enoperation;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this).toString();
     }
 
     public static enum LogTypeEnum{
-        CREATEORDER(1,"订单签约"),ADVANCE(2,"收到预付款"),GOODOUT(3,"商品出库"),DELIVERED(4,"已收货"),
-        DELIVERYDONE(5,"全部交收完成"),OTHER(6,"其他");
+        CREATEORDER(1,"订单签约","Order signing"),ADVANCE(2,"收到预付款","Receive advance payment"),GOODOUT(3,"商品出库","Warehouse-out"),DELIVERED(4,"已收货","Confirm receipt"),
+        DELIVERYDONE(5,"全部交收完成","Settlement and delivery completed"),OTHER(6,"其他","Waybill number");
 
         public int code;
         public String msg;
-        LogTypeEnum(int code,String msg) {
+        private String enMsg;
+        LogTypeEnum(int code,String msg, String enMsg) {
             this.code = code;
             this.msg = msg;
+            this.enMsg = enMsg;
         }
 
         public int getCode() {
@@ -185,6 +199,10 @@ public class OrderLog {
 
         public String getMsg() {
             return msg;
+        }
+
+        public String getEnMsg() {
+            return enMsg;
         }
     }
 }

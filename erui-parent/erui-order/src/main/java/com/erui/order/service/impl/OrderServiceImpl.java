@@ -597,6 +597,7 @@ public class OrderServiceImpl implements OrderService {
             orderLog.setOrder(orderDao.findOne(orderId));
             orderLog.setLogType(logType.getCode());
             orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(operato, logType.getEnMsg()));
             orderLog.setCreateTime(new Date());
             orderLog.setBusinessDate(signingDate);  //订单签约日期
             orderLog.setOrdersGoodsId(goodsId);
