@@ -236,18 +236,6 @@ public class OrderServiceImpl implements OrderService {
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
-                // 获取执行分公司、分销部
-                Integer execCoId = vo.getExecCoId();
-                if (execCoId != null) {
-                    Company company = companyService.findByIdLazy(execCoId);
-                    if ("en".equals(condition.getLang()) && company != null) {
-                        vo.setExecCoName(company.getEnName());
-                    } else if (company != null) {
-                        vo.setExecCoName(company.getName());
-                    }
-                }
-                String distributionDeptName = getDeptNameByLang(condition.getLang(), vo.getDistributionDeptName());
-                vo.setDistributionDeptName(distributionDeptName);
                 vo.setGoodsList(null);
             });
         }
