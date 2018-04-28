@@ -601,6 +601,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
                     orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
                     orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
+                    orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getEnMsg()));
                     orderLog.setCreateTime(new Date());
                     orderLog.setBusinessDate(deliverDetail2.getLeaveDate()); //确认出库时间
                     orderLog.setOrdersGoodsId(null);
