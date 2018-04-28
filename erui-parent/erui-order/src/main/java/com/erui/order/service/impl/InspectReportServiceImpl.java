@@ -3,12 +3,11 @@ package com.erui.order.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
-import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InspectReportService;
@@ -28,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -487,7 +484,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         if (StringUtils.isNotBlank(eruiToken)) {
             try {
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
 
@@ -554,7 +551,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         if (id != null) {
             String jsonParam = "{\"id\":\"" + id + "\"}";
             Map<String, String> header = new HashMap<>();
-            header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
             String s = HttpRequest.sendPost(memberInformation, jsonParam, header);

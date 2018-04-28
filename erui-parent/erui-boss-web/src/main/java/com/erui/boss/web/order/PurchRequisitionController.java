@@ -7,8 +7,7 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
-import com.erui.comm.util.http.HttpRequest;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.Project;
 import com.erui.order.entity.PurchRequisition;
 import com.erui.order.service.ProjectService;
@@ -112,7 +111,7 @@ public class PurchRequisitionController {
         } else {
             try {
                 boolean flag;
-                String eruiToken = EruitokenUtil.getEruiToken(request);
+                String eruiToken = CookiesUtil.getEruiToken(request);
                 ThreadLocalUtil.setObject(eruiToken);
                 if (purchRequisition.getId() != null) {
                     flag = purchRequisitionService.updatePurchRequisition(purchRequisition);

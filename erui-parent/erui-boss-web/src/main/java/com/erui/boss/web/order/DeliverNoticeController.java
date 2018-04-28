@@ -3,7 +3,7 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
@@ -141,7 +141,7 @@ public class DeliverNoticeController {
     public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice, HttpServletRequest request) {
         Result<Object> result = new Result<>();
         try {
-            String eruiToken = EruitokenUtil.getEruiToken(request);
+            String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
             boolean flag = false;

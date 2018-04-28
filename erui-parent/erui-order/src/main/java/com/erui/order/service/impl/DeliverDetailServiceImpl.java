@@ -3,7 +3,7 @@ package com.erui.order.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
@@ -11,7 +11,6 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
@@ -1216,7 +1215,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 // 根据id获取人员信息
                 String jsonParam = "{\"id\":\"" + map1.get("qualityUid") + "\"}";
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);

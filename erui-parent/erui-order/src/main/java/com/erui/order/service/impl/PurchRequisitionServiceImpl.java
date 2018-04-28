@@ -2,14 +2,13 @@ package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.service.AreaService;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchRequisitionService;
 import org.apache.commons.lang3.StringUtils;
@@ -201,7 +200,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 // 根据id获取采购经办人信息
                 String jsonParam = "{\"id\":\"" + Project1.getPurchaseUid() + "\"}";
                 Map<String, String> header = new HashMap<>();
-                header.put(EruitokenUtil.TOKEN_NAME, eruiToken);
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
                 String s = HttpRequest.sendPost(memberInformation, jsonParam, header);

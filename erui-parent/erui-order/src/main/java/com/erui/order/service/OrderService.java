@@ -26,6 +26,14 @@ public interface OrderService {
      * @return
      */
     Order findById(Integer id);
+
+    /**
+     * 根据id查询订单信息
+     * @param id
+     * @return
+     */
+    public Order findByIdLang(Integer id,String lang);
+
     /**
      * 根据条件分页查询订单列表
      * @param condition

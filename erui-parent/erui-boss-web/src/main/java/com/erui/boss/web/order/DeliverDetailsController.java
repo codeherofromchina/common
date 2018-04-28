@@ -3,11 +3,10 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.service.DeliverDetailService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +123,7 @@ public class DeliverDetailsController {
         Result<Object> result = new Result<>();
         String message =null;
         try {
-            String eruiToken = EruitokenUtil.getEruiToken(request);
+            String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
             boolean flag = false;

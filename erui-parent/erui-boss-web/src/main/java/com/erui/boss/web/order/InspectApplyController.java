@@ -3,7 +3,7 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.StringUtils;
@@ -270,7 +270,7 @@ public class InspectApplyController {
 
         if (continueFlag) {
             try {
-                String eruiToken = EruitokenUtil.getEruiToken(request);
+                String eruiToken = CookiesUtil.getEruiToken(request);
                 ThreadLocalUtil.setObject(eruiToken);
                 boolean flag;
                 if (statusEnum != InspectApply.StatusEnum.NO_EDIT) {
