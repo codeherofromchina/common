@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 public class CookiesUtil {
     private static Logger logger = LoggerFactory.getLogger(CookiesUtil.class);
     public static String TOKEN_NAME = "eruitoken";
-    public static String LANG_KEY_NAME = "lang";
+    public static String LANG_KEY_NAME = "language";
 
     /**
      * 获取sso的token
@@ -45,7 +45,7 @@ public class CookiesUtil {
 
     /**
      * 获取sso的token
-     *
+     *  默认中文
      * @param request
      * @return
      */
@@ -57,7 +57,7 @@ public class CookiesUtil {
             logger.info("lang-cookie : " + langCookie.getValue());
             return langCookie.getValue();
         }
-        return null;
+        return "zh";
     }
 
 }
