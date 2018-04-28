@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
@@ -252,14 +253,15 @@ public class InspectReportServiceImpl implements InspectReportService {
     public boolean save(InspectReport inspectReport) throws Exception {
         InspectReport dbInspectReport = inspectReportDao.findOne(inspectReport.getId());
         if (dbInspectReport == null) {
-            throw new Exception("质检单不存在");
+            throw new Exception(String.format("%s%s%s", "质检单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The quality check list does not exist"));
         }
         InspectReport.StatusEnum statusEnum = InspectReport.StatusEnum.fromCode(inspectReport.getStatus());
         if (statusEnum == null || statusEnum == InspectReport.StatusEnum.INIT) {
-            throw new Exception("状态提交错误");
+            throw new Exception(String.format("%s%s%s", "状态提交错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "State submission error"));
+
         }
         if (dbInspectReport.getStatus() == InspectReport.StatusEnum.DONE.getCode()) {
-            throw new Exception("质检单已提交，不可修改");
+            throw new Exception(String.format("%s%s%s", "质检单已提交，不可修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The quality check list has been submitted and can not be modified"));
         }
 
         // 处理基本数据
@@ -284,7 +286,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo)); // 参数的质检商品
         List<InspectApplyGoods> inspectGoodsList = dbInspectReport.getInspectGoodsList(); // 数据库原来报检商品
         if (inspectGoodsMap.size() != inspectGoodsList.size()) {
-            throw new Exception("传入质检商品数量不正确");
+            throw new Exception(String.format("%s%s%s", "传入质检商品数量不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The number of commodities introduced to the quality inspection is incorrect"));
         }
         boolean hegeFlag = true;
         int hegeNum = 0;    //合格商品总数量
@@ -295,7 +297,8 @@ public class InspectReportServiceImpl implements InspectReportService {
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
             if (paramApplyGoods == null) {
-                throw new Exception("传入质检商品不正确");
+                throw new Exception(String.format("%s%s%s", "传入质检商品不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Incorrect introduction of quality inspection goods"));
+
             }
 
             PurchGoods purchGoods = applyGoods.getPurchGoods();
@@ -305,10 +308,12 @@ public class InspectReportServiceImpl implements InspectReportService {
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
             if (samples == null || samples <= 0) {
-                throw new Exception("抽样数错误【SKU:" + goods.getSku() + "】");
+                throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:"+ goods.getSku() +"]"));
+
             }
             if (unqualified == null || unqualified < 0 || unqualified > samples) {
-                throw new Exception("不合格数据错误【SKU:" + goods.getSku() + "】");
+                throw new Exception(String.format("%s%s%s", "不合格数据错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified data error [SKU:"+ goods.getSku() +"]"));
+
             }
             if (unqualified > 0) {
                 sum += unqualified;
@@ -318,7 +323,8 @@ public class InspectReportServiceImpl implements InspectReportService {
             applyGoods.setUnqualified(unqualified);
             // 如果有不合格商品，则必须有不合格描述
             if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedDesc()) && unqualified > 0) {
-                throw new Exception("商品(SKU:" + goods.getSku() + ")的不合格描述不能为空");
+                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格描述不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The nonconforming description of a commodity (SKU:"+ goods.getSku() +") can not be empty"));
+
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 设置采购商品的已合格数量
@@ -330,11 +336,13 @@ public class InspectReportServiceImpl implements InspectReportService {
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 hegeNum += qualifiedNum; // 统计合格总数量
                 if (qualifiedNum < 0) {
-                    throw new Exception("传入不合格数量参数不正确【SKU:" + goods.getSku() + "】");
+                    throw new Exception(String.format("%s%s%s", "传入不合格数量参数不正确【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Incoming unqualified quantity parameter is incorrect [SKU:" + goods.getSku() + "]"));
+
                 }
                 if (purchGoods.getInspectNum() < purchGoods.getGoodNum() + qualifiedNum) {
                     // 合格数量大于报检数量，数据错误
-                    throw new Exception("采购的合格数量错误【purchGoodsId:" + purchGoods.getId() + "】");
+                    throw new Exception(String.format("%s%s%s", "采购的合格数量错误【purchGoodsId:" + purchGoods.getId() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Defective quantity of Procurement [purchGoodsId:" + purchGoods.getId() + "]"));
+
                 }
                 purchGoods.setGoodNum(purchGoods.getGoodNum() + qualifiedNum);
                 purchGoodsDao.save(purchGoods);
@@ -532,7 +540,8 @@ public class InspectReportServiceImpl implements InspectReportService {
                 logger.info("发送短信返回状态" + s1);
 
             } catch (Exception e) {
-                throw new Exception("发送短信失败");
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
+
             }
 
         }

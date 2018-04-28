@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
@@ -105,7 +106,7 @@ public class PurchServiceImpl implements PurchService {
     public List<Map<String, Object>> listByOrderId(Integer orderId) throws Exception {
         Order order = orderDao.findOne(orderId);
         if (order == null) {
-            throw new Exception("不存在的订单");
+            throw new Exception(String.format("%s%s%s", "不存在的订单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Nonexistent order"));
         }
 
         List<Map<String, Object>> result = new ArrayList<>();
@@ -278,7 +279,7 @@ public class PurchServiceImpl implements PurchService {
         Date now = new Date();
         Long count = purchDao.findCountByPurchNo(purch.getPurchNo());
         if (count != null && count > 0) {
-            throw new Exception("采购合同号重复");
+            throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
         }
         // 设置基础数据
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
@@ -309,15 +310,16 @@ public class PurchServiceImpl implements PurchService {
             Goods goods = goodsDao.findOne(purchGoods.getgId());
             if (goods == null || goods.getExchanged()) {
                 // 给定的商品不存在或者是被替换的商品，则错误
-                throw new Exception("商品不存在");
+                throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
             }
             Project project = goods.getProject();
             // 必须是已创建采购申请单并未完成采购的项目
             if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
-                throw new Exception("项目必须提交采购申请");
+                throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
+
             }
             if (project.getPurchDone()) {
-                throw new Exception("项目采购已完成，不能再次采购");
+                throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
             }
             projectSet.add(project);
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods);
@@ -331,7 +333,7 @@ public class PurchServiceImpl implements PurchService {
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
             }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
@@ -339,7 +341,7 @@ public class PurchServiceImpl implements PurchService {
             goodsDao.save(goods);
         }
         if (purchGoodsList.size() == 0) {
-            throw new Exception("必须存在要采购的商品");
+            throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
         }
         purch.setPurchGoodsList(purchGoodsList);
         purch.setProjects(projectSet);
@@ -381,9 +383,9 @@ public class PurchServiceImpl implements PurchService {
         Purch dbPurch = purchDao.findOne(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
-            throw new Exception("采购信息不存在");
+            throw new Exception(String.format("%s%s%s", "采购信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Procurement information does not exist"));
         } else if (dbPurch.getStatus() != Purch.StatusEnum.READY.getCode()) {
-            throw new Exception("采购信息已提交不能修改");
+            throw new Exception(String.format("%s%s%s", "采购信息已提交不能修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchase information has been submitted and can not be modified"));
         }
         final Date now = new Date();
         // 设置基本信息
@@ -438,15 +440,15 @@ public class PurchServiceImpl implements PurchService {
                 // 获取要采购的商品
                 Goods goods = goodsDao.findOne(pg.getgId());
                 if (goods == null || goods.getExchanged()) {
-                    throw new Exception("商品不存在");
+                    throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
                 }
                 Project project = goods.getProject();
                 // 必须是已创建采购申请单并未完成采购的项目
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
-                    throw new Exception("项目必须提交采购申请");
+                    throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
                 }
                 if (project.getPurchDone()) {
-                    throw new Exception("项目采购已完成，不能再次采购");
+                    throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
                 }
                 projectSet.add(project);
                 // 查看是否存在替换商品
@@ -462,7 +464,7 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
@@ -516,7 +518,7 @@ public class PurchServiceImpl implements PurchService {
                         // 查找替换前的商品先处理
                         PurchGoods paramParentPurchGoods = purch.getPurchGoodsList().parallelStream().filter(vo -> vo.getId().intValue() == pId).findFirst().get();
                         if (paramParentPurchGoods == null) {
-                            throw new Exception("父采购商品信息不存在");
+                            throw new Exception(String.format("%s%s%s", "父采购商品信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The parent purchase commodity information does not exist"));
                         }
                     }
                 } else {
@@ -535,7 +537,7 @@ public class PurchServiceImpl implements PurchService {
                 String currencyBn = purch.getCurrencyBn();
                 if (purchGoods.getPurchaseNum() > 0) {
                     if (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1) {
-                        throw new Exception("商品的采购价格错误");
+                        throw new Exception(String.format("%s%s%s", "商品的采购价格错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchase price error of goods"));
                     }
                     if ("CNY".equals(currencyBn)) {
                         // 人民币是默认含税价格
@@ -563,25 +565,29 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),3));
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
-                    throw new Exception("采购数量超过合同数量【sku :" + goods.getSku() + "】");
+                    throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
+
                 }
                 if (purchaseNum > 0 &&
                         (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
-                    throw new Exception("要采购的商品单价错误【sku :" + goods.getSku() + "】");
+                    throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));
+
                 }
 
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);
             } else {
-                throw new Exception("不存在的采购商品信息");
+                throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
+
             }
         }
         if (purchGoodsList.size() == 0) {
-            throw new Exception("必须存在要采购的商品");
+            throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
+
         }
         dbPurch.setPurchGoodsList(purchGoodsList);
         dbPurch.setProjects(projectSet);
@@ -636,11 +642,13 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于合同数量，则错误
         if (goods.getPrePurchsedNum() + purchaseNum > goods.getContractGoodsNum()) {
-            throw new Exception("采购数量超过合同数量【sku :" + goods.getSku() + "】");
+            throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
+
         }
         if (purchaseNum > 0 &&
                 (newPurchGoods.getPurchasePrice() == null || newPurchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
-            throw new Exception("要采购的商品单价错误【sku :" + goods.getSku() + "】");
+            throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));
+
         }
         newPurchGoods.setExchanged(false);
         newPurchGoods.setInspectNum(0); // 设置已报检数量
@@ -652,7 +660,7 @@ public class PurchServiceImpl implements PurchService {
             // 只有商品采购数量不为空才计算价格等
             if (newPurchGoods.getPurchasePrice() == null) {
                 // 有采购数量，但采购价格为空，则错误
-                throw new Exception("商品的采购价格错误");
+                throw new Exception(String.format("%s%s%s", "商品的采购价格错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchase price error of goods"));
             }
             // 人民币币种默认是含税价格
             if ("CNY".equals(currencyBn)) {
@@ -684,20 +692,20 @@ public class PurchServiceImpl implements PurchService {
         Integer purchaseNum = son.getPurchaseNum();
         // 检查采购数量、采购单价
         if (purchaseNum == null || purchaseNum <= 0) {
-            throw new Exception("替换商品采购数量错误");
+            throw new Exception(String.format("%s%s%s", "替换商品采购数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Replacement of commodity purchase quantity error"));
         }
         BigDecimal purchasePrice = son.getPurchasePrice();
         if (purchasePrice == null || purchasePrice.compareTo(BigDecimal.ZERO) != 1) {
-            throw new Exception("替换商品采购单价错误");
+            throw new Exception(String.format("%s%s%s", "替换商品采购单价错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Replacement of commodity purchase unit price error"));
         }
         // 检查采购数量是否超合同数量
         if (purchaseNum + beforeGoods.getPrePurchsedNum() > beforeGoods.getContractGoodsNum()) {
-            throw new Exception("替换商品采购超限【父SKU:" + beforeGoods.getSku() + "】");
+            throw new Exception(String.format("%s%s%s", "替换商品采购超限【父SKU:" + beforeGoods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Replacement of commodity purchase overrun [father SKU:" + beforeGoods.getSku() + "]"));
         }
         //  插入替换后的新商品
         Goods sonGoods = son.getGoods();
         if (sonGoods == null) {
-            throw new Exception("替换采购的商品信息不完整【父SKU:" + beforeGoods.getSku() + "】");
+            throw new Exception(String.format("%s%s%s", "替换采购的商品信息不完整【父SKU:" + beforeGoods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Replacement purchase information is incomplete (parent SKU:" + beforeGoods.getSku() + ")"));
         }
         /*else if (StringUtils.isAnyBlank(sonGoods.getSku(),sonGoods.getNameEn(),sonGoods.getNameZh())) {
             throw new Exception("替换采购的商品信息不正确（sku/名称）【父SKU:" + beforeGoods.getSku() + "】");
@@ -767,7 +775,7 @@ public class PurchServiceImpl implements PurchService {
         if (projectIds.size() > 0) {
             List<Project> projectList = projectDao.findByIdIn(projectIds);
 
-            for (Project project :projectList) {
+            for (Project project : projectList) {
                 List<Goods> goodsList = project.getOrder().getGoodsList();
 
                 boolean purchDone = true;

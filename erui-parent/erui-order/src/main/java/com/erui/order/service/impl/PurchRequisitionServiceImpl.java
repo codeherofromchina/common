@@ -3,6 +3,7 @@ package com.erui.order.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
@@ -226,7 +227,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 }
 
             } catch (Exception e) {
-                throw new Exception("发送短信失败");
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
             }
 
         }

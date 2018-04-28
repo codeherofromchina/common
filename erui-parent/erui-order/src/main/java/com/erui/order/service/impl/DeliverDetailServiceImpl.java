@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
@@ -143,7 +144,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         return true;
     }
-    
+
 
     /**
      * 出库管理
@@ -235,18 +236,18 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 DeliverConsign deliverConsign = notice.getDeliverConsign();    //出口发货通知单
                 if (deliverConsign == null) {
-                    throw new Exception("产品放行单号:" + notice.getDeliverDetailNo() + " 无出口发货通知单关系");
+                    throw new Exception(String.format("%s%s%s","产品放行单号(" + notice.getDeliverDetailNo() + ")无出口发货通知单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Product release number ("+ notice.getDeliverDetailNo() + ") without export notification"));
                 }
                     Order order = deliverConsign.getOrder();    //获取订单关系
                 String deliverConsignNo = deliverConsign.getDeliverConsignNo(); //出口发货通知单号
                 if (order == null) {
-                        throw new Exception("出口发货通知单号：" + deliverConsignNo + " 缺少订单关系");
+                        throw new Exception(String.format("%s%s%s","出口发货通知单号(" + deliverConsignNo + ")缺少订单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Export shipping notification number ("+ deliverConsignNo +") lacks order relationship."));
                     }
                 notice.setDeliverConsignNo(deliverConsignNo);//出口发货通知单号
 
                     Project project = order.getProject();   //获取项目信息
                     if (project == null) {
-                        throw new Exception("订单：" + order.getContractNo() + " 号缺少项目信息");
+                        throw new Exception(String.format("%s%s%s","订单(" + order.getContractNo() + ")号缺少项目信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Order ("+ order.getContractNo() +") lacks project information"));
                     }
                 notice.setContractNo(order.getContractNo());     //销售合同号
                 notice.setProjectNo(project.getProjectNo());//项目号
@@ -383,7 +384,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Goods goods = one.getGoods();
 
                     if(outboundNum == 0 && straightNum == 0){
-                        throw new  Exception("商品名称："+goods.getNameZh()+"  无出库商品数量");
+                        throw new Exception(String.format("%s%s%s","商品名称："+goods.getNameZh()+"  无出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Name of commodity: "+goods.getNameEn()+". Quantity of goods without Treasury"));
                     }
 
                     if(outboundNum != null && outboundNum != 0){
@@ -400,7 +401,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (one == null) {
-            throw new Exception("查询不到出库信息");
+            throw new Exception(String.format("%s%s%s","查询不到出库信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Query no outgoing information"));
         }
         //开单日期
         if (deliverDetail.getBillingDate() != null) {
@@ -555,7 +556,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             if(outboundNums == 0){  //判断出库总数量
 
                 if(straightNums == 0){      //没有出库商品的时候不让出库
-                    throw new Exception("没有出库商品数量");
+                    throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
                 }
 
                 one.setStatus(5);   //出库状态
@@ -629,7 +630,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             if(outboundNums == 0 && straightNums == 0){ //没有出库商品的时候不让出库
-                throw new Exception("没有出库商品数量");
+                throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
             }
 
             if(outboundNums > 0){    //外检
@@ -1075,7 +1076,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (dbDeliverDetail == null ||
                 (dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() &&
                         dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SUBMITED_OUTSTOCK.getStatusCode())) {
-            throw new Exception("入库质检当前状态不可修改");
+            throw new Exception(String.format("%s%s%s","入库质检当前状态不可修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The current state of the warehouse quality inspection cannot be modified"));
         }
 
         // 复制基本信息
@@ -1279,7 +1280,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
             } catch (Exception e) {
-                throw new Exception("发送短信失败");
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
             }
 
         }

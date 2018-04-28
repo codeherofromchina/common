@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderDao;
@@ -150,12 +151,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         try {
             orderAccount1 = orderAccountDao.save(orderAccount);
         } catch (Exception e) {
-            throw new Exception("订单收款记录添加失败");
+            throw new Exception(String.format("%s%s%s","订单收款记录添加失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Order receipt record add failure"));
         }
 
         Order order = orderDao.findOne(orderAccount.getOrder().getId());
         if (order == null) {
-            throw new Exception("无订单id：" + orderAccount.getOrder().getId() + "  关联关系");
+            throw new Exception(String.format("%s%s%s","无订单id：" + orderAccount.getOrder().getId() + "  关联关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Non order id:" + orderAccount.getOrder().getId() + " Association"));
         }
         order.setPayStatus(2);
         orderDao.saveAndFlush(order);
@@ -180,7 +181,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             logger.error("日志记录失败 {}", orderLog.toString());
             logger.error("错误", ex);
             ex.printStackTrace();
-            throw new Exception("订单收款记录日志添加失败");
+            throw new Exception(String.format("%s%s%s","订单收款记录日志添加失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Order receipts log log add failure"));
         }
 
     }
@@ -245,7 +246,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          */
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
         if (byOrderId.size() == 0) {
-            throw new Exception("无收款记录");
+            throw new Exception(String.format("%s%s%s","无收款记录", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Non receivable record"));
         }
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
