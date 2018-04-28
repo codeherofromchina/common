@@ -2,6 +2,7 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.Order;
 import com.erui.order.service.DeliverConsignService;
@@ -50,7 +51,7 @@ public class DeliverConsignController {
      */
     @RequestMapping(value = "orderInfoForAdd", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoForAdd(@RequestBody Map<String, Integer> map) {
-        if (map.get("orderId")!=null){
+        if (map.get("orderId") != null) {
             Order order = orderService.detail(map.get("orderId"));
             Map<String, Object> data = new HashMap<>();
             data.put("orderId", order.getId());

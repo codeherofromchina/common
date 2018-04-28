@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.data.string.StringUtils;
 import com.erui.order.dao.IogisticsDao;
@@ -44,7 +45,7 @@ public class IogisticsServiceImpl implements IogisticsService {
     @Override
     @Transactional(readOnly = true)
     public Page<Iogistics> queIogistics(Iogistics iogistics) throws Exception {
-        PageRequest request = new PageRequest(iogistics.getPage()-1, iogistics.getRows(), Sort.Direction.DESC, "id");
+        PageRequest request = new PageRequest(iogistics.getPage() - 1, iogistics.getRows(), Sort.Direction.DESC, "id");
 
         Page<Iogistics> page = iogisticsDao.findAll(new Specification<Iogistics>() {
             @Override
@@ -52,30 +53,30 @@ public class IogisticsServiceImpl implements IogisticsService {
                 List<Predicate> list = new ArrayList<>();
 
                 //根据 销售合同号
-                if(StringUtil.isNotBlank(iogistics.getContractNo())){
-                    list.add(cb.like(root.get("contractNo").as(String.class),"%"+iogistics.getContractNo()+"%"));
+                if (StringUtil.isNotBlank(iogistics.getContractNo())) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + iogistics.getContractNo() + "%"));
                 }
 
                 //根据 产品放行单号
-                if(StringUtil.isNotBlank(iogistics.getDeliverDetailNo())){
-                    list.add(cb.like(root.get("deliverDetailNo").as(String.class),"%"+iogistics.getDeliverDetailNo()+"%"));
+                if (StringUtil.isNotBlank(iogistics.getDeliverDetailNo())) {
+                    list.add(cb.like(root.get("deliverDetailNo").as(String.class), "%" + iogistics.getDeliverDetailNo() + "%"));
                 }
 
                 //根据出口通知单号
-                if(StringUtil.isNotBlank(iogistics.getDeliverConsignNo())){
-                    list.add(cb.like(root.get("deliverConsignNo").as(String.class),"%"+iogistics.getDeliverConsignNo()+"%"));
+                if (StringUtil.isNotBlank(iogistics.getDeliverConsignNo())) {
+                    list.add(cb.like(root.get("deliverConsignNo").as(String.class), "%" + iogistics.getDeliverConsignNo() + "%"));
                 }
 
                 //根据 项目号
-                if(StringUtil.isNotBlank(iogistics.getProjectNo())){
-                    list.add(cb.like(root.get("projectNo").as(String.class),"%"+iogistics.getProjectNo()+"%"));
+                if (StringUtil.isNotBlank(iogistics.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + iogistics.getProjectNo() + "%"));
                 }
 
                 Join<Iogistics, DeliverDetail> deliverDetailRoot = root.join("deliverDetail"); //获取出库
 
                 //根据经办部门
-                if(StringUtil.isNotBlank(iogistics.getHandleDepartment())){
-                    list.add(cb.equal(deliverDetailRoot.get("handleDepartment").as(String.class),iogistics.getHandleDepartment()));
+                if (StringUtil.isNotBlank(iogistics.getHandleDepartment())) {
+                    list.add(cb.equal(deliverDetailRoot.get("handleDepartment").as(String.class), iogistics.getHandleDepartment()));
                 }
 
                 //根据开单日期
@@ -93,12 +94,12 @@ public class IogisticsServiceImpl implements IogisticsService {
                 }
 
                 //是否外检
-                if(iogistics.getOutCheck() != null){
+                if (iogistics.getOutCheck() != null) {
                     list.add(cb.equal(root.get("outCheck").as(Integer.class), iogistics.getOutCheck()));
                 }
 
                 //是否已合并  （0：否  1：是）     查询未合并
-                list.add(cb.equal(root.get("outYn").as(Integer.class),0));
+                list.add(cb.equal(root.get("outYn").as(Integer.class), 0));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -127,8 +128,8 @@ public class IogisticsServiceImpl implements IogisticsService {
     @Transactional(readOnly = true)
     public Iogistics queryById(Iogistics iogistics) throws Exception {
         Iogistics iogisticsById = iogisticsDao.findById(iogistics.getId());
-        if(iogisticsById == null){
-            throw  new Exception("数据信息为空");
+        if (iogisticsById == null) {
+            throw new Exception(String.format("%s%s%s", "数据信息为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Data information is empty"));
         }
         return iogisticsById;
     }
@@ -144,8 +145,8 @@ public class IogisticsServiceImpl implements IogisticsService {
     @Transactional(rollbackFor = Exception.class)
     public boolean mergeData(Map<String, String> params) throws Exception {
         String[] ids = params.get("ids").split(",");
-        if(ids.length == 0){
-            throw new Exception("未选择商品信息");
+        if (ids.length == 0) {
+            throw new Exception(String.format("%s%s%s", "未选择商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unselected commodity information"));
         }
 
         IogisticsData iogisticsData = new IogisticsData();
@@ -163,25 +164,28 @@ public class IogisticsServiceImpl implements IogisticsService {
         Iogistics iogistics = null; //获取分单信息，获取物流经办人信息
 
         int i = 0;
-        for (String id : ids){
+        for (String id : ids) {
             Iogistics one = iogisticsDao.findById(new Integer(id));
-            if(one == null){
-                throw new Exception("出库详情信息id："+id+" 不存在");
+            if (one == null) {
+                throw new Exception(String.format("%s%s%s", "出库详情信息id：" + id + " 不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,
+                        "Out of Library details id:" + id + " does not exist"));
+                // "出库详情信息id："+id+" 不存在"
             }
-            if (one.getOutYn() == 1){
-                throw new Exception("出库详情信息id："+id+" 已合并");
+            if (one.getOutYn() == 1) {
+                throw new Exception(String.format("%s%s%s", "出库详情信息id：" + id + " 已合并", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,
+                        "Out of Library details id:" + id + " has been merged"));
             }
 
-            arr[i]=one.getContractNo(); //获取销售合同号
+            arr[i] = one.getContractNo(); //获取销售合同号
             i++;
 
-            iogistics=iogistics==null?one:iogistics;
+            iogistics = iogistics == null ? one : iogistics;
 
             contractNoSet.add(one.getContractNo());//销售合同号
             deliverDetailNoSet.add(one.getDeliverDetailNo()); //产品放行单号
             Date releaseDate = one.getDeliverDetail().getReleaseDate();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            if(releaseDate != null){
+            if (releaseDate != null) {
                 releaseDateSSet.add(simpleDateFormat.format(releaseDate)); //放行日期
             }
 
@@ -191,19 +195,19 @@ public class IogisticsServiceImpl implements IogisticsService {
         }
 
         String a = arr[0];  //获取随便一个销售合同号
-        for (String contractNo : arr){
-            if(!a.equals(contractNo)){    //判断销售合同号是否相同
-                throw new Exception("销售合同号不相同");
+        for (String contractNo : arr) {
+            if (!a.equals(contractNo)) {    //判断销售合同号是否相同
+                throw new Exception(String.format("%s%s%s", "销售合同号不相同", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sales contract number is different"));
             }
         }
-        if(releaseDateSSet.size() != 0){
+        if (releaseDateSSet.size() != 0) {
             save.setContractNo(org.apache.commons.lang3.StringUtils.join(contractNoSet, ",")); //销售合同号 拼接存库
         }
-        if(deliverDetailNoSet.size() != 0){
-            save.setDeliverDetailNo(org.apache.commons.lang3.StringUtils.join(deliverDetailNoSet,",")); //产品放行单号 拼接存库
+        if (deliverDetailNoSet.size() != 0) {
+            save.setDeliverDetailNo(org.apache.commons.lang3.StringUtils.join(deliverDetailNoSet, ",")); //产品放行单号 拼接存库
         }
-        if(releaseDateSSet.size() != 0){
-            save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet,","));//放行日期 拼接存库
+        if (releaseDateSSet.size() != 0) {
+            save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
 
         save.setLogisticsUserId(iogistics.getLogisticsUserId()); //物流经办人id
@@ -215,33 +219,32 @@ public class IogisticsServiceImpl implements IogisticsService {
     }
 
 
-
     /**
      * \//生成产品运单号
+     *
      * @return
      */
 
-    public String createTheAwbNo(){
+    public String createTheAwbNo() {
         SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
 
         //查询最近插入的运单号
-        String theAwbNo= iogisticsDataDao.findTheAwbNo();
-        if(theAwbNo == null){
+        String theAwbNo = iogisticsDataDao.findTheAwbNo();
+        if (theAwbNo == null) {
             String formats = simpleDateFormats.format(new Date());  //当前年份
-            return formats+String.format("%04d",1);     //第一个
-        }else{
+            return formats + String.format("%04d", 1);     //第一个
+        } else {
             String substring = theAwbNo.substring(0, 4); //获取到产品放行单的年份
             String formats = simpleDateFormats.format(new Date());  //当前年份
-            if(substring.equals(formats)){   //判断年份
+            if (substring.equals(formats)) {   //判断年份
                 String substring1 = theAwbNo.substring(4);
                 return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
-            }else{
-                return formats+String.format("%04d",1);     //第一个
+            } else {
+                return formats + String.format("%04d", 1);     //第一个
             }
         }
 
     }
-
 
 
 }

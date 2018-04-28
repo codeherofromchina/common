@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.middle.redis.ShardedJedisUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.excel.BuildExcel;
@@ -554,7 +555,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private List<GoodsBookDetail> findGoodsListOfOrder(Integer orderId) throws Exception {
         Order order = orderDao.findOne(orderId);
         if (order == null) {
-            throw new Exception("订单不存在");
+            throw new Exception(String.format("%s%s%s","订单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Order does not exist"));
         }
         List<Goods> goodsList = order.getGoodsList();
         Project project = order.getProject();

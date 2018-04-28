@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
@@ -722,7 +723,7 @@ public class OrderServiceImpl implements OrderService {
                 }
 
             } catch (Exception e) {
-                throw new Exception("发送短信异常失败");
+                throw new Exception(String.format("%s%s%s","发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Sending SMS exceptions to failure"));
             }
 
         }

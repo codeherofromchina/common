@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
@@ -78,12 +79,12 @@ public class ProjectServiceImpl implements ProjectService {
             // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
             if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
                 if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                    throw new Exception("参数状态错误");
+                    throw new Exception(String.format("%s%s%s","参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Parameter state error"));
                 }
             } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
                 // 之前只保存了项目，则流程可以是提交到项目经理和执行
                 if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                    throw new Exception("参数状态错误");
+                    throw new Exception(String.format("%s%s%s","参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Parameter state error"));
                 }
                 project.copyProjectDescTo(projectUpdate);
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
@@ -105,7 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
                 } else {
                     // 交付配送中心项目经理只能保存后者执行
                     if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
-                        throw new Exception("参数状态错误");
+                        throw new Exception(String.format("%s%s%s","参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Parameter state error"));
                     }
                     // 只设置项目成员
                     projectUpdate.setPurchaseUid(project.getPurchaseUid());
@@ -122,7 +123,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             } else {
                 // 其他分支，错误
-                throw new Exception("项目状态数据错误");
+                throw new Exception(String.format("%s%s%s","项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Project status data error"));
             }
             // 修改状态
             projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
@@ -267,7 +268,7 @@ public class ProjectServiceImpl implements ProjectService {
             list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         } else {
             if (!StringUtils.isNumeric(purchaseUid)) {
-                throw new Exception("采购经办人参数错误");
+                throw new Exception(String.format("%s%s%s","采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Purchasing manager's error in purchasing"));
             }
             list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE, Integer.parseInt(purchaseUid));
         }
@@ -315,7 +316,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize) throws Exception {
         Integer intPurchaseUid = null;
         if (StringUtils.isNotBlank(purchaseUid) && !StringUtils.isNumeric(purchaseUid)) {
-            throw new Exception("采购经办人参数错误");
+            throw new Exception(String.format("%s%s%s","采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Purchasing manager's error in purchasing"));
         } else if (StringUtils.isNotBlank(purchaseUid)) {
             intPurchaseUid = Integer.parseInt(purchaseUid);
         }

@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
@@ -45,7 +46,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
-
 
 
     @Autowired
@@ -109,7 +109,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 goods.setOutstockApplyNum(goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum());
                 goodsDao.save(goods);
             } else {
-                throw new Exception("发货总数量超过合同数量");
+                throw new Exception(String.format("%s%s%s", "发货总数量超过合同数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Total quantity of shipments exceeds the number of contracts"));
             }
         }
         deliverConsignUpdate.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
@@ -174,10 +174,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 goods.setOutstockApplyNum(goods.getOutstockApplyNum() + dcGoods.getSendNum());
                 goodsDao.save(goods);
             } else {
-                throw new Exception("发货总数量超过合同数量");
+                throw new Exception(String.format("%s%s%s", "发货总数量超过合同数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Total quantity of shipments exceeds the number of contracts"));
             }
         }
-        DeliverConsign deliverConsign1=deliverConsignDao.save(deliverConsignAdd);
+        DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign.getStatus() == 3) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
@@ -255,7 +255,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Transactional(readOnly = true)
     public Page<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
 
-        PageRequest request = new PageRequest(deliverNotice.getPage() - 1, deliverNotice.getRows(), Sort.Direction.DESC,"createTime");
+        PageRequest request = new PageRequest(deliverNotice.getPage() - 1, deliverNotice.getRows(), Sort.Direction.DESC, "createTime");
 
         Page<DeliverConsign> page = deliverConsignDao.findAll(new Specification<DeliverConsign>() {
             @Override
@@ -271,26 +271,26 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
 
                 //根据下单人（国际物流经办人）      销售合同号    项目号
-                if(deliverNotice.getSenderId() != null || StringUtil.isNotBlank(deliverNotice.getContractNo()) || StringUtil.isNotBlank(deliverNotice.getProjectNo())){
+                if (deliverNotice.getSenderId() != null || StringUtil.isNotBlank(deliverNotice.getContractNo()) || StringUtil.isNotBlank(deliverNotice.getProjectNo())) {
                     Join<DeliverConsign, Order> orderRoot = root.join("order");
                     //根据 销售合同号
-                    if(StringUtil.isNotBlank(deliverNotice.getContractNo())){
-                        list.add(cb.like(orderRoot.get("contractNo").as(String.class),"%"+deliverNotice.getContractNo()+"%"));
+                    if (StringUtil.isNotBlank(deliverNotice.getContractNo())) {
+                        list.add(cb.like(orderRoot.get("contractNo").as(String.class), "%" + deliverNotice.getContractNo() + "%"));
                     }
                     Join<Order, Project> projectRoot = orderRoot.join("project");
                     //根据下单人（国际物流经办人）
-                    if(deliverNotice.getSenderId() != null){
-                        list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class),deliverNotice.getSenderId()));
+                    if (deliverNotice.getSenderId() != null) {
+                        list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class), deliverNotice.getSenderId()));
                     }
                     //根据 项目号
-                    if(StringUtil.isNotBlank(deliverNotice.getProjectNo())){
-                        list.add(cb.like(projectRoot.get("projectNo").as(String.class),"%"+deliverNotice.getProjectNo()+"%"));
+                    if (StringUtil.isNotBlank(deliverNotice.getProjectNo())) {
+                        list.add(cb.like(projectRoot.get("projectNo").as(String.class), "%" + deliverNotice.getProjectNo() + "%"));
                     }
                 }
 
                 // 根据出口通知单号
                 if (StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
-                    list.add(cb.like(root.get("deliverConsignNo").as(String.class),"%" + deliverNotice.getDeliverConsignNo()+"%" ));
+                    list.add(cb.like(root.get("deliverConsignNo").as(String.class), "%" + deliverNotice.getDeliverConsignNo() + "%"));
                 }
                 list.add(cb.equal(root.get("status").as(Integer.class), 3));    //已提交
                 list.add(cb.equal(root.get("deliverYn").as(Integer.class), 1)); //未删除
@@ -315,7 +315,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
 
             }
-        },request);
+        }, request);
 
        /* if (page != null && page.size() > 1) {
             // 反序排列
@@ -328,18 +328,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
 
     /**
-     *
      * 推送出库信息
-     *
+     * <p>
      * 订单V2.0
-     *
+     * <p>
      * 根据出口通知单，推送出库信息
-     *
      */
 
-    public void pushOutbound(DeliverConsign deliverConsign1) throws Exception{
+    public void pushOutbound(DeliverConsign deliverConsign1) throws Exception {
 
-         // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
+        // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
         DeliverDetail deliverDetail = new DeliverDetail();
         deliverDetail.setDeliverConsign(deliverConsign1);    //出库通知单
         String deliverDetailNo = createDeliverDetailNo();
@@ -348,22 +346,22 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         //推送仓库经办人   物流经办人
         Order order1 = deliverConsign1.getOrder();
         Project project = order1.getProject();
-        if(project.getWarehouseUid() != null){
+        if (project.getWarehouseUid() != null) {
             deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
         }
-        if(StringUtil.isNotBlank(project.getWarehouseName())){
+        if (StringUtil.isNotBlank(project.getWarehouseName())) {
             deliverDetail.setWareHousemanName(project.getWarehouseName());    //仓库经办人名字
         }
-        if(project.getLogisticsUid() != null){
+        if (project.getLogisticsUid() != null) {
             deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
         }
-        if(StringUtil.isNotBlank(project.getLogisticsName())){
+        if (StringUtil.isNotBlank(project.getLogisticsName())) {
             deliverDetail.setLogisticsUserName(project.getLogisticsName());   //物流经办人名字
         }
-        if(project.getQualityUid() != null){
+        if (project.getQualityUid() != null) {
             deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
         }
-        if(StringUtil.isNotBlank(project.getQualityName())){
+        if (StringUtil.isNotBlank(project.getQualityName())) {
             deliverDetail.setCheckerName(project.getQualityName()); //  检验工程师名称(品控经办人名称)
         }
 
@@ -371,7 +369,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverDetail.setDeliverConsignGoodsList(new ArrayList<>(deliverConsign1.getDeliverConsignGoodsSet()));
         try {
             deliverDetailDao.saveAndFlush(deliverDetail);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception("推送出库信息失败");
         }
 
@@ -389,30 +387,30 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     /**
      * \//生成产品放行单
+     *
      * @return
      */
 
-    public String createDeliverDetailNo(){
+    public String createDeliverDetailNo() {
         SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
 
         //查询最近插入的产品放行单
-        String deliverDetailNo= deliverDetailDao.findDeliverDetailNo();
-        if(deliverDetailNo == null){
+        String deliverDetailNo = deliverDetailDao.findDeliverDetailNo();
+        if (deliverDetailNo == null) {
             String formats = simpleDateFormats.format(new Date());  //当前年份
-            return formats+String.format("%04d",1);     //第一个
-        }else{
+            return formats + String.format("%04d", 1);     //第一个
+        } else {
             String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
             String formats = simpleDateFormats.format(new Date());  //当前年份
-            if(substring.equals(formats)){   //判断年份
+            if (substring.equals(formats)) {   //判断年份
                 String substring1 = deliverDetailNo.substring(4);
                 return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
-            }else{
-                return formats+String.format("%04d",1);     //第一个
+            } else {
+                return formats + String.format("%04d", 1);     //第一个
             }
         }
 
     }
-
 
 
 }

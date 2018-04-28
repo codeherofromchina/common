@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
@@ -128,17 +129,17 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
                 List<DeliverConsign> deliverConsignSet = notice.getDeliverConsigns();
                 if (deliverConsignSet.size() == 0){
-                    throw new Exception("无出口发货通知单关系");
+                    throw new Exception(String.format("%s%s%s","无出口发货通知单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Notifications of no export delivery"));
                 }
                 for (DeliverConsign dc : deliverConsignSet) {
                     String deliverConsignNo = dc.getDeliverConsignNo();
                     if (!StringUtil.isNotBlank(deliverConsignNo)){
-                        throw new Exception("无出口通知单号");
+                        throw new Exception(String.format("%s%s%s","无出口通知单号", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No export notice single number"));
                     }
                     deliverConsignNos.add(deliverConsignNo);
                     Order order = dc.getOrder();
                     if (order == null){
-                        throw new Exception("无订单关系");
+                        throw new Exception(String.format("%s%s%s","无订单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No order relationship"));
                     }
                     contractNos.add(order.getContractNo());
                 }
@@ -507,7 +508,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     logger.info("发送短信返回状态"+s1);
                 }
             }catch (Exception e){
-                throw new Exception("发送短信失败");
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
             }
 
         }

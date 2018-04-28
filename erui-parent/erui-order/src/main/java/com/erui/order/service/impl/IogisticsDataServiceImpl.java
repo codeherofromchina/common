@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
@@ -127,7 +128,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     public IogisticsData iogisticsDataById(Integer id) throws Exception {
         IogisticsData iogisticsDataById= iogisticsDataDao.findById(id);
         if(iogisticsDataById == null){
-            throw new Exception("没有此id信息");
+            throw new Exception(String.format("%s%s%s","没有此id信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No ID information"));
         }
         return  iogisticsDataById;
     }
@@ -338,7 +339,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     public void confirmTheGoodsByTheAwbNo(IogisticsData iogisticsData)throws Exception {
         IogisticsData one = iogisticsDataDao.findByTheAwbNo(iogisticsData.getTheAwbNo());
         if(one == null){
-            throw new Exception("未查到此条运单号信息");
+            throw new Exception(String.format("%s%s%s","未查到此条运单号信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No information is found on this article"));
         }
         one.setConfirmTheGoods(iogisticsData.getConfirmTheGoods());
         iogisticsDataDao.saveAndFlush(one);

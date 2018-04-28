@@ -1,6 +1,7 @@
 package com.erui.boss.web.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.util.constant.Constant;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.commons.lang3.StringUtils;
@@ -68,7 +69,13 @@ public class Result<T> {
 
     public Result<T> setMsg(String msg) {
         if (StringUtils.isNotBlank(msg)) {
-            this.msg = msg;
+            if (msg.contains(Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL)) {
+                String[] split = msg.split(Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL);
+                this.msg = split[0];
+                this.setEnMsg(split[1]);
+            } else {
+                this.msg = msg;
+            }
         }
         return this;
     }

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.EruitokenUtil;
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
@@ -107,7 +108,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         Purch purch = purchDao.findOne(inspectApply.getpId());
         if (purch == null || purch.getStatus() != Purch.StatusEnum.BEING.getCode()) {
             // 采购为空或采购已完成，则返回报检失败
-            throw new Exception("采购信息不正确");
+            throw new Exception(String.format("%s%s%s","采购信息不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Incorrect procurement information"));
         }
         final Date now = new Date();
         // 基本信息设置
@@ -150,7 +151,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 continue;
             }
             if (inspectNum < 0 || purchGoods.getPurchaseNum() < inspectNum + purchGoods.getPreInspectNum()) {
-                throw new Exception("报检数量错误【sku:" + goods.getSku() + "】");
+                throw new Exception(String.format("%s%s%s","报检数量错误【sku:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Error in number of inspection [sku: "+ goods.getSku () +"]"));
             }
             iaGoods.setSamples(0);
             iaGoods.setUnqualified(0);
@@ -271,7 +272,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public boolean save(InspectApply inspectApply) throws Exception {
         InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (dbInspectApply == null || dbInspectApply.getStatus() != InspectApply.StatusEnum.SAVED.getCode()) {
-            throw new Exception("报检信息不存在");
+            throw new Exception(String.format("%s%s%s","报检信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Inspection information does not exist"));
         }
         // 处理基本信息
         dbInspectApply.setAbroadCoName(inspectApply.getAbroadCoName());
@@ -300,7 +301,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         for (InspectApplyGoods iaGoods : inspectApply.getInspectApplyGoodsList()) {
             InspectApplyGoods applyGoods = inspectApplyGoodsMap.remove(iaGoods.getId());
             if (applyGoods == null) { // 修改的商品不存在
-                throw new Exception("报检商品信息错误");
+                throw new Exception(String.format("%s%s%s","报检商品信息错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Misinformation for commodity inspection"));
             }
             Integer oldInspectNum = applyGoods.getInspectNum();
             applyGoods.setInspectNum(iaGoods.getInspectNum());
@@ -315,7 +316,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 continue;
             }
             if (inspectNum < 0 || inspectNum - oldInspectNum > purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum()) {
-                throw new Exception("报检数量错误");
+                throw new Exception(String.format("%s%s%s","报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Error in number of inspection"));
             }
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
@@ -403,10 +404,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public boolean againApply(InspectApply inspectApply) throws Exception {
         InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (lastInspectApply == null) {
-            throw new Exception("不存在的报检单");
+            throw new Exception(String.format("%s%s%s","不存在的报检单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"A nonexistent check list"));
         }
         if (lastInspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
-            throw new Exception("当期报检单没有未合格商品");
+            throw new Exception(String.format("%s%s%s","当期报检单没有未合格商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"There is no unqualified commodity in the current inspection list"));
         }
         InspectApply parentInspectApply = lastInspectApply.getParent(); // 主报检单
         if (parentInspectApply == null) {
@@ -414,11 +415,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 检查是否是最后一次报检信息
         if (parentInspectApply.getNum().intValue() != lastInspectApply.getNum()) {
-            throw new Exception("重新报检的不是最后一次质检结果");
+            throw new Exception(String.format("%s%s%s","重新报检的不是最后一次质检结果", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The result of the re inspection is not the result of the last quality inspection"));
         }
         InspectApply lastInspectApplyTest = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
         if (parentInspectApply.getNum() != 1 && lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
-            throw new Exception("重新报检的不是最后一次质检结果");
+            throw new Exception(String.format("%s%s%s","重新报检的不是最后一次质检结果", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The result of the re inspection is not the result of the last quality inspection"));
         }
 
         // 声明要插入的报检单
@@ -775,7 +776,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
 
             } catch (Exception e) {
-                throw new Exception("发送短信失败");
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
             }
 
         }
