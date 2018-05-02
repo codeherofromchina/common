@@ -2,6 +2,7 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.IogisticsService;
 import org.slf4j.Logger;
@@ -123,7 +124,15 @@ public class IogisticsController {
     public Result<Object> mergeData(@RequestBody Map<String, String> params) {
         boolean flag = false;
         String message =null;
-       try {
+
+        if(StringUtil.isBlank(params.get("logisticsUserId"))){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("物流经办人id不能为空");
+        }
+        if(StringUtil.isBlank(params.get("logisticsUserName"))){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("/物流经办人名称不能为空");
+        }
+
+        try {
             flag = iogisticsService.mergeData(params);
         } catch (Exception ex) {
             message=ex.getMessage();

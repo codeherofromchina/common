@@ -152,6 +152,8 @@ public class IogisticsServiceImpl implements IogisticsService {
         IogisticsData iogisticsData = new IogisticsData();
         iogisticsData.setTheAwbNo(createTheAwbNo());    //物流号
         iogisticsData.setStatus(5); //物流状态
+        iogisticsData.setLogisticsUserId(Integer.parseInt(params.get("logisticsUserId"))); //物流经办人id
+        iogisticsData.setLogisticsUserName(params.get("logisticsUserName")); //物流经办人名称
         IogisticsData save = iogisticsDataDao.save(iogisticsData);  //物流信息
 
 
@@ -210,8 +212,6 @@ public class IogisticsServiceImpl implements IogisticsService {
             save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
 
-        save.setLogisticsUserId(iogistics.getLogisticsUserId()); //物流经办人id
-        save.setLogisticsUserName(iogistics.getLogisticsUserName()); //物流经办人名称
 
         iogisticsDataDao.save(save);
 
