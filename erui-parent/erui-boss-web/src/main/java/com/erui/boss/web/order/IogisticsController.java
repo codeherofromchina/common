@@ -18,7 +18,7 @@ import java.util.*;
 
 /**
  *
- * 物流
+ * 出库信息
  *
  * Created by wangxiaodan on 2017/12/11.
  */
