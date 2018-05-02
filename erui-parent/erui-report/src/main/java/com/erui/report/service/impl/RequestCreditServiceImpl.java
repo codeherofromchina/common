@@ -743,40 +743,7 @@ public class RequestCreditServiceImpl extends BaseService<RequestCreditMapper> i
      * @Params index : 销售模式从哪一行开始的 ，dataMap 数据  ， sheet ：表格
      */
     private void createTotalRow(Map<String, Map<String, Object>> dataMap, int index, XSSFSheet sheet) {
-        List<Map<String, Object>> dataList = new ArrayList<>(dataMap.values());
-
-//        double totalThirty = dataList.stream().map(m -> {
-//            double thirty = Double.valueOf(m.get("thirty").toString());
-//            return thirty;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double totalSixty = dataList.stream().map(m -> {
-//            double thirtyToSixty = Double.valueOf(m.get("thirtyToSixty").toString());
-//            return thirtyToSixty;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double totalNinety = dataList.stream().map(m -> {
-//            double sixtyToNinety = Double.valueOf(m.get("sixtyToNinety").toString());
-//            return sixtyToNinety;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double totalOneHundredTwenty = dataList.stream().map(m -> {
-//            double ninetyToOneHundredTwenty = Double.valueOf(m.get("ninetyToOneHundredTwenty").toString());
-//            return ninetyToOneHundredTwenty;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double totalOneHundredFifty = dataList.stream().map(m -> {
-//            double oneHundredTwentyToOneHundredFifty = Double.valueOf(m.get("oneHundredTwentyToOneHundredFifty").toString());
-//            return oneHundredTwentyToOneHundredFifty;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double totalOneHundredEighty = dataList.stream().map(m -> {
-//            double oneHundredFiftyToOneHundredEighty = Double.valueOf(m.get("oneHundredFiftyToOneHundredEighty").toString());
-//            return oneHundredFiftyToOneHundredEighty;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double totalMoreThanOneHundredEighty = dataList.stream().map(m -> {
-//            double moreThanOneHundredEighty = Double.valueOf(m.get("moreThanOneHundredEighty").toString());
-//            return moreThanOneHundredEighty;
-//        }).reduce(0d, (a, b) -> a + b);
-//        double total=totalThirty+totalSixty+totalNinety+totalOneHundredTwenty+
-//                totalOneHundredFifty+totalOneHundredEighty+totalMoreThanOneHundredEighty;
-        //添加合计行
-        Map<String,Object> totalRowMap=getTotalRowMap(dataList);
+        Map<String, Object> totalRowMap = dataMap.get("合计");
         Double thirty = Double.valueOf(totalRowMap.get("thirty").toString());
         Double thirtyProportion = Double.valueOf(totalRowMap.get("thirtyProportion").toString());
         Double thirtyToSixty = Double.valueOf(totalRowMap.get("thirtyToSixty").toString());
