@@ -326,6 +326,28 @@ public class InstockServiceImpl implements InstockService {
     }
 
 
+    /**
+     * 入库详情信息   转交经办人
+     *
+     * @param instock
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean instockDeliverAgent(Instock instock) {
+
+            Instock dbInstock = instockDao.findOne(instock.getId());
+
+            // 保存基本信息
+            dbInstock.setUid(instock.getUid());  //仓库经办人ID
+            dbInstock.setUname(instock.getUname());  //仓库经办人名字
+
+            instockDao.save(dbInstock);
+
+            return true;
+    }
+
+
     @Transactional(readOnly = true)
     public Set queryProjectNoAndContractNo(String projectNo ,String contractNo) {
 

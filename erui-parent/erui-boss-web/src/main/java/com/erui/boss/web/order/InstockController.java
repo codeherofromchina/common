@@ -95,6 +95,45 @@ public class InstockController {
 
         return result;
     }
+    /**
+     * 入库详情信息   转交经办人
+     *
+     * @param instock
+     * @return
+     */
+    @RequestMapping(value = "instockDeliverAgent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> instockDeliverAgent(@RequestBody Instock instock) {
+        Result<Object> result = new Result<>();
+        Integer status = instock.getStatus();
+        if (status == Instock.StatusEnum.INIT.getStatus()) {
+            if (instock.getId() == null || instock.getId() <= 0) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("入库信息id不能为空");
+            } else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("仓库经办人名字不能为空");
+            }else if (instock.getUid() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("仓库经办人ID不能为空");
+            } else {
+                try {
+                    if (instockService.instockDeliverAgent(instock)) {
+                        return new Result<>();
+                    }
+                } catch (Exception ex) {
+                    logger.error("异常错误", ex);
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg(ex.toString());
+                }
+            }
+        } else {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("入库信息状态错误");
+        }
+
+
+        return result;
+    }
 
 
     /**
