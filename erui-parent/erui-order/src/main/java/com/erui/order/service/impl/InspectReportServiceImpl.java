@@ -305,11 +305,11 @@ public class InspectReportServiceImpl implements InspectReportService {
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
             if (samples == null || samples <= 0) {
-                throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:"+ goods.getSku() +"]"));
+                throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:" + goods.getSku() + "]"));
 
             }
             if (unqualified == null || unqualified < 0 || unqualified > samples) {
-                throw new Exception(String.format("%s%s%s", "不合格数据错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified data error [SKU:"+ goods.getSku() +"]"));
+                throw new Exception(String.format("%s%s%s", "不合格数据错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified data error [SKU:" + goods.getSku() + "]"));
 
             }
             if (unqualified > 0) {
@@ -320,7 +320,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             applyGoods.setUnqualified(unqualified);
             // 如果有不合格商品，则必须有不合格描述
             if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedDesc()) && unqualified > 0) {
-                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格描述不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The nonconforming description of a commodity (SKU:"+ goods.getSku() +") can not be empty"));
+                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格描述不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The nonconforming description of a commodity (SKU:" + goods.getSku() + ") can not be empty"));
 
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
@@ -375,9 +375,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             //入库质检结果通知：质检人员将不合格商品通知采购经办人
             /*disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);*/
 
-
             dbInspectReport.setProcess(false);
-
             if (hegeFlag && !dbInspectReport.getReportFirst()) {
                 // 将第一次质检设置为完成
                 InspectReport firstInspectReport = inspectReportDao.findByInspectApplyId(inspectApplyParent.getId());
@@ -386,7 +384,6 @@ public class InspectReportServiceImpl implements InspectReportService {
             } else if (dbInspectReport.getReportFirst() && !hegeFlag) {
                 dbInspectReport.setProcess(true);
             }
-
             if (inspectApplyParent != null) {
                 inspectApplyParent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
                 inspectApplyDao.save(inspectApplyParent);
@@ -412,7 +409,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
             }
-
 
             // 推送数据到入库部门
             Instock instock = new Instock();
@@ -442,16 +438,20 @@ public class InspectReportServiceImpl implements InspectReportService {
                     instockGoods.setCreateTime(date);
                     instockGoods.setUpdateTime(date);
                     instockGoods.setCreateUserId(dbInspectReport.getCreateUserId());
-
                     instockGoodsList.add(instockGoods);
                 }
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5));
             }
             instock.setInstockGoodsList(instockGoodsList);
             instock.setOutCheck(1); //是否外检（ 0：否   1：是）
-
             instockDao.save(instock);
+        }
 
+        // 流程进度推送
+        if (statusEnum == InspectReport.StatusEnum.DONE) {
+            for (InspectApplyGoods inspectGoods : dbInspectReport.getInspectGoodsList()) {
+                Goods goods = inspectGoods.getGoods();
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5));
+            }
         }
 
         return true;
