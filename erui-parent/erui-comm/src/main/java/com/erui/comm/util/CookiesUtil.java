@@ -7,6 +7,7 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * SSO的token工具
@@ -45,19 +46,22 @@ public class CookiesUtil {
 
     /**
      * 获取sso的token
-     *  默认中文
+     * 默认中文
+     *
      * @param request
      * @return
      */
     public static String getLang(ServletRequest request) {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String language = null;
         // 获取cookie中的lang - 语言
         Cookie langCookie = WebUtils.getCookie(httpRequest, LANG_KEY_NAME);
         if (langCookie != null) {
             logger.info("lang-cookie : " + langCookie.getValue());
             return langCookie.getValue();
         }
-        return "zh";
+        language = httpRequest.getHeader(LANG_KEY_NAME);
+        return language;
     }
 
 }
