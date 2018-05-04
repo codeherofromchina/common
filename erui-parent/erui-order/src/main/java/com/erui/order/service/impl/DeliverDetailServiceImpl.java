@@ -71,9 +71,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     DeliverNoticeDao deliverNoticeDao;
 
-
     @Autowired
     IogisticsDao iogisticsDao;
+
+    private  InstockServiceImpl instockServiceImpl;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -894,6 +895,40 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail one = deliverDetailDao.findByDeliverDetailNo(deliverDetail.getDeliverDetailNo());
         one.setConfirmTheGoods(deliverDetail.getConfirmTheGoods());
         deliverDetailDao.saveAndFlush(one);
+    }
+
+    /**
+     * 出库详情页  转交经办人
+     *
+     * @param deliverDetail
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail) {
+        DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
+        one.setWareHouseman(deliverDetail.getWareHouseman());   //出库经办人ID
+        one.setWareHousemanName(deliverDetail.getWareHousemanName());   //出库经办人姓名
+        deliverDetailDao.save(one);
+
+
+        //V2.0出库转交经办人：出库分单员转交推送给出库经办人
+        Map<String, Object> map = new HashMap();
+        map.put("projectNo",one.getDeliverConsign().getOrder().getContractNo());  //销售合同号
+        map.put("inspectApplyNo",one.getDeliverDetailNo()); //产品放行单号查询
+        map.put("submenuName",one.getSubmenuName());   //出库分单员名称
+        map.put("logisticsUserId",one.getWareHouseman());   //出库经办人id
+        map.put("yn",2); //出库
+        try {
+            instockServiceImpl.sendSms(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        return false;
     }
 
 

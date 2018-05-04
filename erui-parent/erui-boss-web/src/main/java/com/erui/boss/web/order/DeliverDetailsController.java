@@ -186,7 +186,7 @@ public class DeliverDetailsController {
                 result.setMsg("出库经办人姓名不能为空");
                 return result;
 
-            } else if(deliverDetailService.outboundSaveOrAdd(deliverDetail)){
+            } else if(deliverDetailService.storehouseManageDeliverAgent(deliverDetail)){
                 return new Result<>();
 
             }
