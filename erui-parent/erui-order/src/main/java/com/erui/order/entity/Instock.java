@@ -57,6 +57,12 @@ public class Instock {
     @Column(name = "out_check")
     private Integer outCheck; //是否外检（ 0：否   1：是）
 
+    @Column(name = "submenu_name ")
+    private String submenuName ; //入库分单人姓名
+
+    @Column(name = "submenu_id ")
+    private Integer submenuId ; //入库分单人id
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "instock_id")
     private List<InstockGoods> instockGoodsList = new ArrayList<>();
@@ -195,6 +201,22 @@ public class Instock {
 
     public void setOutCheck(Integer outCheck) {
         this.outCheck = outCheck;
+    }
+
+    public String getSubmenuName() {
+        return submenuName;
+    }
+
+    public Integer getSubmenuId() {
+        return submenuId;
+    }
+
+    public void setSubmenuName(String submenuName) {
+        this.submenuName = submenuName;
+    }
+
+    public void setSubmenuId(Integer submenuId) {
+        this.submenuId = submenuId;
     }
 
     public static enum StatusEnum {

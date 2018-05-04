@@ -221,6 +221,12 @@ public class DeliverDetail {
     @Column(name = "confirm_the_goods")
     private Date confirmTheGoods;   //确认收货
 
+    @Column(name = "submenu_name ")
+    private String submenuName ; //出库分单人姓名
+
+    @Column(name = "submenu_id ")
+    private Integer submenuId ; //出库分单人id
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
@@ -788,6 +794,22 @@ public class DeliverDetail {
 
     public void setOutCheck(Integer outCheck) {
         this.outCheck = outCheck;
+    }
+
+    public String getSubmenuName() {
+        return submenuName;
+    }
+
+    public void setSubmenuName(String submenuName) {
+        this.submenuName = submenuName;
+    }
+
+    public void setSubmenuId(Integer submenuId) {
+        this.submenuId = submenuId;
+    }
+
+    public Integer getSubmenuId() {
+        return submenuId;
     }
 
     /**
