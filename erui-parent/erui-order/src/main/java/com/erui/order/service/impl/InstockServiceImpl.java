@@ -299,9 +299,9 @@ public class InstockServiceImpl implements InstockService {
                     }
                 }
             }
-            if (instockGoodsMap.size() > 0) {
-                throw new Exception(String.format("%s%s%s","入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The number of goods in the warehouse"));
-            }
+        }
+        if (instockGoodsMap.size() > 0) {
+            throw new Exception(String.format("%s%s%s","入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The number of goods in the warehouse"));
         }
             instockDao.save(dbInstock);
 
