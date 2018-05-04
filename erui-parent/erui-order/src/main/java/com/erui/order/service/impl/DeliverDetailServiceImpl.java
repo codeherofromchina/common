@@ -567,7 +567,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 iogistics.setOutCheck(0);
                 iogisticsDao.save(iogistics);
 
-                // 如果是厂家直发 在出库提交的时候直接推送到出库信息管理      出库通知：出库单下达后通知物流经办人
+                // 如果是厂家直发 在出库提交的时候直接推送到出库信息管理      出库通知：出库单下达后通知物流分单员
                 Map<String,Object> map = new HashMap<>();
                 map.put("projectNo", contractNo);        //销售合同号
                 map.put("deliverDetailNo",deliverDetail1.getDeliverDetailNo());        //产品放行单号
@@ -612,7 +612,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
 
-            //出库通知：出库单下达后通知物流经办人（确认出库）
+            //出库通知：出库单下达后通知物流分单员（确认出库）
             Map<String,Object> map = new HashMap<>();
             map.put("projectNo", contractNo);        //销售合同号
             map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
