@@ -1,8 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.data.string.StringUtils;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.IogisticsDao;
 import com.erui.order.dao.IogisticsDataDao;
 import com.erui.order.entity.*;
@@ -11,6 +16,7 @@ import com.erui.order.service.IogisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,6 +41,15 @@ public class IogisticsServiceImpl implements IogisticsService {
 
     @Autowired
     private IogisticsDataDao iogisticsDataDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
     /**
      * 出库信息管理（V 2.0）   查询列表页
@@ -152,6 +167,8 @@ public class IogisticsServiceImpl implements IogisticsService {
         IogisticsData iogisticsData = new IogisticsData();
         iogisticsData.setTheAwbNo(createTheAwbNo());    //物流号
         iogisticsData.setStatus(5); //物流状态
+        iogisticsData.setLogisticsUserId(Integer.parseInt(params.get("logisticsUserId"))); //物流经办人id
+        iogisticsData.setLogisticsUserName(params.get("logisticsUserName")); //物流经办人名称
         IogisticsData save = iogisticsDataDao.save(iogisticsData);  //物流信息
 
 
@@ -210,10 +227,12 @@ public class IogisticsServiceImpl implements IogisticsService {
             save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
 
-        save.setLogisticsUserId(iogistics.getLogisticsUserId()); //物流经办人id
-        save.setLogisticsUserName(iogistics.getLogisticsUserName()); //物流经办人名称
-
         iogisticsDataDao.save(save);
+
+
+
+
+
 
         return true;
     }
@@ -244,6 +263,51 @@ public class IogisticsServiceImpl implements IogisticsService {
             }
         }
 
+    }
+
+
+    //出库通知
+    public void sendSms(Map<String, Object> map1) throws Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+            try {
+                Integer status = (Integer) map1.get("status");  //出库or出库质检or确认出库状态
+                // 根据id获取人员信息
+                    String jsonParam = "{\"id\":\"" + map1.get("qualityUid") + "\"}";
+                    Map<String, String> header = new HashMap<>();
+                    header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                    header.put("Content-Type", "application/json");
+                    header.put("accept", "*/*");
+                    String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    logger.info("人员详情返回信息：" + s);
+                    JSONObject jsonObject = JSONObject.parseObject(s);
+                    Integer code = jsonObject.getInteger("code");
+                    String mobile = null;  //手机号
+
+                    if (code == 1) {
+
+                        JSONObject data = jsonObject.getJSONObject("data");
+                        mobile = data.getString("mobile");
+                        //发送短信
+                        Map<String, String> map = new HashMap();
+                        map.put("areaCode", "86");
+                        map.put("to", "[\"" + mobile + "\"]");
+                        map.put("content", "您好，项目号：" + map1.get("projectNo") + "，产品放行单号：" + map1.get("deliverDetailNo") + "，出库质检已合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("subType", "0");
+                        map.put("groupSending", "0");
+                        map.put("useType", "订单");
+                        String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                        logger.info("发送短信返回状态" + s1);
+                    }
+
+
+            } catch (Exception e) {
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+            }
+
+        }
     }
 
 

@@ -81,6 +81,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
 
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
+
     @Override
     @Transactional(readOnly = true)
     public DeliverDetail findById(Integer id) {
@@ -1199,7 +1202,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                     header.put("Content-Type", "application/json");
                     header.put("accept", "*/*");
-                    String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    String s = HttpRequest.sendPost(memberList, jsonParam, header);
                     logger.info("人员详情返回信息：" + s);
                     JSONObject jsonObject = JSONObject.parseObject(s);
                     Integer code = jsonObject.getInteger("code");

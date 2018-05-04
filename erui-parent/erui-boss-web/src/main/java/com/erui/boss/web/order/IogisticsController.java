@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.IogisticsService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -114,7 +117,7 @@ public class IogisticsController {
      * @return
      */
     @RequestMapping(value = "mergeData", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> mergeData(@RequestBody Map<String, String> params) {
+    public Result<Object> mergeData(@RequestBody Map<String, String> params, HttpServletRequest request) {
         boolean flag = false;
         String message =null;
 
@@ -124,6 +127,9 @@ public class IogisticsController {
         if(StringUtil.isBlank(params.get("logisticsUserName"))){
             return new Result<>(ResultStatusEnum.FAIL).setMsg("/物流经办人名称不能为空");
         }
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
 
         try {
             flag = iogisticsService.mergeData(params);

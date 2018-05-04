@@ -550,7 +550,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
                     if (s2 != null) {
                         //发送短信
-                        map.put("to", "[\"" + s2 + "\"]");
+                        map.put("to", s2);
                         map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
                     }
                 } else if (yn == 2) {  // 2 全部不合格
@@ -563,7 +563,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 } else {   // 3 全部合格
                     if (s2 != null) {
                         //发送短信
-                        map.put("to", "[\"" + s2 + "\"]");
+                        map.put("to", s2);
                         map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
 
                     }
