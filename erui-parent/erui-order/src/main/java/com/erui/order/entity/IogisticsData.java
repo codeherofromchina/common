@@ -99,6 +99,12 @@ public class IogisticsData {
     @Column(name = "confirm_the_goods")
     private Date confirmTheGoods;   //确认收货
 
+    @Column(name = "submenu_name ")
+    private String submenuName ; //出库信息分单人姓名
+
+    @Column(name = "submenu_id ")
+    private Integer submenuId ; //出库信息分单人id
+
 
     @Transient
     private String handleDepartment;    //经办部门
@@ -380,5 +386,20 @@ public class IogisticsData {
         this.confirmTheGoods = confirmTheGoods;
     }
 
+    public String getSubmenuName() {
+        return submenuName;
+    }
+
+    public void setSubmenuName(String submenuName) {
+        this.submenuName = submenuName;
+    }
+
+    public void setSubmenuId(Integer submenuId) {
+        this.submenuId = submenuId;
+    }
+
+    public Integer getSubmenuId() {
+        return submenuId;
+    }
 }
 

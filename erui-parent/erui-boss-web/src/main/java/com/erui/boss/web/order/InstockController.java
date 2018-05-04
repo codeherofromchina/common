@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.InstockService;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,7 +105,11 @@ public class InstockController {
      * @return
      */
     @RequestMapping(value = "instockDeliverAgent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> instockDeliverAgent(@RequestBody Instock instock) {
+    public Result<Object> instockDeliverAgent(@RequestBody Instock instock , HttpServletRequest request) {
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Result<Object> result = new Result<>();
         Integer status = instock.getStatus();
         if (status == Instock.StatusEnum.INIT.getStatus()) {

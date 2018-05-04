@@ -228,9 +228,12 @@ public class IogisticsServiceImpl implements IogisticsService {
         }
 
         iogisticsDataDao.save(save);
-
-
-
+        Map<String, Object> map = new HashMap();
+        map.put("contractNo",save.getContractNo());  //销售合同号
+        map.put("theAwbNo",save.getTheAwbNo()); //运单号
+        map.put("submenuName",save.getSubmenuName());   //物流分单员名称
+        map.put("logisticsUserId",save.getLogisticsUserId());   //物流经办人id
+        sendSms(map);
 
 
 
@@ -266,42 +269,62 @@ public class IogisticsServiceImpl implements IogisticsService {
     }
 
 
-    //出库通知
+    //V2.0出库信息管理：转交经办人的时候通知物流经办人
     public void sendSms(Map<String, Object> map1) throws Exception {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+
+
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+
             try {
-                Integer status = (Integer) map1.get("status");  //出库or出库质检or确认出库状态
-                // 根据id获取人员信息
-                    String jsonParam = "{\"id\":\"" + map1.get("qualityUid") + "\"}";
-                    Map<String, String> header = new HashMap<>();
-                    header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                    header.put("Content-Type", "application/json");
-                    header.put("accept", "*/*");
+                //判断物流经办人是否是物流分单员    如果是分单员不用发送短信
+                //将合格发送给仓库分单员
+                String jsonParams = "{\"role_no\":\"O020\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParams, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                List<Integer> listAll = new ArrayList<>();
+                if (codes == 1) {    //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++){
+                        JSONObject ob  = (JSONObject)data1.get(i);
+                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                    }
+                }
+
+                if(!listAll.contains(map1.get("logisticsUserId"))){     //如果某一个物流分单员和仓库经办人id相同则不用发送短信
+                    // 根据物流经办人id获取人员信息
+                    String jsonParam = "{\"id\":\"" + map1.get("logisticsUserId") + "\"}";
                     String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
                     logger.info("人员详情返回信息：" + s);
                     JSONObject jsonObject = JSONObject.parseObject(s);
                     Integer code = jsonObject.getInteger("code");
-                    String mobile = null;  //手机号
-
                     if (code == 1) {
 
                         JSONObject data = jsonObject.getJSONObject("data");
-                        mobile = data.getString("mobile");
+                        String  mobile = data.getString("mobile");  //获取物流经办人手机号
                         //发送短信
                         Map<String, String> map = new HashMap();
                         map.put("areaCode", "86");
                         map.put("to", "[\"" + mobile + "\"]");
-                        map.put("content", "您好，项目号：" + map1.get("projectNo") + "，产品放行单号：" + map1.get("deliverDetailNo") + "，出库质检已合格，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content", "您好，销售合同号："+map1.get("contractNo")+"，运单号："+map1.get("theAwbNo")+"，物流分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType", "0");
                         map.put("groupSending", "0");
                         map.put("useType", "订单");
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
                         logger.info("发送短信返回状态" + s1);
                     }
-
+                }
 
             } catch (Exception e) {
                 throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
