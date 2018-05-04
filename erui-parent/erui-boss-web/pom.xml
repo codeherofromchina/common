@@ -165,7 +165,11 @@
             <artifactId>spring-data-commons</artifactId>
             <version>1.13.3.RELEASE</version>
         </dependency>
-
+            <dependency>
+                <groupId>com.erui</groupId>
+                <artifactId>erui-beta-sso-client</artifactId>
+                <version>1.0</version>
+            </dependency>
     </dependencies>
 
 

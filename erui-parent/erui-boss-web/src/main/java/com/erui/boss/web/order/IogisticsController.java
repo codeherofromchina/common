@@ -94,16 +94,9 @@ public class IogisticsController {
 
         deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
         deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
-        //TODO 看货通知信息无法推送
-       /* deliverNoticeInfo.put("numers", deliverNotice.getNumers()); // 总包装件数
-        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
-        deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求*/
-
         //处理商品信息
         List<Map<String, Object>> goodsInfoList = DeliverDetailsController.goodsMessage(deliverDetail.getDeliverConsignGoodsList());
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
-
         //附件信息
         Map<String, Object> map = DeliverDetailsController.attachmentLists(deliverDetail.getAttachmentList());
         deliverNoticeInfo.put("attachmentList2", map.get("attachmentList2"));    //品控部

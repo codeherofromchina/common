@@ -1,7 +1,12 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -12,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -54,6 +60,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     ProjectDao projectDao;
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
     @Override
     @Transactional(readOnly = true)
@@ -125,7 +140,20 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             orderService.updateOrderDeliverConsignC(orderIds);
 
             //推送出库信息
-            pushOutbound(deliverConsignUpdate);
+            String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
+            pushOutbound(deliverConsignUpdate,deliverDetailNo);
+
+
+            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
+            Map<String,Object> map = new HashMap<>();
+            map.put("deliverConsignNo",deliverConsignUpdate.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo",deliverDetailNo);  //产品放行单号
+            map.put("contractNoOs",order.getContractNoOs());     //销售合同号
+            try {
+                sendSms(map);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
         return true;
@@ -187,8 +215,20 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             orderService.updateOrderDeliverConsignC(orderIds);
 
             //推送出库信息
-            pushOutbound(deliverConsign1);
+            String deliverDetailNo = createDeliverDetailNo();
+            pushOutbound(deliverConsign1,deliverDetailNo);
 
+
+            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
+            Map<String,Object> map = new HashMap<>();
+            map.put("deliverConsignNo",deliverConsign1.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo",deliverDetailNo);  //产品放行单号
+            map.put("contractNoOs",order.getContractNoOs());     //销售合同号
+            try {
+                sendSms(map);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
@@ -335,12 +375,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * 根据出口通知单，推送出库信息
      */
 
-    public void pushOutbound(DeliverConsign deliverConsign1) throws Exception {
+    public void pushOutbound(DeliverConsign deliverConsign1,String deliverDetailNo) throws Exception {
 
         // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
         DeliverDetail deliverDetail = new DeliverDetail();
         deliverDetail.setDeliverConsign(deliverConsign1);    //出库通知单
-        String deliverDetailNo = createDeliverDetailNo();
         deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
 
         //推送仓库经办人   物流经办人
@@ -412,5 +451,61 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     }
 
+
+
+    //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
+    public void sendSms(Map<String,Object> map1) throws  Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try{
+                // 根据id获取人员信息
+                String jsonParam = "{\"role_no\":\"O019\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String s = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+
+                if(code == 1){
+                    // 获取人员手机号
+                    JSONArray data1 = jsonObject.getJSONArray("data");
+
+                    //去除重复
+                    Set<String> listAll = new HashSet<>();
+                    for (int i = 0; i < data1.size(); i++){
+                        JSONObject ob  = (JSONObject)data1.get(i);
+                        listAll.add(ob.getString("mobile"));    //获取人员手机号
+                    }
+
+                    listAll = new HashSet<>(new LinkedHashSet<>(listAll));
+                    JSONArray smsarray = new JSONArray();   //手机号JSON数组
+                    for (String me : listAll) {
+                        smsarray.add(me);
+                    }
+
+                    //发送短信
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to",smsarray.toString());
+
+                    map.put("content"," 您好，销售合同号："+map1.get("contractNoOs")+"，已生成出口通知单号："+map1.get("deliverConsignNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态"+s1);
+                }
+            }catch (Exception e){
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+            }
+
+        }
+    }
 
 }

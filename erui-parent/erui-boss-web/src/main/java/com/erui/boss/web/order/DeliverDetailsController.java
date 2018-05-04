@@ -89,11 +89,7 @@ public class DeliverDetailsController {
         }
         deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
         deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
-        //TODO 看货通知信息无法推送
         deliverNoticeInfo.put("numers", deliverDetail.getPackTotal()); // 总包装件数
-        /* deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
-        deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求*/
 
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
 

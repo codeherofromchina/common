@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
@@ -60,6 +61,9 @@ public class InspectReportServiceImpl implements InspectReportService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
     @Override
     @Transactional(readOnly = true)
@@ -373,7 +377,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         if (statusEnum == InspectReport.StatusEnum.DONE) {
 
             //入库质检结果通知：质检人员将不合格商品通知采购经办人
-            /*disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);*/
+            disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);
 
             dbInspectReport.setProcess(false);
             if (hegeFlag && !dbInspectReport.getReportFirst()) {
@@ -413,10 +417,10 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
-            if (project != null) {
+            /*if (project != null) {
                 instock.setUid(project.getWarehouseUid());       //仓库经办人ID
                 instock.setUname(project.getWarehouseName());   //仓库经办人名字
-            }
+            }*/
             instock.setInspectApplyNo(dbInspectReport.getInspectApplyNo()); // 报检单号
             instock.setSupplierName(dbInspectReport.getInspectApply().getPurch().getSupplierName()); // 供应商
             instock.setStatus(Instock.StatusEnum.INIT.getStatus());
@@ -489,19 +493,51 @@ public class InspectReportServiceImpl implements InspectReportService {
                 header.put("accept", "*/*");
 
                 Integer purchaseUid = (Integer) map1.get("purchaseUid");//采购经办人id
-                Integer warehouseUid = (Integer) map1.get("warehouseUid");//仓库经办人id
                 Integer yn = (Integer) map1.get("yn");  //获取状态
 
 
                 // 根据id获取人员信息
                 String s = queryMessage(purchaseUid, eruiToken);    //将不合格发送给采购经办人
-                String s2 = queryMessage(warehouseUid, eruiToken);  //将合格发送给仓库经办人
+
+                //将合格发送给仓库分单员
+                String jsonParam = "{\"role_no\":\"O019\"}";
+                Map<String, String> headerList = new HashMap<>();
+                headerList.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                headerList.put("Content-Type", "application/json");
+                headerList.put("accept", "*/*");
+                String s1 = HttpRequest.sendPost(memberList, jsonParam, headerList);
+                logger.info("人员详情返回信息：" + s1);
+
+                // 获取人员手机号
+                JSONObject jsonObject = JSONObject.parseObject(s1);
+                Integer code = jsonObject.getInteger("code");
+                JSONArray smsarray = new JSONArray();   //手机号JSON数组
+                if (code == 1) {    //判断请求是否成功
+                    // 获取人员手机号
+                    JSONArray data1 = jsonObject.getJSONArray("data");
+
+                    //去除重复
+                    Set<String> listAll = new HashSet<>();
+                    for (int i = 0; i < data1.size(); i++){
+                        JSONObject ob  = (JSONObject)data1.get(i);
+                        listAll.add(ob.getString("mobile"));    //获取人员手机号
+                    }
+
+                    listAll = new HashSet<>(new LinkedHashSet<>(listAll));
+                    for (String me : listAll) {
+                        smsarray.add(me);
+                    }
+                }
+
+
 
                 Map<String, String> map = new HashMap();
                 map.put("areaCode", "86");
                 map.put("subType", "0");
                 map.put("groupSending", "0");
                 map.put("useType", "订单");
+
+                String s2 = smsarray.toString();
 
                 //判断状态
                 if (yn == 1) {   //  1:  部分合格,部分不合格
@@ -533,8 +569,8 @@ public class InspectReportServiceImpl implements InspectReportService {
                     }
                 }
 
-                String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                logger.info("发送短信返回状态" + s1);
+                String ss1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                logger.info("发送短信返回状态" + ss1);
 
             } catch (Exception e) {
                 throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
@@ -544,9 +580,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         }
     }
 
-
     //查询人员信息
-
     public String queryMessage(Integer id, String eruiToken) {
         if (id != null) {
             String jsonParam = "{\"id\":\"" + id + "\"}";
@@ -577,7 +611,6 @@ public class InspectReportServiceImpl implements InspectReportService {
         map.put("inspectApplyNo", dbInspectReport.getInspectApplyNo());    //报检单号
         if (project != null) {
             map.put("purchaseUid", project.getPurchaseUid());       //采购经办人id
-            map.put("warehouseUid", project.getWarehouseUid());       //仓库经办人id
             map.put("purchaseNames", project.getProjectNo());      //项目号
         }
         map.put("purchNo", dbInspectReport.getInspectApply().getPurch().getPurchNo());      //采购合同号
