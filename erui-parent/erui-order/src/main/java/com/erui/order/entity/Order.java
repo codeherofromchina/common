@@ -242,6 +242,17 @@ public class Order {
     private Integer buyerId;
     @Column(name = "inquiry_id")
     private Integer inquiryId;
+    //订单类别 1科瑞订单 2 易瑞订单
+    @Column(name = "order_belongs")
+    private Integer orderBelongs;
+
+    public Integer getOrderBelongs() {
+        return orderBelongs;
+    }
+
+    public void setOrderBelongs(Integer orderBelongs) {
+        this.orderBelongs = orderBelongs;
+    }
 
     public Integer getDeliverConsignHas() {
         return deliverConsignHas;
