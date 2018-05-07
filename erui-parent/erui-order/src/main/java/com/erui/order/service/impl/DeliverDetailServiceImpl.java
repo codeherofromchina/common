@@ -74,6 +74,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     IogisticsDao iogisticsDao;
 
+    @Autowired
     private  InstockServiceImpl instockServiceImpl;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -924,11 +925,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
-
-        return false;
+        return true;
     }
 
 
