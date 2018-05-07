@@ -1,9 +1,6 @@
 package com.erui.boss.web.report;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +72,8 @@ public class ExcelController {
     private SupplyChainService supplyChainService;
     @Autowired
     private RequestReceiveService receiveService;
+    @Autowired
+    private PerformanceService performanceService;
 
     /**
      * 下载模板
@@ -332,6 +331,10 @@ public class ExcelController {
             case REQUEST_RECEIVE:
                 logger.info("导入回款金额数据");
                 response = receiveService.importData(datas, testOnly);
+                break;
+            case SALES_PERFORMANCE:
+                logger.info("销售业绩");
+                response = performanceService.importData(datas, testOnly);
                 break;
             default:
                 response = new ImportDataResponse();

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.PerformanceCountMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.report.model.PerformanceCount" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="serial_number" property="serialNumber" jdbcType="INTEGER" />
+    <result column="execute_num" property="executeNum" jdbcType="VARCHAR" />
+    <result column="overseas_sales_num" property="overseasSalesNum" jdbcType="VARCHAR" />
+    <result column="sign_company" property="signCompany" jdbcType="VARCHAR" />
+    <result column="not_erui_reason" property="notEruiReason" jdbcType="VARCHAR" />
+    <result column="is_through_agent" property="isThroughAgent" jdbcType="VARCHAR" />
+    <result column="agent_code" property="agentCode" jdbcType="VARCHAR" />
+    <result column="organization" property="organization" jdbcType="VARCHAR" />
+    <result column="execute_company" property="executeCompany" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="buyer_code" property="buyerCode" jdbcType="VARCHAR" />
+    <result column="goods_ch" property="goodsCh" jdbcType="VARCHAR" />
+    <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="goods_count" property="goodsCount" jdbcType="INTEGER" />
+    <result column="unit" property="unit" jdbcType="VARCHAR" />
+    <result column="project_amount" property="projectAmount" jdbcType="DECIMAL" />
+    <result column="initial_profit_margin" property="initialProfitMargin" jdbcType="DECIMAL" />
+    <result column="received_mode" property="receivedMode" jdbcType="VARCHAR" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="obtain_main_company" property="obtainMainCompany" jdbcType="VARCHAR" />
+    <result column="obtainer" property="obtainer" jdbcType="VARCHAR" />
+    <result column="marketer" property="marketer" jdbcType="VARCHAR" />
+    <result column="businesser" property="businesser" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, serial_number, execute_num, overseas_sales_num, sign_company, not_erui_reason, is_through_agent,
+    agent_code, organization, execute_company, area, buyer_code, goods_ch, category,
+    goods_count, unit, project_amount, initial_profit_margin, received_mode, start_time,
+    obtain_main_company, obtainer, marketer, businesser, remark
+  </sql>
+
+  <select id="truncateTable">
+  TRUNCATE  TABLE  performance_count
+  </select>
+  <insert id="insertSelective" parameterType="com.erui.report.model.PerformanceCount" >
+    insert into performance_count
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="serialNumber != null" >
+        serial_number,
+      </if>
+      <if test="executeNum != null" >
+        execute_num,
+      </if>
+      <if test="overseasSalesNum != null" >
+        overseas_sales_num,
+      </if>
+      <if test="signCompany != null" >
+        sign_company,
+      </if>
+      <if test="notEruiReason != null" >
+        not_erui_reason,
+      </if>
+      <if test="isThroughAgent != null" >
+        is_through_agent,
+      </if>
+      <if test="agentCode != null" >
+        agent_code,
+      </if>
+      <if test="organization != null" >
+        organization,
+      </if>
+      <if test="executeCompany != null" >
+        execute_company,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="buyerCode != null" >
+        buyer_code,
+      </if>
+      <if test="goodsCh != null" >
+        goods_ch,
+      </if>
+      <if test="category != null" >
+        category,
+      </if>
+      <if test="goodsCount != null" >
+        goods_count,
+      </if>
+      <if test="unit != null" >
+        unit,
+      </if>
+      <if test="projectAmount != null" >
+        project_amount,
+      </if>
+      <if test="initialProfitMargin != null" >
+        initial_profit_margin,
+      </if>
+      <if test="receivedMode != null" >
+        received_mode,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="obtainMainCompany != null" >
+        obtain_main_company,
+      </if>
+      <if test="obtainer != null" >
+        obtainer,
+      </if>
+      <if test="marketer != null" >
+        marketer,
+      </if>
+      <if test="businesser != null" >
+        businesser,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="serialNumber != null" >
+        #{serialNumber,jdbcType=INTEGER},
+      </if>
+      <if test="executeNum != null" >
+        #{executeNum,jdbcType=VARCHAR},
+      </if>
+      <if test="overseasSalesNum != null" >
+        #{overseasSalesNum,jdbcType=VARCHAR},
+      </if>
+      <if test="signCompany != null" >
+        #{signCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="notEruiReason != null" >
+        #{notEruiReason,jdbcType=VARCHAR},
+      </if>
+      <if test="isThroughAgent != null" >
+        #{isThroughAgent,jdbcType=VARCHAR},
+      </if>
+      <if test="agentCode != null" >
+        #{agentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null" >
+        #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="executeCompany != null" >
+        #{executeCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerCode != null" >
+        #{buyerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsCh != null" >
+        #{goodsCh,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null" >
+        #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsCount != null" >
+        #{goodsCount,jdbcType=INTEGER},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="projectAmount != null" >
+        #{projectAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="initialProfitMargin != null" >
+        #{initialProfitMargin,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedMode != null" >
+        #{receivedMode,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="obtainMainCompany != null" >
+        #{obtainMainCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="obtainer != null" >
+        #{obtainer,jdbcType=VARCHAR},
+      </if>
+      <if test="marketer != null" >
+        #{marketer,jdbcType=VARCHAR},
+      </if>
+      <if test="businesser != null" >
+        #{businesser,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR}
+      </if>
+    </trim>
+  </insert>
+</mapper>
