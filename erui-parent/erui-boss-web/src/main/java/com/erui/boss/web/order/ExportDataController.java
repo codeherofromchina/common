@@ -180,10 +180,13 @@ public class ExportDataController {
                     "crmCode", "EnOrderTypeName", "currencyBn", "totalPriceUsdSplit", "EnPayStatusName", "EnOrderSourceName", "EnOrderStatusName", "EnProcessProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
+            HSSFWorkbook workbook;
             if (lang == "en") {
-                HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, enKeys, "订单列表");
+                workbook = buildExcel.buildExcel((List) objArr, header, enKeys, "订单列表");
+            } else {
+
+                workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
             }
-            HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
             ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
             ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
             downExcel(workbook, response, "订单列表");
