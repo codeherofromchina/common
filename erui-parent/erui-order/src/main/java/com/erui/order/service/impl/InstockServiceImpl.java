@@ -61,6 +61,10 @@ public class InstockServiceImpl implements InstockService {
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
 
+
+    @Value("#{orderProp[SSO_USER]}")
+    private String ssoUser;  //从SSO获取登录用户
+
     @Override
     @Transactional(readOnly = true)
     public Instock findById(Integer id) {
@@ -331,27 +335,39 @@ public class InstockServiceImpl implements InstockService {
     @Transactional(rollbackFor = Exception.class)
     public boolean instockDeliverAgent(Instock instock) {
 
-            Instock dbInstock = instockDao.findOne(instock.getId());
 
-            // 保存基本信息
-            dbInstock.setUid(instock.getUid());  //仓库经办人ID
-            dbInstock.setUname(instock.getUname());  //仓库经办人名字
+        //获取经办分单人信息
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Map<String, String> map1 = ssoUser(eruiToken);
+        String name = map1.get("name");
+        String id = map1.get("id");
 
-            instockDao.save(dbInstock);
+        //保存经办人信息
+        Instock dbInstock = instockDao.findOne(instock.getId());
+        // 保存基本信息
+        dbInstock.setUid(instock.getUid());  //仓库经办人ID
+        dbInstock.setUname(instock.getUname());  //仓库经办人名字
+        if(StringUtil.isBlank(dbInstock.getSubmenuName())){
+            dbInstock.setSubmenuName(name); //分单员经办人姓名
+        }
+        if(dbInstock.getSubmenuId() == null){
+            dbInstock.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
+        }
+        Instock instockSave = instockDao.save(dbInstock);
 
 
-            //V2.0入库转交经办人：入库分单员转交推送给入库经办人
-            Map<String, Object> map = new HashMap();
-            map.put("projectNo",dbInstock.getInstockGoodsList().get(0).getProjectNo());  //项目号
-            map.put("inspectApplyNo",dbInstock.getInspectReport().getInspectApplyNo()); //报检单号
-            map.put("submenuName",instock.getSubmenuName());   //入库分单员名称
-            map.put("logisticsUserId",instock.getUid());   //入库经办人id
-            map.put("yn",1); //入库
-            try {
-                sendSms(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        //V2.0入库转交经办人：入库分单员转交推送给入库经办人
+        Map<String, Object> map = new HashMap();
+        map.put("projectNo",instockSave.getInstockGoodsList().get(0).getProjectNo());  //项目号
+        map.put("inspectApplyNo",instockSave.getInspectReport().getInspectApplyNo()); //报检单号
+        map.put("submenuName",instockSave.getSubmenuName());   //入库分单员名称
+        map.put("logisticsUserId",instockSave.getUid());   //入库经办人id
+        map.put("yn",1); //入库
+        try {
+            sendSms(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return true;
     }
@@ -412,8 +428,8 @@ public class InstockServiceImpl implements InstockService {
                         Map<String, String> map = new HashMap();
                         map.put("areaCode", "86");
                         map.put("to", "[\"" + mobile + "\"]");
-                        Integer yn = (Integer) map1.get("yn");
-                        if(yn == 1){
+
+                        if(Integer.valueOf((Integer) map1.get("yn")) == 1){
                             map.put("content", "您好，项目号："+map1.get("projectNo")+"，报检单号："+map1.get("inspectApplyNo")+"，入库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
                         }else{
                             map.put("content", "您好，销售合同号："+map1.get("projectNo")+"，产品放行单号查询："+map1.get("inspectApplyNo")+"，出库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
@@ -431,5 +447,30 @@ public class InstockServiceImpl implements InstockService {
 
         }
     }
+
+
+    //获取当前登录用户
+    public  Map<String ,String> ssoUser(String eruiToken){
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            String jsonParam = "{\"token\":\"" + eruiToken + "\"}";
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            String s = HttpRequest.sendPost(ssoUser, jsonParam, header);
+            logger.info("CRM返回信息：" + s);
+
+            JSONObject jsonObject = JSONObject.parseObject(s);
+
+            Map mapUser = new HashMap<>();
+            if (jsonObject.getInteger("code") == 200) {
+                mapUser.put("name",jsonObject.getString("name"));
+                mapUser.put("id",jsonObject.getString("id"));
+            }
+            return mapUser;
+        }
+        return null;
+    }
+
 
 }

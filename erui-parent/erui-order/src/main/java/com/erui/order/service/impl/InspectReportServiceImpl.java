@@ -482,7 +482,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
 
     //质检结果通知：质检人员将不合格商品通知采购经办人
-    public void sendSms(Map<String, Object> map1) throws Exception {
+    public  void sendSms(Map<String, Object> map1) throws Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {

@@ -52,12 +52,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
-
     @Autowired
     private InstockDao instockDao;
 
-
-
+    @Autowired
     private InspectReportServiceImpl inspectReportServiceImpl;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
