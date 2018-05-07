@@ -158,8 +158,14 @@ public class Project {
         }
         return null;
     }
-
-
+  /*  public String getEnProcessProgressName() {
+        Project.enProjectProgressEnum enProjectProgressEnum = Project.enProjectProgressEnum.enProjectProgressFromCode(getProcessProgress());
+        if (enProjectProgressEnum != null) {
+            return enProjectProgressEnum.getMsg();
+        }
+        return null;
+    }
+*/
     public void setProcessProgress(String processProgress) {
         this.processProgress = processProgress;
     }
@@ -300,7 +306,7 @@ public class Project {
         Project.ProjectStatusEnum statusEnum = null;
         if (StringUtils.equals(getProjectStatus(), "HASMANAGER")) {
             statusEnum = Project.ProjectStatusEnum.fromCode("SUBMIT");
-        }else {
+        } else {
             statusEnum = Project.ProjectStatusEnum.fromCode(getProjectStatus());
         }
         if (statusEnum != null) {
@@ -650,6 +656,48 @@ public class Project {
         public static ProjectProgressEnum ProjectProgressFromCode(String code) {
             if (StringUtils.isNotBlank(code)) {
                 for (ProjectProgressEnum statusEnum : ProjectProgressEnum.values()) {
+                    if (statusEnum.getNum() == Integer.valueOf(code)) {
+                        return statusEnum;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    //流程进度
+    public static enum enProjectProgressEnum {
+        SUBMIT("SUBMIT", "Not executed", 1), EXECUTING("EXECUTING", "Normal executing", 2),
+        BUYING("BUYING", "Purchasing", 3), QUARANTINE("DONE", "Applied for inspection", 4), CHECKING("CHECKING", "Quality inspecting", 5),
+        IN_STORAGE("IN_STORAGE", "In-storage", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "Warehouse-out inspecting", 7),
+        OUTSTORAGE("DELAYED_UNSHIPPED", "Warehouse-out", 8), SHIPED("SHIPED", "Shipped", 9);
+        private String code;
+        private String msg;
+
+        private Integer num;
+
+        enProjectProgressEnum(String code, String msg, Integer num) {
+
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
+
+        public static enProjectProgressEnum enProjectProgressFromCode(String code) {
+            if (StringUtils.isNotBlank(code)) {
+                for (enProjectProgressEnum statusEnum : enProjectProgressEnum.values()) {
                     if (statusEnum.getNum() == Integer.valueOf(code)) {
                         return statusEnum;
                     }
