@@ -385,7 +385,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         //推送仓库经办人   物流经办人
         Order order1 = deliverConsign1.getOrder();
         Project project = order1.getProject();
-        if (project.getWarehouseUid() != null) {
+        /*if (project.getWarehouseUid() != null) {
             deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
         }
         if (StringUtil.isNotBlank(project.getWarehouseName())) {
@@ -396,7 +396,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         if (StringUtil.isNotBlank(project.getLogisticsName())) {
             deliverDetail.setLogisticsUserName(project.getLogisticsName());   //物流经办人名字
-        }
+        }*/
         if (project.getQualityUid() != null) {
             deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
         }
