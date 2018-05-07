@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.erui.power.model.RoleAttrCountry" >
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="role_id" property="roleId" jdbcType="BIGINT" />
+    <result column="employee_id" property="employeeId" jdbcType="BIGINT" />
     <result column="country_bn" property="countryBn" jdbcType="VARCHAR" />
     <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -66,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, role_id, country_bn, created_time
+    id, role_id, employee_id, country_bn, created_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.power.model.RoleAttrCountryExample" >
     select
@@ -99,10 +100,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.power.model.RoleAttrCountry" >
-    insert into role_attr_country (id, role_id, country_bn, 
-      created_time)
-    values (#{id,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, #{countryBn,jdbcType=VARCHAR}, 
-      #{createdTime,jdbcType=TIMESTAMP})
+    insert into role_attr_country (id, role_id, employee_id, 
+      country_bn, created_time)
+    values (#{id,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, #{employeeId,jdbcType=BIGINT}, 
+      #{countryBn,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.power.model.RoleAttrCountry" >
     insert into role_attr_country
@@ -112,6 +113,9 @@
       </if>
       <if test="roleId != null" >
         role_id,
+      </if>
+      <if test="employeeId != null" >
+        employee_id,
       </if>
       <if test="countryBn != null" >
         country_bn,
@@ -126,6 +130,9 @@
       </if>
       <if test="roleId != null" >
         #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="employeeId != null" >
+        #{employeeId,jdbcType=BIGINT},
       </if>
       <if test="countryBn != null" >
         #{countryBn,jdbcType=VARCHAR},
@@ -150,6 +157,9 @@
       <if test="record.roleId != null" >
         role_id = #{record.roleId,jdbcType=BIGINT},
       </if>
+      <if test="record.employeeId != null" >
+        employee_id = #{record.employeeId,jdbcType=BIGINT},
+      </if>
       <if test="record.countryBn != null" >
         country_bn = #{record.countryBn,jdbcType=VARCHAR},
       </if>
@@ -165,6 +175,7 @@
     update role_attr_country
     set id = #{record.id,jdbcType=BIGINT},
       role_id = #{record.roleId,jdbcType=BIGINT},
+      employee_id = #{record.employeeId,jdbcType=BIGINT},
       country_bn = #{record.countryBn,jdbcType=VARCHAR},
       created_time = #{record.createdTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
@@ -176,6 +187,9 @@
     <set >
       <if test="roleId != null" >
         role_id = #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="employeeId != null" >
+        employee_id = #{employeeId,jdbcType=BIGINT},
       </if>
       <if test="countryBn != null" >
         country_bn = #{countryBn,jdbcType=VARCHAR},
@@ -189,6 +203,7 @@
   <update id="updateByPrimaryKey" parameterType="com.erui.power.model.RoleAttrCountry" >
     update role_attr_country
     set role_id = #{roleId,jdbcType=BIGINT},
+      employee_id = #{employeeId,jdbcType=BIGINT},
       country_bn = #{countryBn,jdbcType=VARCHAR},
       created_time = #{createdTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}

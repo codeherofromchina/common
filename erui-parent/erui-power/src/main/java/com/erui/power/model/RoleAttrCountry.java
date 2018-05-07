@@ -7,6 +7,8 @@ public class RoleAttrCountry {
 
     private Long roleId;
 
+    private Long employeeId;
+
     private String countryBn;
 
     private Date createdTime;
@@ -25,6 +27,14 @@ public class RoleAttrCountry {
 
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
     }
 
     public String getCountryBn() {

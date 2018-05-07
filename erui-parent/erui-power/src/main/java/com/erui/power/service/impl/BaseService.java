@@ -19,13 +19,13 @@ public class BaseService<E> {
         classType = (Class<E>) actualTypeArguments[0];
     }
 
-    @Resource(name = "sqlSessionMaster")
+    @Resource(name = "sqlSessionPowerMaster")
     public void setWriteMapper(SqlSessionTemplate sqlSession) {
         writerSession = sqlSession;
         this.writeMapper = sqlSession.getMapper(classType);
     }
 
-    @Resource(name = "sqlSessionSlave")
+    @Resource(name = "sqlSessionPowerSlave")
     public void setReadMapper(SqlSessionTemplate sqlSession) {
         readerSession = sqlSession;
         this.readMapper = sqlSession.getMapper(classType);

@@ -11,7 +11,7 @@
     <context:component-scan base-package="com.erui.power"/>
     <context:property-placeholder ignore-unresolvable="true" location="classpath:jdbc-power.properties"/>
 
-    <bean id="masterDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    <bean id="powerMasterDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="${power.master.driver}"/>
         <property name="url" value="${power.master.url}"/>
@@ -32,7 +32,7 @@
     </bean>
 
 
-    <bean id="slaveDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    <bean id="powerSlaveDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="${power.slave.driver}"/>
         <property name="url" value="${power.slave.url}"/>
@@ -52,44 +52,44 @@
         <property name="validationQuery" value="SELECT 1"/>
     </bean>
 
-    <bean id="masterSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="masterDataSource"/><!-- 指定数据源 -->
+    <bean id="powerMasterSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="powerMasterDataSource"/><!-- 指定数据源 -->
         <property name="mapperLocations" value="classpath:mapping/power/*.xml"></property>
     </bean>
-    <bean id="slaveSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="slaveDataSource"/><!-- 指定数据源 -->
+    <bean id="powerSlaveSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="powerSlaveDataSource"/><!-- 指定数据源 -->
         <property name="mapperLocations" value="classpath:mapping/power/*.xml"></property>
     </bean>
 
-    <bean id="mapperScannerConfigurer01" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <bean id="powerMapperScannerConfigurer01" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.erui.power.dao"/> <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
-        <property name="sqlSessionFactoryBeanName" value="masterSqlSessionFactory"></property>
+        <property name="sqlSessionFactoryBeanName" value="powerMasterSqlSessionFactory"></property>
     </bean>
-    <bean id="mapperScannerConfigurer02" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <bean id="powerMapperScannerConfigurer02" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.erui.power.dao"/> <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
-        <property name="sqlSessionFactoryBeanName" value="slaveSqlSessionFactory"></property>
+        <property name="sqlSessionFactoryBeanName" value="powerSlaveSqlSessionFactory"></property>
     </bean>
 
-    <bean id="sqlSessionMaster" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
-        <constructor-arg index="0" ref="masterSqlSessionFactory"/>
+    <bean id="sqlSessionPowerMaster" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg index="0" ref="powerMasterSqlSessionFactory"/>
     </bean>
 
-    <bean id="sqlSessionSlave" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
-        <constructor-arg index="0" ref="slaveSqlSessionFactory"/>
+    <bean id="sqlSessionPowerSlave" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg index="0" ref="powerSlaveSqlSessionFactory"/>
     </bean>
 
-    <bean id="transactionManagerM"
+    <bean id="transactionManagerPowerM"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="masterDataSource"/>
+        <property name="dataSource" ref="powerMasterDataSource"/>
     </bean>
 
-    <bean id="transactionManagerS"
+    <bean id="transactionManagerPowerS"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="slaveDataSource"/>
+        <property name="dataSource" ref="powerSlaveDataSource"/>
     </bean>
 
 
-    <tx:advice id="txAdviceM" transaction-manager="transactionManagerM">
+    <tx:advice id="txAdvicePowerM" transaction-manager="transactionManagerPowerM">
         <tx:attributes>
             <tx:method name="select*" read-only="true"/>
             <tx:method name="find*" read-only="true"/>
@@ -98,21 +98,21 @@
         </tx:attributes>
     </tx:advice>
 
-    <tx:advice id="txAdviceS" transaction-manager="transactionManagerS">
+    <tx:advice id="txAdvicePowerS" transaction-manager="transactionManagerPowerS">
         <tx:attributes>
             <tx:method name="*" read-only="true"/>
         </tx:attributes>
     </tx:advice>
 
     <aop:config>
-        <aop:pointcut id="appServiceM"
+        <aop:pointcut id="appServicePowerM"
                       expression="execution(* com.erui.power.service..*Service*.*(..))"/>
-        <aop:advisor advice-ref="txAdviceM" pointcut-ref="appServiceM"/>
+        <aop:advisor advice-ref="txAdvicePowerM" pointcut-ref="appServicePowerM"/>
     </aop:config>
 
     <aop:config>
-        <aop:pointcut id="appServiceS"
+        <aop:pointcut id="appServicePowerS"
                       expression="execution(* com.erui.power.service..*Service*.*(..))"/>
-        <aop:advisor advice-ref="txAdviceS" pointcut-ref="appServiceS"/>
+        <aop:advisor advice-ref="txAdvicePowerS" pointcut-ref="appServicePowerS"/>
     </aop:config>
 </beans>
