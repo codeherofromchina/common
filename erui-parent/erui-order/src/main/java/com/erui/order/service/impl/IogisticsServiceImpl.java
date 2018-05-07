@@ -42,6 +42,9 @@ public class IogisticsServiceImpl implements IogisticsService {
     @Autowired
     private IogisticsDataDao iogisticsDataDao;
 
+    @Autowired
+    private InstockServiceImpl getInstockServiceImpl;
+
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -164,20 +167,35 @@ public class IogisticsServiceImpl implements IogisticsService {
             throw new Exception(String.format("%s%s%s", "未选择商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unselected commodity information"));
         }
 
+
+        //获取经办分单人信息
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
+        String name = stringStringMap.get("name");
+        String submenuId = stringStringMap.get("id");
+
+
+        //推送数据
         IogisticsData iogisticsData = new IogisticsData();
         iogisticsData.setTheAwbNo(createTheAwbNo());    //物流号
         iogisticsData.setStatus(5); //物流状态
         iogisticsData.setLogisticsUserId(Integer.parseInt(params.get("logisticsUserId"))); //物流经办人id
         iogisticsData.setLogisticsUserName(params.get("logisticsUserName")); //物流经办人名称
+        if(StringUtil.isBlank(iogisticsData.getSubmenuName())){
+            iogisticsData.setSubmenuName(name); //分单员经办人姓名
+        }
+        if(iogisticsData.getSubmenuId() == null){
+            iogisticsData.setSubmenuId(Integer.parseInt(submenuId));   //入库分单人Id
+        }
         IogisticsData save = iogisticsDataDao.save(iogisticsData);  //物流信息
 
 
-        String[] arr = new String[ids.length];  //销售合同号对比是否相同
 
+
+        String[] arr = new String[ids.length];  //销售合同号对比是否相同
         Set<String> contractNoSet = new HashSet<>();//销售合同号
         Set<String> deliverDetailNoSet = new HashSet<>(); //产品放行单号
         Set releaseDateSSet = new HashSet(); //放行日期  数据库存储的拼接字段
-
         Iogistics iogistics = null; //获取分单信息，获取物流经办人信息
 
         int i = 0;

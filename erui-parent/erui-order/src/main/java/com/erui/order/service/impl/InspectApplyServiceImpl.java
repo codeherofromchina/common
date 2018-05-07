@@ -357,7 +357,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             pushInspectApply(dbInspectApply);
 
             //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
-            disposeData(inspectApply);
+            disposeData(dbInspectApply);
         }
         // 保存报检单
         inspectApplyDao.save(dbInspectApply);
