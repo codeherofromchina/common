@@ -359,7 +359,7 @@ public class InstockServiceImpl implements InstockService {
         //V2.0入库转交经办人：入库分单员转交推送给入库经办人
         Map<String, Object> map = new HashMap();
         map.put("projectNo",instockSave.getInstockGoodsList().get(0).getProjectNo());  //项目号
-        map.put("inspectApplyNo",instockSave.getInspectReport().getInspectApplyNo()); //报检单号
+        map.put("inspectApplyNo",instock.getInspectApplyNo()); //报检单号
         map.put("submenuName",instockSave.getSubmenuName());   //入库分单员名称
         map.put("logisticsUserId",instockSave.getUid());   //入库经办人id
         map.put("yn",1); //入库
