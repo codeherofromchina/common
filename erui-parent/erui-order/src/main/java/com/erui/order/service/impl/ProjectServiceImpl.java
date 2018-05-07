@@ -1,8 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.Goods;
@@ -14,7 +19,10 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,12 +42,21 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ProjectServiceImpl implements ProjectService {
+
+    private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
+
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
     private ProjectDao projectDao;
     @Autowired
     private OrderDao orderDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
 
     @Override
     @Transactional(readOnly = true)
@@ -146,8 +163,16 @@ public class ProjectServiceImpl implements ProjectService {
                 orderDao.save(order);
             }
             projectUpdate.setUpdateTime(new Date());
-            projectDao.save(projectUpdate);
+            Project project1 = projectDao.save(projectUpdate);
+
+            //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
+            if (project1.getProjectStatus() == Project.ProjectStatusEnum.HASMANAGER.getCode()) {
+                Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
+                sendSms(project1,managerUid);
+            }
+
         }
+
         return true;
     }
 
@@ -540,4 +565,45 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return proList;
     }
+
+
+
+    //出库短信通知
+    public void sendSms(Project project , Integer managerUid) throws Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try {
+                //请求头信息
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+
+                // 根据id获取人员信息
+                String jsonParam = "{\"id\":\"" + managerUid + "\"}";   //交付配送中心项目经理ID
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //发送短信
+                    Map<String, String> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", "[\"" + data.getString("mobile") + "\"]");    //项目经理手机号
+                    map.put("content", "您好，项目名称：" + project.getProjectName() + "，商务技术经办人：" + project.getBusinessName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态" + s1);
+                }
+            } catch (Exception e) {
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+            }
+
+        }
+    }
+
 }

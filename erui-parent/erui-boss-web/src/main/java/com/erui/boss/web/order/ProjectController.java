@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.Goods;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,11 +106,14 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "handleProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> handleProject(@RequestBody Project project) {
+    public Result<Object> handleProject(@RequestBody Project project, HttpServletRequest request) {
         Result<Object> result = new Result<>();
         Project proStatus = projectService.findById(project.getId());
         String errorMsg = null;
         try {
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
             if (proStatus != null && projectService.updateProject(project)) {
                 return new Result<>();
             } else {
