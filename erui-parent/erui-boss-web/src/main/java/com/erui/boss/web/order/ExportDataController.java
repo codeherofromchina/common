@@ -177,7 +177,7 @@ public class ExportDataController {
             String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
                     "crmCode", "orderTypeName", "currencyBn", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
             String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
-                    "crmCode", "EnOrderTypeName", "currencyBn", "totalPriceUsdSplit", "EnPayStatusName", "EnOrderSourceName", "EnOrderStatusName", "EnProcessProgressName"};
+                    "crmCode", "enOrderTypeName", "currencyBn", "totalPriceUsdSplit", "enPayStatusName", "enOrderSourceName", "enOrderStatusName", "enProcessProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook;
