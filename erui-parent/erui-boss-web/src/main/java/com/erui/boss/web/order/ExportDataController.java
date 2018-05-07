@@ -181,10 +181,9 @@ public class ExportDataController {
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook;
-            if (lang == "en") {
+            if (StringUtils.equals(lang,"en")) {
                 workbook = buildExcel.buildExcel((List) objArr, header, enKeys, "订单列表");
             } else {
-
                 workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
             }
             ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
