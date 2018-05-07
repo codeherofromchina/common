@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.power.dao.FuncPermMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.power.model.FuncPerm" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="fn" property="fn" jdbcType="VARCHAR" />
+    <result column="fn_en" property="fnEn" jdbcType="VARCHAR" />
+    <result column="fn_es" property="fnEs" jdbcType="VARCHAR" />
+    <result column="fn_ru" property="fnRu" jdbcType="VARCHAR" />
+    <result column="show_name" property="showName" jdbcType="VARCHAR" />
+    <result column="show_name_en" property="showNameEn" jdbcType="VARCHAR" />
+    <result column="show_name_es" property="showNameEs" jdbcType="VARCHAR" />
+    <result column="show_name_ru" property="showNameRu" jdbcType="VARCHAR" />
+    <result column="fn_group" property="fnGroup" jdbcType="VARCHAR" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="sort" property="sort" jdbcType="INTEGER" />
+    <result column="grant_flag" property="grantFlag" jdbcType="VARCHAR" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+    <result column="source" property="source" jdbcType="VARCHAR" />
+    <result column="created_by" property="createdBy" jdbcType="BIGINT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, parent_id, fn, fn_en, fn_es, fn_ru, show_name, show_name_en, show_name_es, show_name_ru, 
+    fn_group, url, sort, grant_flag, remarks, source, created_by, created_at
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.power.model.FuncPermExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from func_perm
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from func_perm
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from func_perm
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.power.model.FuncPermExample" >
+    delete from func_perm
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.power.model.FuncPerm" >
+    insert into func_perm (id, parent_id, fn, 
+      fn_en, fn_es, fn_ru, show_name, 
+      show_name_en, show_name_es, show_name_ru, 
+      fn_group, url, sort, 
+      grant_flag, remarks, source, 
+      created_by, created_at)
+    values (#{id,jdbcType=BIGINT}, #{parentId,jdbcType=BIGINT}, #{fn,jdbcType=VARCHAR}, 
+      #{fnEn,jdbcType=VARCHAR}, #{fnEs,jdbcType=VARCHAR}, #{fnRu,jdbcType=VARCHAR}, #{showName,jdbcType=VARCHAR}, 
+      #{showNameEn,jdbcType=VARCHAR}, #{showNameEs,jdbcType=VARCHAR}, #{showNameRu,jdbcType=VARCHAR}, 
+      #{fnGroup,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, 
+      #{grantFlag,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, 
+      #{createdBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.power.model.FuncPerm" >
+    insert into func_perm
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="fn != null" >
+        fn,
+      </if>
+      <if test="fnEn != null" >
+        fn_en,
+      </if>
+      <if test="fnEs != null" >
+        fn_es,
+      </if>
+      <if test="fnRu != null" >
+        fn_ru,
+      </if>
+      <if test="showName != null" >
+        show_name,
+      </if>
+      <if test="showNameEn != null" >
+        show_name_en,
+      </if>
+      <if test="showNameEs != null" >
+        show_name_es,
+      </if>
+      <if test="showNameRu != null" >
+        show_name_ru,
+      </if>
+      <if test="fnGroup != null" >
+        fn_group,
+      </if>
+      <if test="url != null" >
+        url,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="grantFlag != null" >
+        grant_flag,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+      <if test="source != null" >
+        source,
+      </if>
+      <if test="createdBy != null" >
+        created_by,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="fn != null" >
+        #{fn,jdbcType=VARCHAR},
+      </if>
+      <if test="fnEn != null" >
+        #{fnEn,jdbcType=VARCHAR},
+      </if>
+      <if test="fnEs != null" >
+        #{fnEs,jdbcType=VARCHAR},
+      </if>
+      <if test="fnRu != null" >
+        #{fnRu,jdbcType=VARCHAR},
+      </if>
+      <if test="showName != null" >
+        #{showName,jdbcType=VARCHAR},
+      </if>
+      <if test="showNameEn != null" >
+        #{showNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="showNameEs != null" >
+        #{showNameEs,jdbcType=VARCHAR},
+      </if>
+      <if test="showNameRu != null" >
+        #{showNameRu,jdbcType=VARCHAR},
+      </if>
+      <if test="fnGroup != null" >
+        #{fnGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="grantFlag != null" >
+        #{grantFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createdBy != null" >
+        #{createdBy,jdbcType=BIGINT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.power.model.FuncPermExample" resultType="java.lang.Integer" >
+    select count(*) from func_perm
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update func_perm
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.parentId != null" >
+        parent_id = #{record.parentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.fn != null" >
+        fn = #{record.fn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fnEn != null" >
+        fn_en = #{record.fnEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fnEs != null" >
+        fn_es = #{record.fnEs,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fnRu != null" >
+        fn_ru = #{record.fnRu,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showName != null" >
+        show_name = #{record.showName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showNameEn != null" >
+        show_name_en = #{record.showNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showNameEs != null" >
+        show_name_es = #{record.showNameEs,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showNameRu != null" >
+        show_name_ru = #{record.showNameRu,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fnGroup != null" >
+        fn_group = #{record.fnGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="record.url != null" >
+        url = #{record.url,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sort != null" >
+        sort = #{record.sort,jdbcType=INTEGER},
+      </if>
+      <if test="record.grantFlag != null" >
+        grant_flag = #{record.grantFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="record.source != null" >
+        source = #{record.source,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdBy != null" >
+        created_by = #{record.createdBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.createdAt != null" >
+        created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update func_perm
+    set id = #{record.id,jdbcType=BIGINT},
+      parent_id = #{record.parentId,jdbcType=BIGINT},
+      fn = #{record.fn,jdbcType=VARCHAR},
+      fn_en = #{record.fnEn,jdbcType=VARCHAR},
+      fn_es = #{record.fnEs,jdbcType=VARCHAR},
+      fn_ru = #{record.fnRu,jdbcType=VARCHAR},
+      show_name = #{record.showName,jdbcType=VARCHAR},
+      show_name_en = #{record.showNameEn,jdbcType=VARCHAR},
+      show_name_es = #{record.showNameEs,jdbcType=VARCHAR},
+      show_name_ru = #{record.showNameRu,jdbcType=VARCHAR},
+      fn_group = #{record.fnGroup,jdbcType=VARCHAR},
+      url = #{record.url,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=INTEGER},
+      grant_flag = #{record.grantFlag,jdbcType=VARCHAR},
+      remarks = #{record.remarks,jdbcType=VARCHAR},
+      source = #{record.source,jdbcType=VARCHAR},
+      created_by = #{record.createdBy,jdbcType=BIGINT},
+      created_at = #{record.createdAt,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.power.model.FuncPerm" >
+    update func_perm
+    <set >
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="fn != null" >
+        fn = #{fn,jdbcType=VARCHAR},
+      </if>
+      <if test="fnEn != null" >
+        fn_en = #{fnEn,jdbcType=VARCHAR},
+      </if>
+      <if test="fnEs != null" >
+        fn_es = #{fnEs,jdbcType=VARCHAR},
+      </if>
+      <if test="fnRu != null" >
+        fn_ru = #{fnRu,jdbcType=VARCHAR},
+      </if>
+      <if test="showName != null" >
+        show_name = #{showName,jdbcType=VARCHAR},
+      </if>
+      <if test="showNameEn != null" >
+        show_name_en = #{showNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="showNameEs != null" >
+        show_name_es = #{showNameEs,jdbcType=VARCHAR},
+      </if>
+      <if test="showNameRu != null" >
+        show_name_ru = #{showNameRu,jdbcType=VARCHAR},
+      </if>
+      <if test="fnGroup != null" >
+        fn_group = #{fnGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null" >
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="grantFlag != null" >
+        grant_flag = #{grantFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null" >
+        source = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createdBy != null" >
+        created_by = #{createdBy,jdbcType=BIGINT},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.power.model.FuncPerm" >
+    update func_perm
+    set parent_id = #{parentId,jdbcType=BIGINT},
+      fn = #{fn,jdbcType=VARCHAR},
+      fn_en = #{fnEn,jdbcType=VARCHAR},
+      fn_es = #{fnEs,jdbcType=VARCHAR},
+      fn_ru = #{fnRu,jdbcType=VARCHAR},
+      show_name = #{showName,jdbcType=VARCHAR},
+      show_name_en = #{showNameEn,jdbcType=VARCHAR},
+      show_name_es = #{showNameEs,jdbcType=VARCHAR},
+      show_name_ru = #{showNameRu,jdbcType=VARCHAR},
+      fn_group = #{fnGroup,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=INTEGER},
+      grant_flag = #{grantFlag,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      created_by = #{createdBy,jdbcType=BIGINT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
