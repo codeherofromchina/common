@@ -337,34 +337,22 @@ public class InstockServiceImpl implements InstockService {
 
 
         //获取经办分单人信息
-        String name = null;    //入库分单人姓名
-        Integer id = null; //入库分单人Id
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (StringUtils.isNotBlank(eruiToken)) {
-            Map<String, String> header = new HashMap<>();
-            String jsonParam = "{\"token\":\"" + eruiToken + "\"}";
-            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-            header.put("Content-Type", "application/json");
-            header.put("accept", "*/*");
-            String s = HttpRequest.sendPost(ssoUser, jsonParam, header);
-            logger.info("CRM返回信息：" + s);
-
-            JSONObject jsonObject = JSONObject.parseObject(s);
-            if (jsonObject.getInteger("code") == 200) {
-                name = jsonObject.getString("name");
-                id = jsonObject.getInteger("id");
-            }
-        }
-
-
+        Map<String, String> map1 = ssoUser(eruiToken);
+        String name = map1.get("name");
+        String id = map1.get("id");
 
         //保存经办人信息
         Instock dbInstock = instockDao.findOne(instock.getId());
         // 保存基本信息
         dbInstock.setUid(instock.getUid());  //仓库经办人ID
         dbInstock.setUname(instock.getUname());  //仓库经办人名字
-        dbInstock.setSubmenuName(name); //分单员经办人姓名
-        dbInstock.setSubmenuId(id);   //入库分单人Id
+        if(StringUtil.isBlank(dbInstock.getSubmenuName())){
+            dbInstock.setSubmenuName(name); //分单员经办人姓名
+        }
+        if(dbInstock.getSubmenuId() == null){
+            dbInstock.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
+        }
         Instock instockSave = instockDao.save(dbInstock);
 
 
@@ -459,5 +447,30 @@ public class InstockServiceImpl implements InstockService {
 
         }
     }
+
+
+    //获取当前登录用户
+    public  Map<String ,String> ssoUser(String eruiToken){
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            String jsonParam = "{\"token\":\"" + eruiToken + "\"}";
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            String s = HttpRequest.sendPost(ssoUser, jsonParam, header);
+            logger.info("CRM返回信息：" + s);
+
+            JSONObject jsonObject = JSONObject.parseObject(s);
+
+            Map mapUser = new HashMap<>();
+            if (jsonObject.getInteger("code") == 200) {
+                mapUser.put("name",jsonObject.getString("name"));
+                mapUser.put("id",jsonObject.getString("id"));
+            }
+            return mapUser;
+        }
+        return null;
+    }
+
 
 }

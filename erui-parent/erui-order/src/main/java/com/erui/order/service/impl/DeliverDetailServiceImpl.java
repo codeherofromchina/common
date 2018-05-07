@@ -77,6 +77,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     private  InstockServiceImpl instockServiceImpl;
 
+    @Autowired
+    private InstockServiceImpl getInstockServiceImpl;
+
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -85,6 +88,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Value("#{orderProp[MEMBER_LIST]}")
     private String memberList;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SSO_USER]}")
+    private String ssoUser;  //从SSO获取登录用户
 
     @Override
     @Transactional(readOnly = true)
@@ -907,10 +913,27 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail) {
+
+        //获取经办分单人信息
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
+        String name = stringStringMap.get("name");
+        String id = stringStringMap.get("id");
+
+
+
+        //保存经办人信息
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         one.setWareHouseman(deliverDetail.getWareHouseman());   //出库经办人ID
         one.setWareHousemanName(deliverDetail.getWareHousemanName());   //出库经办人姓名
+        if(StringUtil.isBlank(one.getSubmenuName())){
+            one.setSubmenuName(name); //分单员经办人姓名
+        }
+        if(one.getSubmenuId() == null){
+            one.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
+        }
         deliverDetailDao.save(one);
+
 
 
         //V2.0出库转交经办人：出库分单员转交推送给出库经办人
