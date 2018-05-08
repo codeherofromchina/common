@@ -247,7 +247,7 @@ public class InstockServiceImpl implements InstockService {
                 //当入库提交的时候才保存  入库日期
                 Goods one = goodsDao.findOne(instockGoods.getInspectApplyGoods().getGoods().getId());
                 one.setInstockDate(dbInstock.getInstockDate()); //入库日期
-                one.setUid(instockGoods.getInspectApplyGoods().getGoods().getProject().getWarehouseUid());   //仓库经办人id
+                one.setUid(instock.getUid());   //入库经办人id
                 goodsDao.saveAndFlush(one);
                 applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(), 6));
             }
