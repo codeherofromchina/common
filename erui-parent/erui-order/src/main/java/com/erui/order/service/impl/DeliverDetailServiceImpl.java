@@ -1287,14 +1287,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public void pushWareHouseman(DeliverDetail one){
         List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
-            Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());   //查询到商品信息
-            if (one.getWareHouseman() != null) {
-                one1.setWareHouseman(one.getWareHouseman());//推送   出库经办人  到商品表
+            if(deliverConsignGoods.getSendNum() != 0){
+                Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());   //查询到商品信息
+                if (one.getWareHouseman() != null) {
+                    one1.setWareHouseman(one.getWareHouseman());//推送   出库经办人  到商品表
+                }
+                if(one.getLeaveDate() != null){
+                    one1.setLeaveDate(one.getLeaveDate());//推送   出库日期  到商品表
+                }
+                goodsDao.save(one1);
             }
-            if(one.getLeaveDate() != null){
-                one1.setLeaveDate(one.getLeaveDate());//推送   出库日期  到商品表
-            }
-            goodsDao.save(one1);
         }
     }
 
