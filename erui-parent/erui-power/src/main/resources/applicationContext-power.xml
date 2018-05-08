@@ -55,10 +55,40 @@
     <bean id="powerMasterSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="powerMasterDataSource"/><!-- 指定数据源 -->
         <property name="mapperLocations" value="classpath:mapping/power/*.xml"></property>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <value>
+                            helperDialect=mysql
+                            reasonable=false
+                            supportMethodsArguments=true
+                            params=count=countSql
+                            pageSizeZero=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
     </bean>
     <bean id="powerSlaveSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="powerSlaveDataSource"/><!-- 指定数据源 -->
         <property name="mapperLocations" value="classpath:mapping/power/*.xml"></property>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <value>
+                            helperDialect=mysql
+                            reasonable=false
+                            supportMethodsArguments=true
+                            params=count=countSql
+                            pageSizeZero=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
     </bean>
 
     <bean id="powerMapperScannerConfigurer01" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
@@ -94,6 +124,7 @@
             <tx:method name="select*" read-only="true"/>
             <tx:method name="find*" read-only="true"/>
             <tx:method name="get*" read-only="true"/>
+            <tx:method name="list*" read-only="true"/>
             <tx:method name="*"/>
         </tx:attributes>
     </tx:advice>
