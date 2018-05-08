@@ -531,7 +531,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if(status == 2) {
 
             //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-            pushWareHouseman(one);
+            pushWareHouseman(one,1);
 
             if (outboundNums != 0) { //出库总数量不等于0  才发送信息
 
@@ -550,6 +550,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if(straightNums == 0){      //判断厂家直发总数量   没有出库商品的时候不让出库
                     throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
                 }
+
+                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+                pushWareHouseman(one,2);
 
                 one.setStatus(5);   //出库状态
                 one.setOutCheck(0); //设置不外检
@@ -586,6 +589,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
             DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
+
+
+            //如果是厂家直接发货    推送  出库日期 到商品表
+            pushWareHouseman(one,2);
 
                 //已出库
                 applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
@@ -1284,7 +1291,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     }
 
     //如果是厂家直接发货    推送  出库经办人  到商品表
-    public void pushWareHouseman(DeliverDetail one){
+    public void pushWareHouseman(DeliverDetail one,Integer yn){
         List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
             if(deliverConsignGoods.getSendNum() != 0){
@@ -1292,8 +1299,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (one.getWareHouseman() != null) {
                     one1.setWareHouseman(one.getWareHouseman());//推送   出库经办人  到商品表
                 }
-                if(one.getLeaveDate() != null){
-                    one1.setLeaveDate(one.getLeaveDate());//推送   出库日期  到商品表
+                if(yn != 1){    //不等1的时候是确认出库推送  出库日期
+                    if(one.getLeaveDate() != null){
+                        one1.setLeaveDate(one.getLeaveDate());//推送   出库日期  到商品表
+                    }
                 }
                 goodsDao.save(one1);
             }
