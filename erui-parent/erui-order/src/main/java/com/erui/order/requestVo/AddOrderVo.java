@@ -168,6 +168,8 @@ public class AddOrderVo {
     private String projectNo;
     //商务技术
     private Integer technicalId;
+    //订单类别 1科瑞订单 2 易瑞订单
+    private Integer orderBelongs;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -176,6 +178,13 @@ public class AddOrderVo {
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
 
+    public Integer getOrderBelongs() {
+        return orderBelongs;
+    }
+
+    public void setOrderBelongs(Integer orderBelongs) {
+        this.orderBelongs = orderBelongs;
+    }
 
     public String getProjectNo() {
         return projectNo;
@@ -700,6 +709,7 @@ public class AddOrderVo {
         order.setDistributionDeptName(this.distributionDeptName);
         order.setAcquireId(this.acquireId);
         order.setBusinessName(this.businessName);
+        order.setOrderBelongs(this.orderBelongs);
     }
 
 

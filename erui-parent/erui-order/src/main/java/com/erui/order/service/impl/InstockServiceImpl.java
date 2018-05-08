@@ -1,9 +1,14 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
@@ -17,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -48,6 +54,16 @@ public class InstockServiceImpl implements InstockService {
     private GoodsDao goodsDao;
     @Autowired
     private InspectApplyGoodsDao inspectApplyGoodsDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+
+    @Value("#{orderProp[SSO_USER]}")
+    private String ssoUser;  //从SSO获取登录用户
 
     @Override
     @Transactional(readOnly = true)
@@ -106,27 +122,10 @@ public class InstockServiceImpl implements InstockService {
                 if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
 
                     Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
-                    /*Join<Instock,InstockGoods> instockGoodsRoot = root.join("instockGoodsList");
-                    Join<InstockGoods, InspectApplyGoods> inspectApplyGoodsRoot = instockGoodsRoot.join("inspectApplyGoods");
-                    Join<InspectApplyGoods, Goods> goodsRoot = inspectApplyGoodsRoot.join("goods");
-                    Join<Goods, Project> projectRoot = goodsRoot.join("project");*/
 
                     list.add(cb.equal(root.get("uid").as(Integer.class), wareHouseman));
 
                 }
-
-              /*  // 仓库经办人
-                if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
-
-                    Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
-
-                    Join<Instock,InspectReport> inspectReportRoot = root.join("inspectReport");
-                    Join<InspectReport,InspectApply> inspectApplyRoot = inspectReportRoot.join("inspectApply");
-                    Join<InspectApply, Purch> purchRoot = inspectApplyRoot.join("purch");
-                    Join<Purch, Project> projectRoot = purchRoot.join("projects");
-                    list.add(cb.equal(projectRoot.get("warehouseUid").as(Integer.class), wareHouseman));
-
-                }*/
 
                 // 销售合同号 、 项目号查询
                 if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
@@ -299,9 +298,9 @@ public class InstockServiceImpl implements InstockService {
                     }
                 }
             }
-            if (instockGoodsMap.size() > 0) {
-                throw new Exception(String.format("%s%s%s","入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The number of goods in the warehouse"));
-            }
+        }
+        if (instockGoodsMap.size() > 0) {
+            throw new Exception(String.format("%s%s%s","入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The number of goods in the warehouse"));
         }
             instockDao.save(dbInstock);
 
@@ -323,6 +322,54 @@ public class InstockServiceImpl implements InstockService {
         }
 
         return instock;
+    }
+
+
+    /**
+     * 入库详情信息   转交经办人
+     *
+     * @param instock
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean instockDeliverAgent(Instock instock) {
+
+
+        //获取经办分单人信息
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Map<String, String> map1 = ssoUser(eruiToken);
+        String name = map1.get("name");
+        String id = map1.get("id");
+
+        //保存经办人信息
+        Instock dbInstock = instockDao.findOne(instock.getId());
+        // 保存基本信息
+        dbInstock.setUid(instock.getUid());  //仓库经办人ID
+        dbInstock.setUname(instock.getUname());  //仓库经办人名字
+        if(StringUtil.isBlank(dbInstock.getSubmenuName())){
+            dbInstock.setSubmenuName(name); //分单员经办人姓名
+        }
+        if(dbInstock.getSubmenuId() == null){
+            dbInstock.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
+        }
+        Instock instockSave = instockDao.save(dbInstock);
+
+
+        //V2.0入库转交经办人：入库分单员转交推送给入库经办人
+        Map<String, Object> map = new HashMap();
+        map.put("projectNo",instockSave.getInstockGoodsList().get(0).getProjectNo());  //项目号
+        map.put("inspectApplyNo",instock.getInspectApplyNo()); //报检单号
+        map.put("submenuName",instockSave.getSubmenuName());   //入库分单员名称
+        map.put("logisticsUserId",instockSave.getUid());   //入库经办人id
+        map.put("yn",1); //入库
+        try {
+            sendSms(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 
 
@@ -354,4 +401,76 @@ public class InstockServiceImpl implements InstockService {
         }
         return idSer;
     }
+
+
+
+    //V2.0入库转交经办人：入库分单员转交推送给入库经办人
+    public void sendSms(Map<String, Object> map1) throws Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                    // 根据入库经办人id获取人员信息
+                    String jsonParam = "{\"id\":\"" + map1.get("logisticsUserId") + "\"}";
+                    String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    logger.info("人员详情返回信息：" + s);
+                    JSONObject jsonObject = JSONObject.parseObject(s);
+                    Integer code = jsonObject.getInteger("code");
+                    if (code == 1) {
+                        JSONObject data = jsonObject.getJSONObject("data");
+                        String  mobile = data.getString("mobile");  //获取入库经办人手机号
+                        //发送短信
+                        Map<String, String> map = new HashMap();
+                        map.put("areaCode", "86");
+                        map.put("to", "[\"" + mobile + "\"]");
+
+                        if(Integer.valueOf((Integer) map1.get("yn")) == 1){
+                            map.put("content", "您好，项目号："+map1.get("projectNo")+"，报检单号："+map1.get("inspectApplyNo")+"，入库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
+                        }else{
+                            map.put("content", "您好，销售合同号："+map1.get("projectNo")+"，产品放行单号查询："+map1.get("inspectApplyNo")+"，出库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
+                        }
+                        map.put("subType", "0");
+                        map.put("groupSending", "0");
+                        map.put("useType", "订单");
+                        String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                        logger.info("发送短信返回状态" + s1);
+                }
+
+            } catch (Exception e) {
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+            }
+
+        }
+    }
+
+
+    //获取当前登录用户
+    public  Map<String ,String> ssoUser(String eruiToken){
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            String jsonParam = "{\"token\":\"" + eruiToken + "\"}";
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            String s = HttpRequest.sendPost(ssoUser, jsonParam, header);
+            logger.info("CRM返回信息：" + s);
+
+            JSONObject jsonObject = JSONObject.parseObject(s);
+
+            Map mapUser = new HashMap<>();
+            if (jsonObject.getInteger("code") == 200) {
+                mapUser.put("name",jsonObject.getString("name"));
+                mapUser.put("id",jsonObject.getString("id"));
+            }
+            return mapUser;
+        }
+        return null;
+    }
+
+
 }

@@ -1,8 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.data.string.StringUtils;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.IogisticsDao;
 import com.erui.order.dao.IogisticsDataDao;
 import com.erui.order.entity.*;
@@ -11,6 +16,7 @@ import com.erui.order.service.IogisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,6 +41,18 @@ public class IogisticsServiceImpl implements IogisticsService {
 
     @Autowired
     private IogisticsDataDao iogisticsDataDao;
+
+    @Autowired
+    private InstockServiceImpl getInstockServiceImpl;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
     /**
      * 出库信息管理（V 2.0）   查询列表页
@@ -149,18 +167,35 @@ public class IogisticsServiceImpl implements IogisticsService {
             throw new Exception(String.format("%s%s%s", "未选择商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unselected commodity information"));
         }
 
+
+        //获取经办分单人信息
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
+        String name = stringStringMap.get("name");
+        String submenuId = stringStringMap.get("id");
+
+
+        //推送数据
         IogisticsData iogisticsData = new IogisticsData();
         iogisticsData.setTheAwbNo(createTheAwbNo());    //物流号
         iogisticsData.setStatus(5); //物流状态
+        iogisticsData.setLogisticsUserId(Integer.parseInt(params.get("logisticsUserId"))); //物流经办人id
+        iogisticsData.setLogisticsUserName(params.get("logisticsUserName")); //物流经办人名称
+        if(StringUtil.isBlank(iogisticsData.getSubmenuName())){
+            iogisticsData.setSubmenuName(name); //分单员经办人姓名
+        }
+        if(iogisticsData.getSubmenuId() == null){
+            iogisticsData.setSubmenuId(Integer.parseInt(submenuId));   //入库分单人Id
+        }
         IogisticsData save = iogisticsDataDao.save(iogisticsData);  //物流信息
 
 
-        String[] arr = new String[ids.length];  //销售合同号对比是否相同
 
+
+        String[] arr = new String[ids.length];  //销售合同号对比是否相同
         Set<String> contractNoSet = new HashSet<>();//销售合同号
         Set<String> deliverDetailNoSet = new HashSet<>(); //产品放行单号
         Set releaseDateSSet = new HashSet(); //放行日期  数据库存储的拼接字段
-
         Iogistics iogistics = null; //获取分单信息，获取物流经办人信息
 
         int i = 0;
@@ -210,10 +245,15 @@ public class IogisticsServiceImpl implements IogisticsService {
             save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
 
-        save.setLogisticsUserId(iogistics.getLogisticsUserId()); //物流经办人id
-        save.setLogisticsUserName(iogistics.getLogisticsUserName()); //物流经办人名称
-
         iogisticsDataDao.save(save);
+        Map<String, Object> map = new HashMap();
+        map.put("contractNo",save.getContractNo());  //销售合同号
+        map.put("theAwbNo",save.getTheAwbNo()); //运单号
+        map.put("submenuName",save.getSubmenuName());   //物流分单员名称
+        map.put("logisticsUserId",save.getLogisticsUserId());   //物流经办人id
+        sendSms(map);
+
+
 
         return true;
     }
@@ -244,6 +284,71 @@ public class IogisticsServiceImpl implements IogisticsService {
             }
         }
 
+    }
+
+
+    //V2.0出库信息管理：转交经办人的时候通知物流经办人
+    public void sendSms(Map<String, Object> map1) throws Exception {
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+
+
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+
+            try {
+                //判断物流经办人是否是物流分单员    如果是分单员不用发送短信
+                //将合格发送给仓库分单员
+                String jsonParams = "{\"role_no\":\"O020\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParams, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                List<Integer> listAll = new ArrayList<>();
+                if (codes == 1) {    //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++){
+                        JSONObject ob  = (JSONObject)data1.get(i);
+                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                    }
+                }
+
+                if(!listAll.contains(map1.get("logisticsUserId"))){     //如果某一个物流分单员和仓库经办人id相同则不用发送短信
+                    // 根据物流经办人id获取人员信息
+                    String jsonParam = "{\"id\":\"" + map1.get("logisticsUserId") + "\"}";
+                    String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    logger.info("人员详情返回信息：" + s);
+                    JSONObject jsonObject = JSONObject.parseObject(s);
+                    Integer code = jsonObject.getInteger("code");
+                    if (code == 1) {
+
+                        JSONObject data = jsonObject.getJSONObject("data");
+                        String  mobile = data.getString("mobile");  //获取物流经办人手机号
+                        //发送短信
+                        Map<String, String> map = new HashMap();
+                        map.put("areaCode", "86");
+                        map.put("to", "[\"" + mobile + "\"]");
+                        map.put("content", "您好，销售合同号："+map1.get("contractNo")+"，运单号："+map1.get("theAwbNo")+"，物流分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("subType", "0");
+                        map.put("groupSending", "0");
+                        map.put("useType", "订单");
+                        String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                        logger.info("发送短信返回状态" + s1);
+                    }
+                }
+
+            } catch (Exception e) {
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+            }
+
+        }
     }
 
 

@@ -242,6 +242,17 @@ public class Order {
     private Integer buyerId;
     @Column(name = "inquiry_id")
     private Integer inquiryId;
+    //订单类别 1科瑞订单 2 易瑞订单
+    @Column(name = "order_belongs")
+    private Integer orderBelongs;
+
+    public Integer getOrderBelongs() {
+        return orderBelongs;
+    }
+
+    public void setOrderBelongs(Integer orderBelongs) {
+        this.orderBelongs = orderBelongs;
+    }
 
     public Integer getDeliverConsignHas() {
         return deliverConsignHas;
@@ -255,6 +266,13 @@ public class Order {
         Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(getProcessProgress());
         if (projectProgressEnum != null) {
             return projectProgressEnum.getMsg();
+        }
+        return null;
+    }
+    public String getEnProcessProgressName() {
+        Project.enProjectProgressEnum enProjectProgressEnum = Project.enProjectProgressEnum.enProjectProgressFromCode(getProcessProgress());
+        if (enProjectProgressEnum != null) {
+            return enProjectProgressEnum.getMsg();
         }
         return null;
     }
@@ -422,7 +440,17 @@ public class Order {
         }
         return null;
     }
-
+    public String getEnOrderSourceName() {
+        // 1 门户订单 2 门户询单 3 线下订单',
+        if (getOrderSource() == 1) {
+            return "Online orders";
+        } else if (getOrderSource() == 2) {
+            return "BOSS inquiry";
+        } else if (getOrderSource() == 3) {
+            return "Offline orders";
+        }
+        return null;
+    }
     public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
     }
@@ -489,7 +517,13 @@ public class Order {
             return "非油气";
         }
     }
-
+    public String getEnOrderTypeName() {
+        if (getOrderType() == 1) {
+            return "Oil & gas";
+        } else {
+            return "Non-oil or gas";
+        }
+    }
     public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
@@ -738,7 +772,17 @@ public class Order {
         }
         return null;
     }
-
+    public String getEnPayStatusName() {
+        // 1:未付款 2:部分付款 3:收款完成
+        if (getPayStatus() == 1) {
+            return "Uncollected";
+        } else if (getPayStatus() == 2) {
+            return "Partly collected";
+        } else if (getPayStatus() == 3) {
+            return "Totally collected";
+        }
+        return null;
+    }
     public void setPayStatus(Integer payStatus) {
         this.payStatus = payStatus;
     }
@@ -754,7 +798,13 @@ public class Order {
         }
         return null;
     }
-
+    public String getEnOrderStatusName() {
+        Order.enStatusEnum enStatusEnum = Order.enFromCode(getStatus());
+        if (enStatusEnum != null) {
+            return enStatusEnum.getMsg();
+        }
+        return null;
+    }
     public void setStatus(Integer status) {
         this.status = status;
     }
@@ -896,6 +946,33 @@ public class Order {
         }
         return null;
     }
+    public static enum enStatusEnum {
+        INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished");
 
+        public int code;
+        public String msg;
 
+        enStatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+    public static enStatusEnum enFromCode(Integer code) {
+        if (code != null) {
+            for (enStatusEnum enStatusEnum : enStatusEnum.values()) {
+                if (enStatusEnum.getCode() == code) {
+                    return enStatusEnum;
+                }
+            }
+        }
+        return null;
+    }
 }

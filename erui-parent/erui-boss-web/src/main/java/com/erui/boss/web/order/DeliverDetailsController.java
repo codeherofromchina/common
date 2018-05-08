@@ -4,6 +4,7 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.service.DeliverDetailService;
@@ -88,11 +89,7 @@ public class DeliverDetailsController {
         }
         deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
         deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
-        //TODO 看货通知信息无法推送
         deliverNoticeInfo.put("numers", deliverDetail.getPackTotal()); // 总包装件数
-        /* deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
-        deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求*/
 
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
 
@@ -151,6 +148,56 @@ public class DeliverDetailsController {
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
     }
+
+
+
+
+    /**
+     * 出库详情页  转交经办人
+     *
+     * @param deliverDetail
+     * @return
+     */
+    @RequestMapping(value = "storehouseManageDeliverAgent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> storehouseManageDeliverAgent(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request){
+        Result<Object> result = new Result<>();
+        String message =null;
+        try {
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
+            if(deliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode()){
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("出库信息状态不正确");
+                return result;
+
+            }else if (deliverDetail.getId() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("出库id不能为空");
+                return result;
+
+            }else if (deliverDetail.getWareHouseman() == null){
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("出库经办人ID不能为空");
+                return result;
+
+            }else if (StringUtil.isBlank(deliverDetail.getWareHousemanName())){
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("出库经办人姓名不能为空");
+                return result;
+
+            } else if(deliverDetailService.storehouseManageDeliverAgent(deliverDetail)){
+                return new Result<>();
+
+            }
+
+        } catch (Exception ex) {
+            message=ex.getMessage();
+            logger.error("出库详情页操作失败：{}", deliverDetail, ex);
+        }
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
+    }
+
 
 
 

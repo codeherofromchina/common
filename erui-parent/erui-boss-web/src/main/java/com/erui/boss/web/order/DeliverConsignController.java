@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.Order;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,9 +76,13 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "addDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addDeliverConsign(@RequestBody DeliverConsign deliverConsign) {
+    public Result<Object> addDeliverConsign(@RequestBody DeliverConsign deliverConsign, HttpServletRequest request) {
         // TODO 参数检查略过
         String errMsg = null;
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         try {
             boolean flag = false;
             if (deliverConsign.getId() != null) {
