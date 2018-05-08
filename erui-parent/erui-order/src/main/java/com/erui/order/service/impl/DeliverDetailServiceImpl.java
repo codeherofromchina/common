@@ -530,6 +530,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //出库通知：通知质检经办人办理质检
         if(status == 2) {
 
+            //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+            pushWareHouseman(one);
+
             if (outboundNums != 0) { //出库总数量不等于0  才发送信息
 
                 Map<String, Object> map = new HashMap<>();
@@ -551,10 +554,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 one.setStatus(5);   //出库状态
                 one.setOutCheck(0); //设置不外检
                 one.setLeaveDate(new Date());   //出库时间
-
-
-                //如果是厂家直接发货    推送  出库经办人  到商品表
-                pushWareHouseman(one);
 
                 //推送信息到出库信息管理
                 Iogistics iogistics = new Iogistics();  //物流信息
@@ -587,9 +586,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
             DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
-
-                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-                 pushWareHouseman(one);
 
                 //已出库
                 applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
