@@ -240,6 +240,9 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                  */
 
                 Goods goods = deliverConsignGoods.getGoods();
+
+                goods.setSenderId(one.getLogisticsUserId());    //订舱人id
+
                 //下发订舱时间
                 if (iogisticsData.getBookingTime() != null) {
                     one.setBookingTime(iogisticsData.getBookingTime());//下发订舱时间

@@ -160,7 +160,7 @@ public class Goods {
     //检验完成日期
     @Column(name = "check_done_date")
     private Date checkDoneDate;
-    //仓库经办人
+    //入库经办人
     private Integer uid;
     //入库日期
     @Column(name = "instock_date")
@@ -168,6 +168,13 @@ public class Goods {
     //放行日期
     @Column(name = "release_date")
     private Date releaseDate;
+
+    @Column(name = "ware_houseman")
+    private Integer wareHouseman;  //出库经办人id
+
+    @Column(name = "leave_date")
+    private Date leaveDate;   //出库日期
+
     //发送看货通知日期
     @Column(name = "send_date")
     private Date sendDate;
@@ -198,7 +205,6 @@ public class Goods {
 
     @Column(name="null_instock_num")
     private Integer nullInstockNum = 0;    //厂家直发总数量
-
 
     @Transient
     private Integer outboundNum = 0;  //出库数量
@@ -699,5 +705,21 @@ public class Goods {
 
     public void setDeliverDetailNo(String deliverDetailNo) {
         this.deliverDetailNo = deliverDetailNo;
+    }
+
+    public Integer getWareHouseman() {
+        return wareHouseman;
+    }
+
+    public void setWareHouseman(Integer wareHouseman) {
+        this.wareHouseman = wareHouseman;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
     }
 }

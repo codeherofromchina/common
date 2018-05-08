@@ -235,7 +235,7 @@ public class IogisticsServiceImpl implements IogisticsService {
                 throw new Exception(String.format("%s%s%s", "销售合同号不相同", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sales contract number is different"));
             }
         }
-        if (releaseDateSSet.size() != 0) {
+        if (contractNoSet.size() != 0) {
             save.setContractNo(org.apache.commons.lang3.StringUtils.join(contractNoSet, ",")); //销售合同号 拼接存库
         }
         if (deliverDetailNoSet.size() != 0) {

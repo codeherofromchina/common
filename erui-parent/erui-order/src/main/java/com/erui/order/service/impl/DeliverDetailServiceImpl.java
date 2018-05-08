@@ -439,17 +439,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setWareHouseman(deliverDetail.getWareHouseman());
         }
 
-        //推送  仓库经办人  到商品表
-        List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
-        for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
-            Project project = deliverConsignGoods.getDeliverConsign().getOrder().getProject();  //获取到订单信息
-            Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());   //查询到商品信息
-            if (project.getWarehouseUid() == null) {
-                one1.setUid(project.getWarehouseUid());//推送  仓库经办人  到商品表
-                goodsDao.save(one1);
-            }
-        }
-
         //仓库经办人姓名
         if (StringUtil.isNotBlank(deliverDetail.getWareHousemanName())) {
             one.setWareHousemanName(deliverDetail.getWareHousemanName());
@@ -563,6 +552,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 one.setOutCheck(0); //设置不外检
                 one.setLeaveDate(new Date());   //出库时间
 
+
+                //如果是厂家直接发货    推送  出库经办人  到商品表
+                pushWareHouseman(one);
+
                 //推送信息到出库信息管理
                 Iogistics iogistics = new Iogistics();  //物流信息
                 iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
@@ -595,8 +588,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverDetail1.setLeaveDate(new Date());  //出库时间   点击确认出库的时候
             DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(deliverDetail1);
 
-                //推送
-                   /* orderService.addLog(OrderLog.LogTypeEnum.GOODOUT,deliverConsign.getOrder().getId(),null,null);  */
+                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+                 pushWareHouseman(one);
 
                 //已出库
                 applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
@@ -1293,5 +1286,21 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         }
     }
+
+    //如果是厂家直接发货    推送  出库经办人  到商品表
+    public void pushWareHouseman(DeliverDetail one){
+        List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
+        for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
+            Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());   //查询到商品信息
+            if (one.getWareHouseman() != null) {
+                one1.setWareHouseman(one.getWareHouseman());//推送   出库经办人  到商品表
+            }
+            if(one.getLeaveDate() != null){
+                one1.setLeaveDate(one.getLeaveDate());//推送   出库日期  到商品表
+            }
+            goodsDao.save(one1);
+        }
+    }
+
 
 }
