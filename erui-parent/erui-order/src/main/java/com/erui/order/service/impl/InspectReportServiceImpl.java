@@ -582,10 +582,11 @@ public class InspectReportServiceImpl implements InspectReportService {
 
     //查询人员信息
     public String queryMessage(Integer id, String eruiToken) {
+        String eruiTokens = (String) ThreadLocalUtil.getObject();
         if (id != null) {
             String jsonParam = "{\"id\":\"" + id + "\"}";
             Map<String, String> header = new HashMap<>();
-            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put(CookiesUtil.TOKEN_NAME, eruiTokens);
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
             String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
