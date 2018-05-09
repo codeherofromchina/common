@@ -1,11 +1,30 @@
 package com.erui.boss.web.report;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.service.PerformanceService;
 import com.erui.report.util.InquiryAreaVO;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,20 +32,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 /**
- *  销售业绩统计
+ * 销售业绩统计
  * Created by lirb on 2018/5/3
  */
 @Controller
 @RequestMapping("/report/salesPerformance")
 public class PerformanceController {
 
+    private static Logger logger = LoggerFactory.getLogger(PerformanceController.class);
+    private static final String url = "http://sso.eruidev.com/api/checkToken";
+    @Autowired
+    PerformanceService performanceService;
 
     /**
      * @Author: lirb
@@ -37,7 +62,8 @@ public class PerformanceController {
     @ResponseBody
     @RequestMapping("/dateList")
     public Object dateList() {
-        return new Result<>(new ArrayList<String>());
+        List<String> dateList = performanceService.selectDateList();
+        return new Result<>(dateList);
     }
 
     /**
@@ -50,9 +76,8 @@ public class PerformanceController {
     @ResponseBody
     public Object areaList(String areaName) {
         Result<Object> result = new Result<>();
-
-        List<InquiryAreaVO> arayList = null;//inquiryService.selectAllAreaAndCountryList();
-        if (StringUtils.isNotBlank(areaName)) {
+        List<InquiryAreaVO> arayList = performanceService.selectAllAreaAndCountryList();
+        if (StringUtils.isNotEmpty(areaName)) {
             List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(areaName))
                     .collect(Collectors.toList());
             if (ll.size() > 0) {
@@ -77,11 +102,201 @@ public class PerformanceController {
      */
     @ResponseBody
     @RequestMapping(value = "/incrBuyer", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object incrBuyerCount(@RequestBody Map<String, Object> params) {
-        Result<Object> result = new Result<>();
+    public Object incrBuyerCount(@RequestBody Map<String, String> params) throws ParseException {
+        if (!params.containsKey("date")) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        clearUpParams(params);
+        List<Map<String, Object>> dataList = performanceService.selectIncrBuyerDetail(params);
+        return new Result<>(dataList);
 
-        return result;
     }
 
 
+    /**
+     * 销售业绩统计
+     *
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/salesPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object salesPerformance(@RequestBody(required = true) Map<String, String> params) throws ParseException {
+        if (!params.containsKey("date")) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        clearUpParams(params);
+        //查询销售人员业绩明细
+        List<Map<String, Object>> dataList = performanceService.selectObtainerPerformance(params);
+        return new Result<>(dataList);
+
+
+    }
+
+    /**
+     * 导出 新增会员统计数据
+     *
+     * @param date
+     * @param area
+     * @param country
+     * @param response
+     * @return
+     * @throws ParseException
+     */
+    @RequestMapping(value = "/exportIncrBuyer")
+    public Object exportIncrBuyer(String date, String area, String country, HttpServletResponse response) throws ParseException {
+        if (StringUtils.isEmpty(date)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Map<String, String> params = new HashMap<>();
+        params.put("date", date);
+        params.put("area", area);
+        params.put("country", country);
+        clearUpParams(params);
+        List<Map<String, Object>> dataList = performanceService.selectIncrBuyerDetail(params);
+        XSSFWorkbook wb = performanceService.exportIncrBuyer(dataList);
+        //excel文件名
+        String fileName = "新增会员统计" + System.currentTimeMillis() + ".xlsx";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            logger.debug("异常:" + e.getMessage(), e);
+            return null;
+        }
+
+    }
+
+    /**
+     * 导出 销售业绩统计数据
+     *
+     * @param date
+     * @param area
+     * @param country
+     * @param response
+     * @return
+     * @throws ParseException
+     */
+    @RequestMapping(value = "/exportSalesPerformance")
+    public Object exportSalesPerformance(String date, String area, String country, HttpServletResponse response) throws ParseException {
+        if (StringUtils.isEmpty(date)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Map<String, String> params = new HashMap<>();
+        params.put("date", date);
+        params.put("area", area);
+        params.put("country", country);
+        clearUpParams(params);
+        List<Map<String, Object>> dataList = performanceService.selectObtainerPerformance(params);
+        XSSFWorkbook wb = performanceService.exportSalesPerformance(dataList);
+        //excel文件名
+        String fileName = "销售业绩统计" + System.currentTimeMillis() + ".xlsx";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            logger.debug("异常:" + e.getMessage(), e);
+        }
+        return null;
+    }
+
+    /**
+     * 获取用户所负责的国家列表
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/getUserCountry")
+    public Object getUserCountry(HttpServletRequest request) {
+        //获取用户信息
+        Cookie[] cookies = request.getCookies();
+        String token = getToken(cookies);
+        if (StringUtils.isEmpty(token)) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+
+        try {
+            Integer userId = null;
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("token", token);
+            String userJson = getUserInfo(jsonObject.toString());
+            //解析json
+            if (StringUtils.isNotEmpty(userJson)) {
+                Map<String, Object> userMap = JSON.parseObject(userJson, Map.class);
+                int code = Integer.parseInt(userMap.get("code").toString());
+                if (code == 200) {
+                    userId = Integer.parseInt(userMap.get("id").toString());
+                }
+            }
+            //查询用户负责的国家
+            if (userId != null) {
+                List<String> countryList = performanceService.selectCountryByUserId(userId);
+                return new Result<>(countryList);
+            }
+
+            return new Result<>(ResultStatusEnum.GET_USERINFO_ERROR);
+        } catch (Exception e) {
+            logger.debug("异常:" + e, e);
+            return new Result<>(ResultStatusEnum.GET_USERINFO_ERROR);
+        }
+
+    }
+
+    /**
+     * 获取token
+     *
+     * @param cookies
+     * @return
+     */
+    private String getToken(Cookie[] cookies) {
+        String token = null;
+        if (ArrayUtils.isNotEmpty(cookies)) {
+            for (int i = 0; i < cookies.length; i++) {
+                if (cookies[i].getName().equals("eruitoken")) {
+                    token = cookies[i].getValue();
+                }
+            }
+        }
+        return token;
+    }
+
+    /**
+     * 根据token获取用户信息 sso
+     *
+     * @param params
+     * @return
+     */
+    private String getUserInfo(String params) throws Exception {
+        //httpClient 实例,声明httpPost请求
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        StringEntity entitys = new StringEntity(params.toString(), "utf-8");
+        httpPost.setEntity(entitys);
+        CloseableHttpResponse response = httpClient.execute(httpPost);
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            String result = EntityUtils.toString(entity, "UTF-8");
+            return result;
+        }
+        return null;
+    }
+
+    /**
+     * 整理参数
+     *
+     * @param params
+     */
+    private void clearUpParams(Map<String, String> params) throws ParseException {
+        //获取 开始时间 和结束时间
+        Date start = DateUtil.parseChDateStrToEnDateStr(params.get("date"));
+        String startTime = DateUtil.getStartTime(start, DateUtil.FULL_FORMAT_STR);
+        String endTime = DateUtil.getEndTime(DateUtil.getMonthLastDay(start), DateUtil.FULL_FORMAT_STR);
+        //获取 几月
+        int mouth = DateUtil.getMonth(start);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("month", String.valueOf(mouth));
+    }
 }
