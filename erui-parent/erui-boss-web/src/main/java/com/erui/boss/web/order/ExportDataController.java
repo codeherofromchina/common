@@ -184,7 +184,7 @@ public class ExportDataController {
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook;
             if (StringUtils.equals(lang,"en")) {
-                workbook = buildExcel.buildExcel((List) objArr, enHeader, enKeys, "订单列表");
+                workbook = buildExcel.buildExcel((List) objArr, enHeader, enKeys, "Order List");
             } else {
                 workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
             }
