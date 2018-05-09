@@ -36,6 +36,33 @@
     obtain_main_company, obtainer, marketer, businesser, remark
   </sql>
 
+    <!--查询指定国家和月份的总业绩-->
+    <select id="selectTotalPerformanceByCountryAndTime" resultType="java.lang.Double" parameterType="java.util.Map">
+    SELECT
+          IFNULL(SUM(IFNULL(project_amount,0.00)),0.00)  AS totalAmount
+    FROM performance_count
+    WHERE
+    start_time BETWEEN
+               DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    AND execute_company=#{country}
+
+    </select>
+
+    <!--查询国家的销售人员信息-->
+    <select id="selectSalesmanByCountry" resultType="com.erui.report.model.PerformanceAssign" parameterType="java.lang.String">
+
+    SELECT
+          work_num AS workNum ,
+          name_ch AS nameCh ,
+          salesman_type AS salesmanType ,
+          two_level_department AS twoLevelDepartment ,
+          three_level_department AS threeLevelDepartment ,
+          organization  ,
+	      station AS station
+    FROM salesman
+    WHERE three_level_department =#{country}
+    </select>
+
     <!--查询用户所负责的国家列表-->
     <select id="selectCountryByUserId" resultType="java.lang.String" parameterType="java.lang.Integer">
       SELECT name FROM erui_dict.country
@@ -48,7 +75,7 @@
 
     <!--查询人员 销售业绩明细 -->
     <select id="selectObtainerPerformance" parameterType="java.util.Map" resultType="java.util.Map">
-      SELECT p.area AS area ,p.execute_company AS country ,p.obtainer AS employee,s.position as job ,
+      SELECT p.area AS area ,p.execute_company AS country ,p.obtainer AS employee,s.station as job ,
       SUM(IFNULL(p.project_amount,0))/10000 AS totalPerformance ,
       SUM((CASE WHEN p.sign_company='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS eruiPerformance,
       SUM((CASE WHEN p.sign_company!='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS otherPerformance

@@ -3,7 +3,9 @@ package com.erui.report.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.dao.PerformanceAssignMapper;
 import com.erui.report.dao.PerformanceCountMapper;
+import com.erui.report.model.PerformanceAssign;
 import com.erui.report.model.PerformanceCount;
 import com.erui.report.service.PerformanceService;
 import com.erui.report.util.ExcelUploadTypeEnum;
@@ -11,7 +13,6 @@ import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
@@ -385,8 +386,36 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
 
     @Override
     public List<String> selectCountryByUserId(Integer userId) {
-
         return readMapper.selectCountryByUserId(userId);
+    }
+
+    @Override
+    public List<PerformanceAssign> selectCountryAssignDetailByTime(Map<String, String> params) {
+        //查询是否有此国家的分配信息
+        PerformanceAssignMapper assignMapper = readerSession.getMapper(PerformanceAssignMapper.class);
+        List<PerformanceAssign>  data1=assignMapper.selectCountryAssignDetailByTime(params);
+        if(CollectionUtils.isNotEmpty(data1)){
+            return data1;
+        }
+        List<PerformanceAssign> salesmanList=readMapper.selectSalesmanByCountry(params.get("country"));
+        //查询指定国家和月份的总业绩
+        double totalPerformance=readMapper.selectTotalPerformanceByCountryAndTime(params);
+
+        salesmanList.stream().forEach(p->{
+            p.setCountryPerformance(new BigDecimal(totalPerformance).setScale(2,BigDecimal.ROUND_HALF_UP));
+            p.setAssignStatus(0);
+        });
+        return salesmanList;
+    }
+
+    @Override
+    public void insertPerformanceAssign(List<PerformanceAssign> dataList) {
+        if(CollectionUtils.isNotEmpty(dataList)){
+            PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
+            dataList.stream().forEach(p->{
+                assignWriterMapper.insertSelective(p);
+            });
+        }
     }
 
 

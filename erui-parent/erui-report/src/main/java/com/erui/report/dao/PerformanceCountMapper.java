@@ -1,6 +1,7 @@
 package com.erui.report.dao;
 
 
+import com.erui.report.model.PerformanceAssign;
 import com.erui.report.model.PerformanceCount;
 
 import java.util.List;
@@ -51,4 +52,18 @@ public interface PerformanceCountMapper {
      */
     List<String> selectCountryByUserId(Integer userId);
 
+    /**
+     * 查询国家的销售人员信息
+     * @param country
+     * @return
+     */
+    List<PerformanceAssign> selectSalesmanByCountry(String country);
+
+    /**
+     * 查询指定国家和月份的总业绩
+     * @param params
+     * @return
+     */
+
+    double selectTotalPerformanceByCountryAndTime(Map<String,String> params);
 }

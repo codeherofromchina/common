@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import com.erui.report.model.PerformanceAssign;
 import com.erui.report.util.ImportDataResponse;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -64,4 +65,17 @@ public interface PerformanceService {
      * @return
      */
     List<String> selectCountryByUserId(Integer userId);
+
+    /**
+     * 根据月份查询国家业绩分配明细
+     * @param params
+     * @return
+     */
+    List<PerformanceAssign> selectCountryAssignDetailByTime(Map<String,String>  params);
+
+    /**
+     * 添加待审核业绩分配数据
+     * @param dataList
+     */
+    void insertPerformanceAssign(List<PerformanceAssign> dataList);
 }
