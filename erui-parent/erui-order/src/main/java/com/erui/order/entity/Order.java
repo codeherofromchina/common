@@ -242,10 +242,33 @@ public class Order {
     private Integer buyerId;
     @Column(name = "inquiry_id")
     private Integer inquiryId;
-    //订单类别 1科瑞订单 2 易瑞订单
+    //会员类别 1科瑞订单 2 易瑞订单
     @Column(name = "order_belongs")
     private Integer orderBelongs;
 
+    //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
+    @Column(name = "order_category")
+    private Integer orderCategory;
+
+    //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
+    @Column(name = "overseas_sales")
+    private Integer overseasSales;
+
+    public Integer getOrderCategory() {
+        return orderCategory;
+    }
+
+    public void setOrderCategory(Integer orderCategory) {
+        this.orderCategory = orderCategory;
+    }
+
+    public Integer getOverseasSales() {
+        return overseasSales;
+    }
+
+    public void setOverseasSales(Integer overseasSales) {
+        this.overseasSales = overseasSales;
+    }
     public Integer getOrderBelongs() {
         return orderBelongs;
     }
@@ -719,7 +742,7 @@ public class Order {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         if (totalPrice == null) {
-            BigDecimal bigDecimal = new BigDecimal(0.00);
+            BigDecimal bigDecimal = new BigDecimal("");
             totalPrice = bigDecimal;
         }
         this.totalPrice = totalPrice;
