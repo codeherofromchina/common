@@ -1271,7 +1271,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         //发送短信
                         Map<String, String> map = new HashMap();
                         map.put("areaCode", "86");
-                        map.put("to", "[\"" + smsarray.toString() + "\"]");
+                        map.put("to", smsarray.toString());
                         map.put("content", "您好，销售合同号：" + map1.get("projectNo") + "，产品放行单号：" + map1.get("deliverDetailNo") + "，仓储经办人：" + map1.get("wareHousemanName") + "，已出库并上传箱单，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType", "0");
                         map.put("groupSending", "0");
