@@ -174,8 +174,8 @@ public class ExportDataController {
             }
             String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
                     "CRM客户代码", "订单类型", "币种", "合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
-            String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", " in the contract\t\n" +
-                    "Signing date of the order", "CRM ID", "Order type", "currency", "Total value", "Payment status", "Order origin", "Order status", "Project progress"};
+            String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", "Signing date of the order",
+                    "CRM ID", "Order type", "currency", "Total value", "Payment status", "Order origin", "Order status", "Project progress"};
             String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
                     "crmCode", "orderTypeName", "currencyBn", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
             String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
