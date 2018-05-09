@@ -432,7 +432,7 @@ public class InstockServiceImpl implements InstockService {
                         if(Integer.valueOf((Integer) map1.get("yn")) == 1){
                             map.put("content", "您好，项目号："+map1.get("projectNo")+"，报检单号："+map1.get("inspectApplyNo")+"，入库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
                         }else{
-                            map.put("content", "您好，销售合同号："+map1.get("projectNo")+"，产品放行单号查询："+map1.get("inspectApplyNo")+"，出库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
+                            map.put("content", "您好，销售合同号："+map1.get("projectNo")+"，产品放行单号："+map1.get("inspectApplyNo")+"，出库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
                         }
                         map.put("subType", "0");
                         map.put("groupSending", "0");
