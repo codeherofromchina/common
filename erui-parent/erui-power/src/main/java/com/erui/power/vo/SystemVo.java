@@ -1,5 +1,7 @@
 package com.erui.power.vo;
 
+import javax.validation.constraints.Min;
+
 /**
  * 系统处理的参数实例
  */
@@ -7,11 +9,13 @@ public class SystemVo {
     /**
      * 页大小,pageSize=0 时查询所有信息
      */
+    @Min(value = 1,message = "页大小不能小于1")
     private Integer pageSize;
 
     /**
      * 页码，从0开始，pageNum<=0 会查询第一页
      */
+    @Min(value = 0,message = "页码不能小于0")
     private Integer pageNum;
 
     /**
