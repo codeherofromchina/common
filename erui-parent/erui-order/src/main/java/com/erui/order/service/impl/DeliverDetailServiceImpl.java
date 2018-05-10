@@ -1148,12 +1148,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 DeliverDetail.StatusEnum.fromStatusCode(dbDeliverDetail.getStatus()) == DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT) {
             List<DeliverConsignGoods> deliverConsignGoodsList1 = dbDeliverDetail.getDeliverConsignGoodsList();
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
-                Goods goods = deliverConsignGoods.getGoods();
-                Goods one1 = goodsDao.findOne(goods.getId());
-                one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
-                goodsDao.save(one1);
-                //出库质检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7));
+                if(deliverConsignGoods.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
+                    Goods goods = deliverConsignGoods.getGoods();
+                    Goods one1 = goodsDao.findOne(goods.getId());
+                    one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
+                    goodsDao.save(one1);
+                    //出库质检
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7));
+                }
             }
 
             //出库质检结果通知：将合格商品通知仓库经办人（合格）（如果仓库经办人不是徐健，那么还要单独发给徐健）
