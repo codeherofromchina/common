@@ -52,13 +52,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
-
     @Autowired
     private InstockDao instockDao;
 
-
-
-    private OrderDao orderDao;
+    @Autowired
+    private InspectReportServiceImpl inspectReportServiceImpl;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -195,6 +193,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             //推送数据到入库部门
             pushInspectApply(inspectApply);
 
+            //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
+            disposeData(inspectApply);
+
         }
 
         // 保存报检单信息
@@ -202,38 +203,27 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         if (inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             pushDataToInspectReport(inspectApply);
-            //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-            /*Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多*/
+            //到货报检通知：到货报检单下达后同时通知质检经办人
             Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
-            Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
             Set<String> purchaseNameList = new HashSet<>(); //采购经办人
             for (Project project : purch.getProjects()) {
-                /*if (StringUtil.isNotBlank(project.getProjectNo())) {
-                    projectNoList.add(project.getProjectNo());
-                }*/
                 if (StringUtil.isNotBlank(project.getQualityName())) {
                     qualityNameList.add(project.getQualityUid());
-                }
-                if (StringUtil.isNotBlank(project.getWarehouseName())) {
-                    warehouseNameList.add(project.getWarehouseUid());
                 }
                 if (StringUtil.isNotBlank(project.getPurchaseName())) {
                     purchaseNameList.add(project.getPurchaseName());
                 }
             }
             String qualityNames = StringUtils.join(qualityNameList, ",");  //质检经办人
-            String warehouseNames = StringUtils.join(warehouseNameList, ",");  //仓库经办人
-           /* String projectNos = StringUtils.join(projectNoList, ",");  //项目号*/
             String purchaseNames = StringUtils.join(purchaseNameList, ",");  //采购经办人
             String inspectApplyNo = inspectApply.getInspectApplyNo();           //报检单号
 
             Map<String, Object> map = new HashMap<>();
             map.put("qualityNames", qualityNames);
-            map.put("warehouseNames", warehouseNames);
             map.put("projectNos", purch.getPurchNo());  //采购合同号
             map.put("purchaseNames", purchaseNames);
             map.put("inspectApplyNo", inspectApplyNo);
-           /* sendSms(map);*/
+           sendSms(map);
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -363,10 +353,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             dbInspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
 
-
             //推送数据到入库部门
             pushInspectApply(dbInspectApply);
 
+            //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
+            disposeData(dbInspectApply);
         }
         // 保存报检单
         inspectApplyDao.save(dbInspectApply);
@@ -375,8 +366,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             // 推送数据到入库质检中
             pushDataToInspectReport(dbInspectApply);
 
-            //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-           /* disposeSmsDate(dbInspectApply,inspectApply);*/
+            //到货报检通知：到货报检单下达后同时通知质检经办人
+            disposeSmsDate(dbInspectApply,inspectApply);
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -489,8 +480,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         pushDataToInspectReport(newInspectApply);
 
-        //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
-       /* disposeSmsDate(newInspectApply,inspectApply);*/
+        //到货报检通知：到货报检单下达后同时通知质检经办人
+        disposeSmsDate(newInspectApply,inspectApply);
 
         return true;
     }
@@ -640,64 +631,46 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * @throws Exception
      */
     public void disposeSmsDate(InspectApply dbInspectApply ,InspectApply inspectApply ) throws Exception {
-        //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
 
-        /*Set<String> projectNoList = new HashSet<>(); //获取项目号 一对多*/
+        //到货报检通知：到货报检单下达后同时通知质检经办人
         Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
-        Set<Integer> warehouseNameList = new HashSet<>(); //仓库经办人
         Set<String> purchaseNameList = new HashSet<>(); //采购经办人
         Purch purch = dbInspectApply.getPurch();
         for (Project project : purch.getProjects()){
-            /*if(StringUtil.isNotBlank(project.getProjectNo())){
-                projectNoList.add(project.getProjectNo());
-            }*/
             if(StringUtil.isNotBlank(project.getQualityName())){
                 qualityNameList.add(project.getQualityUid());
-            }
-            if(StringUtil.isNotBlank(project.getWarehouseName())){
-                warehouseNameList.add(project.getWarehouseUid());
             }
             if(StringUtil.isNotBlank(project.getPurchaseName())){
                 purchaseNameList.add(project.getPurchaseName());
             }
         }
         String qualityNames =  StringUtils.join(qualityNameList, ",");  //质检经办人
-        String warehouseNames =  StringUtils.join(warehouseNameList, ",");  //仓库经办人
-       /* String projectNos =  StringUtils.join(projectNoList, ",");  //项目号*/
         String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
-        /*String inspectApplyNo = inspectApply.getInspectApplyNo();    */
         String inspectApplyNo1 = dbInspectApply.getInspectApplyNo();//报检单号
 
         Map<String,Object> map = new HashMap<>();
         map.put("qualityNames",qualityNames);
-        map.put("warehouseNames",warehouseNames);
         map.put("projectNos",purch.getPurchNo()); // 采购合同号
         map.put("purchaseNames",purchaseNames);
-        /*if(StringUtil.isNotBlank(inspectApplyNo) && inspectApplyNo != null){
-            map.put("inspectApplyNo",inspectApplyNo);
-        }*/
         map.put("inspectApplyNo",inspectApplyNo1);
-       /* sendSms(map);*/
+        sendSms(map);
     }
 
 
 
 
 
-    //到货报检通知：到货报检单下达后同时通知质检经办人、仓库经办人
+    //到货报检通知：到货报检单下达后同时通知质检经办人
     public void sendSms(Map<String, Object> map1) throws Exception {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
             try {
-                String mobile = null;  //质检经办人+采购经办人手机号
+                String mobile = null;  //质检经办人
                 Set<String> qualityNameSet = new HashSet();    //质检经办人  手机号
-                Set<String> warehouseNameSet = new HashSet();    //采购经办人  手机号
                 String qualityNames = (String) map1.get("qualityNames");
-                String warehouseNames = (String) map1.get("warehouseNames");
                 String[] split = qualityNames.split(",");
-                String[] split2 = warehouseNames.split(",");
 
                 Map<String, String> header = new HashMap<>();
                 header.put(CookiesUtil.TOKEN_NAME, eruiToken);
@@ -718,42 +691,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     }
                 }
 
-                //采购经办人  手机号
-                for (String s2 : split2) {
-                    String jsonParam = "{\"id\":\"" + s2 + "\"}";
-                    String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                    logger.info("人员详情返回信息：" + s3);
-                    // 获取手机号
-                    JSONObject jsonObject = JSONObject.parseObject(s3);
-                    Integer code = jsonObject.getInteger("code");
-                    if (code == 1) {
-                        JSONObject data = jsonObject.getJSONObject("data");
-                        warehouseNameSet.add(data.getString("mobile"));
-                    }
-                }
-
-                
-               
                 //去除重复
                 Set<String> listAll = new HashSet<>();
                 listAll.addAll(qualityNameSet);
-                listAll.addAll(warehouseNameSet);
-
-
-                //获取徐健 手机号
-                String name = null;
-                String jsonParam = "{\"id\":\"29606\"}";
-                String s3 = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("人员详情返回信息：" + s3);
-                // 获取手机号
-                JSONObject jsonObject = JSONObject.parseObject(s3);
-                Integer code = jsonObject.getInteger("code");
-                if (code == 1) {
-                    JSONObject data = jsonObject.getJSONObject("data");
-                    name=data.getString("mobile");
-                }
-                /*listAll.add("15066060360");*/
-                listAll.add(name);
 
                 listAll = new HashSet<>(new LinkedHashSet<>(listAll));
                 JSONArray smsarray = new JSONArray();
@@ -796,10 +736,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             project=project==null?project2:project;
         }
 
-        if(project != null){
+      /*  if(project != null){
             instock.setUid(project.getWarehouseUid());      //仓库经办人ID
             instock.setUname(project.getWarehouseName());   //仓库经办人名字
-        }
+        }*/
         instock.setInspectApplyNo(inspectApply.getInspectApplyNo()); // 报检单号
         instock.setSupplierName(inspectApply.getPurch().getSupplierName()); // 供应商
         instock.setStatus(Instock.StatusEnum.INIT.getStatus());
@@ -828,15 +768,42 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         }
 
-
-
         instock.setInstockGoodsList(instockGoodsList);
         instock.setOutCheck(0); //是否外检（ 0：否   1：是）
 
         instockDao.save(instock);
 
+    }
+
+     //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
+    //处理数据信息                                            合格数量（报检数量）
+    public void disposeData(InspectApply inspectApply) throws Exception {
+
+        int hegeNum = 0;
+
+        //计算合格总数量
+        List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();    //报检商品信息
+        for (InspectApplyGoods applyGoods : inspectApplyGoodsList){//报检商品
+            hegeNum += applyGoods.getInspectNum(); //合格数量  (报检数量)
+        }
 
 
+        Set<Project> projectSet = inspectApply.getPurch().getProjects();
+        Project project = null; //项目信息
+        for (Project projects : projectSet){
+            project = project == null ? projects : project;
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("inspectApplyNo", inspectApply.getInspectApplyNo());    //报检单号
+        map.put("purchaseUid", project.getPurchaseUid());       //采购经办人id
+        map.put("warehouseUid", project.getWarehouseUid());       //仓库经办人id
+        map.put("purchaseNames", project.getProjectNo());      //项目号
+        map.put("purchNo", inspectApply.getPurchNo());      //采购合同号
+        map.put("hegeNum", hegeNum);   //商品合格数量
+        map.put("yn", 3);   //yn    1:部分合格,部分不合格     2.全部不合格     3.全部合格
+
+        inspectReportServiceImpl.sendSms(map);
     }
 
 

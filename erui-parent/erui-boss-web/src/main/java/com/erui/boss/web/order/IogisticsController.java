@@ -2,6 +2,9 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.IogisticsService;
 import org.slf4j.Logger;
@@ -13,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  *
- * 物流
+ * 出库信息
  *
  * Created by wangxiaodan on 2017/12/11.
  */
@@ -93,16 +97,9 @@ public class IogisticsController {
 
         deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
         deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
-        //TODO 看货通知信息无法推送
-       /* deliverNoticeInfo.put("numers", deliverNotice.getNumers()); // 总包装件数
-        deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
-        deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
-        deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求*/
-
         //处理商品信息
         List<Map<String, Object>> goodsInfoList = DeliverDetailsController.goodsMessage(deliverDetail.getDeliverConsignGoodsList());
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
-
         //附件信息
         Map<String, Object> map = DeliverDetailsController.attachmentLists(deliverDetail.getAttachmentList());
         deliverNoticeInfo.put("attachmentList2", map.get("attachmentList2"));    //品控部
@@ -120,10 +117,21 @@ public class IogisticsController {
      * @return
      */
     @RequestMapping(value = "mergeData", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> mergeData(@RequestBody Map<String, String> params) {
+    public Result<Object> mergeData(@RequestBody Map<String, String> params, HttpServletRequest request) {
         boolean flag = false;
         String message =null;
-       try {
+
+        if(StringUtil.isBlank(params.get("logisticsUserId"))){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("物流经办人id不能为空");
+        }
+        if(StringUtil.isBlank(params.get("logisticsUserName"))){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("/物流经办人名称不能为空");
+        }
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
+        try {
             flag = iogisticsService.mergeData(params);
         } catch (Exception ex) {
             message=ex.getMessage();

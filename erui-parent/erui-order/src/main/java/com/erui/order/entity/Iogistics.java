@@ -84,6 +84,11 @@ public class Iogistics {
     @Transient
     private Integer rows;
 
+    @Column(name = "submenu_name ")
+    private String submenuName ; //出库信息分单人姓名
+
+    @Column(name = "submenu_id ")
+    private Integer submenuId ; //出库信息分单人id
 
 
     public void setId(Integer id) {
@@ -262,5 +267,21 @@ public class Iogistics {
 
     public void setLeaveDate(Date leaveDate) {
         this.leaveDate = leaveDate;
+    }
+
+    public String getSubmenuName() {
+        return submenuName;
+    }
+
+    public void setSubmenuName(String submenuName) {
+        this.submenuName = submenuName;
+    }
+
+    public void setSubmenuId(Integer submenuId) {
+        this.submenuId = submenuId;
+    }
+
+    public Integer getSubmenuId() {
+        return submenuId;
     }
 }

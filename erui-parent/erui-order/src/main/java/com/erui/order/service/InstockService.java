@@ -44,5 +44,11 @@ public interface InstockService {
     Instock detail(Integer id);
 
 
-
+    /**
+     * 入库详情信息   转交经办人
+     *
+     * @param instock
+     * @return
+     */
+    boolean instockDeliverAgent(Instock instock);
 }

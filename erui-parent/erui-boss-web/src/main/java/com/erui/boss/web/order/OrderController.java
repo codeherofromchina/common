@@ -37,7 +37,7 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderManage(@RequestBody OrderListCondition condition,HttpServletRequest request) {
+    public Result<Object> orderManage(@RequestBody OrderListCondition condition, HttpServletRequest request) {
         //页数不能小于1
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -80,12 +80,16 @@ public class OrderController {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         logger.info("OrderController.addOrder()");
         boolean continueFlag = false;
-        if (addOrderVo.getStatus() != Order.StatusEnum.INIT.getCode() && addOrderVo.getStatus() != Order.StatusEnum.UNEXECUTED.getCode()) {
+        if (addOrderVo.getStatus() != Order.StatusEnum.INIT.getCode() && addOrderVo.getStatus() != Order.StatusEnum.UNEXECUTED.getCode()
+                && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
             result.setMsg("销售合同号不能为空");
             result.setEnMsg("The order No. must be filled in");
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) { // 提交
-            if (StringUtils.isBlank(addOrderVo.getContractNo())) {
+            if (StringUtils.isBlank(addOrderVo.getContractNo()) && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
                 result.setMsg("销售合同号不能为空");
+                result.setEnMsg("The order No. must be filled in");
+            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && addOrderVo.getOverseasSales() != 4 && addOrderVo.getOverseasSales() != 5) {
+                result.setMsg("海外销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo())) {
                 result.setMsg("物流报价单号不能为空");
@@ -93,16 +97,16 @@ public class OrderController {
             } else if (addOrderVo.getOrderType() == null) {
                 result.setMsg("订单类型不能为空");
                 result.setEnMsg("Order type must be filled in");
-            } else if (addOrderVo.getSigningDate() == null) {
+            } else if (addOrderVo.getSigningDate() == null && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
                 result.setMsg("订单签约日期不能为空");
                 result.setEnMsg("Order contract date must be filled in");
             } else if (addOrderVo.getDeliveryDate() == null) {
                 result.setMsg("合同交货日期不能为空");
                 result.setEnMsg("Contract delivery date must be filled in");
-            } else if (addOrderVo.getSigningCo() == null) {
+            } /*else if (addOrderVo.getSigningCo() == null) {
                 result.setMsg("签约主体公司不能为空");
                 result.setEnMsg("Order contract company must be filled in");
-            } else if (addOrderVo.getAgentId() == null) {
+            }*/ else if (addOrderVo.getAgentId() == null) {
                 result.setMsg("市场经办人不能为空");
                 result.setEnMsg("Market manager must be filled in");
             } else if (addOrderVo.getExecCoId() == null) {
@@ -123,7 +127,7 @@ public class OrderController {
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay())) {
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
                 result.setMsg("回款责任人不能为空");
                 result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {
@@ -144,7 +148,7 @@ public class OrderController {
             } else if (addOrderVo.getTaxBearing() == null) {
                 result.setMsg("是否含税不能为空");
                 result.setEnMsg("Tax-inclusive or not must be filled in ");
-            } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn())) {
+            } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn()) && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
                 result.setMsg("收款方式不能为空");
                 result.setEnMsg("Payment term must be filled in");
             } else if (addOrderVo.getAcquireId() == null) {
@@ -193,8 +197,8 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map,HttpServletRequest request) {
-        Order order = orderService.findByIdLang(map.get("id"),CookiesUtil.getLang(request));
+    public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
+        Order order = orderService.findByIdLang(map.get("id"), CookiesUtil.getLang(request));
         if (order != null) {
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                 boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
@@ -224,6 +228,7 @@ public class OrderController {
         }
         return new Result<>(logList);
     }
+
     /**
      * 确认订单
      *

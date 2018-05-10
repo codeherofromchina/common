@@ -137,4 +137,10 @@ public interface DeliverDetailService {
     void confirmTheGoodsByDeliverDetailNo(DeliverDetail deliverDetail);
 
 
+    /**
+     * 出库详情页  转交经办人
+     * @param deliverDetail
+     * @return
+     */
+    boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail);
 }

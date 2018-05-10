@@ -1,8 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.Goods;
@@ -14,7 +19,10 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,12 +42,21 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ProjectServiceImpl implements ProjectService {
+
+    private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
+
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
     private ProjectDao projectDao;
     @Autowired
     private OrderDao orderDao;
+
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+
+    @Value("#{orderProp[SEND_SMS]}")
+    private String sendSms;  //发短信接口
 
     @Override
     @Transactional(readOnly = true)
@@ -76,78 +93,92 @@ public class ProjectServiceImpl implements ProjectService {
             projectDao.delete(projectUpdate.getId());
             return true;
         } else {
-            // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
-            if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                    throw new Exception(String.format("%s%s%s","参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Parameter state error"));
-                }
-            } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
-                // 之前只保存了项目，则流程可以是提交到项目经理和执行
-                if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                    throw new Exception(String.format("%s%s%s","参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Parameter state error"));
-                }
-                project.copyProjectDescTo(projectUpdate);
-                if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                    // 提交到项目经理，则项目成员不能设置
-                    projectUpdate.setPurchaseUid(null);
-                    projectUpdate.setQualityName(null);
-                    projectUpdate.setQualityUid(null);
-                    projectUpdate.setLogisticsUid(null);
-                    projectUpdate.setLogisticsName(null);
-                    projectUpdate.setWarehouseName(null);
-                    projectUpdate.setWarehouseUid(null);
-                    projectUpdate.setPurchaseName(null);
-                }
-            } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-                    projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
-                    projectDao.save(projectUpdate);
-                    return true;
-                } else {
-                    // 交付配送中心项目经理只能保存后者执行
-                    if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
-                        throw new Exception(String.format("%s%s%s","参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Parameter state error"));
-                    }
-                    // 只设置项目成员
-                    projectUpdate.setPurchaseUid(project.getPurchaseUid());
-                    projectUpdate.setQualityName(project.getQualityName());
-                    projectUpdate.setQualityUid(project.getQualityUid());
-                    projectUpdate.setLogisticsUid(project.getLogisticsUid());
-                    projectUpdate.setLogisticsName(project.getLogisticsName());
-                    projectUpdate.setWarehouseName(project.getWarehouseName());
-                    projectUpdate.setWarehouseUid(project.getWarehouseUid());
-                    projectUpdate.setPurchaseName(project.getPurchaseName());
-                    // 修改备注和执行单变更日期
-                    projectUpdate.setRemarks(project.getRemarks());
-                    projectUpdate.setExeChgDate(project.getExeChgDate());
-                }
-            } else {
-                // 其他分支，错误
-                throw new Exception(String.format("%s%s%s","项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Project status data error"));
-            }
-            // 修改状态
-            projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
-            //修改备注  在项目完成前商务技术可以修改项目备注
-            if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
-                projectUpdate.setRemarks(project.getRemarks());
-            }
-            // 操作相关订单信息
-            if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+            if ((project.getOrderCategory() == 4 || project.getOverseasSales() == 3) && nowProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 Order order = projectUpdate.getOrder();
-                order.getGoodsList().forEach(gd -> {
-                            gd.setStartDate(projectUpdate.getStartDate());
-                            gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                            gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
-                            gd.setExeChgDate(projectUpdate.getExeChgDate());
-                        }
-                );
-                order.setStatus(Order.StatusEnum.EXECUTING.getCode());
-                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                order.setStatus(Order.StatusEnum.DONE.getCode());
                 orderDao.save(order);
+            } else {
+                // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
+                if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                    if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                        throw new Exception(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                    }
+                } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
+                    // 之前只保存了项目，则流程可以是提交到项目经理和执行
+                    if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                        throw new Exception(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                    }
+                    project.copyProjectDescTo(projectUpdate);
+                    if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                        // 提交到项目经理，则项目成员不能设置
+                        projectUpdate.setPurchaseUid(null);
+                        projectUpdate.setQualityName(null);
+                        projectUpdate.setQualityUid(null);
+                        projectUpdate.setLogisticsUid(null);
+                        projectUpdate.setLogisticsName(null);
+                        projectUpdate.setWarehouseName(null);
+                        projectUpdate.setWarehouseUid(null);
+                        projectUpdate.setPurchaseName(null);
+                    }
+                } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                    if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
+                        projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
+                        projectDao.save(projectUpdate);
+                        return true;
+                    } else {
+                        // 交付配送中心项目经理只能保存后者执行
+                        if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
+                            throw new Exception(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                        }
+                        // 只设置项目成员
+                        projectUpdate.setPurchaseUid(project.getPurchaseUid());
+                        projectUpdate.setQualityName(project.getQualityName());
+                        projectUpdate.setQualityUid(project.getQualityUid());
+                        projectUpdate.setLogisticsUid(project.getLogisticsUid());
+                        projectUpdate.setLogisticsName(project.getLogisticsName());
+                        projectUpdate.setWarehouseName(project.getWarehouseName());
+                        projectUpdate.setWarehouseUid(project.getWarehouseUid());
+                        projectUpdate.setPurchaseName(project.getPurchaseName());
+                        // 修改备注和执行单变更日期
+                        projectUpdate.setRemarks(project.getRemarks());
+                        projectUpdate.setExeChgDate(project.getExeChgDate());
+                    }
+                } else {
+                    // 其他分支，错误
+                    throw new Exception(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
+                }
+                // 修改状态
+                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                //修改备注  在项目完成前商务技术可以修改项目备注
+                if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
+                    projectUpdate.setRemarks(project.getRemarks());
+                }
+                // 操作相关订单信息
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                    Order order = projectUpdate.getOrder();
+                    order.getGoodsList().forEach(gd -> {
+                                gd.setStartDate(projectUpdate.getStartDate());
+                                gd.setDeliveryDate(projectUpdate.getDeliveryDate());
+                                gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                                gd.setExeChgDate(projectUpdate.getExeChgDate());
+                            }
+                    );
+                    order.setStatus(Order.StatusEnum.EXECUTING.getCode());
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                    orderDao.save(order);
+                }
             }
             projectUpdate.setUpdateTime(new Date());
-            projectDao.save(projectUpdate);
+            Project project1 = projectDao.save(projectUpdate);
+
+            //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
+            if (project1.getProjectStatus() == Project.ProjectStatusEnum.HASMANAGER.getCode()) {
+                Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
+                sendSms(project1, managerUid);
+            }
+
         }
+
         return true;
     }
 
@@ -268,7 +299,7 @@ public class ProjectServiceImpl implements ProjectService {
             list = projectDao.findByPurchReqCreateAndPurchDone(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE);
         } else {
             if (!StringUtils.isNumeric(purchaseUid)) {
-                throw new Exception(String.format("%s%s%s","采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Purchasing manager's error in purchasing"));
+                throw new Exception(String.format("%s%s%s", "采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchasing manager's error in purchasing"));
             }
             list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE, Integer.parseInt(purchaseUid));
         }
@@ -316,7 +347,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize) throws Exception {
         Integer intPurchaseUid = null;
         if (StringUtils.isNotBlank(purchaseUid) && !StringUtils.isNumeric(purchaseUid)) {
-            throw new Exception(String.format("%s%s%s","采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Purchasing manager's error in purchasing"));
+            throw new Exception(String.format("%s%s%s", "采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchasing manager's error in purchasing"));
         } else if (StringUtils.isNotBlank(purchaseUid)) {
             intPurchaseUid = Integer.parseInt(purchaseUid);
         }
@@ -540,4 +571,44 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return proList;
     }
+
+
+    //出库短信通知
+    public void sendSms(Project project, Integer managerUid) throws Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            try {
+                //请求头信息
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+
+                // 根据id获取人员信息
+                String jsonParam = "{\"id\":\"" + managerUid + "\"}";   //交付配送中心项目经理ID
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //发送短信
+                    Map<String, String> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", "[\"" + data.getString("mobile") + "\"]");    //项目经理手机号
+                    map.put("content", "您好，项目名称：" + project.getProjectName() + "，商务技术经办人：" + project.getBusinessName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态" + s1);
+                }
+            } catch (Exception e) {
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
+            }
+
+        }
+    }
+
 }

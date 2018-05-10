@@ -3,6 +3,7 @@ package com.erui.boss.web.order;
 import com.alibaba.fastjson.JSON;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
@@ -162,21 +163,31 @@ public class ExportDataController {
         try {
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
             List<Order> orderList = orderService.findOrderExport(obj);
+            String lang = CookiesUtil.getLang(request);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
-                    vo.setAttachmentSet(null);
                     vo.setOrderPayments(null);
+                    vo.setAttachmentSet(null);
                     vo.setGoodsList(null);
                     vo.setProject(null);
                 });
             }
             String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
-                    "CRM客户代码", "订单类型", "币种","合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
+                    "CRM客户代码", "订单类型", "币种", "合同总价", "款项状态", "订单来源", "订单状态", "流程进度"};
+            String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", "Signing date of the order",
+                    "CRM ID", "Order type", "currency", "Total value", "Payment status", "Order origin", "Order status", "Project progress"};
             String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
-                    "crmCode", "orderTypeName", "currencyBn","totalPriceUsdSplit","payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
+                    "crmCode", "orderTypeName", "currencyBn", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
+            String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
+                    "crmCode", "enOrderTypeName", "currencyBn", "totalPriceUsdSplit", "enPayStatusName", "enOrderSourceName", "enOrderStatusName", "enProcessProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
-            HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
+            HSSFWorkbook workbook;
+            if (StringUtils.equals(lang,"en")) {
+                workbook = buildExcel.buildExcel((List) objArr, enHeader, enKeys, "Order List");
+            } else {
+                workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
+            }
             ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
             ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
             downExcel(workbook, response, "订单列表");

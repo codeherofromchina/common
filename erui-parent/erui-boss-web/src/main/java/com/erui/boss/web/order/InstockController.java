@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.InstockService;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,6 +89,49 @@ public class InstockController {
                 logger.error("异常错误", ex);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg(ex.toString());
+            }
+        } else {
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("入库信息状态错误");
+        }
+
+
+        return result;
+    }
+    /**
+     * 入库详情信息   转交经办人
+     *
+     * @param instock
+     * @return
+     */
+    @RequestMapping(value = "instockDeliverAgent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> instockDeliverAgent(@RequestBody Instock instock , HttpServletRequest request) {
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
+        Result<Object> result = new Result<>();
+        Integer status = instock.getStatus();
+        if (status == Instock.StatusEnum.INIT.getStatus()) {
+            if (instock.getId() == null || instock.getId() <= 0) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("入库信息id不能为空");
+            } else if (StringUtils.isBlank(instock.getUname()) || StringUtils.equals(instock.getUname(), "")) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("仓库经办人名字不能为空");
+            }else if (instock.getUid() == null) {
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg("仓库经办人ID不能为空");
+            } else {
+                try {
+                    if (instockService.instockDeliverAgent(instock)) {
+                        return new Result<>();
+                    }
+                } catch (Exception ex) {
+                    logger.error("异常错误", ex);
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg(ex.toString());
+                }
             }
         } else {
             result.setCode(ResultStatusEnum.FAIL.getCode());
