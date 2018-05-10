@@ -1227,6 +1227,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                         JSONObject data = jsonObject.getJSONObject("data");
                         mobile = data.getString("mobile");
+                        if(StringUtil.isBlank(mobile)){
+                            throw new Exception(data.getString("name")+": 手机号为空");
+                        }
+
                         //发送短信
                         Map<String, String> map = new HashMap();
                         map.put("areaCode", "86");
