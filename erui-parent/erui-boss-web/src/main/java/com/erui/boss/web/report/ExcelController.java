@@ -160,11 +160,6 @@ public class ExcelController {
             logger.debug("异常:" + e1.getMessage(), e1);
             return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
         }
-        //转成file类型
-//        CommonsMultipartFile cf= (CommonsMultipartFile)file;
-//        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
-//        File saveFile = fi.getStoreLocation();
-
         ExcelReader excelReader = new ExcelReader();
         try {
             // 读取excel所有的数据

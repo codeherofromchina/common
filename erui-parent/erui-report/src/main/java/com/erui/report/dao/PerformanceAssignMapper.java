@@ -25,4 +25,11 @@ public interface PerformanceAssignMapper {
      */
     List<PerformanceAssign> selectCountryAssignDetailByTime(Map<String, String> params);
 
+    /**
+     * 查询指定国家正在审核的业绩分配数据
+     * @param params
+     * @return
+     */
+    List<PerformanceAssign> selectAuditingPerformanceByCountry(Map<String, String> params);
+
 }

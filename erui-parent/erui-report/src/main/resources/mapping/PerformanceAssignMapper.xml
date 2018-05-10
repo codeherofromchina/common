@@ -23,6 +23,18 @@
     reject_reason
   </sql>
 
+  <!--查询指定国家正在审核的业绩分配数据-->
+  <select id="selectAuditingPerformanceByCountry" resultType="com.erui.report.model.PerformanceAssign" parameterType="java.util.Map">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM  performance_assign
+    WHERE
+    assign_status =1
+    <if test="country!=null and country!=''">
+      AND  three_level_department= #{country}
+    </if>
+  </select>
+
   <!--根据月份查询指定国家业绩分配明细-->
   <select id="selectCountryAssignDetailByTime" resultType="com.erui.report.model.PerformanceAssign" parameterType="java.util.Map">
     SELECT

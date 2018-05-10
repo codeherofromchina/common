@@ -6,17 +6,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.PerformanceAssign;
 import com.erui.report.service.PerformanceService;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -248,62 +244,95 @@ public class PerformanceController {
 
     /**
      * 指定国家的销售人员业绩明细
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/countrySalesPerformance",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
-    public Object countrySalesPerformance(@RequestBody(required = true) Map<String,String> params)throws ParseException{
-        if (!params.containsKey("date")||!params.containsKey("country")) {
+    @RequestMapping(value = "/countrySalesPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object countrySalesPerformance(@RequestBody(required = true) Map<String, String> params) throws ParseException {
+        if (!params.containsKey("date") || !params.containsKey("country")) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         clearUpParams(params);
-        Map<String,Object> data=new HashMap<>();
-        List<PerformanceAssign> dataList=performanceService.selectCountryAssignDetailByTime(params);
-        double countryPerformance =0d;
-        String rejectReason =null;
-        Integer assignStatus =null;
-        int marketerCount=0;
-        if(CollectionUtils.isNotEmpty(dataList)){
-            if(dataList.get(0).getCountryPerformance()!=null) {
-                countryPerformance=Double.parseDouble(dataList.get(0).getCountryPerformance().toString());
+        Map<String, Object> data = new HashMap<>();
+        List<PerformanceAssign> dataList = performanceService.selectCountryAssignDetailByTime(params);
+        double countryPerformance = 0d;
+        String rejectReason = null;
+        Integer assignStatus = null;
+        int marketerCount = 0;
+        if (CollectionUtils.isNotEmpty(dataList)) {
+            if (dataList.get(0).getCountryPerformance() != null) {
+                countryPerformance = Double.parseDouble(dataList.get(0).getCountryPerformance().toString());
             }
             rejectReason = dataList.get(0).getRejectReason();
             assignStatus = dataList.get(0).getAssignStatus();
-            marketerCount=dataList.size();
+            marketerCount = dataList.size();
         }
-        data.put("assignStatus",assignStatus);
-        data.put("totalPerformance",countryPerformance);
-        data.put("rejectReason",rejectReason);
-        data.put("marketerCount",marketerCount);
-        data.put("marketers",dataList);
-        return  new Result<>(data);
+        data.put("assignStatus", assignStatus);
+        data.put("totalPerformance", countryPerformance);
+        data.put("rejectReason", rejectReason);
+        data.put("marketerCount", marketerCount);
+        data.put("marketers", dataList);
+        return new Result<>(data);
     }
 
     /**
      * 分配业绩
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/assignPerformance",method = RequestMethod.POST,produces = {"application/json;charset=utf-8"})
-    public Object assignPerformance(List<PerformanceAssign> params)throws ParseException{
-        double countryPerformance=0d;
-        if(CollectionUtils.isNotEmpty(params)){
-           for(PerformanceAssign p:params){
+    @RequestMapping(value = "/assignPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object assignPerformance(@RequestBody(required = true) List<PerformanceAssign> params) {
+        double countryPerformance = 0d;
+        if (CollectionUtils.isNotEmpty(params)) {
+            for (PerformanceAssign p : params) {
                 p.setAssignStatus(1);
-                if(p.getSalesmanPerformance()!=null) {
-                    countryPerformance +=Double.parseDouble(p.getSalesmanPerformance().toString());
+                if (p.getSalesmanPerformance() != null) {
+                    countryPerformance += Double.parseDouble(p.getSalesmanPerformance().toString());
                 }
             }
-           for(PerformanceAssign p:params){
-               p.setCountryPerformance(new BigDecimal(countryPerformance));
+            for (PerformanceAssign p : params) {
+                p.setCountryPerformance(new BigDecimal(countryPerformance));
             }
             performanceService.insertPerformanceAssign(params);
+            return new Result<>(ResultStatusEnum.SUCCESS);
         }
 
+        return new Result<>(ResultStatusEnum.PARAM_ERROR);
+    }
 
-        return  null;
+    /**
+     * 查看指定国家 审核中的 业绩分配
+     *
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/findAuditingPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object findAuditingPerformance(@RequestBody(required = true) Map<String, String> params) {
+        if (params.containsKey("country")) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        List<PerformanceAssign> dataList = performanceService.selectAuditingPerformanceByCountry(params);
+        return new Result<>(dataList);
+    }
+
+    /**
+     * 审核指定国家的业绩 分配  ： 通过 、驳回
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/auditPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Object auditPerformance(@RequestBody(required = true) Map<String, String> params) {
+        if (params.containsKey("country")) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+       performanceService.auditPerformance(params);
+        return new Result<>(ResultStatusEnum.SUCCESS);
     }
 
     /**

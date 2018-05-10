@@ -78,4 +78,17 @@ public interface PerformanceService {
      * @param dataList
      */
     void insertPerformanceAssign(List<PerformanceAssign> dataList);
+
+    /**
+     * 查询指定国家正在审核的业绩分配数据
+     * @param params
+     * @return
+     */
+    List<PerformanceAssign> selectAuditingPerformanceByCountry(Map<String,String>  params);
+
+    /**
+     * 审核 指定国家的业绩分配： 通过 、驳回
+     * @param params
+     */
+    void auditPerformance(Map<String,String> params);
 }

@@ -4,6 +4,7 @@ package com.erui.report.dao;
 import com.erui.report.model.PerformanceAssign;
 import com.erui.report.model.PerformanceCount;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -66,4 +67,11 @@ public interface PerformanceCountMapper {
      */
 
     double selectTotalPerformanceByCountryAndTime(Map<String,String> params);
+
+    /**
+     * 查询最近的日期
+     * @return
+     */
+    Date selectEndTime();
+
 }
