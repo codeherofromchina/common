@@ -530,8 +530,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //出库通知：通知质检经办人办理质检
         if(status == 2) {
 
-            //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-            pushWareHouseman(one,1);
+          /*  //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+            pushWareHouseman(one,1);*/
 
             if (outboundNums != 0) { //出库总数量不等于0  才发送信息
 
@@ -551,12 +551,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
                 }
 
-                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-                pushWareHouseman(one,2);
-
+                one.setLeaveDate(new Date());   //出库时间
                 one.setStatus(5);   //出库状态
                 one.setOutCheck(0); //设置不外检
-                one.setLeaveDate(new Date());   //出库时间
+                DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(one);
+
+                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+                pushWareHouseman(deliverDetail2,2);
+
+
+
 
                 //推送信息到出库信息管理
                 Iogistics iogistics = new Iogistics();  //物流信息

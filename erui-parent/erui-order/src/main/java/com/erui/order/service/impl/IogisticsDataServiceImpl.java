@@ -300,9 +300,11 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                         for (Iogistics iogistics2 : iogistics1){
                             List<DeliverConsignGoods> deliverConsignGoodsList1 = iogistics2.getDeliverDetail().getDeliverConsignGoodsList(); //获取出库信息，获取出口通知单商品
                             for (DeliverConsignGoods deliverConsignGoodss : deliverConsignGoodsList1) {
-                                Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId()); //推送实际完成日期
-                                one1.setAccomplishDate(date);
-                                goodsDao.saveAndFlush(one1);
+                                if(deliverConsignGoods.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
+                                    Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId()); //推送实际完成日期
+                                    one1.setAccomplishDate(date);
+                                    goodsDao.saveAndFlush(one1);
+                                }
                             }
                         }
 
