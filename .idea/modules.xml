@@ -2,6 +2,19 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-bmp/erui-bmp.iml" filepath="$PROJECT_DIR$/erui-parent/erui-bmp/erui-bmp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-boss-web/erui-boss-web.iml" filepath="$PROJECT_DIR$/erui-parent/erui-boss-web/erui-boss-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-cms/erui-cms.iml" filepath="$PROJECT_DIR$/erui-parent/erui-cms/erui-cms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-comm/erui-comm.iml" filepath="$PROJECT_DIR$/erui-parent/erui-comm/erui-comm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-monitor/erui-monitor.iml" filepath="$PROJECT_DIR$/erui-parent/erui-monitor/erui-monitor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-order/erui-order.iml" filepath="$PROJECT_DIR$/erui-parent/erui-order/erui-order.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-out-web/erui-out-web.iml" filepath="$PROJECT_DIR$/erui-parent/erui-out-web/erui-out-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-parent.iml" filepath="$PROJECT_DIR$/erui-parent/erui-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-pay/erui-pay.iml" filepath="$PROJECT_DIR$/erui-parent/erui-pay/erui-pay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-power/erui-power.iml" filepath="$PROJECT_DIR$/erui-parent/erui-power/erui-power.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-quartz/erui-quartz.iml" filepath="$PROJECT_DIR$/erui-parent/erui-quartz/erui-quartz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-report/erui-report.iml" filepath="$PROJECT_DIR$/erui-parent/erui-report/erui-report.iml" />
+      <module fileurl="file://$PROJECT_DIR$/erui-parent/erui-sms/erui-sms.iml" filepath="$PROJECT_DIR$/erui-parent/erui-sms/erui-sms.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/java.iml" filepath="$PROJECT_DIR$/.idea/java.iml" />
     </modules>
   </component>

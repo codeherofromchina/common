@@ -18,6 +18,8 @@ public interface FuncPermMapper {
 
     List<FuncPerm> selectByExample(FuncPermExample example);
 
+    List<FuncPerm> selectByEmployeeId(Integer empId);
+
     FuncPerm selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") FuncPerm record, @Param("example") FuncPermExample example);

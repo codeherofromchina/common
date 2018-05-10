@@ -97,6 +97,12 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByEmployeeId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select DISTINCT t1.* from func_perm t1,role_access_perm t2,role t3,role_member t4
+      where t1.id = t2.func_perm_id and t2.role_id = t3.id and t3.id = t4.role_id and t4.employee_id= #{empId,jdbcType=BIGINT}
+  </select>
+
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
