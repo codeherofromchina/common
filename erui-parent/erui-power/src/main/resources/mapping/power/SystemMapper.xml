@@ -90,6 +90,12 @@
     from system
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="selectByBn" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from system
+    where id = #{bn,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from system
     where id = #{id,jdbcType=BIGINT}

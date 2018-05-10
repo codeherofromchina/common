@@ -14,7 +14,7 @@
       <foreach collection="oredCriteria" item="criteria" separator="or" >
         <if test="criteria.valid" >
           <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
+            <foreach collection="criteria.criteria" item="criterion" >git
               <choose >
                 <when test="criterion.noValue" >
                   and ${criterion.condition}

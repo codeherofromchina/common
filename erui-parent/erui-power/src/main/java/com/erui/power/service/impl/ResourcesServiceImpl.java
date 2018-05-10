@@ -10,4 +10,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ResourcesServiceImpl extends BaseService<ResourcesMapper> implements ResourcesService {
+
+
 }

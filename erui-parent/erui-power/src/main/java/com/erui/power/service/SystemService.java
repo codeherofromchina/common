@@ -18,4 +18,25 @@ public interface SystemService {
      * @return
      */
     public PageInfo<System> findByPage(SystemVo systemVo);
+
+    /**
+     * 删除资源
+     * @param id
+     * @return
+     */
+    public boolean delete(Integer id );
+
+    /**
+     * 新增资源
+     * @param system
+     * @return
+     */
+    public boolean add(System system );
+
+    /**
+     * 新增资源
+     * @param system
+     * @return
+     */
+    public boolean update(System system );
 }

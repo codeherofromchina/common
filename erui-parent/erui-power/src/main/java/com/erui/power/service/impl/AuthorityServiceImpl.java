@@ -19,14 +19,10 @@ public class AuthorityServiceImpl implements AuthorityService {
         List<FuncPerm> empFuncPerm = funcPermService.findByEmployee(userId);
 
         boolean matchFlag = empFuncPerm.parallelStream().anyMatch(vo -> url.equals(vo.getUrl()));
-        if (matchFlag) {
-            return true;
-        }
 
+      /*  List<FuncPerm> allFuncPerm = funcPermService.findAll();
+        boolean result = allFuncPerm.parallelStream().allMatch(vo -> !url.equals(vo.getUrl()));*/
 
-        List<FuncPerm> allFuncPerm = funcPermService.findAll();
-        boolean result = allFuncPerm.parallelStream().allMatch(vo -> !url.equals(vo.getUrl()));
-
-        return result;
+        return matchFlag;
     }
 }

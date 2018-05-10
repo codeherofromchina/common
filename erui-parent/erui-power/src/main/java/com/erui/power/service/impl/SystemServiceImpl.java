@@ -5,12 +5,13 @@ import com.erui.power.model.System;
 import com.erui.power.model.SystemExample;
 import com.erui.power.service.SystemService;
 import com.erui.power.vo.SystemVo;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,6 +19,8 @@ import java.util.List;
  */
 @Service
 public class SystemServiceImpl extends BaseService<SystemMapper> implements SystemService {
+
+    private static final SimpleDateFormat seqDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     public PageInfo<System> findByPage(SystemVo systemVo) {
@@ -43,5 +46,46 @@ public class SystemServiceImpl extends BaseService<SystemMapper> implements Syst
         example.setOrderByClause("id asc");
         List<System> list = readMapper.selectByExample(example);
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public boolean delete(Integer id) {
+
+        if (readMapper.selectByPrimaryKey(Long.valueOf(id)) != null){
+            writeMapper.deleteByPrimaryKey(Long.valueOf(id));
+
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean add(System system) {
+
+        if (!bnCodeExists(system.getBn())){
+
+            system.setCreatedTime(new Date());
+            writeMapper.insert(system);
+            return true;
+        }
+
+        return false;
+    }
+
+    //判断bn是否存在
+    private boolean bnCodeExists(String bn) {
+        SystemExample example = new SystemExample();
+        SystemExample.Criteria criteria = example.createCriteria();
+
+        criteria.andBnEqualTo(bn);
+        return readMapper.countByExample(example) > 0;
+    }
+
+    @Override
+    public boolean update(System system) {
+
+        system.setCreatedTime(new Date());
+        writeMapper.updateByPrimaryKey(system);
+        return true;
     }
 }
