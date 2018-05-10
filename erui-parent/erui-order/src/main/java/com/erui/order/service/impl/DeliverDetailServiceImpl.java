@@ -1262,7 +1262,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         Set<String> listAll = new HashSet<>();
                         for (int i = 0; i < data1.size(); i++){
                             JSONObject ob  = (JSONObject)data1.get(i);
-                            listAll.add(ob.getString("mobile"));    //获取人员手机号
+                            String mobile = ob.getString("mobile");
+                            if(StringUtil.isNotBlank(mobile)){
+                                listAll.add(mobile);    //获取人员手机号
+                            }
                         }
                         listAll = new HashSet<>(new LinkedHashSet<>(listAll));
                         for (String me : listAll) {
