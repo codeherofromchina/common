@@ -1,11 +1,13 @@
 package com.erui.order.requestVo;
 
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
 import javax.persistence.Column;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -677,11 +679,6 @@ public class AddOrderVo {
     public void copyBaseInfoTo(Order order) {
         if (order == null) {
             return;
-        }
-        if (this.overseasSales == 3) {
-            order.setContractNo(this.contractNoOs);
-        } else {
-            order.setContractNo(this.contractNo);
         }
         order.setFrameworkNo(this.frameworkNo);
         order.setPoNo(this.poNo);

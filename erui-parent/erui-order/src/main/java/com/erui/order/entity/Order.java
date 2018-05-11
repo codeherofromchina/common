@@ -741,10 +741,10 @@ public class Order {
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
-        if (totalPrice == null) {
-            BigDecimal bigDecimal = new BigDecimal("");
+      /*  if (totalPrice == null) {
+            BigDecimal bigDecimal = new BigDecimal("0.00");
             totalPrice = bigDecimal;
-        }
+        }*/
         this.totalPrice = totalPrice;
     }
 
