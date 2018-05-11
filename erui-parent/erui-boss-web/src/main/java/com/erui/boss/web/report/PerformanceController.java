@@ -271,10 +271,13 @@ public class PerformanceController {
             assignStatus = dataList.get(0).getAssignStatus();
             marketerCount = dataList.size();
         }
+        //获取几月份
+        int month = DateUtil.getMonth(DateUtil.parseChDateStrToEnDateStr(params.get("date")));
         data.put("assignStatus", assignStatus);
         data.put("totalPerformance", countryPerformance);
         data.put("rejectReason", rejectReason);
         data.put("marketerCount", marketerCount);
+        data.put("month", month);
         data.put("marketers", dataList);
         return new Result<>(data);
     }
