@@ -290,7 +290,7 @@ public class PerformanceController {
      */
     @ResponseBody
     @RequestMapping(value = "/assignPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object assignPerformance(@RequestBody(required = true) List<PerformanceAssign> params) {
+    public Object assignPerformance(List<PerformanceAssign> params) {
         double countryPerformance = 0d;
         if (CollectionUtils.isNotEmpty(params)) {
             for (PerformanceAssign p : params) {
