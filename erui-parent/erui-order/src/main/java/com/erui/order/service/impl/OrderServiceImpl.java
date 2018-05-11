@@ -149,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据合同交货日期查询
                 if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" +condition.getDeliveryDate() + "%"));
                 }
                 //根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {

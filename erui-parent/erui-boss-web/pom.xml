@@ -66,6 +66,11 @@
         </dependency>
         <dependency>
             <groupId>com.erui</groupId>
+            <artifactId>erui-power</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.erui</groupId>
             <artifactId>erui-order</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -206,7 +211,6 @@
         </profile>
         <profile>
             <id>production</id>
-
            <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>
@@ -214,7 +218,6 @@
                     <version>1.0</version>
                  </dependency>
             </dependencies>
-
         </profile>
     </profiles>
 

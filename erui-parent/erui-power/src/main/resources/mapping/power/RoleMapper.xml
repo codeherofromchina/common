@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.power.dao.RoleMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.power.model.Role" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="name_en" property="nameEn" jdbcType="VARCHAR" />
+    <result column="role_no" property="roleNo" jdbcType="VARCHAR" />
+    <result column="admin_show" property="adminShow" jdbcType="CHAR" />
+    <result column="role_group" property="roleGroup" jdbcType="VARCHAR" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="created_by" property="createdBy" jdbcType="BIGINT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_by" property="updatedBy" jdbcType="BIGINT" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="deleted_flag" property="deletedFlag" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, name, name_en, role_no, admin_show, role_group, remarks, status, created_by, 
+    created_at, updated_by, updated_at, deleted_flag
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.power.model.RoleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from role
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from role
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from role
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.power.model.RoleExample" >
+    delete from role
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.power.model.Role" >
+    insert into role (id, name, name_en, 
+      role_no, admin_show, role_group, 
+      remarks, status, created_by, 
+      created_at, updated_by, updated_at, 
+      deleted_flag)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{nameEn,jdbcType=VARCHAR}, 
+      #{roleNo,jdbcType=VARCHAR}, #{adminShow,jdbcType=CHAR}, #{roleGroup,jdbcType=VARCHAR}, 
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createdBy,jdbcType=BIGINT}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedBy,jdbcType=BIGINT}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{deletedFlag,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.power.model.Role" >
+    insert into role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="nameEn != null" >
+        name_en,
+      </if>
+      <if test="roleNo != null" >
+        role_no,
+      </if>
+      <if test="adminShow != null" >
+        admin_show,
+      </if>
+      <if test="roleGroup != null" >
+        role_group,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createdBy != null" >
+        created_by,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedBy != null" >
+        updated_by,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="deletedFlag != null" >
+        deleted_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nameEn != null" >
+        #{nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="roleNo != null" >
+        #{roleNo,jdbcType=VARCHAR},
+      </if>
+      <if test="adminShow != null" >
+        #{adminShow,jdbcType=CHAR},
+      </if>
+      <if test="roleGroup != null" >
+        #{roleGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createdBy != null" >
+        #{createdBy,jdbcType=BIGINT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        #{updatedBy,jdbcType=BIGINT},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deletedFlag != null" >
+        #{deletedFlag,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.power.model.RoleExample" resultType="java.lang.Integer" >
+    select count(*) from role
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update role
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameEn != null" >
+        name_en = #{record.nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roleNo != null" >
+        role_no = #{record.roleNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.adminShow != null" >
+        admin_show = #{record.adminShow,jdbcType=CHAR},
+      </if>
+      <if test="record.roleGroup != null" >
+        role_group = #{record.roleGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdBy != null" >
+        created_by = #{record.createdBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.createdAt != null" >
+        created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatedBy != null" >
+        updated_by = #{record.updatedBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.updatedAt != null" >
+        updated_at = #{record.updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deletedFlag != null" >
+        deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update role
+    set id = #{record.id,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      name_en = #{record.nameEn,jdbcType=VARCHAR},
+      role_no = #{record.roleNo,jdbcType=VARCHAR},
+      admin_show = #{record.adminShow,jdbcType=CHAR},
+      role_group = #{record.roleGroup,jdbcType=VARCHAR},
+      remarks = #{record.remarks,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=VARCHAR},
+      created_by = #{record.createdBy,jdbcType=BIGINT},
+      created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      updated_by = #{record.updatedBy,jdbcType=BIGINT},
+      updated_at = #{record.updatedAt,jdbcType=TIMESTAMP},
+      deleted_flag = #{record.deletedFlag,jdbcType=CHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.power.model.Role" >
+    update role
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nameEn != null" >
+        name_en = #{nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="roleNo != null" >
+        role_no = #{roleNo,jdbcType=VARCHAR},
+      </if>
+      <if test="adminShow != null" >
+        admin_show = #{adminShow,jdbcType=CHAR},
+      </if>
+      <if test="roleGroup != null" >
+        role_group = #{roleGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createdBy != null" >
+        created_by = #{createdBy,jdbcType=BIGINT},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        updated_by = #{updatedBy,jdbcType=BIGINT},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deletedFlag != null" >
+        deleted_flag = #{deletedFlag,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.power.model.Role" >
+    update role
+    set name = #{name,jdbcType=VARCHAR},
+      name_en = #{nameEn,jdbcType=VARCHAR},
+      role_no = #{roleNo,jdbcType=VARCHAR},
+      admin_show = #{adminShow,jdbcType=CHAR},
+      role_group = #{roleGroup,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      created_by = #{createdBy,jdbcType=BIGINT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_by = #{updatedBy,jdbcType=BIGINT},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      deleted_flag = #{deletedFlag,jdbcType=CHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
