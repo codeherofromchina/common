@@ -32,4 +32,10 @@ public interface PerformanceAssignMapper {
      */
     List<PerformanceAssign> selectAuditingPerformanceByCountry(Map<String, String> params);
 
+    /**
+     * 审核 指定国家的业绩分配： 通过 、驳回
+     * @param params
+     */
+    void auditPerformance(Map<String, String> params);
+
 }

@@ -437,7 +437,8 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
 
     @Override
     public void auditPerformance(Map<String, String> params) {
-
+        PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
+        assignWriterMapper.auditPerformance(params);
     }
 
 

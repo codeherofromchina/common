@@ -10,6 +10,7 @@ import com.erui.report.model.PerformanceAssign;
 import com.erui.report.service.PerformanceService;
 import com.erui.report.util.InquiryAreaVO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -23,6 +24,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,13 +72,13 @@ public class PerformanceController {
      * @Date:10:55 2018/5/3
      * @modified By
      */
-    @RequestMapping("/areaList")
+    @RequestMapping(value = "/areaList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Object areaList(String areaName) {
+    public Object areaList(@RequestBody Map<String,String> params) {
         Result<Object> result = new Result<>();
         List<InquiryAreaVO> arayList = performanceService.selectAllAreaAndCountryList();
-        if (StringUtils.isNotEmpty(areaName)) {
-            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(areaName))
+        if (MapUtils.isNotEmpty(params)&&StringUtils.isNotEmpty(params.get("areaName"))) {
+            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(params.get("areaName")))
                     .collect(Collectors.toList());
             if (ll.size() > 0) {
                 result.setData(ll.get(0).getCountries());
@@ -328,10 +330,10 @@ public class PerformanceController {
     @ResponseBody
     @RequestMapping(value = "/auditPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object auditPerformance(@RequestBody(required = true) Map<String, String> params) {
-        if (params.containsKey("country")) {
+        if (!params.containsKey("date") ||!params.containsKey("country")||!params.containsKey("assignStatus")) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-       performanceService.auditPerformance(params);
+        performanceService.auditPerformance(params);
         return new Result<>(ResultStatusEnum.SUCCESS);
     }
 
