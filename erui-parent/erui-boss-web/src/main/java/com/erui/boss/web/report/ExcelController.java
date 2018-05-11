@@ -177,7 +177,9 @@ public class ExcelController {
             }
 
             ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), true);
-
+            if(!importDataResponse.getDone()){
+                return new Result<Object>(ResultStatusEnum.EXCEL_DATA_REPEAT).setData(importDataResponse);
+            }
             // 整理结果集并返回
             Result<Object> result = new Result<Object>();
             Map<String, Object> data = new HashMap<>();
@@ -237,7 +239,9 @@ public class ExcelController {
                         excelContent.subList(1, excelContent.size()), false);
 
                 result.setData(importDataResponse);
-
+                if(!importDataResponse.getDone()){
+                    result.setStatus(ResultStatusEnum.EXCEL_DATA_REPEAT);
+                }
                 try {
                     // 删除数据导入成功的文件
 //                    Integer dCode = FastDFSUtil.deleteFile("group1", fileName);

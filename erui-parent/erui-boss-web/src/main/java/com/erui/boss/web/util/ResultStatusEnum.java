@@ -25,6 +25,7 @@ public enum ResultStatusEnum {
     EXCEL_OPERATOR_FAIL(15, "Excel文件操作失败"),
     EXCEL_FILE_NOT_EXIST(16, "Excel文件不存在"),
     EXCEL_DOWNLOAD_FALL(17,"文件下载失败"),
+    EXCEL_DATA_REPEAT(18,"Execel存在比数据库更早的数据"),
     //-----------daqu----------------
     AREA_NOT_EXIST(20, "不存在的大区"),
     ////// ----
