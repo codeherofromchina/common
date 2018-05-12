@@ -416,6 +416,13 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
             p.setAssignStatus(0);
             p.setStartTime(DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR));
         });
+        Thread thread=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                insertPerformanceAssign(salesmanList);
+            }
+        });
+        thread.start();
         return salesmanList;
     }
 
@@ -423,9 +430,17 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     public void insertPerformanceAssign(List<PerformanceAssign> dataList) {
         if (CollectionUtils.isNotEmpty(dataList)) {
             PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
-            dataList.stream().forEach(p -> {
+           for(PerformanceAssign p:dataList){
                 assignWriterMapper.insertSelective(p);
-            });
+            }
+        }
+    }
+
+    @Override
+    public void updatePerformanceAssign(List<PerformanceAssign> dataList) {
+        if (CollectionUtils.isNotEmpty(dataList)) {
+            PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
+            assignWriterMapper.updatePerformanceAssign(dataList);
         }
     }
 

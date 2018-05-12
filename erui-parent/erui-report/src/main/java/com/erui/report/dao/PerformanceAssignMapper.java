@@ -19,6 +19,12 @@ public interface PerformanceAssignMapper {
     int updateByPrimaryKey(PerformanceAssign record);
 
     /**
+     * 批量更新业绩分配数据
+     * @param dataList
+     */
+    void updatePerformanceAssign(List<PerformanceAssign> dataList);
+
+    /**
      * 根据月份查询国家业绩分配明细
      * @param params
      * @return

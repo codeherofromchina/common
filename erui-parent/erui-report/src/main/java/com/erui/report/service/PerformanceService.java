@@ -74,10 +74,15 @@ public interface PerformanceService {
     List<PerformanceAssign> selectCountryAssignDetailByTime(Map<String,String>  params);
 
     /**
-     * 添加待审核业绩分配数据
+     * 添加业绩分配数据
      * @param dataList
      */
     void insertPerformanceAssign(List<PerformanceAssign> dataList);
+    /**
+     * 更改为待审核状态
+     * @param dataList
+     */
+    void updatePerformanceAssign(List<PerformanceAssign> dataList);
 
     /**
      * 查询指定国家正在审核的业绩分配数据

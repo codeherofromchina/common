@@ -69,6 +69,25 @@
       AND  three_level_department= #{country}
     </update>
 
+    <!--批量更新分配的业绩-->
+    <update id="updatePerformanceAssign" parameterType="java.util.List">
+
+        <foreach collection="list" item="item" index="index">
+          UPDATE  performance_assign SET
+          assign_status =#{item.assignStatus}
+          <if test="item.assignRate !=null ">
+            , assign_rate =#{item.assignRate}
+          </if>
+          <if test="item.salesmanPerformance !=null ">
+           , salesman_performance =#{item.salesmanPerformance}
+          </if>
+          <if test="item.rejectReason !=null and item.rejectReason !=''">
+           , reject_reason =#{item.rejectReason}
+          </if>
+        WHERE start_time=#{item.startTime} AND work_num=#{item.workNum} AND three_level_department=#{item.threeLevelDepartment}
+        </foreach>
+    </update>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
       delete from performance_assign
       where id = #{id,jdbcType=BIGINT}

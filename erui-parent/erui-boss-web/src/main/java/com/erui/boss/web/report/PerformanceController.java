@@ -301,7 +301,7 @@ public class PerformanceController {
             for (PerformanceAssign p : params.get("marketers")) {
                 p.setAssignStatus(1);
             }
-            performanceService.insertPerformanceAssign(params.get("marketers"));
+            performanceService.updatePerformanceAssign(params.get("marketers"));
             return new Result<>(ResultStatusEnum.SUCCESS);
         }
 
