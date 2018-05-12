@@ -410,9 +410,9 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         List<PerformanceAssign> salesmanList = readMapper.selectSalesmanByCountry(params.get("country"));
         //查询指定国家和月份的总业绩
         double totalPerformance = readMapper.selectTotalPerformanceByCountryAndTime(params);
-
+        double  total=RateUtil.doubleChainRateTwo(totalPerformance,10000);//变成万美元
         salesmanList.stream().forEach(p -> {
-            p.setCountryPerformance(new BigDecimal(totalPerformance).setScale(2, BigDecimal.ROUND_HALF_UP));
+            p.setCountryPerformance(new BigDecimal(total).setScale(2, BigDecimal.ROUND_HALF_UP));
             p.setAssignStatus(0);
             p.setStartTime(DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR));
         });
