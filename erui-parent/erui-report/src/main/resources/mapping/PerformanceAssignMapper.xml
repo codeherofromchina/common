@@ -69,23 +69,21 @@
       AND  three_level_department= #{country}
     </update>
 
-    <!--批量更新分配的业绩-->
-    <update id="updatePerformanceAssign" parameterType="java.util.List">
+    <!--更新分配的业绩-->
+    <update id="updatePerformanceAssign" parameterType="com.erui.report.model.PerformanceAssign">
+        UPDATE  performance_assign SET
+          assign_status =#{assignStatus}
+          <if test="assignRate !=null ">
+            , assign_rate =#{assignRate}
+          </if>
+          <if test="salesmanPerformance !=null ">
+           , salesman_performance =#{salesmanPerformance}
+          </if>
+          <if test="rejectReason !=null and rejectReason !=''">
+           , reject_reason =#{rejectReason}
+          </if>
+        WHERE start_time=#{startTime} AND work_num=#{workNum} AND three_level_department=#{threeLevelDepartment}
 
-        <foreach collection="list" item="item" index="index">
-          UPDATE  performance_assign SET
-          assign_status =#{item.assignStatus}
-          <if test="item.assignRate !=null ">
-            , assign_rate =#{item.assignRate}
-          </if>
-          <if test="item.salesmanPerformance !=null ">
-           , salesman_performance =#{item.salesmanPerformance}
-          </if>
-          <if test="item.rejectReason !=null and item.rejectReason !=''">
-           , reject_reason =#{item.rejectReason}
-          </if>
-        WHERE start_time=#{item.startTime} AND work_num=#{item.workNum} AND three_level_department=#{item.threeLevelDepartment}
-        </foreach>
     </update>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >

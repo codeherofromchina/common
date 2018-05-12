@@ -20,9 +20,9 @@ public interface PerformanceAssignMapper {
 
     /**
      * 批量更新业绩分配数据
-     * @param dataList
+     * @param record
      */
-    void updatePerformanceAssign(List<PerformanceAssign> dataList);
+    void updatePerformanceAssign(PerformanceAssign record);
 
     /**
      * 根据月份查询国家业绩分配明细

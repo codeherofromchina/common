@@ -440,7 +440,9 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     public void updatePerformanceAssign(List<PerformanceAssign> dataList) {
         if (CollectionUtils.isNotEmpty(dataList)) {
             PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
-            assignWriterMapper.updatePerformanceAssign(dataList);
+            dataList.stream().forEach(p->{
+                assignWriterMapper.updatePerformanceAssign(p);
+            });
         }
     }
 
