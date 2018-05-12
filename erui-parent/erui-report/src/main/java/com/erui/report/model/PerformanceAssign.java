@@ -3,11 +3,7 @@ package com.erui.report.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * 销售业绩分配 实体
- */
 public class PerformanceAssign {
-
     private Long id;
 
     private Date startTime;

@@ -23,20 +23,8 @@
     reject_reason
   </sql>
 
-  <!--查询指定国家正在审核的业绩分配数据-->
-  <select id="selectAuditingPerformanceByCountry" resultType="com.erui.report.model.PerformanceAssign" parameterType="java.util.Map">
-    SELECT
-    <include refid="Base_Column_List" />
-    FROM  performance_assign
-    WHERE
-    assign_status =1
-    <if test="country!=null and country!=''">
-      AND  three_level_department= #{country}
-    </if>
-  </select>
-
   <!--根据月份查询指定国家业绩分配明细-->
-  <select id="selectCountryAssignDetailByTime" resultType="com.erui.report.model.PerformanceAssign" parameterType="java.util.Map">
+  <select id="selectCountryAssignDetailByTime" resultMap="BaseResultMap" parameterType="java.util.Map">
     SELECT
     <include refid="Base_Column_List" />
     FROM  performance_assign
@@ -46,6 +34,18 @@
       AND  three_level_department= #{country}
     </if>
   </select>
+  <!--查询指定国家正在审核的业绩分配数据-->
+  <select id="selectAuditingPerformanceByCountry" resultMap="BaseResultMap" parameterType="java.util.Map">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM  performance_assign
+    WHERE start_time BETWEEN
+    DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    <if test="country!=null and country!=''">
+      AND  three_level_department= #{country}
+    </if>
+    AND assign_status=1
+  </select>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
@@ -53,11 +53,26 @@
     from performance_assign
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
-    delete from performance_assign
-    where id = #{id,jdbcType=BIGINT}
-  </delete>
 
+    <!--审核 指定国家的业绩分配： 通过 、驳回-->
+    <update id="auditPerformance" parameterType="java.util.Map">
+      UPDATE  performance_assign
+      <set>
+          assign_status=#{state}
+          <if test="rejectReason!=null and rejectReason!=''">
+            , reject_reason=#{rejectReason}
+          </if>
+      </set>
+      WHERE
+      start_time BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      AND  three_level_department= #{country}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+      delete from performance_assign
+      where id = #{id,jdbcType=BIGINT}
+  </delete>
   <insert id="insert" parameterType="com.erui.report.model.PerformanceAssign" >
     insert into performance_assign (id, start_time, work_num, 
       name_ch, salesman_type, two_level_department,

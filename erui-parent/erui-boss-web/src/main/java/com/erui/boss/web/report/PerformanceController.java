@@ -306,7 +306,7 @@ public class PerformanceController {
             return new Result<>(ResultStatusEnum.SUCCESS);
         }
 
-        return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
     /**
@@ -317,10 +317,11 @@ public class PerformanceController {
      */
     @ResponseBody
     @RequestMapping(value = "/findAuditingPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object findAuditingPerformance(@RequestBody(required = true) Map<String, String> params) {
-        if (params.containsKey("country")) {
+    public Object findAuditingPerformance(@RequestBody(required = true) Map<String, String> params)throws Exception {
+        if (!params.containsKey("date")||!params.containsKey("country")) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
+        clearUpParams(params);
         List<PerformanceAssign> dataList = performanceService.selectAuditingPerformanceByCountry(params);
         return new Result<>(dataList);
     }
@@ -332,10 +333,11 @@ public class PerformanceController {
      */
     @ResponseBody
     @RequestMapping(value = "/auditPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object auditPerformance(@RequestBody(required = true) Map<String, String> params) {
-        if (!params.containsKey("date") ||!params.containsKey("country")||!params.containsKey("assignStatus")) {
+    public Object auditPerformance(@RequestBody(required = true) Map<String, String> params)throws Exception {
+        if (!params.containsKey("date") ||!params.containsKey("country")||!params.containsKey("state")) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
+        clearUpParams(params);
         performanceService.auditPerformance(params);
         return new Result<>(ResultStatusEnum.SUCCESS);
     }
