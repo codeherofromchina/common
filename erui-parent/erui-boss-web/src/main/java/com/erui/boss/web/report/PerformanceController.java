@@ -290,19 +290,18 @@ public class PerformanceController {
      */
     @ResponseBody
     @RequestMapping(value = "/assignPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object assignPerformance(@RequestBody(required = true) Map<String,List<PerformanceAssign>> params) {
-        double countryPerformance = 0d;
-        if (CollectionUtils.isNotEmpty(params.get("marketers"))) {
-            for (PerformanceAssign p : params.get("marketers")) {
+    public Object assignPerformance(@RequestBody(required = true) Map<String,Object> params) {
+        if(!params.containsKey("totalPerformance")||!params.containsKey("marketers")){
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        double totalPerformance=Double.parseDouble(params.get("totalPerformance").toString());
+        List<PerformanceAssign> marketers= (List<PerformanceAssign>) params.get("marketers");
+        if (CollectionUtils.isNotEmpty(marketers)) {
+            for (PerformanceAssign p :marketers) {
                 p.setAssignStatus(1);
-                if (p.getSalesmanPerformance() != null) {
-                    countryPerformance += Double.parseDouble(p.getSalesmanPerformance().toString());
-                }
+                p.setCountryPerformance(new BigDecimal(totalPerformance));
             }
-            for (PerformanceAssign p : params.get("marketers")) {
-                p.setCountryPerformance(new BigDecimal(countryPerformance));
-            }
-            performanceService.insertPerformanceAssign(params.get("marketers"));
+            performanceService.insertPerformanceAssign(marketers);
             return new Result<>(ResultStatusEnum.SUCCESS);
         }
 
