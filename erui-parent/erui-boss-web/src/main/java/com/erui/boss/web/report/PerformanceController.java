@@ -2,6 +2,7 @@ package com.erui.boss.web.report;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
@@ -290,18 +291,17 @@ public class PerformanceController {
      */
     @ResponseBody
     @RequestMapping(value = "/assignPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object assignPerformance(@RequestBody(required = true) Map<String,Object> params) {
-        if(!params.containsKey("totalPerformance")||!params.containsKey("marketers")){
+    public Object assignPerformance(@RequestBody(required = true) Map<String,List<PerformanceAssign>> params) {
+
+        if(!params.containsKey("marketers")){
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        double totalPerformance=Double.parseDouble(params.get("totalPerformance").toString());
-        List<PerformanceAssign> marketers= (List<PerformanceAssign>) params.get("marketers");
-        if (CollectionUtils.isNotEmpty(marketers)) {
-            for (PerformanceAssign p :marketers) {
+
+        if (CollectionUtils.isNotEmpty(params.get("marketers"))) {
+            for (PerformanceAssign p : params.get("marketers")) {
                 p.setAssignStatus(1);
-                p.setCountryPerformance(new BigDecimal(totalPerformance));
             }
-            performanceService.insertPerformanceAssign(marketers);
+            performanceService.insertPerformanceAssign(params.get("marketers"));
             return new Result<>(ResultStatusEnum.SUCCESS);
         }
 
