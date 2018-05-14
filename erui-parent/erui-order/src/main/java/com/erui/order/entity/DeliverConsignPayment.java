@@ -1,7 +1,5 @@
 package com.erui.order.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,7 +9,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="order_payment")
-public class OrderPayment {
+public class DeliverConsignPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -19,6 +17,10 @@ public class OrderPayment {
     private Integer type;
 
     private String topic;
+    //出口通知单ID
+    @Column(name = "deliver_consign_id")
+    private Integer deliverConsignId;
+    //订单ID
     @Column(name = "order_id")
     private Integer orderId;
 
