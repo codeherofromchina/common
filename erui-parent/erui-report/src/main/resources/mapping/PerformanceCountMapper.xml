@@ -79,7 +79,8 @@
       SUM(IFNULL(p.project_amount,0))/10000 AS totalPerformance ,
       SUM((CASE WHEN p.sign_company='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS eruiPerformance,
       SUM((CASE WHEN p.sign_company!='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS otherPerformance
-      FROM performance_count AS p ,salesman AS s
+      FROM performance_count AS p  LEFT  JOIN  salesman AS s
+      ON p.obtainer=s.name_ch AND p.obtain_main_company=s.organization
       WHERE
       p.start_time BETWEEN
       DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -89,7 +90,6 @@
       <if test="country!=null and country!=''">
         AND p.execute_company = #{country}
       </if>
-        AND p.obtainer=s.name_ch AND p.obtain_main_company=s.organization
       GROUP BY p.area , p.obtainer  HAVING  p.obtainer IS  NOT  NULL AND p.area IS  NOT  NULL ;
     </select>
 
