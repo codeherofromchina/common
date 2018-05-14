@@ -297,6 +297,10 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
             });
             return new ArrayList<>(resultMap.values());
         }
+
+        data.stream().forEach(m -> {
+            m.put("month", params.get("month"));
+        });
         return data;
     }
 
