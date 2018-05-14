@@ -1,9 +1,6 @@
 package com.erui.boss.web.report;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +72,8 @@ public class ExcelController {
     private SupplyChainService supplyChainService;
     @Autowired
     private RequestReceiveService receiveService;
+    @Autowired
+    private PerformanceService performanceService;
 
     /**
      * 下载模板
@@ -161,15 +160,10 @@ public class ExcelController {
             logger.debug("异常:" + e1.getMessage(), e1);
             return new Result<Object>(ResultStatusEnum.EXCEL_SAVE_FAIL);
         }
-        //转成file类型
-        CommonsMultipartFile cf= (CommonsMultipartFile)file;
-        DiskFileItem fi = (DiskFileItem)cf.getFileItem();
-        File saveFile = fi.getStoreLocation();
-
         ExcelReader excelReader = new ExcelReader();
         try {
             // 读取excel所有的数据
-            List<String[]> excelContent = excelReader.readExcel(saveFile);
+            List<String[]> excelContent = excelReader.readExcel(file.getInputStream());
             // 判断数据和标题的正确性
             int dataRowSize = excelContent.size();
             if (dataRowSize < 1) {
@@ -183,7 +177,9 @@ public class ExcelController {
             }
 
             ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), true);
-
+            if(!importDataResponse.getDone()){
+                return new Result<Object>(ResultStatusEnum.EXCEL_DATA_REPEAT).setData(importDataResponse);
+            }
             // 整理结果集并返回
             Result<Object> result = new Result<Object>();
             Map<String, Object> data = new HashMap<>();
@@ -243,7 +239,9 @@ public class ExcelController {
                         excelContent.subList(1, excelContent.size()), false);
 
                 result.setData(importDataResponse);
-
+                if(!importDataResponse.getDone()){
+                    result.setStatus(ResultStatusEnum.EXCEL_DATA_REPEAT);
+                }
                 try {
                     // 删除数据导入成功的文件
                     Integer dCode = FastDFSUtil.deleteFile("group1", fileName);
@@ -332,6 +330,10 @@ public class ExcelController {
             case REQUEST_RECEIVE:
                 logger.info("导入回款金额数据");
                 response = receiveService.importData(datas, testOnly);
+                break;
+            case SALES_PERFORMANCE:
+                logger.info("销售业绩");
+                response = performanceService.importData(datas, testOnly);
                 break;
             default:
                 response = new ImportDataResponse();

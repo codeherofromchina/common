@@ -55,6 +55,18 @@ public class ImportDataResponse {
         return total;
     }
 
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public void setSuccess(int success) {
+        this.success = success;
+    }
+
+    public void setFail(int fail) {
+        this.fail = fail;
+    }
+
     public int getSuccess() {
         return success;
     }
