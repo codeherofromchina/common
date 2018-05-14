@@ -527,6 +527,12 @@ public class OrderServiceImpl implements OrderService {
         }*/
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
+        String str = "";
+        if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
+            order.setContractNo(addOrderVo.getContractNoOs());
+        } else {
+            order.setContractNo(addOrderVo.getContractNo());
+        }
         order.setCreateUserId(addOrderVo.getCreateUserId());
         order.setCreateUserName(addOrderVo.getCreateUserName());
         order.setAttachmentSet(addOrderVo.getAttachDesc());

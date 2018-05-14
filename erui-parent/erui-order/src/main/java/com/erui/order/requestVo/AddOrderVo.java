@@ -1,11 +1,13 @@
 package com.erui.order.requestVo;
 
+import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
 import javax.persistence.Column;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -168,8 +170,13 @@ public class AddOrderVo {
     private String projectNo;
     //商务技术
     private Integer technicalId;
-    //订单类别 1科瑞订单 2 易瑞订单
+    //订单会员类别 1科瑞订单 2 易瑞订单
     private Integer orderBelongs;
+    //订单类别 1预投 2 试用 3 现货（出库） 4 订单
+    private Integer orderCategory;
+
+    //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
+    private Integer overseasSales;
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -177,6 +184,22 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getOrderCategory() {
+        return orderCategory;
+    }
+
+    public void setOrderCategory(Integer orderCategory) {
+        this.orderCategory = orderCategory;
+    }
+
+    public Integer getOverseasSales() {
+        return overseasSales;
+    }
+
+    public void setOverseasSales(Integer overseasSales) {
+        this.overseasSales = overseasSales;
+    }
 
     public Integer getOrderBelongs() {
         return orderBelongs;
@@ -657,7 +680,6 @@ public class AddOrderVo {
         if (order == null) {
             return;
         }
-        order.setContractNo(this.contractNo);
         order.setFrameworkNo(this.frameworkNo);
         order.setPoNo(this.poNo);
         order.setContractNoOs(this.contractNoOs);
@@ -710,6 +732,8 @@ public class AddOrderVo {
         order.setAcquireId(this.acquireId);
         order.setBusinessName(this.businessName);
         order.setOrderBelongs(this.orderBelongs);
+        order.setOrderCategory(this.orderCategory);
+        order.setOverseasSales(this.overseasSales);
     }
 
 

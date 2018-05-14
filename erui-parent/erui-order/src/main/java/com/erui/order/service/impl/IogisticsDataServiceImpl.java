@@ -265,27 +265,35 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                     goods.setSenderId(one.getLogisticsUserId());    //订舱人id
 
-                    //下发订舱时间
-                    if (iogisticsData.getBookingTime() != null) {
-                        goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
-                    }
-                    //船期或航班
-                    if (iogisticsData.getSailingDate() != null) {
-                        goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
-                    }
-                    //报关放行时间
-                    if (iogisticsData.getCustomsClearance() != null) {
-                        goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
-                    }
-                    //实际离港时间
-                    if (iogisticsData.getLeavePortTime() != null) {
-                        goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
-                    }
-                    //预计抵达时间
-                    if (iogisticsData.getArrivalPortTime() != null) {
-                        goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
-                    }
-
+                //下发订舱时间
+                if (iogisticsData.getBookingTime() != null) {
+                    one.setBookingTime(iogisticsData.getBookingTime());//下发订舱时间
+                    goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
+                }
+                //船期或航班
+                if (iogisticsData.getSailingDate() != null) {
+                    one.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                    goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                }
+                //报关放行时间
+                if (iogisticsData.getCustomsClearance() != null) {
+                    one.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                    goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                }
+                //实际离港时间
+                if (iogisticsData.getLeavePortTime() != null) {
+                    one.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                    goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                }
+                //预计抵达时间
+                if (iogisticsData.getArrivalPortTime() != null) {
+                    one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                    goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                }
+                //物流发运金额(美元)
+                if (iogisticsData.getLogisticsPriceUsd() != null) {
+                    one.setLogisticsPriceUsd(iogisticsData.getLogisticsPriceUsd());//物流发运金额(美元)
+                }
                     if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
                         //已发运
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));

@@ -157,6 +157,7 @@ public class IogisticsDataController {
         map.put("remarks",iogisticsDataById.getRemarks());   //备注
         map.put("status",iogisticsDataById.getStatus());    //状态
         map.put("attachmentList",attachmentList);   //物流跟踪附件信息
+        map.put("logisticsPriceUsd",iogisticsDataById.getLogisticsPriceUsd());   //物流发运金额(美元)
 
         return new Result<>(map);
 
@@ -172,6 +173,12 @@ public class IogisticsDataController {
      */
     @RequestMapping(value = "logisticsActionAddOrSave", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> logisticsActionAddOrSave(@RequestBody IogisticsData iogisticsData){
+        String errMsg = null;
+        if(iogisticsData.getLogisticsPriceUsd() == null){
+            errMsg = "物流发运金额(美元)不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+
         iogisticsDataService.logisticsActionAddOrSave(iogisticsData);
         return new Result<>();
     }

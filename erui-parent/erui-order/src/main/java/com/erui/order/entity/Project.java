@@ -138,6 +138,29 @@ public class Project {
     //是否已生成出口通知单
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
+    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单
+    @Column(name = "order_category")
+    private Integer orderCategory;
+
+    //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
+    @Column(name = "overseas_sales")
+    private Integer overseasSales;
+
+    public Integer getOrderCategory() {
+        return orderCategory;
+    }
+
+    public void setOrderCategory(Integer orderCategory) {
+        this.orderCategory = orderCategory;
+    }
+
+    public Integer getOverseasSales() {
+        return overseasSales;
+    }
+
+    public void setOverseasSales(Integer overseasSales) {
+        this.overseasSales = overseasSales;
+    }
 
     public Integer getDeliverConsignHas() {
         return deliverConsignHas;
