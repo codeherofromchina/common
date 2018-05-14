@@ -530,8 +530,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         //出库通知：通知质检经办人办理质检
         if(status == 2) {
 
-            //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-            pushWareHouseman(one,1);
+          /*  //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+            pushWareHouseman(one,1);*/
 
             if (outboundNums != 0) { //出库总数量不等于0  才发送信息
 
@@ -551,12 +551,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
                 }
 
-                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-                pushWareHouseman(one,2);
-
+                one.setLeaveDate(new Date());   //出库时间
                 one.setStatus(5);   //出库状态
                 one.setOutCheck(0); //设置不外检
-                one.setLeaveDate(new Date());   //出库时间
+                DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(one);
+
+                //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
+                pushWareHouseman(deliverDetail2,2);
+
+
+
 
                 //推送信息到出库信息管理
                 Iogistics iogistics = new Iogistics();  //物流信息
@@ -1148,12 +1152,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 DeliverDetail.StatusEnum.fromStatusCode(dbDeliverDetail.getStatus()) == DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT) {
             List<DeliverConsignGoods> deliverConsignGoodsList1 = dbDeliverDetail.getDeliverConsignGoodsList();
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
-                Goods goods = deliverConsignGoods.getGoods();
-                Goods one1 = goodsDao.findOne(goods.getId());
-                one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
-                goodsDao.save(one1);
-                //出库质检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7));
+                if(deliverConsignGoods.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
+                    Goods goods = deliverConsignGoods.getGoods();
+                    Goods one1 = goodsDao.findOne(goods.getId());
+                    one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
+                    goodsDao.save(one1);
+                    //出库质检
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7));
+                }
             }
 
             //出库质检结果通知：将合格商品通知仓库经办人（合格）（如果仓库经办人不是徐健，那么还要单独发给徐健）
@@ -1227,6 +1233,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                         JSONObject data = jsonObject.getJSONObject("data");
                         mobile = data.getString("mobile");
+                        if(StringUtil.isBlank(mobile)){
+                            throw new Exception(data.getString("name")+": 手机号为空");
+                        }
+
                         //发送短信
                         Map<String, String> map = new HashMap();
                         map.put("areaCode", "86");
@@ -1262,7 +1272,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         Set<String> listAll = new HashSet<>();
                         for (int i = 0; i < data1.size(); i++){
                             JSONObject ob  = (JSONObject)data1.get(i);
-                            listAll.add(ob.getString("mobile"));    //获取人员手机号
+                            String mobile = ob.getString("mobile");
+                            if(StringUtil.isNotBlank(mobile)){
+                                listAll.add(mobile);    //获取人员手机号
+                            }
                         }
                         listAll = new HashSet<>(new LinkedHashSet<>(listAll));
                         for (String me : listAll) {

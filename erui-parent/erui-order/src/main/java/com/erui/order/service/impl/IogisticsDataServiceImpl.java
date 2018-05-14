@@ -226,8 +226,29 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         if (StringUtil.isNotBlank(iogisticsData.getRemarks())) {
             one.setRemarks(iogisticsData.getRemarks());
         }
+        //物流状态
         if (iogisticsData.getStatus() != null) {
             one.setStatus(iogisticsData.getStatus());
+        }
+        //下发订舱时间
+        if (iogisticsData.getBookingTime() != null) {
+            one.setBookingTime(iogisticsData.getBookingTime());//下发订舱时间
+        }
+        //船期或航班
+        if (iogisticsData.getSailingDate() != null) {
+            one.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+        }
+        //报关放行时间
+        if (iogisticsData.getCustomsClearance() != null) {
+            one.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+        }
+        //实际离港时间
+        if (iogisticsData.getLeavePortTime() != null) {
+            one.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+        }
+        //预计抵达时间
+        if (iogisticsData.getArrivalPortTime() != null) {
+            one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
         }
 
         List<Iogistics> iogisticsList = one.getIogistics(); //获取出库分单信息
@@ -235,64 +256,67 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
             List<DeliverConsignGoods> deliverConsignGoodsList = iogistics.getDeliverDetail().getDeliverConsignGoodsList();  //获取出口发货商品信息
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
 
-                /**
-                 * 推送项目跟踪
-                 */
+                if(deliverConsignGoods.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
 
-                Goods goods = deliverConsignGoods.getGoods();
+                    /**
+                     * 推送项目跟踪
+                     */
+                    Goods goods = deliverConsignGoods.getGoods();
 
-                goods.setSenderId(one.getLogisticsUserId());    //订舱人id
+                    goods.setSenderId(one.getLogisticsUserId());    //订舱人id
 
-                //下发订舱时间
-                if (iogisticsData.getBookingTime() != null) {
-                    one.setBookingTime(iogisticsData.getBookingTime());//下发订舱时间
-                    goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
-                }
-                //船期或航班
-                if (iogisticsData.getSailingDate() != null) {
-                    one.setSailingDate(iogisticsData.getSailingDate());//船期或航班
-                    goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
-                }
-                //报关放行时间
-                if (iogisticsData.getCustomsClearance() != null) {
-                    one.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
-                    goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
-                }
-                //实际离港时间
-                if (iogisticsData.getLeavePortTime() != null) {
-                    one.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
-                    goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
-                }
-                //预计抵达时间
-                if (iogisticsData.getArrivalPortTime() != null) {
-                    one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
-                    goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
-                }
-                //物流发运金额(美元)
-                if (iogisticsData.getLogisticsPriceUsd() != null) {
-                    one.setLogisticsPriceUsd(iogisticsData.getLogisticsPriceUsd());//物流发运金额(美元)
-                }
-
-                if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
-                    //已发运
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
-                }
-
-                if (iogisticsData.getStatus() == 7) {
-                    Date date = new Date();
-                    one.setAccomplishDate(date);    // 物流动态更新 实际完成时间
-
-                    List<Iogistics> iogistics1 = one.getIogistics();
-
-                    for (Iogistics iogistics2 : iogistics1){
-                        List<DeliverConsignGoods> deliverConsignGoodsList1 = iogistics2.getDeliverDetail().getDeliverConsignGoodsList(); //获取出库信息，获取出口通知单商品
-                        for (DeliverConsignGoods deliverConsignGoodss : deliverConsignGoodsList1) {
-                            Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId()); //推送实际完成日期
-                            one1.setAccomplishDate(date);
-                            goodsDao.saveAndFlush(one1);
-                        }
+                    //下发订舱时间
+                    if (iogisticsData.getBookingTime() != null) {
+                        one.setBookingTime(iogisticsData.getBookingTime());//下发订舱时间
+                        goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
+                    }
+                    //船期或航班
+                    if (iogisticsData.getSailingDate() != null) {
+                        one.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                        goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                    }
+                    //报关放行时间
+                    if (iogisticsData.getCustomsClearance() != null) {
+                        one.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                        goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                    }
+                    //实际离港时间
+                    if (iogisticsData.getLeavePortTime() != null) {
+                        one.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                        goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                    }
+                    //预计抵达时间
+                    if (iogisticsData.getArrivalPortTime() != null) {
+                        one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                        goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                    }
+                    //物流发运金额(美元)
+                    if (iogisticsData.getLogisticsPriceUsd() != null) {
+                        one.setLogisticsPriceUsd(iogisticsData.getLogisticsPriceUsd());//物流发运金额(美元)
+                    }
+                    if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
+                        //已发运
+                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
                     }
 
+                    if (iogisticsData.getStatus() == 7) {
+                        Date date = new Date();
+                        one.setAccomplishDate(date);    // 物流动态更新 实际完成时间
+
+                        List<Iogistics> iogistics1 = one.getIogistics();
+
+                        for (Iogistics iogistics2 : iogistics1){
+                            List<DeliverConsignGoods> deliverConsignGoodsList1 = iogistics2.getDeliverDetail().getDeliverConsignGoodsList(); //获取出库信息，获取出口通知单商品
+                            for (DeliverConsignGoods deliverConsignGoodss : deliverConsignGoodsList1) {
+                                if(deliverConsignGoodss.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
+                                    Goods one1 = goodsDao.findOne(deliverConsignGoodss.getGoods().getId()); //推送实际完成日期
+                                    one1.setAccomplishDate(date);
+                                    goodsDao.saveAndFlush(one1);
+                                }
+                            }
+                        }
+
+                    }
                 }
 
             }
