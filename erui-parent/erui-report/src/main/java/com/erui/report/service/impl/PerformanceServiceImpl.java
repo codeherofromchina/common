@@ -115,7 +115,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     Date date = DateUtil.parseString2Date(strArr[18], DateUtil.SHORT_FORMAT_STR, "yyyy/M/d", "yyyy/M/d hh:mm:ss", DateUtil.FULL_FORMAT_STR);
                     //判断 日期是否是之前的日期
                     Date endTime = readMapper.selectEndTime();
-                    if(endTime!=null) {
+                    if (endTime != null) {
                         if (date.getTime() < endTime.getTime()) {
                             response.setTotal(datas.size());
                             response.setFail(datas.size());
@@ -225,7 +225,9 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     }
 
     @Override
-    public List<Map<String, Object>> selectObtainerPerformance(Map<String, String> params) {
+    public List<Map<String, Object>> obtainerPerformance(Map<String, String> params) {
+
+        //如果没有分配信息 查询源数据
         List<Map<String, Object>> data = readMapper.selectObtainerPerformance(params);
         Map<String, Map<String, Object>> resultMap = new HashMap<>(); //返回结果集
         //如果 area 为空 country 为空
@@ -298,6 +300,28 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
             return new ArrayList<>(resultMap.values());
         }
 
+        //如果 区域和国家都不为空  ，查询该国家业绩是否被分配
+        PerformanceAssignMapper assignMapper = readerSession.getMapper(PerformanceAssignMapper.class);
+        List<PerformanceAssign> dataList = assignMapper.selectCountryAssignDetailByTime(params);
+        if (CollectionUtils.isNotEmpty(dataList)) {
+            if (dataList.get(0).getAssignStatus() > 0 && dataList.get(0).getAssignRate() != null) {
+                List<Map<String, Object>> ll = new ArrayList<>();
+                for (PerformanceAssign p : dataList) {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("area", p.getTwoLevelDepartment());
+                    m.put("country", p.getThreeLevelDepartment());
+                    m.put("employee", p.getNameCh());
+                    m.put("job", p.getStation());
+                    m.put("totalPerformance", p.getCountryPerformance());
+                    m.put("eruiPerformance", p.getSalesmanPerformance());
+                    m.put("otherPerformance", 0d);
+                    m.put("month", params.get("month"));
+                    ll.add(m);
+                }
+                return ll;
+            }
+        }
+        //如果 区域和国家都不为空并且没有被分配
         data.stream().forEach(m -> {
             m.put("month", params.get("month"));
         });
@@ -404,7 +428,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     }
 
     @Override
-    public List<PerformanceAssign> selectCountryAssignDetailByTime(Map<String, String> params) {
+    public List<PerformanceAssign> countryAssignDetailByTime(Map<String, String> params) {
         //查询是否有此国家的分配信息
         PerformanceAssignMapper assignMapper = readerSession.getMapper(PerformanceAssignMapper.class);
         List<PerformanceAssign> data1 = assignMapper.selectCountryAssignDetailByTime(params);
@@ -414,19 +438,15 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         List<PerformanceAssign> salesmanList = readMapper.selectSalesmanByCountry(params.get("country"));
         //查询指定国家和月份的总业绩
         double totalPerformance = readMapper.selectTotalPerformanceByCountryAndTime(params);
-        double  total=RateUtil.doubleChainRateTwo(totalPerformance,10000);//变成万美元
+        double total = RateUtil.doubleChainRateTwo(totalPerformance, 10000);//变成万美元
         salesmanList.stream().forEach(p -> {
             p.setCountryPerformance(new BigDecimal(total).setScale(2, BigDecimal.ROUND_HALF_UP));
             p.setAssignStatus(0);
             p.setStartTime(DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR));
         });
-        Thread thread=new Thread(new Runnable() {
-            @Override
-            public void run() {
-                insertPerformanceAssign(salesmanList);
-            }
-        });
-        thread.start();
+        if(totalPerformance>0) {
+            insertPerformanceAssign(salesmanList);
+        }
         return salesmanList;
     }
 
@@ -434,7 +454,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     public void insertPerformanceAssign(List<PerformanceAssign> dataList) {
         if (CollectionUtils.isNotEmpty(dataList)) {
             PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
-           for(PerformanceAssign p:dataList){
+            for (PerformanceAssign p : dataList) {
                 assignWriterMapper.insertSelective(p);
             }
         }
@@ -444,7 +464,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     public void updatePerformanceAssign(List<PerformanceAssign> dataList) {
         if (CollectionUtils.isNotEmpty(dataList)) {
             PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
-            dataList.stream().forEach(p->{
+            dataList.stream().forEach(p -> {
                 assignWriterMapper.updatePerformanceAssign(p);
             });
         }

@@ -43,7 +43,7 @@ public interface PerformanceService {
      * @param params
      * @return
      */
-    List<Map<String, Object>> selectObtainerPerformance(Map<String,String>  params);
+    List<Map<String, Object>> obtainerPerformance(Map<String,String>  params);
 
     /**
      * 导出新增会员统计数据
@@ -71,7 +71,7 @@ public interface PerformanceService {
      * @param params
      * @return
      */
-    List<PerformanceAssign> selectCountryAssignDetailByTime(Map<String,String>  params);
+    List<PerformanceAssign> countryAssignDetailByTime(Map<String,String>  params);
 
     /**
      * 添加业绩分配数据

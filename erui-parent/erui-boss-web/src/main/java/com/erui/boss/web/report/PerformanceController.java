@@ -125,7 +125,7 @@ public class PerformanceController {
         }
         clearUpParams(params);
         //查询销售人员业绩明细
-        List<Map<String, Object>> dataList = performanceService.selectObtainerPerformance(params);
+        List<Map<String, Object>> dataList = performanceService.obtainerPerformance(params);
         return new Result<>(dataList);
 
 
@@ -186,7 +186,7 @@ public class PerformanceController {
         params.put("area", area);
         params.put("country", country);
         clearUpParams(params);
-        List<Map<String, Object>> dataList = performanceService.selectObtainerPerformance(params);
+        List<Map<String, Object>> dataList = performanceService.obtainerPerformance(params);
         XSSFWorkbook wb = performanceService.exportSalesPerformance(dataList);
         //excel文件名
         String fileName = "销售业绩统计" + System.currentTimeMillis() + ".xlsx";
@@ -256,7 +256,7 @@ public class PerformanceController {
         }
         clearUpParams(params);
         Map<String, Object> data = new HashMap<>();
-        List<PerformanceAssign> dataList = performanceService.selectCountryAssignDetailByTime(params);
+        List<PerformanceAssign> dataList = performanceService.countryAssignDetailByTime(params);
         double countryPerformance = 0d;
         String rejectReason = null;
         Integer assignStatus = null;
