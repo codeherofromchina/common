@@ -312,7 +312,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     m.put("country", p.getThreeLevelDepartment());
                     m.put("employee", p.getNameCh());
                     m.put("job", p.getStation());
-                    m.put("totalPerformance", p.getCountryPerformance());
+                    m.put("totalPerformance", p.getSalesmanPerformance());
                     m.put("eruiPerformance", p.getSalesmanPerformance());
                     m.put("otherPerformance", 0d);
                     m.put("month", params.get("month"));
@@ -433,6 +433,11 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         PerformanceAssignMapper assignMapper = readerSession.getMapper(PerformanceAssignMapper.class);
         List<PerformanceAssign> data1 = assignMapper.selectCountryAssignDetailByTime(params);
         if (CollectionUtils.isNotEmpty(data1)) {
+            if(data1.get(0).getAssignStatus()!=3){//如果不是已驳回状态 驳回理由置为空
+                data1.stream().forEach(p->{
+                    p.setRejectReason(null);
+                });
+            }
             return data1;
         }
         List<PerformanceAssign> salesmanList = readMapper.selectSalesmanByCountry(params.get("country"));
