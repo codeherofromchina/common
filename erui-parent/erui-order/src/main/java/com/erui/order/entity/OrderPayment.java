@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.erui.order.util.IReceiverDate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="order_payment")
-public class OrderPayment {
+public class OrderPayment implements IReceiverDate{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

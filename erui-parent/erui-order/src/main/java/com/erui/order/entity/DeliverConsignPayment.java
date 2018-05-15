@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.erui.order.util.IReceiverDate;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -9,7 +11,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="order_payment")
-public class DeliverConsignPayment {
+public class DeliverConsignPayment implements IReceiverDate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
