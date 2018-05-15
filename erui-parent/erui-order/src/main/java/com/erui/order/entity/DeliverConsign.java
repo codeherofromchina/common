@@ -59,11 +59,24 @@ public class DeliverConsign {
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     private List<Attachment> attachmentSet = new ArrayList<>();
+    //收款信息
+    @JoinColumn(name = "deliver_consign_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("id asc")
+    private List<DeliverConsignPayment> deliverConsignPayments = new ArrayList<>();
     //出口通知单商品
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<DeliverConsignGoods> deliverConsignGoodsSet = new ArrayList<>();
+
+    public List<DeliverConsignPayment> getDeliverConsignPayments() {
+        return deliverConsignPayments;
+    }
+
+    public void setDeliverConsignPayments(List<DeliverConsignPayment> deliverConsignPayments) {
+        this.deliverConsignPayments = deliverConsignPayments;
+    }
 
     public String getCountry() {
         return country;
