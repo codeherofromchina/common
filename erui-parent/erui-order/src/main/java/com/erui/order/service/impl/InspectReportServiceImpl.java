@@ -520,7 +520,10 @@ public class InspectReportServiceImpl implements InspectReportService {
                     Set<String> listAll = new HashSet<>();
                     for (int i = 0; i < data1.size(); i++){
                         JSONObject ob  = (JSONObject)data1.get(i);
-                        listAll.add(ob.getString("mobile"));    //获取人员手机号
+                        String mobile = ob.getString("mobile");
+                        if(StringUtils.isNotBlank(mobile)){
+                            listAll.add(mobile);    //获取人员手机号
+                        }
                     }
 
                     listAll = new HashSet<>(new LinkedHashSet<>(listAll));
@@ -546,31 +549,37 @@ public class InspectReportServiceImpl implements InspectReportService {
                         //发送短信
                         map.put("to", "[\"" + s + "\"]");
                         map.put("content", "您好，采购合同号：" + map1.get("purchNo") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("sum") + "件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
+                        String ss1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                        logger.info("发送短信返回状态" + ss1);
                     }
 
                     if (s2 != null) {
                         //发送短信
                         map.put("to", s2);
                         map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                        String ss1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                        logger.info("发送短信返回状态" + ss1);
                     }
-                } else if (yn == 2) {  // 2 全部不合格
-                    // 根据id获取人员信息
-                    if (s != null) {
-                        //发送短信
-                        map.put("to", "[\"" + s + "\"]");
-                        map.put("content", "您好，采购合同号：" + map1.get("purchNo") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("sum") + "件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
-                    }
-                } else {   // 3 全部合格
-                    if (s2 != null) {
-                        //发送短信
-                        map.put("to", s2);
-                        map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+                } else{
+                    if (yn == 2) {  // 2 全部不合格
+                        // 根据id获取人员信息
+                        if (s != null) {
+                            //发送短信
+                            map.put("to", "[\"" + s + "\"]");
+                            map.put("content", "您好，采购合同号：" + map1.get("purchNo") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("sum") + "件商品出现不合格情况，请及时处理。感谢您对我们的支持与信任！");
 
+                        }
+                    } else {   // 3 全部合格
+                        if (s2 != null) {
+                            //发送短信
+                            map.put("to", s2);
+                            map.put("content", "您好，项目号：" + map1.get("purchaseNames") + "，报检单号：" + map1.get("inspectApplyNo") + "，共计" + map1.get("hegeNum") + "件商品已质检合格，请及时处理。感谢您对我们的支持与信任！");
+
+                        }
                     }
+                    String ss1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态" + ss1);
                 }
-
-                String ss1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                logger.info("发送短信返回状态" + ss1);
 
             } catch (Exception e) {
                 throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
@@ -582,10 +591,11 @@ public class InspectReportServiceImpl implements InspectReportService {
 
     //查询人员信息
     public String queryMessage(Integer id, String eruiToken) {
+        String eruiTokens = (String) ThreadLocalUtil.getObject();
         if (id != null) {
             String jsonParam = "{\"id\":\"" + id + "\"}";
             Map<String, String> header = new HashMap<>();
-            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put(CookiesUtil.TOKEN_NAME, eruiTokens);
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
             String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
