@@ -10,7 +10,7 @@ import java.util.Date;
  * 订单-结算方式
  */
 @Entity
-@Table(name="order_payment")
+@Table(name="deliver_consign_payment")
 public class DeliverConsignPayment implements IReceiverDate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
