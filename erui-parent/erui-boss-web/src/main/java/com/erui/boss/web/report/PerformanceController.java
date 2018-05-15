@@ -24,7 +24,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,7 +47,7 @@ import java.util.stream.Collectors;
 public class PerformanceController {
 
     private static Logger logger = LoggerFactory.getLogger(PerformanceController.class);
-//    private static final String url = "http://sso.eruidev.com/api/checkToken";
+    private static final String url = "http://sso.eruidev.com/api/checkToken";
     @Autowired
     PerformanceService performanceService;
 
@@ -366,9 +365,6 @@ public class PerformanceController {
     private String getUserInfo(String params) throws Exception {
         //httpClient 实例,声明httpPost请求
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        //获取路径
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("application.perperties");
-        String  url = (String) applicationContext.getBean("sso.url");
         HttpPost httpPost = new HttpPost(url);
         StringEntity entitys = new StringEntity(params.toString(), "utf-8");
         httpPost.setEntity(entitys);
