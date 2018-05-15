@@ -179,44 +179,6 @@
 
 
 
-    <profiles>
-       <!-- <profile>
-            <id>default</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.erui</groupId>
-                    <artifactId>erui-sso-client-dev</artifactId>
-                    <version>1.0</version>
-                </dependency>
-            </dependencies>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>-->
-
-        <profile>
-            <id>zhengshi</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.erui</groupId>
-                    <artifactId>erui-sso-client</artifactId>
-                    <version>1.0</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>production</id>
-
-           <dependencies>
-                <dependency>
-                    <groupId>com.erui</groupId>
-                    <artifactId>erui-beta-sso-client</artifactId>
-                    <version>1.0</version>
-                 </dependency>
-            </dependencies>
-
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
@@ -277,12 +239,26 @@
             <properties>
                 <package.environment>zhengshi</package.environment>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>production</id>
             <properties>
                 <package.environment>production</package.environment>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-beta-sso-client</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>
