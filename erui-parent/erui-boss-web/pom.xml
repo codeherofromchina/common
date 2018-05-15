@@ -248,7 +248,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>production</id>
+            <id>production</id>application.properties
             <properties>
                 <package.environment>production</package.environment>
             </properties>
