@@ -355,6 +355,11 @@ public class OrderServiceImpl implements OrderService {
             checkOrderTradeTermsRelationField(addOrderVo);
         }*/
         addOrderVo.copyBaseInfoTo(order);
+        if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
+            order.setContractNo(addOrderVo.getContractNoOs());
+        } else {
+            order.setContractNo(addOrderVo.getContractNo());
+        }
         // 处理附件信息
         //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
         order.setAttachmentSet(addOrderVo.getAttachDesc());
@@ -527,7 +532,6 @@ public class OrderServiceImpl implements OrderService {
         }*/
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
-        String str = "";
         if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
             order.setContractNo(addOrderVo.getContractNoOs());
         } else {
