@@ -434,6 +434,8 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
+            projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
+            projectAdd.setOverseasSales(orderUpdate.getOverseasSales());
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
@@ -608,6 +610,8 @@ public class OrderServiceImpl implements OrderService {
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setTotalPriceUsd(order1.getTotalPriceUsd());
+            project.setOrderCategory(order1.getOrderCategory());
+            project.setOverseasSales(order1.getOverseasSales());
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
