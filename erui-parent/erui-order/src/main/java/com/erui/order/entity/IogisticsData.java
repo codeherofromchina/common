@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 //物流表
@@ -105,6 +106,8 @@ public class IogisticsData {
     @Column(name = "submenu_id ")
     private Integer submenuId ; //出库信息分单人id
 
+    @Column(name = "logistics_price_usd ")
+    private BigDecimal logisticsPriceUsd ; //物流发运金额(美元)
 
     @Transient
     private String handleDepartment;    //经办部门
@@ -400,6 +403,14 @@ public class IogisticsData {
 
     public Integer getSubmenuId() {
         return submenuId;
+    }
+
+    public BigDecimal getLogisticsPriceUsd() {
+        return logisticsPriceUsd;
+    }
+
+    public void setLogisticsPriceUsd(BigDecimal logisticsPriceUsd) {
+        this.logisticsPriceUsd = logisticsPriceUsd;
     }
 }
 

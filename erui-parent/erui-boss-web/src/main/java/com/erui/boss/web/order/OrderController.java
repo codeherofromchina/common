@@ -121,7 +121,7 @@ public class OrderController {
             } else if (StringUtils.isBlank(addOrderVo.getCountry())) {
                 result.setMsg("国家不能为空");
                 result.setEnMsg("Country name must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getCrmCode())) {
+            } else if (StringUtils.isBlank(addOrderVo.getCrmCode()) && addOrderVo.getOrderCategory() != 1) {
                 result.setMsg("CRM客户代码不能为空");
                 result.setEnMsg("CRM No. must be filled in");
             } else if (addOrderVo.getCustomerType() == null) {

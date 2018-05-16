@@ -84,40 +84,42 @@ public class IogisticsDataController {
 
             List<DeliverConsignGoods> deliverConsignGoodsList = iogistics.getDeliverDetail().getDeliverConsignGoodsList();
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
-                Integer dcgId = deliverConsignGoods.getId();
+                if(deliverConsignGoods.getSendNum() != 0){  //本批次发货数量为0的商品不展示
+                    Integer dcgId = deliverConsignGoods.getId();
 
-                if (idSet.containsKey(dcgId)) {
-                    Goods existsGoods = idSet.get(dcgId);
-                    if (outCheck == 0) {
-                        existsGoods.setStraightNum(existsGoods.getStraightNum() + deliverConsignGoods.getStraightNum()); //厂家直发数量
+                    if (idSet.containsKey(dcgId)) {
+                        Goods existsGoods = idSet.get(dcgId);
+                        if (outCheck == 0) {
+                            existsGoods.setStraightNum(existsGoods.getStraightNum() + deliverConsignGoods.getStraightNum()); //厂家直发数量
+                        } else {
+                            existsGoods.setOutboundNum(existsGoods.getOutboundNum() + deliverConsignGoods.getOutboundNum());   //出库数量
+                        }
+
                     } else {
-                        existsGoods.setOutboundNum(existsGoods.getOutboundNum() + deliverConsignGoods.getOutboundNum());   //出库数量
+                        Goods newGoods = new Goods();
+                        Goods goods = deliverConsignGoods.getGoods();
+                        if (outCheck == 0) {
+                            newGoods.setOutboundNum(0);   //出库数量
+                            newGoods.setStraightNum(deliverConsignGoods.getStraightNum()); //厂家直发数量
+                        } else {
+                            newGoods.setOutboundNum(deliverConsignGoods.getOutboundNum());   //出库数量
+                            newGoods.setStraightNum(0); //厂家直发数量
+                        }
+                        newGoods.setContractNo(goods.getContractNo()); //销售合同号
+                        newGoods.setDeliverDetailNo(iogistics.getDeliverDetailNo()); //产品放行单号
+                        newGoods.setNameZh(goods.getNameZh()) ; //商品名称
+                        newGoods.setClientDesc(goods.getClientDesc()); //描述
+                        newGoods.setModel(goods.getModel());    //规格型号
+                        newGoods.setOutstockNum(deliverConsignGoods.getSendNum()); // 本批次发货数量
+                        newGoods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注  出口商品备注
+
+
+                        newGoods.setUnit(goods.getUnit());  //单位
+
+                        goodsList.add(newGoods);
+                        idSet.put(dcgId,newGoods);
+
                     }
-
-                } else {
-                    Goods newGoods = new Goods();
-                    Goods goods = deliverConsignGoods.getGoods();
-                    if (outCheck == 0) {
-                        newGoods.setOutboundNum(0);   //出库数量
-                        newGoods.setStraightNum(deliverConsignGoods.getStraightNum()); //厂家直发数量
-                    } else {
-                        newGoods.setOutboundNum(deliverConsignGoods.getOutboundNum());   //出库数量
-                        newGoods.setStraightNum(0); //厂家直发数量
-                    }
-                    newGoods.setContractNo(goods.getContractNo()); //销售合同号
-                    newGoods.setDeliverDetailNo(iogistics.getDeliverDetailNo()); //产品放行单号
-                    newGoods.setNameZh(goods.getNameZh()) ; //商品名称
-                    newGoods.setClientDesc(goods.getClientDesc()); //描述
-                    newGoods.setModel(goods.getModel());    //规格型号
-                    newGoods.setOutstockNum(deliverConsignGoods.getSendNum()); // 本批次发货数量
-                    newGoods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注  出口商品备注
-
-
-                    newGoods.setUnit(goods.getUnit());  //单位
-
-                    goodsList.add(newGoods);
-                    idSet.put(dcgId,newGoods);
-
                 }
             }
 
@@ -155,6 +157,7 @@ public class IogisticsDataController {
         map.put("remarks",iogisticsDataById.getRemarks());   //备注
         map.put("status",iogisticsDataById.getStatus());    //状态
         map.put("attachmentList",attachmentList);   //物流跟踪附件信息
+        map.put("logisticsPriceUsd",iogisticsDataById.getLogisticsPriceUsd());   //物流发运金额(美元)
 
         return new Result<>(map);
 
@@ -170,6 +173,12 @@ public class IogisticsDataController {
      */
     @RequestMapping(value = "logisticsActionAddOrSave", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> logisticsActionAddOrSave(@RequestBody IogisticsData iogisticsData){
+        String errMsg = null;
+        if(iogisticsData.getLogisticsPriceUsd() == null){
+            errMsg = "物流发运金额(美元)不能为空";
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
+        }
+
         iogisticsDataService.logisticsActionAddOrSave(iogisticsData);
         return new Result<>();
     }
