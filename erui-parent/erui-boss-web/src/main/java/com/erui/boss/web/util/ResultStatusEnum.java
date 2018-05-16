@@ -32,7 +32,8 @@ public enum ResultStatusEnum {
     ////// ----
     PAGE_ERROR(21, "页码必须不能小于1","Page number must exceed 1"),
     DUPLICATE_ERROR(22,"值不唯一","Not unique"),
-    COMPANY_NOT_EXIST(23,"公司不存在","The company does not exist");
+    COMPANY_NOT_EXIST(23,"公司不存在","The company does not exist"),
+    LACK_OF_AUTHORITY(24,"权限不足","Lack of authority");
     private int code;
     private String msg;
     private String enMsg;

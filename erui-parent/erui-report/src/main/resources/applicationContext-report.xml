@@ -54,11 +54,11 @@
 
     <bean id="masterSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="masterDataSource"/><!-- 指定数据源 -->
-        <property name="mapperLocations" value="classpath:mapping/*.xml"></property>
+        <property name="mapperLocations" value="classpath:mapping/report/*.xml"></property>
     </bean>
     <bean id="slaveSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="slaveDataSource"/><!-- 指定数据源 -->
-        <property name="mapperLocations" value="classpath:mapping/*.xml"></property>
+        <property name="mapperLocations" value="classpath:mapping/report/*.xml"></property>
     </bean>
 
     <bean id="mapperScannerConfigurer01" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
