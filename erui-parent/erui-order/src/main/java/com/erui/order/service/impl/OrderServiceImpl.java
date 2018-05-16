@@ -149,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据合同交货日期查询
                 if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" +condition.getDeliveryDate() + "%"));
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
                 }
                 //根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
@@ -650,14 +650,17 @@ public class OrderServiceImpl implements OrderService {
     public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId, Date signingDate) {
         OrderLog orderLog = new OrderLog();
         try {
-            orderLog.setOrder(orderDao.findOne(orderId));
-            orderLog.setLogType(logType.getCode());
-            orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(operato, logType.getEnMsg()));
-            orderLog.setCreateTime(new Date());
-            orderLog.setBusinessDate(signingDate);  //订单签约日期
-            orderLog.setOrdersGoodsId(goodsId);
-            orderLogDao.save(orderLog);
+            if (signingDate != null) {
+                orderLog.setOrder(orderDao.findOne(orderId));
+                orderLog.setLogType(logType.getCode());
+                orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
+                orderLog.setEnoperation(StringUtils.defaultIfBlank(operato, logType.getEnMsg()));
+                orderLog.setCreateTime(new Date());
+                orderLog.setBusinessDate(signingDate);  //订单签约日期
+                orderLog.setOrdersGoodsId(goodsId);
+                orderLogDao.save(orderLog);
+            }
+
         } catch (Exception ex) {
             logger.error("日志记录失败 {}", orderLog.toString());
             logger.error("错误", ex);
