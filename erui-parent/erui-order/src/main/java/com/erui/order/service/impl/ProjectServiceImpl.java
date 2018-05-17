@@ -95,6 +95,7 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 Order order = projectUpdate.getOrder();
+                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 order.setStatus(Order.StatusEnum.DONE.getCode());
                 orderDao.save(order);
             } else {
