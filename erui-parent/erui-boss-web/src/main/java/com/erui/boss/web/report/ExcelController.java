@@ -75,7 +75,7 @@ public class ExcelController {
     @Autowired
     private PerformanceService performanceService;
 
-    /**
+     /**
      * 下载模板
      *
      * @param response
@@ -243,15 +243,15 @@ public class ExcelController {
                     result.setStatus(ResultStatusEnum.EXCEL_DATA_REPEAT);
                 }
                 try {
-                    // 删除数据导入成功的文件
-                    Integer dCode = FastDFSUtil.deleteFile("group1", fileName);
-                    if(dCode!=null&&dCode==0){
-                        logger.info("FastDFS文件删除成功");
-                    }else{
-                        logger.info("FastDFS文件删除失败");
-                    }
+//                    // 删除数据导入成功的文件
+//                    Integer dCode = FastDFSUtil.deleteFile("group1", fileName);
+//                    if(dCode!=null&&dCode==0){
+//                        logger.info("FastDFS文件删除成功");
+//                    }else{
+//                        logger.info("FastDFS文件删除失败");
+//                    }
                     FileUtils.forceDelete(file);
-                } catch (IOException | MyException ex) {
+                } catch (IOException  ex) {
                     logger.debug("异常:" + ex.getMessage(), ex);
                 }
             } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
