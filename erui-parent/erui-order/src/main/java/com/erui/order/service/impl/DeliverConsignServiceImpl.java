@@ -148,7 +148,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Map<String,Object> map = new HashMap<>();
             map.put("deliverConsignNo",deliverConsignUpdate.getDeliverConsignNo());  //出口通知单号
             map.put("deliverDetailNo",deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs",order.getContractNoOs());     //销售合同号
+            map.put("contractNoOs",order.getContractNo());     //销售合同号
             try {
                 sendSms(map);
             } catch (Exception e) {
@@ -223,7 +223,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             Map<String,Object> map = new HashMap<>();
             map.put("deliverConsignNo",deliverConsign1.getDeliverConsignNo());  //出口通知单号
             map.put("deliverDetailNo",deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs",order.getContractNoOs());     //销售合同号
+            map.put("contractNoOs",order.getContractNo());     //销售合同号
             try {
                 sendSms(map);
             } catch (Exception e) {
