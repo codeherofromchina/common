@@ -251,7 +251,10 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         if (iogisticsData.getArrivalPortTime() != null) {
             one.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
         }
-
+        //物流发运金额(美元)
+        if (iogisticsData.getLogisticsPriceUsd() != null) {
+            one.setLogisticsPriceUsd(iogisticsData.getLogisticsPriceUsd());//物流发运金额(美元)
+        }
 
         List<Iogistics> iogisticsList = one.getIogistics(); //获取出库分单信息
         for (Iogistics iogistics : iogisticsList){
@@ -287,10 +290,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                     if (iogisticsData.getArrivalPortTime() != null) {
                         goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
                     }
-                    //物流发运金额(美元)
-                    if (iogisticsData.getLogisticsPriceUsd() != null) {
-                        one.setLogisticsPriceUsd(iogisticsData.getLogisticsPriceUsd());//物流发运金额(美元)
-                    }
+
                     if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
                         //已发运
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
