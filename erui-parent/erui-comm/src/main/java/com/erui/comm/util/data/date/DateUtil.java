@@ -14,7 +14,6 @@ import com.erui.comm.util.data.string.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DateUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
     public static final String FULL_FORMAT_STR2 = "yyyy/MM/dd HH:mm:ss";
@@ -611,4 +610,35 @@ public class DateUtil {
         calendar.set(Calendar.DATE, day - days);
         return calendar.getTime();
     }
+
+    /**
+     * 解析 "yyyyy年MM月"成 "yyyy-MM-dd" 格式的字符串
+     * @param chDateStr
+     * @return
+     */
+    public static   Date  parseChDateStrToEnDateStr(String chDateStr)throws ParseException{
+        if(org.apache.commons.lang3.StringUtils.isNotEmpty(chDateStr)){
+            Date chDate =new SimpleDateFormat("yyyy年MM月").parse(chDateStr);
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String date = format.format(chDate);
+            Date startTime = format.parse(date);
+            return startTime;
+        }
+        return  null;
+    }
+    /**
+     * 获取月份
+     * @param datetime
+     * @return
+     */
+    public static int getMonth(Date datetime){
+        if(datetime!=null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(datetime);
+            int month = cal.get(Calendar.MONTH);
+            return month+1;
+        }
+        return 0;
+    }
+
 }

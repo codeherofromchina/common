@@ -464,7 +464,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
      * @param list
      * @param areaAndCountryList
      */
-    private void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList, String typeName) {
+    protected void coverAreaAndCountryData(List<InquiryAreaVO> list, List<Map<String, String>> areaAndCountryList, String typeName) {
         if (areaAndCountryList != null && areaAndCountryList.size() > 0) {
 
             Map<String, InquiryAreaVO> map = list.parallelStream()

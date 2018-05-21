@@ -149,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据合同交货日期查询
                 if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" +condition.getDeliveryDate() + "%"));
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
                 }
                 //根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
@@ -355,6 +355,11 @@ public class OrderServiceImpl implements OrderService {
             checkOrderTradeTermsRelationField(addOrderVo);
         }*/
         addOrderVo.copyBaseInfoTo(order);
+        if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
+            order.setContractNo(addOrderVo.getContractNoOs());
+        } else {
+            order.setContractNo(addOrderVo.getContractNo());
+        }
         // 处理附件信息
         //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
         order.setAttachmentSet(addOrderVo.getAttachDesc());
@@ -429,6 +434,8 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
+            projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
+            projectAdd.setOverseasSales(orderUpdate.getOverseasSales());
             projectAdd.setPurchDone(Boolean.FALSE);
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
@@ -518,16 +525,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
-        if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
+      /*  if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在&&The order No. already exists");
-        }
+        }*/
       /*  if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);
         }*/
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
-        String str = "";
         if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
             order.setContractNo(addOrderVo.getContractNoOs());
         } else {
@@ -604,6 +610,8 @@ public class OrderServiceImpl implements OrderService {
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setTotalPriceUsd(order1.getTotalPriceUsd());
+            project.setOrderCategory(order1.getOrderCategory());
+            project.setOverseasSales(order1.getOverseasSales());
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
@@ -646,14 +654,17 @@ public class OrderServiceImpl implements OrderService {
     public void addLog(OrderLog.LogTypeEnum logType, Integer orderId, String operato, Integer goodsId, Date signingDate) {
         OrderLog orderLog = new OrderLog();
         try {
-            orderLog.setOrder(orderDao.findOne(orderId));
-            orderLog.setLogType(logType.getCode());
-            orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(operato, logType.getEnMsg()));
-            orderLog.setCreateTime(new Date());
-            orderLog.setBusinessDate(signingDate);  //订单签约日期
-            orderLog.setOrdersGoodsId(goodsId);
-            orderLogDao.save(orderLog);
+            if (signingDate != null) {
+                orderLog.setOrder(orderDao.findOne(orderId));
+                orderLog.setLogType(logType.getCode());
+                orderLog.setOperation(StringUtils.defaultIfBlank(operato, logType.getMsg()));
+                orderLog.setEnoperation(StringUtils.defaultIfBlank(operato, logType.getEnMsg()));
+                orderLog.setCreateTime(new Date());
+                orderLog.setBusinessDate(signingDate);  //订单签约日期
+                orderLog.setOrdersGoodsId(goodsId);
+                orderLogDao.save(orderLog);
+            }
+
         } catch (Exception ex) {
             logger.error("日志记录失败 {}", orderLog.toString());
             logger.error("错误", ex);

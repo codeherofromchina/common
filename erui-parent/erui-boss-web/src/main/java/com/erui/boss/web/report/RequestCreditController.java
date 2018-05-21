@@ -693,7 +693,7 @@ public class RequestCreditController {
     }
 
     //发送响应流方法
-    public void setResponseHeader(HttpServletResponse response, String fileName) throws Exception {
+    public static void setResponseHeader(HttpServletResponse response, String fileName) throws Exception {
 
         fileName = new String(fileName.getBytes(), "ISO8859-1");
         response.setContentType("application/octet-stream;charset=ISO8859-1");

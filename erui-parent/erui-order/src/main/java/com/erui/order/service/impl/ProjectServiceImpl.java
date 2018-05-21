@@ -93,8 +93,10 @@ public class ProjectServiceImpl implements ProjectService {
             projectDao.delete(projectUpdate.getId());
             return true;
         } else {
-            if ((project.getOrderCategory() == 4 || project.getOverseasSales() == 3) && nowProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
+            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 Order order = projectUpdate.getOrder();
+                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                project.copyProjectDescTo(projectUpdate);
                 order.setStatus(Order.StatusEnum.DONE.getCode());
                 orderDao.save(order);
             } else {

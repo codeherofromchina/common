@@ -1,7 +1,6 @@
 package com.erui.order.entity;
 
 import com.erui.order.util.IReceiverDate;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -11,8 +10,8 @@ import java.util.Date;
  * 订单-结算方式
  */
 @Entity
-@Table(name="order_payment")
-public class OrderPayment implements IReceiverDate{
+@Table(name="deliver_consign_payment")
+public class DeliverConsignPayment implements IReceiverDate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -20,6 +19,10 @@ public class OrderPayment implements IReceiverDate{
     private Integer type;
 
     private String topic;
+    //出口通知单ID
+    @Column(name = "deliver_consign_id")
+    private Integer deliverConsignId;
+    //订单ID
     @Column(name = "order_id")
     private Integer orderId;
 
@@ -28,14 +31,14 @@ public class OrderPayment implements IReceiverDate{
     @Column(name = "receipt_date")
     private Date receiptDate;
     @Column(name = " receipt_time")
-    private Integer receiptTime;
+    private Date  receiptTime;
 
 
-    public Integer getReceiptTime() {
+    public Date getReceiptTime() {
         return receiptTime;
     }
 
-    public void setReceiptTime(Integer receiptTime) {
+    public void setReceiptTime(Date receiptTime) {
         this.receiptTime = receiptTime;
     }
 

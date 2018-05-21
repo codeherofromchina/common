@@ -15,6 +15,7 @@ public enum ResultStatusEnum {
     MEDIA_TYPE_NOT_SUPPORT(6, "不支持的MediaType","Media type unsupported"),
     DATA_NULL(7, "数据为空","Lack of data"),
     PARAM_ERROR(8, "参数错误","Parameter error"),
+    GET_USERINFO_ERROR(9, "获取用户信息失败","get data error"),
     NULL_DATA(-1,"数据为空","Lack of data"),
     //-----------excel----------
     EXCEL_TYPE_NOT_SUPPORT(10, "不支持的Excel模板文件类型","Excel template file type unsupported"),
@@ -25,6 +26,7 @@ public enum ResultStatusEnum {
     EXCEL_OPERATOR_FAIL(15, "Excel文件操作失败","Excel file operation failed"),
     EXCEL_FILE_NOT_EXIST(16, "Excel文件不存在","Excel file does not exist"),
     EXCEL_DOWNLOAD_FALL(17,"文件下载失败","File download failed"),
+    EXCEL_DATA_REPEAT(18,"Execel存在比数据库更早的数据","data is not the latest"),
     //-----------大区----------------
     AREA_NOT_EXIST(20, "不存在的大区","This area does not exist"),
     ////// ----
