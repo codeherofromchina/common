@@ -22,12 +22,6 @@ public class OrderListCondition {
     //订单签约日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date signingDate;
-    //订单签约开始日期
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date startTime;
-    //订单签约结束日期
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date endTime;
     //合同交货日期
     private String deliveryDate;
     //CRM客户代码
@@ -63,30 +57,6 @@ public class OrderListCondition {
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
-
-    public Date getSigningDate() {
-        return signingDate;
-    }
-
-    public void setSigningDate(Date signingDate) {
-        this.signingDate = signingDate;
-    }
-
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
 
     public Integer getTechnicalId() {
         return technicalId;
@@ -192,6 +162,13 @@ public class OrderListCondition {
         this.agentName = agentName;
     }
 
+    public Date getSigningDate() {
+        return signingDate;
+    }
+
+    public void setSigningDate(Date signingDate) {
+        this.signingDate = signingDate;
+    }
 
     public String getDeliveryDate() {
         return deliveryDate;
@@ -281,8 +258,7 @@ public class OrderListCondition {
                 ", inquiryNo='" + inquiryNo + '\'' +
                 ", agentId=" + agentId +
                 ", agentName='" + agentName + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
+                ", signingDate=" + signingDate +
                 ", deliveryDate='" + deliveryDate + '\'' +
                 ", crmCode='" + crmCode + '\'' +
                 ", frameworkNo='" + frameworkNo + '\'' +
@@ -298,7 +274,6 @@ public class OrderListCondition {
                 ", processProgress='" + processProgress + '\'' +
                 ", deliverConsignHas=" + deliverConsignHas +
                 ", technicalId=" + technicalId +
-                ", lang='" + lang + '\'' +
                 ", page=" + page +
                 ", rows=" + rows +
                 '}';
