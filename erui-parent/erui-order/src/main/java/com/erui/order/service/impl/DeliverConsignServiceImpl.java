@@ -95,6 +95,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignUpdate.setRemarks(deliverConsign.getRemarks());
         deliverConsignUpdate.setStatus(deliverConsign.getStatus());
+        deliverConsignUpdate.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理附件
         List<Attachment> attachments = attachmentService.handleParamAttachment(deliverConsignUpdate.getAttachmentSet(), deliverConsign.getAttachmentSet(), null, null);
         deliverConsignUpdate.setAttachmentSet(attachments);
@@ -183,6 +184,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setCreateTime(new Date());
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
+        deliverConsignAdd.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(null, deliverConsign.getAttachmentSet(), null, null);
         deliverConsignAdd.setAttachmentSet(attachments);
