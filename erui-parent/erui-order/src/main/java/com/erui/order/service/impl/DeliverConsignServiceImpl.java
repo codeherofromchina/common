@@ -143,14 +143,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-            pushOutbound(deliverConsignUpdate, deliverDetailNo);
+            pushOutbound(deliverConsignUpdate,deliverDetailNo);
 
 
             // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsignUpdate.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
+            Map<String,Object> map = new HashMap<>();
+            map.put("deliverConsignNo",deliverConsignUpdate.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo",deliverDetailNo);  //产品放行单号
+            map.put("contractNoOs",order.getContractNo());     //销售合同号
             try {
                 sendSms(map);
             } catch (Exception e) {
@@ -185,24 +185,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setCreateTime(new Date());
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
-      /*  List<OrderPayment> orderPayments = order.getOrderPayments();
-        ArrayList<DeliverConsignPayment> paysList = new ArrayList<>();
-        for (OrderPayment payment:orderPayments) {
-            DeliverConsignPayment deliverConsignPayment = new DeliverConsignPayment();
-            deliverConsignPayment.setMoney(payment.getMoney());
-            deliverConsignPayment.setOrderId(payment.getOrderId());
-            //deliverConsignPayment.setDeliverConsignId(deliverConsign.getId());
-            deliverConsignPayment.setReceiptDate(payment.getReceiptDate());
-            deliverConsignPayment.setReceiptTime(payment.getReceiptTime());
-            deliverConsignPayment.setTopic(payment.getTopic());
-            deliverConsignPayment.setType(payment.getType());
-            paysList.add(deliverConsignPayment);
-        }*/
-        /*List<DeliverConsignPayment> deliverConsignPayments = deliverConsign.getDeliverConsignPayments();
-        for (DeliverConsignPayment d:deliverConsignPayments) {
-            paysList.add(d);
-        }*/
-        deliverConsignAdd.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(null, deliverConsign.getAttachmentSet(), null, null);
         deliverConsignAdd.setAttachmentSet(attachments);
@@ -236,14 +218,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();
-            pushOutbound(deliverConsign1, deliverDetailNo);
+            pushOutbound(deliverConsign1,deliverDetailNo);
 
 
             // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsign1.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
+            Map<String,Object> map = new HashMap<>();
+            map.put("deliverConsignNo",deliverConsign1.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo",deliverDetailNo);  //产品放行单号
+            map.put("contractNoOs",order.getContractNo());     //销售合同号
             try {
                 sendSms(map);
             } catch (Exception e) {
@@ -395,7 +377,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * 根据出口通知单，推送出库信息
      */
 
-    public void pushOutbound(DeliverConsign deliverConsign1, String deliverDetailNo) throws Exception {
+    public void pushOutbound(DeliverConsign deliverConsign1,String deliverDetailNo) throws Exception {
 
         // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
         DeliverDetail deliverDetail = new DeliverDetail();
@@ -472,13 +454,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
 
+
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-    public void sendSms(Map<String, Object> map1) throws Exception {
+    public void sendSms(Map<String,Object> map1) throws  Exception {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            try {
+            try{
                 // 根据id获取人员信息
                 String jsonParam = "{\"role_no\":\"O019\"}";
                 Map<String, String> header = new HashMap<>();
@@ -491,16 +474,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 JSONObject jsonObject = JSONObject.parseObject(s);
                 Integer code = jsonObject.getInteger("code");
 
-                if (code == 1) {
+                if(code == 1){
                     // 获取人员手机号
                     JSONArray data1 = jsonObject.getJSONArray("data");
 
                     //去除重复
                     Set<String> listAll = new HashSet<>();
-                    for (int i = 0; i < data1.size(); i++) {
-                        JSONObject ob = (JSONObject) data1.get(i);
+                    for (int i = 0; i < data1.size(); i++){
+                        JSONObject ob  = (JSONObject)data1.get(i);
                         String mobile = ob.getString("mobile");
-                        if (StringUtils.isNotBlank(mobile)) {
+                        if(StringUtils.isNotBlank(mobile)){
                             listAll.add(mobile);    //获取人员手机号
                         }
                     }
@@ -512,19 +495,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     }
 
                     //发送短信
-                    Map<String, String> map = new HashMap();
-                    map.put("areaCode", "86");
-                    map.put("to", smsarray.toString());
+                    Map<String,String> map= new HashMap();
+                    map.put("areaCode","86");
+                    map.put("to",smsarray.toString());
 
-                    map.put("content", " 您好，销售合同号：" + map1.get("contractNoOs") + "，已生成出口通知单号：" + map1.get("deliverConsignNo") + "，产品放行单号：" + map1.get("deliverDetailNo") + "，请及时处理。感谢您对我们的支持与信任！");
-                    map.put("subType", "0");
-                    map.put("groupSending", "0");
-                    map.put("useType", "订单");
+                    map.put("content"," 您好，销售合同号："+map1.get("contractNoOs")+"，已生成出口通知单号："+map1.get("deliverConsignNo")+"，产品放行单号："+map1.get("deliverDetailNo")+"，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType","0");
+                    map.put("groupSending","0");
+                    map.put("useType","订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送短信返回状态" + s1);
+                    logger.info("发送短信返回状态"+s1);
                 }
-            } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
+            }catch (Exception e){
+                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
             }
 
         }

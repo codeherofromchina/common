@@ -34,14 +34,6 @@ public class DeliverConsignPayment implements IReceiverDate {
     private Integer  receiptTime;
 
 
-    public Integer getDeliverConsignId() {
-        return deliverConsignId;
-    }
-
-    public void setDeliverConsignId(Integer deliverConsignId) {
-        this.deliverConsignId = deliverConsignId;
-    }
-
     public Integer getReceiptTime() {
         return receiptTime;
     }
@@ -98,4 +90,11 @@ public class DeliverConsignPayment implements IReceiverDate {
         this.receiptDate = receiptDate;
     }
 
+    public Integer getDeliverConsignId() {
+        return deliverConsignId;
+    }
+
+    public void setDeliverConsignId(Integer deliverConsignId) {
+        this.deliverConsignId = deliverConsignId;
+    }
 }
