@@ -31,14 +31,22 @@ public class DeliverConsignPayment implements IReceiverDate {
     @Column(name = "receipt_date")
     private Date receiptDate;
     @Column(name = " receipt_time")
-    private Date  receiptTime;
+    private Integer  receiptTime;
 
 
-    public Date getReceiptTime() {
+    public Integer getDeliverConsignId() {
+        return deliverConsignId;
+    }
+
+    public void setDeliverConsignId(Integer deliverConsignId) {
+        this.deliverConsignId = deliverConsignId;
+    }
+
+    public Integer getReceiptTime() {
         return receiptTime;
     }
 
-    public void setReceiptTime(Date receiptTime) {
+    public void setReceiptTime(Integer receiptTime) {
         this.receiptTime = receiptTime;
     }
 
