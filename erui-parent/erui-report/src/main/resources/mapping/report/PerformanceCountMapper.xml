@@ -105,11 +105,13 @@
       <if test="country!=null and country!=''">
       AND execute_company = #{country}
       </if>
+      AND sign_company='易瑞'
       AND buyer_code NOT IN
       (
         SELECT buyer_code FROM performance_count
-        WHERE start_time &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        WHERE start_time &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") AND sign_company='易瑞'
       )
+      GROUP BY area ,buyer_code HAVING  area IS NOT NULL AND buyer_code IS NOT  NULL
     </select>
 
   <!--查询所有大区和国家列表-->
