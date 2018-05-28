@@ -525,9 +525,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
-      /*  if (orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
+
+        if (StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
             throw new Exception("销售合同号已存在&&The order No. already exists");
-        }*/
+        }
       /*  if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
             checkOrderTradeTermsRelationField(addOrderVo);

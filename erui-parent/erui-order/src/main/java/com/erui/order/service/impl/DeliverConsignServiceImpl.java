@@ -95,6 +95,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignUpdate.setRemarks(deliverConsign.getRemarks());
         deliverConsignUpdate.setStatus(deliverConsign.getStatus());
+        //付款信息
+        deliverConsignUpdate.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理附件
         List<Attachment> attachments = attachmentService.handleParamAttachment(deliverConsignUpdate.getAttachmentSet(), deliverConsign.getAttachmentSet(), null, null);
         deliverConsignUpdate.setAttachmentSet(attachments);
@@ -186,6 +188,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(null, deliverConsign.getAttachmentSet(), null, null);
         deliverConsignAdd.setAttachmentSet(attachments);
+        //添加收款信息
+        deliverConsignAdd.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理商品信息
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         Set<Integer> orderIds = new HashSet<>();
