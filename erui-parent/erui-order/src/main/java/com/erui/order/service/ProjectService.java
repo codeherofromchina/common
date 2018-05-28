@@ -49,18 +49,19 @@ public interface ProjectService {
      *
      * @return
      */
-    List<Project> purchAbleList(List<String> projectNoList,String purchaseUid) throws Exception;
+    List<Project> purchAbleList(List<String> projectNoList, String purchaseUid) throws Exception;
 
     /**
      * 获取可采购的项目列表
+     *
      * @param projectNoList
      * @param purchaseUid
      * @param pageNum
      * @param pageSize
-     * @return  {id:项目ID,projectNo:项目编号,projectName:项目名称}
+     * @return {id:项目ID,projectNo:项目编号,projectName:项目名称}
      * @throws Exception
      */
-    Page<Map<String,Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize) throws Exception;
+    Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSizeString, String contractNo, String projectName) throws Exception;
 
     /**
      * 根据id查询项目信息
@@ -77,11 +78,12 @@ public interface ProjectService {
      * @return
      */
     Project findByIdOrOrderId(Integer id, Integer orderId);
-     /**
-      * @Author:SHIGS
-      * @Description 项目列表导出
-      * @Date:19:48 2018/4/18
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description 项目列表导出
+     * @Date:19:48 2018/4/18
+     * @modified By
+     */
     List<Project> findProjectExport(ProjectListCondition condition);
 }
