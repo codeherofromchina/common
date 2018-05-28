@@ -395,7 +395,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Goods goods = one.getGoods();
 
                     if(outboundNum == 0 && straightNum == 0){
-                        throw new Exception(String.format("%s%s%s","商品名称："+goods.getNameZh()+"  无出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Name of commodity: "+goods.getNameEn()+". Quantity of goods without Treasury"));
+                        throw new Exception(String.format("%s%s%s","商品的出库数量不能为0", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The goods cannot be zero"));
                     }
 
                     if(outboundNum != null && outboundNum != 0){
