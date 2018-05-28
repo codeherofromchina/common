@@ -149,8 +149,8 @@ public class OrderServiceImpl implements OrderService {
                 }*/
                 //根据订单签订时间段查询
                 if (condition.getStartTime() != null && condition.getEndTime() != null) {
-                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
                     Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
                     Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(startTime);
