@@ -631,10 +631,10 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                     receiverDate.setReceiptDate(arrivalPortTime3);
                 }
                 break;
-            case 9:     //工厂交货后   取值  预计抵达日期
-                Date arrivalPortTime4 = iogisticsData.getArrivalPortTime();  //预计抵达日期
-                if(arrivalPortTime4 != null){
-                    receiverDate.setReceiptDate(arrivalPortTime4);
+            case 9:     //工厂交货后   取值  离厂日期
+                Date leaveFactory2 = iogisticsData.getLeaveFactory();  //离厂日期
+                if(leaveFactory2 != null){
+                    receiverDate.setReceiptDate(leaveFactory2);
                 }
                 break;
         }
