@@ -543,21 +543,27 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                 for (DeliverConsignPayment deliverConsignPayment : deliverConsignPayments){
                     Integer type = deliverConsignPayment.getType();  //收款类型      4:'发货后',5:'货到后',6:'提单日后',7:'交货后',8:'验收后',9:'工厂交货后
                     //   E类收款方式  4:'发货后',   8:'验收后'  9:''工厂交货后'
-                    commonSetReceiptDate(type,deliverConsignPayment,iogisticsData);
+                    if(type != null){
+                        commonSetReceiptDate(type, deliverConsignPayment, iogisticsData);
+                    }
                 }
 
             }else if(Arrays.binarySearch(dtypeList, tradeTerms) >= 0 ){          //D类
                 for (DeliverConsignPayment deliverConsignPayment : deliverConsignPayments){
                     Integer type = deliverConsignPayment.getType();  //收款类型      4:'发货后',5:'货到后',6:'提单日后',7:'交货后',8:'验收后',9:'工厂交货后
                     //   D类收款方式    4:'发货后'   7:'交货后',  8:'验收后'
-                    commonSetReceiptDate(type,deliverConsignPayment,iogisticsData);
+                    if(type != null){
+                        commonSetReceiptDate(type, deliverConsignPayment, iogisticsData);
+                    }
                 }
 
             }else if(Arrays.binarySearch(elsetypeList, tradeTerms) >= 0 ){       //其他类
                 for (DeliverConsignPayment deliverConsignPayment : deliverConsignPayments){
                     Integer type = deliverConsignPayment.getType();  //收款类型      4:'发货后',5:'货到后',6:'提单日后',7:'交货后',8:'验收后',9:'工厂交货后
                     //   其他类收款方式    4:'发货后'   5:'货到后',  6:'提单日后'    7:'交货后'  ,8:'验收后'
-                    commonSetReceiptDate(type,deliverConsignPayment,iogisticsData);
+                    if(type != null){
+                        commonSetReceiptDate(type, deliverConsignPayment, iogisticsData);
+                    }
                 }
 
             }
@@ -578,21 +584,27 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                 for (OrderPayment orderPayment : orderPayments) {
                     Integer type = orderPayment.getType();  //收款类型      4:'发货后',5:'货到后',6:'提单日后',7:'交货后',8:'验收后',9:'工厂交货后
                     //   E类收款方式  4:'发货后',   8:'验收后'  9:''工厂交货后'
-                    commonSetReceiptDate(type, orderPayment, iogisticsData);
+                    if(type != null){
+                        commonSetReceiptDate(type, orderPayment, iogisticsData);
+                    }
                 }
 
             } else if (Arrays.binarySearch(dtypeList, tradeTerms) >= 0) {          //D类
                 for (OrderPayment orderPayment : orderPayments) {
                     Integer type = orderPayment.getType();  //收款类型      4:'发货后',5:'货到后',6:'提单日后',7:'交货后',8:'验收后',9:'工厂交货后
                     //   D类收款方式    4:'发货后'   7:'交货后',  8:'验收后'
-                    commonSetReceiptDate(type, orderPayment, iogisticsData);
+                    if(type != null){
+                        commonSetReceiptDate(type, orderPayment, iogisticsData);
+                    }
                 }
 
             } else if (Arrays.binarySearch(elsetypeList, tradeTerms) >= 0) {       //其他类
                 for (OrderPayment orderPayment : orderPayments) {
                     Integer type = orderPayment.getType();  //收款类型      4:'发货后',5:'货到后',6:'提单日后',7:'交货后',8:'验收后',9:'工厂交货后
                     //   其他类收款方式    4:'发货后'   5:'货到后',  6:'提单日后'    7:'交货后'  ,8:'验收后'
-                    commonSetReceiptDate(type, orderPayment, iogisticsData);
+                    if(type != null){
+                        commonSetReceiptDate(type, orderPayment, iogisticsData);
+                    }
                 }
             }
         }
