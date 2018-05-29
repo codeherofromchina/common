@@ -323,7 +323,7 @@ public class Order {
     public String getTotalPriceUsdSplit() {
         if (getTotalPriceUsd() != null) {
             DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
-            String format = decimalFormat.format(getTotalPrice());
+            String format = decimalFormat.format(getTotalPriceUsd());
             return format;
         }
         return null;
