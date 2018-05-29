@@ -370,10 +370,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (deliverConsignGoodsList.size() != 0) {
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
                 DeliverConsignGoods one = deliverConsignGoodsDao.findOne(deliverConsignGoods.getId());
+
+                Integer outboundNum = deliverConsignGoods.getOutboundNum() == null ? 0 : deliverConsignGoods.getOutboundNum();  //出库数量
+                Integer straightNum = deliverConsignGoods.getStraightNum() == null ? 0 : deliverConsignGoods.getStraightNum();    //厂家直发数量
+
+                if(one.getSendNum() !=  outboundNum + straightNum){    //出库数量和厂家直发数量是否相等
+                    throw new Exception(String.format("%s%s%s","出库商品数量不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Quantity of goods without Treasury"));
+                }
                 one.setOutboundRemark(deliverConsignGoods.getOutboundRemark()); // 出库备注
-                // V2.0
-                Integer outboundNum = deliverConsignGoods.getOutboundNum();//出库数量
-                Integer straightNum = deliverConsignGoods.getStraightNum();//厂家直发数量
                 if(status == 2 || status == 1){
                     one.setOutboundNum(outboundNum); //出库数量
                     one.setStraightNum(straightNum); //厂家直发数量
@@ -391,7 +395,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Goods goods = one.getGoods();
 
                     if(outboundNum == 0 && straightNum == 0){
-                        throw new Exception(String.format("%s%s%s","商品名称："+goods.getNameZh()+"  无出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Name of commodity: "+goods.getNameEn()+". Quantity of goods without Treasury"));
+                        throw new Exception(String.format("%s%s%s","商品的出库数量不能为0", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The goods cannot be zero"));
                     }
 
                     if(outboundNum != null && outboundNum != 0){

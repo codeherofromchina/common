@@ -346,7 +346,7 @@ public class ProjectServiceImpl implements ProjectService {
      * @return
      * @throws Exception
      */
-    public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize) throws Exception {
+    public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize,String contractNo,String projectName) throws Exception {
         Integer intPurchaseUid = null;
         if (StringUtils.isNotBlank(purchaseUid) && !StringUtils.isNumeric(purchaseUid)) {
             throw new Exception(String.format("%s%s%s", "采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchasing manager's error in purchasing"));
@@ -379,7 +379,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         list.add(cb.or(orPredicate));
                     }
-
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + contractNo + "%"));
+                    list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
                     list.add(root.get("id").in(projectIds.toArray(new Integer[projectIds.size()])));
 
                     Predicate[] predicates = new Predicate[list.size()];
@@ -394,6 +395,7 @@ public class ProjectServiceImpl implements ProjectService {
                 map.put("id", project.getId());
                 map.put("projectNo", project.getProjectNo());
                 map.put("projectName", project.getProjectName());
+                map.put("contractNo", project.getContractNo());
                 list.add(map);
             }
             result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());
