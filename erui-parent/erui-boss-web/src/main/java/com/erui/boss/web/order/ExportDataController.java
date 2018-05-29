@@ -189,12 +189,15 @@ public class ExportDataController {
             HSSFWorkbook workbook;
             if (StringUtils.equals(lang,"en")) {
                 workbook = buildExcel.buildExcel((List) objArr, enHeader, enKeys, "Order List");
+                ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+                ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+                downExcel(workbook, response, "Order List");
             } else {
                 workbook = buildExcel.buildExcel((List) objArr, header, keys, "订单列表");
+                ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+                ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+                downExcel(workbook, response, "订单列表");
             }
-            ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-            ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
-            downExcel(workbook, response, "订单列表");
             //  }
         } catch (Exception e) {
             e.printStackTrace();
