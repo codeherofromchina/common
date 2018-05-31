@@ -934,7 +934,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    if (StringUtils.equals("1", condition.getProcessProgress())) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    }
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
