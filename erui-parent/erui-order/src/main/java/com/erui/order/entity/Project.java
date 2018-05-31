@@ -693,8 +693,8 @@ public class Project {
     //流程进度
     public static enum enProjectProgressEnum {
         SUBMIT("SUBMIT", "Not executed", 1), EXECUTING("EXECUTING", "Normal executing", 2),
-        BUYING("BUYING", "Purchasing", 3), QUARANTINE("DONE", "Applied for inspection", 4), CHECKING("CHECKING", "Quality inspecting", 5),
-        IN_STORAGE("IN_STORAGE", "In-storage", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "Warehouse-out inspecting", 7),
+        BUYING("BUYING", "Purchased", 3), QUARANTINE("DONE", "Applied for inspection", 4), CHECKING("CHECKING", "Quality inspected", 5),
+        IN_STORAGE("IN_STORAGE", "In-storage", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "Warehouse-out inspected", 7),
         OUTSTORAGE("DELAYED_UNSHIPPED", "Warehouse-out", 8), SHIPED("SHIPED", "Shipped", 9);
         private String code;
         private String msg;
