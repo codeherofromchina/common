@@ -2,9 +2,9 @@ package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +36,7 @@ public class Project {
     private String projectNo;
 
     @Column(name = "project_name")
-    @Length(max = 255,message = "项目名称过长")
+    @Size(max = 255,message = "项目名称过长")
     private String projectName;
 
     @Column(name = "start_date")

@@ -1,6 +1,5 @@
 package com.erui.order.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
@@ -13,8 +12,6 @@ import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
-import com.erui.order.entity.Purch;
-import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
@@ -240,7 +237,11 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.like(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    if (StringUtils.equals("1", condition.getProcessProgress())) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    }
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
@@ -346,7 +347,7 @@ public class ProjectServiceImpl implements ProjectService {
      * @return
      * @throws Exception
      */
-    public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize,String contractNo,String projectName) throws Exception {
+    public Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSize, String contractNo, String projectName) throws Exception {
         Integer intPurchaseUid = null;
         if (StringUtils.isNotBlank(purchaseUid) && !StringUtils.isNumeric(purchaseUid)) {
             throw new Exception(String.format("%s%s%s", "采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchasing manager's error in purchasing"));
