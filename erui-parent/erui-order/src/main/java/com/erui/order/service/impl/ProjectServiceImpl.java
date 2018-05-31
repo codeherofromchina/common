@@ -525,7 +525,11 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.like(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    if (StringUtils.equals("1", condition.getProcessProgress())) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    }
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
