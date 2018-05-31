@@ -421,7 +421,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setPaymentDate((Date) objArr[2]);
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
                     projectStatistics.setAcquireId((String) objArr[3]);
-                    projectStatistics.setAccountCount((Integer) objArr[4]);
+                    projectStatistics.setAccountCount((BigInteger) objArr[4]);
                 }
             }
         }
