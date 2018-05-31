@@ -1,7 +1,6 @@
 package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.ChineseAndEnglish;
 import com.erui.comm.util.CookiesUtil;
@@ -9,20 +8,9 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
-import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Order;
-import com.erui.order.entity.OrderLog;
-import com.erui.order.entity.Project;
-import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.requestVo.AddOrderVo;
-import com.erui.order.requestVo.OrderListCondition;
-import com.erui.order.requestVo.PGoods;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
 import org.apache.commons.lang3.StringUtils;
@@ -123,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public Page<Order> findByPage(final OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
