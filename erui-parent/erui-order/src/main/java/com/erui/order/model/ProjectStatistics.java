@@ -96,6 +96,8 @@ public class ProjectStatistics {
     private Date paymentDate;   //回款时间
     // 回款金额（美元）
     private BigDecimal money;   //回款金额
+    //回款记录条数
+    private Integer accountCount; //回款记录
     //初步利润率
     private BigDecimal profitPercent;
     //授信情况
@@ -466,5 +468,11 @@ public class ProjectStatistics {
         this.exeChgDate = exeChgDate;
     }
 
+    public Integer getAccountCount() {
+        return accountCount;
+    }
 
+    public void setAccountCount(Integer accountCount) {
+        this.accountCount = accountCount;
+    }
 }

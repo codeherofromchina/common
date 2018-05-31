@@ -602,11 +602,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //如果是厂家直接发货    推送  出库日期 到商品表
             pushWareHouseman(one,2);
 
-                //已出库
-                applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
+            //已出库
+            applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
 
-                //  V2.0订单执行跟踪   推送商品出库
-                 pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
+            //  V2.0订单执行跟踪   推送商品出库
+             pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
 
 
             //出库通知：出库单下达后通知物流分单员（确认出库）
