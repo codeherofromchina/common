@@ -50,6 +50,7 @@ public class ProjectStatistics {
         this.tradeTerms = order.getTradeTerms();
         this.projectStatus = project.getProjectStatus();
         this.processProgress = project.getProcessProgress();
+        this.overseasSales = order.getOverseasSales();
     }
 
     //订单ID
@@ -87,6 +88,7 @@ public class ProjectStatistics {
     //订单类型
     private Integer orderType;
     //海外销类型 TODO
+    private Integer overseasSales;
     //项目金额（美元）
     private BigDecimal totalPrice;
     // 前期报价（美元）  TODO
@@ -435,7 +437,7 @@ public class ProjectStatistics {
         if (StringUtils.isNotBlank(grantType)) {
             switch (grantType) {
                 case "1":
-                    return "中保信";
+                    return "信用证";
                 case "2":
                     return "集团授信";
                 default:
@@ -476,4 +478,31 @@ public class ProjectStatistics {
     public void setAccountCount(BigInteger accountCount) {
         this.accountCount = accountCount;
     }
+
+    public Integer getOverseasSales() {
+        return overseasSales;
+    }
+
+    public void setOverseasSales(Integer overseasSales) {
+        this.overseasSales = overseasSales;
+    }
+
+    public String getOverseasSalesName() {
+        if(overseasSales != null){
+            switch (overseasSales) {
+                case 1:
+                    return "海外销（装备采购）";
+                case 2:
+                    return "海外销（易瑞采购）";
+                case 3:
+                    return "海外销（当地采购）";
+                case 4:
+                    return "易瑞销";
+                case 5:
+                    return "装备销";
+            }
+        }
+        return null;
+    }
+
 }
