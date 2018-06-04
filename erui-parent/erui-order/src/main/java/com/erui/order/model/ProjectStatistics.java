@@ -130,6 +130,9 @@ public class ProjectStatistics {
     // 原因类型  TODO
     // 原因描述  TODO
 
+    // 金额类型 回款金额
+    private String currencyBnMoney;   //金额类型  回款金额
+
 
     public Integer getOrderId() {
         return orderId;
@@ -505,4 +508,12 @@ public class ProjectStatistics {
         return null;
     }
 
+    public String getCurrencyBnMoney() {
+        return currencyBnMoney;
+    }
+
+    public void setCurrencyBnMoney(String currencyBnMoney) {
+        this.currencyBnMoney = currencyBnMoney;
+    }
 }
+
