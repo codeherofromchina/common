@@ -496,7 +496,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
             p.setStartTime(DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR));
             p.setTotalIncrBuyerCount(totalIncrBuyerCount);
         });
-        if(totalPerformance>0) {
+        if(totalPerformance>0||totalIncrBuyerCount>0) {
             insertPerformanceAssign(salesmanList);
         }
         return salesmanList;

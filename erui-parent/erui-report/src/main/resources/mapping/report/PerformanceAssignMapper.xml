@@ -148,14 +148,14 @@
       <if test="salesmanPerformance != null" >
         salesman_performance,
       </if>
-      <if test="assignStatus != null" >
-        assign_status,
-      </if>
       <if test="totalIncrBuyerCount != null" >
         total_incr_buyer_count,
       </if>
       <if test="incrBuyerCount != null" >
         incr_buyer_count,
+      </if>
+      <if test="assignStatus != null" >
+        assign_status,
       </if>
       <if test="rejectReason != null" >
         reject_reason,
