@@ -101,6 +101,8 @@ public class ProjectStatistics {
     private BigDecimal money;   //回款金额
     //回款记录条数
     private BigInteger accountCount; //回款记录
+    //回款记录条数
+    private String proCate; //产品分类
     //初步利润率
     private BigDecimal profitPercent;
     //授信情况
@@ -130,6 +132,14 @@ public class ProjectStatistics {
     // 原因类型  TODO
     // 原因描述  TODO
 
+
+    public String getProCate() {
+        return proCate;
+    }
+
+    public void setProCate(String proCate) {
+        this.proCate = proCate;
+    }
 
     public Integer getOrderId() {
         return orderId;
