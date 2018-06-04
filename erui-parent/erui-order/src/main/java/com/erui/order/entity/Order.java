@@ -254,6 +254,21 @@ public class Order {
     @Column(name = "overseas_sales")
     private Integer overseasSales;
 
+    @Transient
+    // 已发货总金额 （财务管理）
+    private BigDecimal shipmentsMoney;   //已发货总金额 （财务管理）
+
+    @Transient
+    //已收款总金额  （财务管理）
+    private BigDecimal alreadyGatheringMoney;   //已收款总金额  （财务管理）
+
+    @Transient
+    // 已发货总金额USD （财务管理）
+    private BigDecimal alreadyGatheringMoneyUSD;   //已发货总金额 （财务管理）
+
+
+
+
     public Integer getOrderCategory() {
         return orderCategory;
     }
@@ -937,6 +952,31 @@ public class Order {
 
     public void setBusinessName(String businessName) {
         this.businessName = businessName;
+    }
+
+    public BigDecimal getShipmentsMoney() {
+        return shipmentsMoney;
+    }
+
+    public void setShipmentsMoney(BigDecimal shipmentsMoney) {
+        this.shipmentsMoney = shipmentsMoney;
+    }
+
+    public void setAlreadyGatheringMoney(BigDecimal alreadyGatheringMoney) {
+        this.alreadyGatheringMoney = alreadyGatheringMoney;
+    }
+
+
+    public BigDecimal getAlreadyGatheringMoney() {
+        return alreadyGatheringMoney;
+    }
+
+    public BigDecimal getAlreadyGatheringMoneyUSD() {
+        return alreadyGatheringMoneyUSD;
+    }
+
+    public void setAlreadyGatheringMoneyUSD(BigDecimal alreadyGatheringMoneyUSD) {
+        this.alreadyGatheringMoneyUSD = alreadyGatheringMoneyUSD;
     }
 
     public static enum StatusEnum {

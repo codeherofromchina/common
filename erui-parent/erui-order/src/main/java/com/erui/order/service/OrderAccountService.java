@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.entity.OrderAccountDeliver;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import org.springframework.data.domain.Page;
@@ -75,4 +76,33 @@ public interface OrderAccountService {
      */
 
   Page<Order> gatheringManage(OrderListCondition condition);
+
+    /**
+     * 发货信息查询   (根据订单)
+     * @param id
+     * @return
+     */
+    List<OrderAccountDeliver> queryOrderAccountDeliver(Integer id);
+
+    /**
+     * 发货信息查询id  逻辑删除
+     * @param request
+     * @param id
+     */
+    void delOrderAccountDeliver(ServletRequest request, Integer id);
+
+    /**
+     *  添加一条发货信息
+     * @param orderAccountDeliver  收款信息
+     * @return
+     */
+    void addOrderAccountDeliver(OrderAccountDeliver orderAccountDeliver, ServletRequest request) throws Exception;
+
+    /**
+     * 编辑发货信息
+     *
+     * @param request
+     * @param orderAccount
+     */
+    void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount);
 }
