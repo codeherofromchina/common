@@ -1,9 +1,10 @@
 package com.erui.order.entity;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +36,7 @@ public class Project {
     private String projectNo;
 
     @Column(name = "project_name")
+    @Size(max = 255,message = "项目名称过长")
     private String projectName;
 
     @Column(name = "start_date")
@@ -649,8 +651,8 @@ public class Project {
     //流程进度
     public static enum ProjectProgressEnum {
         SUBMIT("SUBMIT", "未执行", 1), EXECUTING("EXECUTING", "正常执行", 2),
-        BUYING("BUYING", "采购中", 3), QUARANTINE("DONE", "已报检", 4), CHECKING("CHECKING", "质检中", 5),
-        IN_STORAGE("IN_STORAGE", "已入库", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "出库质检", 7),
+        BUYING("BUYING", "已采购", 3), QUARANTINE("DONE", "已报检", 4), CHECKING("CHECKING", "已入库质检", 5),
+        IN_STORAGE("IN_STORAGE", "已入库", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "已出库质检", 7),
         OUTSTORAGE("DELAYED_UNSHIPPED", "已出库", 8), SHIPED("SHIPED", "已发运", 9);
         private String code;
         private String msg;
@@ -691,8 +693,8 @@ public class Project {
     //流程进度
     public static enum enProjectProgressEnum {
         SUBMIT("SUBMIT", "Not executed", 1), EXECUTING("EXECUTING", "Normal executing", 2),
-        BUYING("BUYING", "Purchasing", 3), QUARANTINE("DONE", "Applied for inspection", 4), CHECKING("CHECKING", "Quality inspecting", 5),
-        IN_STORAGE("IN_STORAGE", "In-storage", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "Warehouse-out inspecting", 7),
+        BUYING("BUYING", "Purchased", 3), QUARANTINE("DONE", "Applied for inspection", 4), CHECKING("CHECKING", "Warehouse-in inspected", 5),
+        IN_STORAGE("IN_STORAGE", "In-storage", 6), QUALITY_INSPECTION("QUALITY_INSPECTION", "EX-warehouse inspected", 7),
         OUTSTORAGE("DELAYED_UNSHIPPED", "Warehouse-out", 8), SHIPED("SHIPED", "Shipped", 9);
         private String code;
         private String msg;

@@ -563,8 +563,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
                 pushWareHouseman(deliverDetail2,2);
 
-
-
+                //  V2.0订单执行跟踪   推送商品出库
+                pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
 
                 //推送信息到出库信息管理
                 Iogistics iogistics = new Iogistics();  //物流信息
@@ -605,23 +605,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 //已出库
                 applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
 
-
                 //  V2.0订单执行跟踪   推送商品出库
-                OrderLog orderLog = new OrderLog();
-                try {
-                    orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
-                    orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
-                    orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
-                    orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getEnMsg()));
-                    orderLog.setCreateTime(new Date());
-                    orderLog.setBusinessDate(deliverDetail2.getLeaveDate()); //确认出库时间
-                    orderLog.setOrdersGoodsId(null);
-                    orderLogDao.save(orderLog);
-                } catch (Exception ex) {
-                    logger.error("日志记录失败 {}", orderLog.toString());
-                    logger.error("错误", ex);
-                    ex.printStackTrace();
-                }
+                 pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
 
 
             //出库通知：出库单下达后通知物流分单员（确认出库）
@@ -1323,6 +1308,27 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 goodsDao.save(one1);
             }
+        }
+    }
+
+
+    //推送商品出库时间到订单执行跟踪
+    public void pushGoodsLeaverDate(DeliverConsign deliverConsign1 , DeliverDetail deliverDetail2){
+        //  V2.0订单执行跟踪   推送商品出库
+        OrderLog orderLog = new OrderLog();
+        try {
+            orderLog.setOrder(orderDao.findOne(deliverConsign1.getOrder().getId()));
+            orderLog.setLogType(OrderLog.LogTypeEnum.GOODOUT.getCode());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getMsg()));
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.GOODOUT.getEnMsg()));
+            orderLog.setCreateTime(new Date());
+            orderLog.setBusinessDate(deliverDetail2.getLeaveDate()); //确认出库时间
+            orderLog.setOrdersGoodsId(null);
+            orderLogDao.save(orderLog);
+        } catch (Exception ex) {
+            logger.error("日志记录失败 {}", orderLog.toString());
+            logger.error("错误", ex);
+            ex.printStackTrace();
         }
     }
 
