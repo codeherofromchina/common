@@ -40,6 +40,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -422,6 +423,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
                     projectStatistics.setAcquireId((String) objArr[3]);
                     projectStatistics.setAccountCount((BigInteger) objArr[4]);
+                    if(objArr[1] != null){
+                        projectStatistics.setCurrencyBnMoney((String) objArr[5]+" "+ new DecimalFormat("###,##0.00").format(objArr[1]));
+                    }
                 }
             }
         }
@@ -468,6 +472,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
                     projectStatistics.setAcquireId((String) objArr[3]);
                     projectStatistics.setAccountCount((BigInteger) objArr[4]);
+                    if(objArr[1] != null){
+                        projectStatistics.setCurrencyBnMoney((String) objArr[5]+" "+ new DecimalFormat("###,##0.00").format(objArr[1]));
+                    }
+
                 }
             }
         }
