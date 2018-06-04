@@ -28,6 +28,10 @@ public class PerformanceAssign {
 
     private BigDecimal salesmanPerformance;
 
+    private Integer totalIncrBuyerCount;
+
+    private Integer incrBuyerCount;
+
     private Integer assignStatus;
 
     private String rejectReason;
@@ -126,6 +130,22 @@ public class PerformanceAssign {
 
     public void setSalesmanPerformance(BigDecimal salesmanPerformance) {
         this.salesmanPerformance = salesmanPerformance;
+    }
+
+    public Integer getTotalIncrBuyerCount() {
+        return totalIncrBuyerCount;
+    }
+
+    public void setTotalIncrBuyerCount(Integer totalIncrBuyerCount) {
+        this.totalIncrBuyerCount = totalIncrBuyerCount;
+    }
+
+    public Integer getIncrBuyerCount() {
+        return incrBuyerCount;
+    }
+
+    public void setIncrBuyerCount(Integer incrBuyerCount) {
+        this.incrBuyerCount = incrBuyerCount;
     }
 
     public Integer getAssignStatus() {

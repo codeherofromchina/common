@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,7 +27,6 @@ import java.util.*;
 public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> implements PerformanceService {
 
     private final static Logger logger = LoggerFactory.getLogger(PerformanceServiceImpl.class);
-
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
@@ -180,7 +180,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         List<Map<String, Object>> data = readMapper.selectIncrBuyerByCondition(params);
         Map<String, Map<String, Object>> resultMap = new HashMap<>(); //返回结果集
         //如果 area 为空 country 为空
-        if (StringUtils.isEmpty(params.get("area"))) {
+        if (StringUtils.isEmpty(params.get("area"))&&StringUtils.isEmpty(params.get("country"))) {
             data.stream().forEach(m -> {
                 String area = m.get("area").toString();
                 if (resultMap.containsKey(area)) {
@@ -192,6 +192,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     Map<String, Object> rm = new HashMap<>();
                     rm.put("area", m.get("area").toString());
                     rm.put("country", "全部");
+                    rm.put("employee","全部");
                     rm.put("month", params.get("month"));
                     List<String> buyerList = new ArrayList<>();
                     buyerList.add(m.get("buyerCode").toString());
@@ -200,7 +201,9 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     resultMap.put(area, rm);
                 }
             });
-        } else {
+            return new ArrayList<>(resultMap.values());
+        } else if(StringUtils.isNotEmpty(params.get("area"))&&StringUtils.isEmpty(params.get("country"))) {
+            //如果area不为空country为空
             data.stream().forEach(m -> {
                 String country = m.get("country").toString();
                 if (resultMap.containsKey(country)) {
@@ -220,8 +223,49 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     resultMap.put(country, rm);
                 }
             });
+            return new ArrayList<>(resultMap.values());
+        }else {//如果area和country都不为空 具体国家的员工分配的
+            //获取新增客户代码
+            List<String> buyerList = new ArrayList<>();
+            for(Map<String,Object> m:data){
+                buyerList.add(m.get("buyerCode").toString());
+            }
+            //查询具体分配的员工
+            PerformanceAssignMapper assignMapper = readerSession.getMapper(PerformanceAssignMapper.class);
+            List<PerformanceAssign> dataList = assignMapper.selectCountryAssignDetailByTime(params);
+            List<Map<String,Object>> resultList=new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(dataList)){
+                if(dataList.get(0).getAssignStatus() > 0 && dataList.get(0).getIncrBuyerCount() != null){
+                    for(PerformanceAssign p:dataList){
+                        Map<String,Object> map=new HashMap<>();
+                        map.put("area",p.getTwoLevelDepartment());
+                        map.put("country",p.getThreeLevelDepartment());
+                        map.put("month",params.get("month"));
+                        map.put("employee",p.getNameCh());
+                        map.put("incrBuyerCount",p.getIncrBuyerCount());
+                        map.put("buyerCodeList",buyerList);
+                        resultList.add(map);
+
+                    }
+                    return resultList;
+                }
+            }
+            //没有被分配 ，查询这个国家的员工列表
+            List<PerformanceAssign> salesmanList = readMapper.selectSalesmanByCountry(params.get("country"));
+            if(CollectionUtils.isNotEmpty(salesmanList)) {
+                for (PerformanceAssign p : salesmanList) {
+                    Map<String,Object> map=new HashMap<>();
+                    map.put("area",p.getTwoLevelDepartment());
+                    map.put("country",p.getThreeLevelDepartment());
+                    map.put("month",params.get("month"));
+                    map.put("employee",p.getNameCh());
+                    map.put("incrBuyerCount",0);
+                    map.put("buyerCodeList",buyerList);
+                    resultList.add(map);
+                }
+            }
+            return resultList;
         }
-        return new ArrayList<>(resultMap.values());
     }
 
     @Override
@@ -444,10 +488,13 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         //查询指定国家和月份的总业绩
         double totalPerformance = readMapper.selectTotalPerformanceByCountryAndTime(params);
         double total = RateUtil.doubleChainRateTwo(totalPerformance, 10000);//变成万美元
+        //查询指定国家和月份的总的新增会员数
+        int totalIncrBuyerCount=readMapper.selectIncrBuyerCountByCountryAndTime(params);
         salesmanList.stream().forEach(p -> {
             p.setCountryPerformance(new BigDecimal(total).setScale(2, BigDecimal.ROUND_HALF_UP));
             p.setAssignStatus(0);
             p.setStartTime(DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR));
+            p.setTotalIncrBuyerCount(totalIncrBuyerCount);
         });
         if(totalPerformance>0) {
             insertPerformanceAssign(salesmanList);
