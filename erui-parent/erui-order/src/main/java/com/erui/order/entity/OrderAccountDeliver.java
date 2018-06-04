@@ -10,8 +10,8 @@ import java.util.Date;
  * 订单-收款信息
  */
 @Entity
-@Table(name = "order_account")
-public class OrderAccount {
+@Table(name = "order_account_deliver")
+public class OrderAccountDeliver {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;     //订单-收款信息id
@@ -26,13 +26,6 @@ public class OrderAccount {
     @Column(name = "`desc`")
     private String desc;    //描述
 
-    private BigDecimal money;   //回款金额
-
-    private BigDecimal discount;    //其他扣款金额
-
-    @Column(name = "payment_date")
-    private Date paymentDate;   //回款时间
-
     @Column(name = "goods_price")
     private BigDecimal goodsPrice;  //发货金额
 
@@ -41,12 +34,6 @@ public class OrderAccount {
 
     @Column(name = "create_user_id")
     private Integer createUserId;   //创建人
-
-    @Column(name = "update_user_id")
-    private Integer updateUserId;   //创建人
-
-    @Column(name = "update_time")
-    private Date updateTime;    //更新时间
 
     @Column(name = "create_time")
     private Date createTime;    //创建时间
@@ -89,30 +76,6 @@ public class OrderAccount {
         this.desc = desc;
     }
 
-    public BigDecimal getMoney() {
-        return money;
-    }
-
-    public void setMoney(BigDecimal money) {
-        this.money = money;
-    }
-
-    public BigDecimal getDiscount() {
-        return discount;
-    }
-
-    public void setDiscount(BigDecimal discount) {
-        this.discount = discount;
-    }
-
-    public Date getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(Date paymentDate) {
-        this.paymentDate = paymentDate;
-    }
-
     public BigDecimal getGoodsPrice() {
         return goodsPrice;
     }
@@ -135,22 +98,6 @@ public class OrderAccount {
 
     public void setCreateUserId(Integer createUserId) {
         this.createUserId = createUserId;
-    }
-
-    public Integer getUpdateUserId() {
-        return updateUserId;
-    }
-
-    public void setUpdateUserId(Integer updateUserId) {
-        this.updateUserId = updateUserId;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
     }
 
     public Date getCreateTime() {

@@ -4,10 +4,12 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.OrderAccountDao;
+import com.erui.order.dao.OrderAccountDeliverDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.entity.OrderAccountDeliver;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
@@ -52,6 +54,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     OrderLogDao orderLogDao;
+
+
+    @Autowired
+    OrderAccountDeliverDao orderAccountDeliverDao;
+
 
 
   /*  @Value("#{orderProp[CRM_URL]}")
@@ -257,28 +264,50 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order order = orderDao.findOne(id);  //查询订单信息
 
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
+        List<OrderAccountDeliver> byOrderIdAndDelYn = orderAccountDeliverDao.findByOrderIdAndDelYn(id, 1);
 
-        BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
-        BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
-        BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
+        //发运信息
+        BigDecimal shipmentsMoneySum = BigDecimal.valueOf(0);  //已发货总金额
+        for (OrderAccountDeliver orderAccountDeliver : byOrderIdAndDelYn){
+            if(orderAccountDeliver.getGoodsPrice() != null){
+                shipmentsMoneySum= shipmentsMoneySum.add(orderAccountDeliver.getGoodsPrice());   // 发货金额
+            }
+        }
+        order.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
 
-        int size = byOrderId.size();
-        for (int i = 0; i < size; i++) {
-            if (byOrderId.get(i).getGoodsPrice() != null) {
-                sumGoodsPrice = sumGoodsPrice.add(byOrderId.get(i).getGoodsPrice());    //发货金额
+
+        //收款信息
+        BigDecimal sumMoneySum = BigDecimal.valueOf(0);     //回款金额
+        BigDecimal sumDiscountSum = BigDecimal.valueOf(0);      //其他扣款金额
+        for(OrderAccount orderAccount : byOrderId){
+            if (orderAccount.getMoney() != null) {
+                sumMoneySum = sumMoneySum.add(orderAccount.getMoney());       //回款金额
             }
-            if (byOrderId.get(i).getMoney() != null) {
-                sumMoney = sumMoney.add(byOrderId.get(i).getMoney());       //回款金额
-            }
-            if (byOrderId.get(i).getDiscount() != null) {
-                sumDiscount = sumDiscount.add(byOrderId.get(i).getDiscount());      //其他扣款金额
+            if (orderAccount.getDiscount() != null) {
+                sumDiscountSum = sumDiscountSum.add(orderAccount.getDiscount());      //其他扣款金额
             }
         }
 
-        BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
+        if(sumDiscountSum != null ){
+            order.setAlreadyGatheringMoney(sumMoneySum.add(sumDiscountSum));     //已收款总金额       已收款总额=回款金额总额+其他扣款金额总和
+        }else{
+            order.setAlreadyGatheringMoney(sumMoneySum);     //已收款总金额
+        }
 
-        // 应收账款余额=发货金额-回款金额-其他扣款金额
-        order.setReceivableAccountRemaining(subtract);    //应收账款余额
+        //应收账款余额    应收账款余额=已发货总金额-已收款总金额
+        order.setReceivableAccountRemaining(order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney()));
+
+
+        // 已收款总金额（USD）   已收款总金额=已收款总金额*汇率          如果收款方式为美元（USD）的话，不用计算汇率
+        BigDecimal exchangeRate = order.getExchangeRate();//汇率
+        String currencyBn = order.getCurrencyBn();//订单结算币种
+        if(currencyBn != "USD"){
+            order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney().multiply(exchangeRate));
+        }else {
+            order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney());
+        }
+
+
         return order;
     }
 
@@ -332,6 +361,69 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }, request);
 
         return pageOrder;
+    }
+
+
+    /**
+     * 发货信息查询   (根据订单)
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public List<OrderAccountDeliver> queryOrderAccountDeliver(Integer id) {
+        return orderAccountDeliverDao.findByOrderIdAndDelYn(id, 1);
+    }
+
+
+    /**
+     * 发货信息查询id  逻辑删除
+     * @param request
+     * @param id
+     */
+    @Override
+    public void delOrderAccountDeliver(ServletRequest request, Integer id) {
+
+        /**
+         ** 逻辑删除收款记录
+         */
+        OrderAccountDeliver orderAccountDeliver = orderAccountDeliverDao.findOne(id);   //查询收款记录
+        orderAccountDeliver.setDelYn(0);
+        orderAccountDeliverDao.save(orderAccountDeliver);        //收款记录  逻辑删除
+
+    }
+
+    /**
+     *  添加一条发货信息
+     * @param orderAccountDeliver  收款信息
+     * @return
+     */
+    @Override
+    public void addOrderAccountDeliver(OrderAccountDeliver orderAccountDeliver, ServletRequest request) throws Exception {
+        try {
+            orderAccountDeliverDao.save(orderAccountDeliver);
+        } catch (Exception e) {
+            throw new Exception(String.format("发货信息添加失败"));
+        }
+    }
+
+
+    /**
+     *
+     * 编辑发货信息
+     *
+     * @param request
+     * @param orderAccount
+     */
+    @Override
+    public void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) {
+        OrderAccountDeliver one = orderAccountDeliverDao.findOne(orderAccount.getId());//查询发货信息
+
+        one.setDesc(orderAccount.getDesc());
+        one.setGoodsPrice(orderAccount.getGoodsPrice());
+        one.setDeliverDate(orderAccount.getDeliverDate());
+
+        orderAccountDeliverDao.saveAndFlush(one);
     }
 
 }
