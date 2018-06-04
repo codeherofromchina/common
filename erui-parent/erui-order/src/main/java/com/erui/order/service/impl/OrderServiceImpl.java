@@ -226,8 +226,8 @@ public class OrderServiceImpl implements OrderService {
         }, pageRequest);
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
-                vo.setAttachmentSet(null);
-                vo.setOrderPayments(null);
+                //vo.setAttachmentSet(null);
+                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                     vo.setDeliverConsignC(flag);
@@ -237,7 +237,7 @@ public class OrderServiceImpl implements OrderService {
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
-                vo.setGoodsList(null);
+                //vo.setGoodsList(null);
             });
         }
         return pageList;
