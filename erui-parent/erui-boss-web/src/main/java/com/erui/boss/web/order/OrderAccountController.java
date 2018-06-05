@@ -245,7 +245,7 @@ public class OrderAccountController {
     @ResponseBody
     public  Result<Object> delOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
-            return new Result<>(ResultStatusEnum.FAIL);
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货信息id不能为空");
         }
         orderAccountService.delOrderAccountDeliver(request,orderAcciuntAdd.getId());
         return new Result<>();
@@ -263,22 +263,19 @@ public class OrderAccountController {
         if(orderAcciuntAdd == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
+
+
         OrderAccountDeliver orderAccountDeliver = new OrderAccountDeliver();
         Order order = new Order();
         if (orderAcciuntAdd.getOrderId()==null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("订单id为空");
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("订单id为空");
         }else if (StringUtils.isBlank(orderAcciuntAdd.getDesc()) || StringUtils.equals(orderAcciuntAdd.getDesc(), "")) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("描述不能为空");
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("描述不能为空");
         }else if (orderAcciuntAdd.getGoodsPrice() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("发货金额不能为空");
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
         }else if (orderAcciuntAdd.getDeliverDate() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("发货时间不能为空");
-        }
-        else{
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货时间不能为空");
+        }else{
             order.setId(orderAcciuntAdd.getOrderId());
             orderAccountDeliver.setId(null);
             orderAccountDeliver.setDesc(orderAcciuntAdd.getDesc());   //描述
@@ -309,16 +306,13 @@ public class OrderAccountController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         if (orderAccount.getId()==null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("收款id为空");
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("收款id为空");
         }else if (orderAccount.getGoodsPrice() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("发货金额不能为空");
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
         }else if (orderAccount.getDeliverDate() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("发货时间不能为空");
-        }else orderAccountService.updateOrderAccountDeliver(request, orderAccount);
-        return new Result<>();
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货时间不能为空");
+        }else {orderAccountService.updateOrderAccountDeliver(request, orderAccount);return new Result<>();}
+
     }
 
 }
