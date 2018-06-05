@@ -39,6 +39,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -385,6 +386,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (rows < 1) {
                 rows = 50;
             }
+
+
         }
 
         PageRequest pageRequest = new PageRequest(page, rows, new Sort(Sort.Direction.DESC, "id"));
@@ -487,8 +490,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
                     projectStatistics.setAcquireId((String) objArr[3]);
                     projectStatistics.setAccountCount((BigInteger) objArr[4]);
-                    if(objArr[1] != null){
-                        projectStatistics.setCurrencyBnMoney((String) objArr[5]+" "+ new DecimalFormat("###,##0.00").format(objArr[1]));
+                    if (objArr[1] != null) {
+                        projectStatistics.setCurrencyBnMoney((String) objArr[5] + " " + new DecimalFormat("###,##0.00").format(objArr[1]));
                     }
                 }
             }
@@ -536,8 +539,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setMoney((BigDecimal) objArr[1]);
                     projectStatistics.setAcquireId((String) objArr[3]);
                     projectStatistics.setAccountCount((BigInteger) objArr[4]);
-                    if(objArr[1] != null){
-                        projectStatistics.setCurrencyBnMoney((String) objArr[5]+" "+ new DecimalFormat("###,##0.00").format(objArr[1]));
+                    if (objArr[1] != null) {
+                        projectStatistics.setCurrencyBnMoney((String) objArr[5] + " " + new DecimalFormat("###,##0.00").format(objArr[1]));
                     }
 
                 }
@@ -552,12 +555,12 @@ public class StatisticsServiceImpl implements StatisticsService {
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
         String[] header = new String[]{"项目开始日期", "销售合同号", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
-                "PO号", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型","海外销类型" , "项目金额（美元）",
-                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
+                "PO号", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "海外销类型", "项目金额（美元）",
+                "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
-                 "项目状态", "流程进度"};
+                "项目状态", "流程进度"};
         String[] keys = new String[]{"startDate", "contractNo", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
-                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "overseasSalesName","totalPrice",
+                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "overseasSalesName", "totalPrice",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercentStr", "grantTypeName", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
                 "projectStatusName", "processProgressName"};
@@ -629,7 +632,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private List<GoodsBookDetail> findGoodsListOfOrder(Integer orderId) throws Exception {
         Order order = orderDao.findOne(orderId);
         if (order == null) {
-            throw new Exception(String.format("%s%s%s","订单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Order does not exist"));
+            throw new Exception(String.format("%s%s%s", "订单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Order does not exist"));
         }
         List<Goods> goodsList = order.getGoodsList();
         Project project = order.getProject();
@@ -978,10 +981,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                 list.add(cb.notEqual(root.get("projectStatus").as(String.class), "HASMANAGER")); // 不等于有项目经理的的
                 //流程进度
                 String processProgress = condition.get("processProgress");
+                //根据流程进度
                 if (StringUtil.isNotBlank(processProgress)) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
+                    if (StringUtils.equals("1", processProgress)) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), processProgress));
+                    }
                 }
-
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
