@@ -449,7 +449,7 @@ public class ProjectStatistics {
         if (StringUtils.isNotBlank(grantType)) {
             switch (grantType) {
                 case "1":
-                    return "信用证";
+                    return "中信保";
                 case "2":
                     return "集团授信";
                 default:

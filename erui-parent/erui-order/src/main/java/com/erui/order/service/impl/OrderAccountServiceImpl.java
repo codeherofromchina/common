@@ -7,10 +7,8 @@ import com.erui.order.dao.OrderAccountDao;
 import com.erui.order.dao.OrderAccountDeliverDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.OrderLogDao;
+import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.entity.OrderAccount;
-import com.erui.order.entity.OrderAccountDeliver;
-import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
@@ -25,10 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.servlet.ServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -352,8 +347,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 }
                 list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的
                 list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
-                //
 
+               /* //根据项目
+                Join<Order, Project> projectRoot = root.join("project");
+                String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE"};
+                list.add(projectRoot.get("projectStatus").in(projectStatus));
+*/
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
@@ -371,6 +370,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public List<OrderAccountDeliver> queryOrderAccountDeliver(Integer id) {
         return orderAccountDeliverDao.findByOrderIdAndDelYn(id, 1);
     }
@@ -382,6 +382,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param id
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delOrderAccountDeliver(ServletRequest request, Integer id) {
 
         /**
@@ -399,6 +400,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addOrderAccountDeliver(OrderAccountDeliver orderAccountDeliver, ServletRequest request) throws Exception {
         try {
             orderAccountDeliverDao.save(orderAccountDeliver);
@@ -416,6 +418,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param orderAccount
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) {
         OrderAccountDeliver one = orderAccountDeliverDao.findOne(orderAccount.getId());//查询发货信息
 
