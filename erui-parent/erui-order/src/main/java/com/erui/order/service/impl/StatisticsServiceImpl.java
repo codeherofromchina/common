@@ -412,9 +412,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                         if (setproCate.size() == proCateList.size()){
                             projectStatistics.setProCate(goodsList.get(0).getProType());
                         }else {
+                            int count = 0;
                             for (String proCate : setproCate) {
-                                Collections.frequency(proCateList, proCate);
-                                projectStatistics.setProCate(proCate);
+                                if (proCate!=null){
+                                    int frequency = Collections.frequency(proCateList, proCate);
+                                    if (frequency > count) {
+                                        count = frequency;
+                                        projectStatistics.setProCate(proCate);
+                                    }
+                                }
                             }
                         }
                     }
@@ -531,9 +537,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                         if (setproCate.size() == proCateList.size()){
                             projectStatistics.setProCate(goodsList.get(0).getProType());
                         }else {
+                            int count = 0;
                             for (String proCate : setproCate) {
-                                Collections.frequency(proCateList, proCate);
-                                projectStatistics.setProCate(proCate);
+                                if (proCate!=null){
+                                    int frequency = Collections.frequency(proCateList, proCate);
+                                    if (frequency > count) {
+                                        count = frequency;
+                                        projectStatistics.setProCate(proCate);
+                                    }
+                                }
                             }
                         }
                     }
