@@ -517,6 +517,19 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (order != null) {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
                 projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
+                if (order.getGoodsList().size() > 0) {
+                    List<Goods> goodsList = order.getGoodsList();
+                    if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
+                        projectStatistics.setProCate(goodsList.get(0).getProType());
+                    } else {
+                        List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
+                        Set<String> setproCate = new HashSet<>(proCateList);
+                        for (String proCate : setproCate) {
+                            Collections.frequency(proCateList, proCate);
+                            projectStatistics.setProCate(proCate);
+                        }
+                    }
+                }
                 orderIds.add(order.getId());
                 dataList.add(projectStatistics);
             }
@@ -555,12 +568,12 @@ public class StatisticsServiceImpl implements StatisticsService {
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
         String[] header = new String[]{"项目开始日期", "销售合同号", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
-                "PO号", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "海外销类型", "项目金额（美元）",
+                "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "海外销类型", "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
                 "项目状态", "流程进度"};
         String[] keys = new String[]{"startDate", "contractNo", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
-                "poNo", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "overseasSalesName", "totalPrice",
+                "proCate", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "overseasSalesName", "totalPrice",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercentStr", "grantTypeName", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
                 "projectStatusName", "processProgressName"};

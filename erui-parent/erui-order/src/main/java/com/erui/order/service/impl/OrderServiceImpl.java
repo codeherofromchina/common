@@ -237,7 +237,7 @@ public class OrderServiceImpl implements OrderService {
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
-                //vo.setGoodsList(null);
+                // vo.setGoodsList(null);
             });
         }
         return pageList;
@@ -351,8 +351,14 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             return null;
         }
-        if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
-            throw new Exception("销售合同号已存在&&The order No. already exists");
+        if (!order.getContractNo().equals(addOrderVo.getContractNo())) {
+            if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
+                throw new Exception("销售合同号已存在&&The order No. already exists");
+            }
+        } else {
+            if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 1) {
+                throw new Exception("销售合同号已存在&&The order No. already exists");
+            }
         }
      /*   if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
