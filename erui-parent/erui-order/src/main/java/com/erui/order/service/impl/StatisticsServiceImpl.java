@@ -409,9 +409,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                     } else {
                         List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
                         Set<String> setproCate = new HashSet<>(proCateList);
-                        for (String proCate : setproCate) {
-                            Collections.frequency(proCateList, proCate);
-                            projectStatistics.setProCate(proCate);
+                        if (setproCate.size() == proCateList.size()){
+                            projectStatistics.setProCate(goodsList.get(0).getProType());
+                        }else {
+                            for (String proCate : setproCate) {
+                                Collections.frequency(proCateList, proCate);
+                                projectStatistics.setProCate(proCate);
+                            }
                         }
                     }
                     //第一种方法
@@ -524,9 +528,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                     } else {
                         List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
                         Set<String> setproCate = new HashSet<>(proCateList);
-                        for (String proCate : setproCate) {
-                            Collections.frequency(proCateList, proCate);
-                            projectStatistics.setProCate(proCate);
+                        if (setproCate.size() == proCateList.size()){
+                            projectStatistics.setProCate(goodsList.get(0).getProType());
+                        }else {
+                            for (String proCate : setproCate) {
+                                Collections.frequency(proCateList, proCate);
+                                projectStatistics.setProCate(proCate);
+                            }
                         }
                     }
                 }
