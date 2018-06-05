@@ -517,6 +517,19 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (order != null) {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
                 projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
+                if (order.getGoodsList().size() > 0) {
+                    List<Goods> goodsList = order.getGoodsList();
+                    if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
+                        projectStatistics.setProCate(goodsList.get(0).getProType());
+                    } else {
+                        List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
+                        Set<String> setproCate = new HashSet<>(proCateList);
+                        for (String proCate : setproCate) {
+                            Collections.frequency(proCateList, proCate);
+                            projectStatistics.setProCate(proCate);
+                        }
+                    }
+                }
                 orderIds.add(order.getId());
                 dataList.add(projectStatistics);
             }

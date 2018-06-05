@@ -28,7 +28,6 @@ public class ProjectStatistics {
         this.projectName = project.getProjectName();
         this.contractNoOs = order.getContractNoOs();
         this.logiQuoteNo = order.getLogiQuoteNo();
-        this.poNo = order.getPoNo();
         this.execCoName = order.getExecCoName();
         this.distributionDeptName = order.getDistributionDeptName();
         this.businessUnitName = order.getBusinessUnitName();
