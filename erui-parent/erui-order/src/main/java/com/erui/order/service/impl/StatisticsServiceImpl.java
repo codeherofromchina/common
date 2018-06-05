@@ -1016,11 +1016,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 String processProgress = condition.get("processProgress");
                 //根据流程进度
                 if (StringUtil.isNotBlank(processProgress)) {
-                    if (StringUtils.equals("1", processProgress)) {
-                        list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
-                    } else {
                         list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), processProgress));
-                    }
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
