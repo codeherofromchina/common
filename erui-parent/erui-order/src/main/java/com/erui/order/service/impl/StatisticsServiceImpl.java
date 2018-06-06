@@ -409,9 +409,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                     } else {
                         List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
                         Set<String> setproCate = new HashSet<>(proCateList);
-                        for (String proCate : setproCate) {
-                            Collections.frequency(proCateList, proCate);
-                            projectStatistics.setProCate(proCate);
+                        if (setproCate.size() == proCateList.size()){
+                            projectStatistics.setProCate(goodsList.get(0).getProType());
+                        }else {
+                            int count = 0;
+                            for (String proCate : setproCate) {
+                                if (proCate!=null){
+                                    int frequency = Collections.frequency(proCateList, proCate);
+                                    if (frequency > count) {
+                                        count = frequency;
+                                        projectStatistics.setProCate(proCate);
+                                    }
+                                }
+                            }
                         }
                     }
                     //第一种方法
@@ -524,9 +534,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                     } else {
                         List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
                         Set<String> setproCate = new HashSet<>(proCateList);
-                        for (String proCate : setproCate) {
-                            Collections.frequency(proCateList, proCate);
-                            projectStatistics.setProCate(proCate);
+                        if (setproCate.size() == proCateList.size()){
+                            projectStatistics.setProCate(goodsList.get(0).getProType());
+                        }else {
+                            int count = 0;
+                            for (String proCate : setproCate) {
+                                if (proCate!=null){
+                                    int frequency = Collections.frequency(proCateList, proCate);
+                                    if (frequency > count) {
+                                        count = frequency;
+                                        projectStatistics.setProCate(proCate);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -996,11 +1016,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 String processProgress = condition.get("processProgress");
                 //根据流程进度
                 if (StringUtil.isNotBlank(processProgress)) {
-                    if (StringUtils.equals("1", processProgress)) {
-                        list.add(cb.equal(root.get("processProgress").as(String.class), processProgress));
-                    } else {
                         list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), processProgress));
-                    }
+                }else{
+                    list.add(cb.notEqual(root.get("processProgress").as(Integer.class), 1));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);

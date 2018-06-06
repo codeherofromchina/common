@@ -255,6 +255,8 @@ public class OrderServiceImpl implements OrderService {
             } else if ("zh".equals(lang) && !ChineseAndEnglish.isChinese(deptName)) {
                 dept = deptService.findTop1ByEnName(deptName);
                 if (dept != null) {
+
+
                     return dept.getName();
                 }
             }
