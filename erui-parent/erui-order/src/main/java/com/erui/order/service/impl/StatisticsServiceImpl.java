@@ -402,81 +402,84 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (order != null) {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
                 projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
-                if (order.getGoodsList().size() > 0) {
-                    List<Goods> goodsList = order.getGoodsList();
-                    if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
-                        projectStatistics.setProCate(goodsList.get(0).getProType());
-                    } else {
-                        List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
-                        Set<String> setproCate = new HashSet<>(proCateList);
-                        if (setproCate.size() == proCateList.size()){
+                Integer purchReqCreate = project.getPurchReqCreate();//'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
+                if(purchReqCreate != null && purchReqCreate == 3){
+                    if (order.getGoodsList().size() > 0) {
+                        List<Goods> goodsList = order.getGoodsList();
+                        if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
                             projectStatistics.setProCate(goodsList.get(0).getProType());
-                        }else {
-                            int count = 0;
-                            for (String proCate : setproCate) {
-                                if (proCate!=null){
-                                    int frequency = Collections.frequency(proCateList, proCate);
-                                    if (frequency > count) {
-                                        count = frequency;
-                                        projectStatistics.setProCate(proCate);
+                        } else {
+                            List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
+                            Set<String> setproCate = new HashSet<>(proCateList);
+                            if (setproCate.size() == proCateList.size()){
+                                projectStatistics.setProCate(goodsList.get(0).getProType());
+                            }else {
+                                int count = 0;
+                                for (String proCate : setproCate) {
+                                    if (proCate!=null){
+                                        int frequency = Collections.frequency(proCateList, proCate);
+                                        if (frequency > count) {
+                                            count = frequency;
+                                            projectStatistics.setProCate(proCate);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    //第一种方法
-                    /*Map<String, Integer> map = new HashMap<>();
-                    for (int i = 0; i < proCateList.size(); i++) {
-                        *//*
-                         * map.containsKey(Object findKey)
-                         * 方法介绍： 如果此映射包含指定键的映射关系，则返回 true。
-                         * 说明：map已经包含了findKey的映射关系 则返回true 否则返回false
+                        //第一种方法
+                        /*Map<String, Integer> map = new HashMap<>();
+                        for (int i = 0; i < proCateList.size(); i++) {
+                            *//*
+                             * map.containsKey(Object findKey)
+                             * 方法介绍： 如果此映射包含指定键的映射关系，则返回 true。
+                             * 说明：map已经包含了findKey的映射关系 则返回true 否则返回false
+                             *//*
+                            if (map.containsKey(proCateList.get(i))) {
+                                int tempCount = map.get(proCateList.get(i));
+                                map.put(proCateList.get(i), ++tempCount);
+                            } else {
+                                map.put(proCateList.get(i), 1);
+                            }
+                        }
+                         * Map的遍历操作 map.entrySet().iterator(); map.getKey() map.getValue()
                          *//*
-                        if (map.containsKey(proCateList.get(i))) {
-                            int tempCount = map.get(proCateList.get(i));
-                            map.put(proCateList.get(i), ++tempCount);
-                        } else {
-                            map.put(proCateList.get(i), 1);
-                        }
-                    }
-                     * Map的遍历操作 map.entrySet().iterator(); map.getKey() map.getValue()
-                     *//*
-                    Iterator<Map.Entry<String, Integer>> it = map.entrySet().iterator();
-                    int count = 0; // 全局记录某数字出现的最多的次数
-                    String maxCount = proCateList.get(0); // 默认出现最多的字符是第一个
-                    while (it.hasNext()) {
-                        Map.Entry<String, Integer> en = it.next();
-                        int tempCount = en.getValue();
-                        if (tempCount > count) {
-                            count = tempCount;
-                            maxCount = en.getKey();
-                        }
-                    }*/
-                    //第二种方法
-                 /* TreeMap<String, Integer> mapCate1 = goodsList.stream().map(vo -> {
-                        TreeMap<String, Integer> mapcate2 = new TreeMap<>();
-                        mapcate2.put(vo.getProType(), 1);
-                        return mapcate2;
-                    }).reduce((map1, map2) -> {
-                        String protype = map2.keySet().toArray(new String[1])[0];
-                        if (map1.containsKey(protype)) {
-                            Integer integer = map1.get(protype);
-                            integer += 1;
-                            map1.put(protype, integer);
-                        } else {
-                            map1.put(protype, 1);
-                        }
-                        return map1;
-                    }).get();
+                        Iterator<Map.Entry<String, Integer>> it = map.entrySet().iterator();
+                        int count = 0; // 全局记录某数字出现的最多的次数
+                        String maxCount = proCateList.get(0); // 默认出现最多的字符是第一个
+                        while (it.hasNext()) {
+                            Map.Entry<String, Integer> en = it.next();
+                            int tempCount = en.getValue();
+                            if (tempCount > count) {
+                                count = tempCount;
+                                maxCount = en.getKey();
+                            }
+                        }*/
+                        //第二种方法
+                     /* TreeMap<String, Integer> mapCate1 = goodsList.stream().map(vo -> {
+                            TreeMap<String, Integer> mapcate2 = new TreeMap<>();
+                            mapcate2.put(vo.getProType(), 1);
+                            return mapcate2;
+                        }).reduce((map1, map2) -> {
+                            String protype = map2.keySet().toArray(new String[1])[0];
+                            if (map1.containsKey(protype)) {
+                                Integer integer = map1.get(protype);
+                                integer += 1;
+                                map1.put(protype, integer);
+                            } else {
+                                map1.put(protype, 1);
+                            }
+                            return map1;
+                        }).get();
 
-                    String resultProtype = null;
-                    int num = 0;
-                    for (Map.Entry<String, Integer> entry : mapCate1.entrySet()) {
-                        if (entry.getValue() > num) {
-                            num = entry.getValue();
-                            resultProtype = entry.getKey();
-                        }
-                    }*/
+                        String resultProtype = null;
+                        int num = 0;
+                        for (Map.Entry<String, Integer> entry : mapCate1.entrySet()) {
+                            if (entry.getValue() > num) {
+                                num = entry.getValue();
+                                resultProtype = entry.getKey();
+                            }
+                        }*/
+                    }
                 }
                 orderIds.add(order.getId());
                 dataList.add(projectStatistics);
@@ -527,23 +530,26 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (order != null) {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
                 projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
-                if (order.getGoodsList().size() > 0) {
-                    List<Goods> goodsList = order.getGoodsList();
-                    if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
-                        projectStatistics.setProCate(goodsList.get(0).getProType());
-                    } else {
-                        List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
-                        Set<String> setproCate = new HashSet<>(proCateList);
-                        if (setproCate.size() == proCateList.size()){
+                Integer purchReqCreate = project.getPurchReqCreate();//'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
+                if(purchReqCreate != null && purchReqCreate == 3){
+                    if (order.getGoodsList().size() > 0) {
+                        List<Goods> goodsList = order.getGoodsList();
+                        if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
                             projectStatistics.setProCate(goodsList.get(0).getProType());
-                        }else {
-                            int count = 0;
-                            for (String proCate : setproCate) {
-                                if (proCate!=null){
-                                    int frequency = Collections.frequency(proCateList, proCate);
-                                    if (frequency > count) {
-                                        count = frequency;
-                                        projectStatistics.setProCate(proCate);
+                        } else {
+                            List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
+                            Set<String> setproCate = new HashSet<>(proCateList);
+                            if (setproCate.size() == proCateList.size()){
+                                projectStatistics.setProCate(goodsList.get(0).getProType());
+                            }else {
+                                int count = 0;
+                                for (String proCate : setproCate) {
+                                    if (proCate!=null){
+                                        int frequency = Collections.frequency(proCateList, proCate);
+                                        if (frequency > count) {
+                                            count = frequency;
+                                            projectStatistics.setProCate(proCate);
+                                        }
                                     }
                                 }
                             }
