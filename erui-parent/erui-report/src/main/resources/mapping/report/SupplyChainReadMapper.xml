@@ -16,12 +16,14 @@
     <result column="audit_spu_num" property="auditSpuNum" jdbcType="INTEGER" />
     <result column="pass_spu_num" property="passSpuNum" jdbcType="INTEGER" />
     <result column="reject_spu_num" property="rejectSpuNum" jdbcType="INTEGER" />
+    <result column="onshelf_spu_num" property="onshelfSpuNum" jdbcType="INTEGER" />
     <result column="plan_sku_num" property="planSkuNum" jdbcType="INTEGER" />
     <result column="sku_num" property="skuNum" jdbcType="INTEGER" />
     <result column="tempo_sku_num" property="tempoSkuNum" jdbcType="INTEGER" />
     <result column="audit_sku_num" property="auditSkuNum" jdbcType="INTEGER" />
     <result column="pass_sku_num" property="passSkuNum" jdbcType="INTEGER" />
     <result column="reject_sku_num" property="rejectSkuNum" jdbcType="INTEGER" />
+    <result column="onshelf_sku_num" property="onshelfSkuNum" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -83,8 +85,8 @@
   </sql>
   <sql id="Base_Column_List" >
     id, create_at, plan_suppli_num, suppli_num, audit_suppli_num, pass_suppli_num, reject_suppli_num, 
-    brand_num, plan_spu_num, spu_num, tempo_spu_num, audit_spu_num, pass_spu_num, reject_spu_num, 
-    plan_sku_num, sku_num, tempo_sku_num, audit_sku_num, pass_sku_num, reject_sku_num
+    brand_num, plan_spu_num, spu_num, tempo_spu_num, audit_spu_num, pass_spu_num, reject_spu_num, onshelf_spu_num ,
+    plan_sku_num, sku_num, tempo_sku_num, audit_sku_num, pass_sku_num, reject_sku_num ,onshelf_sku_num
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.SupplyChainReadExample" >
     select
@@ -157,16 +159,16 @@
       suppli_num, audit_suppli_num, pass_suppli_num, 
       reject_suppli_num, brand_num, plan_spu_num, 
       spu_num, tempo_spu_num, audit_spu_num, 
-      pass_spu_num, reject_spu_num, plan_sku_num, 
-      sku_num, tempo_sku_num, audit_sku_num, 
-      pass_sku_num, reject_sku_num)
+      pass_spu_num, reject_spu_num,onshelf_spu_num, plan_sku_num,
+      sku_num, tempo_sku_num, audit_sku_num,
+      pass_sku_num, reject_sku_num,onshelf_sku_num)
     values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{planSuppliNum,jdbcType=INTEGER}, 
       #{suppliNum,jdbcType=INTEGER}, #{auditSuppliNum,jdbcType=INTEGER}, #{passSuppliNum,jdbcType=INTEGER}, 
       #{rejectSuppliNum,jdbcType=INTEGER}, #{brandNum,jdbcType=INTEGER}, #{planSpuNum,jdbcType=INTEGER}, 
       #{spuNum,jdbcType=INTEGER}, #{tempoSpuNum,jdbcType=INTEGER}, #{auditSpuNum,jdbcType=INTEGER}, 
-      #{passSpuNum,jdbcType=INTEGER}, #{rejectSpuNum,jdbcType=INTEGER}, #{planSkuNum,jdbcType=INTEGER}, 
+      #{passSpuNum,jdbcType=INTEGER}, #{rejectSpuNum,jdbcType=INTEGER},#{onshelfSpuNum,jdbcType=INTEGER}, #{planSkuNum,jdbcType=INTEGER},
       #{skuNum,jdbcType=INTEGER}, #{tempoSkuNum,jdbcType=INTEGER}, #{auditSkuNum,jdbcType=INTEGER}, 
-      #{passSkuNum,jdbcType=INTEGER}, #{rejectSkuNum,jdbcType=INTEGER})
+      #{passSkuNum,jdbcType=INTEGER}, #{rejectSkuNum,jdbcType=INTEGER}, #{onshelfSkuNum,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.SupplyChainRead" >
     insert into supply_chain_read
@@ -213,6 +215,9 @@
       <if test="rejectSpuNum != null" >
         reject_spu_num,
       </if>
+      <if test="onshelfSpuNum != null" >
+        onshelf_spu_num,
+      </if>
       <if test="planSkuNum != null" >
         plan_sku_num,
       </if>
@@ -230,6 +235,9 @@
       </if>
       <if test="rejectSkuNum != null" >
         reject_sku_num,
+      </if>
+      <if test="onshelfSkuNum != null" >
+       onshelf_sku_num,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -275,6 +283,9 @@
       <if test="rejectSpuNum != null" >
         #{rejectSpuNum,jdbcType=INTEGER},
       </if>
+      <if test="onshelfSpuNum != null" >
+        #{onshelfSpuNum,jdbcType=INTEGER},
+      </if>
       <if test="planSkuNum != null" >
         #{planSkuNum,jdbcType=INTEGER},
       </if>
@@ -292,6 +303,9 @@
       </if>
       <if test="rejectSkuNum != null" >
         #{rejectSkuNum,jdbcType=INTEGER},
+      </if>
+      <if test="onshelfSkuNum != null" >
+        #{onshelfSkuNum,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -437,6 +451,9 @@
       <if test="rejectSpuNum != null" >
         reject_spu_num = #{rejectSpuNum,jdbcType=INTEGER},
       </if>
+      <if test="onshelfSpuNum != null" >
+        onshelf_spu_num = #{onshelfSpuNum,jdbcType=INTEGER},
+      </if>
       <if test="planSkuNum != null" >
         plan_sku_num = #{planSkuNum,jdbcType=INTEGER},
       </if>
@@ -454,6 +471,9 @@
       </if>
       <if test="rejectSkuNum != null" >
         reject_sku_num = #{rejectSkuNum,jdbcType=INTEGER},
+      </if>
+      <if test="onshelfSkuNum != null" >
+        onshelf_sku_num = #{onshelfSkuNum,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -473,12 +493,14 @@
       audit_spu_num = #{auditSpuNum,jdbcType=INTEGER},
       pass_spu_num = #{passSpuNum,jdbcType=INTEGER},
       reject_spu_num = #{rejectSpuNum,jdbcType=INTEGER},
+      onshelf_spu_num = #{onshelfSpuNum,jdbcType=INTEGER},
       plan_sku_num = #{planSkuNum,jdbcType=INTEGER},
       sku_num = #{skuNum,jdbcType=INTEGER},
       tempo_sku_num = #{tempoSkuNum,jdbcType=INTEGER},
       audit_sku_num = #{auditSkuNum,jdbcType=INTEGER},
       pass_sku_num = #{passSkuNum,jdbcType=INTEGER},
       reject_sku_num = #{rejectSkuNum,jdbcType=INTEGER}
+      onshelf_sku_num = #{onshelfSkuNum,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

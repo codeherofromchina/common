@@ -17,7 +17,7 @@ public interface PerformanceService {
      * @param testOnly true:只检测数据  false:插入正式库
      * @return
      */
-    public ImportDataResponse importData(List<String[]> datas, boolean testOnly);
+    ImportDataResponse importData(List<String[]> datas, boolean testOnly);
 
     /**
      * 查询日期列表

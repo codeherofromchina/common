@@ -235,14 +235,18 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
             List<PerformanceAssign> dataList = assignMapper.selectCountryAssignDetailByTime(params);
             List<Map<String,Object>> resultList=new ArrayList<>();
             if(CollectionUtils.isNotEmpty(dataList)){
-                if(dataList.get(0).getAssignStatus() > 0 && dataList.get(0).getIncrBuyerCount() != null){
+                if(dataList.get(0).getAssignStatus()==2){
                     for(PerformanceAssign p:dataList){
                         Map<String,Object> map=new HashMap<>();
                         map.put("area",p.getTwoLevelDepartment());
                         map.put("country",p.getThreeLevelDepartment());
                         map.put("month",params.get("month"));
                         map.put("employee",p.getNameCh());
-                        map.put("incrBuyerCount",p.getIncrBuyerCount());
+                        if(p.getIncrBuyerCount()!=null) {
+                            map.put("incrBuyerCount", p.getIncrBuyerCount());
+                        }else {
+                            map.put("incrBuyerCount",0);
+                        }
                         map.put("buyerCodeList",buyerList);
                         resultList.add(map);
 
@@ -495,6 +499,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
             p.setAssignStatus(0);
             p.setStartTime(DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.FULL_FORMAT_STR));
             p.setTotalIncrBuyerCount(totalIncrBuyerCount);
+            p.setIncrBuyerCount(0);
         });
         if(totalPerformance>0||totalIncrBuyerCount>0) {
             insertPerformanceAssign(salesmanList);

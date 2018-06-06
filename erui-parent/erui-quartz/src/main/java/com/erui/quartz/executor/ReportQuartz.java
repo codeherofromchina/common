@@ -28,15 +28,15 @@ public class ReportQuartz {
 
     @Autowired
     private SupplyChainReadService supplyChainReadService;
-    @Autowired
-    private InquiryCountService inquiryService;
+//    @Autowired
+//    private InquiryCountService inquiryService;
 
     private static final String goodUrl = "http://api.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
     private static final String productUrl = "http://api.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
     private static final String supplierUrl = "http://api.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
     private static final String cateUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
 
-    public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
+//    public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 
     private static final String key = "9b2a37b7b606c14d43db538487a148c7";
     private static ObjectMapper om = new ObjectMapper();
@@ -79,21 +79,21 @@ public class ReportQuartz {
         supplyChainReadService.supplyChainReadData(startTime, supplyChainRead, chainCateVoList);
 
         //处理询单数据
-        HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
-        CloseableHttpResponse inquiryResult = client.execute(putMethod);
-        String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
-        JSONObject inquiryObject = json.parseObject(inquiryData);
-        Object inquiryCode = inquiryObject.get("code");
-        List<HashMap> list = null;
-        if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
-            Object data = inquiryObject.get("data");
-            if (data != null) {
-                String dataJson = data.toString();
-                list = JSON.parseArray(dataJson, HashMap.class);
-            }
-        }
-
-        inquiryService.inquiryData(list);
+//        HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
+//        CloseableHttpResponse inquiryResult = client.execute(putMethod);
+//        String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
+//        JSONObject inquiryObject = json.parseObject(inquiryData);
+//        Object inquiryCode = inquiryObject.get("code");
+//        List<HashMap> list = null;
+//        if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
+//            Object data = inquiryObject.get("data");
+//            if (data != null) {
+//                String dataJson = data.toString();
+//                list = JSON.parseArray(dataJson, HashMap.class);
+//            }
+//        }
+//
+//        inquiryService.inquiryData(list);
     }
     /**
      * 刷新历史数据
@@ -135,21 +135,21 @@ public class ReportQuartz {
                 supplyChainReadService.supplyChainReadData(startTime, supplyChainRead, chainCateVoList);
 
                 //处理询单数据
-                HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
-                CloseableHttpResponse inquiryResult = client.execute(putMethod);
-                String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
-                JSONObject inquiryObject = json.parseObject(inquiryData);
-                Object inquiryCode = inquiryObject.get("code");
-                List<HashMap> dlist = null;
-                if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
-                    Object data = inquiryObject.get("data");
-                    if (data != null) {
-                        String dataJson = data.toString();
-                        dlist = JSON.parseArray(dataJson, HashMap.class);
-                    }
-                }
-
-                inquiryService.inquiryData(dlist);
+//                HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
+//                CloseableHttpResponse inquiryResult = client.execute(putMethod);
+//                String inquiryData = EntityUtils.toString(inquiryResult.getEntity());
+//                JSONObject inquiryObject = json.parseObject(inquiryData);
+//                Object inquiryCode = inquiryObject.get("code");
+//                List<HashMap> dlist = null;
+//                if (inquiryCode != null && Integer.parseInt(inquiryCode.toString()) == 1) {//成功了
+//                    Object data = inquiryObject.get("data");
+//                    if (data != null) {
+//                        String dataJson = data.toString();
+//                        dlist = JSON.parseArray(dataJson, HashMap.class);
+//                    }
+//                }
+//
+//                inquiryService.inquiryData(dlist);
             }
         }
     }
@@ -233,21 +233,25 @@ public class ReportQuartz {
             System.out.println(count + "====" + draft_count + "====" + checking_count
                     + "===" + valid_count + "==" + invalid_count);
             if (getDataCode == GetDataEnum.SKU_DATA.getCode()) {
+                int onshelf_count = Integer.parseInt(jsonObject.get("onshelf_count").toString());
                 supplyChainRead.setSkuNum(count);//'开发SKU数'
                 supplyChainRead.setAuditSkuNum(checking_count);//'审核中SKU数'
                 supplyChainRead.setRejectSkuNum(invalid_count);//'已驳回SKU数'
                 supplyChainRead.setPassSkuNum(valid_count);//'已通过SKU数'
                 supplyChainRead.setTempoSkuNum(draft_count);//'暂存SKU数'
+                supplyChainRead.setOnshelfSkuNum(onshelf_count);//'已上架SKU数'
                 return supplyChainRead;
             } else if (getDataCode == GetDataEnum.SPU_DATA.getCode()) {
+                int onshelf_count = Integer.parseInt(jsonObject.get("onshelf_count").toString());
                 supplyChainRead.setSpuNum(count);//'开发SKU数'
                 supplyChainRead.setAuditSpuNum(checking_count);//'审核中SPU数'
                 supplyChainRead.setRejectSpuNum(invalid_count);//'已驳回SPU数'
                 supplyChainRead.setPassSpuNum(valid_count);//'已通过SPU数'
                 supplyChainRead.setTempoSpuNum(draft_count);//'暂存SPU数'
+                supplyChainRead.setOnshelfSpuNum(onshelf_count);//'已上架SPU数'
                 return supplyChainRead;
             } else if (getDataCode == GetDataEnum.SUPPLIER_DATA.getCode()) {
-                supplyChainRead.setSuppliNum(count);//'开发SKU数'
+                supplyChainRead.setSuppliNum(count);//'开发供应商数'
                 supplyChainRead.setAuditSuppliNum(checking_count);//'审核中供应商数'
                 supplyChainRead.setRejectSuppliNum(invalid_count);//'已驳回供应商数'
                 supplyChainRead.setPassSuppliNum(valid_count);//'已通过供应商数'
@@ -272,12 +276,14 @@ public class ReportQuartz {
                     chainRead.setRejectSkuNum(read.getRejectSkuNum());//'已驳回SKU数'
                     chainRead.setPassSkuNum(read.getPassSkuNum());//'已通过SKU数'
                     chainRead.setTempoSkuNum(read.getTempoSkuNum());//'暂存SKU数'
+                    chainRead.setOnshelfSkuNum(read.getOnshelfSkuNum());//'已上架SKU数'
                 } else if (read.getSpuNum() != null) {
                     chainRead.setSpuNum(read.getSpuNum());//'开发SKU数'
                     chainRead.setAuditSpuNum(read.getAuditSpuNum());//'审核中SPU数'
                     chainRead.setRejectSpuNum(read.getRejectSpuNum());//'已驳回SPU数'
                     chainRead.setPassSpuNum(read.getPassSpuNum());//'已通过SPU数'
                     chainRead.setTempoSpuNum(read.getTempoSpuNum());//'暂存SPU数'
+                    chainRead.setOnshelfSpuNum(read.getOnshelfSpuNum());//'已上架SPU数'
                 } else if (read.getSuppliNum() != null) {
                     chainRead.setSuppliNum(read.getSuppliNum());//'开发SKU数'
                     chainRead.setAuditSuppliNum(read.getAuditSuppliNum());//'审核中供应商数'
