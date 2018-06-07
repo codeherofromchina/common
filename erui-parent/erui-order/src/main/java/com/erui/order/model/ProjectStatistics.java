@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -27,7 +28,6 @@ public class ProjectStatistics {
         this.projectName = project.getProjectName();
         this.contractNoOs = order.getContractNoOs();
         this.logiQuoteNo = order.getLogiQuoteNo();
-        this.poNo = order.getPoNo();
         this.execCoName = order.getExecCoName();
         this.distributionDeptName = order.getDistributionDeptName();
         this.businessUnitName = order.getBusinessUnitName();
@@ -49,6 +49,7 @@ public class ProjectStatistics {
         this.tradeTerms = order.getTradeTerms();
         this.projectStatus = project.getProjectStatus();
         this.processProgress = project.getProcessProgress();
+        this.overseasSales = order.getOverseasSales();
     }
 
     //订单ID
@@ -86,6 +87,7 @@ public class ProjectStatistics {
     //订单类型
     private Integer orderType;
     //海外销类型 TODO
+    private Integer overseasSales;
     //项目金额（美元）
     private BigDecimal totalPrice;
     // 前期报价（美元）  TODO
@@ -96,6 +98,10 @@ public class ProjectStatistics {
     private Date paymentDate;   //回款时间
     // 回款金额（美元）
     private BigDecimal money;   //回款金额
+    //回款记录条数
+    private BigInteger accountCount; //回款记录
+    //回款记录条数
+    private String proCate; //产品分类
     //初步利润率
     private BigDecimal profitPercent;
     //授信情况
@@ -125,6 +131,17 @@ public class ProjectStatistics {
     // 原因类型  TODO
     // 原因描述  TODO
 
+    // 金额类型 回款金额
+    private String currencyBnMoney;   //金额类型  回款金额
+
+
+    public String getProCate() {
+        return proCate;
+    }
+
+    public void setProCate(String proCate) {
+        this.proCate = proCate;
+    }
 
     public Integer getOrderId() {
         return orderId;
@@ -432,7 +449,7 @@ public class ProjectStatistics {
         if (StringUtils.isNotBlank(grantType)) {
             switch (grantType) {
                 case "1":
-                    return "中保信";
+                    return "中信保";
                 case "2":
                     return "集团授信";
                 default:
@@ -466,5 +483,46 @@ public class ProjectStatistics {
         this.exeChgDate = exeChgDate;
     }
 
+    public BigInteger getAccountCount() {
+        return accountCount;
+    }
 
+    public void setAccountCount(BigInteger accountCount) {
+        this.accountCount = accountCount;
+    }
+
+    public Integer getOverseasSales() {
+        return overseasSales;
+    }
+
+    public void setOverseasSales(Integer overseasSales) {
+        this.overseasSales = overseasSales;
+    }
+
+    public String getOverseasSalesName() {
+        if(overseasSales != null){
+            switch (overseasSales) {
+                case 1:
+                    return "海外销（装备采购）";
+                case 2:
+                    return "海外销（易瑞采购）";
+                case 3:
+                    return "海外销（当地采购）";
+                case 4:
+                    return "易瑞销";
+                case 5:
+                    return "装备销";
+            }
+        }
+        return null;
+    }
+
+    public String getCurrencyBnMoney() {
+        return currencyBnMoney;
+    }
+
+    public void setCurrencyBnMoney(String currencyBnMoney) {
+        this.currencyBnMoney = currencyBnMoney;
+    }
 }
+
