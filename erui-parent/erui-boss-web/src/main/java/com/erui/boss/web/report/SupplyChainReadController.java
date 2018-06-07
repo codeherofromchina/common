@@ -121,7 +121,7 @@ public class SupplyChainReadController {
             }else {
                 spuDatas.put("planSPU",0);
             }
-            spuDatas.put("onshelfSPUCount",supplchainRead.getOnshelfSpuNum());
+            spuDatas.put("onshelfSPUCount",supplyRead.getOnshelfSpuNum());
             spuDatas.put("passSPUCount",supplyRead.getPassSpuNum());
             if(supplyRead.getSpuNum()>0){
                 spuDatas.put("passSPUProportion",RateUtil.intChainRate(supplyRead.getPassSpuNum(), supplyRead.getSpuNum()));
@@ -136,7 +136,7 @@ public class SupplyChainReadController {
             }else {
                 skuDatas.put("planSKU",0);
             }
-            skuDatas.put("onshelfSKUCount",supplchainRead.getOnshelfSkuNum());
+            skuDatas.put("onshelfSKUCount",supplyRead.getOnshelfSkuNum());
             skuDatas.put("passSKUCount",supplyRead.getPassSkuNum());
             if(supplyRead.getSkuNum()>0){
                 skuDatas.put("passSKUProportion",RateUtil.intChainRate(supplyRead.getPassSkuNum(), supplyRead.getSkuNum()));

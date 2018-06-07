@@ -215,6 +215,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     Map<String, Object> rm = new HashMap<>();
                     rm.put("area", params.get("area"));
                     rm.put("country", m.get("country").toString());
+                    rm.put("employee","全部");
                     rm.put("month", params.get("month"));
                     List<String> buyerList = new ArrayList<>();
                     buyerList.add(m.get("buyerCode").toString());
