@@ -64,7 +64,6 @@ public class OrderListCondition {
     private String region;
     //应收账款余额
     private String receivableAccountRemaining;
-
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
@@ -290,6 +289,10 @@ public class OrderListCondition {
         return receivableAccountRemaining;
     }
 
+    public void setReceivableAccountRemaining(String receivableAccountRemaining) {
+        this.receivableAccountRemaining = receivableAccountRemaining;
+    }
+
     @Override
     public String toString() {
         return "OrderListCondition{" +
@@ -298,6 +301,7 @@ public class OrderListCondition {
                 ", inquiryNo='" + inquiryNo + '\'' +
                 ", agentId=" + agentId +
                 ", agentName='" + agentName + '\'' +
+                ", signingDate=" + signingDate +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", deliveryDate='" + deliveryDate + '\'' +
@@ -316,6 +320,8 @@ public class OrderListCondition {
                 ", deliverConsignHas=" + deliverConsignHas +
                 ", technicalId=" + technicalId +
                 ", lang='" + lang + '\'' +
+                ", region='" + region + '\'' +
+                ", receivableAccountRemaining='" + receivableAccountRemaining + '\'' +
                 ", page=" + page +
                 ", rows=" + rows +
                 '}';
