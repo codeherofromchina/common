@@ -60,6 +60,11 @@ public class OrderListCondition {
     private Integer technicalId;
     // 语言 en / zh
     private String lang;
+    //所属地区
+    private String region;
+    //应收账款余额
+    private String receivableAccountRemaining;
+
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
@@ -271,6 +276,18 @@ public class OrderListCondition {
 
     public void setFrameworkNo(String frameworkNo) {
         this.frameworkNo = frameworkNo;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getReceivableAccountRemaining() {
+        return receivableAccountRemaining;
     }
 
     @Override

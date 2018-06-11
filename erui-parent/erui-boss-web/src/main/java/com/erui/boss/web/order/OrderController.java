@@ -52,6 +52,8 @@ public class OrderController {
                 vo.setAttachmentSet(null);
                 vo.setOrderPayments(null);
                 vo.setGoodsList(null);
+                vo.setOrderAccountDelivers(null);
+                vo.setOrderAccounts(null);
             });
         }
         return new Result<>(orderPage);
