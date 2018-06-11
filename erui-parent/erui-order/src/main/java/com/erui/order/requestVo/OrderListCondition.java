@@ -63,7 +63,7 @@ public class OrderListCondition {
     //所属地区
     private String region;
     //应收账款余额
-    private String receivableAccountRemaining;
+    private Integer receivableAccountRemaining;
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
@@ -285,11 +285,11 @@ public class OrderListCondition {
         this.region = region;
     }
 
-    public String getReceivableAccountRemaining() {
+    public Integer getReceivableAccountRemaining() {
         return receivableAccountRemaining;
     }
 
-    public void setReceivableAccountRemaining(String receivableAccountRemaining) {
+    public void setReceivableAccountRemaining(Integer receivableAccountRemaining) {
         this.receivableAccountRemaining = receivableAccountRemaining;
     }
 

@@ -23,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.*;
 import javax.servlet.ServletRequest;
 import java.math.BigDecimal;
@@ -330,8 +331,18 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 }
 
                 //根据应收账款余额
-                if(StringUtil.isNotBlank(condition.getReceivableAccountRemaining())){
-                    findReceivableAccountRemaining(condition.getReceivableAccountRemaining());
+                if(condition.getReceivableAccountRemaining() != null){
+                    Set<Order> receivableAccountRemainingSet = findReceivableAccountRemaining(condition.getReceivableAccountRemaining());
+                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                    if (receivableAccountRemainingSet != null && receivableAccountRemainingSet.size() > 0) {
+                        for (Order o : receivableAccountRemainingSet) {
+                            idIn.value(o.getId());
+                        }
+                    } else {
+                        // 查找失败
+                        idIn.value(-1);
+                    }
+                    list.add(idIn);
                 }
 
                 //根据订单
@@ -478,14 +489,35 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     }
 
-    //根据应收账款余额
-    public Set<Order> findReceivableAccountRemaining(String receivableAccountRemaining){
-        Set<Order> result = null;
+    /**
+     * 根据应收账款余额
+     * @param receivableAccountRemaining    1  <0  ,  2 =0  ,  3 >0
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Set<Order> findReceivableAccountRemaining(Integer receivableAccountRemaining){
+        Set<Order> result = new HashSet<>();
         List<Order> list = orderDao.findAll();
-        if (list != null && list.size() > 0) {
-            result = new HashSet<>(list);
-        }
 
+        if(list.size() != 0){
+            for (Order vo : list){
+                Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
+                BigDecimal shipmentsMoney = order.getShipmentsMoney();//已发货总金额
+                BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney();  //已收款总金额
+                BigDecimal receivableAccountRemainingNew = order.getReceivableAccountRemaining();//应收账款余额
+
+                // -1 小于0     0 等于0   1 大于0
+                int i=receivableAccountRemainingNew.compareTo(BigDecimal.ZERO);
+
+                if(receivableAccountRemaining == 1 && i == -1){
+                    result.add(vo);
+                }else if(receivableAccountRemaining == 2 && i == 0 && alreadyGatheringMoney.compareTo(BigDecimal.ZERO) != 0 ){
+                    result.add(vo);
+                }else if (receivableAccountRemaining == 3 && i == 1){
+                    result.add(vo);
+                }
+            }
+        }
 
         return result;
 
