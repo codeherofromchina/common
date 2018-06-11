@@ -218,6 +218,8 @@ public class OrderAccountController {
            order1.setAttachmentSet(null);
            order1.setGoodsList(null);
            order1.setOrderPayments(null);
+           order1.setOrderAccounts(null);
+           order1.setOrderAccountDelivers(null);
        }
        return new Result<>(orderbyId);
     }

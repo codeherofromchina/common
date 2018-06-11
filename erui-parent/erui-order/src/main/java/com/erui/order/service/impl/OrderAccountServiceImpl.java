@@ -261,36 +261,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
         List<OrderAccountDeliver> byOrderIdAndDelYn = orderAccountDeliverDao.findByOrderIdAndDelYn(id, 1);
 
-        //发运信息
-        BigDecimal shipmentsMoneySum = BigDecimal.valueOf(0);  //已发货总金额
-        for (OrderAccountDeliver orderAccountDeliver : byOrderIdAndDelYn){
-            if(orderAccountDeliver.getGoodsPrice() != null){
-                shipmentsMoneySum= shipmentsMoneySum.add(orderAccountDeliver.getGoodsPrice());   // 发货金额
-            }
-        }
-        order.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
-
-
-        //收款信息
-        BigDecimal sumMoneySum = BigDecimal.valueOf(0);     //回款金额
-        BigDecimal sumDiscountSum = BigDecimal.valueOf(0);      //其他扣款金额
-        for(OrderAccount orderAccount : byOrderId){
-            if (orderAccount.getMoney() != null) {
-                sumMoneySum = sumMoneySum.add(orderAccount.getMoney());       //回款金额
-            }
-            if (orderAccount.getDiscount() != null) {
-                sumDiscountSum = sumDiscountSum.add(orderAccount.getDiscount());      //其他扣款金额
-            }
-        }
-
-        if(sumDiscountSum != null ){
-            order.setAlreadyGatheringMoney(sumMoneySum.add(sumDiscountSum));     //已收款总金额       已收款总额=回款金额总额+其他扣款金额总和
-        }else{
-            order.setAlreadyGatheringMoney(sumMoneySum);     //已收款总金额
-        }
-
-        //应收账款余额    应收账款余额=已发货总金额-已收款总金额
-        order.setReceivableAccountRemaining(order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney()));
+        Order orderMoney = moneyDispose(byOrderIdAndDelYn, byOrderId);  //金额处理
+        order.setShipmentsMoney(orderMoney.getShipmentsMoney());//已发货总金额
+        order.setAlreadyGatheringMoney(orderMoney.getAlreadyGatheringMoney());  //已收款总金额
+        order.setReceivableAccountRemaining(orderMoney.getReceivableAccountRemaining());//应收账款余额
 
 
         // 已收款总金额（USD）   已收款总金额=已收款总金额*汇率          如果收款方式为美元（USD）的话，不用计算汇率
@@ -360,6 +334,15 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 return cb.and(predicates);
             }
         }, request);
+        if(pageOrder.hasContent()){
+
+            for (Order vo : pageOrder.getContent()){
+                Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
+                vo.setShipmentsMoney(order.getShipmentsMoney());//已发货总金额
+                vo.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney());  //已收款总金额
+                vo.setReceivableAccountRemaining(order.getReceivableAccountRemaining());//应收账款余额
+            }
+        }
 
         return pageOrder;
     }
@@ -430,5 +413,56 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         orderAccountDeliverDao.saveAndFlush(one);
     }
+
+    /**
+     * 财务金额处理
+     *
+     */
+    public Order moneyDispose(List<OrderAccountDeliver> orderAccountDelivers ,List<OrderAccount> orderAccounts){
+
+        Order order = new Order();
+
+        //已发货总金额
+        if(orderAccountDelivers.size() != 0){
+            //发运信息
+            BigDecimal shipmentsMoneySum = BigDecimal.valueOf(0);  //已发货总金额
+            for (OrderAccountDeliver orderAccountDeliver : orderAccountDelivers){
+                if(orderAccountDeliver.getGoodsPrice() != null){
+                    shipmentsMoneySum= shipmentsMoneySum.add(orderAccountDeliver.getGoodsPrice());   // 发货金额
+                }
+            }
+            order.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
+
+        }
+
+        //已收款总金额
+        if(orderAccounts.size() != 0){
+            //收款信息
+            BigDecimal sumMoneySum = BigDecimal.valueOf(0);     //回款金额
+            BigDecimal sumDiscountSum = BigDecimal.valueOf(0);      //其他扣款金额
+            for(OrderAccount orderAccount : orderAccounts){
+                if (orderAccount.getMoney() != null) {
+                    sumMoneySum = sumMoneySum.add(orderAccount.getMoney());       //回款金额
+                }
+                if (orderAccount.getDiscount() != null) {
+                    sumDiscountSum = sumDiscountSum.add(orderAccount.getDiscount());      //其他扣款金额
+                }
+            }
+
+            if(sumDiscountSum != null ){
+                order.setAlreadyGatheringMoney(sumMoneySum.add(sumDiscountSum));     //已收款总金额       已收款总额=回款金额总额+其他扣款金额总和
+            }else{
+                order.setAlreadyGatheringMoney(sumMoneySum);     //已收款总金额
+            }
+        }
+
+        //应收账款余额    应收账款余额=已发货总金额-已收款总金额
+        order.setReceivableAccountRemaining(order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney()));
+
+
+        return  order;
+
+    }
+
 
 }

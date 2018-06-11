@@ -254,6 +254,14 @@ public class Order {
     @Column(name = "overseas_sales")
     private Integer overseasSales;
 
+    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAccount> orderAccounts = new ArrayList<>();
+
+    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAccountDeliver> orderAccountDelivers = new ArrayList<>();
+
     @Transient
     // 已发货总金额 （财务管理）
     private BigDecimal shipmentsMoney;   //已发货总金额 （财务管理）
@@ -977,6 +985,22 @@ public class Order {
 
     public void setAlreadyGatheringMoneyUSD(BigDecimal alreadyGatheringMoneyUSD) {
         this.alreadyGatheringMoneyUSD = alreadyGatheringMoneyUSD;
+    }
+
+    public List<OrderAccount> getOrderAccounts() {
+        return orderAccounts;
+    }
+
+    public void setOrderAccounts(List<OrderAccount> orderAccounts) {
+        this.orderAccounts = orderAccounts;
+    }
+
+    public void setOrderAccountDelivers(List<OrderAccountDeliver> orderAccountDelivers) {
+        this.orderAccountDelivers = orderAccountDelivers;
+    }
+
+    public List<OrderAccountDeliver> getOrderAccountDelivers() {
+        return orderAccountDelivers;
     }
 
     public static enum StatusEnum {
