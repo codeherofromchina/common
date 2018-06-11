@@ -276,7 +276,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }else {
             order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney());
         }
-
+        order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());
 
         return order;
     }
@@ -482,9 +482,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
 
         //应收账款余额    应收账款余额=已发货总金额-已收款总金额
-        BigDecimal shipmentsMoney = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额
-        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
-        order.setReceivableAccountRemaining(shipmentsMoney.subtract(alreadyGatheringMoney));
+        order.setShipmentsMoney(order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney());  //已发货总金额
+        order.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());//已收款总金额
+        order.setReceivableAccountRemaining(order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney()));
 
 
         return  order;
