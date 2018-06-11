@@ -202,6 +202,8 @@ public class OrderAccountController {
         orderbyId.setAttachmentSet(null);
         orderbyId.setGoodsList(null);
         orderbyId.setOrderPayments(null);
+        orderbyId.setOrderAccounts(null);
+        orderbyId.setOrderAccountDelivers(null);
         return new Result<>(orderbyId);
     }
 

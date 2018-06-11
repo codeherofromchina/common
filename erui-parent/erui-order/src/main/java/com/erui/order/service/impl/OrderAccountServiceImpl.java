@@ -329,6 +329,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     list.add(cb.equal(root.get("country").as(String.class), condition.getCountry()));
                 }
 
+                //根据应收账款余额
+                if(StringUtil.isNotBlank(condition.getReceivableAccountRemaining())){
+                    findReceivableAccountRemaining(condition.getReceivableAccountRemaining());
+                }
+
                 //根据订单
                /* list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的*/
                 list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
@@ -473,5 +478,17 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     }
 
+    //根据应收账款余额
+    public Set<Order> findReceivableAccountRemaining(String receivableAccountRemaining){
+        Set<Order> result = null;
+        List<Order> list = orderDao.findAll();
+        if (list != null && list.size() > 0) {
+            result = new HashSet<>(list);
+        }
+
+
+        return result;
+
+    }
 
 }
