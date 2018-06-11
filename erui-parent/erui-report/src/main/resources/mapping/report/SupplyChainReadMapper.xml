@@ -112,26 +112,26 @@
   <!-- 根据时间查询供应链数据-->
   <select id="getSupplyChainReadDataByTime" resultType="com.erui.report.model.SupplyChainRead" parameterType="com.erui.report.model.SupplyChainReadExample" >
     SELECT
-    SUM(IFNULL(plan_suppli_num,0)) AS planSuppliNum,
-    SUM(IFNULL(suppli_num,0)) AS suppliNum,
-    SUM(IFNULL(audit_suppli_num,0)) AS auditSuppliNum,
-    SUM(IFNULL(pass_suppli_num,0)) AS passSuppliNum,
-    SUM(IFNULL(reject_suppli_num,0)) AS rejectSuppliNum,
-    SUM(IFNULL(brand_num,0)) AS brandNum,
-    SUM(IFNULL(plan_spu_num,0)) AS planSpuNum,
-    SUM(IFNULL(spu_num,0)) AS spuNum,
-    SUM(IFNULL(tempo_spu_num,0)) AS tempoSpuNum,
-    SUM(IFNULL(audit_spu_num,0)) AS auditSpuNum,
-    SUM(IFNULL(pass_spu_num,0)) AS passSpuNum,
-    SUM(IFNULL(reject_spu_num,0)) AS rejectSpuNum,
-    SUM(IFNULL(onshelf_spu_num,0)) AS onshelfSpuNum,
-    SUM(IFNULL(plan_sku_num,0)) AS planSkuNum,
-    SUM(IFNULL(sku_num,0)) AS skuNum,
-    SUM(IFNULL(tempo_sku_num,0)) AS tempoSkuNum,
-    SUM(IFNULL(audit_sku_num,0)) AS auditSkuNum,
-    SUM(IFNULL(pass_sku_num,0)) AS passSkuNum,
-    SUM(IFNULL(reject_sku_num,0)) AS rejectSkuNum,
-    SUM(IFNULL(onshelf_sku_num,0)) AS onshelfSkuNum
+    IFNULL(SUM(IFNULL(plan_suppli_num,0)),0) AS planSuppliNum,
+    IFNULL(SUM(IFNULL(suppli_num,0)),0) AS suppliNum,
+    IFNULL(SUM(IFNULL(audit_suppli_num,0)),0) AS auditSuppliNum,
+    IFNULL(SUM(IFNULL(pass_suppli_num,0)),0) AS passSuppliNum,
+    IFNULL(SUM(IFNULL(reject_suppli_num,0)),0) AS rejectSuppliNum,
+    IFNULL(SUM(IFNULL(brand_num,0)),0) AS brandNum,
+    IFNULL(SUM(IFNULL(plan_spu_num,0)),0) AS planSpuNum,
+    IFNULL(SUM(IFNULL(spu_num,0)),0) AS spuNum,
+    IFNULL(SUM(IFNULL(tempo_spu_num,0)),0) AS tempoSpuNum,
+    IFNULL(SUM(IFNULL(audit_spu_num,0)),0) AS auditSpuNum,
+    IFNULL(SUM(IFNULL(pass_spu_num,0)),0) AS passSpuNum,
+    IFNULL(SUM(IFNULL(reject_spu_num,0)),0) AS rejectSpuNum,
+    IFNULL(SUM(IFNULL(onshelf_spu_num,0)),0) AS onshelfSpuNum,
+    IFNULL(SUM(IFNULL(plan_sku_num,0)),0) AS planSkuNum,
+    IFNULL(SUM(IFNULL(sku_num,0)),0) AS skuNum,
+    IFNULL(SUM(IFNULL(tempo_sku_num,0)),0) AS tempoSkuNum,
+    IFNULL(SUM(IFNULL(audit_sku_num,0)),0) AS auditSkuNum,
+    IFNULL(SUM(IFNULL(pass_sku_num,0)),0) AS passSkuNum,
+    IFNULL(SUM(IFNULL(reject_sku_num,0)),0) AS rejectSkuNum,
+    IFNULL(SUM(IFNULL(onshelf_sku_num,0)),0) AS onshelfSkuNum
     from supply_chain_read
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
