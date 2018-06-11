@@ -7,6 +7,7 @@ import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.SupplyChainRead;
 import com.erui.report.model.SupplyTrendVo;
+import com.erui.report.service.SupplierOnshelfInfoService;
 import com.erui.report.service.SupplyChainCategoryService;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.service.SupplyChainService;
@@ -32,14 +33,15 @@ public class SupplyChainReadController {
     private SupplyChainReadService supplyChainReadService;
     @Autowired
     private SupplyChainCategoryService supplyChainCategoryService;
-
+    @Autowired
+    private SupplierOnshelfInfoService onshelfInfoService;
     //供应链总览
     @ResponseBody
     @RequestMapping(value = "/supplyGeneral", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object supplyGeneral(@RequestBody Map<String, Object> map) throws Exception {
+    public Object supplyGeneral(@RequestBody Map<String, String> map) throws Exception {
 
-        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime").toString(), "yyyy/MM/dd");
-        Date end = DateUtil.parseString2DateNoException(map.get("endTime").toString(), "yyyy/MM/dd");
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), "yyyy/MM/dd");
+        Date end = DateUtil.parseString2DateNoException(map.get("endTime"), "yyyy/MM/dd");
         if (startTime == null || end == null || startTime.after(end)) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
@@ -152,6 +154,24 @@ public class SupplyChainReadController {
         return new Result<>(data);
     }
 
+
+    /**
+     * 导出供应商已上架spu、sku明细
+     * @param params
+     * @return
+     */
+    public Object exportSupplierOnshelfDetail(@RequestBody Map<String, String> params) {
+
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), "yyyy/MM/dd");
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), "yyyy/MM/dd");
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+//        onshelfInfoService.selectSupplierOnshelfDetailByTime(startTime,endTime);
+
+        return null;
+    }
     //趋势图
     @ResponseBody
     @RequestMapping(value = "/supplyTrend", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})

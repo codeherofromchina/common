@@ -4,9 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.encrypt.MD5;
-import com.erui.report.model.SupplyChainCategory;
 import com.erui.report.model.SupplyChainRead;
-import com.erui.report.service.InquiryCountService;
+import com.erui.report.service.SupplierOnshelfInfoService;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.util.GetDataEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,13 +27,15 @@ public class ReportQuartz {
 
     @Autowired
     private SupplyChainReadService supplyChainReadService;
-//    @Autowired
-//    private InquiryCountService inquiryService;
+
+    @Autowired
+    private SupplierOnshelfInfoService  onshelfInfoService;
 
     private static final String goodUrl = "http://api.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
     private static final String productUrl = "http://api.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
     private static final String supplierUrl = "http://api.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
     private static final String cateUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
+    private static final String supplierOnshelfInfoUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应商已上架sku、spu明细请求路径
 
 //    public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 
@@ -44,22 +45,20 @@ public class ReportQuartz {
     public void getSupplyChainRead() throws Exception {
         //获取前一天的两个时间点
         System.out.println("执行一次调度");
+        CloseableHttpClient client = HttpClients.createDefault();
         Date date = DateUtil.sometimeCalendar(new Date(), 1);
         String startTime = DateUtil.getStartTime(date, DateUtil.FULL_FORMAT_STR);
         String endTime = DateUtil.getEndTime(date, DateUtil.FULL_FORMAT_STR);
 
-        CloseableHttpClient client = HttpClients.createDefault();
+       //处理读取的供应链数据
         HttpPut goodPutMethod = getPutMethod(1, goodUrl, startTime, endTime);
         HttpPut productPutMethod = getPutMethod(1, productUrl, startTime, endTime);
         HttpPut supplierPutMethod = getPutMethod(1, supplierUrl, startTime, endTime);
-        HttpPut catePutMethod = getPutMethod(1, cateUrl, startTime, endTime);
         CloseableHttpResponse skuResult = client.execute(goodPutMethod);
         CloseableHttpResponse spuResult = client.execute(productPutMethod);
-        //处理结果
         SupplyChainRead skuRead = this.handleResult(skuResult, GetDataEnum.SKU_DATA.getCode());
         SupplyChainRead spuRead = this.handleResult(spuResult, GetDataEnum.SPU_DATA.getCode());
         CloseableHttpResponse supplierResult = client.execute(supplierPutMethod);
-        CloseableHttpResponse cateResult = client.execute(catePutMethod);
         SupplyChainRead supplierRead = this.handleResult(supplierResult, GetDataEnum.SUPPLIER_DATA.getCode());
         SupplyChainRead supplyChainRead = null;
         if (skuRead != null || spuRead != null || supplierRead != null) {
@@ -67,6 +66,8 @@ public class ReportQuartz {
         }
 
         //处理分类的数据
+        HttpPut catePutMethod = getPutMethod(1, cateUrl, startTime, endTime);
+        CloseableHttpResponse cateResult = client.execute(catePutMethod);
         JSONObject json = new JSONObject();
         String cateData = EntityUtils.toString(cateResult.getEntity());
         JSONObject cateJson = json.parseObject(cateData);
@@ -77,6 +78,19 @@ public class ReportQuartz {
             chainCateVoList = JSON.parseArray(cates, HashMap.class);
         }
         supplyChainReadService.supplyChainReadData(startTime, supplyChainRead, chainCateVoList);
+
+        //处理供应商已上架spu、sku 数量明细数据
+        HttpPut supplierInfoPutMethod = getPutMethod(1, supplierOnshelfInfoUrl, startTime, endTime);
+        CloseableHttpResponse supplierInfoResult = client.execute(supplierInfoPutMethod);
+        String supplierInfoData = EntityUtils.toString(supplierInfoResult.getEntity());
+        JSONObject supplierInfoJson = json.parseObject(supplierInfoData);
+        int sCode= (int) supplierInfoJson.get("code");
+        List<HashMap> supplierInfoList = null;
+        if(sCode==1){
+            String sInfoList = cateJson.get("data").toString();
+            supplierInfoList=json.parseArray(sInfoList,HashMap.class);
+        }
+            onshelfInfoService.insertSupplierOnshelfInfoList(startTime,supplierInfoList);
 
         //处理询单数据
 //        HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);
@@ -133,6 +147,19 @@ public class ReportQuartz {
                     chainCateVoList = JSON.parseArray(cates, HashMap.class);
                 }
                 supplyChainReadService.supplyChainReadData(startTime, supplyChainRead, chainCateVoList);
+
+                //处理供应商已上架spu、sku 数量明细数据
+                HttpPut supplierInfoPutMethod = getPutMethod(1, supplierOnshelfInfoUrl, startTime, endTime);
+                CloseableHttpResponse supplierInfoResult = client.execute(supplierInfoPutMethod);
+                String supplierInfoData = EntityUtils.toString(supplierInfoResult.getEntity());
+                JSONObject supplierInfoJson = json.parseObject(supplierInfoData);
+                int sCode= (int) supplierInfoJson.get("code");
+                List<HashMap> supplierInfoList = null;
+                if(sCode==1){
+                    String sInfoList = cateJson.get("data").toString();
+                    supplierInfoList=json.parseArray(sInfoList,HashMap.class);
+                }
+                onshelfInfoService.insertSupplierOnshelfInfoList(startTime,supplierInfoList);
 
                 //处理询单数据
 //                HttpPut putMethod = getPutMethod(2, inquiryUrl, startTime, endTime);

@@ -1,9 +1,6 @@
 package com.erui.report.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.encrypt.MD5;
 import com.erui.report.dao.SupplyChainCategoryMapper;
 import com.erui.report.dao.SupplyChainReadMapper;
 import com.erui.report.model.SupplyChainCategory;
@@ -11,18 +8,8 @@ import com.erui.report.model.SupplyChainRead;
 import com.erui.report.model.SupplyChainReadExample;
 import com.erui.report.model.SupplyTrendVo;
 import com.erui.report.service.SupplyChainReadService;
-import com.erui.report.util.GetDataEnum;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
