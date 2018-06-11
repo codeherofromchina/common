@@ -345,14 +345,16 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
-                list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的
+
+                //根据订单
+               /* list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的*/
                 list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
 
-               /* //根据项目
+                //根据项目
                 Join<Order, Project> projectRoot = root.join("project");
                 String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE"};
                 list.add(projectRoot.get("projectStatus").in(projectStatus));
-*/
+
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
