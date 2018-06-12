@@ -11,8 +11,12 @@ import com.erui.report.service.SupplierOnshelfInfoService;
 import com.erui.report.service.SupplyChainCategoryService;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.service.SupplyChainService;
+import com.erui.report.util.ParamsUtils;
 import com.erui.report.util.SupplyCateDetailVo;
 import com.erui.report.util.SupplyPlanVo;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/report/supplyChainRead")
 public class SupplyChainReadController {
 
+   private static final Logger logger= LoggerFactory.getLogger(SupplyChainReadController.class);
     @Autowired
     private SupplyChainService supplyChainService;
     @Autowired
@@ -157,20 +163,34 @@ public class SupplyChainReadController {
 
     /**
      * 导出供应商已上架spu、sku明细
-     * @param params
+     * @param startTime
+     * @param endTime
+     * @param response
      * @return
      */
-    public Object exportSupplierOnshelfDetail(@RequestBody Map<String, String> params) {
-
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), "yyyy/MM/dd");
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), "yyyy/MM/dd");
-        if (startTime == null || end == null || startTime.after(end)) {
+    @RequestMapping(value = "/exportSupplierOnshelfDetail")
+    public Object exportSupplierOnshelfDetail(Date startTime, Date endTime, HttpServletResponse response) {
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-//        onshelfInfoService.selectSupplierOnshelfDetailByTime(startTime,endTime);
-
-        return null;
+        endTime = DateUtil.getOperationTime(endTime, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        Map<String, String> params = new HashMap<>();
+        params.put("startTime", fullStartTime);
+        params.put("endTime", fullEndTime);
+        List<Map<String,Object>> dataList =onshelfInfoService.selectOnshelfDetailGroupBySupplier(params);
+        XSSFWorkbook wb = onshelfInfoService.exportSupplierOnshelfDetail(startTime,endTime,dataList);
+        //excel文件名
+        String fileName = "上架供应商明细" + System.currentTimeMillis() + ".xlsx";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            logger.debug("异常:" + e.getMessage(), e);
+            return null;
+        }
     }
     //趋势图
     @ResponseBody

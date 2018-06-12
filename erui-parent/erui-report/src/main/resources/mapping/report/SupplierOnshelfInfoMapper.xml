@@ -12,6 +12,21 @@
     id, create_at, supplier, onshelf_spu_num, onshelf_sku_num
   </sql>
 
+  <!--根据日期查询各供应商的已上架数据-->
+  <select id="selectOnshelfDetailGroupBySupplier" resultType="java.util.Map"  parameterType="java.util.Map">
+        SELECT
+          supplier,
+          IFNULL(SUM(IFNULL(onshelf_spu_num,0)),0) AS onshelfSPU,
+          IFNULL(SUM(IFNULL(onshelf_sku_num,0)),0) AS onshelfSKU
+        FROM supplier_onshelf_info
+        WHERE  1=1
+    <if test="startTime!=null and endTime!=null">
+      and create_at BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+        GROUP BY supplier HAVING supplier IS NOT NULL
+  </select>
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />

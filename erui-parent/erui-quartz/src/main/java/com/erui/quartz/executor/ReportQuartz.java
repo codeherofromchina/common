@@ -31,11 +31,11 @@ public class ReportQuartz {
     @Autowired
     private SupplierOnshelfInfoService  onshelfInfoService;
 
-    private static final String goodUrl = "http://api.erui.com/v2/Report/getGoodsCount";//获取sku数据请求路径
-    private static final String productUrl = "http://api.erui.com/v2/Report/getProductCount";//获取spu数据请求路径
-    private static final String supplierUrl = "http://api.erui.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
-    private static final String cateUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
-    private static final String supplierOnshelfInfoUrl = "http://api.erui.com/v2/Report/getCatProductCount";//获取供应商已上架sku、spu明细请求路径
+    private static final String goodUrl = "http://api.eruidev.com/v2/Report/getGoodsCount";//获取sku数据请求路径
+    private static final String productUrl = "http://api.eruidev.com/v2/Report/getProductCount";//获取spu数据请求路径
+    private static final String supplierUrl = "http://api.eruidev.com/v2/Report/getSupplierCount";//获取供应商数据请求路径
+    private static final String cateUrl = "http://api.eruidev.com/v2/Report/getCatProductCount";//获取供应链分类数据请求路径
+    private static final String supplierOnshelfInfoUrl = "http://api.eruidev.com/v2/Report/getCatProductCount";//获取供应商已上架sku、spu明细请求路径
 
 //    public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
 

@@ -5,6 +5,7 @@ import com.erui.report.model.SupplierOnshelfInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SupplierOnshelfInfoMapper {
 
@@ -19,4 +20,11 @@ public interface SupplierOnshelfInfoMapper {
     int updateByPrimaryKeySelective(SupplierOnshelfInfo record);
 
     int updateByPrimaryKey(SupplierOnshelfInfo record);
+
+    /**
+     * 根据日期查询各供应商的已上架数据
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> selectOnshelfDetailGroupBySupplier(Map<String,String> params);
 }
