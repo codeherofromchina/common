@@ -505,6 +505,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
                     projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
                     String currencyBn = (String) objArr[5];  //货币类型
+                    projectStatistics.setCurrencyBn(currencyBn);  //货币类型
                     BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
 
 
