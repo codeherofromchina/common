@@ -452,7 +452,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             //发运信息
             BigDecimal shipmentsMoneySum = BigDecimal.valueOf(0);  //已发货总金额
             for (OrderAccountDeliver orderAccountDeliver : orderAccountDelivers){
-                if(orderAccountDeliver.getGoodsPrice() != null){
+                if(orderAccountDeliver.getGoodsPrice() != null && orderAccountDeliver.getDelYn() == 1){
                     shipmentsMoneySum= shipmentsMoneySum.add(orderAccountDeliver.getGoodsPrice());   // 发货金额
                 }
             }
@@ -466,10 +466,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             BigDecimal sumMoneySum = BigDecimal.valueOf(0);     //回款金额
             BigDecimal sumDiscountSum = BigDecimal.valueOf(0);      //其他扣款金额
             for(OrderAccount orderAccount : orderAccounts){
-                if (orderAccount.getMoney() != null) {
+
+                Integer delYn = orderAccount.getDelYn();    //删除标识   0：删除   1：存在
+                if (orderAccount.getMoney() != null && delYn == 1) {
                     sumMoneySum = sumMoneySum.add(orderAccount.getMoney());       //回款金额
                 }
-                if (orderAccount.getDiscount() != null) {
+                if (orderAccount.getDiscount() != null && delYn == 1) {
                     sumDiscountSum = sumDiscountSum.add(orderAccount.getDiscount());      //其他扣款金额
                 }
             }
