@@ -3,10 +3,7 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.OrderAccountDao;
-import com.erui.order.dao.OrderAccountDeliverDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.OrderAcciuntAdd;
@@ -54,6 +51,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     OrderAccountDeliverDao orderAccountDeliverDao;
+
+    @Autowired
+    private StatisticsDao statisticsDao;
 
 
 
@@ -361,11 +361,18 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }, request);
         if(pageOrder.hasContent()){
 
+            // 查询 地区中英文对应列表
+            Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
+            // 查询 国家中英文对应列表
+            Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
+
             for (Order vo : pageOrder.getContent()){
                 Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
                 vo.setShipmentsMoney(order.getShipmentsMoney());//已发货总金额
                 vo.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney());  //已收款总金额
                 vo.setReceivableAccountRemaining(order.getReceivableAccountRemaining());//应收账款余额
+                vo.setRegion(bnMapZhRegion.get(vo.getRegion())); //所属地区
+                vo.setCountry(bnMapZhCountry.get(vo.getCountry()));   // 国家
             }
         }
 
@@ -527,4 +534,38 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     }
 
+
+    //查询地区的中英文对应列表
+    public Map<String, String> findBnMapZhRegion() {
+        Map<String, String> result = new HashMap<>();
+        List<Object> regions = statisticsDao.findBnMapZhRegion();
+        if (regions != null && regions.size() > 0) {
+            for (Object vo : regions) {
+                Object[] strArr = (Object[]) vo;
+                String s0 = (String) strArr[0];
+                String s1 = (String) strArr[1];
+                if (StringUtils.isNotBlank(s1)) {
+                    result.put(s0, s1);
+                }
+            }
+        }
+        return result;
+    }
+
+    // 查询国家中英文对应列表
+    public Map<String, String> findBnMapZhCountry() {
+        Map<String, String> result = new HashMap<>();
+        List<Object> countrys = statisticsDao.findBnMapZhCountry();
+        if (countrys != null && countrys.size() > 0) {
+            for (Object vo : countrys) {
+                Object[] strArr = (Object[]) vo;
+                String s0 = (String) strArr[0];
+                String s1 = (String) strArr[1];
+                if (StringUtils.isNotBlank(s1)) {
+                    result.put(s0, s1);
+                }
+            }
+        }
+        return result;
+    }
 }
