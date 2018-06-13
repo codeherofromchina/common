@@ -68,17 +68,17 @@ public class SupplyChainReadController {
         if (supplyRead != null) {
             //供应商总览
             Map<String, Object> supplierDatas = new HashMap<>();
-            supplierDatas.put("supplierCount", supplyRead.getSuppliNum());
-            Double suppliComletionRate = null;
-            Double supplierCountLink = null;
-            Double brandCountLink = null;
-            Double auditSupplierRate = null;
-            Double auditSupplierLink = null;
-            Double passSupplierRate = null;
-            Double passSupplierLink = null;
-            Double rejectSupplierRate = null;
-            Double rejectSupplierLink = null;
-            int planSupplierCount = 0;
+            Double suppliComletionRate = null; //供应商完成率
+            Double supplierCountLink = 0.00d;//供应商完成数环比
+            Double brandCountLink = 0.00d;//供应商品牌数量环比
+            Double auditSupplierRate = 0.00d;//待审核供应商数量占比
+            Double auditSupplierLink = 0.00d;//待审核供应商数量环比
+            Double passSupplierRate = 0.00d;//已通过供应商数量占比
+            Double passSupplierLink = 0.00d;//已通过供应商数量环比
+            Double rejectSupplierRate = 0.00d;//已驳回供应商数量占比
+            Double rejectSupplierLink = 0.00d;//已通过供应商数量环比
+            int planSupplierCount = 0; //计划供应商数量
+            supplierDatas.put("supplierCount", supplyRead.getSuppliNum());//已开发供应商数量
             if (planVo != null) {
                 if (planVo.getPlanSupplierNum() > 0) {
                     suppliComletionRate = RateUtil.intChainRate(supplyRead.getSuppliNum(), planVo.getPlanSupplierNum());
@@ -104,9 +104,10 @@ public class SupplyChainReadController {
                     passSupplierLink = RateUtil.intChainRate(supplyRead.getPassSuppliNum() - supplchainRead.getPassSuppliNum(), supplchainRead.getPassSuppliNum());
                 }
                 if (supplchainRead.getRejectSuppliNum() > 0) {
-                    rejectSupplierRate = RateUtil.intChainRate(supplyRead.getRejectSuppliNum() - supplchainRead.getRejectSuppliNum(), supplchainRead.getRejectSuppliNum());
+                    rejectSupplierLink = RateUtil.intChainRate(supplyRead.getRejectSuppliNum() - supplchainRead.getRejectSuppliNum(), supplchainRead.getRejectSuppliNum());
                 }
             }
+
             supplierDatas.put("planSupplier", planSupplierCount);
             supplierDatas.put("completionRate", suppliComletionRate);
             supplierDatas.put("supplierCountLink", supplierCountLink);
@@ -136,7 +137,11 @@ public class SupplyChainReadController {
             }else {
                 spuDatas.put("passSPUProportion",0d);
             }
-
+            double passSPULink=0d;
+             if(supplchainRead.getPassSpuNum()>0){
+                 passSPULink=RateUtil.intChainRate(supplyRead.getPassSpuNum() - supplchainRead.getPassSpuNum(), supplchainRead.getPassSpuNum());
+             }
+             spuDatas.put("passSPULink",passSPULink);
             //sku总览
             Map<String, Object> skuDatas = new HashMap<>();
             if(planVo!=null){
@@ -151,6 +156,11 @@ public class SupplyChainReadController {
             }else {
                 skuDatas.put("passSKUProportion",0d);
             }
+            double passSKULink=0d;
+            if(supplchainRead.getPassSkuNum()>0){
+                passSKULink=RateUtil.intChainRate(supplyRead.getPassSkuNum() - supplchainRead.getPassSkuNum(), supplchainRead.getPassSkuNum());
+            }
+            skuDatas.put("passSKULink",passSKULink);
             //封装数据
             data = new HashMap<>();
             data.put("supplierDatas", supplierDatas);
