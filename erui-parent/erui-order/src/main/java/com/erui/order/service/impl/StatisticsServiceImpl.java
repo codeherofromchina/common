@@ -369,7 +369,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // TODO
     @Transactional
-    public Page<ProjectStatistics> findProjectStatisticsByPage(Map<String, String> condition) {
+    public Page<ProjectStatistics>  findProjectStatisticsByPage(Map<String, String> condition) {
         // 整理查询条件
         int page = 0;
         int rows = 50;
@@ -499,13 +499,24 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Integer orderId = projectStatistics.getOrderId();
                 Object[] objArr = orderAccountMap.get(orderId);
                 if (objArr != null) {
-                    projectStatistics.setPaymentDate((Date) objArr[2]);
-                    projectStatistics.setMoney((BigDecimal) objArr[1]);
-                    projectStatistics.setAcquireId((String) objArr[3]);
-                    projectStatistics.setAccountCount((BigInteger) objArr[4]);
-                    if (objArr[1] != null) {
-                        projectStatistics.setCurrencyBnMoney((String) objArr[5] + " " + new DecimalFormat("###,##0.00").format(objArr[1]));
+                    projectStatistics.setPaymentDate((Date) objArr[2]); //回款时间
+                    BigDecimal money = (BigDecimal) objArr[1];//回款金额
+                    projectStatistics.setMoney(money);
+                    projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
+                    projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
+                    String currencyBn = (String) objArr[5];  //货币类型
+                    BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
+
+
+                    if (objArr[1] != null) {    //是否有回款金额
+                        if(currencyBn != "USD"){    //是否是美元
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
+                        }else{
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money)); //回款金额
+                        }
                     }
+                    projectStatistics.setCurrencyBnMoney(projectStatistics.getCurrencyBnMoney() == null ? "0" : projectStatistics.getCurrencyBnMoney() );
+
                 }
             }
         }
@@ -574,13 +585,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Integer orderId = projectStatistics.getOrderId();
                 Object[] objArr = orderAccountMap.get(orderId);
                 if (objArr != null) {
-                    projectStatistics.setPaymentDate((Date) objArr[2]);
-                    projectStatistics.setMoney((BigDecimal) objArr[1]);
-                    projectStatistics.setAcquireId((String) objArr[3]);
-                    projectStatistics.setAccountCount((BigInteger) objArr[4]);
-                    if (objArr[1] != null) {
-                        projectStatistics.setCurrencyBnMoney((String) objArr[5] + " " + new DecimalFormat("###,##0.00").format(objArr[1]));
+                    projectStatistics.setPaymentDate((Date) objArr[2]); //回款时间
+                    BigDecimal money = (BigDecimal) objArr[1];//回款金额
+                    projectStatistics.setMoney(money);
+                    projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
+                    projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
+                    String currencyBn = (String) objArr[5];  //货币类型
+                    BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
+
+                    if (objArr[1] != null) {    //是否有回款金额
+                        if(currencyBn != "USD"){    //是否是美元
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
+                        }else{
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money)); //回款金额
+                        }
                     }
+                    projectStatistics.setCurrencyBnMoney(projectStatistics.getCurrencyBnMoney() == null ? "0" : projectStatistics.getCurrencyBnMoney() );
 
                 }
             }
