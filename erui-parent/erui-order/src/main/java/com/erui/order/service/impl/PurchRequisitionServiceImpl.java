@@ -174,6 +174,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             project1.setProjectNo(purchRequisition1.getProjectNo());
+            project1.setPurchTime(new Date());
             Order order = project1.getOrder();
             order.setProjectNo(purchRequisition1.getProjectNo());
             orderDao.save(order);
@@ -184,7 +185,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
         return true;
     }

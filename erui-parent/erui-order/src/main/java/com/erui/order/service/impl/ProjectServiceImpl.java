@@ -5,6 +5,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.OrderDao;
@@ -271,6 +272,15 @@ public class ProjectServiceImpl implements ProjectService {
                 //根据商务技术经办人
                 if (condition.getBusinessUid() != null) {
                     list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
+                }
+                //根据项目创建查询
+                if (condition.getStartTime() != null && condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
+                    list.add(startTime);
+                    list.add(endTime);
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
