@@ -509,7 +509,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
                     BigDecimal discount = (BigDecimal) objArr[7];//其他扣款金额
                     if(discount != null){
-                        money.add(discount);   //回款金额 加上 其他扣款金额
+                        money = money.add(discount);   //回款金额 加上 其他扣款金额
                     }
 
                     if (objArr[1] != null) {    //是否有回款金额
