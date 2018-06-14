@@ -369,9 +369,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             for (Order vo : pageOrder.getContent()){
                 NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
                 Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
-                vo.setCurrencyBnShipmentsMoney(numberFormat1.format(order.getCurrencyBn()+" "+order.getShipmentsMoney()));//已发货总金额
-                vo.setCurrencyBnAlreadyGatheringMoney(numberFormat1.format(order.getCurrencyBn()+" "+order.getAlreadyGatheringMoney()));  //已收款总金额
-                vo.setCurrencyBnAlreadyGatheringMoneyUSD(numberFormat1.format(order.getCurrencyBn()+" "+order.getReceivableAccountRemaining()));//应收账款余额
+                vo.setCurrencyBnShipmentsMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getShipmentsMoney()));//已发货总金额
+                vo.setCurrencyBnAlreadyGatheringMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getAlreadyGatheringMoney()));  //已收款总金额
+                vo.setCurrencyBnAlreadyGatheringMoneyUSD(vo.getCurrencyBn()+" "+numberFormat1.format(order.getReceivableAccountRemaining()));//应收账款余额
                 vo.setRegion(bnMapZhRegion.get(vo.getRegion())); //所属地区
                 vo.setCountry(bnMapZhCountry.get(vo.getCountry()));   // 国家
             }
@@ -495,7 +495,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         order.setShipmentsMoney(order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney());  //已发货总金额
         order.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());//已收款总金额
         order.setReceivableAccountRemaining(order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney()));
-
 
         return  order;
 
