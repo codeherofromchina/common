@@ -3,12 +3,9 @@ package com.erui.order.service.impl;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.order.dao.OrderAccountDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
+import com.erui.order.dao.*;
+import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.entity.OrderAccount;
-import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
@@ -23,10 +20,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.Transient;
+import javax.persistence.criteria.*;
 import javax.servlet.ServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -52,6 +47,14 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     OrderLogDao orderLogDao;
+
+
+    @Autowired
+    OrderAccountDeliverDao orderAccountDeliverDao;
+
+    @Autowired
+    private StatisticsDao statisticsDao;
+
 
 
   /*  @Value("#{orderProp[CRM_URL]}")
@@ -159,8 +162,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
-            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
+            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
@@ -201,8 +205,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
             }
-            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
+            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
             orderLogDao.save(orderLog);
         }
 
@@ -257,28 +262,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order order = orderDao.findOne(id);  //查询订单信息
 
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
+        List<OrderAccountDeliver> byOrderIdAndDelYn = orderAccountDeliverDao.findByOrderIdAndDelYn(id, 1);
 
-        BigDecimal sumGoodsPrice = BigDecimal.valueOf(0);  //发货金额
-        BigDecimal sumMoney = BigDecimal.valueOf(0);     //回款金额
-        BigDecimal sumDiscount = BigDecimal.valueOf(0);      //其他扣款金额
+        Order orderMoney = moneyDispose(byOrderIdAndDelYn, byOrderId);  //金额处理
+        order.setShipmentsMoney(orderMoney.getShipmentsMoney());//已发货总金额
+        BigDecimal alreadyGatheringMoney = orderMoney.getAlreadyGatheringMoney(); //已收款总金额
+        order.setAlreadyGatheringMoney(alreadyGatheringMoney);
+        order.setReceivableAccountRemaining(orderMoney.getReceivableAccountRemaining());//应收账款余额
 
-        int size = byOrderId.size();
-        for (int i = 0; i < size; i++) {
-            if (byOrderId.get(i).getGoodsPrice() != null) {
-                sumGoodsPrice = sumGoodsPrice.add(byOrderId.get(i).getGoodsPrice());    //发货金额
-            }
-            if (byOrderId.get(i).getMoney() != null) {
-                sumMoney = sumMoney.add(byOrderId.get(i).getMoney());       //回款金额
-            }
-            if (byOrderId.get(i).getDiscount() != null) {
-                sumDiscount = sumDiscount.add(byOrderId.get(i).getDiscount());      //其他扣款金额
-            }
+
+        // 已收款总金额（USD）   已收款总金额=已收款总金额*汇率          如果收款方式为美元（USD）的话，不用计算汇率
+        BigDecimal exchangeRate = order.getExchangeRate();//汇率
+        String currencyBn = order.getCurrencyBn();//订单结算币种
+        if(currencyBn != "USD"){
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney.multiply(exchangeRate));
+        }else {
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney);
         }
+        order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoneyUSD() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoneyUSD());
 
-        BigDecimal subtract = sumGoodsPrice.subtract(sumMoney).subtract(sumDiscount);
-
-        // 应收账款余额=发货金额-回款金额-其他扣款金额
-        order.setReceivableAccountRemaining(subtract);    //应收账款余额
         return order;
     }
 
@@ -321,17 +323,252 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if (StringUtil.isNotBlank(condition.getCrmCode())) {
                     list.add(cb.equal(root.get("crmCode").as(String.class), condition.getCrmCode()));
                 }
-                list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的
+
+                //根据所属地区
+                if(StringUtil.isNotBlank(condition.getRegion())){
+                    list.add(cb.equal(root.get("region").as(String.class), condition.getRegion()));
+                }
+                //根据国家
+                if(StringUtil.isNotBlank(condition.getCountry())){
+                    list.add(cb.equal(root.get("country").as(String.class), condition.getCountry()));
+                }
+
+                //根据应收账款余额
+                if(condition.getReceivableAccountRemaining() != null){
+                    Set<Order> receivableAccountRemainingSet = findReceivableAccountRemaining(condition.getReceivableAccountRemaining());
+                    CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
+                    if (receivableAccountRemainingSet != null && receivableAccountRemainingSet.size() > 0) {
+                        for (Order o : receivableAccountRemainingSet) {
+                            idIn.value(o.getId());
+                        }
+                    } else {
+                        // 查找失败
+                        idIn.value(-1);
+                    }
+                    list.add(idIn);
+                }
+
+                //根据订单
+               /* list.add(cb.greaterThan(root.get("status").as(Integer.class), 1));  //订单保存时，不查询保存的*/
                 list.add(cb.equal(root.get("deleteFlag").as(Integer.class), 0));
-                //
+
+                //根据项目
+                Join<Order, Project> projectRoot = root.join("project");
+                String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE"};
+                list.add(projectRoot.get("projectStatus").in(projectStatus));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
         }, request);
+        if(pageOrder.hasContent()){
+
+            // 查询 地区中英文对应列表
+            Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
+            // 查询 国家中英文对应列表
+            Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
+
+            for (Order vo : pageOrder.getContent()){
+                NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
+                Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
+                vo.setCurrencyBnShipmentsMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getShipmentsMoney()));//已发货总金额
+                vo.setCurrencyBnAlreadyGatheringMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getAlreadyGatheringMoney()));  //已收款总金额
+                vo.setCurrencyBnReceivableAccountRemaining(vo.getCurrencyBn()+" "+numberFormat1.format(order.getReceivableAccountRemaining()));//应收账款余额
+                vo.setRegion(bnMapZhRegion.get(vo.getRegion())); //所属地区
+                vo.setCountry(bnMapZhCountry.get(vo.getCountry()));   // 国家
+            }
+        }
 
         return pageOrder;
     }
 
+
+    /**
+     * 发货信息查询   (根据订单)
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderAccountDeliver> queryOrderAccountDeliver(Integer id) {
+        return orderAccountDeliverDao.findByOrderIdAndDelYn(id, 1);
+    }
+
+
+    /**
+     * 发货信息查询id  逻辑删除
+     * @param request
+     * @param id
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delOrderAccountDeliver(ServletRequest request, Integer id) {
+
+        /**
+         ** 逻辑删除收款记录
+         */
+        OrderAccountDeliver orderAccountDeliver = orderAccountDeliverDao.findOne(id);   //查询收款记录
+        orderAccountDeliver.setDelYn(0);
+        orderAccountDeliverDao.save(orderAccountDeliver);        //收款记录  逻辑删除
+
+    }
+
+    /**
+     *  添加一条发货信息
+     * @param orderAccountDeliver  收款信息
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addOrderAccountDeliver(OrderAccountDeliver orderAccountDeliver, ServletRequest request) throws Exception {
+        try {
+            orderAccountDeliverDao.save(orderAccountDeliver);
+        } catch (Exception e) {
+            throw new Exception(String.format("发货信息添加失败"));
+        }
+    }
+
+
+    /**
+     *
+     * 编辑发货信息
+     *
+     * @param request
+     * @param orderAccount
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) {
+        OrderAccountDeliver one = orderAccountDeliverDao.findOne(orderAccount.getId());//查询发货信息
+
+        one.setDesc(orderAccount.getDesc());
+        one.setGoodsPrice(orderAccount.getGoodsPrice());
+        one.setDeliverDate(orderAccount.getDeliverDate());
+
+        orderAccountDeliverDao.saveAndFlush(one);
+    }
+
+    /**
+     * 财务金额处理
+     *
+     */
+    public Order moneyDispose(List<OrderAccountDeliver> orderAccountDelivers ,List<OrderAccount> orderAccounts){
+
+        Order order = new Order();
+
+        //已发货总金额
+        if(orderAccountDelivers.size() != 0){
+            //发运信息
+            BigDecimal shipmentsMoneySum = BigDecimal.valueOf(0);  //已发货总金额
+            for (OrderAccountDeliver orderAccountDeliver : orderAccountDelivers){
+                if(orderAccountDeliver.getGoodsPrice() != null && orderAccountDeliver.getDelYn() == 1){
+                    shipmentsMoneySum= shipmentsMoneySum.add(orderAccountDeliver.getGoodsPrice());   // 发货金额
+                }
+            }
+            order.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
+
+        }
+
+        //已收款总金额
+        if(orderAccounts.size() != 0){
+            //收款信息
+            BigDecimal sumMoneySum = BigDecimal.valueOf(0);     //回款金额
+            BigDecimal sumDiscountSum = BigDecimal.valueOf(0);      //其他扣款金额
+            for(OrderAccount orderAccount : orderAccounts){
+
+                Integer delYn = orderAccount.getDelYn();    //删除标识   0：删除   1：存在
+                if (orderAccount.getMoney() != null && delYn == 1) {
+                    sumMoneySum = sumMoneySum.add(orderAccount.getMoney());       //回款金额
+                }
+                if (orderAccount.getDiscount() != null && delYn == 1) {
+                    sumDiscountSum = sumDiscountSum.add(orderAccount.getDiscount());      //其他扣款金额
+                }
+            }
+
+            if(sumDiscountSum != null ){
+                order.setAlreadyGatheringMoney(sumMoneySum.add(sumDiscountSum));     //已收款总金额       已收款总额=回款金额总额+其他扣款金额总和
+            }else{
+                order.setAlreadyGatheringMoney(sumMoneySum);     //已收款总金额
+            }
+        }
+
+        //应收账款余额    应收账款余额=已发货总金额-已收款总金额
+        order.setShipmentsMoney(order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney());  //已发货总金额
+        order.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());//已收款总金额
+        order.setReceivableAccountRemaining(order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney()));
+
+        return  order;
+
+    }
+
+    /**
+     * 根据应收账款余额
+     * @param receivableAccountRemaining    1  <0  ,  2 =0  ,  3 >0
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Set<Order> findReceivableAccountRemaining(Integer receivableAccountRemaining){
+        Set<Order> result = new HashSet<>();
+        List<Order> list = orderDao.findAll();
+
+        if(list.size() != 0){
+            for (Order vo : list){
+                Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
+                BigDecimal shipmentsMoney = order.getShipmentsMoney();//已发货总金额
+                BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney();  //已收款总金额
+                BigDecimal receivableAccountRemainingNew = order.getReceivableAccountRemaining();//应收账款余额
+
+                // -1 小于0     0 等于0   1 大于0
+                int i=receivableAccountRemainingNew.compareTo(BigDecimal.ZERO);
+
+                if(receivableAccountRemaining == 1 && i == -1){
+                    result.add(vo);
+                }else if(receivableAccountRemaining == 2 && i == 0 ){
+                    result.add(vo);
+                }else if (receivableAccountRemaining == 3 && i == 1){
+                    result.add(vo);
+                }
+            }
+        }
+
+        return result;
+
+    }
+
+
+    //查询地区的中英文对应列表
+    public Map<String, String> findBnMapZhRegion() {
+        Map<String, String> result = new HashMap<>();
+        List<Object> regions = statisticsDao.findBnMapZhRegion();
+        if (regions != null && regions.size() > 0) {
+            for (Object vo : regions) {
+                Object[] strArr = (Object[]) vo;
+                String s0 = (String) strArr[0];
+                String s1 = (String) strArr[1];
+                if (StringUtils.isNotBlank(s1)) {
+                    result.put(s0, s1);
+                }
+            }
+        }
+        return result;
+    }
+
+    // 查询国家中英文对应列表
+    public Map<String, String> findBnMapZhCountry() {
+        Map<String, String> result = new HashMap<>();
+        List<Object> countrys = statisticsDao.findBnMapZhCountry();
+        if (countrys != null && countrys.size() > 0) {
+            for (Object vo : countrys) {
+                Object[] strArr = (Object[]) vo;
+                String s0 = (String) strArr[0];
+                String s1 = (String) strArr[1];
+                if (StringUtils.isNotBlank(s1)) {
+                    result.put(s0, s1);
+                }
+            }
+        }
+        return result;
+    }
 }

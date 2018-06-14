@@ -1,7 +1,6 @@
 package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.ChineseAndEnglish;
 import com.erui.comm.util.CookiesUtil;
@@ -9,20 +8,9 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
-import com.erui.order.dao.GoodsDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.OrderLogDao;
-import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Order;
-import com.erui.order.entity.OrderLog;
-import com.erui.order.entity.Project;
-import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.requestVo.AddOrderVo;
-import com.erui.order.requestVo.OrderListCondition;
-import com.erui.order.requestVo.PGoods;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
+import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
 import org.apache.commons.lang3.StringUtils;
@@ -123,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public Page<Order> findByPage(final OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
@@ -189,7 +177,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    if (StringUtils.equals("1", condition.getProcessProgress())) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    }
                 }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
@@ -234,8 +226,8 @@ public class OrderServiceImpl implements OrderService {
         }, pageRequest);
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
-                vo.setAttachmentSet(null);
-                vo.setOrderPayments(null);
+                //vo.setAttachmentSet(null);
+                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                     vo.setDeliverConsignC(flag);
@@ -245,7 +237,7 @@ public class OrderServiceImpl implements OrderService {
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
-                vo.setGoodsList(null);
+                // vo.setGoodsList(null);
             });
         }
         return pageList;
@@ -263,6 +255,8 @@ public class OrderServiceImpl implements OrderService {
             } else if ("zh".equals(lang) && !ChineseAndEnglish.isChinese(deptName)) {
                 dept = deptService.findTop1ByEnName(deptName);
                 if (dept != null) {
+
+
                     return dept.getName();
                 }
             }
@@ -358,6 +352,15 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
             return null;
+        }
+        if (!order.getContractNo().equals(addOrderVo.getContractNo())) {
+            if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
+                throw new Exception("销售合同号已存在&&The order No. already exists");
+            }
+        } else {
+            if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 1) {
+                throw new Exception("销售合同号已存在&&The order No. already exists");
+            }
         }
      /*   if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
@@ -939,7 +942,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
-                    list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    if (StringUtils.equals("1", condition.getProcessProgress())) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    }
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {

@@ -1,22 +1,23 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.model.*;
+import com.erui.report.service.SupplyChainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.erui.boss.web.util.Result;
-import com.erui.comm.RateUtil;
-import com.erui.report.model.SuppliyChainCateVo;
-import com.erui.report.model.SuppliyChainItemClassVo;
-import com.erui.report.model.SuppliyChainOrgVo;
-import com.erui.report.model.SupplyChain;
-import com.erui.report.model.SupplyTrendVo;
-import com.erui.report.service.SupplyChainService;
 
 
 /**
@@ -33,7 +34,6 @@ public class SupplyChainController {
     @ResponseBody
     @RequestMapping(value = "/supplyGeneral", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Object supplyGeneral(@RequestBody Map<String, Object> map) throws Exception {
-
         Result<Object> result = new Result<>();
         Map<String, Object> data = new HashMap<>();
         if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
@@ -218,7 +218,6 @@ public class SupplyChainController {
         result.setStatus(ResultStatusEnum.SUCCESS);
         result.setData(data);
         return result;
-
     }
 
     //事业部明细封装

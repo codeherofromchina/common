@@ -5,6 +5,7 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
+import com.erui.order.entity.OrderAccountDeliver;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
@@ -87,13 +88,7 @@ public class OrderAccountController {
         }else if (orderAcciuntAdd.getPaymentDate() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款时间不能为空");
-        } /*else if (orderAcciuntAdd.getGoodsPrice() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("发货金额不能为空");
-        }else if (orderAcciuntAdd.getDeliverDate() == null) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("发货时间不能为空");
-        }*/
+        }
         else{
             order.setId(orderAcciuntAdd.getOrderId());
             orderAccount.setId(null);
@@ -207,6 +202,8 @@ public class OrderAccountController {
         orderbyId.setAttachmentSet(null);
         orderbyId.setGoodsList(null);
         orderbyId.setOrderPayments(null);
+        orderbyId.setOrderAccounts(null);
+        orderbyId.setOrderAccountDelivers(null);
         return new Result<>(orderbyId);
     }
 
@@ -223,8 +220,103 @@ public class OrderAccountController {
            order1.setAttachmentSet(null);
            order1.setGoodsList(null);
            order1.setOrderPayments(null);
+           order1.setOrderAccounts(null);
+           order1.setOrderAccountDelivers(null);
        }
        return new Result<>(orderbyId);
+    }
+
+
+    /**
+     * 发货信息查询   (根据订单)
+     * @param     map
+     * @return
+     */
+    @RequestMapping(value="queryOrderAccountDeliver", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> queryOrderAccountDeliver(@RequestBody Map<String,Integer> map){
+        List<OrderAccountDeliver> orderAccountDeliversList = orderAccountService.queryOrderAccountDeliver(map.get("id"));
+        for (OrderAccountDeliver orderAccountDeliver :orderAccountDeliversList){
+            orderAccountDeliver.setOrder(null);
+        }
+        return new Result<>(orderAccountDeliversList);
+    }
+
+    /**
+     *  发货信息查询id  逻辑删除
+     * @param orderAcciuntAdd       发货信息id
+     */
+    @RequestMapping(value="delOrderAccountDeliver", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    @ResponseBody
+    public  Result<Object> delOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+        if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货信息id不能为空");
+        }
+        orderAccountService.delOrderAccountDeliver(request,orderAcciuntAdd.getId());
+        return new Result<>();
+    }
+
+
+    /**
+     *  添加一条发货信息
+     * @param orderAcciuntAdd  收款信息
+     * @return
+     */
+    @RequestMapping(value = "addOrderAccountDeliver",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public  Result<Object> addOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+        Result<Object> result = new Result<>();
+        if(orderAcciuntAdd == null ){
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+
+
+        OrderAccountDeliver orderAccountDeliver = new OrderAccountDeliver();
+        Order order = new Order();
+        if (orderAcciuntAdd.getOrderId()==null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("订单id为空");
+        }else if (StringUtils.isBlank(orderAcciuntAdd.getDesc()) || StringUtils.equals(orderAcciuntAdd.getDesc(), "")) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("描述不能为空");
+        }else if (orderAcciuntAdd.getGoodsPrice() == null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
+        }else if (orderAcciuntAdd.getDeliverDate() == null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货时间不能为空");
+        }else{
+            order.setId(orderAcciuntAdd.getOrderId());
+            orderAccountDeliver.setId(null);
+            orderAccountDeliver.setDesc(orderAcciuntAdd.getDesc());   //描述
+            orderAccountDeliver.setGoodsPrice(orderAcciuntAdd.getGoodsPrice());    //发货金额
+            orderAccountDeliver.setDeliverDate(orderAcciuntAdd.getDeliverDate());  //发货时间
+            orderAccountDeliver.setOrder(order);
+            try {
+                orderAccountService.addOrderAccountDeliver(orderAccountDeliver,request);
+            }catch (Exception e){
+                logger.error("发货信息添加失败：{}", orderAccountDeliver, e);
+                result.setCode(ResultStatusEnum.FAIL.getCode());
+                result.setMsg(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * 编辑发货信息
+     * @param orderAccount
+     * @return
+     */
+    @RequestMapping(value = "updateOrderAccountDeliver",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public  Result<Object> updateOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+        Result<Object> result = new Result<>();
+        if(orderAccount == null ){
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (orderAccount.getId()==null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("收款id为空");
+        }else if (orderAccount.getGoodsPrice() == null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
+        }else if (orderAccount.getDeliverDate() == null) {
+            return new Result<>(ResultStatusEnum.FAIL).setMsg("发货时间不能为空");
+        }else {orderAccountService.updateOrderAccountDeliver(request, orderAccount);return new Result<>();}
+
     }
 
 }
