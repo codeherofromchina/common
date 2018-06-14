@@ -162,8 +162,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
-            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
+            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
@@ -204,8 +205,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
             }
-            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
+            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
             orderLogDao.save(orderLog);
         }
 
@@ -264,7 +266,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         Order orderMoney = moneyDispose(byOrderIdAndDelYn, byOrderId);  //金额处理
         order.setShipmentsMoney(orderMoney.getShipmentsMoney());//已发货总金额
-        order.setAlreadyGatheringMoney(orderMoney.getAlreadyGatheringMoney());  //已收款总金额
+        BigDecimal alreadyGatheringMoney = orderMoney.getAlreadyGatheringMoney(); //已收款总金额
+        order.setAlreadyGatheringMoney(alreadyGatheringMoney);
         order.setReceivableAccountRemaining(orderMoney.getReceivableAccountRemaining());//应收账款余额
 
 
@@ -272,11 +275,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         BigDecimal exchangeRate = order.getExchangeRate();//汇率
         String currencyBn = order.getCurrencyBn();//订单结算币种
         if(currencyBn != "USD"){
-            order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney().multiply(exchangeRate));
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney.multiply(exchangeRate));
         }else {
-            order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney());
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney);
         }
-        order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());
+        order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoneyUSD() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoneyUSD());
 
         return order;
     }
@@ -367,10 +370,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
 
             for (Order vo : pageOrder.getContent()){
+                NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
                 Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
-                vo.setShipmentsMoney(order.getShipmentsMoney());//已发货总金额
-                vo.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney());  //已收款总金额
-                vo.setReceivableAccountRemaining(order.getReceivableAccountRemaining());//应收账款余额
+                vo.setCurrencyBnShipmentsMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getShipmentsMoney()));//已发货总金额
+                vo.setCurrencyBnAlreadyGatheringMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getAlreadyGatheringMoney()));  //已收款总金额
+                vo.setCurrencyBnReceivableAccountRemaining(vo.getCurrencyBn()+" "+numberFormat1.format(order.getReceivableAccountRemaining()));//应收账款余额
                 vo.setRegion(bnMapZhRegion.get(vo.getRegion())); //所属地区
                 vo.setCountry(bnMapZhCountry.get(vo.getCountry()));   // 国家
             }
@@ -494,7 +498,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         order.setShipmentsMoney(order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney());  //已发货总金额
         order.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());//已收款总金额
         order.setReceivableAccountRemaining(order.getShipmentsMoney().subtract(order.getAlreadyGatheringMoney()));
-
 
         return  order;
 
