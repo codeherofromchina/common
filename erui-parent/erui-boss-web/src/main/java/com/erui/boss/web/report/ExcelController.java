@@ -1,18 +1,15 @@
 package com.erui.boss.web.report;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ExcelReader;
+import com.erui.comm.FileUtil;
 import com.erui.comm.middle.fastdfs.FastDFSUtil;
+import com.erui.comm.util.pinyin4j.Pinyin4j;
 import com.erui.report.service.*;
-import org.apache.commons.fileupload.disk.DiskFileItem;
+import com.erui.report.util.ExcelUploadTypeEnum;
+import com.erui.report.util.ImportDataResponse;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.csource.common.MyException;
@@ -26,14 +23,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.erui.boss.web.util.Result;
-import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.comm.ExcelReader;
-import com.erui.comm.FileUtil;
-import com.erui.comm.util.pinyin4j.Pinyin4j;
-import com.erui.report.util.ExcelUploadTypeEnum;
-import com.erui.report.util.ImportDataResponse;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 报表excel导入控制层
@@ -208,8 +206,6 @@ public class ExcelController {
                               @RequestParam(value = "fileName", required = true) String fileName,
                               @RequestParam(value = "type", required = true) Integer type) {
         Result<Object> result = new Result<Object>();
-
-
         // 判断上传的业务文件类型
         ExcelUploadTypeEnum typeEnum = ExcelUploadTypeEnum.getByType(type);
         if (typeEnum == null) {
