@@ -35,9 +35,6 @@ public class ProjectListCondition {
     //执行单变更后日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date exeChgDate;
-    //项目创建时间
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date createTime;
     //项目状态
     private String projectStatus;
     //国家查询
