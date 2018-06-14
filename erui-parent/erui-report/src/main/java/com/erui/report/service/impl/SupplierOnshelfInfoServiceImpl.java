@@ -67,7 +67,7 @@ public class SupplierOnshelfInfoServiceImpl  extends BaseService<SupplierOnshelf
         XSSFSheet sheet = wb.createSheet("上架供应商明细表");
         sheet.setDefaultColumnWidth(10);
         sheet.setColumnWidth(0, 8192);
-        sheet.setColumnWidth(1, 4521);
+        sheet.setColumnWidth(1, 8192);
         sheet.setColumnWidth(2, 4521);
         sheet.setColumnWidth(3, 4521);
         //产生标题行
