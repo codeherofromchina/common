@@ -671,11 +671,6 @@ public class RequestCreditController {
         map.put("endTime", fullEndTime);
         //获取数据
         List<Map<String, Object>> data = requestCreditService.selectAgingSummaryGroupByCompanyAndOrgAndArea(map);
-        //excel标题
-        String[] title = new String[]{"销售模式", "大区", "30天以内", "占比(%)", "30-60天", "占比(%)",
-                "60-90天", "占比(%)", "90-120天", "占比(%)", "120-150天", "占比(%)",
-                "150-180天", "占比(%)", "180天以上", "占比(%)", "合计"};
-
         //excel文件名
         String fileName = "账龄分析统计" + System.currentTimeMillis() + ".xlsx";
         XSSFWorkbook wb = requestCreditService.exportAgingData(data);

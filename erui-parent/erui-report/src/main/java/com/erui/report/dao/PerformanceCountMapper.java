@@ -69,6 +69,13 @@ public interface PerformanceCountMapper {
     double selectTotalPerformanceByCountryAndTime(Map<String,String> params);
 
     /**
+     * 查询指定国家和月份的总的新增会员数量
+     * @param params
+     * @return
+     */
+    int selectIncrBuyerCountByCountryAndTime(Map<String,String> params);
+
+    /**
      * 查询最近的日期
      * @return
      */

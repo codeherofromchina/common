@@ -31,6 +31,8 @@ public class SupplyChainRead {
 
     private Integer rejectSpuNum;
 
+    private Integer onshelfSpuNum;
+
     private Integer planSkuNum;
 
     private Integer skuNum;
@@ -42,6 +44,8 @@ public class SupplyChainRead {
     private Integer passSkuNum;
 
     private Integer rejectSkuNum;
+
+    private Integer onshelfSkuNum;
 
     public Integer getId() {
         return id;
@@ -201,5 +205,21 @@ public class SupplyChainRead {
 
     public void setRejectSkuNum(Integer rejectSkuNum) {
         this.rejectSkuNum = rejectSkuNum;
+    }
+
+    public Integer getOnshelfSpuNum() {
+        return onshelfSpuNum;
+    }
+
+    public void setOnshelfSpuNum(Integer onshelfSpuNum) {
+        this.onshelfSpuNum = onshelfSpuNum;
+    }
+
+    public Integer getOnshelfSkuNum() {
+        return onshelfSkuNum;
+    }
+
+    public void setOnshelfSkuNum(Integer onshelfSkuNum) {
+        this.onshelfSkuNum = onshelfSkuNum;
     }
 }
