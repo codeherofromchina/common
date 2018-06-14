@@ -96,7 +96,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
             " where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
     List<Object> findDeliverConsignGoods(@Param("goodsIds") List<Integer> goodsIds);
 
-    @Query(value = "select t2.id,sum(t1.money),max(t1.payment_date),t3.`name` ,count(1) , t2.currency_bn , t2.exchange_rate" +
+    @Query(value = "select t2.id,sum(t1.money),max(t1.payment_date),t3.`name` ,count(1) , t2.currency_bn , t2.exchange_rate , sum(t1.discount)" +
             " from `order` t2 left join order_account t1 on t1.order_id = t2.id and t1.del_yn=1 left join erui_sys.employee t3 on t3.id = t2.acquire_id " +
             " where t2.id in :orderIds  group by t2.id",nativeQuery = true)
     List<Object> findOrderAccount(@Param("orderIds") List<Integer> orderIds);

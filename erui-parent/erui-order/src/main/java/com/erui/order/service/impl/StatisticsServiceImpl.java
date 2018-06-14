@@ -507,7 +507,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                     String currencyBn = (String) objArr[5];  //货币类型
                     projectStatistics.setCurrencyBn(currencyBn);  //货币类型
                     BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
-
+                    BigDecimal discount = (BigDecimal) objArr[7];//其他扣款金额
+                    if(discount != null){
+                        money = money.add(discount);   //回款金额 加上 其他扣款金额
+                    }
 
                     if (objArr[1] != null) {    //是否有回款金额
                         if(currencyBn != "USD"){    //是否是美元
