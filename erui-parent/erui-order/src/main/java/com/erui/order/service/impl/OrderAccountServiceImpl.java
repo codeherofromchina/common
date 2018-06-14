@@ -277,7 +277,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }else {
             order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney);
         }
-        order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney == null ? BigDecimal.valueOf(0) : alreadyGatheringMoney);
+        order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoneyUSD() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoneyUSD());
 
         return order;
     }
