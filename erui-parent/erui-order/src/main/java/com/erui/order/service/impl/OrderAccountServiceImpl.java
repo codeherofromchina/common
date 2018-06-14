@@ -522,7 +522,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
                 if(receivableAccountRemaining == 1 && i == -1){
                     result.add(vo);
-                }else if(receivableAccountRemaining == 2 && i == 0 && alreadyGatheringMoney.compareTo(BigDecimal.ZERO) != 0 ){
+                }else if(receivableAccountRemaining == 2 && i == 0 ){
                     result.add(vo);
                 }else if (receivableAccountRemaining == 3 && i == 1){
                     result.add(vo);
