@@ -284,7 +284,7 @@ public class Order {
 
     @Transient
     // 已发货总金额USD （财务管理）
-    private String currencyBnAlreadyGatheringMoneyUSD;   //已发货总金额 （财务管理）
+    private String currencyBnReceivableAccountRemaining;   //应收账款余额
 
 
 
@@ -1023,16 +1023,17 @@ public class Order {
         this.currencyBnAlreadyGatheringMoney = currencyBnAlreadyGatheringMoney;
     }
 
-    public void setCurrencyBnAlreadyGatheringMoneyUSD(String currencyBnAlreadyGatheringMoneyUSD) {
-        this.currencyBnAlreadyGatheringMoneyUSD = currencyBnAlreadyGatheringMoneyUSD;
-    }
 
     public String getCurrencyBnAlreadyGatheringMoney() {
         return currencyBnAlreadyGatheringMoney;
     }
 
-    public String getCurrencyBnAlreadyGatheringMoneyUSD() {
-        return currencyBnAlreadyGatheringMoneyUSD;
+    public String getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(String currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
     }
 
     public List<OrderAccountDeliver> getOrderAccountDelivers() {

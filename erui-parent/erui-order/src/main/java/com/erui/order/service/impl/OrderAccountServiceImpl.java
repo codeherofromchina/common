@@ -264,7 +264,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         Order orderMoney = moneyDispose(byOrderIdAndDelYn, byOrderId);  //金额处理
         order.setShipmentsMoney(orderMoney.getShipmentsMoney());//已发货总金额
-        order.setAlreadyGatheringMoney(orderMoney.getAlreadyGatheringMoney());  //已收款总金额
+        BigDecimal alreadyGatheringMoney = orderMoney.getAlreadyGatheringMoney(); //已收款总金额
+        order.setAlreadyGatheringMoney(alreadyGatheringMoney);
         order.setReceivableAccountRemaining(orderMoney.getReceivableAccountRemaining());//应收账款余额
 
 
@@ -272,11 +273,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         BigDecimal exchangeRate = order.getExchangeRate();//汇率
         String currencyBn = order.getCurrencyBn();//订单结算币种
         if(currencyBn != "USD"){
-            order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney().multiply(exchangeRate));
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney.multiply(exchangeRate));
         }else {
-            order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney());
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney);
         }
-        order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney());
+        order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney == null ? BigDecimal.valueOf(0) : alreadyGatheringMoney);
 
         return order;
     }
@@ -371,7 +372,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
                 vo.setCurrencyBnShipmentsMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getShipmentsMoney()));//已发货总金额
                 vo.setCurrencyBnAlreadyGatheringMoney(vo.getCurrencyBn()+" "+numberFormat1.format(order.getAlreadyGatheringMoney()));  //已收款总金额
-                vo.setCurrencyBnAlreadyGatheringMoneyUSD(vo.getCurrencyBn()+" "+numberFormat1.format(order.getReceivableAccountRemaining()));//应收账款余额
+                vo.setCurrencyBnReceivableAccountRemaining(vo.getCurrencyBn()+" "+numberFormat1.format(order.getReceivableAccountRemaining()));//应收账款余额
                 vo.setRegion(bnMapZhRegion.get(vo.getRegion())); //所属地区
                 vo.setCountry(bnMapZhCountry.get(vo.getCountry()));   // 国家
             }
