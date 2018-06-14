@@ -274,6 +274,18 @@ public class Order {
     // 已发货总金额USD （财务管理）
     private BigDecimal alreadyGatheringMoneyUSD;   //已发货总金额 （财务管理）
 
+    @Transient
+    // 已发货总金额 （财务管理）
+    private String currencyBnShipmentsMoney;   //已发货总金额 （财务管理）
+
+    @Transient
+    //已收款总金额  （财务管理）
+    private String currencyBnAlreadyGatheringMoney;   //已收款总金额  （财务管理）
+
+    @Transient
+    // 已发货总金额USD （财务管理）
+    private String currencyBnAlreadyGatheringMoneyUSD;   //已发货总金额 （财务管理）
+
 
 
 
@@ -997,6 +1009,30 @@ public class Order {
 
     public void setOrderAccountDelivers(List<OrderAccountDeliver> orderAccountDelivers) {
         this.orderAccountDelivers = orderAccountDelivers;
+    }
+
+    public String getCurrencyBnShipmentsMoney() {
+        return currencyBnShipmentsMoney;
+    }
+
+    public void setCurrencyBnShipmentsMoney(String currencyBnShipmentsMoney) {
+        this.currencyBnShipmentsMoney = currencyBnShipmentsMoney;
+    }
+
+    public void setCurrencyBnAlreadyGatheringMoney(String currencyBnAlreadyGatheringMoney) {
+        this.currencyBnAlreadyGatheringMoney = currencyBnAlreadyGatheringMoney;
+    }
+
+    public void setCurrencyBnAlreadyGatheringMoneyUSD(String currencyBnAlreadyGatheringMoneyUSD) {
+        this.currencyBnAlreadyGatheringMoneyUSD = currencyBnAlreadyGatheringMoneyUSD;
+    }
+
+    public String getCurrencyBnAlreadyGatheringMoney() {
+        return currencyBnAlreadyGatheringMoney;
+    }
+
+    public String getCurrencyBnAlreadyGatheringMoneyUSD() {
+        return currencyBnAlreadyGatheringMoneyUSD;
     }
 
     public List<OrderAccountDeliver> getOrderAccountDelivers() {

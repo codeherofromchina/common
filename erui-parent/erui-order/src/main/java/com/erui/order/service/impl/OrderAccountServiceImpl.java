@@ -367,10 +367,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
 
             for (Order vo : pageOrder.getContent()){
+                NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
                 Order order = moneyDispose(vo.getOrderAccountDelivers(), vo.getOrderAccounts());    //金额处理
-                vo.setShipmentsMoney(order.getShipmentsMoney());//已发货总金额
-                vo.setAlreadyGatheringMoney(order.getAlreadyGatheringMoney());  //已收款总金额
-                vo.setReceivableAccountRemaining(order.getReceivableAccountRemaining());//应收账款余额
+                vo.setCurrencyBnShipmentsMoney(numberFormat1.format(order.getCurrencyBn()+" "+order.getShipmentsMoney()));//已发货总金额
+                vo.setCurrencyBnAlreadyGatheringMoney(numberFormat1.format(order.getCurrencyBn()+" "+order.getAlreadyGatheringMoney()));  //已收款总金额
+                vo.setCurrencyBnAlreadyGatheringMoneyUSD(numberFormat1.format(order.getCurrencyBn()+" "+order.getReceivableAccountRemaining()));//应收账款余额
                 vo.setRegion(bnMapZhRegion.get(vo.getRegion())); //所属地区
                 vo.setCountry(bnMapZhCountry.get(vo.getCountry()));   // 国家
             }
