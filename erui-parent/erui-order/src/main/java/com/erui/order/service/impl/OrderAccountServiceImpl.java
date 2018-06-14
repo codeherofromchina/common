@@ -162,8 +162,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
-            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + order.getCurrencyBn());
+            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
             orderLog.setBusinessDate(orderAccount.getPaymentDate()); //获取回款时间
             orderLog.setOrdersGoodsId(null);
@@ -204,8 +205,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
             }
-            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
-            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(orderAccount.getMoney()) + " " + currencyBn);
+            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
+            orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
             orderLogDao.save(orderLog);
         }
 
