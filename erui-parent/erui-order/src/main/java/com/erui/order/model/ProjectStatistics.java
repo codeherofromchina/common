@@ -51,6 +51,7 @@ public class ProjectStatistics {
         this.processProgress = project.getProcessProgress();
         this.overseasSales = order.getOverseasSales();
         this.currencyBn = order.getCurrencyBn();
+        this.createTime = project.getCreateTime();
     }
 
     //订单ID
@@ -136,8 +137,16 @@ public class ProjectStatistics {
     private String currencyBnMoney;   //金额类型  回款金额
     //货币类型
     private String currencyBn;
+    //项目创建时间
+    private Date createTime;
 
+    public Date getCreateTime() {
+        return createTime;
+    }
 
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
     public String getProCate() {
         return proCate;
