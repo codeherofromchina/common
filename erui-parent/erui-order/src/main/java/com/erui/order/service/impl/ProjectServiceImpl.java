@@ -273,13 +273,16 @@ public class ProjectServiceImpl implements ProjectService {
                 if (condition.getBusinessUid() != null) {
                     list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
                 }
-                //根据项目创建查询
-                if (condition.getStartTime() != null || condition.getEndTime() != null) {
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                //根据项目创建查询 开始时间
+                if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     list.add(startTime);
+                }
+                //根据项目创建查询 结束时间
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     list.add(endTime);
                 }
                 String[] country = null;
@@ -571,12 +574,15 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
                 }
                 //根据项目创建查询
-                if (condition.getStartTime() != null || condition.getEndTime() != null) {
+                if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     list.add(startTime);
+                }
+                //根据项目创建查询
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     list.add(endTime);
                 }
                 String[] country = null;

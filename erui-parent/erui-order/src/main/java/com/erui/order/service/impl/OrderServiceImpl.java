@@ -277,15 +277,16 @@ public class OrderServiceImpl implements OrderService {
                 public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                     List<Predicate> list = new ArrayList<>();
                     //根据订单日期查询
-                    if (condition.getStart_time() != null || condition.getEnd_time() != null) {
+                    if (condition.getStart_time() != null) {
                         Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
-                        Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
                         Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                        Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                         list.add(startTime);
+                    }
+                    if (condition.getStart_time() != null || condition.getEnd_time() != null) {
+                        Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
+                        Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                         list.add(endTime);
                     }
-
                 /*//根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getBuyer_no())) {
                     list.add(cb.equal(root.get("buyer_no").as(String.class), condition.getBuyer_no()));
