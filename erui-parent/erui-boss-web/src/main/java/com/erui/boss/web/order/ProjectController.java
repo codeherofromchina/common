@@ -4,7 +4,6 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
-import com.erui.order.entity.Goods;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
@@ -14,13 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-import java.util.stream.Collectors;
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 项目控制器
@@ -48,6 +50,8 @@ public class ProjectController {
             projectNoList = Arrays.asList(split);
         }
         String purchaseUid = params.get("purchaseUid");
+        String contractNo = params.get("contractNo");
+        String projectName = params.get("projectName");
         // 初始化页码信息
         int pageNum = 1;
         int pageSize = 10;
@@ -57,8 +61,8 @@ public class ProjectController {
             try {
                 pageNum = Integer.parseInt(pageNumStr);
                 pageSize = Integer.parseInt(pageSizeStr);
-            }catch (NumberFormatException ex) {
-                logger.error("页面转换错误",ex);
+            } catch (NumberFormatException ex) {
+                logger.error("页面转换错误", ex);
             }
         }
 
@@ -67,7 +71,7 @@ public class ProjectController {
         try {
             //projectList = projectService.purchAbleList(projectNoList, purchaseUid);
             // 分页查询可采购项目
-            Page<Map<String,Object>> projectPage = projectService.purchAbleByPage(projectNoList, purchaseUid,pageNum,pageSize);
+            Page<Map<String, Object>> projectPage = projectService.purchAbleByPage(projectNoList, purchaseUid, pageNum, pageSize, contractNo, projectName);
 
             return new Result<>(projectPage);
         } catch (Exception e) {
@@ -77,6 +81,7 @@ public class ProjectController {
 
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
+
     /**
      * 获取项目列表
      *
@@ -106,8 +111,7 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "handleProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> handleProject(@RequestBody Project project, HttpServletRequest request) {
-        Result<Object> result = new Result<>();
+    public Result<Object> handleProject(@RequestBody @Valid Project project, HttpServletRequest request) {
         Project proStatus = projectService.findById(project.getId());
         String errorMsg = null;
         try {
