@@ -403,7 +403,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
                 projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
                 Integer purchReqCreate = project.getPurchReqCreate();//'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
-                if(purchReqCreate != null && purchReqCreate == 3){
+                if (purchReqCreate != null && purchReqCreate == 3) {
                     if (order.getGoodsList().size() > 0) {
                         List<Goods> goodsList = order.getGoodsList();
                         if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
@@ -411,12 +411,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                         } else {
                             List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
                             Set<String> setproCate = new HashSet<>(proCateList);
-                            if (setproCate.size() == proCateList.size()){
+                            if (setproCate.size() == proCateList.size()) {
                                 projectStatistics.setProCate(goodsList.get(0).getProType());
-                            }else {
+                            } else {
                                 int count = 0;
                                 for (String proCate : setproCate) {
-                                    if (proCate!=null){
+                                    if (proCate != null) {
                                         int frequency = Collections.frequency(proCateList, proCate);
                                         if (frequency > count) {
                                             count = frequency;
@@ -499,13 +499,28 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Integer orderId = projectStatistics.getOrderId();
                 Object[] objArr = orderAccountMap.get(orderId);
                 if (objArr != null) {
-                    projectStatistics.setPaymentDate((Date) objArr[2]);
-                    projectStatistics.setMoney((BigDecimal) objArr[1]);
-                    projectStatistics.setAcquireId((String) objArr[3]);
-                    projectStatistics.setAccountCount((BigInteger) objArr[4]);
-                    if (objArr[1] != null) {
-                        projectStatistics.setCurrencyBnMoney((String) objArr[5] + " " + new DecimalFormat("###,##0.00").format(objArr[1]));
+                    projectStatistics.setPaymentDate((Date) objArr[2]); //回款时间
+                    BigDecimal money = (BigDecimal) objArr[1];//回款金额
+                    projectStatistics.setMoney(money);
+                    projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
+                    projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
+                    String currencyBn = (String) objArr[5];  //货币类型
+                    projectStatistics.setCurrencyBn(currencyBn);  //货币类型
+                    BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
+                    BigDecimal discount = (BigDecimal) objArr[7];//其他扣款金额
+                    if (discount != null) {
+                        money = money.add(discount);   //回款金额 加上 其他扣款金额
                     }
+
+                    if (objArr[1] != null) {    //是否有回款金额
+                        if (currencyBn != "USD") {    //是否是美元
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
+                        } else {
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money)); //回款金额
+                        }
+                    }
+                    projectStatistics.setCurrencyBnMoney(projectStatistics.getCurrencyBnMoney() == null ? "0" : projectStatistics.getCurrencyBnMoney());
+
                 }
             }
         }
@@ -531,7 +546,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
                 projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
                 Integer purchReqCreate = project.getPurchReqCreate();//'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
-                if(purchReqCreate != null && purchReqCreate == 3){
+                if (purchReqCreate != null && purchReqCreate == 3) {
                     if (order.getGoodsList().size() > 0) {
                         List<Goods> goodsList = order.getGoodsList();
                         if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
@@ -539,12 +554,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                         } else {
                             List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
                             Set<String> setproCate = new HashSet<>(proCateList);
-                            if (setproCate.size() == proCateList.size()){
+                            if (setproCate.size() == proCateList.size()) {
                                 projectStatistics.setProCate(goodsList.get(0).getProType());
-                            }else {
+                            } else {
                                 int count = 0;
                                 for (String proCate : setproCate) {
-                                    if (proCate!=null){
+                                    if (proCate != null) {
                                         int frequency = Collections.frequency(proCateList, proCate);
                                         if (frequency > count) {
                                             count = frequency;
@@ -574,13 +589,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Integer orderId = projectStatistics.getOrderId();
                 Object[] objArr = orderAccountMap.get(orderId);
                 if (objArr != null) {
-                    projectStatistics.setPaymentDate((Date) objArr[2]);
-                    projectStatistics.setMoney((BigDecimal) objArr[1]);
-                    projectStatistics.setAcquireId((String) objArr[3]);
-                    projectStatistics.setAccountCount((BigInteger) objArr[4]);
-                    if (objArr[1] != null) {
-                        projectStatistics.setCurrencyBnMoney((String) objArr[5] + " " + new DecimalFormat("###,##0.00").format(objArr[1]));
+                    projectStatistics.setPaymentDate((Date) objArr[2]); //回款时间
+                    BigDecimal money = (BigDecimal) objArr[1];//回款金额
+                    projectStatistics.setMoney(money);
+                    projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
+                    projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
+                    String currencyBn = (String) objArr[5];  //货币类型
+                    BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
+
+                    if (objArr[1] != null) {    //是否有回款金额
+                        if (currencyBn != "USD") {    //是否是美元
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
+                        } else {
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money)); //回款金额
+                        }
                     }
+                    projectStatistics.setCurrencyBnMoney(projectStatistics.getCurrencyBnMoney() == null ? "0" : projectStatistics.getCurrencyBnMoney());
 
                 }
             }
@@ -951,7 +975,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                         list.add(cb.lessThan(root.get("startDate").as(Date.class), endDate));
                     }
                 }
-
+                String startTime = condition.get("startTime");
+                String endTime = condition.get("endTime");
+                if (StringUtils.isNotBlank(startTime)) {
+                    Date startDate = DateUtil.parseString2DateNoException(startTime, "yyyy-MM-dd");
+                    Date startT = DateUtil.getOperationTime(startDate, 0, 0, 0);
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT));
+                    }
+                }
+                if (StringUtils.isNotBlank(endTime)) {
+                    Date endDate = DateUtil.parseString2DateNoException(endTime, "yyyy-MM-dd");
+                    Date endT = DateUtil.getOperationTime(endDate, 23, 59, 59);
+                    if (endDate != null) {
+                        list.add(cb.lessThan(root.get("createTime").as(Date.class), endT));
+                    }
+                }
                 Join<Project, Order> orderRoot = root.join("order");
                 String countriesStr = condition.get("countries");
                 if (StringUtils.isNotBlank(countriesStr)) {
@@ -1022,8 +1061,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 String processProgress = condition.get("processProgress");
                 //根据流程进度
                 if (StringUtil.isNotBlank(processProgress)) {
-                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), processProgress));
-                }else{
+                    list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), processProgress));
+                } else {
                     list.add(cb.notEqual(root.get("processProgress").as(Integer.class), 1));
                 }
                 Predicate[] predicates = new Predicate[list.size()];

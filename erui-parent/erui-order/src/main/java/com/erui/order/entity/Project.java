@@ -147,6 +147,16 @@ public class Project {
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
     @Column(name = "overseas_sales")
     private Integer overseasSales;
+    @Column(name = "purch_time")
+    private Date purchTime;
+
+    public Date getPurchTime() {
+        return purchTime;
+    }
+
+    public void setPurchTime(Date purchTime) {
+        this.purchTime = purchTime;
+    }
 
     public Integer getOrderCategory() {
         return orderCategory;

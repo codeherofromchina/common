@@ -52,6 +52,8 @@ public class OrderController {
                 vo.setAttachmentSet(null);
                 vo.setOrderPayments(null);
                 vo.setGoodsList(null);
+                vo.setOrderAccountDelivers(null);
+                vo.setOrderAccounts(null);
             });
         }
         return new Result<>(orderPage);
@@ -200,6 +202,8 @@ public class OrderController {
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
         Order order = orderService.findByIdLang(map.get("id"), CookiesUtil.getLang(request));
         if (order != null) {
+            order.setOrderAccountDelivers(null);
+            order.setOrderAccounts(null);
             if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                 boolean flag = order.getGoodsList().parallelStream().anyMatch(vo -> vo.getOutstockApplyNum() < vo.getContractGoodsNum());
                 order.setDeliverConsignC(flag);

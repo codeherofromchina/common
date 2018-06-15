@@ -202,6 +202,8 @@ public class OrderAccountController {
         orderbyId.setAttachmentSet(null);
         orderbyId.setGoodsList(null);
         orderbyId.setOrderPayments(null);
+        orderbyId.setOrderAccounts(null);
+        orderbyId.setOrderAccountDelivers(null);
         return new Result<>(orderbyId);
     }
 
@@ -218,6 +220,8 @@ public class OrderAccountController {
            order1.setAttachmentSet(null);
            order1.setGoodsList(null);
            order1.setOrderPayments(null);
+           order1.setOrderAccounts(null);
+           order1.setOrderAccountDelivers(null);
        }
        return new Result<>(orderbyId);
     }

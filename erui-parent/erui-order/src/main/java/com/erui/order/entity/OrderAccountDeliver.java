@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 订单-收款信息
+ * 订单-发货信息
  */
 @Entity
 @Table(name = "order_account_deliver")

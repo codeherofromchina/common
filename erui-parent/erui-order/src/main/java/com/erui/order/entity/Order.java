@@ -254,6 +254,14 @@ public class Order {
     @Column(name = "overseas_sales")
     private Integer overseasSales;
 
+    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAccount> orderAccounts = new ArrayList<>();
+
+    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAccountDeliver> orderAccountDelivers = new ArrayList<>();
+
     @Transient
     // 已发货总金额 （财务管理）
     private BigDecimal shipmentsMoney;   //已发货总金额 （财务管理）
@@ -265,6 +273,18 @@ public class Order {
     @Transient
     // 已发货总金额USD （财务管理）
     private BigDecimal alreadyGatheringMoneyUSD;   //已发货总金额 （财务管理）
+
+    @Transient
+    // 已发货总金额 （财务管理）
+    private String currencyBnShipmentsMoney;   //已发货总金额 （财务管理）
+
+    @Transient
+    //已收款总金额  （财务管理）
+    private String currencyBnAlreadyGatheringMoney;   //已收款总金额  （财务管理）
+
+    @Transient
+    // 已发货总金额USD （财务管理）
+    private String currencyBnReceivableAccountRemaining;   //应收账款余额
 
 
 
@@ -977,6 +997,47 @@ public class Order {
 
     public void setAlreadyGatheringMoneyUSD(BigDecimal alreadyGatheringMoneyUSD) {
         this.alreadyGatheringMoneyUSD = alreadyGatheringMoneyUSD;
+    }
+
+    public List<OrderAccount> getOrderAccounts() {
+        return orderAccounts;
+    }
+
+    public void setOrderAccounts(List<OrderAccount> orderAccounts) {
+        this.orderAccounts = orderAccounts;
+    }
+
+    public void setOrderAccountDelivers(List<OrderAccountDeliver> orderAccountDelivers) {
+        this.orderAccountDelivers = orderAccountDelivers;
+    }
+
+    public String getCurrencyBnShipmentsMoney() {
+        return currencyBnShipmentsMoney;
+    }
+
+    public void setCurrencyBnShipmentsMoney(String currencyBnShipmentsMoney) {
+        this.currencyBnShipmentsMoney = currencyBnShipmentsMoney;
+    }
+
+    public void setCurrencyBnAlreadyGatheringMoney(String currencyBnAlreadyGatheringMoney) {
+        this.currencyBnAlreadyGatheringMoney = currencyBnAlreadyGatheringMoney;
+    }
+
+
+    public String getCurrencyBnAlreadyGatheringMoney() {
+        return currencyBnAlreadyGatheringMoney;
+    }
+
+    public String getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(String currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
+    }
+
+    public List<OrderAccountDeliver> getOrderAccountDelivers() {
+        return orderAccountDelivers;
     }
 
     public static enum StatusEnum {
