@@ -162,7 +162,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             orderLog.setOrder(orderDao.findOne(order.getId()));
             orderLog.setLogType(OrderLog.LogTypeEnum.ADVANCE.getCode());
             NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
-            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            BigDecimal discount = orderAccount.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount.getDiscount();   //其他扣款金额
+            BigDecimal add = orderAccount.getMoney().add(discount);
             orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
             orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + order.getCurrencyBn());
             orderLog.setCreateTime(new Date());
@@ -204,8 +205,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             //获取回款时间
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
-            }
-            BigDecimal add = orderAccount.getMoney().add(orderAccount.getDiscount());
+            }BigDecimal discount = orderAccount.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount.getDiscount();   //其他扣款金额
+            BigDecimal add = orderAccount.getMoney().add(discount);
             orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
             orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
             orderLogDao.save(orderLog);

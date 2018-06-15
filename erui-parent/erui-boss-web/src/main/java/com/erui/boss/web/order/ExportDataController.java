@@ -11,23 +11,19 @@ import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.model.GoodsStatistics;
-import com.erui.order.model.ProjectStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.OrderService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.StatisticsService;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
@@ -36,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -227,9 +222,9 @@ public class ExportDataController {
 
         }
         String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
-                "项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};
+                "项目创建日期","项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};
         String[] keys = new String[]{"contractNo", "projectNo", "projectName", "execCoName", "distributionDeptName", "businessUnitName", "businessName", "region",
-                "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};
+                "createTime", "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectList);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目列表");

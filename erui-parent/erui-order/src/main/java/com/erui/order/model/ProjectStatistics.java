@@ -53,7 +53,6 @@ public class ProjectStatistics {
         this.currencyBn = order.getCurrencyBn();
         this.createTime = project.getCreateTime();
     }
-
     //订单ID
     private Integer orderId;
     // 项目开始日期

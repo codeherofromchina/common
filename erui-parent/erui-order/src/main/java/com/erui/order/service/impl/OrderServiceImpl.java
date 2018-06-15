@@ -1,6 +1,7 @@
 package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.ChineseAndEnglish;
 import com.erui.comm.util.CookiesUtil;
@@ -13,6 +14,8 @@ import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
+import com.erui.order.util.excel.ExcelUploadTypeEnum;
+import com.erui.order.util.excel.ImportDataResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -135,13 +139,16 @@ public class OrderServiceImpl implements OrderService {
                 /*if (condition.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 }*/
-                //根据订单签订时间段查询
-                if (condition.getStartTime() != null && condition.getEndTime() != null) {
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                //根据订单签订时间段查询 开始
+                if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(startTime);
+                }
+                //根据订单签订时间段查询 结束
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
                 }
                 //根据合同交货日期查询
@@ -273,15 +280,16 @@ public class OrderServiceImpl implements OrderService {
                 public Predicate toPredicate(Root<ComplexOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                     List<Predicate> list = new ArrayList<>();
                     //根据订单日期查询
-                    if (condition.getStart_time() != null && condition.getEnd_time() != null) {
+                    if (condition.getStart_time() != null) {
                         Date startT = DateUtil.getOperationTime(condition.getStart_time(), 0, 0, 0);
-                        Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
                         Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                        Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                         list.add(startTime);
+                    }
+                    if (condition.getStart_time() != null || condition.getEnd_time() != null) {
+                        Date endT = DateUtil.getOperationTime(condition.getEnd_time(), 23, 59, 59);
+                        Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                         list.add(endTime);
                     }
-
                 /*//根据crm客户代码查询
                 if (StringUtil.isNotBlank(condition.getBuyer_no())) {
                     list.add(cb.equal(root.get("buyer_no").as(String.class), condition.getBuyer_no()));
@@ -904,13 +912,16 @@ public class OrderServiceImpl implements OrderService {
                /* if (condition.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 } */
-                //根据订单签订日期时间段查询
-                if (condition.getStartTime() != null && condition.getEndTime() != null) {
+                //根据订单签订时间段查询 开始
+                if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(startTime);
+                }
+                //根据订单签订时间段查询 结束
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
                 }
                 //根据合同交货日期查询
@@ -1015,5 +1026,222 @@ public class OrderServiceImpl implements OrderService {
             e.printStackTrace();
         }
         return pageList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
+        ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        int size = datas.size();
+        Order oc = null;
+        Project project = null;
+        // 订单总数量
+        int orderCount = 0;
+        for (int index = 0; index < size; index++) {
+            int cellIndex = index + 2; // 数据从第二行开始
+            String[] strArr = datas.get(index);
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_MANAGE, response, cellIndex)) {
+                continue;
+            }
+            oc = new Order();
+            project = new Project();
+            oc.setOrderCategory(Integer.parseInt(strArr[0]));
+            oc.setOverseasSales(Integer.parseInt(strArr[1]));
+            oc.setContractNo(strArr[2]);
+            oc.setFrameworkNo(strArr[3]);
+            oc.setContractNoOs(strArr[4]);
+            oc.setPoNo(strArr[5]);
+
+            oc.setLogiQuoteNo(strArr[6]);
+            oc.setInquiryNo(strArr[7]);
+            Date signingDate = DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd");
+            oc.setSigningDate(signingDate);
+            oc.setDeliveryDate(strArr[9]);
+            oc.setAgentId(Integer.parseInt(strArr[10]));
+            oc.setAcquireId(Integer.parseInt(strArr[11]));
+            oc.setSigningCo(strArr[12]);
+            oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
+            oc.setExecCoId(Integer.parseInt(strArr[14]));
+            oc.setRegion(strArr[15]);
+          /*  if (strArr[15] != null) {
+                try {
+                    oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "数量字段非数字");
+                    continue;
+                }
+            }*/
+            oc.setDistributionDeptName(strArr[16]);
+            // 国家
+            oc.setCountry(strArr[17]);
+            //订单号
+            oc.setCrmCode(strArr[18]);
+            //客户类型
+            oc.setCustomerType(Integer.parseInt(strArr[19]));
+            //回款责任人
+            oc.setPerLiableRepay(strArr[20]);
+            //是否融资
+            oc.setFinancing(Integer.parseInt(strArr[21]));
+            //会员类型
+            oc.setOrderBelongs(Integer.parseInt(strArr[22]));
+            //授信情况
+            oc.setGrantType(strArr[23]);
+            //订单类型
+            oc.setOrderType(Integer.parseInt(strArr[24]));
+            //贸易术语
+            oc.setTradeTerms(strArr[25]);
+            //运输方式
+            oc.setTransportType(strArr[26]);
+            if (strArr[27] != null) {
+                try {
+                    oc.setTotalPrice(new BigDecimal(strArr[27]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    continue;
+                }
+            }
+            //是否含税
+            oc.setTaxBearing(Integer.parseInt(strArr[28]));
+            //  汇率  strArr[29]
+            //合同总价
+            if (strArr[30] != null) {
+                try {
+                    oc.setTotalPriceUsd(new BigDecimal(strArr[30]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    continue;
+                }
+            }
+            oc.setPaymentModeBn(strArr[31]);
+            if (strArr[33] != null) {
+                try {
+                    oc.setQualityFunds(new BigDecimal(strArr[32]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "质保金 非数字");
+                    continue;
+                }
+            }
+            OrderPayment orderPayment = new OrderPayment();
+            ArrayList<OrderPayment> paymentList = new ArrayList<>();
+            if (strArr[33] != null) {
+                try {
+                    orderPayment.setMoney(new BigDecimal(strArr[33]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[34], "yyyy-MM-dd"));
+                paymentList.add(orderPayment);
+            }
+            if (strArr[35] != null) {
+                try {
+                    orderPayment.setMoney(new BigDecimal(strArr[35]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "质保金 非数字");
+                    continue;
+                }
+                orderPayment.setType(2);
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[36], "yyyy-MM-dd"));
+                paymentList.add(orderPayment);
+            }
+            oc.setDeliveryRequires(strArr[37]);
+            oc.setCustomerContext(strArr[38]);
+            Order order = null;
+            try {
+                order = orderDao.save(oc);
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            //添加项目
+            project.setOrder(order);
+            project.setContractNo(strArr[2]);
+            project.setStartDate(DateUtil.parseString2DateNoException(strArr[39], "yyyy-MM-dd"));
+            project.setProjectName(strArr[40]);
+            // 国家
+            project.setCountry(strArr[17]);
+            //执行约定交付日期
+            project.setDeliveryDate(DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd"));
+            //合同总价
+            if (strArr[42] != null) {
+                try {
+                    project.setTotalPriceUsd(new BigDecimal(strArr[42]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    continue;
+                }
+            }
+            if (strArr[43] != null) {
+                try {
+                    project.setProfitPercent(new BigDecimal(strArr[43]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "初步利润（美元）非数字");
+                    continue;
+                }
+            }
+            if (strArr[44] != null) {
+                try {
+                    project.setProfit(new BigDecimal(strArr[44]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "利润（美元）非数字");
+                    continue;
+                }
+            }
+            //执行分公司
+            project.setExecCoName(order.getExecCoId().toString());
+            project.setRegion(order.getRegion());
+            //执行变更日期
+            project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[45], "yyyy-MM-dd"));
+            //有无项目经理
+            project.setHasManager(Integer.parseInt(strArr[46]));
+            project.setDistributionDeptName(strArr[47]);
+            project.setProjectStatus(strArr[48]);
+            project.setRemarks(strArr[49]);
+         /*   if (strArr[37] != null) {
+                try {
+                    oc.setPurchaseContractDate(DateUtil.parseString2Date(strArr[37], "yyyy/M/d", "yyyy/M/d",
+                            DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
+                } catch (Exception e) {
+
+
+                    logger.error(e.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "采购签合同日期格式错误");
+                    continue;
+                }
+            }*/
+            try {
+                projectDao.save(project);
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            response.incrSuccess();
+        }
+        response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
+        response.setDone(true);
+        return response;
     }
 }
