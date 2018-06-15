@@ -4,13 +4,12 @@ package com.erui.order.service;
 import com.erui.order.entity.ComplexOrder;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
-import com.erui.order.entity.Project;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.OutListCondition;
+import com.erui.order.util.excel.ImportDataResponse;
 import org.springframework.data.domain.Page;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -99,4 +98,7 @@ public interface OrderService {
       * @modified By
       */
     List<Order> findOrderExport(final OrderListCondition condition);
+
+
+    ImportDataResponse importData(List<String[]> datas, boolean testOnly);
 }
