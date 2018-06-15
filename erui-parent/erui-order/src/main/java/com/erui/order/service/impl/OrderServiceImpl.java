@@ -139,13 +139,16 @@ public class OrderServiceImpl implements OrderService {
                 /*if (condition.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 }*/
-                //根据订单签订时间段查询
-                if (condition.getStartTime() != null && condition.getEndTime() != null) {
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                //根据订单签订时间段查询 开始
+                if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(startTime);
+                }
+                //根据订单签订时间段查询 结束
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
                 }
                 //根据合同交货日期查询
@@ -909,13 +912,16 @@ public class OrderServiceImpl implements OrderService {
                /* if (condition.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
                 } */
-                //根据订单签订日期时间段查询
-                if (condition.getStartTime() != null && condition.getEndTime() != null) {
+                //根据订单签订时间段查询 开始
+                if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(startTime);
+                }
+                //根据订单签订时间段查询 结束
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
                 }
                 //根据合同交货日期查询
