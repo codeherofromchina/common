@@ -14,12 +14,15 @@
     <result column="country_performance" property="countryPerformance" jdbcType="DECIMAL" />
     <result column="assign_rate" property="assignRate" jdbcType="DECIMAL" />
     <result column="salesman_performance" property="salesmanPerformance" jdbcType="DECIMAL" />
+    <result column="total_incr_buyer_count" property="totalIncrBuyerCount" jdbcType="INTEGER" />
+    <result column="incr_buyer_count" property="incrBuyerCount" jdbcType="INTEGER" />
     <result column="assign_status" property="assignStatus" jdbcType="INTEGER" />
     <result column="reject_reason" property="rejectReason" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     id, start_time, work_num, name_ch, salesman_type, two_level_department, three_level_department,
-    organization, station, country_performance, assign_rate, salesman_performance, assign_status, 
+    organization, station, country_performance, assign_rate, salesman_performance, total_incr_buyer_count,
+    incr_buyer_count,assign_status,
     reject_reason
   </sql>
 
@@ -82,6 +85,9 @@
           <if test="rejectReason !=null and rejectReason !=''">
            , reject_reason =#{rejectReason}
           </if>
+          <if test="incrBuyerCount !=null">
+           , incr_buyer_count =#{incrBuyerCount}
+          </if>
         WHERE start_time=#{startTime} AND work_num=#{workNum} AND three_level_department=#{threeLevelDepartment}
 
     </update>
@@ -94,13 +100,14 @@
     insert into performance_assign (id, start_time, work_num, 
       name_ch, salesman_type, two_level_department,
       three_level_department, organization, station, 
-      country_performance, assign_rate, salesman_performance, 
-      assign_status, reject_reason)
+      country_performance, assign_rate, salesman_performance, total_incr_buyer_count,
+    incr_buyer_count, total_incr_buyer_count,incr_buyer_count,assign_status, reject_reason)
     values (#{id,jdbcType=BIGINT}, #{startTime,jdbcType=TIMESTAMP}, #{workNum,jdbcType=VARCHAR}, 
       #{nameCh,jdbcType=VARCHAR}, #{salesmanType,jdbcType=VARCHAR}, #{twoLevelDepartment,jdbcType=VARCHAR},
       #{threeLevelDepartment,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{station,jdbcType=VARCHAR}, 
       #{countryPerformance,jdbcType=DECIMAL}, #{assignRate,jdbcType=DECIMAL}, #{salesmanPerformance,jdbcType=DECIMAL}, 
-      #{assignStatus,jdbcType=INTEGER}, #{rejectReason,jdbcType=VARCHAR})
+      #{totalIncrBuyerCount,jdbcType=INTEGER}, #{incrBuyerCount,jdbcType=INTEGER}, #{totalIncrBuyerCount,jdbcType=INTEGER},
+      #{incrBuyerCount,jdbcType=INTEGER}, #{assignStatus,jdbcType=INTEGER}, #{rejectReason,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.PerformanceAssign" >
     insert into performance_assign
@@ -140,6 +147,12 @@
       </if>
       <if test="salesmanPerformance != null" >
         salesman_performance,
+      </if>
+      <if test="totalIncrBuyerCount != null" >
+        total_incr_buyer_count,
+      </if>
+      <if test="incrBuyerCount != null" >
+        incr_buyer_count,
       </if>
       <if test="assignStatus != null" >
         assign_status,
@@ -184,6 +197,12 @@
       </if>
       <if test="salesmanPerformance != null" >
         #{salesmanPerformance,jdbcType=DECIMAL},
+      </if>
+      <if test="totalIncrBuyerCount != null" >
+        #{totalIncrBuyerCount,jdbcType=INTEGER},
+      </if>
+      <if test="incrBuyerCount != null" >
+        #{incrBuyerCount,jdbcType=INTEGER},
       </if>
       <if test="assignStatus != null" >
         #{assignStatus,jdbcType=INTEGER},
@@ -231,6 +250,12 @@
       <if test="salesmanPerformance != null" >
         salesman_performance = #{salesmanPerformance,jdbcType=DECIMAL},
       </if>
+      <if test="totalIncrBuyerCount != null" >
+        total_incr_buyer_count = #{totalIncrBuyerCount,jdbcType=INTEGER},
+      </if>
+      <if test="incrBuyerCount != null" >
+        incr_buyer_count = #{incrBuyerCount,jdbcType=INTEGER},
+      </if>
       <if test="assignStatus != null" >
         assign_status = #{assignStatus,jdbcType=INTEGER},
       </if>
@@ -253,6 +278,8 @@
       country_performance = #{countryPerformance,jdbcType=DECIMAL},
       assign_rate = #{assignRate,jdbcType=DECIMAL},
       salesman_performance = #{salesmanPerformance,jdbcType=DECIMAL},
+      total_incr_buyer_count = #{totalIncrBuyerCount,jdbcType=INTEGER},
+      incr_buyer_count = #{incrBuyerCount,jdbcType=INTEGER},
       assign_status = #{assignStatus,jdbcType=INTEGER},
       reject_reason = #{rejectReason,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}

@@ -7,11 +7,16 @@ import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.SupplyChainRead;
 import com.erui.report.model.SupplyTrendVo;
+import com.erui.report.service.SupplierOnshelfInfoService;
 import com.erui.report.service.SupplyChainCategoryService;
 import com.erui.report.service.SupplyChainReadService;
 import com.erui.report.service.SupplyChainService;
+import com.erui.report.util.ParamsUtils;
 import com.erui.report.util.SupplyCateDetailVo;
 import com.erui.report.util.SupplyPlanVo;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -26,33 +32,26 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/report/supplyChainRead")
 public class SupplyChainReadController {
 
+   private static final Logger logger= LoggerFactory.getLogger(SupplyChainReadController.class);
     @Autowired
     private SupplyChainService supplyChainService;
     @Autowired
     private SupplyChainReadService supplyChainReadService;
     @Autowired
     private SupplyChainCategoryService supplyChainCategoryService;
-
+    @Autowired
+    private SupplierOnshelfInfoService onshelfInfoService;
     //供应链总览
     @ResponseBody
     @RequestMapping(value = "/supplyGeneral", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Object supplyGeneral(@RequestBody Map<String, Object> map) throws Exception {
-        Result<Object> result = new Result<>();
-        if (!map.containsKey("startTime") || !map.containsKey("endTime")) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            result.setData("参数输入有误");
-            return result;
+    public Object supplyGeneral(@RequestBody Map<String, String> map) throws Exception {
+
+        Date startTime = DateUtil.parseString2DateNoException(map.get("startTime"), "yyyy/MM/dd");
+        Date end = DateUtil.parseString2DateNoException(map.get("endTime"), "yyyy/MM/dd");
+        if (startTime == null || end == null || startTime.after(end)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        //开始时间
-        Date startTime = DateUtil.parseStringToDate(map.get("startTime").toString(), "yyyy/MM/dd");
-        //截止时间
-        Date end = DateUtil.parseStringToDate(map.get("endTime").toString(), "yyyy/MM/dd");
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        if (startTime.getTime() > endTime.getTime()) {
-            result.setStatus(ResultStatusEnum.PARAM_TYPE_ERROR);
-            result.setData("参数输入有误");
-            return result;
-        }
         //环比开始
         int days = DateUtil.getDayBetween(startTime, endTime);
         Date chainEnd = DateUtil.sometimeCalendar(startTime, days);
@@ -64,24 +63,22 @@ public class SupplyChainReadController {
         if (DateUtil.weekDays[6].equals(DateUtil.getWeekOfDate(startTime)) && DateUtil.weekDays[5].equals(DateUtil.getWeekOfDate(endTime))) {
             planVo = supplyChainService.getPlanNum(startTime, endTime);//当前计划数
         }
-        //封装数据
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> supplierDatas = new HashMap<>();
-        Map<String, Object> skuDatas = new HashMap<>();
-        Map<String, Object> spuDatas = new HashMap<>();
-        if (supplyRead != null) {
 
-            supplierDatas.put("supplierCount", supplyRead.getSuppliNum());
-            Double suppliComletionRate = null;
-            Double supplierCountLink = null;
-            Double brandCountLink = null;
-            Double auditSupplierRate = null;
-            Double auditSupplierLink = null;
-            Double passSupplierRate = null;
-            Double passSupplierLink = null;
-            Double rejectSupplierRate = null;
-            Double rejectSupplierLink = null;
-            int planSupplierCount = 0;
+        Map<String, Object> data=null;
+        if (supplyRead != null) {
+            //供应商总览
+            Map<String, Object> supplierDatas = new HashMap<>();
+            Double suppliComletionRate = null; //供应商完成率
+            Double supplierCountLink = 0.00d;//供应商完成数环比
+            Double brandCountLink = 0.00d;//供应商品牌数量环比
+            Double auditSupplierRate = 0.00d;//待审核供应商数量占比
+            Double auditSupplierLink = 0.00d;//待审核供应商数量环比
+            Double passSupplierRate = 0.00d;//已通过供应商数量占比
+            Double passSupplierLink = 0.00d;//已通过供应商数量环比
+            Double rejectSupplierRate = 0.00d;//已驳回供应商数量占比
+            Double rejectSupplierLink = 0.00d;//已通过供应商数量环比
+            int planSupplierCount = 0; //计划供应商数量
+            supplierDatas.put("supplierCount", supplyRead.getSuppliNum());//已开发供应商数量
             if (planVo != null) {
                 if (planVo.getPlanSupplierNum() > 0) {
                     suppliComletionRate = RateUtil.intChainRate(supplyRead.getSuppliNum(), planVo.getPlanSupplierNum());
@@ -107,9 +104,10 @@ public class SupplyChainReadController {
                     passSupplierLink = RateUtil.intChainRate(supplyRead.getPassSuppliNum() - supplchainRead.getPassSuppliNum(), supplchainRead.getPassSuppliNum());
                 }
                 if (supplchainRead.getRejectSuppliNum() > 0) {
-                    rejectSupplierRate = RateUtil.intChainRate(supplyRead.getRejectSuppliNum() - supplchainRead.getRejectSuppliNum(), supplchainRead.getRejectSuppliNum());
+                    rejectSupplierLink = RateUtil.intChainRate(supplyRead.getRejectSuppliNum() - supplchainRead.getRejectSuppliNum(), supplchainRead.getRejectSuppliNum());
                 }
             }
+
             supplierDatas.put("planSupplier", planSupplierCount);
             supplierDatas.put("completionRate", suppliComletionRate);
             supplierDatas.put("supplierCountLink", supplierCountLink);
@@ -124,127 +122,86 @@ public class SupplyChainReadController {
             supplierDatas.put("rejectSupplierCount", supplyRead.getRejectSuppliNum());
             supplierDatas.put("rejectSupplierRate", rejectSupplierRate);
             supplierDatas.put("rejectSupplierLink", rejectSupplierLink);
-            Double skuCompletionRate = null;
-            Double skuCountLink = null;
-            Double tempoSKURate = null;//za
-            Double tempoSKULink = null;
-            Double auditSKURate = null;
-            Double auditSKULink = null;
-            Double passSKURate = null;
-            Double passSKULink = null;
-            Double rejectSKURate = null;
-            Double rejectSKULink = null;
-            int planSKUCount = 0;
-            if (planVo != null) {
-                if (planVo.getPlanSKUNum() > 0) {
-                    skuCompletionRate = RateUtil.intChainRate(supplyRead.getSkuNum(), planVo.getPlanSKUNum());
-                }
-                planSKUCount = planVo.getPlanSKUNum();
+
+            //spu总览
+            Map<String, Object> spuDatas = new HashMap<>();
+            if(planVo!=null){
+                spuDatas.put("planSPU", planVo.getPlanSPUNum());
+            }else {
+                spuDatas.put("planSPU",0);
             }
-            if (supplchainRead != null) {
-                if (supplchainRead.getSkuNum() > 0) {
-                    skuCountLink = RateUtil.intChainRate(supplyRead.getSkuNum() - supplchainRead.getSkuNum(), supplchainRead.getSkuNum());
-                }
-                if (supplchainRead.getTempoSkuNum() > 0) {
-                    tempoSKULink = RateUtil.intChainRate(supplyRead.getTempoSkuNum() - supplchainRead.getTempoSkuNum(), supplchainRead.getTempoSkuNum());
-                }
-                if (supplchainRead.getAuditSkuNum() > 0) {
-                    auditSKULink = RateUtil.intChainRate(supplyRead.getAuditSkuNum() - supplchainRead.getAuditSkuNum(), supplchainRead.getAuditSkuNum());
-                }
-                if (supplchainRead.getPassSkuNum() > 0) {
-                    passSKULink = RateUtil.intChainRate(supplyRead.getPassSkuNum() - supplchainRead.getPassSkuNum(), supplchainRead.getPassSkuNum());
-                }
-                if (supplchainRead.getRejectSkuNum() > 0) {
-                    rejectSKULink = RateUtil.intChainRate(supplyRead.getRejectSkuNum() - supplchainRead.getRejectSkuNum(), supplchainRead.getRejectSkuNum());
-                }
+            spuDatas.put("onshelfSPUCount",supplyRead.getOnshelfSpuNum());
+            spuDatas.put("passSPUCount",supplyRead.getPassSpuNum());
+            if(supplyRead.getSpuNum()>0){
+                spuDatas.put("passSPUProportion",RateUtil.intChainRate(supplyRead.getPassSpuNum(), supplyRead.getSpuNum()));
+            }else {
+                spuDatas.put("passSPUProportion",0d);
             }
-            if (supplyRead.getSkuNum() > 0) {
-                tempoSKURate = RateUtil.intChainRate(supplyRead.getTempoSkuNum(), supplyRead.getSkuNum());
-                auditSKURate = RateUtil.intChainRate(supplyRead.getAuditSkuNum(), supplyRead.getSkuNum());
-                passSKURate = RateUtil.intChainRate(supplyRead.getPassSkuNum(), supplyRead.getSkuNum());
-                rejectSKURate = RateUtil.intChainRate(supplyRead.getRejectSkuNum(), supplyRead.getSkuNum());
+            double passSPULink=0d;
+             if(supplchainRead.getPassSpuNum()>0){
+                 passSPULink=RateUtil.intChainRate(supplyRead.getPassSpuNum() - supplchainRead.getPassSpuNum(), supplchainRead.getPassSpuNum());
+             }
+             spuDatas.put("passSPULink",passSPULink);
+            //sku总览
+            Map<String, Object> skuDatas = new HashMap<>();
+            if(planVo!=null){
+                skuDatas.put("planSKU", planVo.getPlanSKUNum());
+            }else {
+                skuDatas.put("planSKU",0);
             }
-            skuDatas.put("planSKU", planSKUCount);
-            skuDatas.put("skuCount", supplyRead.getSkuNum());
-            skuDatas.put("completionRate", skuCompletionRate);//sku完成率
-            skuDatas.put("skuCountLink", skuCountLink);
-            skuDatas.put("tempoSKUCount", supplyRead.getTempoSkuNum());//暂存sku
-            skuDatas.put("tempoSKURate", tempoSKURate);//
-            skuDatas.put("tempoSKULink", tempoSKULink);//
-            skuDatas.put("auditSKUCount", supplyRead.getAuditSkuNum());//审核中sku
-            skuDatas.put("auditSKURate", auditSKURate);
-            skuDatas.put("auditSKULink", auditSKULink);
-            skuDatas.put("passSKUCount", supplyRead.getPassSkuNum());//已通过sku
-            skuDatas.put("passSKURate", passSKURate);
-            skuDatas.put("passSKULink", passSKULink);
-            skuDatas.put("rejectSKUCount", supplyRead.getRejectSkuNum());//已驳回sku
-            skuDatas.put("rejectSKURate", rejectSKURate);
-            skuDatas.put("rejectSKULink", rejectSKULink);
-            Double spuCompletionRate = null;
-            Double spuCountLink = null;
-            Double tempoSPURate = null;//za
-            Double tempoSPULink = null;
-            Double auditSPURate = null;
-            Double auditSPULink = null;
-            Double passSPURate = null;
-            Double passSPULink = null;
-            Double rejectSPURate = null;
-            Double rejectSPULink = null;
-            int planSPUCount = 0;
-            if (planVo != null) {
-                if (planVo.getPlanSPUNum() > 0) {
-                    spuCompletionRate = RateUtil.intChainRate(supplyRead.getSpuNum(), planVo.getPlanSPUNum());
-                    planSPUCount = planVo.getPlanSPUNum();
-                }
+            skuDatas.put("onshelfSKUCount",supplyRead.getOnshelfSkuNum());
+            skuDatas.put("passSKUCount",supplyRead.getPassSkuNum());
+            if(supplyRead.getSkuNum()>0){
+                skuDatas.put("passSKUProportion",RateUtil.intChainRate(supplyRead.getPassSkuNum(), supplyRead.getSkuNum()));
+            }else {
+                skuDatas.put("passSKUProportion",0d);
             }
-            if (supplchainRead != null) {
-                if (supplchainRead.getSpuNum() > 0) {
-                    spuCountLink = RateUtil.intChainRate(supplyRead.getSpuNum() - supplchainRead.getSpuNum(), supplchainRead.getSpuNum());
-                }
-                if (supplchainRead.getTempoSpuNum() > 0) {
-                    tempoSPULink = RateUtil.intChainRate(supplyRead.getTempoSpuNum() - supplchainRead.getTempoSpuNum(), supplchainRead.getTempoSpuNum());
-                }
-                if (supplchainRead.getAuditSpuNum() > 0) {
-                    auditSPULink = RateUtil.intChainRate(supplyRead.getAuditSpuNum() - supplchainRead.getAuditSpuNum(), supplchainRead.getAuditSpuNum());
-                }
-                if (supplchainRead.getPassSpuNum() > 0) {
-                    passSPULink = RateUtil.intChainRate(supplyRead.getPassSpuNum() - supplchainRead.getPassSpuNum(), supplchainRead.getPassSpuNum());
-                }
-                if (supplchainRead.getRejectSpuNum() > 0) {
-                    rejectSPULink = RateUtil.intChainRate(supplyRead.getRejectSpuNum() - supplchainRead.getRejectSpuNum(), supplchainRead.getRejectSpuNum());
-                }
+            double passSKULink=0d;
+            if(supplchainRead.getPassSkuNum()>0){
+                passSKULink=RateUtil.intChainRate(supplyRead.getPassSkuNum() - supplchainRead.getPassSkuNum(), supplchainRead.getPassSkuNum());
             }
-            if (supplyRead.getSpuNum() > 0) {
-                tempoSPURate = RateUtil.intChainRate(supplyRead.getTempoSpuNum(), supplyRead.getSpuNum());
-                auditSPURate = RateUtil.intChainRate(supplyRead.getAuditSpuNum(), supplyRead.getSpuNum());
-                passSPURate = RateUtil.intChainRate(supplyRead.getPassSpuNum(), supplyRead.getSpuNum());
-                rejectSPURate = RateUtil.intChainRate(supplyRead.getRejectSpuNum(), supplyRead.getSpuNum());
-            }
-            spuDatas.put("planSPU", planSPUCount);
-            spuDatas.put("spuCount", supplyRead.getSpuNum());
-            spuDatas.put("completionRate", spuCompletionRate);//sku完成率
-            spuDatas.put("spuCountLink", spuCountLink);
-            spuDatas.put("tempoSPUCount", supplyRead.getTempoSpuNum());//暂存sku
-            spuDatas.put("tempoSPURate", tempoSPURate);//
-            spuDatas.put("tempoSPULink", tempoSPULink);//
-            spuDatas.put("auditSPUCount", supplyRead.getAuditSpuNum());//审核中sku
-            spuDatas.put("auditSPURate", auditSPURate);
-            spuDatas.put("auditSPULink", auditSPULink);
-            spuDatas.put("passSPUCount", supplyRead.getPassSpuNum());//已通过sku
-            spuDatas.put("passSPURate", passSPURate);
-            spuDatas.put("passSPULink", passSPULink);
-            spuDatas.put("rejectSPUCount", supplyRead.getRejectSpuNum());//已驳回sku
-            spuDatas.put("rejectSPURate", rejectSPURate);
-            spuDatas.put("rejectSPULink", rejectSPULink);
+            skuDatas.put("passSKULink",passSKULink);
+            //封装数据
+            data = new HashMap<>();
             data.put("supplierDatas", supplierDatas);
             data.put("skuDatas", skuDatas);
             data.put("spuDatas", spuDatas);
-            result.setStatus(ResultStatusEnum.SUCCESS);
-            return result.setData(data);
         }
-        return result.setStatus(ResultStatusEnum.DATA_NULL);
+        return new Result<>(data);
     }
 
+
+    /**
+     * 导出供应商已上架spu、sku明细
+     * @param startTime
+     * @param endTime
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/exportSupplierOnshelfDetail")
+    public Object exportSupplierOnshelfDetail(Date startTime, Date endTime, HttpServletResponse response) {
+        if (startTime == null || endTime == null || startTime.after(endTime)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        endTime = DateUtil.getOperationTime(endTime, 23, 59, 59);
+        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        Map<String, String> params = new HashMap<>();
+        params.put("startTime", fullStartTime);
+        params.put("endTime", fullEndTime);
+        List<Map<String,Object>> dataList =onshelfInfoService.selectOnshelfDetailGroupBySupplier(params);
+        XSSFWorkbook wb = onshelfInfoService.exportSupplierOnshelfDetail(startTime,endTime,dataList);
+        //excel文件名
+        String fileName = "上架供应商明细" + System.currentTimeMillis() + ".xlsx";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            logger.debug("异常:" + e.getMessage(), e);
+            return null;
+        }
+    }
     //趋势图
     @ResponseBody
     @RequestMapping(value = "/supplyTrend", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})

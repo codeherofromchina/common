@@ -48,6 +48,26 @@
 
     </select>
 
+    <!--查询指定国家和月份的总的新增会员数量-->
+    <select id="selectIncrBuyerCountByCountryAndTime" resultType="java.lang.Integer" parameterType="java.util.Map">
+    SELECT IFNULL(COUNT(DISTINCT(buyer_code)),0) AS incrBuyerCount
+     FROM performance_count
+      WHERE start_time BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      <if test="area!=null and area!=''">
+        AND area= #{area}
+      </if>
+      <if test="country!=null and country!=''">
+        AND execute_company = #{country}
+      </if>
+      AND sign_company='易瑞'
+      AND buyer_code NOT IN
+      (
+      SELECT buyer_code FROM performance_count
+      WHERE start_time &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") AND sign_company='易瑞'
+      )
+    </select>
+
     <!--查询国家的销售人员信息-->
     <select id="selectSalesmanByCountry" resultType="com.erui.report.model.PerformanceAssign" parameterType="java.lang.String">
 
@@ -75,7 +95,8 @@
 
     <!--查询人员 销售业绩明细 -->
     <select id="selectObtainerPerformance" parameterType="java.util.Map" resultType="java.util.Map">
-      SELECT p.area AS area ,p.execute_company AS country ,p.obtainer AS employee,s.station as job ,
+      SELECT p.area AS area ,p.execute_company AS country ,p.obtainer AS employee,
+      (case WHEN s.station IS NULL THEN '无' ELSE s.station END )as job ,
       SUM(IFNULL(p.project_amount,0))/10000 AS totalPerformance ,
       SUM((CASE WHEN p.sign_company='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS eruiPerformance,
       SUM((CASE WHEN p.sign_company!='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS otherPerformance

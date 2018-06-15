@@ -27,16 +27,5 @@ public class ReportController {
         return null;
     }
 
-    /**
-     * 验证
-     * @return
-     */
-    @ResponseBody
-    @RequestMapping(value = "/hello", method = RequestMethod.GET)
-    public Object hello() {
-       Map<String,Object> map =new HashMap<>();
-        map.put("validate","seccess");
-        return map;
-    }
 
 }
