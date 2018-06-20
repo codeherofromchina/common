@@ -642,7 +642,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
         Order one = orderDao.findOne(orderId);
         one.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
-        BigDecimal alreadyGatheringMoney = one.getAlreadyGatheringMoney();  //已收款总金额
+        BigDecimal alreadyGatheringMoney = one.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : one.getAlreadyGatheringMoney();  //已收款总金额
         one.setReceivableAccountRemaining(shipmentsMoneySum.subtract(alreadyGatheringMoney));// 应收账款余额
         orderDao.save(one);
     }
