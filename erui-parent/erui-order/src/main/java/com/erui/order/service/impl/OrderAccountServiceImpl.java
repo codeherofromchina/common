@@ -294,11 +294,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         // 已收款总金额（USD）   已收款总金额=已收款总金额*汇率          如果收款方式为美元（USD）的话，不用计算汇率
         BigDecimal exchangeRate = order.getExchangeRate();//汇率
         String currencyBn = order.getCurrencyBn();//订单结算币种
-        BigDecimal shipmentsMoney = order.getShipmentsMoney()== null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额
+        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();  //已收款总金额
         if(currencyBn != "USD"){
-            order.setAlreadyGatheringMoneyUSD(shipmentsMoney.multiply(exchangeRate));
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney.multiply(exchangeRate));
         }else {
-            order.setAlreadyGatheringMoneyUSD(shipmentsMoney);
+            order.setAlreadyGatheringMoneyUSD(alreadyGatheringMoney);
         }
         order.setAlreadyGatheringMoneyUSD(order.getAlreadyGatheringMoneyUSD() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoneyUSD());
 
