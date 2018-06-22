@@ -12,4 +12,22 @@ public interface SalesDataMapper {
      * @return
      */
     List<Map<String,Object>> selectInqQuoteTrendData(Map<String,Object> params);
+    /**
+     * 查询各大区和国家的数据明细
+     * @param params
+     * @return 询单金额 、询单数量、报价数量
+     */
+    List<Map<String,Object>> selectAreaAndCountryDetail(Map<String,Object> params);
+    /**
+     * 查询各事业部数据明细
+     * @param params
+     * @return 询单金额 、询单数量、报价数量、报价用时
+     */
+    List<Map<String,Object>> selectOrgDetail(Map<String,Object> params);
+    /**
+     * 查询各分类明细
+     * @param params
+     * @return 询单金额 、询单数量、报价数量
+     */
+    List<Map<String,Object>> selectDataGroupByCategory(Map<String,Object> params);
 }
