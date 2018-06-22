@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.SalesDataMapper" >
+
+
+  <!-- 查询销售数据的趋势图-->
+  <select id="selectInqQuoteTrendData" resultType="java.util.Map" parameterType="java.util.Map" >
+     SELECT
+        COUNT(1) AS inqCount ,
+        IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
+		SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
+        FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
+     FROM erui_rfq.v_inquiry_count
+     WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      GROUP BY TO_DAYS(rollin_time) HAVING datetime IS NOT NULL
+  </select>
+  
+</mapper>
