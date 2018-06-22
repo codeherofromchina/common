@@ -984,6 +984,7 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
+
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
