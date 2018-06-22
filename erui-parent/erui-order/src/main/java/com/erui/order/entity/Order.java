@@ -262,12 +262,12 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderAccountDeliver> orderAccountDelivers = new ArrayList<>();
 
-    @Transient
     // 已发货总金额 （财务管理）
+    @Column(name = "shipments_money")
     private BigDecimal shipmentsMoney;   //已发货总金额 （财务管理）
 
-    @Transient
     //已收款总金额  （财务管理）
+    @Column(name = "already_gathering_money")
     private BigDecimal alreadyGatheringMoney;   //已收款总金额  （财务管理）
 
     @Transient
