@@ -2,7 +2,6 @@ package com.erui.report.service.impl;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.dao.SalesDataMapper;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
@@ -187,7 +186,117 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     @Override
     public Map<String, Object> selectCategoryDetailByType(Map<String, Object> params) {
         //查询各分类数据的相关数据
-       List<Map<String,Object>> dataList= readMapper.selectDataGroupByCategory(params);
+       List<Map<String,Object>> data= readMapper.selectDataGroupByCategory(params);
+       if(CollectionUtils.isNotEmpty(data)){
+
+           Map<String,Object> result=new HashMap<>(); //结果集
+           List<String> cateList=new ArrayList<>(); //存放分类的集合
+           List<Object> dataList=new ArrayList<>();//存放数据的集合
+           List<String> otherCateList=new ArrayList<>(); //存放其他分类的集合
+           List<Object> otherDataList=new ArrayList<>();//存放其他分类数据的集合
+
+           if(params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())){//分析类型为询单数量
+               Integer otherInqCount=null;
+                for(int i =0; i<data.size(); i++){
+                    if(i<8) {
+                        cateList.add(data.get(i).get("category").toString());
+                        dataList.add(data.get(i).get("inqCount"));
+                    }else {
+                        otherCateList.add(data.get(i).get("category").toString());
+                        otherDataList.add(data.get(i).get("inqCount"));
+                        if(otherInqCount!=null) {
+                            otherInqCount+=Integer.parseInt(data.get(i).get("inqCount").toString());
+                        }else {
+                            otherInqCount=Integer.parseInt(data.get(i).get("inqCount").toString());
+                        }
+
+                    }
+                }
+                if(otherInqCount!=null){
+                    cateList.add("其他");
+                    dataList.add(otherInqCount);
+                }
+
+           }
+           if(params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())){//分析类型为询单金额
+               Double otherInqAmount=null;
+               for(int i =0; i<data.size(); i++){
+                   if(i<8) {
+                       cateList.add(data.get(i).get("category").toString());
+                       dataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()),1));
+                   }else {
+                       otherCateList.add(data.get(i).get("category").toString());
+                       otherDataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()),1));
+                       if(otherInqAmount!=null) {
+                           otherInqAmount+=Double.parseDouble(data.get(i).get("inqAmount").toString());
+                       }else {
+                           otherInqAmount=Double.parseDouble(data.get(i).get("inqAmount").toString());
+                       }
+
+                   }
+               }
+               if(otherInqAmount!=null){
+                   cateList.add("其他");
+                   dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount,1));
+               }
+
+           }
+           if(params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())){//分析类型为报价数量
+               Integer otherQuoteCount=null;
+               for(int i =0; i<data.size(); i++){
+                   if(i<8) {
+                       cateList.add(data.get(i).get("category").toString());
+                       dataList.add(data.get(i).get("quoteCount"));
+                   }else {
+                       otherCateList.add(data.get(i).get("category").toString());
+                       int quoteCount = Integer.parseInt(data.get(i).get("quoteCount").toString());
+                       otherDataList.add(quoteCount);
+                       if(otherQuoteCount!=null) {
+                           otherQuoteCount += quoteCount;
+                       }else {
+                           otherQuoteCount=quoteCount;
+                       }
+                   }
+               }
+               if(otherQuoteCount!=null){
+                   cateList.add("其他");
+                   dataList.add(otherQuoteCount);
+               }
+
+           }
+           if(params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())){//分析类型为报价金额
+               Double otherQuoteAmount=null;
+               for(int i =0; i<data.size(); i++){
+                   if(i<8) {
+                       cateList.add(data.get(i).get("category").toString());
+                       dataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()),1));
+                   }else {
+                       otherCateList.add(data.get(i).get("category").toString());
+                       otherDataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()),1));
+                       if(otherQuoteAmount!=null) {
+                           otherQuoteAmount+=Double.parseDouble(data.get(i).get("quoteAmount").toString());
+                       }else {
+                           otherQuoteAmount=Double.parseDouble(data.get(i).get("quoteAmount").toString());
+                       }
+
+                   }
+               }
+               if(otherQuoteAmount!=null){
+                   cateList.add("其他");
+                   dataList.add(RateUtil.doubleChainRateTwo(otherQuoteAmount,1));
+               }
+
+           }
+
+           Map<String,Object> others=new HashMap<>();
+           others.put("cateList",otherCateList);
+           others.put("datas", otherDataList);
+
+           result.put("cateList",cateList);
+           result.put("datas",dataList);
+           result.put("others",others);
+           return result;
+       }
         return null;
     }
 

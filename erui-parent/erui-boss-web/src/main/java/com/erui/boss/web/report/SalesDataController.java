@@ -86,4 +86,6 @@ public class SalesDataController {
         Map<String,Object> data= salesDataService.selectCategoryDetailByType(params);
         return  new Result<>(data);
     }
+
+
 }
