@@ -1,5 +1,7 @@
 package com.erui.report.service;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.util.Map;
 
 /**
@@ -36,4 +38,22 @@ public interface SalesDataService {
      */
     Map<String,Object>  selectCategoryDetailByType(Map<String,Object> params);
 
+    /**
+     * 导出 分类明细数据
+     * @param params
+     * @return
+     */
+    XSSFWorkbook  exportCategoryDetail(Map<String,Object> params);
+    /**
+     * 导出  事业部明细数据
+     * @param params
+     * @return
+     */
+    XSSFWorkbook  exportOrgDetail(Map<String,Object> params);
+    /**
+     * 导出  事业部大区数据
+     * @param params
+     * @return
+     */
+    XSSFWorkbook  exportAreaDetail(Map<String,Object> params);
 }

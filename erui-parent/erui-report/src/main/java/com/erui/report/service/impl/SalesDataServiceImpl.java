@@ -7,7 +7,10 @@ import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -40,7 +43,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         for (String date : dates) {
             if (dataMap.containsKey(date)) {
                 inqCounts.add(Integer.parseInt(dataMap.get(date).get("inqCount").toString()));
-                inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("inqAmount").toString()), 10000));
+                inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("inqAmount").toString()), 1));
                 quoteCounts.add(Integer.parseInt(dataMap.get(date).get("quoteCount").toString()));
             } else {
                 inqCounts.add(0);
@@ -69,6 +72,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
         //查询各大区和国家的数据明细
         List<Map<String, Object>> dataList = readMapper.selectAreaAndCountryDetail(params);
+        Map<String, Object> result = new HashMap<>();
+        List<Object> dList = new ArrayList<>();//各大区数据列表存放
+        Set<String> keySet = new HashSet<>();
 
         if (CollectionUtils.isNotEmpty(dataList)) {
             String area = String.valueOf(params.get("area"));
@@ -108,10 +114,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             }
             //如果有数据
             if (MapUtils.isNotEmpty(dataMap)) {
-                Map<String, Object> result = new HashMap<>();
-                List<Object> dList = new ArrayList<>();//各大区数据列表存放
-                Set<String> keySet = dataMap.keySet();
-
+                keySet = dataMap.keySet();
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
                     for (String key : keySet) {
                         int inqCount = Integer.parseInt(dataMap.get(key).get("inqCount").toString());
@@ -121,7 +124,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
                     for (String key : keySet) {
                         Double inqAmount = Double.parseDouble(dataMap.get(key).get("inqAmount").toString());
-                        dList.add(inqAmount);
+                        dList.add(RateUtil.doubleChainRateTwo(inqAmount, 1));
                     }
                 }
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
@@ -131,12 +134,12 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                     }
                 }
 
-                result.put("areas", keySet);
-                result.put("datas", dList);
-                return result;
             }
         }
-        return null;
+
+        result.put("areas", keySet);
+        result.put("datas", dList);
+        return result;
     }
 
     @Override
@@ -312,6 +315,156 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         result.put("datas", dataList);
         result.put("others", others);
         return result;
+    }
+
+    @Override
+    public XSSFWorkbook exportCategoryDetail(Map<String, Object> params) {
+
+        //声明工作簿
+        XSSFWorkbook wb = new XSSFWorkbook();
+        XSSFCellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+
+        //生成一个表格
+        XSSFSheet sheet = wb.createSheet("销售数据统计-询报价品类明细");
+        sheet.setDefaultColumnWidth(20);
+
+        //产生标题行
+        XSSFRow row = sheet.createRow(0);
+        String[] headers = new String[]{"品类名称", params.get("analyzeType").toString()};
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+        //获取分类数据
+        List<Map<String, Object>> data = readMapper.selectDataGroupByCategory(params);
+        if (CollectionUtils.isNotEmpty(data)) {
+            for (int i = 0; i < data.size(); i++) {
+                Map<String, Object> m = data.get(i);
+                XSSFRow row1 = sheet.createRow(i + 1);
+                XSSFCell cell0 = row1.createCell(0);
+                cell0.setCellValue(m.get("category").toString());
+                XSSFCell cell1 = row1.createCell(1);
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
+                    cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
+                    cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 1));
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
+                    cell1.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+                    cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 1));
+                } else {
+                    cell1.setCellValue(0);
+                }
+            }
+        }
+
+        return wb;
+    }
+
+    @Override
+    public XSSFWorkbook exportOrgDetail(Map<String, Object> params) {
+
+        String analyzeType = params.get("analyzeType").toString();
+        //声明工作簿
+        XSSFWorkbook wb = new XSSFWorkbook();
+        XSSFCellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+
+        //生成一个表格
+        XSSFSheet sheet = wb.createSheet("销售数据统计-询报价事业部明细");
+        sheet.setDefaultColumnWidth(20);
+
+        //产生标题行
+        XSSFRow row = sheet.createRow(0);
+        String[] headers = null;
+        if (StringUtils.isNotEmpty(analyzeType)) {
+            headers = new String[]{"事业部名称", analyzeType};
+        } else {
+            headers = new String[]{"事业部名称", "询单数量", "报价数量", "报价金额"};
+        }
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        //查询各事业部的相关数据
+        List<Map<String, Object>> data = readMapper.selectOrgDetail(params);
+        if (CollectionUtils.isNotEmpty(data)) {
+            for (int i = 0; i < data.size(); i++) {
+                Map<String, Object> m = data.get(i);
+                XSSFRow row1 = sheet.createRow(i + 1);
+                XSSFCell cell0 = row1.createCell(0);
+                cell0.setCellValue(m.get("org").toString());
+                if (StringUtils.isNotEmpty(analyzeType)) {
+                    XSSFCell cell1 = row1.createCell(1);
+                    if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {
+                        cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
+                    } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {
+                        cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 1));
+                    } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {
+                        cell1.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
+                    } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) {
+                        cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteTime").toString()), 1));
+                    }
+                } else {
+                    XSSFCell cell1 = row1.createCell(1);
+                    cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
+                    XSSFCell cell2 = row1.createCell(2);
+                    cell2.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
+                    XSSFCell cell3 = row1.createCell(3);
+                    cell3.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 1));
+
+                }
+            }
+        }
+        return wb;
+    }
+
+    @Override
+    public XSSFWorkbook exportAreaDetail(Map<String, Object> params) {
+
+        String analyzeType = params.get("analyzeType").toString();
+        //声明工作簿
+        XSSFWorkbook wb = new XSSFWorkbook();
+        XSSFCellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+
+        //生成一个表格
+        XSSFSheet sheet = wb.createSheet("询报价大区明细");
+        sheet.setDefaultColumnWidth(20);
+        String[] headers = null;
+        if (StringUtils.isEmpty(params.get("area").toString())) {
+            headers = new String[]{"大区名称", analyzeType};
+        } else {
+            headers = new String[]{"国家名称", analyzeType};
+        }
+        //产生标题行
+        XSSFRow row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        //获取数据
+        Map<String, Object> data = this.selectAreaDetailByType(params);
+        List<String> areas = Arrays.asList(data.get("areas").toString());
+        List<Object> datas = Arrays.asList(data.get("datas"));
+        if (CollectionUtils.isNotEmpty(areas) && CollectionUtils.isNotEmpty(datas)) {
+            for (int i = 0; i < areas.size(); i++) {
+                XSSFRow row1 = sheet.createRow(i + 1);
+                XSSFCell cell0 = row1.createCell(0);
+                cell0.setCellValue(areas.get(i));
+                XSSFCell cell1 = row1.createCell(1);
+                if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName()) ||
+                        analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {
+                    cell1.setCellValue(Integer.parseInt(datas.get(i).toString()));
+                } else {
+                    cell1.setCellValue(Double.parseDouble(datas.get(i).toString()));
+                }
+            }
+        }
+        return wb;
     }
 
 
