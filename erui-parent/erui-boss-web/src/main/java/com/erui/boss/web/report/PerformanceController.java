@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/report/salesPerformance")
 public class PerformanceController {
 
-    private static Logger logger = LoggerFactory.getLogger(PerformanceController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceController.class);
     @Autowired
     PerformanceService performanceService;
 

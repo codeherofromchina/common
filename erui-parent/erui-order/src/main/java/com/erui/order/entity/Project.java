@@ -666,11 +666,9 @@ public class Project {
         OUTSTORAGE("DELAYED_UNSHIPPED", "已出库", 8), SHIPED("SHIPED", "已发运", 9);
         private String code;
         private String msg;
-
         private Integer num;
 
         ProjectProgressEnum(String code, String msg, Integer num) {
-
             this.code = code;
             this.msg = msg;
             this.num = num;
