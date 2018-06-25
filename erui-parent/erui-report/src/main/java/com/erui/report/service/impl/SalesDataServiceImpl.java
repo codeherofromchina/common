@@ -223,10 +223,16 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                for(int i =0; i<data.size(); i++){
                    if(i<8) {
                        cateList.add(data.get(i).get("category").toString());
-                       dataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()),1));
+                       double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()),1);
+                       if(inqAmount<0)  inqAmount=0d;
+                       dataList.add(inqAmount);
+
                    }else {
                        otherCateList.add(data.get(i).get("category").toString());
-                       otherDataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()),1));
+                       double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 1);
+                       if(inqAmount<0) inqAmount=0d;
+                        otherDataList.add(inqAmount);
+
                        if(otherInqAmount!=null) {
                            otherInqAmount+=Double.parseDouble(data.get(i).get("inqAmount").toString());
                        }else {
@@ -237,7 +243,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                }
                if(otherInqAmount!=null){
                    cateList.add("其他");
-                   dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount,1));
+                   if(otherInqAmount<0)  otherInqAmount=0d;
+                   dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount, 1));
                }
 
            }
@@ -269,10 +276,15 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                for(int i =0; i<data.size(); i++){
                    if(i<8) {
                        cateList.add(data.get(i).get("category").toString());
-                       dataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()),1));
+                       double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 1);
+                       if(quoteAmount<0) quoteAmount=0d;
+                       dataList.add(quoteAmount);
                    }else {
                        otherCateList.add(data.get(i).get("category").toString());
-                       otherDataList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()),1));
+                       double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 1);
+                       if(quoteAmount<0) quoteAmount=0d;
+                       otherDataList.add(quoteAmount);
+
                        if(otherQuoteAmount!=null) {
                            otherQuoteAmount+=Double.parseDouble(data.get(i).get("quoteAmount").toString());
                        }else {
@@ -283,7 +295,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                }
                if(otherQuoteAmount!=null){
                    cateList.add("其他");
-                   dataList.add(RateUtil.doubleChainRateTwo(otherQuoteAmount,1));
+                   double oAmount = RateUtil.doubleChainRateTwo(otherQuoteAmount, 1);
+                   if(oAmount<0) oAmount=0d;
+                   dataList.add(oAmount);
                }
 
            }
