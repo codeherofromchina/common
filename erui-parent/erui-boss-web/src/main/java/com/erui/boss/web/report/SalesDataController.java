@@ -87,5 +87,21 @@ public class SalesDataController {
         return  new Result<>(data);
     }
 
+    /**
+     * 询报价数据统计- 客户拜访统计
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/customerVisit",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public Object customerVisit(@RequestBody(required = true) Map<String,Object> params){
+        // 获取参数并转换成时间格式
+        params= ParamsUtils.verifyParam(params, DateUtil.SHORT_SLASH_FORMAT_STR,"analyzeType");
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Map<String,Object> data= salesDataService.selectCategoryDetailByType(params);
+        return  new Result<>(data);
+    }
+
 
 }
