@@ -424,6 +424,22 @@ public class DateUtil {
         now.set(Calendar.DATE,now.get(Calendar.DATE)+day);
         return getOperationTime( now.getTime(), 23, 59, 59);
     }
+
+    /**
+     * 获取日期是当年第多少周
+     * @param datetime
+     * @return
+     */
+    public static int getWeekNumber(Date datetime){
+        if(datetime!=null){
+            Calendar calendar = Calendar.getInstance();
+            calendar.setFirstDayOfWeek(Calendar.MONDAY);
+            calendar.setTime(datetime);
+            int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
+            return weekNumber;
+        }
+        return  0;
+    }
     public static void main(String[] args) {
         //System.out.println(str2Date("1992-12-12"));
 //        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
@@ -445,6 +461,16 @@ public class DateUtil {
 //        Date beforTime = getBeforTime(new Date(), 3600000);
 //        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 //        System.out.println(formatter.format(beforTime));
+        String today = "2017-11-11";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date =null;
+        try {
+             date = format.parse(today);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int weekNumber = getYearNumber(date);
+        System.out.println(weekNumber);
     }
 
     /**
@@ -639,6 +665,35 @@ public class DateUtil {
             return month+1;
         }
         return 0;
+    }
+    /**
+     * 获取年份
+     * @param datetime
+     * @return
+     */
+    public static int getYearNumber(Date datetime){
+        if(datetime!=null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(datetime);
+            int year = cal.get(Calendar.YEAR);
+            return year;
+        }
+        return 0;
+    }
+    /**
+     * 获取某年第多少周
+     * @param datetime
+     * @return   2018年第23周
+     */
+    public static String getYearAndWeekNumber(Date datetime){
+        if(datetime!=null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(datetime);
+            int year = cal.get(Calendar.YEAR);
+            int week = cal.get(Calendar.WEEK_OF_YEAR);
+            return year+"年第"+week+"周";
+        }
+        return null;
     }
 
 }

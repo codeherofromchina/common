@@ -39,6 +39,13 @@ public interface SalesDataService {
     Map<String,Object>  selectCategoryDetailByType(Map<String,Object> params);
 
     /**
+     * 客户拜访明细
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectCustomerVisitDetail(Map<String,String> params) throws Exception;
+
+    /**
      * 导出 分类明细数据
      * @param params
      * @return

@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -318,6 +319,223 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
+    public Map<String, Object> selectCustomerVisitDetail(Map<String, String> params) throws Exception {
+
+        Map<String, Object> result = new HashMap<>();//结果集
+
+        //虚拟一个标准的时间集合
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.FULL_FORMAT_STR2);
+        List<String> dates = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int days = DateUtil.getDayBetween(startTime, endTime);
+        for (int i = 0; i < days; i++) {
+            Date datetime = DateUtil.sometimeCalendar(startTime, -i);
+            dates.add(dateFormat.format(datetime));
+        }
+        //查询各大区每天的拜访次数
+        List<Map<String, Object>> dataList = readMapper.selectVisitCountGrupByAreaAndVisitTime(params);
+        //查询各大区有多少员工
+        List<Map<String, Object>> employeeList = readMapper.selectEmployeeCountGroupByArea();
+        Map<String, Integer> eMap = employeeList.stream().collect(Collectors.toMap(m -> m.get("area").toString(), m -> Integer.parseInt(m.get("employeeCount").toString())));
+        //获取大区集合
+        List<String> areaList = employeeList.stream().map(m -> m.get("area").toString()).collect(Collectors.toList());
+
+        if (params.get("type").equals("week")) {//处理为周的数据
+
+            //获取每一天的数据
+            Map<String, List<Double>> dataMap = new HashMap<>();
+            for (String date : dates) {
+                List<Double> data = new ArrayList<>();
+                Map<String, Double> areaDataMap = new HashMap<>();//存放指定日期各大区数据
+                if (CollectionUtils.isNotEmpty(dataList)) {
+                    for (Map<String, Object> m : dataList) {
+                        String visitAt = m.get("visitAt").toString();
+                        if (date.equals(visitAt)) {
+                            String area = m.get("area").toString();
+                            double visitCount = Double.parseDouble(m.get("visitCount").toString());
+                            //设置成平均拜访数
+                            if (eMap.get(area) > 0) {
+                                visitCount = RateUtil.doubleChainRateTwo(visitCount, eMap.get(area));
+                            }
+                            areaDataMap.put(area, visitCount);
+                        }
+                    }
+                }
+
+                //遍历固定的大区集合
+                if (CollectionUtils.isNotEmpty(areaList)) {
+                    for (String area : areaList) {
+                        if (areaDataMap.containsKey(area)) {
+                            data.add(areaDataMap.get(area));
+                        } else {
+                            data.add(0d);
+                        }
+                    }
+                }
+                dataMap.put(date, data);
+
+            }
+            //整理每一天的数据
+            List<Map<String, Object>> data = new ArrayList<>();
+            for (Map.Entry<String, List<Double>> entry : dataMap.entrySet()) {
+                Map<String, Object> dayMap = new HashMap<>();
+                dayMap.put("dateName", entry.getKey());
+                dayMap.put("data", entry.getValue());
+                data.add(dayMap);
+            }
+
+            result.put("dateList", dates);
+            result.put("areaList", areaList);
+            result.put("data", data);
+            return result;
+
+        } else if (params.get("type").equals("month")) {//处理月的数据
+            List<String> dateList = handleMonthToWeekList(dates);
+            //获取每一周的数据
+            Map<String, List<Double>> dataMap = new HashMap<>();
+            for (String date : dateList) {//遍历周集合
+                List<Double> data = new ArrayList<>();
+                Map<String, Double> areaDataMap = new HashMap<>();//存放指定日期各大区数据
+                if (CollectionUtils.isNotEmpty(dataList)) {
+                    for (Map<String, Object> m : dataList) {
+                        String visitAt = m.get("visitAt").toString();
+                        SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
+                        Date date1 = format.parse(visitAt);
+                        String weekNumber = DateUtil.getYearAndWeekNumber(date1);
+                        if (date.equals(weekNumber)) {
+                            String area = m.get("area").toString();
+                            double visitCount = Double.parseDouble(m.get("visitCount").toString());
+                            if (!areaDataMap.containsKey(area)) {
+                                areaDataMap.put(area, visitCount);
+                            } else {
+                                areaDataMap.put(area, areaDataMap.get(area) + visitCount);
+                            }
+                        }
+                    }
+                }
+
+                //遍历固定的大区集合
+                if (CollectionUtils.isNotEmpty(areaList)) {
+                    for (String area : areaList) {
+                        if (areaDataMap.containsKey(area)) {
+                            //设置成平均拜访数
+                            double visitCount = areaDataMap.get(area);
+                            if (eMap.get(area) > 0) {
+                                visitCount = RateUtil.doubleChainRateTwo(areaDataMap.get(area), eMap.get(area));
+                            }
+                            data.add(visitCount);
+                        } else {
+                            data.add(0d);
+                        }
+                    }
+                }
+                dataMap.put(date, data);
+
+            }
+            //整理每一周的数据
+            List<Map<String, Object>> data = new ArrayList<>();
+            for (Map.Entry<String, List<Double>> entry : dataMap.entrySet()) {
+                Map<String, Object> dayMap = new HashMap<>();
+                dayMap.put("dateName", entry.getKey());
+                dayMap.put("data", entry.getValue());
+                data.add(dayMap);
+            }
+
+            result.put("dateList", dateList);
+            result.put("areaList", areaList);
+            result.put("data", data);
+            return result;
+        } else if (params.get("type").equals("year")) {//如果为年 ，展示12个月份的
+            List<Integer> monthList = new ArrayList<>();
+            for (int i = 1; i <= 12; i++) {
+                monthList.add(i);
+            }
+            //获取每一月的数据
+            Map<String, List<Double>> dataMap = new HashMap<>();
+            for (Integer month : monthList) {
+                List<Double> data = new ArrayList<>();
+                Map<String, Double> areaDataMap = new HashMap<>();//存放指定日期各大区数据
+                if (CollectionUtils.isNotEmpty(dataList)) {
+                    for (Map<String, Object> m : dataList) {
+                        String visitAt = m.get("visitAt").toString();
+                        SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
+                        Date date1 = format.parse(visitAt);
+                        int month1 = DateUtil.getMonth(date1);
+                        if (month.equals(month1)) {
+                            String area = m.get("area").toString();
+                            double visitCount = Double.parseDouble(m.get("visitCount").toString());
+                            if (!areaDataMap.containsKey(area)) {
+                                areaDataMap.put(area, visitCount);
+                            } else {
+                                areaDataMap.put(area, areaDataMap.get(area) + visitCount);
+                            }
+                        }
+                    }
+                }
+
+                //遍历固定的大区集合
+                if (CollectionUtils.isNotEmpty(areaList)) {
+                    for (String area : areaList) {
+                        if (areaDataMap.containsKey(area)) {
+                            //设置成平均拜访数
+                            double visitCount = areaDataMap.get(area);
+                            if (eMap.get(area) > 0) {
+                                visitCount = RateUtil.doubleChainRateTwo(areaDataMap.get(area), eMap.get(area));
+                            }
+                            data.add(visitCount);
+                        } else {
+                            data.add(0d);
+                        }
+                    }
+                }
+                dataMap.put(month+"月", data);
+
+            }
+            //整理每一天的数据
+            List<Map<String, Object>> data = new ArrayList<>();
+            for (Map.Entry<String, List<Double>> entry : dataMap.entrySet()) {
+                Map<String, Object> dayMap = new HashMap<>();
+                dayMap.put("dateName", entry.getKey());
+                dayMap.put("data", entry.getValue());
+                data.add(dayMap);
+            }
+
+            result.put("dateList", monthList);
+            result.put("areaList", areaList);
+            result.put("data", data);
+            return result;
+        }
+
+
+        return null;
+    }
+
+    /**
+     * 把月处理成  一周一周的的集合
+     *
+     * @param dateList
+     * @return
+     */
+    public List<String> handleMonthToWeekList(List<String> dateList) throws ParseException {
+
+        Map<String, String> dateMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(dateList)) {
+            SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
+            for (String date : dateList) {
+                Date datetime = format.parse(date);
+                int yearNumber = DateUtil.getYearNumber(datetime);
+                int weekNumber = DateUtil.getWeekNumber(datetime);
+                String key = yearNumber + "年第" + weekNumber + "周";
+                if (!dateMap.containsKey(key)) {
+                    dateMap.put(key, key);
+                }
+            }
+        }
+        return new ArrayList<>(dateMap.keySet());
+    }
+
+    @Override
     public XSSFWorkbook exportCategoryDetail(Map<String, Object> params) {
 
         //声明工作簿
@@ -372,7 +590,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
 
         //生成一个表格
-        XSSFSheet sheet = wb.createSheet("销售数据统计-询报价事业部明细");
+        XSSFSheet sheet = wb.createSheet("询报价事业部明细");
         sheet.setDefaultColumnWidth(20);
 
         //产生标题行
@@ -434,7 +652,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         XSSFSheet sheet = wb.createSheet("询报价大区明细");
         sheet.setDefaultColumnWidth(20);
         String[] headers = null;
-        if (StringUtils.isEmpty(params.get("area").toString())) {
+        if (params.get("area") == null || StringUtils.isEmpty(params.get("area").toString())) {
             headers = new String[]{"大区名称", analyzeType};
         } else {
             headers = new String[]{"国家名称", analyzeType};

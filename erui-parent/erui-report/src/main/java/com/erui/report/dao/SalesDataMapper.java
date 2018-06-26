@@ -30,4 +30,17 @@ public interface SalesDataMapper {
      * @return 询单金额 、询单数量、报价数量
      */
     List<Map<String,Object>> selectDataGroupByCategory(Map<String,Object> params);
+
+    /**
+     * 查询各大区每天的拜访次数
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> selectVisitCountGrupByAreaAndVisitTime(Map<String,String> params);
+
+    /**
+     * 查询各大区有多少员工
+     * @return
+     */
+    List<Map<String,Object>> selectEmployeeCountGroupByArea();
 }

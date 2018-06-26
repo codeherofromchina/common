@@ -6,7 +6,6 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.ParamsUtils;
-import org.apache.http.HttpResponse;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -117,7 +116,7 @@ public class SalesDataController {
      */
     @RequestMapping(value = "/exportOrgDetail")
     public Object exportOrgDetail(Date startTime, Date endTime,String analyzeType, HttpServletResponse response) throws Exception {
-        if (startTime == null || endTime == null || startTime.after(endTime)) {
+        if (startTime == null || endTime == null ||analyzeType==null || startTime.after(endTime)) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         endTime = DateUtil.getOperationTime(endTime, 23, 59, 59);
@@ -181,20 +180,39 @@ public class SalesDataController {
 
     /**
      * 询报价数据统计- 客户拜访统计
-     *
      * @param params
      * @return
      */
     @RequestMapping(value = "/customerVisit", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object customerVisit(@RequestBody(required = true) Map<String, Object> params) {
-        // 获取参数并转换成时间格式
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_SLASH_FORMAT_STR, "analyzeType");
-        if (params == null) {
+    public Object customerVisit(@RequestBody(required = true) Map<String, String> params)throws Exception {
+
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null||StringUtils.isEmpty(params.get("type"))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        Map<String, Object> data = salesDataService.selectCategoryDetailByType(params);
+        if(params.get("type").equals("month")){//如果按月查询
+            if(end==null|| startTime.after(end)){
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
+        }else  if(params.get("type").equals("week")){//如果按周查询
+            Date end2 = DateUtil.getDateAfter(startTime, 6);
+            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
+            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
+        }else if(params.get("type").equals("year")){//如果按年查询
+            Date end2 = DateUtil.getYearLastDay(startTime);
+            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
+            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
+        }else {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+
+        Map<String,Object> data= salesDataService.selectCustomerVisitDetail(params);
         return new Result<>(data);
     }
+
 
 
 }
