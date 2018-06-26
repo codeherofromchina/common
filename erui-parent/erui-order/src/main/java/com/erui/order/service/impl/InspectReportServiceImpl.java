@@ -195,6 +195,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                 });
                 inspectReport.setContractNo(StringUtils.join(contractNoList, ","));
                 inspectReport.setProjectNo(StringUtils.join(projectNoList, ","));
+                inspectReport.setInspectApplyID(inspectReport.getInspectApply().getId());
             });
         }
 

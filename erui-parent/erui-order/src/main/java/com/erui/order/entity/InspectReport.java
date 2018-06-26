@@ -134,6 +134,9 @@ public class InspectReport {
     private String createUserName;
 
     @Transient
+    private Integer inspectApplyID;  //到货报检单id
+
+    @Transient
     private int page = 0;
     @Transient
     private int pageSize = 20;
@@ -378,6 +381,14 @@ public class InspectReport {
 
     public void setInspectGoodsList(List<InspectApplyGoods> inspectGoodsList) {
         this.inspectGoodsList = inspectGoodsList;
+    }
+
+    public Integer getInspectApplyID() {
+        return inspectApplyID;
+    }
+
+    public void setInspectApplyID(Integer inspectApplyID) {
+        this.inspectApplyID = inspectApplyID;
     }
 
     public static enum StatusEnum {
