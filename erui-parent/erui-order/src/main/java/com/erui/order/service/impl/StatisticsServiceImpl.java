@@ -39,6 +39,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -664,6 +665,24 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 完善出库物流信息
         result = mergeDeliverConsignGoodsInfo(result, statisticsDao.findDeliverConsignGoods(goodsIds));
 
+        Collections.sort(result ,new Comparator<GoodsBookDetail>(){
+            @Override
+            public int compare(GoodsBookDetail b1, GoodsBookDetail b2) {
+                String purchNo1 = b1.getPurchNo();
+                String purchNo2 = b2.getPurchNo();
+                if(purchNo1 != null && purchNo2 != null){
+
+                    Collator ca = Collator.getInstance(Locale.CHINA);
+                    if(ca.compare(purchNo1,purchNo2) > 0){
+                        return 1;
+                    }else if(ca.compare(purchNo1,purchNo2) < 0){
+                        return -1;
+                    }
+                    return 0;
+                }
+                return -1;
+            }
+        });
         return result;
     }
 
