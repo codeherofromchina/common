@@ -889,7 +889,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                     sendNum = 0;
                 }
                 objArr[1] = sendNum;
-
                 GoodsBookDetail clone = (GoodsBookDetail) goodsBookDetail.clone();
                 clone.setSendNum(onceSendNum);
                 clone.setQualifiedNum(onceSendNum);

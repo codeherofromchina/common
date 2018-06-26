@@ -7,7 +7,7 @@ public final class Constant {
     /**
      * 系统返回异常时，定义的中英文分隔字符
      */
-    public static final String ZH_EN_EXCEPTION_SPLIT_SYMBOL = "&&&";
+    public static final String ZH_EN_EXCEPTION_SPLIT_SYMBOL = "&&";
 
 
 }
