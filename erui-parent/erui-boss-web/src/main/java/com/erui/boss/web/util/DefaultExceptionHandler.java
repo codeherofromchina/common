@@ -71,7 +71,6 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
         logger.debug("异常:" + ex.getMessage(), ex);
         return mv;
     }
-
     @Override
     public int getOrder() {
         return 0;
