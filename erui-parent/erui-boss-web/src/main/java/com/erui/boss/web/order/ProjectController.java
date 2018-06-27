@@ -129,7 +129,6 @@ public class ProjectController {
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
-
     /**
      * 获取项目详情
      *
