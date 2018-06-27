@@ -500,8 +500,11 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 dayMap.put("data", entry.getValue());
                 data.add(dayMap);
             }
-
-            result.put("dateList", monthList);
+            List<String> months=new ArrayList<>();
+            for(Integer month:monthList){
+                months.add(month+"月");
+            }
+            result.put("dateList", months);
             result.put("areaList", areaList);
             result.put("data", data);
             return result;
