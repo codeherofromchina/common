@@ -447,13 +447,13 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             result.put("data", data);
             return result;
         } else if (params.get("type").equals("year")) {//如果为年 ，展示12个月份的
-            List<Integer> monthList = new ArrayList<>();
+            List<String> monthList = new ArrayList<>();
             for (int i = 1; i <= 12; i++) {
-                monthList.add(i);
+                monthList.add(i+"月");
             }
             //获取每一月的数据
             Map<String, List<Double>> dataMap = new HashMap<>();
-            for (Integer month : monthList) {
+            for (String month : monthList) {
                 List<Double> data = new ArrayList<>();
                 Map<String, Double> areaDataMap = new HashMap<>();//存放指定日期各大区数据
                 if (CollectionUtils.isNotEmpty(dataList)) {
@@ -462,7 +462,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                         SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
                         Date date1 = format.parse(visitAt);
                         int month1 = DateUtil.getMonth(date1);
-                        if (month.equals(month1)) {
+                        if (month.equals(month1+"月")) {
                             String area = m.get("area").toString();
                             double visitCount = Double.parseDouble(m.get("visitCount").toString());
                             if (!areaDataMap.containsKey(area)) {
@@ -489,7 +489,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                         }
                     }
                 }
-                dataMap.put(month+"月", data);
+                dataMap.put(month, data);
 
             }
             //整理每一天的数据
@@ -500,11 +500,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 dayMap.put("data", entry.getValue());
                 data.add(dayMap);
             }
-            List<String> months=new ArrayList<>();
-            for(Integer month:monthList){
-                months.add(month+"月");
-            }
-            result.put("dateList", months);
+
+            result.put("dateList", monthList);
             result.put("areaList", areaList);
             result.put("data", data);
             return result;
