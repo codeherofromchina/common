@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -78,7 +79,7 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrder(@RequestBody AddOrderVo addOrderVo, HttpServletRequest request) {
+    public Result<Object> addOrder(@RequestBody @Valid AddOrderVo addOrderVo, HttpServletRequest request) throws Exception{
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         logger.info("OrderController.addOrder()");
         boolean continueFlag = false;
@@ -169,8 +170,6 @@ public class OrderController {
         if (!continueFlag) {
             return result;
         }
-
-        try {
             Integer id;
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
@@ -182,13 +181,7 @@ public class OrderController {
             if (id != null) {
                 return new Result<>(id);
             }
-        } catch (Exception ex) {
-            logger.error("订单操作失败：{}", addOrderVo, ex);
-            String message = ex.getMessage();
-            String[] splitMsg = message.split("&&");
-            result.setMsg(splitMsg[0]);
-            result.setEnMsg(splitMsg[1]);
-        }
+
         return result;
 
     }

@@ -108,13 +108,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project1.setProjectNo(purchRequisition1.getProjectNo());
             Order order = project1.getOrder();
             order.setProjectNo(purchRequisition1.getProjectNo());
+            order.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             orderDao.save(order);
             projectDao.save(project1);
-
-
             try {
                 //TODO 采购申请通知：采购申请单下达后通知采购经办人
-              sendSms(project1);
+                sendSms(project1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -177,6 +176,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project1.setPurchTime(new Date());
             Order order = project1.getOrder();
             order.setProjectNo(purchRequisition1.getProjectNo());
+            order.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             orderDao.save(order);
             projectDao.save(project1);
             try {
@@ -226,7 +226,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 }
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
             }
 
         }
@@ -259,7 +259,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 rows = 50;
             }
         }
-        Pageable pageRequest = new PageRequest(page - 1, rows, Sort.Direction.DESC,"id");
+        Pageable pageRequest = new PageRequest(page - 1, rows, Sort.Direction.DESC, "id");
         Page<PurchRequisition> pageList = purchRequisitionDao.findAll(new Specification<PurchRequisition>() {
             @Override
             public Predicate toPredicate(Root<PurchRequisition> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

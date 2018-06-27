@@ -36,7 +36,7 @@ public class Project {
     private String projectNo;
 
     @Column(name = "project_name")
-    @Size(max = 255,message = "项目名称过长")
+    @Size(max = 255,message = "项目名称填写不规范，请重新输入")
     private String projectName;
 
     @Column(name = "start_date")
