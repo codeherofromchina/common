@@ -234,13 +234,15 @@ public class OrderServiceImpl implements OrderService {
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 //vo.setAttachmentSet(null);
-                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
-                    vo.setDeliverConsignC(flag);
-                } else {
-                    vo.setDeliverConsignC(Boolean.FALSE);
+                    if (flag) {
+                        vo.setDeliverConsignC(flag);
+                    } else {
+                        vo.setDeliverConsignC(Boolean.FALSE);
+                    }
                 }
+                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
