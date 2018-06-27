@@ -41,15 +41,19 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<Integer> inqCounts = new ArrayList<>();
         List<Double> inqAmounts = new ArrayList<>();
         List<Integer> quoteCounts = new ArrayList<>();
+        List<Double> quoteAmounts = new ArrayList<>();
         for (String date : dates) {
             if (dataMap.containsKey(date)) {
                 inqCounts.add(Integer.parseInt(dataMap.get(date).get("inqCount").toString()));
-                inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("inqAmount").toString()), 1));
+                inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("inqAmount").toString()), 10000));
                 quoteCounts.add(Integer.parseInt(dataMap.get(date).get("quoteCount").toString()));
+                quoteAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("quoteAmount").toString()), 10000));
+
             } else {
                 inqCounts.add(0);
                 inqAmounts.add(0d);
                 quoteCounts.add(0);
+                quoteAmounts.add(0d);
             }
         }
 
@@ -62,6 +66,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             result.put("yAxis", inqAmounts);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//报价数量
             result.put("yAxis", quoteCounts);
+        }else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//报价金额
+            result.put("yAxis", quoteAmounts);
         } else {
             return null;
         }
@@ -87,11 +93,13 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                     int inqCount = Integer.parseInt(m.get("inqCount").toString());
                     int quoteCount = Integer.parseInt(m.get("quoteCount").toString());
                     double inqAmount = Double.parseDouble(m.get("inqAmount").toString());
+                    double quoteAmount = Double.parseDouble(m.get("quoteAmount").toString());
                     if (dataMap.containsKey(areaName)) {
                         Map<String, Object> map = dataMap.get(areaName);
                         map.put("inqCount", Integer.parseInt(map.get("inqCount").toString()) + inqCount);
                         map.put("quoteCount", Integer.parseInt(map.get("quoteCount").toString()) + quoteCount);
                         map.put("inqAmount", Double.parseDouble(map.get("inqAmount").toString()) + inqAmount);
+                        map.put("quoteAmount", Double.parseDouble(map.get("quoteAmount").toString()) + quoteAmount);
                     } else {
                         dataMap.put(areaName, m);
                     }
@@ -125,7 +133,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
                     for (String key : keySet) {
                         Double inqAmount = Double.parseDouble(dataMap.get(key).get("inqAmount").toString());
-                        dList.add(RateUtil.doubleChainRateTwo(inqAmount, 1));
+                        dList.add(RateUtil.doubleChainRateTwo(inqAmount, 10000));
                     }
                 }
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
@@ -134,7 +142,12 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                         dList.add(quoteCount);
                     }
                 }
-
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+                    for (String key : keySet) {
+                        Double quoteAmount = Double.parseDouble(dataMap.get(key).get("quoteAmount").toString());
+                        dList.add(RateUtil.doubleChainRateTwo(quoteAmount, 10000));
+                    }
+                }
             }
         }
 
@@ -152,17 +165,19 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<Integer> inqCountList = new ArrayList<>();
         List<Double> inqAmountList = new ArrayList<>();
         List<Integer> quoteCountList = new ArrayList<>();
+        List<Double> quoteAmountList = new ArrayList<>();
         List<Double> quoteTimeList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(data)) {
             for (Map<String, Object> m : data) {
                 orgList.add(m.get("org").toString());
                 inqCountList.add(Integer.parseInt(m.get("inqCount").toString()));
-                inqAmountList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 1));
+                inqAmountList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 10000));
                 quoteCountList.add(Integer.parseInt(m.get("quoteCount").toString()));
+                quoteAmountList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 10000));
                 quoteTimeList.add(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteTime").toString()), 1));
             }
         }
-        //分析类型 ：默认 、询单数量、询单金额、报价数量、报价用时
+        //分析类型 ：默认 、询单数量、询单金额、报价数量、报价金额、报价用时
         String analyzeType = params.get("analyzeType").toString();
         if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//如果分析类型为询单数量
             result.put("orgs", orgList);
@@ -173,6 +188,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
             result.put("orgs", orgList);
             result.put("quoteCountList", quoteCountList);
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+            result.put("orgs", orgList);
+            result.put("quoteAmountList", quoteAmountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) {//分析类型为报价用时
             result.put("orgs", orgList);
             result.put("inqAmountList", quoteTimeList);
@@ -226,13 +244,13 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 for (int i = 0; i < data.size(); i++) {
                     if (i < 8) {
                         cateList.add(data.get(i).get("category").toString());
-                        double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 1);
+                        double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 10000);
                         if (inqAmount < 0) inqAmount = 0d;
                         dataList.add(inqAmount);
 
                     } else {
                         otherCateList.add(data.get(i).get("category").toString());
-                        double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 1);
+                        double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 10000);
                         if (inqAmount < 0) inqAmount = 0d;
                         otherDataList.add(inqAmount);
 
@@ -247,7 +265,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 if (otherInqAmount != null) {
                     cateList.add("其他");
                     if (otherInqAmount < 0) otherInqAmount = 0d;
-                    dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount, 1));
+                    dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount, 10000));
                 }
 
             }
@@ -280,12 +298,12 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 for (int i = 0; i < data.size(); i++) {
                     if (i < 8) {
                         cateList.add(data.get(i).get("category").toString());
-                        double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 1);
+                        double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 10000);
                         if (quoteAmount < 0) quoteAmount = 0d;
                         dataList.add(quoteAmount);
                     } else {
                         otherCateList.add(data.get(i).get("category").toString());
-                        double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 1);
+                        double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 10000);
                         if (quoteAmount < 0) quoteAmount = 0d;
                         otherDataList.add(quoteAmount);
 
@@ -299,7 +317,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 }
                 if (otherQuoteAmount != null) {
                     cateList.add("其他");
-                    double oAmount = RateUtil.doubleChainRateTwo(otherQuoteAmount, 1);
+                    double oAmount = RateUtil.doubleChainRateTwo(otherQuoteAmount, 10000);
                     if (oAmount < 0) oAmount = 0d;
                     dataList.add(oAmount);
                 }
@@ -566,11 +584,11 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
                     cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
                 } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
-                    cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 1));
+                    cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 10000));
                 } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
                     cell1.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
                 } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
-                    cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 1));
+                    cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 10000));
                 } else {
                     cell1.setCellValue(0);
                 }
@@ -619,7 +637,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                     if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {
                         cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
                     } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {
-                        cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 1));
+                        cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 10000));
                     } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {
                         cell1.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
                     } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) {
@@ -631,7 +649,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                     XSSFCell cell2 = row1.createCell(2);
                     cell2.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
                     XSSFCell cell3 = row1.createCell(3);
-                    cell3.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 1));
+                    cell3.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 10000));
 
                 }
             }
