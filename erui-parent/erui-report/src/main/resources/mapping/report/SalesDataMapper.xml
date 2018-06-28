@@ -97,31 +97,32 @@
 
     <!-- 查询各大区每天的拜访次数 -->
     <select id="selectVisitCountGrupByAreaAndVisitTime" resultType="java.util.Map" parameterType="java.util.Map">
-
-      SELECT COUNT(1) as visitCount , FROM_DAYS(TO_DAYS(datetime)) as visitAt ,area
-      FROM
-      (
-        SELECT visit.buyer_id AS buyerId ,visit.created_at AS datetime, areas.market_area_bn as area
+        SELECT COUNT(1) as visitCount , FROM_DAYS(TO_DAYS(datetime)) as visitAt ,area
+        FROM
+        (
+        SELECT visit.buyer_id AS buyerId ,visit.created_at AS datetime, areasZh.name as area
         FROM erui_buyer.buyer_visit AS visit
-        LEFT JOIN   erui_sys.country_member  AS member  ON visit.created_by =member.employee_id
-        LEFT JOIN erui_operation.market_area_country AS areas on  member.country_bn=areas.country_bn
-      ) AS a
-      WHERE 1=1
+        LEFT JOIN   erui_buyer.buyer  AS buyers  ON visit.buyer_id=buyers.id
+        LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
+        LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
+        ) AS a
+        WHERE 1=1
         <if test="startTime!=null and endTime!=null">
             and datetime BETWEEN DATE_FORMAT(#{startTime},"%Y-%m-%d")
             and DATE_FORMAT(#{endTime},"%Y-%m-%d")
         </if>
-      GROUP BY TO_DAYS(datetime),area HAVING area is not NULL AND visitAt IS  NOT  NULL ;
-
+        GROUP BY TO_DAYS(datetime),area HAVING area is not NULL AND visitAt IS  NOT  NULL ;
 
     </select>
 
     <!-- 查询各大区有多少员工-->
     <select id="selectEmployeeCountGroupByArea" resultType="java.util.Map">
-        SELECT count(DISTINCT(member.employee_id))  as employeeCount ,areas.market_area_bn as area
+        SELECT count(DISTINCT(member.employee_id))  as employeeCount ,areasCh.name as area
         FROM   erui_sys.country_member  AS member
-        LEFT JOIN  erui_operation.market_area_country AS areas
-        on  member.country_bn=areas.country_bn
+        LEFT JOIN  erui_operation.market_area_country AS areasBn
+        on  member.country_bn=areasBn.country_bn
+		LEFT JOIN erui_operation.market_area    AS areasCh
+        ON areasBn.market_area_bn=areasCh.bn AND areasCh.lang='zh'
         GROUP BY area  HAVING area IS NOT NULL;
     </select>
 
