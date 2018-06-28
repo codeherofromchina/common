@@ -178,6 +178,7 @@ public class InstockServiceImpl implements InstockService {
                 map.put("uname", instock.getUname());
                 map.put("uid",instock.getUid());
                 map.put("outCheck",instock.getOutCheck());//是否外检（ 0：否   1：是）
+                map.put("purchNo",instock.getInspectReport().getInspectApply().getPurchNo());   //采购合同号
 
                 list.add(map);
             }
