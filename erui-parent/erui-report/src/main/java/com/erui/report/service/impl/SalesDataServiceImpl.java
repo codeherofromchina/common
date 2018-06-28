@@ -5,6 +5,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.SalesDataMapper;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
+import com.erui.report.util.SetList;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -180,7 +181,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
 
     @Override
-    public Map<String, Object> selectAreaDetailByType(Map<String, Object> params) {
+    public Map<String, Object> selectAreaDetailByType(Map<String, String> params) {
 
         //查询各大区和国家的数据明细
         List<Map<String, Object>> dataList = readMapper.selectAreaAndCountryDetail(params);
@@ -189,8 +190,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Set<String> keySet = new HashSet<>();
 
         if (CollectionUtils.isNotEmpty(dataList)) {
-            String area = String.valueOf(params.get("area"));
-            String country = String.valueOf(params.get("country"));
+            String area = params.get("area");
+            String country =params.get("country");
             Map<String, Map<String, Object>> dataMap = new HashMap<>();
             if (StringUtils.isEmpty(area) && StringUtils.isEmpty(country)) { //如果大区和国家都没有指定 显示各大区数据
                 for (Map<String, Object> m : dataList) {
@@ -262,7 +263,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public Map<String, Object> selectOrgDetailByType(Map<String, Object> params) {
+    public Map<String, Object> selectOrgDetailByType(Map<String, String> params) {
         //查询各事业部的相关数据
         List<Map<String, Object>> data = readMapper.selectOrgDetail(params);
         Map<String, Object> result = new HashMap<>();
@@ -310,7 +311,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public Map<String, Object> selectCategoryDetailByType(Map<String, Object> params) {
+    public Map<String, Object> selectCategoryDetailByType(Map<String, String> params) {
         //查询各分类数据的相关数据
         List<Map<String, Object>> data = readMapper.selectDataGroupByCategory(params);
         Map<String, Object> result = new HashMap<>(); //结果集
@@ -507,7 +508,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 dayMap.put("data", entry.getValue());
                 data.add(dayMap);
             }
-
+            //为数据排序
+            sortMapList(data);
             result.put("dateList", dates);
             result.put("areaList", areaList);
             result.put("data", data);
@@ -564,7 +566,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 dayMap.put("data", entry.getValue());
                 data.add(dayMap);
             }
-
+            //为数据按日期排序
+            sortMapList(data);
             result.put("dateList", dateList);
             result.put("areaList", areaList);
             result.put("data", data);
@@ -623,7 +626,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 dayMap.put("data", entry.getValue());
                 data.add(dayMap);
             }
-
+            //为数据按日期排序
+            sortMapList(data);
             result.put("dateList", monthList);
             result.put("areaList", areaList);
             result.put("data", data);
@@ -642,7 +646,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
      */
     public List<String> handleMonthToWeekList(List<String> dateList) throws ParseException {
 
-        Map<String, String> dateMap = new HashMap<>();
+        Set<String> weekSet=new HashSet<>();
         if (CollectionUtils.isNotEmpty(dateList)) {
             SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
             for (String date : dateList) {
@@ -650,16 +654,26 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 int yearNumber = DateUtil.getYearNumber(datetime);
                 int weekNumber = DateUtil.getWeekNumber(datetime);
                 String key = yearNumber + "年第" + weekNumber + "周";
-                if (!dateMap.containsKey(key)) {
-                    dateMap.put(key, key);
-                }
+                weekSet.add(key);
             }
         }
-        return new ArrayList<>(dateMap.keySet());
+        SetList setList = new SetList(new ArrayList<>(weekSet));
+        return setList.getSetList();
+    }
+    public void sortMapList( List<Map<String,Object>> mapList){
+        //按日期数据排序
+        mapList.sort(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                o1.get("dateName");
+                return SetList.getNum(o1.get("dateName").toString())-SetList.getNum(o2.get("dateName").toString());
+            }
+        });
+
     }
 
     @Override
-    public XSSFWorkbook exportCategoryDetail(Map<String, Object> params) {
+    public XSSFWorkbook exportCategoryDetail(Map<String, String> params) {
 
         //声明工作簿
         XSSFWorkbook wb = new XSSFWorkbook();
@@ -704,7 +718,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public XSSFWorkbook exportOrgDetail(Map<String, Object> params) {
+    public XSSFWorkbook exportOrgDetail(Map<String, String> params) {
 
         String analyzeType = params.get("analyzeType").toString();
         //声明工作簿
@@ -763,7 +777,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public XSSFWorkbook exportAreaDetail(Map<String, Object> params) {
+    public XSSFWorkbook exportAreaDetail(Map<String, String> params) {
 
         String analyzeType = params.get("analyzeType").toString();
         //声明工作簿
