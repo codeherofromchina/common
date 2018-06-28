@@ -1012,6 +1012,8 @@ public class OrderServiceImpl implements OrderService {
                 for (Order order : pageList) {
                     order.setAttachmentSet(null);
                     order.setOrderPayments(null);
+                    order.setOrderAccountDelivers(null);
+                    order.setOrderAccounts(null);
                     if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                         boolean flag = order.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                         order.setDeliverConsignC(flag);

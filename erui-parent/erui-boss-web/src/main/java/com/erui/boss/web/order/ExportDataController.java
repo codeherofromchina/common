@@ -168,21 +168,29 @@ public class ExportDataController {
                 });
             }
             //"币种"
-            String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
-                    "CRM客户代码", "订单类型", "合同总价(USD)", "款项状态", "订单来源", "订单状态", "流程进度"};
+          /*  String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
+                    "CRM客户代码", "订单类型", "合同总价(USD)", "款项状态", "订单来源", "订单状态", "流程进度"};*/
+            String[] header = new String[]{"销售合同号", "项目号", "询单号", "商务技术经办人", "合同交货日期",
+                    "CRM客户代码", "合同总价(USD)", "款项状态", "订单状态", "流程进度"};
             //"currency"
-            String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", "Signing date of the order",
-                    "CRM ID", "Order type",  "Total value(USD)", "Payment status", "Order origin", "Order status", "Project progress"};
+           /* String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", "Signing date of the order",
+                    "CRM ID", "Order type",  "Total value(USD)", "Payment status", "Order origin", "Order status", "Project progress"};*/
+            String[] enHeader = new String[]{"Contract No.", "Project number", "Inquiry No", "Agent from business technology department", "Delivery date in the contract",
+                    "CRM ID", "Total value(USD)", "Payment status", "Order status", "Project progress"};
             //"currencyBn"
-            String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
-                    "crmCode", "orderTypeName", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};
+           /* String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
+                    "crmCode", "orderTypeName", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};*/
+            String[] keys = new String[]{"contractNo", "projectNo", "inquiryNo", "businessName", "deliveryDate",
+                    "crmCode", "totalPriceUsdSplit", "payStatusName", "orderStatusName", "processProgressName"};
             //"currencyBn"
-            String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
-                    "crmCode", "enOrderTypeName", "totalPriceUsdSplit", "enPayStatusName", "enOrderSourceName", "enOrderStatusName", "enProcessProgressName"};
+           /* String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
+                    "crmCode", "enOrderTypeName", "totalPriceUsdSplit", "enPayStatusName", "enOrderSourceName", "enOrderStatusName", "enProcessProgressName"};*/
+            String[] enKeys = new String[]{"contractNo", "projectNo", "inquiryNo", "businessName", "deliveryDate",
+                    "crmCode", "totalPriceUsdSplit", "enPayStatusName", "enOrderStatusName", "enProcessProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook;
-            if (StringUtils.equals(lang,"en")) {
+            if (StringUtils.equals(lang, "en")) {
                 workbook = buildExcel.buildExcel((List) objArr, enHeader, enKeys, "Order List");
                 ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
                 ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
@@ -221,10 +229,12 @@ public class ExportDataController {
             }
 
         }
-        String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
-                "项目创建日期","项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};
-        String[] keys = new String[]{"contractNo", "projectNo", "projectName", "execCoName", "distributionDeptName", "businessUnitName", "businessName", "region",
-                "createTime", "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};
+      /*  String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
+                "项目创建日期","项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};*/
+        String[] header = new String[]{"销售合同号", "项目号", "项目名称", "项目开始日期", "项目状态", "流程进度"};
+   /*     String[] keys = new String[]{"contractNo", "projectNo", "projectName", "execCoName", "distributionDeptName", "businessUnitName", "businessName", "region",
+                "createTime", "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};*/
+        String[] keys = new String[]{"contractNo", "projectNo", "projectName", "startDate", "projectStatusName", "processProgressName"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectList);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目列表");
