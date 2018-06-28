@@ -175,7 +175,7 @@ public class ExportDataController {
             //"currency"
            /* String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", "Signing date of the order",
                     "CRM ID", "Order type",  "Total value(USD)", "Payment status", "Order origin", "Order status", "Project progress"};*/
-            String[] enHeader = new String[]{"Contract No.", "Project number", "Inquiry No", "Agent from business technology department", "Delivery date in the contract",
+            String[] enHeader = new String[]{"Contract No.", "Project No", "Inquiry No", "Agent from business technology department", "Delivery date in the contract",
                     "CRM ID", "Total value(USD)", "Payment status", "Order status", "Project progress"};
             //"currencyBn"
            /* String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
