@@ -234,13 +234,15 @@ public class OrderServiceImpl implements OrderService {
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 //vo.setAttachmentSet(null);
-                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
-                    vo.setDeliverConsignC(flag);
-                } else {
-                    vo.setDeliverConsignC(Boolean.FALSE);
+                    if (flag) {
+                        vo.setDeliverConsignC(flag);
+                    } else {
+                        vo.setDeliverConsignC(Boolean.FALSE);
+                    }
                 }
+                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
@@ -984,6 +986,7 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
+
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
@@ -1009,6 +1012,8 @@ public class OrderServiceImpl implements OrderService {
                 for (Order order : pageList) {
                     order.setAttachmentSet(null);
                     order.setOrderPayments(null);
+                    order.setOrderAccountDelivers(null);
+                    order.setOrderAccounts(null);
                     if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                         boolean flag = order.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                         order.setDeliverConsignC(flag);

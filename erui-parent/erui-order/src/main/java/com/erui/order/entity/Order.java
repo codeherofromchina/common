@@ -1,17 +1,15 @@
 package com.erui.order.entity;
 
-import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.util.GoodsUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -26,18 +24,22 @@ public class Order {
     private Integer id;
 
     @Column(name = "contract_no")
+    @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
 
     @Column(name = "framework_no")
+    @Size(max = 255,message = "框架协议号填写不规范，请重新输入")
     private String frameworkNo;
 
     @Column(name = "contract_no_os")
+    @Size(max = 255,message = "海外销售合同号填写不规范，请重新输入")
     private String contractNoOs;
 
     @Column(name = "po_no")
     private String poNo;
 
     @Column(name = "logi_quote_no")
+    @Size(max = 255,message = "物流报价单号填写不规范，请重新输入")
     private String logiQuoteNo;
 
     @Column(name = "inquiry_no")
@@ -57,6 +59,7 @@ public class Order {
     private String deliveryDate;
 
     @Column(name = "signing_co")
+    @Size(max = 255,message = "合同交货日期填写不规范，请重新输入")
     private String signingCo;
 
     @Column(name = "agent_id")
@@ -285,9 +288,17 @@ public class Order {
     @Transient
     // 已发货总金额USD （财务管理）
     private String currencyBnReceivableAccountRemaining;   //应收账款余额
+    //'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
+    @Column(name = "purch_req_create")
+    private Integer purchReqCreate;
 
+    public Integer getPurchReqCreate() {
+        return purchReqCreate;
+    }
 
-
+    public void setPurchReqCreate(Integer purchReqCreate) {
+        this.purchReqCreate = purchReqCreate;
+    }
 
     public Integer getOrderCategory() {
         return orderCategory;

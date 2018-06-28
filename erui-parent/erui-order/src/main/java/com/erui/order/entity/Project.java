@@ -36,7 +36,7 @@ public class Project {
     private String projectNo;
 
     @Column(name = "project_name")
-    @Size(max = 255,message = "项目名称过长")
+    @Size(max = 255,message = "项目名称填写不规范，请重新输入")
     private String projectName;
 
     @Column(name = "start_date")
@@ -666,11 +666,9 @@ public class Project {
         OUTSTORAGE("DELAYED_UNSHIPPED", "已出库", 8), SHIPED("SHIPED", "已发运", 9);
         private String code;
         private String msg;
-
         private Integer num;
 
         ProjectProgressEnum(String code, String msg, Integer num) {
-
             this.code = code;
             this.msg = msg;
             this.num = num;

@@ -2,10 +2,8 @@ package com.erui.order.event;
 
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.Area;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
-import com.erui.order.service.AreaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
@@ -28,31 +26,32 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
         Order order = (Order) orderProgressEvent.getSource();
         Project project = order.getProject();
         Integer type = orderProgressEvent.getType();
+        int processProgress = Integer.parseInt(order.getProcessProgress());
         if (type == 1) {
             //未执行
             order.setProcessProgress(Project.ProjectProgressEnum.SUBMIT.getNum().toString());
-        } else if (type == 2) {
+        } else if (type == 2 && processProgress < 2) {
             order.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
-        } else if (type == 3) {
+        } else if (type == 3 && processProgress < 3) {
             order.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
-        } else if (type == 4) {
+        } else if (type == 4 && processProgress < 4) {
             order.setProcessProgress(Project.ProjectProgressEnum.QUARANTINE.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.QUARANTINE.getNum().toString());
-        } else if (type == 5) {
+        } else if (type == 5 && processProgress < 5) {
             order.setProcessProgress(Project.ProjectProgressEnum.CHECKING.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.CHECKING.getNum().toString());
-        } else if (type == 6) {
+        } else if (type == 6 && processProgress < 6) {
             order.setProcessProgress(Project.ProjectProgressEnum.IN_STORAGE.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.IN_STORAGE.getNum().toString());
-        } else if (type == 7) {
+        } else if (type == 7 && processProgress < 7) {
             order.setProcessProgress(Project.ProjectProgressEnum.QUALITY_INSPECTION.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.QUALITY_INSPECTION.getNum().toString());
-        } else if (type == 8) {
+        } else if (type == 8 && processProgress < 8) {
             order.setProcessProgress(Project.ProjectProgressEnum.OUTSTORAGE.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.OUTSTORAGE.getNum().toString());
-        } else if (type == 9) {
+        } else if (type == 9 && processProgress < 9) {
             order.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
         }

@@ -1,21 +1,12 @@
 package com.erui.boss.web.util;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import com.erui.comm.util.constant.Constant;
-import org.apache.commons.collections.map.HashedMap;
+import org.hibernate.exception.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
@@ -27,6 +18,13 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordered {
@@ -46,7 +44,9 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
             attributes = resultStatus2Map(ResultStatusEnum.MEDIA_TYPE_NOT_SUPPORT);
         } else if (ex instanceof HttpRequestMethodNotSupportedException) {
             attributes = resultStatus2Map(ResultStatusEnum.REQUEST_METHOD_NOT_SUPPORT);
-        } else if (ex instanceof MethodArgumentNotValidException) {
+        } else if (ex instanceof SQLException || ex instanceof DataException || ex instanceof DataIntegrityViolationException){
+            attributes = resultStatus2Map(ResultStatusEnum.SQLDATA_ERROR);
+        }else if (ex instanceof MethodArgumentNotValidException) {
             attributes = resultStatus2Map(ResultStatusEnum.FAIL);
             MethodArgumentNotValidException ee = (MethodArgumentNotValidException) ex;
             BindingResult bindingResult = ee.getBindingResult();
@@ -71,7 +71,6 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
         logger.debug("异常:" + ex.getMessage(), ex);
         return mv;
     }
-
     @Override
     public int getOrder() {
         return 0;

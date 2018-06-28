@@ -1,15 +1,14 @@
 package com.erui.order.requestVo;
 
-import com.erui.comm.util.constant.Constant;
-import com.erui.comm.util.data.date.DateUtil;
 import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by GS on 2017/12/16 0016.
@@ -18,17 +17,21 @@ public class AddOrderVo {
     private Integer id;
 
     //销售合同号
+    @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
 
     //框架协议号
+    @Size(max = 255,message = "框架协议号填写不规范，请重新输入")
     private String frameworkNo;
     //海外销售合同号
+    @Size(max = 255,message = "海外销售合同号填写不规范，请重新输入")
     private String contractNoOs;
 
     //PO号
     private String poNo;
 
     //物流协议号
+    @Size(max = 255,message = "物流报价单号填写不规范，请重新输入")
     private String logiQuoteNo;
     //询报价
     private String inquiryNo;
@@ -43,6 +46,7 @@ public class AddOrderVo {
     private Date signingDate;
 
     //合同签订日期
+    @Size(max = 255,message = "合同交货日期填写不规范，请重新输入")
     private String deliveryDate;
 
     //签约主体公司

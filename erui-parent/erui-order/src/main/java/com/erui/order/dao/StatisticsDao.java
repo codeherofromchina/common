@@ -84,16 +84,16 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
 
 
-   /* 删除看货通知单后使用注释的代码
+   // 删除看货通知单后使用注释的代码
     @Query(value = "select t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t3.booking_time,t3.logistics_user_name,t3.leave_factory," +
             "t3.logi_invoice_no,t3.packing_time,t3.sailing_date,t3.arrival_port_time,t3.accomplish_date" +
             " from deliver_consign_goods t1,deliver_consign t2 left outer join deliver_detail t3 on t2.id = t3.deliver_consign_id " +
-            "where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)*/
-    @Query(value = "select t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t3.booking_time,t3.logistics_user_name,t3.leave_factory, " +
+            "where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
+    /*@Query(value = "select t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t3.booking_time,t3.logistics_user_name,t3.leave_factory, " +
             " t3.logi_invoice_no,t3.packing_time,t3.sailing_date,t3.arrival_port_time,t3.accomplish_date " +
             " from deliver_consign_goods t1,deliver_consign t2 left join deliver_notice_consign t4 on t4.deliver_consign_id = t2.id " +
             " left outer join deliver_detail t3 on t4.deliver_notice_id = t3.deliver_notice_id " +
-            " where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
+            " where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)*/
     List<Object> findDeliverConsignGoods(@Param("goodsIds") List<Integer> goodsIds);
 
     @Query(value = "select t2.id,sum(t1.money),max(t1.payment_date),t3.`name` ,count(1) , t2.currency_bn , t2.exchange_rate , sum(t1.discount)" +
