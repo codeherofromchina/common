@@ -23,8 +23,10 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
 
     @Override
-    public Map<String, Object> selectInqQuoteTrendData(Map<String, Object> params) {
+    public Map<String, Object> selectInqQuoteTrendData(Map<String, String> params) throws  Exception{
 
+        String analyzeType = params.get("analyzeType").toString();
+        Map<String, Object> result = new HashMap<>();
         //虚拟一个标准的时间集合
         List<String> dates = new ArrayList<>();
         Date startTime = DateUtil.parseString2DateNoException(params.get("startTime").toString(), DateUtil.SHORT_SLASH_FORMAT_STR);
@@ -42,37 +44,140 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<Double> inqAmounts = new ArrayList<>();
         List<Integer> quoteCounts = new ArrayList<>();
         List<Double> quoteAmounts = new ArrayList<>();
-        for (String date : dates) {
-            if (dataMap.containsKey(date)) {
-                inqCounts.add(Integer.parseInt(dataMap.get(date).get("inqCount").toString()));
-                inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("inqAmount").toString()), 10000));
-                quoteCounts.add(Integer.parseInt(dataMap.get(date).get("quoteCount").toString()));
-                quoteAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("quoteAmount").toString()), 10000));
+        if (params.get("type").equals("week")) {
+            for (String date : dates) {
+                if (dataMap.containsKey(date)) {
+                    inqCounts.add(Integer.parseInt(dataMap.get(date).get("inqCount").toString()));
+                    inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("inqAmount").toString()), 10000));
+                    quoteCounts.add(Integer.parseInt(dataMap.get(date).get("quoteCount").toString()));
+                    quoteAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(dataMap.get(date).get("quoteAmount").toString()), 10000));
 
-            } else {
-                inqCounts.add(0);
-                inqAmounts.add(0d);
-                quoteCounts.add(0);
-                quoteAmounts.add(0d);
+                } else {
+                    inqCounts.add(0);
+                    inqAmounts.add(0d);
+                    quoteCounts.add(0);
+                    quoteAmounts.add(0d);
+                }
             }
+            result.put("xAxis", dates);
+        } else if (params.get("type").equals("month")) {//处理月的数据
+
+            List<String> dateList = handleMonthToWeekList(dates);//获取每周列表
+            Map<String,Map<String,Object>> dMap=new HashMap<>();//将每个周的数据暂时整理到dMap中
+            for(String date: dateList){
+                if(CollectionUtils.isNotEmpty(data)){
+                    for(Map<String,Object> m:data){
+                        int inqCount = Integer.parseInt(m.get("inqCount").toString());
+                        double inqAmount = Double.parseDouble(m.get("inqAmount").toString());
+                        int quoteCount = Integer.parseInt(m.get("quoteCount").toString());
+                        double quoteAmount = Double.parseDouble(m.get("quoteAmount").toString());
+                        String datetime = m.get("datetime").toString();
+                        SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
+                        Date date1 = format.parse(datetime);
+                        String weekNumber = DateUtil.getYearAndWeekNumber(date1);
+                        if(date.equals(weekNumber)){
+                            if(dMap.containsKey(date)){
+                                Map<String, Object> mm = dMap.get(date);
+                                int inqCount2 = Integer.parseInt(mm.get("inqCount").toString());
+                                double inqAmount2 = Double.parseDouble(mm.get("inqAmount").toString());
+                                int quoteCount2 = Integer.parseInt(mm.get("quoteCount").toString());
+                                double quoteAmount2 = Double.parseDouble(mm.get("quoteAmount").toString());
+                                mm.put("inqCount",inqCount2+inqCount);
+                                mm.put("inqAmount",inqAmount2+inqAmount);
+                                mm.put("quoteCount",quoteCount2+quoteCount);
+                                mm.put("quoteAmount2",quoteAmount2+quoteAmount);
+                            }else {
+                                dMap.put(date,m);
+                            }
+                        }
+                    }
+                }
+            }
+            //按照顺序将每个类型的数据放入各自的结合
+            for(String date: dateList){
+                if(dMap.containsKey(date)) {
+                    Map<String, Object> map = dMap.get(date);
+                    inqCounts.add(Integer.parseInt(map.get("inqCount").toString()));
+                    inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(map.get("inqAmount").toString()), 10000));
+                    quoteCounts.add(Integer.parseInt(map.get("quoteCount").toString()));
+                    quoteAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(map.get("quoteAmount").toString()), 10000));
+                }else {
+                    inqCounts.add(0);
+                    inqAmounts.add(0d);
+                    quoteCounts.add(0);
+                    quoteAmounts.add(0d);
+                }
+            }
+            result.put("xAxis", dateList);
+        }else if (params.get("type").equals("year")) {//如果为年 ，展示12个月份的
+            List<String> monthList = new ArrayList<>();
+            for (int i = 1; i <= 12; i++) {
+                monthList.add(i + "月");
+            }
+            Map<String,Map<String,Object>> dMap=new HashMap<>();//将每个周的数据暂时整理到dMap中
+            for(String month: monthList){
+                if(CollectionUtils.isNotEmpty(data)){
+                    for(Map<String,Object> m:data){
+                        int inqCount = Integer.parseInt(m.get("inqCount").toString());
+                        double inqAmount = Double.parseDouble(m.get("inqAmount").toString());
+                        int quoteCount = Integer.parseInt(m.get("quoteCount").toString());
+                        double quoteAmount = Double.parseDouble(m.get("quoteAmount").toString());
+                        String datetime = m.get("datetime").toString();
+                        SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
+                        Date date1 = format.parse(datetime);
+                        int month1 = DateUtil.getMonth(date1);
+                        if (month.equals(month1 + "月")) {
+                            if(dMap.containsKey(month)){
+                                Map<String, Object> mm = dMap.get(month);
+                                int inqCount2 = Integer.parseInt(mm.get("inqCount").toString());
+                                double inqAmount2 = Double.parseDouble(mm.get("inqAmount").toString());
+                                int quoteCount2 = Integer.parseInt(mm.get("quoteCount").toString());
+                                double quoteAmount2 = Double.parseDouble(mm.get("quoteAmount").toString());
+                                mm.put("inqCount",inqCount2+inqCount);
+                                mm.put("inqAmount",inqAmount2+inqAmount);
+                                mm.put("quoteCount",quoteCount2+quoteCount);
+                                mm.put("quoteAmount2",quoteAmount2+quoteAmount);
+                            }else {
+                                dMap.put(month,m);
+                            }
+                        }
+                    }
+                }
+            }
+            //按照顺序将每个类型的数据放入各自的结合
+            for(String date: monthList){
+                if(dMap.containsKey(date)) {
+                    Map<String, Object> map = dMap.get(date);
+                    inqCounts.add(Integer.parseInt(map.get("inqCount").toString()));
+                    inqAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(map.get("inqAmount").toString()), 10000));
+                    quoteCounts.add(Integer.parseInt(map.get("quoteCount").toString()));
+                    quoteAmounts.add(RateUtil.doubleChainRateTwo(Double.parseDouble(map.get("quoteAmount").toString()), 10000));
+                }else {
+                    inqCounts.add(0);
+                    inqAmounts.add(0d);
+                    quoteCounts.add(0);
+                    quoteAmounts.add(0d);
+                }
+            }
+            result.put("xAxis", monthList);
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("xAxis", dates);
-        String analyzeType = params.get("analyzeType").toString();
+        //处理结果
+
         if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//询单数量
             result.put("yAxis", inqCounts);
         } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//询单金额
             result.put("yAxis", inqAmounts);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//报价数量
             result.put("yAxis", quoteCounts);
-        }else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//报价金额
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//报价金额
             result.put("yAxis", quoteAmounts);
         } else {
             return null;
         }
         return result;
     }
+
 
     @Override
     public Map<String, Object> selectAreaDetailByType(Map<String, Object> params) {
@@ -467,7 +572,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         } else if (params.get("type").equals("year")) {//如果为年 ，展示12个月份的
             List<String> monthList = new ArrayList<>();
             for (int i = 1; i <= 12; i++) {
-                monthList.add(i+"月");
+                monthList.add(i + "月");
             }
             //获取每一月的数据
             Map<String, List<Double>> dataMap = new HashMap<>();
@@ -480,7 +585,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                         SimpleDateFormat format = new SimpleDateFormat(DateUtil.SHORT_FORMAT_STR);
                         Date date1 = format.parse(visitAt);
                         int month1 = DateUtil.getMonth(date1);
-                        if (month.equals(month1+"月")) {
+                        if (month.equals(month1 + "月")) {
                             String area = m.get("area").toString();
                             double visitCount = Double.parseDouble(m.get("visitCount").toString());
                             if (!areaDataMap.containsKey(area)) {
