@@ -16,6 +16,7 @@ import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -365,11 +366,11 @@ public class OrderServiceImpl implements OrderService {
         }
         if (!order.getContractNo().equals(addOrderVo.getContractNo())) {
             if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
-                throw new Exception("销售合同号已存在&&The order No. already exists");
+                throw new MyException("销售合同号已存在&&The order No. already exists");
             }
         } else {
             if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 1) {
-                throw new Exception("销售合同号已存在&&The order No. already exists");
+                throw new MyException("销售合同号已存在&&The order No. already exists");
             }
         }
      /*   if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -397,13 +398,13 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
                 if (goods == null) {
-                    throw new Exception("不存在的商品标识&&Non-existent product identifier");
+                    throw new MyException("不存在的商品标识&&Non-existent product identifier");
                 }
             }
             String sku = pGoods.getSku();
             if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
                 // 已经存在的sku，返回错误
-                throw new Exception("同一sku不可以重复添加&&The same sku can not be added repeatedly");
+                throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
@@ -499,39 +500,39 @@ public class OrderServiceImpl implements OrderService {
         String toPort = addOrderVo.getToPort(); // 目的港
         String toPlace = addOrderVo.getToPlace(); // 目的地
         if (StringUtils.isBlank(tradeTerms)) {
-            throw new Exception("贸易术语不能为空");
+            throw new MyException("贸易术语不能为空");
         }
         if (StringUtils.isBlank(toCountry)) {
-            throw new Exception("目的国不能为空");
+            throw new MyException("目的国不能为空");
         }
         switch (tradeTerms) {
             case "EXW":
             case "FCA":
                 if (StringUtils.isBlank(transportType)) {
-                    throw new Exception("运输方式不能为空");
+                    throw new MyException("运输方式不能为空");
                 }
                 break;
             case "CNF":
             case "CFR":
             case "CIF":
                 if (StringUtils.isBlank(toPort)) {
-                    throw new Exception("目的港不能为空");
+                    throw new MyException("目的港不能为空");
                 }
                 break;
             case "CPT":
             case "CIP":
                 if (StringUtils.isBlank(toPort)) {
-                    throw new Exception("目的港不能为空");
+                    throw new MyException("目的港不能为空");
                 }
                 if (StringUtils.isBlank(toPlace)) {
-                    throw new Exception("目的地不能为空");
+                    throw new MyException("目的地不能为空");
                 }
                 break;
             case "DAT":
             case "DAP":
             case "DDP":
                 if (StringUtils.isBlank(toPlace)) {
-                    throw new Exception("目的地不能为空");
+                    throw new MyException("目的地不能为空");
                 }
                 break;
             *//*
@@ -539,7 +540,7 @@ public class OrderServiceImpl implements OrderService {
                 case "FAS":
                     break;
                 default:
-                    throw new Exception("不存在的贸易术语");
+                    throw new MyException("不存在的贸易术语");
             *//*
         }
     }*/
@@ -549,7 +550,7 @@ public class OrderServiceImpl implements OrderService {
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
 
         if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
-            throw new Exception("销售合同号已存在&&The order No. already exists");
+            throw new MyException("销售合同号已存在&&The order No. already exists");
         }
       /*  if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 检查和贸易术语相关字段的完整性
@@ -575,7 +576,7 @@ public class OrderServiceImpl implements OrderService {
             String sku = pGoods.getSku();
             if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
                 // 已经存在的sku，返回错误
-                throw new Exception("同一sku不可以重复添加&&The same sku can not be added repeatedly");
+                throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
             goods.setOutstockNum(0);
@@ -808,7 +809,7 @@ public class OrderServiceImpl implements OrderService {
                 }
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s", "发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
+                throw new MyException(String.format("%s%s%s", "发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
             }
 
         }
