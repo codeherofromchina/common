@@ -323,6 +323,14 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
                 Integer otherInqCount = null;
+                data.stream().sorted(new Comparator<Map<String, Object>>() {
+                    @Override
+                    public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                        int inqCount1 = Integer.parseInt(o1.get("inqCount").toString());
+                        int inqCount2 = Integer.parseInt(o2.get("inqCount").toString());
+                        return inqCount1-inqCount2;
+                    }
+                });
                 for (int i = 0; i < data.size(); i++) {
                     int inqCount = Integer.parseInt(data.get(i).get("inqCount").toString());
                     if (cateList.size()< 8) {
@@ -350,6 +358,18 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
                 Double otherInqAmount = null;
+                Collections.sort(data, new Comparator<Map<String, Object>>() {
+                    @Override
+                    public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                        double inqAmount1 = Double.parseDouble(o1.get("inqAmount").toString());
+                        double inqAmount2 = Double.parseDouble(o2.get("inqAmount").toString());
+                        double v = inqAmount1 - inqAmount2;
+                        if(v<0){
+                            return -1;
+                        }
+                        return 1;
+                    }
+                });
                 for (int i = 0; i < data.size(); i++) {
                     double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 10000);
                     if (cateList.size() < 8) {
@@ -384,6 +404,14 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
                 Integer otherQuoteCount = null;
+                Collections.sort(data, new Comparator<Map<String, Object>>() {
+                    @Override
+                    public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                        int quoteCount1 = Integer.parseInt(o1.get("quoteCount").toString());
+                        int quoteCount2 = Integer.parseInt(o2.get("quoteCount").toString());
+                        return quoteCount1-quoteCount2;
+                    }
+                });
                 for (int i = 0; i < data.size(); i++) {
                     int quoteCount = Integer.parseInt(data.get(i).get("quoteCount").toString());
                     if (cateList.size() < 8) {
