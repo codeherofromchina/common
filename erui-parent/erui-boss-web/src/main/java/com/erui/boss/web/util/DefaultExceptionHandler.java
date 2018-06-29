@@ -2,6 +2,7 @@ package com.erui.boss.web.util;
 
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import com.erui.comm.util.constant.Constant;
+import com.erui.order.util.exception.MyException;
 import org.hibernate.exception.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,9 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
             attributes = resultStatus2Map(ResultStatusEnum.MEDIA_TYPE_NOT_SUPPORT);
         } else if (ex instanceof HttpRequestMethodNotSupportedException) {
             attributes = resultStatus2Map(ResultStatusEnum.REQUEST_METHOD_NOT_SUPPORT);
-        } else if (ex instanceof SQLException || ex instanceof DataException || ex instanceof DataIntegrityViolationException){
+        } else if (ex instanceof SQLException || ex instanceof DataException || ex instanceof DataIntegrityViolationException) {
             attributes = resultStatus2Map(ResultStatusEnum.SQLDATA_ERROR);
-        }else if (ex instanceof MethodArgumentNotValidException) {
+        } else if (ex instanceof MethodArgumentNotValidException) {
             attributes = resultStatus2Map(ResultStatusEnum.FAIL);
             MethodArgumentNotValidException ee = (MethodArgumentNotValidException) ex;
             BindingResult bindingResult = ee.getBindingResult();
@@ -62,6 +63,20 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
             } else {
                 attributes.put("msg", msg);
             }
+        } else if (ex instanceof MyException) {
+            HashMap<String, Object> mapAttributes = new HashMap<>();
+            mapAttributes.put("code",26);
+            String errorMsg = ex.getMessage();
+            if (errorMsg.contains(Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL)) {
+                String[] split = errorMsg.split(Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL);
+                mapAttributes.put("enMsg", split[1]);
+                mapAttributes.put("msg", split[0]);
+            } else {
+                mapAttributes.put("msg", errorMsg);
+            }
+            view.setAttributesMap(mapAttributes);
+            mv.setView(view);
+            return mv;
         } else {
             // 其他错误
             attributes = resultStatus2Map(ResultStatusEnum.SERVER_ERROR);
@@ -71,12 +86,11 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
         logger.debug("异常:" + ex.getMessage(), ex);
         return mv;
     }
+
     @Override
     public int getOrder() {
         return 0;
     }
-
-
     private Map<String, Object> resultStatus2Map(ResultStatusEnum resultStatus) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("code", resultStatus.getCode());
