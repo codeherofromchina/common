@@ -324,16 +324,19 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
                 Integer otherInqCount = null;
                 for (int i = 0; i < data.size(); i++) {
-                    if (i < 8) {
-                        cateList.add(data.get(i).get("category").toString());
-                        dataList.add(data.get(i).get("inqCount"));
+                    int inqCount = Integer.parseInt(data.get(i).get("inqCount").toString());
+                    if (cateList.size()< 8) {
+                        if(inqCount>0) {
+                            cateList.add(data.get(i).get("category").toString());
+                            dataList.add(inqCount);
+                        }
                     } else {
                         otherCateList.add(data.get(i).get("category").toString());
-                        otherDataList.add(data.get(i).get("inqCount"));
+                        otherDataList.add(inqCount);
                         if (otherInqCount != null) {
-                            otherInqCount += Integer.parseInt(data.get(i).get("inqCount").toString());
+                            otherInqCount +=inqCount;
                         } else {
-                            otherInqCount = Integer.parseInt(data.get(i).get("inqCount").toString());
+                            otherInqCount =inqCount;
                         }
 
                     }
@@ -348,22 +351,25 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
                 Double otherInqAmount = null;
                 for (int i = 0; i < data.size(); i++) {
-                    if (i < 8) {
-                        cateList.add(data.get(i).get("category").toString());
-                        double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 10000);
-                        if (inqAmount < 0) inqAmount = 0d;
-                        dataList.add(inqAmount);
+                    double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 10000);
+                    if (cateList.size() < 8) {
+                        if(inqAmount>0d) {
+                            cateList.add(data.get(i).get("category").toString());
+                            dataList.add(inqAmount);
+                        }
 
                     } else {
-                        otherCateList.add(data.get(i).get("category").toString());
-                        double inqAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("inqAmount").toString()), 10000);
-                        if (inqAmount < 0) inqAmount = 0d;
-                        otherDataList.add(inqAmount);
+                        if(inqAmount>0d) {
+                            otherCateList.add(data.get(i).get("category").toString());
+                            otherDataList.add(inqAmount);
+                        }
 
                         if (otherInqAmount != null) {
-                            otherInqAmount += Double.parseDouble(data.get(i).get("inqAmount").toString());
+                            otherInqAmount +=inqAmount;
                         } else {
-                            otherInqAmount = Double.parseDouble(data.get(i).get("inqAmount").toString());
+                            if(inqAmount>0) {
+                                otherInqAmount =inqAmount;
+                            }
                         }
 
                     }
@@ -371,7 +377,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 if (otherInqAmount != null) {
                     cateList.add("其他");
                     if (otherInqAmount < 0) otherInqAmount = 0d;
-                    dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount, 10000));
+                    dataList.add(RateUtil.doubleChainRateTwo(otherInqAmount, 1));
                 }
 
             }
@@ -379,17 +385,23 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
                 Integer otherQuoteCount = null;
                 for (int i = 0; i < data.size(); i++) {
-                    if (i < 8) {
-                        cateList.add(data.get(i).get("category").toString());
-                        dataList.add(data.get(i).get("quoteCount"));
+                    int quoteCount = Integer.parseInt(data.get(i).get("quoteCount").toString());
+                    if (cateList.size() < 8) {
+                        if(quoteCount>0) {
+                            cateList.add(data.get(i).get("category").toString());
+                            dataList.add(data.get(i).get("quoteCount"));
+                        }
                     } else {
-                        otherCateList.add(data.get(i).get("category").toString());
-                        int quoteCount = Integer.parseInt(data.get(i).get("quoteCount").toString());
-                        otherDataList.add(quoteCount);
+                        if(quoteCount>0) {
+                            otherCateList.add(data.get(i).get("category").toString());
+                            otherDataList.add(quoteCount);
+                        }
                         if (otherQuoteCount != null) {
                             otherQuoteCount += quoteCount;
                         } else {
-                            otherQuoteCount = quoteCount;
+                            if(quoteCount>0) {
+                                otherQuoteCount = quoteCount;
+                            }
                         }
                     }
                 }
@@ -402,30 +414,30 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
                 Double otherQuoteAmount = null;
                 for (int i = 0; i < data.size(); i++) {
-                    if (i < 8) {
-                        cateList.add(data.get(i).get("category").toString());
-                        double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 10000);
-                        if (quoteAmount < 0) quoteAmount = 0d;
-                        dataList.add(quoteAmount);
+                    double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 10000);
+                    if (cateList.size() < 8) {
+                        if(quoteAmount>0d) {
+                            cateList.add(data.get(i).get("category").toString());
+                            dataList.add(quoteAmount);
+                        }
                     } else {
-                        otherCateList.add(data.get(i).get("category").toString());
-                        double quoteAmount = RateUtil.doubleChainRateTwo(Double.parseDouble(data.get(i).get("quoteAmount").toString()), 10000);
-                        if (quoteAmount < 0) quoteAmount = 0d;
-                        otherDataList.add(quoteAmount);
-
+                        if(quoteAmount>0d) {
+                            otherCateList.add(data.get(i).get("category").toString());
+                            otherDataList.add(quoteAmount);
+                        }
                         if (otherQuoteAmount != null) {
-                            otherQuoteAmount += Double.parseDouble(data.get(i).get("quoteAmount").toString());
+                            otherQuoteAmount +=quoteAmount;
                         } else {
-                            otherQuoteAmount = Double.parseDouble(data.get(i).get("quoteAmount").toString());
+                            if(quoteAmount>0) {
+                                otherQuoteAmount = quoteAmount;
+                            }
                         }
 
                     }
                 }
                 if (otherQuoteAmount != null) {
                     cateList.add("其他");
-                    double oAmount = RateUtil.doubleChainRateTwo(otherQuoteAmount, 10000);
-                    if (oAmount < 0) oAmount = 0d;
-                    dataList.add(oAmount);
+                    dataList.add(otherQuoteAmount);
                 }
 
             }
