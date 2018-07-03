@@ -36,6 +36,28 @@ public class PGoods {
     private String unqualifiedDesc;
     private Boolean unqualifiedFlag; // 是否不合格  true:不合格  false:合格
     private Integer instockNum;
+    private String department;//所属事业部
+    private BigDecimal price; //商品价格
+
+    public void setUnqualifiedFlag(Boolean unqualifiedFlag) {
+        this.unqualifiedFlag = unqualifiedFlag;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
     public Integer getSeq() {
         return seq;
