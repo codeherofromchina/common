@@ -158,6 +158,7 @@ public class IogisticsDataController {
         map.put("status",iogisticsDataById.getStatus());    //状态
         map.put("attachmentList",attachmentList);   //物流跟踪附件信息
         map.put("logisticsPriceUsd",iogisticsDataById.getLogisticsPriceUsd());   //物流发运金额(美元)
+        map.put("logisticsCost",iogisticsDataById.getLogisticsCost());  //物流费用
 
         return new Result<>(map);
 
