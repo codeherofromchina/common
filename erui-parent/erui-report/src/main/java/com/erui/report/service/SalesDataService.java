@@ -1,5 +1,7 @@
 package com.erui.report.service;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.util.Map;
 
 /**
@@ -13,5 +15,52 @@ public interface SalesDataService {
      * @param params
      * @return
      */
-    Map<String,Object>  selectInqQuoteTrendData(Map<String,Object> params);
+    Map<String,Object>  selectInqQuoteTrendData(Map<String,String> params)throws  Exception;
+    /**
+     * 查询指定分析类型的各大区数据
+     * type ：询单金额 、询单数量、报价数量
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectAreaDetailByType(Map<String,String> params);
+    /**
+     * 查询指定分析类型的各事业部数据
+     * type ：询单金额 、询单数量、报价数量 、报价用时
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectOrgDetailByType(Map<String,String> params);
+    /**
+     * 查询指定分析类型的各分类数据
+     * type ：询单金额 、询单数量、报价数量
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectCategoryDetailByType(Map<String,String> params);
+
+    /**
+     * 客户拜访明细
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectCustomerVisitDetail(Map<String,String> params) throws Exception;
+
+    /**
+     * 导出 分类明细数据
+     * @param params
+     * @return
+     */
+    XSSFWorkbook  exportCategoryDetail(Map<String,String> params);
+    /**
+     * 导出  事业部明细数据
+     * @param params
+     * @return
+     */
+    XSSFWorkbook  exportOrgDetail(Map<String,String> params);
+    /**
+     * 导出  事业部大区数据
+     * @param params
+     * @return
+     */
+    XSSFWorkbook  exportAreaDetail(Map<String,String> params);
 }

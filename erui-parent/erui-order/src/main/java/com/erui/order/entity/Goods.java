@@ -3,6 +3,7 @@ package com.erui.order.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -214,6 +215,24 @@ public class Goods {
 
     @Transient
     private String deliverDetailNo; //产品放行单号
+    private String department;//所属事业部
+    private BigDecimal price; //商品价格
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
     public Date getStartDate() {
         return startDate;

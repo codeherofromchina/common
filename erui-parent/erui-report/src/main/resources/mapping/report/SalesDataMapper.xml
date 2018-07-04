@@ -1,22 +1,129 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.erui.report.dao.SalesDataMapper" >
+<mapper namespace="com.erui.report.dao.SalesDataMapper">
 
 
-  <!-- 查询销售数据的趋势图-->
-  <select id="selectInqQuoteTrendData" resultType="java.util.Map" parameterType="java.util.Map" >
-     SELECT
+    <!-- 查询销售数据的趋势图-->
+    <select id="selectInqQuoteTrendData" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
         COUNT(1) AS inqCount ,
         IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
-		SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
-        FROM_DAYS(TO_DAYS(rollin_time)) AS  datetime
-     FROM erui_rfq.v_inquiry_count
-     WHERE 1=1
-      <if test="startTime!=null and endTime!=null">
-      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-      </if>
-      GROUP BY TO_DAYS(rollin_time) HAVING datetime IS NOT NULL
+        SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
+        SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
+        FROM_DAYS(TO_DAYS(rollin_time)) AS datetime
+        FROM erui_rfq.v_inquiry_count
+        WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        GROUP BY TO_DAYS(rollin_time) HAVING datetime IS NOT NULL
+    </select>
+
+    <!-- 查询各大区和国家的数据明细 ： 询单金额 、询单数量、报价数量-->
+    <select id="selectAreaAndCountryDetail" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+        COUNT(1) AS inqCount ,
+        IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
+        SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
+        SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
+        inquiry_area AS area,
+        inquiry_unit AS country
+        FROM erui_rfq.v_inquiry_count
+        WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        GROUP BY inquiry_area ,inquiry_unit HAVING area IS NOT NULL AND country IS NOT NULL;
+    </select>
+    <!-- 查询事业部数据明细 ： 询单金额 、询单数量、报价数量 、报价用时-->
+    <select id="selectOrgDetail" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+        COUNT(1) AS inqCount ,
+        IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
+        SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
+        SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
+        IFNULL(AVG(IFNULL(quote_need_time,0)),0) AS quoteTime,
+        organization AS org
+        FROM erui_rfq.v_inquiry_count
+        WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        GROUP BY organization HAVING org IS NOT NULL ;
+    </select>
+
+    <!-- 查询各分类数据： 询单sku金额 、询单sku数量、报价sku数量、报价sku金额-->
+    <select id="selectDataGroupByCategory" resultType="java.util.Map" parameterType="java.util.Map">
+
+      SELECT a.inqCount,a.inqAmount,a.category ,IFNULL(b.quoteCount,0) AS quoteCount ,IFNULL(b.quoteAmount,0.00) AS quoteAmount
+      FROM
+      (
+        SELECT
+                IFNULL(SUM(IFNULL(cate_count,0)),0) AS inqCount,
+                IFNULL(SUM(IFNULL(cate_count*quote_unit_price,0.0)),0.00) AS  inqAmount,
+                pro_category   AS category
+        FROM
+        erui_rfq.v_inquiry_sku
+        WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        GROUP BY pro_category HAVING category IS NOT NULL
+      ) a
+      LEFT JOIN
+      (
+        SELECT
+                IFNULL(SUM(IFNULL(cate_count,0)),0) AS quoteCount,
+                IFNULL(SUM(IFNULL(cate_count*quote_unit_price,0.0)),0.00) AS  quoteAmount,
+                pro_category   AS category
+        FROM
+        erui_rfq.v_inquiry_sku
+        WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+		and quotation_num in (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE quoted_status in("已报价","已完成"))
+        GROUP BY pro_category HAVING category IS NOT NULL
+      ) b
+      ON a.category=b.category
+
   </select>
-  
+
+
+    <!-- 查询各大区每天的拜访次数 -->
+    <select id="selectVisitCountGrupByAreaAndVisitTime" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT COUNT(1) as visitCount , FROM_DAYS(TO_DAYS(datetime)) as visitAt ,area
+        FROM
+        (
+        SELECT visit.buyer_id AS buyerId ,visit.created_at AS datetime, areasZh.name as area
+        FROM erui_buyer.buyer_visit AS visit
+        LEFT JOIN   erui_buyer.buyer  AS buyers  ON visit.buyer_id=buyers.id
+        LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
+        LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
+        ) AS a
+        WHERE 1=1
+        <if test="startTime!=null and endTime!=null">
+            and datetime BETWEEN DATE_FORMAT(#{startTime},"%Y-%m-%d")
+            and DATE_FORMAT(#{endTime},"%Y-%m-%d")
+        </if>
+        GROUP BY TO_DAYS(datetime),area HAVING area is not NULL AND visitAt IS  NOT  NULL ;
+
+    </select>
+
+    <!-- 查询各大区有多少员工-->
+    <select id="selectEmployeeCountGroupByArea" resultType="java.util.Map">
+        SELECT count(DISTINCT(member.employee_id))  as employeeCount ,areasCh.name as area
+        FROM   erui_sys.country_member  AS member
+        LEFT JOIN  erui_operation.market_area_country AS areasBn
+        on  member.country_bn=areasBn.country_bn
+		LEFT JOIN erui_operation.market_area    AS areasCh
+        ON areasBn.market_area_bn=areasCh.bn AND areasCh.lang='zh'
+        GROUP BY area  HAVING area IS NOT NULL;
+    </select>
+
 </mapper>

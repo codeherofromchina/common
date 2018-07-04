@@ -423,6 +423,8 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockApplyNum(0);
             goods.setExchanged(false);
             goods.setOutstockNum(0);
+            goods.setDepartment(pGoods.getDepartment());
+            goods.setPrice(pGoods.getPrice());
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
@@ -596,6 +598,8 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockApplyNum(0);
             goods.setOutstockNum(0);
             goods.setExchanged(false);
+            goods.setDepartment(pGoods.getDepartment());
+            goods.setPrice(pGoods.getPrice());
             goods.setOrder(order);
             goodsList.add(goods);
             goods.setOrder(order);
