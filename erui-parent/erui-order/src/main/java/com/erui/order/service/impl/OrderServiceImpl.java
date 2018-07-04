@@ -128,6 +128,10 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
+                //根据订单类型
+                if (condition.getBusinessUnitId() != null) {
+                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId()));
+                }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
                     list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));

@@ -64,9 +64,19 @@ public class OrderListCondition {
     private String region;
     //应收账款余额
     private Integer receivableAccountRemaining;
+    //执行事业部
+    private Integer businessUnitId;
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getBusinessUnitId() {
+        return businessUnitId;
+    }
+
+    public void setBusinessUnitId(Integer businessUnitId) {
+        this.businessUnitId = businessUnitId;
+    }
 
     public Date getSigningDate() {
         return signingDate;
