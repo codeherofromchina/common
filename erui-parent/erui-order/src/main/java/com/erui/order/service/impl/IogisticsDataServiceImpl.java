@@ -256,6 +256,10 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         if (iogisticsData.getLogisticsPriceUsd() != null) {
             one.setLogisticsPriceUsd(iogisticsData.getLogisticsPriceUsd());//物流发运金额(美元)
         }
+        //物流费用
+        if (iogisticsData.getLogisticsCost() != null) {
+            one.setLogisticsCost(iogisticsData.getLogisticsCost());//物流发运金额(美元)
+        }
 
         List<Iogistics> iogisticsList = one.getIogistics(); //获取出库分单信息
         for (Iogistics iogistics : iogisticsList){
