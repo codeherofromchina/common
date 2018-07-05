@@ -148,6 +148,8 @@ public class OrderServiceImpl implements OrderService {
                 if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
                     Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
+
+
                     list.add(startTime);
                 }
                 //根据订单签订时间段查询 结束
