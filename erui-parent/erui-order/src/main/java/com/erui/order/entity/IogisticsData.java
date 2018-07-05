@@ -112,6 +112,9 @@ public class IogisticsData {
     @Column(name = "logistics_cost ")
     private BigDecimal logisticsCost ; //物流费用
 
+    @Column(name = "logistics_cost_type")
+    private BigDecimal logisticsCostType ; //物流费用币种
+
     @Transient
     private String handleDepartment;    //经办部门
 
@@ -423,5 +426,14 @@ public class IogisticsData {
     public void setLogisticsCost(BigDecimal logisticsCost) {
         this.logisticsCost = logisticsCost;
     }
+
+    public BigDecimal getLogisticsCostType() {
+        return logisticsCostType;
+    }
+
+    public void setLogisticsCostType(BigDecimal logisticsCostType) {
+        this.logisticsCostType = logisticsCostType;
+    }
+
 }
 
