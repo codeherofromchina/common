@@ -31,7 +31,7 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
         if (!StringUtils.isEmpty(order.getProcessProgress())) {
             processProgress = Integer.valueOf(order.getProcessProgress());
         }
-        if (type == 1 && StringUtils.equals("", order.getProcessProgress())) {
+        if (type == 1 && StringUtils.isEmpty(order.getProcessProgress())) {
             //未执行
             order.setProcessProgress(Project.ProjectProgressEnum.SUBMIT.getNum().toString());
         } else if (type == 2 && processProgress < 2) {
