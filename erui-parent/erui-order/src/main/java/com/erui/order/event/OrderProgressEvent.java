@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public class OrderProgressEvent extends ApplicationEvent {
 
-    private Integer type;
+    private Integer type = 0;
     /**
      * Create a new ApplicationEvent.
      *
