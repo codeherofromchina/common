@@ -44,4 +44,10 @@ public interface PerformanceAssignMapper {
      */
     void auditPerformance(Map<String, String> params);
 
+    /**
+     * 批量插入分配信息
+     * @param assignList
+     */
+    void insertList(List<PerformanceAssign> assignList);
+
 }
