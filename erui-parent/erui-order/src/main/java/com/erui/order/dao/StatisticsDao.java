@@ -85,10 +85,16 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
 
 
    // 删除看货通知单后使用注释的代码
-    @Query(value = "select t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t3.booking_time,t3.logistics_user_name,t3.leave_factory," +
+    /*@Query(value = "select t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t3.booking_time,t3.logistics_user_name,t3.leave_factory," +
             "t3.logi_invoice_no,t3.packing_time,t3.sailing_date,t3.arrival_port_time,t3.accomplish_date" +
             " from deliver_consign_goods t1,deliver_consign t2 left outer join deliver_detail t3 on t2.id = t3.deliver_consign_id " +
-            "where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)
+            "where t1.deliver_consign_id = t2.id and t2.`status` = 3 and t1.goods_id in :goodsIds",nativeQuery = true)*/
+
+    @Query(value = " SELECT t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t5.booking_time,t5.logistics_user_name,t5.leave_factory,t5.logi_invoice_no,"+
+   " t5.packing_time,t5.sailing_date,t5.arrival_port_time,t5.accomplish_date FROM deliver_consign_goods t1, deliver_consign t2 LEFT OUTER JOIN "+
+   " deliver_detail t3 on t2.id = t3.deliver_consign_id LEFT  OUTER  JOIN logistics t4 on t3.id = t4.deliver_detail_id LEFT  OUTER  JOIN logistics_data t5  on t4.pid = t5.id "+
+   " where t1.deliver_consign_id = t2.id AND t2.`status` = 3 AND t1.goods_id in :goodsIds ",nativeQuery = true)
+
     /*@Query(value = "select t1.goods_id,t1.send_num,t2.booking_date,t3.check_date,t3.booking_time,t3.logistics_user_name,t3.leave_factory, " +
             " t3.logi_invoice_no,t3.packing_time,t3.sailing_date,t3.arrival_port_time,t3.accomplish_date " +
             " from deliver_consign_goods t1,deliver_consign t2 left join deliver_notice_consign t4 on t4.deliver_consign_id = t2.id " +

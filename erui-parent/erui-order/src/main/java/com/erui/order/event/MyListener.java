@@ -4,6 +4,7 @@ import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
@@ -26,8 +27,11 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
         Order order = (Order) orderProgressEvent.getSource();
         Project project = order.getProject();
         Integer type = orderProgressEvent.getType();
-        int processProgress = Integer.parseInt(order.getProcessProgress());
-        if (type == 1) {
+        Integer processProgress = 0;
+        if (!StringUtils.isEmpty(order.getProcessProgress())) {
+            processProgress = Integer.valueOf(order.getProcessProgress());
+        }
+        if (type == 1 && StringUtils.isEmpty(order.getProcessProgress())) {
             //未执行
             order.setProcessProgress(Project.ProjectProgressEnum.SUBMIT.getNum().toString());
         } else if (type == 2 && processProgress < 2) {
