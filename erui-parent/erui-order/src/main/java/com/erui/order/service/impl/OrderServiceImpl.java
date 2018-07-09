@@ -128,9 +128,13 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //根据订单类型
-                if (condition.getBusinessUnitId() != null) {
-                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId()));
+                //根据事业部
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
+                    bid = condition.getBusinessUnitId().split(",");
+                }
+                if (bid != null) {
+                    list.add(root.get("businessUnitId").in(bid));
                 }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
@@ -206,13 +210,13 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
                 }
                 //根据区域所在国家查询
-                String[] country = null;
+               /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
-                }
+                }*/
                 if (condition.getType() == 1) {
-                    if (country != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    if (condition.getCreateUserId() != null) {
+                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
@@ -228,9 +232,9 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
-                    if (country != null) {
+                   /* if (country != null) {
                         list.add(root.get("country").in(country));
-                    }
+                    }*/
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
