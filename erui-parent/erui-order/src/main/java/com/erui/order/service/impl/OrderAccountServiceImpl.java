@@ -4,8 +4,8 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
-import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.entity.*;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderAccountService;
@@ -20,7 +20,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Transient;
 import javax.persistence.criteria.*;
 import javax.servlet.ServletRequest;
 import java.math.BigDecimal;
@@ -350,9 +349,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     list.add(cb.equal(root.get("region").as(String.class), condition.getRegion()));
                 }
                 //根据国家
-                if(StringUtil.isNotBlank(condition.getCountry())){
+                /*if(StringUtil.isNotBlank(condition.getCountry())){
                     list.add(cb.equal(root.get("country").as(String.class), condition.getCountry()));
-                }
+                }*/
 
                 //根据应收账款余额
                 if(condition.getReceivableAccountRemaining() != null){
