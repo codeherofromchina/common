@@ -128,14 +128,6 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //根据事业部
-                String [] bid = null;
-                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
-                    bid = condition.getBusinessUnitId().split(",");
-                }
-                if (bid!= null) {
-                    list.add(root.get("businessUnitId").in(bid));
-                }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
                     list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
@@ -206,17 +198,27 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 //商务技术经办人
-                if (condition.getTechnicalId() != null) {
+               /* if (condition.getTechnicalId() != null) {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
-                }
+                }*/
                 //根据区域所在国家查询
                /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }*/
+                //根据事业部
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
+                    bid = condition.getBusinessUnitId().split(",");
+                }
+                /*if (bid != null) {
+                    list.add(root.get("businessUnitId").in(bid));
+                }*/
                 if (condition.getType() == 1) {
-                    if (condition.getCreateUserId() != null) {
-                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
+                    if (condition.getCreateUserId() != null || bid != null || condition.getTechnicalId() != null) {
+                        list.add(cb.or(cb.and(root.get("businessUnitId").in(bid), cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId())),
+                                cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
@@ -917,14 +919,6 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //根据事业部搜索
-                String [] bid = null;
-                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
-                    bid = condition.getBusinessUnitId().split(",");
-                }
-                if (bid!= null) {
-                    list.add(root.get("businessUnitId").in(bid));
-                }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
                     list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
@@ -993,17 +987,26 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 //商务技术经办人
-                if (condition.getTechnicalId() != null) {
+               /* if (condition.getTechnicalId() != null) {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
-                }
+                }*/
                 //根据区域所在国家查询
                /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
                 }*/
-                if (condition.getType() == 1) {
+                //根据事业部搜索
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
+                    bid = condition.getBusinessUnitId().split(",");
+                }
+                /*if (bid != null) {
+                    list.add(root.get("businessUnitId").in(bid));
+                }*/
+                if (condition.getType() == 1 || condition.getTechnicalId() != null || bid != null) {
                     if (condition.getCreateUserId() != null) {
-                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
+                        list.add(cb.or(cb.and(root.get("businessUnitId").in(bid), cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId())),
+                                cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
