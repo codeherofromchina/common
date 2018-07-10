@@ -64,16 +64,16 @@ public class ProjectListCondition {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date endTime;
     //下发部门
-    private Integer sendDeptId;
+    private String sendDeptId;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
 
-    public Integer getSendDeptId() {
+    public String getSendDeptId() {
         return sendDeptId;
     }
 
-    public void setSendDeptId(Integer sendDeptId) {
+    public void setSendDeptId(String sendDeptId) {
         this.sendDeptId = sendDeptId;
     }
 

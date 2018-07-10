@@ -917,6 +917,7 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
+                //根据事业部搜索
                 String [] bid = null;
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
                     bid = condition.getBusinessUnitId().split(",");

@@ -196,8 +196,12 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 //下发部门
-                if (condition.getSendDeptId() != null) {
-                    list.add(cb.equal(root.get("sendDeptId").as(Integer.class), condition.getSendDeptId()));
+                String [] bid = null;
+                if (StringUtils.isNotBlank(condition.getSendDeptId())) {
+                    bid = condition.getSendDeptId().split(",");
+                }
+                if (bid!= null) {
+                    list.add(root.get("sendDeptId").in(bid));
                 }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
@@ -498,6 +502,14 @@ public class ProjectServiceImpl implements ProjectService {
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //下发部门
+                String [] bid = null;
+                if (StringUtils.isNotBlank(condition.getSendDeptId())) {
+                    bid = condition.getSendDeptId().split(",");
+                }
+                if (bid!= null) {
+                    list.add(root.get("sendDeptId").in(bid));
                 }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
