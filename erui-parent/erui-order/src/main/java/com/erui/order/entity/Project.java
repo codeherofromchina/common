@@ -118,8 +118,8 @@ public class Project {
     @Column(name = "send_dept_id")
     private Integer sendDeptId;
     //事业部id
-    @Column(name = "business_unit_id")
-    private Integer businessNnitId;
+    /*@Column(name = "business_unit_id")
+    private Integer businessNnitId;*/
     @Column(name = "business_unit_name")
     private String businessUnitName;
     //商务技术经办人
@@ -152,14 +152,6 @@ public class Project {
     private Integer overseasSales;
     @Column(name = "purch_time")
     private Date purchTime;
-
-    public Integer getBusinessNnitId() {
-        return businessNnitId;
-    }
-
-    public void setBusinessNnitId(Integer businessNnitId) {
-        this.businessNnitId = businessNnitId;
-    }
 
     public Date getPurchTime() {
         return purchTime;

@@ -465,7 +465,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
-            projectAdd.setBusinessNnitId(orderUpdate.getBusinessUnitId());
+            projectAdd.setSendDeptId(orderUpdate.getBusinessUnitId());
             projectAdd.setRegion(orderUpdate.getRegion());
             projectAdd.setCountry(orderUpdate.getCountry());
             projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
@@ -645,7 +645,7 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessUid(order1.getTechnicalId());
             project.setExecCoName(order1.getExecCoName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
-            project.setBusinessNnitId(order1.getBusinessUnitId());
+            project.setSendDeptId(order1.getBusinessUnitId());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
             project.setCountry(order1.getCountry());
