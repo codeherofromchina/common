@@ -201,7 +201,7 @@ public class ProjectServiceImpl implements ProjectService {
                     bid = condition.getSendDeptId().split(",");
                 }
                 if (bid!= null) {
-                    list.add(root.get("sendDeptId").in(bid));
+                    list.add(root.get("businessNnitId").in(bid));
                 }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
@@ -509,7 +509,7 @@ public class ProjectServiceImpl implements ProjectService {
                     bid = condition.getSendDeptId().split(",");
                 }
                 if (bid!= null) {
-                    list.add(root.get("sendDeptId").in(bid));
+                    list.add(root.get("businessNnitId").in(bid));
                 }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
