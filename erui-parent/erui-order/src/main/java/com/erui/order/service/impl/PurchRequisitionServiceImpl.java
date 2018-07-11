@@ -126,7 +126,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean insertPurchRequisition(PurchRequisition purchRequisition) {
+    public boolean insertPurchRequisition(PurchRequisition purchRequisition)  {
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (project != null) {
             project.getOrder().getGoodsList().size();

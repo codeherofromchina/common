@@ -16,9 +16,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -94,7 +96,7 @@ public class PurchRequisitionController {
      * @return
      */
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition , HttpServletRequest request) {
+    public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition , HttpServletRequest request) throws Exception{
         Result<Object> result = new Result<>();
         if (StringUtils.isBlank(purchRequisition.getProjectNo()) || StringUtils.equals(purchRequisition.getProjectNo(), "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
@@ -109,7 +111,6 @@ public class PurchRequisitionController {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("交货地点不能为空");
         } else {
-            try {
                 boolean flag;
                 String eruiToken = CookiesUtil.getEruiToken(request);
                 ThreadLocalUtil.setObject(eruiToken);
@@ -121,6 +122,7 @@ public class PurchRequisitionController {
                 if (flag) {
                     return result;
                 }
+           /* try {
             } catch (Exception ex) {
                 logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
                 if (ex instanceof DataIntegrityViolationException) {
@@ -128,7 +130,7 @@ public class PurchRequisitionController {
                     result.setMsg("项目号已存在");
                     return result;
                 }
-            }
+            }*/
         }
         return result;
     }
