@@ -1078,22 +1078,40 @@ public class OrderServiceImpl implements OrderService {
             }
             oc = new Order();
             project = new Project();
-            oc.setOrderCategory(Integer.parseInt(strArr[0]));
-            oc.setOverseasSales(Integer.parseInt(strArr[1]));
+            if (strArr[0] != null) {
+                oc.setOrderCategory(Integer.parseInt(strArr[0]));
+            }
+            if (strArr[1] != null) {
+                oc.setOverseasSales(Integer.parseInt(strArr[1]));
+            }
             oc.setContractNo(strArr[2]);
             oc.setFrameworkNo(strArr[3]);
             oc.setContractNoOs(strArr[4]);
             oc.setPoNo(strArr[5]);
             oc.setLogiQuoteNo(strArr[6]);
             oc.setInquiryNo(strArr[7]);
-            Date signingDate = DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd");
-            oc.setSigningDate(signingDate);
+            if (strArr[8] != null) {
+                Date signingDate = DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd");
+                oc.setSigningDate(signingDate);
+            }
             oc.setDeliveryDate(strArr[9]);
-            oc.setAgentId(Integer.parseInt(strArr[10]));
-            oc.setAcquireId(Integer.parseInt(strArr[11]));
+            if (strArr[10] != null) {
+                oc.setAgentId(Integer.parseInt(strArr[10]));
+            }
+            if (strArr[11] != null) {
+                oc.setAcquireId(Integer.parseInt(strArr[11]));
+            }
             oc.setSigningCo(strArr[12]);
-            oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
-            oc.setExecCoId(Integer.parseInt(strArr[14]));
+            /*if (strArr[13] != null) {
+                oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
+            }*/
+            oc.setBusinessUnitName(strArr[13]);
+           /* if (strArr[14] != null) {
+                oc.setExecCoId(Integer.parseInt(strArr[14]));
+            }*/
+            //执行分公司
+            oc.setExecCoName(strArr[14]);
+
             oc.setRegion(strArr[15]);
           /*  if (strArr[15] != null) {
                 try {
@@ -1111,17 +1129,25 @@ public class OrderServiceImpl implements OrderService {
             //订单号
             oc.setCrmCode(strArr[18]);
             //客户类型
-            oc.setCustomerType(Integer.parseInt(strArr[19]));
+            if (strArr[19] != null) {
+                oc.setCustomerType(Integer.parseInt(strArr[19]));
+            }
             //回款责任人
             oc.setPerLiableRepay(strArr[20]);
             //是否融资
-            oc.setFinancing(Integer.parseInt(strArr[21]));
+            if (strArr[21] != null) {
+                oc.setFinancing(Integer.parseInt(strArr[21]));
+            }
             //会员类型
-            oc.setOrderBelongs(Integer.parseInt(strArr[22]));
+            if (strArr[22] != null) {
+                oc.setOrderBelongs(Integer.parseInt(strArr[22]));
+            }
             //授信情况
             oc.setGrantType(strArr[23]);
             //订单类型
-            oc.setOrderType(Integer.parseInt(strArr[24]));
+            if (strArr[24] != null) {
+                oc.setOrderType(Integer.parseInt(strArr[24]));
+            }
             //贸易术语
             oc.setTradeTerms(strArr[25]);
             //运输方式
@@ -1137,7 +1163,9 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //是否含税
-            oc.setTaxBearing(Integer.parseInt(strArr[28]));
+            if (strArr[28] != null) {
+                oc.setTaxBearing(Integer.parseInt(strArr[28]));
+            }
             //  汇率  strArr[29]
             //合同总价
             if (strArr[30] != null) {
@@ -1207,7 +1235,7 @@ public class OrderServiceImpl implements OrderService {
             // 国家
             project.setCountry(strArr[17]);
             //执行约定交付日期
-            project.setDeliveryDate(DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd"));
+            project.setDeliveryDate(strArr[41]);
             //合同总价
             if (strArr[42] != null) {
                 try {
@@ -1240,12 +1268,16 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //执行分公司
-            project.setExecCoName(order.getExecCoId().toString());
-            project.setRegion(order.getRegion());
+            if (strArr[14] != null) {
+                project.setExecCoName(order.getExecCoName());
+            }
+            project.setRegion(strArr[15]);
             //执行变更日期
             project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[45], "yyyy-MM-dd"));
             //有无项目经理
-            project.setHasManager(Integer.parseInt(strArr[46]));
+            if (strArr[46] != null) {
+                project.setHasManager(Integer.parseInt(strArr[46]));
+            }
             project.setDistributionDeptName(strArr[47]);
             project.setProjectStatus(strArr[48]);
             project.setRemarks(strArr[49]);
@@ -1271,6 +1303,9 @@ public class OrderServiceImpl implements OrderService {
             }
             response.incrSuccess();
         }
+
+
+        response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
         return response;

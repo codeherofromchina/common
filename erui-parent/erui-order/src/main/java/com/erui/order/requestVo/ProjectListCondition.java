@@ -28,7 +28,7 @@ public class ProjectListCondition {
     private String region;
     //执行单约定交付日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date deliveryDate;
+    private String deliveryDate;
     //要求采购到货日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date requirePurchaseDate;
@@ -245,11 +245,11 @@ public class ProjectListCondition {
         this.region = region;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 

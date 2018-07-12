@@ -157,13 +157,19 @@ public class ProjectServiceImpl implements ProjectService {
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                     Order order = projectUpdate.getOrder();
-                    order.getGoodsList().forEach(gd -> {
+                    try {
+                        Date stringToDate = DateUtil.parseStringToDate(projectUpdate.getDeliveryDate(), "yyyy-MM-dd");
+                        order.getGoodsList().forEach(gd -> {
                                 gd.setStartDate(projectUpdate.getStartDate());
-                                gd.setDeliveryDate(projectUpdate.getDeliveryDate());
+                                gd.setDeliveryDate(stringToDate);
                                 gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
                                 gd.setExeChgDate(projectUpdate.getExeChgDate());
                             }
                     );
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
                     applicationContext.publishEvent(new OrderProgressEvent(order, 2));
                     orderDao.save(order);
@@ -196,11 +202,11 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 //下发部门
-                String [] bid = null;
+                String[] bid = null;
                 if (StringUtils.isNotBlank(condition.getSendDeptId())) {
                     bid = condition.getSendDeptId().split(",");
                 }
-                if (bid!= null) {
+                if (bid != null) {
                     list.add(root.get("sendDeptId").in(bid));
                 }
                 //根据项目名称模糊查询
@@ -215,9 +221,9 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getExecCoName())) {
                     list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
                 }
-                //执行单约定交付日期
+                //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
                 if (condition.getDeliveryDate() != null) {
-                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //要求采购到货日期
                 if (condition.getRequirePurchaseDate() != null) {
@@ -504,11 +510,11 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 //下发部门
-                String [] bid = null;
+                String[] bid = null;
                 if (StringUtils.isNotBlank(condition.getSendDeptId())) {
                     bid = condition.getSendDeptId().split(",");
                 }
-                if (bid!= null) {
+                if (bid != null) {
                     list.add(root.get("sendDeptId").in(bid));
                 }
                 //根据项目名称模糊查询
@@ -523,9 +529,9 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getExecCoName())) {
                     list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
                 }
-                //执行单约定交付日期
+                //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
                 if (condition.getDeliveryDate() != null) {
-                    list.add(cb.equal(root.get("deliveryDate").as(Date.class), NewDateUtil.getDate(condition.getDeliveryDate())));
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //要求采购到货日期
                 if (condition.getRequirePurchaseDate() != null) {

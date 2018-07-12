@@ -41,10 +41,10 @@ public class Project {
 
     @Column(name = "start_date")
     private Date startDate;
-
+    //20180711因事业部订单导入需要修改为文本格式
     //@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
 
     private BigDecimal profit;
 
@@ -304,11 +304,11 @@ public class Project {
         this.startDate = startDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
