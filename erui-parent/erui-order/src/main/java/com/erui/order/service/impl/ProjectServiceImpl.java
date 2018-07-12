@@ -79,6 +79,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) throws Exception {
+        if (projectDao.countByProjectName(project.getProjectName()) > 0) {
+            throw new MyException("项目号已存在&&The project No. already exists");
+        }
         Project projectUpdate = projectDao.findOne(project.getId());
 
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
@@ -160,14 +163,14 @@ public class ProjectServiceImpl implements ProjectService {
                     try {
                         Date stringToDate = DateUtil.parseStringToDate(projectUpdate.getDeliveryDate(), "yyyy-MM-dd");
                         order.getGoodsList().forEach(gd -> {
-                                gd.setStartDate(projectUpdate.getStartDate());
-                                gd.setDeliveryDate(stringToDate);
-                                gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
-                                gd.setExeChgDate(projectUpdate.getExeChgDate());
-                            }
-                    );
+                                    gd.setStartDate(projectUpdate.getStartDate());
+                                    gd.setDeliveryDate(stringToDate);
+                                    gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
+                                    gd.setExeChgDate(projectUpdate.getExeChgDate());
+                                }
+                        );
 
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
@@ -222,7 +225,7 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
                 }
                 //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
-                if (condition.getDeliveryDate() != null) {
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
                     list.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
                 }
                 //要求采购到货日期
@@ -271,10 +274,14 @@ public class ProjectServiceImpl implements ProjectService {
                 if (condition.getQualityUid() != null) {
                     list.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
                 }
-                //
-                if (condition.getManagerUid() != null) {
-                    list.add(cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid()));
-
+                //根据商务技术经办人
+                if (condition.getBusinessUid() != null) {
+                    list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
+                }
+                //项目经理
+                if (condition.getManagerUid() != null || condition.getBusinessUid() != null) {
+                    list.add(cb.or(cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid()),
+                            cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid())));
                 }
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
@@ -283,10 +290,6 @@ public class ProjectServiceImpl implements ProjectService {
                 //根据仓库经办人
                 if (condition.getWarehouseUid() != null) {
                     list.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
-                }
-                //根据商务技术经办人
-                if (condition.getBusinessUid() != null) {
-                    list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
                 }
                 //根据项目创建查询 开始时间
                 if (condition.getStartTime() != null) {

@@ -215,14 +215,29 @@ public class OrderServiceImpl implements OrderService {
                     list.add(root.get("businessUnitId").in(bid));
                 }*/
                 if (condition.getType() == 1) {
-                    if (condition.getCreateUserId() != null || bid != null || condition.getTechnicalId() != null) {
-                        list.add(cb.or(cb.and(root.get("businessUnitId").in(bid), cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId())),
-                                cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
-
+                    Predicate createUserId = null;
+                    if (condition.getCreateUserId() != null) {
+                        createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
+                    }
+                    Predicate businessUnitId = null;
+                    if (bid != null) {
+                        businessUnitId = root.get("businessUnitId").in(bid);
+                    }
+                    Predicate technicalId = null;
+                    if (condition.getTechnicalId() != null) {
+                        technicalId = cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId());
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    Predicate and = cb.and(businessUnitId, technicalId);
+                    if (businessUnitId != null && technicalId != null) {
+                        list.add(cb.or(and, createUserId));
+                    } else if (businessUnitId != null && technicalId == null) {
+                        list.add(cb.or(businessUnitId, createUserId));
+                    } else if (technicalId != null && businessUnitId == null) {
+                        list.add(cb.or(technicalId, createUserId));
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
