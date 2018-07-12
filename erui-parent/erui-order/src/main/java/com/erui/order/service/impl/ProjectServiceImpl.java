@@ -79,11 +79,16 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) throws Exception {
-        if (projectDao.countByProjectName(project.getProjectName()) > 0) {
-            throw new MyException("项目号已存在&&The project No. already exists");
-        }
         Project projectUpdate = projectDao.findOne(project.getId());
-
+        if (!projectUpdate.getProjectName().equals(project.getProjectName())) {
+            if (StringUtils.isNotBlank(project.getProjectName()) && projectDao.countByProjectName(project.getProjectName()) > 0) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        } else {
+            if (StringUtils.isNotBlank(project.getProjectName()) && projectDao.countByProjectName(project.getProjectName()) > 1) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        }
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
