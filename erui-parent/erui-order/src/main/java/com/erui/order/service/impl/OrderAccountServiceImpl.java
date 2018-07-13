@@ -401,6 +401,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             Map<String, String> bnMapZhCountry = this.findBnMapZhCountry();
 
             for (Order vo : pageOrder.getContent()){
+                vo.setProject(null);
                 NumberFormat numberFormat1 =  new   DecimalFormat("###,##0.00");
                 BigDecimal shipmentsMoney = vo.getShipmentsMoney() == null ? BigDecimal.valueOf(0) :vo.getShipmentsMoney() ; //已发货总金额
                 vo.setCurrencyBnShipmentsMoney(vo.getCurrencyBn()+" "+numberFormat1.format(shipmentsMoney));//已发货总金额

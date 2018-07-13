@@ -1,13 +1,9 @@
 package com.erui.order.service;
 
-import com.erui.order.model.GoodsBookDetail;
-import com.erui.order.model.GoodsStatistics;
-import com.erui.order.model.ProjectStatistics;
-import com.erui.order.model.SaleStatistics;
+import com.erui.order.model.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.data.domain.Page;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,4 +59,10 @@ public interface StatisticsService {
     Map<String,String> findBnMapZhRegion();
 
 
+    /**
+     * 订单主流程监控
+     * @param params
+     * @return
+     */
+    Map<String, Object> findOrderMainProcess(Map<String, String> params);
 }

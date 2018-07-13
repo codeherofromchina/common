@@ -140,4 +140,26 @@ public class StatisticsController {
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 
+
+    /**
+     * 订单主流程监控
+     * @param params
+     * @return
+     */
+    @RequestMapping("/orderMainProcess")
+    public Result<Object> orderMainProcess(@RequestBody Map<String,String> params) {
+        String errMsg = null;
+        try {
+            Map<String, Object> data =  statisticsService.findOrderMainProcess(params);
+            return new Result<>(data);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOGGER.error("异常 ： {}" ,ex);
+            errMsg = ex.getMessage();
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
+    }
+
+
 }
