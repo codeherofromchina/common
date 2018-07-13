@@ -1342,46 +1342,69 @@ public class OrderServiceImpl implements OrderService {
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_CHECK, response, cellIndex)) {
                 continue;
             }
-            if (strArr[0] != null) {
+            if (StringUtils.isNotBlank(strArr[0])) {
                 int orderId = Integer.parseInt(strArr[0]);
                 oc = orderDao.findOne(orderId);
             }
-            if (strArr[1] != null) {
+            if (StringUtils.isNotBlank(strArr[1])) {
                 oc.setOrderCategory(Integer.parseInt(strArr[1]));
             }
-            if (strArr[2] != null) {
+            if (StringUtils.isNotBlank(strArr[2])) {
                 oc.setOverseasSales(Integer.parseInt(strArr[2]));
             }
-            oc.setContractNo(strArr[3]);
-            oc.setFrameworkNo(strArr[4]);
-            oc.setContractNoOs(strArr[5]);
-            oc.setPoNo(strArr[6]);
-            oc.setLogiQuoteNo(strArr[7]);
-            oc.setInquiryNo(strArr[8]);
-            if (strArr[9] != null) {
+            if (StringUtils.isNotBlank(strArr[3])) {
+                oc.setContractNo(strArr[3]);
+            }
+            if (StringUtils.isNotBlank(strArr[4])) {
+                oc.setFrameworkNo(strArr[4]);
+            }
+            if (StringUtils.isNotBlank(strArr[5])) {
+                oc.setContractNoOs(strArr[5]);
+            }
+            if (StringUtils.isNotBlank(strArr[6])) {
+                oc.setPoNo(strArr[6]);
+            }
+            if (StringUtils.isNotBlank(strArr[7])) {
+                oc.setLogiQuoteNo(strArr[7]);
+            }
+            if (StringUtils.isNotBlank(strArr[8])) {
+                oc.setInquiryNo(strArr[8]);
+            }
+            if (StringUtils.isNotBlank(strArr[9])) {
                 Date signingDate = DateUtil.parseString2DateNoException(strArr[9], "yyyy-MM-dd");
                 oc.setSigningDate(signingDate);
             }
-            oc.setDeliveryDate(strArr[10]);
-            if (strArr[11] != null) {
+            if (StringUtils.isNotBlank(strArr[10])) {
+                oc.setDeliveryDate(strArr[10]);
+            }
+            if (StringUtils.isNotBlank(strArr[11])) {
                 oc.setAgentId(Integer.parseInt(strArr[11]));
             }
-            oc.setAgentName(strArr[12]);
-            if (strArr[13] != null) {
+            if (StringUtils.isNotBlank(strArr[12])) {
+                oc.setAgentName(strArr[12]);
+            }
+            if (StringUtils.isNotBlank(strArr[13])) {
                 oc.setAcquireId(Integer.parseInt(strArr[13]));
             }
-            oc.setSigningCo(strArr[14]);
-            if (strArr[15] != null) {
+            if (StringUtils.isNotBlank(strArr[14])) {
+                oc.setSigningCo(strArr[14]);
+            }
+            if (StringUtils.isNotBlank(strArr[15])) {
                 oc.setBusinessUnitId(Integer.parseInt(strArr[15]));
             }
-            oc.setBusinessUnitName(strArr[16]);
-            if (strArr[17] != null) {
+            if (StringUtils.isNotBlank(strArr[16])) {
+                oc.setBusinessUnitName(strArr[16]);
+            }
+            if (StringUtils.isNotBlank(strArr[17])) {
                 oc.setExecCoId(Integer.parseInt(strArr[17]));
             }
             //执行分公司
-            oc.setExecCoName(strArr[18]);
-
-            oc.setRegion(strArr[19]);
+            if (StringUtils.isNotBlank(strArr[18])) {
+                oc.setExecCoName(strArr[18]);
+            }
+            if (StringUtils.isNotBlank(strArr[19])) {
+                oc.setRegion(strArr[19]);
+            }
            /*if (strArr[15] != null) {
                 try {
                     oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
@@ -1394,55 +1417,81 @@ public class OrderServiceImpl implements OrderService {
             }*/
             // 20 分销部id
             //分销部
-            oc.setDistributionDeptName(strArr[21]);
+            if (StringUtils.isNotBlank(strArr[21])) {
+                oc.setDistributionDeptName(strArr[21]);
+            }
             // 国家
-            oc.setCountry(strArr[22]);
+            if (StringUtils.isNotBlank(strArr[22])) {
+                oc.setCountry(strArr[22]);
+            }
             //订单号
-            oc.setCrmCode(strArr[23]);
+            if (StringUtils.isNotBlank(strArr[23])) {
+                oc.setCrmCode(strArr[23]);
+            }
             //客户类型
-            if (strArr[24] != null) {
+            if (StringUtils.isNotBlank(strArr[24])) {
                 oc.setCustomerType(Integer.parseInt(strArr[24]));
             }
             //回款责任人
-            oc.setPerLiableRepay(strArr[25]);
+            if (StringUtils.isNotBlank(strArr[25])) {
+                oc.setPerLiableRepay(strArr[25]);
+            }
             //商务技术经办人编号
-            if (strArr[26] != null) {
+            if (StringUtils.isNotBlank(strArr[26])) {
                 oc.setTechnicalId(Integer.parseInt(strArr[26]));
             }
-            oc.setBusinessName(strArr[27]);
+            if (StringUtils.isNotBlank(strArr[27])) {
+                oc.setBusinessName(strArr[27]);
+            }
             //是否融资
-            if (strArr[28] != null) {
+            if (StringUtils.isNotBlank(strArr[28])) {
                 oc.setFinancing(Integer.parseInt(strArr[28]));
             }
             //会员类型
-            if (strArr[29] != null) {
+            if (StringUtils.isNotBlank(strArr[29])) {
                 oc.setOrderBelongs(Integer.parseInt(strArr[29]));
             }
             //授信情况
-            if (strArr[30] != null) {
+            if (StringUtils.isNotBlank(strArr[30])) {
                 oc.setGrantType(strArr[30]);
             }
             //订单类型
-            if (strArr[31] != null) {
+            if (StringUtils.isNotBlank(strArr[31])) {
                 oc.setOrderType(Integer.parseInt(strArr[31]));
             }
             //贸易术语
-            oc.setTradeTerms(strArr[32]);
+            if (StringUtils.isNotBlank(strArr[32])) {
+                oc.setTradeTerms(strArr[32]);
+            }
             //运输方式
-            oc.setTransportType(strArr[33]);
+            if (StringUtils.isNotBlank(strArr[33])) {
+                oc.setTransportType(strArr[33]);
+            }
             //起运港
-            oc.setFromPort(strArr[34]);
+            if (StringUtils.isNotBlank(strArr[34])) {
+                oc.setFromPort(strArr[34]);
+            }
             //起运国
-            oc.setFromCountry(strArr[35]);
+            if (StringUtils.isNotBlank(strArr[35])) {
+                oc.setFromCountry(strArr[35]);
+            }
             //发运起始地
-            oc.setFromPlace(strArr[36]);
+            if (StringUtils.isNotBlank(strArr[36])) {
+                oc.setFromPlace(strArr[36]);
+            }
             //目的港
-            oc.setToPort(strArr[37]);
+            if (StringUtils.isNotBlank(strArr[37])) {
+                oc.setToPort(strArr[37]);
+            }
             //目的国
-            oc.setToCountry(strArr[38]);
+            if (StringUtils.isNotBlank(strArr[38])) {
+                oc.setToCountry(strArr[38]);
+            }
             //目的地
-            oc.setToPlace(strArr[39]);
-            if (strArr[40] != null) {
+            if (StringUtils.isNotBlank(strArr[39])) {
+                oc.setToPlace(strArr[39]);
+            }
+            if (StringUtils.isNotBlank(strArr[40])) {
                 try {
                     oc.setTotalPrice(new BigDecimal(strArr[40]));
                 } catch (Exception ex) {
@@ -1453,14 +1502,16 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //币种
-            oc.setCurrencyBn(strArr[41]);
+            if (StringUtils.isNotBlank(strArr[41])) {
+                oc.setCurrencyBn(strArr[41]);
+            }
             //是否含税
-            if (strArr[42] != null) {
+            if (StringUtils.isNotBlank(strArr[42])) {
                 oc.setTaxBearing(Integer.parseInt(strArr[42]));
             }
             //  汇率  strArr[43]
             //合同总价
-            if (strArr[44] != null) {
+            if (StringUtils.isNotBlank(strArr[44])) {
                 try {
                     oc.setTotalPriceUsd(new BigDecimal(strArr[44]));
                 } catch (Exception ex) {
@@ -1470,10 +1521,10 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
             }
-            if (strArr[45] != null) {
+            if (StringUtils.isNotBlank(strArr[45])) {
                 oc.setPaymentModeBn(strArr[45]);
             }
-            if (strArr[46] != null) {
+            if (StringUtils.isNotBlank(strArr[46])) {
                 try {
                     oc.setQualityFunds(new BigDecimal(strArr[46]));
                 } catch (Exception ex) {
@@ -1485,7 +1536,7 @@ public class OrderServiceImpl implements OrderService {
             }
             OrderPayment orderPayment = new OrderPayment();
             ArrayList<OrderPayment> paymentList = new ArrayList<>();
-            if (strArr[47] != null) {
+            if (StringUtils.isNotBlank(strArr[47])) {
                 try {
                     orderPayment.setMoney(new BigDecimal(strArr[47]));
                 } catch (Exception ex) {
@@ -1495,10 +1546,12 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
                 orderPayment.setType(1);
-                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[48], "yyyy-MM-dd"));
+                if (StringUtils.isNotBlank(strArr[48])) {
+                    orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[48], "yyyy-MM-dd"));
+                }
                 paymentList.add(orderPayment);
             }
-            if (strArr[49] != null) {
+            if (StringUtils.isNotBlank(strArr[49])) {
                 try {
                     //发货前收款
                     orderPayment.setMoney(new BigDecimal(strArr[49]));
@@ -1514,12 +1567,16 @@ public class OrderServiceImpl implements OrderService {
                 paymentList.add(orderPayment);
             }
 
-            if (strArr[53] != null || strArr[51] != null) {
+            if (StringUtils.isNotBlank(strArr[51])) {
                 orderPayment.setTopic(strArr[51]);
                 //收款日期
-                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[52], "yyyy-MM-dd"));
+                if (StringUtils.isNotBlank(strArr[52])) {
+                    orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[52], "yyyy-MM-dd"));
+                }
                 try {
-                    orderPayment.setMoney(new BigDecimal(strArr[53]));
+                    if (StringUtils.isNotBlank(strArr[53])) {
+                        orderPayment.setMoney(new BigDecimal(strArr[53]));
+                    }
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -1529,8 +1586,11 @@ public class OrderServiceImpl implements OrderService {
                 orderPayment.setType(1);
                 paymentList.add(orderPayment);
             }
-            oc.setDeliveryRequires(strArr[54]);
-            oc.setCustomerContext(strArr[55]);
+            if (StringUtils.isNotBlank(strArr[54])) {
+                oc.setDeliveryRequires(strArr[54]);
+            } else if (StringUtils.isNotBlank(strArr[55])) {
+                oc.setCustomerContext(strArr[55]);
+            }
             try {
                 orderDao.save(oc);
             } catch (Exception e) {
