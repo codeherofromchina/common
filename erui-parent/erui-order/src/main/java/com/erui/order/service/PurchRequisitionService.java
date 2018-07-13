@@ -1,6 +1,5 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.PurchRequisition;
 import org.springframework.data.domain.Page;
 
@@ -17,7 +16,7 @@ public interface PurchRequisitionService {
      */
     PurchRequisition findById(Integer id,Integer orderId);
 
-    boolean updatePurchRequisition(PurchRequisition purchRequisition);
+    boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception;
 
     boolean insertPurchRequisition(PurchRequisition purchRequisition);
 

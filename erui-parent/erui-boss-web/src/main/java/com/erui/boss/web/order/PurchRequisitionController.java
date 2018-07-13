@@ -74,7 +74,7 @@ public class PurchRequisitionController {
      * @return
      */
     @RequestMapping(value = "addPurchDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) {
+    public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) throws Exception{
         Project project = projectService.findDesc(proMap.get("proId"));
         if (project != null) {
             Map<String, Object> map = new HashMap<>();

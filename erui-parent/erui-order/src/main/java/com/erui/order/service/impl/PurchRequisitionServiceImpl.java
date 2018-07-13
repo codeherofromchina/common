@@ -69,7 +69,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updatePurchRequisition(PurchRequisition purchRequisition) {
+    public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception{
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (!purchRequisition.getProjectNo().equals(project.getProjectNo())) {
             if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && projectDao.countByProjectNo(project.getProjectNo()) > 0) {
