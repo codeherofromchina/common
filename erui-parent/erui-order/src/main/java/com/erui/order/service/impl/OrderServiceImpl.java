@@ -1325,4 +1325,225 @@ public class OrderServiceImpl implements OrderService {
         response.setDone(true);
         return response;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ImportDataResponse importOrder(List<String[]> datas, boolean testOnly) {
+        ImportDataResponse response = new ImportDataResponse(new String[]{"orderManage"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        int size = datas.size();
+        Order oc = null;
+        Project project = null;
+        // 订单总数量
+        int orderCount = 0;
+        for (int index = 0; index < size; index++) {
+            int cellIndex = index + 2; // 数据从第二行开始
+            String[] strArr = datas.get(index);
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_CHECK, response, cellIndex)) {
+                continue;
+            }
+            if (strArr[0] != null) {
+                int orderId = Integer.parseInt(strArr[0]);
+                oc = orderDao.findOne(orderId);
+            }
+            if (strArr[1] != null) {
+                oc.setOrderCategory(Integer.parseInt(strArr[1]));
+            }
+            if (strArr[2] != null) {
+                oc.setOverseasSales(Integer.parseInt(strArr[2]));
+            }
+            oc.setContractNo(strArr[3]);
+            oc.setFrameworkNo(strArr[4]);
+            oc.setContractNoOs(strArr[5]);
+            oc.setPoNo(strArr[6]);
+            oc.setLogiQuoteNo(strArr[7]);
+            oc.setInquiryNo(strArr[8]);
+            if (strArr[9] != null) {
+                Date signingDate = DateUtil.parseString2DateNoException(strArr[9], "yyyy-MM-dd");
+                oc.setSigningDate(signingDate);
+            }
+            oc.setDeliveryDate(strArr[10]);
+            if (strArr[11] != null) {
+                oc.setAgentId(Integer.parseInt(strArr[11]));
+            }
+            oc.setAgentName(strArr[12]);
+            if (strArr[13] != null) {
+                oc.setAcquireId(Integer.parseInt(strArr[13]));
+            }
+            oc.setSigningCo(strArr[14]);
+            if (strArr[15] != null) {
+                oc.setBusinessUnitId(Integer.parseInt(strArr[15]));
+            }
+            oc.setBusinessUnitName(strArr[16]);
+            if (strArr[17] != null) {
+                oc.setExecCoId(Integer.parseInt(strArr[17]));
+            }
+            //执行分公司
+            oc.setExecCoName(strArr[18]);
+
+            oc.setRegion(strArr[19]);
+           /*if (strArr[15] != null) {
+                try {
+                    oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "数量字段非数字");
+                    continue;
+                }
+            }*/
+            // 20 分销部id
+            //分销部
+            oc.setDistributionDeptName(strArr[21]);
+            // 国家
+            oc.setCountry(strArr[22]);
+            //订单号
+            oc.setCrmCode(strArr[23]);
+            //客户类型
+            if (strArr[24] != null) {
+                oc.setCustomerType(Integer.parseInt(strArr[24]));
+            }
+            //回款责任人
+            oc.setPerLiableRepay(strArr[25]);
+            //商务技术经办人编号
+            if (strArr[26] != null) {
+                oc.setTechnicalId(Integer.parseInt(strArr[26]));
+            }
+            oc.setBusinessName(strArr[27]);
+            //是否融资
+            if (strArr[28] != null) {
+                oc.setFinancing(Integer.parseInt(strArr[28]));
+            }
+            //会员类型
+            if (strArr[29] != null) {
+                oc.setOrderBelongs(Integer.parseInt(strArr[29]));
+            }
+            //授信情况
+            if (strArr[30] != null) {
+                oc.setGrantType(strArr[30]);
+            }
+            //订单类型
+            if (strArr[31] != null) {
+                oc.setOrderType(Integer.parseInt(strArr[31]));
+            }
+            //贸易术语
+            oc.setTradeTerms(strArr[32]);
+            //运输方式
+            oc.setTransportType(strArr[33]);
+            //起运港
+            oc.setFromPort(strArr[34]);
+            //起运国
+            oc.setFromCountry(strArr[35]);
+            //发运起始地
+            oc.setFromPlace(strArr[36]);
+            //目的港
+            oc.setToPort(strArr[37]);
+            //目的国
+            oc.setToCountry(strArr[38]);
+            //目的地
+            oc.setToPlace(strArr[39]);
+            if (strArr[40] != null) {
+                try {
+                    oc.setTotalPrice(new BigDecimal(strArr[40]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价非数字");
+                    continue;
+                }
+            }
+            //币种
+            oc.setCurrencyBn(strArr[41]);
+            //是否含税
+            if (strArr[42] != null) {
+                oc.setTaxBearing(Integer.parseInt(strArr[42]));
+            }
+            //  汇率  strArr[43]
+            //合同总价
+            if (strArr[44] != null) {
+                try {
+                    oc.setTotalPriceUsd(new BigDecimal(strArr[44]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    continue;
+                }
+            }
+            if (strArr[45] != null) {
+                oc.setPaymentModeBn(strArr[45]);
+            }
+            if (strArr[46] != null) {
+                try {
+                    oc.setQualityFunds(new BigDecimal(strArr[46]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "质保金 非数字");
+                    continue;
+                }
+            }
+            OrderPayment orderPayment = new OrderPayment();
+            ArrayList<OrderPayment> paymentList = new ArrayList<>();
+            if (strArr[47] != null) {
+                try {
+                    orderPayment.setMoney(new BigDecimal(strArr[47]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[48], "yyyy-MM-dd"));
+                paymentList.add(orderPayment);
+            }
+            if (strArr[49] != null) {
+                try {
+                    //发货前收款
+                    orderPayment.setMoney(new BigDecimal(strArr[49]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                //收款日期
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[50], "yyyy-MM-dd"));
+                paymentList.add(orderPayment);
+            }
+
+            if (strArr[53] != null || strArr[51] != null) {
+                orderPayment.setTopic(strArr[51]);
+                //收款日期
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[52], "yyyy-MM-dd"));
+                try {
+                    orderPayment.setMoney(new BigDecimal(strArr[53]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                paymentList.add(orderPayment);
+            }
+            oc.setDeliveryRequires(strArr[54]);
+            oc.setCustomerContext(strArr[55]);
+            try {
+                orderDao.save(oc);
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            orderCount++;
+            response.incrSuccess();
+        }
+        response.getFailItems();
+        response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
+        response.setDone(true);
+        return response;
+    }
 }
