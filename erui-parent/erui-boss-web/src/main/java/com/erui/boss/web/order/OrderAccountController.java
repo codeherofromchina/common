@@ -79,9 +79,6 @@ public class OrderAccountController {
         if (orderAcciuntAdd.getOrderId()==null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("订单id为空");
-        }else if (StringUtils.isBlank(orderAcciuntAdd.getDesc()) || StringUtils.equals(orderAcciuntAdd.getDesc(), "")) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("描述不能为空");
         }else if (orderAcciuntAdd.getMoney() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款金额不能为空");
@@ -148,9 +145,6 @@ public class OrderAccountController {
         if (orderAccount.getId()==null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("收款id为空");
-        }else if (StringUtils.isBlank(orderAccount.getDesc()) || StringUtils.equals(orderAccount.getDesc(), "")) {
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("描述不能为空");
         }else if (orderAccount.getMoney() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款金额不能为空");
@@ -273,8 +267,6 @@ public class OrderAccountController {
         Order order = new Order();
         if (orderAcciuntAdd.getOrderId()==null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("订单id为空");
-        }else if (StringUtils.isBlank(orderAcciuntAdd.getDesc()) || StringUtils.equals(orderAcciuntAdd.getDesc(), "")) {
-            return new Result<>(ResultStatusEnum.FAIL).setMsg("描述不能为空");
         }else if (orderAcciuntAdd.getGoodsPrice() == null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
         }else if (orderAcciuntAdd.getDeliverDate() == null) {
