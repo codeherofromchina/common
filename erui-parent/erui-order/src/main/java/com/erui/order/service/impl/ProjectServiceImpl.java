@@ -80,15 +80,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
-        if (!projectUpdate.getProjectName().equals(project.getProjectName())) {
-            if (StringUtils.isNotBlank(project.getProjectName()) && projectDao.countByProjectName(project.getProjectName()) > 0) {
-                throw new MyException("项目号已存在&&The project No. already exists");
-            }
-        } else {
-            if (StringUtils.isNotBlank(project.getProjectName()) && projectDao.countByProjectName(project.getProjectName()) > 1) {
-                throw new MyException("项目号已存在&&The project No. already exists");
-            }
-        }
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
@@ -209,14 +200,6 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //下发部门
-                String[] bid = null;
-                if (StringUtils.isNotBlank(condition.getSendDeptId())) {
-                    bid = condition.getSendDeptId().split(",");
-                }
-                if (bid != null) {
-                    list.add(root.get("sendDeptId").in(bid));
-                }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
@@ -280,13 +263,22 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
                 }
                 //根据商务技术经办人
-                if (condition.getBusinessUid() != null) {
+                /*if (condition.getBusinessUid() != null) {
                     list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()));
+                }*/
+                //下发部门
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getSendDeptId())) {
+                    bid = condition.getSendDeptId().split(",");
                 }
+                /*if (bid != null) {
+                    list.add(root.get("sendDeptId").in(bid));
+                }*/
                 //项目经理
-                if (condition.getManagerUid() != null || condition.getBusinessUid() != null) {
+                if (condition.getManagerUid() != null || condition.getBusinessUid() != null || StringUtils.isNotBlank(condition.getSendDeptId())) {
                     list.add(cb.or(cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid()),
-                            cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid())));
+                            cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()),
+                            root.get("sendDeptId").in(bid)));
                 }
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {

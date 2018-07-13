@@ -48,6 +48,12 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
      */
     @Query(value = "select t1.id from Project t1 where t1.projectName= :projectName")
     Integer findIdByProjectName(@Param("projectName")String projectName);
-    @Query(value = "select count(t1) from Project t1 where t1.projectName = :projectName")
-    int countByProjectName(@Param("projectName")String projectName);
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:9:47 2018/7/13
+      * @modified By
+      */
+    @Query(value = "select count(t1) from Project t1 where t1.projectName = :projectNo")
+    int countByProjectNo(@Param("projectNo")String projectNo);
 }

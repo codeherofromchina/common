@@ -11,6 +11,7 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchRequisitionService;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,15 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) {
         Project project = projectDao.findOne(purchRequisition.getProId());
+        if (!purchRequisition.getProjectNo().equals(project.getProjectNo())) {
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && projectDao.countByProjectNo(project.getProjectNo()) > 0) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        } else {
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && projectDao.countByProjectNo(project.getProjectNo()) > 1) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        }
         if (project != null) {
             project.getOrder().getGoodsList().size();
         }
@@ -128,6 +138,15 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Override
     public boolean insertPurchRequisition(PurchRequisition purchRequisition)  {
         Project project = projectDao.findOne(purchRequisition.getProId());
+        if (!purchRequisition.getProjectNo().equals(project.getProjectNo())) {
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && projectDao.countByProjectNo(project.getProjectNo()) > 0) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        } else {
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && projectDao.countByProjectNo(project.getProjectNo()) > 1) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        }
         if (project != null) {
             project.getOrder().getGoodsList().size();
         }
