@@ -271,14 +271,34 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtils.isNotBlank(condition.getSendDeptId())) {
                     bid = condition.getSendDeptId().split(",");
                 }
-                /*if (bid != null) {
-                    list.add(root.get("sendDeptId").in(bid));
-                }*/
+                Predicate sendDeptId = null;
+                if (bid != null) {
+                    sendDeptId = root.get("sendDeptId").in(bid);
+                }
+                Predicate managerUid = null;
+                if (condition.getManagerUid() != null) {
+                    managerUid = cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid());
+                }
+                Predicate businessUid = null;
+                if (condition.getBusinessUid() != null) {
+                    businessUid = cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid());
+                }
                 //项目经理
-                if (condition.getManagerUid() != null || condition.getBusinessUid() != null || StringUtils.isNotBlank(condition.getSendDeptId())) {
-                    list.add(cb.or(cb.equal(root.get("managerUid").as(Integer.class), condition.getManagerUid()),
-                            cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid()),
-                            root.get("sendDeptId").in(bid)));
+                Predicate or = null;
+                if (managerUid != null && businessUid != null) {
+                    or = cb.or(managerUid, businessUid);
+                } else if (managerUid != null) {
+                    list.add(managerUid);
+                } else if (businessUid != null) {
+                    list.add(businessUid);
+                }
+                if (sendDeptId != null && or != null) {
+                    or = cb.or(or, sendDeptId);
+                } else if (sendDeptId != null) {
+                    list.add(sendDeptId);
+                }
+                if (or != null) {
+                    list.add(or);
                 }
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
