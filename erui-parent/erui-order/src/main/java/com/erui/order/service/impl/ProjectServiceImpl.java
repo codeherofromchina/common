@@ -157,10 +157,9 @@ public class ProjectServiceImpl implements ProjectService {
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                     Order order = projectUpdate.getOrder();
                     try {
-                        Date stringToDate = DateUtil.parseStringToDate(projectUpdate.getDeliveryDate(), "yyyy-MM-dd");
                         order.getGoodsList().forEach(gd -> {
                                     gd.setStartDate(projectUpdate.getStartDate());
-                                    gd.setDeliveryDate(stringToDate);
+                                    gd.setDeliveryDate(projectUpdate.getDeliveryDate());
                                     gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
                                     gd.setExeChgDate(projectUpdate.getExeChgDate());
                                 }
@@ -285,20 +284,25 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //项目经理
                 Predicate or = null;
-                if (managerUid != null && businessUid != null) {
+                if (managerUid != null && businessUid != null && sendDeptId != null) {
+                    or = cb.or(managerUid, businessUid, sendDeptId);
+                } else if (managerUid != null && businessUid != null) {
                     or = cb.or(managerUid, businessUid);
-                } else if (managerUid != null) {
-                    list.add(managerUid);
-                } else if (businessUid != null) {
-                    list.add(businessUid);
-                }
-                if (sendDeptId != null && or != null) {
-                    or = cb.or(or, sendDeptId);
-                } else if (sendDeptId != null) {
-                    list.add(sendDeptId);
+                } else if (managerUid != null && sendDeptId != null) {
+                    or = cb.or(managerUid, sendDeptId);
+                } else if (businessUid != null && sendDeptId != null) {
+                    or = cb.or(businessUid, sendDeptId);
                 }
                 if (or != null) {
                     list.add(or);
+                } else {
+                    if (sendDeptId != null) {
+                        list.add(sendDeptId);
+                    } else if (managerUid != null) {
+                        list.add(managerUid);
+                    } else if (businessUid != null) {
+                        list.add(businessUid);
+                    }
                 }
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {

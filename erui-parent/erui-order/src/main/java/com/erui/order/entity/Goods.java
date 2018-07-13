@@ -128,7 +128,7 @@ public class Goods {
     private Date startDate;
     //执行单约定交付日期
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
     // 执行单变更后日期
     @Column(name = "exe_chg_date")
     private Date exeChgDate;
@@ -252,11 +252,11 @@ public class Goods {
         this.startDate = startDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 

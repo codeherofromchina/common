@@ -1558,20 +1558,24 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "发货前收款 非数字");
                     continue;
                 }
-                orderPayment.setType(1);
+                orderPayment.setType(2);
                 //收款日期
-                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[50], "yyyy-MM-dd"));
+                if (StringUtils.isNotBlank(strArr[50])) {
+                    orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[50], "yyyy-MM-dd"));
+                }
                 paymentList.add(orderPayment);
             }
 
             if (StringUtils.isNotBlank(strArr[51])) {
-                orderPayment.setTopic(strArr[51]);
+                int type = Integer.parseInt(strArr[51]);
+                orderPayment.setType(type);
                 //收款日期
                 if (StringUtils.isNotBlank(strArr[52])) {
-                    orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[52], "yyyy-MM-dd"));
+                    int days = Integer.parseInt(strArr[52]);
+                    orderPayment.setReceiptTime(days);
                 }
                 try {
                     if (StringUtils.isNotBlank(strArr[53])) {
@@ -1580,7 +1584,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "收款金额 非数字");
                     continue;
                 }
                 orderPayment.setType(1);
