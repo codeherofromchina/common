@@ -101,4 +101,5 @@ public interface OrderService {
 
 
     ImportDataResponse importData(List<String[]> datas, boolean testOnly);
+    ImportDataResponse importOrder(List<String[]> datas, boolean testOnly);
 }

@@ -1,9 +1,9 @@
 package com.erui.order.dao;
 
-import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchRequisition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.io.Serializable;
@@ -18,4 +18,6 @@ public interface PurchRequisitionDao extends JpaRepository<PurchRequisition, Ser
      * @return
      */
     PurchRequisition findByIdOrOrderId(@Param(value = "id") Integer id, @Param(value = "orderId") Integer orderId);
+    @Query(value = "select count(t1) from PurchRequisition t1 where t1.projectNo = :projectNo")
+    int countByProjectNo(@Param("projectNo") String projectNo);
 }
