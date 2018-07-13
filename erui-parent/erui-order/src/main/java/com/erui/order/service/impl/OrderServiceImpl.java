@@ -128,10 +128,6 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //根据订单类型
-                if (condition.getBusinessUnitId() != null) {
-                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId()));
-                }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
                     list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
@@ -202,21 +198,46 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 //商务技术经办人
-                if (condition.getTechnicalId() != null) {
+               /* if (condition.getTechnicalId() != null) {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
-                }
+                }*/
                 //根据区域所在国家查询
-                String[] country = null;
+               /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
+                }*/
+                //根据事业部
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
+                    bid = condition.getBusinessUnitId().split(",");
                 }
+                /*if (bid != null) {
+                    list.add(root.get("businessUnitId").in(bid));
+                }*/
                 if (condition.getType() == 1) {
-                    if (country != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                    Predicate createUserId = null;
+                    if (condition.getCreateUserId() != null) {
+                        createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
+                    }
+                    Predicate businessUnitId = null;
+                    if (bid != null) {
+                        businessUnitId = root.get("businessUnitId").in(bid);
+                    }
+                    Predicate technicalId = null;
+                    if (condition.getTechnicalId() != null) {
+                        technicalId = cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId());
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    Predicate and = cb.and(businessUnitId, technicalId);
+                    if (businessUnitId != null && technicalId != null) {
+                        list.add(cb.or(and, createUserId));
+                    } else if (businessUnitId != null && technicalId == null) {
+                        list.add(cb.or(businessUnitId, createUserId));
+                    } else if (technicalId != null && businessUnitId == null) {
+                        list.add(cb.or(technicalId, createUserId));
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
@@ -228,9 +249,9 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
-                    if (country != null) {
+                   /* if (country != null) {
                         list.add(root.get("country").in(country));
-                    }
+                    }*/
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
@@ -459,6 +480,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
+            projectAdd.setSendDeptId(orderUpdate.getBusinessUnitId());
             projectAdd.setRegion(orderUpdate.getRegion());
             projectAdd.setCountry(orderUpdate.getCountry());
             projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
@@ -638,6 +660,7 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessUid(order1.getTechnicalId());
             project.setExecCoName(order1.getExecCoName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
+            project.setSendDeptId(order1.getBusinessUnitId());
             project.setDistributionDeptName(order1.getDistributionDeptName());
             project.setRegion(order1.getRegion());
             project.setCountry(order1.getCountry());
@@ -981,17 +1004,26 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 //商务技术经办人
-                if (condition.getTechnicalId() != null) {
+               /* if (condition.getTechnicalId() != null) {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
-                }
+                }*/
                 //根据区域所在国家查询
-                String[] country = null;
+               /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
                     country = condition.getCountry().split(",");
+                }*/
+                //根据事业部搜索
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
+                    bid = condition.getBusinessUnitId().split(",");
                 }
-                if (condition.getType() == 1) {
-                    if (country != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(root.get("country").in(country), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                /*if (bid != null) {
+                    list.add(root.get("businessUnitId").in(bid));
+                }*/
+                if (condition.getType() == 1 || condition.getTechnicalId() != null || bid != null) {
+                    if (condition.getCreateUserId() != null) {
+                        list.add(cb.or(cb.and(root.get("businessUnitId").in(bid), cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId())),
+                                cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
                     }
                     //根据市场经办人查询
                     if (condition.getAgentId() != null) {
@@ -1008,9 +1040,9 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getAgentId() != null) {
                         list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
                     }
-                    if (country != null) {
+                  /*  if (country != null) {
                         list.add(root.get("country").in(country));
-                    }
+                    }*/
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
@@ -1061,23 +1093,40 @@ public class OrderServiceImpl implements OrderService {
             }
             oc = new Order();
             project = new Project();
-            oc.setOrderCategory(Integer.parseInt(strArr[0]));
-            oc.setOverseasSales(Integer.parseInt(strArr[1]));
+            if (strArr[0] != null) {
+                oc.setOrderCategory(Integer.parseInt(strArr[0]));
+            }
+            if (strArr[1] != null) {
+                oc.setOverseasSales(Integer.parseInt(strArr[1]));
+            }
             oc.setContractNo(strArr[2]);
             oc.setFrameworkNo(strArr[3]);
             oc.setContractNoOs(strArr[4]);
             oc.setPoNo(strArr[5]);
-
             oc.setLogiQuoteNo(strArr[6]);
             oc.setInquiryNo(strArr[7]);
-            Date signingDate = DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd");
-            oc.setSigningDate(signingDate);
+            if (strArr[8] != null) {
+                Date signingDate = DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd");
+                oc.setSigningDate(signingDate);
+            }
             oc.setDeliveryDate(strArr[9]);
-            oc.setAgentId(Integer.parseInt(strArr[10]));
-            oc.setAcquireId(Integer.parseInt(strArr[11]));
+            if (strArr[10] != null) {
+                oc.setAgentId(Integer.parseInt(strArr[10]));
+            }
+            if (strArr[11] != null) {
+                oc.setAcquireId(Integer.parseInt(strArr[11]));
+            }
             oc.setSigningCo(strArr[12]);
-            oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
-            oc.setExecCoId(Integer.parseInt(strArr[14]));
+            /*if (strArr[13] != null) {
+                oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
+            }*/
+            oc.setBusinessUnitName(strArr[13]);
+           /* if (strArr[14] != null) {
+                oc.setExecCoId(Integer.parseInt(strArr[14]));
+            }*/
+            //执行分公司
+            oc.setExecCoName(strArr[14]);
+
             oc.setRegion(strArr[15]);
           /*  if (strArr[15] != null) {
                 try {
@@ -1095,17 +1144,25 @@ public class OrderServiceImpl implements OrderService {
             //订单号
             oc.setCrmCode(strArr[18]);
             //客户类型
-            oc.setCustomerType(Integer.parseInt(strArr[19]));
+            if (strArr[19] != null) {
+                oc.setCustomerType(Integer.parseInt(strArr[19]));
+            }
             //回款责任人
             oc.setPerLiableRepay(strArr[20]);
             //是否融资
-            oc.setFinancing(Integer.parseInt(strArr[21]));
+            if (strArr[21] != null) {
+                oc.setFinancing(Integer.parseInt(strArr[21]));
+            }
             //会员类型
-            oc.setOrderBelongs(Integer.parseInt(strArr[22]));
+            if (strArr[22] != null) {
+                oc.setOrderBelongs(Integer.parseInt(strArr[22]));
+            }
             //授信情况
             oc.setGrantType(strArr[23]);
             //订单类型
-            oc.setOrderType(Integer.parseInt(strArr[24]));
+            if (strArr[24] != null) {
+                oc.setOrderType(Integer.parseInt(strArr[24]));
+            }
             //贸易术语
             oc.setTradeTerms(strArr[25]);
             //运输方式
@@ -1121,7 +1178,9 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //是否含税
-            oc.setTaxBearing(Integer.parseInt(strArr[28]));
+            if (strArr[28] != null) {
+                oc.setTaxBearing(Integer.parseInt(strArr[28]));
+            }
             //  汇率  strArr[29]
             //合同总价
             if (strArr[30] != null) {
@@ -1191,7 +1250,7 @@ public class OrderServiceImpl implements OrderService {
             // 国家
             project.setCountry(strArr[17]);
             //执行约定交付日期
-            project.setDeliveryDate(DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd"));
+            project.setDeliveryDate(strArr[41]);
             //合同总价
             if (strArr[42] != null) {
                 try {
@@ -1224,12 +1283,16 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //执行分公司
-            project.setExecCoName(order.getExecCoId().toString());
-            project.setRegion(order.getRegion());
+            if (strArr[14] != null) {
+                project.setExecCoName(order.getExecCoName());
+            }
+            project.setRegion(strArr[15]);
             //执行变更日期
             project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[45], "yyyy-MM-dd"));
             //有无项目经理
-            project.setHasManager(Integer.parseInt(strArr[46]));
+            if (strArr[46] != null) {
+                project.setHasManager(Integer.parseInt(strArr[46]));
+            }
             project.setDistributionDeptName(strArr[47]);
             project.setProjectStatus(strArr[48]);
             project.setRemarks(strArr[49]);
@@ -1255,6 +1318,230 @@ public class OrderServiceImpl implements OrderService {
             }
             response.incrSuccess();
         }
+
+
+        response.getFailItems();
+        response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
+        response.setDone(true);
+        return response;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ImportDataResponse importOrder(List<String[]> datas, boolean testOnly) {
+        ImportDataResponse response = new ImportDataResponse(new String[]{"orderManage"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        int size = datas.size();
+        Order oc = null;
+        Project project = null;
+        // 订单总数量
+        int orderCount = 0;
+        for (int index = 0; index < size; index++) {
+            int cellIndex = index + 2; // 数据从第二行开始
+            String[] strArr = datas.get(index);
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_CHECK, response, cellIndex)) {
+                continue;
+            }
+            if (strArr[0] != null) {
+                int orderId = Integer.parseInt(strArr[0]);
+                oc = orderDao.findOne(orderId);
+            }
+            if (strArr[1] != null) {
+                oc.setOrderCategory(Integer.parseInt(strArr[1]));
+            }
+            if (strArr[2] != null) {
+                oc.setOverseasSales(Integer.parseInt(strArr[2]));
+            }
+            oc.setContractNo(strArr[3]);
+            oc.setFrameworkNo(strArr[4]);
+            oc.setContractNoOs(strArr[5]);
+            oc.setPoNo(strArr[6]);
+            oc.setLogiQuoteNo(strArr[7]);
+            oc.setInquiryNo(strArr[8]);
+            if (strArr[9] != null) {
+                Date signingDate = DateUtil.parseString2DateNoException(strArr[9], "yyyy-MM-dd");
+                oc.setSigningDate(signingDate);
+            }
+            oc.setDeliveryDate(strArr[10]);
+            if (strArr[11] != null) {
+                oc.setAgentId(Integer.parseInt(strArr[11]));
+            }
+            oc.setAgentName(strArr[12]);
+            if (strArr[13] != null) {
+                oc.setAcquireId(Integer.parseInt(strArr[13]));
+            }
+            oc.setSigningCo(strArr[14]);
+            if (strArr[15] != null) {
+                oc.setBusinessUnitId(Integer.parseInt(strArr[15]));
+            }
+            oc.setBusinessUnitName(strArr[16]);
+            if (strArr[17] != null) {
+                oc.setExecCoId(Integer.parseInt(strArr[17]));
+            }
+            //执行分公司
+            oc.setExecCoName(strArr[18]);
+
+            oc.setRegion(strArr[19]);
+           /*if (strArr[15] != null) {
+                try {
+                    oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "数量字段非数字");
+                    continue;
+                }
+            }*/
+            // 20 分销部id
+            //分销部
+            oc.setDistributionDeptName(strArr[21]);
+            // 国家
+            oc.setCountry(strArr[22]);
+            //订单号
+            oc.setCrmCode(strArr[23]);
+            //客户类型
+            if (strArr[24] != null) {
+                oc.setCustomerType(Integer.parseInt(strArr[24]));
+            }
+            //回款责任人
+            oc.setPerLiableRepay(strArr[25]);
+            //商务技术经办人编号
+            if (strArr[26] != null) {
+                oc.setTechnicalId(Integer.parseInt(strArr[26]));
+            }
+            oc.setBusinessName(strArr[27]);
+            //是否融资
+            if (strArr[28] != null) {
+                oc.setFinancing(Integer.parseInt(strArr[28]));
+            }
+            //会员类型
+            if (strArr[29] != null) {
+                oc.setOrderBelongs(Integer.parseInt(strArr[29]));
+            }
+            //授信情况
+            if (strArr[30] != null) {
+                oc.setGrantType(strArr[30]);
+            }
+            //订单类型
+            if (strArr[31] != null) {
+                oc.setOrderType(Integer.parseInt(strArr[31]));
+            }
+            //贸易术语
+            oc.setTradeTerms(strArr[32]);
+            //运输方式
+            oc.setTransportType(strArr[33]);
+            //起运港
+            oc.setFromPort(strArr[34]);
+            //起运国
+            oc.setFromCountry(strArr[35]);
+            //发运起始地
+            oc.setFromPlace(strArr[36]);
+            //目的港
+            oc.setToPort(strArr[37]);
+            //目的国
+            oc.setToCountry(strArr[38]);
+            //目的地
+            oc.setToPlace(strArr[39]);
+            if (strArr[40] != null) {
+                try {
+                    oc.setTotalPrice(new BigDecimal(strArr[40]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价非数字");
+                    continue;
+                }
+            }
+            //币种
+            oc.setCurrencyBn(strArr[41]);
+            //是否含税
+            if (strArr[42] != null) {
+                oc.setTaxBearing(Integer.parseInt(strArr[42]));
+            }
+            //  汇率  strArr[43]
+            //合同总价
+            if (strArr[44] != null) {
+                try {
+                    oc.setTotalPriceUsd(new BigDecimal(strArr[44]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    continue;
+                }
+            }
+            if (strArr[45] != null) {
+                oc.setPaymentModeBn(strArr[45]);
+            }
+            if (strArr[46] != null) {
+                try {
+                    oc.setQualityFunds(new BigDecimal(strArr[46]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "质保金 非数字");
+                    continue;
+                }
+            }
+            OrderPayment orderPayment = new OrderPayment();
+            ArrayList<OrderPayment> paymentList = new ArrayList<>();
+            if (strArr[47] != null) {
+                try {
+                    orderPayment.setMoney(new BigDecimal(strArr[47]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[48], "yyyy-MM-dd"));
+                paymentList.add(orderPayment);
+            }
+            if (strArr[49] != null) {
+                try {
+                    //发货前收款
+                    orderPayment.setMoney(new BigDecimal(strArr[49]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                //收款日期
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[50], "yyyy-MM-dd"));
+                paymentList.add(orderPayment);
+            }
+
+            if (strArr[53] != null || strArr[51] != null) {
+                orderPayment.setTopic(strArr[51]);
+                //收款日期
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[52], "yyyy-MM-dd"));
+                try {
+                    orderPayment.setMoney(new BigDecimal(strArr[53]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    continue;
+                }
+                orderPayment.setType(1);
+                paymentList.add(orderPayment);
+            }
+            oc.setDeliveryRequires(strArr[54]);
+            oc.setCustomerContext(strArr[55]);
+            try {
+                orderDao.save(oc);
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            orderCount++;
+            response.incrSuccess();
+        }
+        response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
         return response;

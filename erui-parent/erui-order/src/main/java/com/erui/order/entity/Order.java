@@ -291,6 +291,16 @@ public class Order {
     //'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
     @Column(name = "purch_req_create")
     private Integer purchReqCreate;
+    //是否已经提交出库质检 1 未提交 2 已提交
+    @Column(name = "inspect_n")
+    private Integer inspectN;
+    public Integer getInspectN() {
+        return inspectN;
+    }
+
+    public void setInspectN(Integer inspectN) {
+        this.inspectN = inspectN;
+    }
 
     public Integer getPurchReqCreate() {
         return purchReqCreate;

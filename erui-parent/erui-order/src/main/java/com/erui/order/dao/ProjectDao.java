@@ -48,4 +48,5 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
      */
     @Query(value = "select t1.id from Project t1 where t1.projectName= :projectName")
     Integer findIdByProjectName(@Param("projectName")String projectName);
+
 }

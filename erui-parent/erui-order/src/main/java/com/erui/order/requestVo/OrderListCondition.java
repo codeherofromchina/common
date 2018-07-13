@@ -45,7 +45,7 @@ public class OrderListCondition {
     //订单来源
     private Boolean deleteFlag;
     //区域国家
-    private String country;
+    //private String country;
     //判断权限
     private Integer type;
     //创建人id
@@ -65,16 +65,16 @@ public class OrderListCondition {
     //应收账款余额
     private Integer receivableAccountRemaining;
     //执行事业部
-    private Integer businessUnitId;
+    private String businessUnitId;
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
 
-    public Integer getBusinessUnitId() {
+    public String getBusinessUnitId() {
         return businessUnitId;
     }
 
-    public void setBusinessUnitId(Integer businessUnitId) {
+    public void setBusinessUnitId(String businessUnitId) {
         this.businessUnitId = businessUnitId;
     }
 
@@ -156,14 +156,6 @@ public class OrderListCondition {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public Integer getAgentId() {
@@ -322,7 +314,6 @@ public class OrderListCondition {
                 ", status=" + status +
                 ", orderSource='" + orderSource + '\'' +
                 ", deleteFlag=" + deleteFlag +
-                ", country='" + country + '\'' +
                 ", type=" + type +
                 ", createUserId=" + createUserId +
                 ", projectNo='" + projectNo + '\'' +

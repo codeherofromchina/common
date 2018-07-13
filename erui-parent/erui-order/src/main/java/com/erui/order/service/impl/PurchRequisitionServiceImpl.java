@@ -11,6 +11,7 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchRequisitionService;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +69,17 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updatePurchRequisition(PurchRequisition purchRequisition) {
+    public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception{
         Project project = projectDao.findOne(purchRequisition.getProId());
+        if (!purchRequisition.getProjectNo().equals(project.getProjectNo())) {
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        } else {
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 1) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
+        }
         if (project != null) {
             project.getOrder().getGoodsList().size();
         }
@@ -89,6 +99,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
             goods.setProType(dcGoods.getProType());
+            goods.setMeteName(dcGoods.getMeteName());
+            goods.setMeteType(dcGoods.getMeteType());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
@@ -124,8 +136,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean insertPurchRequisition(PurchRequisition purchRequisition) {
+    public boolean insertPurchRequisition(PurchRequisition purchRequisition)  {
         Project project = projectDao.findOne(purchRequisition.getProId());
+            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
+                throw new MyException("项目号已存在&&The project No. already exists");
+            }
         if (project != null) {
             project.getOrder().getGoodsList().size();
         }
@@ -156,6 +171,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
             goods.setProType(dcGoods.getProType());
+            goods.setMeteType(dcGoods.getMeteType());
+            goods.setMeteName(dcGoods.getMeteName());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());

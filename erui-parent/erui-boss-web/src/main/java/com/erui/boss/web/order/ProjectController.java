@@ -127,7 +127,7 @@ public class ProjectController {
             errorMsg = ex.getMessage();
             logger.error("异常错误", ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
+        return new Result<>(ResultStatusEnum.FAIL);
     }
     /**
      * 获取项目详情

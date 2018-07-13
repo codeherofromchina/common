@@ -51,6 +51,7 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
             project.setProcessProgress(Project.ProjectProgressEnum.IN_STORAGE.getNum().toString());
         } else if (type == 7 && processProgress < 7) {
             order.setProcessProgress(Project.ProjectProgressEnum.QUALITY_INSPECTION.getNum().toString());
+            order.setInspectN(2);
             project.setProcessProgress(Project.ProjectProgressEnum.QUALITY_INSPECTION.getNum().toString());
         } else if (type == 8 && processProgress < 8) {
             order.setProcessProgress(Project.ProjectProgressEnum.OUTSTORAGE.getNum().toString());

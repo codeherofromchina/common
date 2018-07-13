@@ -37,12 +37,19 @@ public class InspectApplyController {
      * @return
      */
     @RequestMapping("listByParch")
-    public Result<Object> listByParch(@RequestBody Map<String, Integer> params) {
-        Integer purchId = params.get("purchId");
+    public Result<Object> listByParch(@RequestBody Map<String, String> params) {
+        String purchId = params.get("purchId");
+        String[] purchIds = purchId.split(",");
+        List<Integer> purchIdList = new ArrayList<>();
+        for (int i = 0; i <purchIds.length ; i++) {
+            purchIdList.add(new Integer(purchIds[i]));
+        }
+        int size = purchIdList.size();
+        Integer[] integers = purchIdList.toArray(new Integer[size]);
         if (purchId == null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("采购主键为空");
         }
-        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByPurchaseId(purchId);
+        List<InspectApply> inspectApplyList = inspectApplyService.findMasterListByPurchaseId(integers);
         if (inspectApplyList != null) {
             // 转换数据
             List<Map<String, Object>> data = inspectApplyList.stream().map(vo -> {

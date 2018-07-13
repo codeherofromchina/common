@@ -17,10 +17,10 @@ public interface InspectApplyService {
 
     /**
      * 根据采购单ID查询主报检单列表
-     * @param parchId
+     * @param purchIds
      * @return
      */
-    List<InspectApply> findMasterListByPurchaseId(Integer parchId);
+    List<InspectApply> findMasterListByPurchaseId(Integer[] purchIds);
 
 
     /**

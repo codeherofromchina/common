@@ -38,6 +38,15 @@ public class PGoods {
     private Integer instockNum;
     private String department;//所属事业部
     private BigDecimal price; //商品价格
+    private String meteName;//物料分类名称
+
+    public String getMeteName() {
+        return meteName;
+    }
+
+    public void setMeteName(String meteName) {
+        this.meteName = meteName;
+    }
 
     public void setUnqualifiedFlag(Boolean unqualifiedFlag) {
         this.unqualifiedFlag = unqualifiedFlag;
