@@ -693,7 +693,6 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
-
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
 

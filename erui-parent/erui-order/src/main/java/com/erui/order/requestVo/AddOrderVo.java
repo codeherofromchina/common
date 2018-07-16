@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class AddOrderVo {
     private Integer id;
-
     //销售合同号
     @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
     private String contractNo;

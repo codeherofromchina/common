@@ -237,7 +237,6 @@ public class Order {
     private Boolean orderFinish = false;//true时可以确认收货
    /*@Column(name = "delivery_date_no")
     private Date deliveryDateNo;    //执行单约定交付日期*/
-
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
