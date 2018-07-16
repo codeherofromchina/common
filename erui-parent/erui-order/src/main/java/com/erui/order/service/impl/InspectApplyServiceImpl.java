@@ -76,20 +76,23 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<InspectApply> findMasterListByPurchaseId(Integer purchaseId) {
-        Purch purch = purchDao.findOne(purchaseId);
-        if (purch != null &&
-                (purch.getStatus() == Purch.StatusEnum.DONE.getCode()
-                        || purch.getStatus() == Purch.StatusEnum.BEING.getCode())) {
-
-            List<InspectApply> list = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), Boolean.TRUE);
-            if (list == null) {
-                list = new ArrayList<>();
+    public List<InspectApply> findMasterListByPurchaseId(Integer[] purchaseIds) {
+        List<Purch> purchList = purchDao.findByIdIn(purchaseIds);
+        List<InspectApply> list = new ArrayList<>();
+        for (Purch purch : purchList) {
+            if (purch != null &&
+                    (purch.getStatus() == Purch.StatusEnum.DONE.getCode()
+                            || purch.getStatus() == Purch.StatusEnum.BEING.getCode())) {
+                List<InspectApply> inspects = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), Boolean.TRUE);
+                if (inspects.size() > 0) {
+                    list.addAll(inspects);
+                }
             }
-            return list;
         }
-
-        return null;
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
     }
 
 
@@ -104,7 +107,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         Purch purch = purchDao.findOne(inspectApply.getpId());
         if (purch == null || purch.getStatus() != Purch.StatusEnum.BEING.getCode()) {
             // 采购为空或采购已完成，则返回报检失败
-            throw new Exception(String.format("%s%s%s","采购信息不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Incorrect procurement information"));
+            throw new Exception(String.format("%s%s%s", "采购信息不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Incorrect procurement information"));
         }
         final Date now = new Date();
         // 基本信息设置
@@ -147,7 +150,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 continue;
             }
             if (inspectNum < 0 || purchGoods.getPurchaseNum() < inspectNum + purchGoods.getPreInspectNum()) {
-                throw new Exception(String.format("%s%s%s","报检数量错误【sku:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Error in number of inspection [sku: "+ goods.getSku () +"]"));
+                throw new Exception(String.format("%s%s%s", "报检数量错误【sku:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error in number of inspection [sku: " + goods.getSku() + "]"));
             }
             iaGoods.setSamples(0);
             iaGoods.setUnqualified(0);
@@ -173,7 +176,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),4));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
             }
             // 设置预报检商品数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum);
@@ -223,7 +226,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             map.put("projectNos", purch.getPurchNo());  //采购合同号
             map.put("purchaseNames", purchaseNames);
             map.put("inspectApplyNo", inspectApplyNo);
-           sendSms(map);
+            sendSms(map);
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -260,7 +263,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public boolean save(InspectApply inspectApply) throws Exception {
         InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (dbInspectApply == null || dbInspectApply.getStatus() != InspectApply.StatusEnum.SAVED.getCode()) {
-            throw new Exception(String.format("%s%s%s","报检信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Inspection information does not exist"));
+            throw new Exception(String.format("%s%s%s", "报检信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Inspection information does not exist"));
         }
         // 处理基本信息
         dbInspectApply.setAbroadCoName(inspectApply.getAbroadCoName());
@@ -289,7 +292,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         for (InspectApplyGoods iaGoods : inspectApply.getInspectApplyGoodsList()) {
             InspectApplyGoods applyGoods = inspectApplyGoodsMap.remove(iaGoods.getId());
             if (applyGoods == null) { // 修改的商品不存在
-                throw new Exception(String.format("%s%s%s","报检商品信息错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Misinformation for commodity inspection"));
+                throw new Exception(String.format("%s%s%s", "报检商品信息错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Misinformation for commodity inspection"));
             }
             Integer oldInspectNum = applyGoods.getInspectNum();
             applyGoods.setInspectNum(iaGoods.getInspectNum());
@@ -304,7 +307,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 continue;
             }
             if (inspectNum < 0 || inspectNum - oldInspectNum > purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum()) {
-                throw new Exception(String.format("%s%s%s","报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Error in number of inspection"));
+                throw new Exception(String.format("%s%s%s", "报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error in number of inspection"));
             }
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
@@ -324,7 +327,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),4));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
             }
             // 更新预报检数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum - oldInspectNum);
@@ -367,7 +370,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             pushDataToInspectReport(dbInspectApply);
 
             //到货报检通知：到货报检单下达后同时通知质检经办人
-            disposeSmsDate(dbInspectApply,inspectApply);
+            disposeSmsDate(dbInspectApply, inspectApply);
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -393,10 +396,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public boolean againApply(InspectApply inspectApply) throws Exception {
         InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (lastInspectApply == null) {
-            throw new Exception(String.format("%s%s%s","不存在的报检单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"A nonexistent check list"));
+            throw new Exception(String.format("%s%s%s", "不存在的报检单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "A nonexistent check list"));
         }
         if (lastInspectApply.getStatus() != InspectApply.StatusEnum.UNQUALIFIED.getCode()) {
-            throw new Exception(String.format("%s%s%s","当期报检单没有未合格商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"There is no unqualified commodity in the current inspection list"));
+            throw new Exception(String.format("%s%s%s", "当期报检单没有未合格商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There is no unqualified commodity in the current inspection list"));
         }
         InspectApply parentInspectApply = lastInspectApply.getParent(); // 主报检单
         if (parentInspectApply == null) {
@@ -404,11 +407,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 检查是否是最后一次报检信息
         if (parentInspectApply.getNum().intValue() != lastInspectApply.getNum()) {
-            throw new Exception(String.format("%s%s%s","重新报检的不是最后一次质检结果", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The result of the re inspection is not the result of the last quality inspection"));
+            throw new Exception(String.format("%s%s%s", "重新报检的不是最后一次质检结果", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The result of the re inspection is not the result of the last quality inspection"));
         }
         InspectApply lastInspectApplyTest = inspectApplyDao.findByInspectApplyNo(String.format("%s-%d", parentInspectApply.getInspectApplyNo(), (parentInspectApply.getNum() - 1)));
         if (parentInspectApply.getNum() != 1 && lastInspectApplyTest.getId() != lastInspectApply.getId().intValue()) {
-            throw new Exception(String.format("%s%s%s","重新报检的不是最后一次质检结果", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The result of the re inspection is not the result of the last quality inspection"));
+            throw new Exception(String.format("%s%s%s", "重新报检的不是最后一次质检结果", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The result of the re inspection is not the result of the last quality inspection"));
         }
 
         // 声明要插入的报检单
@@ -481,7 +484,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         pushDataToInspectReport(newInspectApply);
 
         //到货报检通知：到货报检单下达后同时通知质检经办人
-        disposeSmsDate(newInspectApply,inspectApply);
+        disposeSmsDate(newInspectApply, inspectApply);
 
         return true;
     }
@@ -630,34 +633,31 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      * @param inspectApply
      * @throws Exception
      */
-    public void disposeSmsDate(InspectApply dbInspectApply ,InspectApply inspectApply ) throws Exception {
+    public void disposeSmsDate(InspectApply dbInspectApply, InspectApply inspectApply) throws Exception {
 
         //到货报检通知：到货报检单下达后同时通知质检经办人
         Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
         Set<String> purchaseNameList = new HashSet<>(); //采购经办人
         Purch purch = dbInspectApply.getPurch();
-        for (Project project : purch.getProjects()){
-            if(StringUtil.isNotBlank(project.getQualityName())){
+        for (Project project : purch.getProjects()) {
+            if (StringUtil.isNotBlank(project.getQualityName())) {
                 qualityNameList.add(project.getQualityUid());
             }
-            if(StringUtil.isNotBlank(project.getPurchaseName())){
+            if (StringUtil.isNotBlank(project.getPurchaseName())) {
                 purchaseNameList.add(project.getPurchaseName());
             }
         }
-        String qualityNames =  StringUtils.join(qualityNameList, ",");  //质检经办人
-        String purchaseNames =  StringUtils.join(purchaseNameList, ",");  //采购经办人
+        String qualityNames = StringUtils.join(qualityNameList, ",");  //质检经办人
+        String purchaseNames = StringUtils.join(purchaseNameList, ",");  //采购经办人
         String inspectApplyNo1 = dbInspectApply.getInspectApplyNo();//报检单号
 
-        Map<String,Object> map = new HashMap<>();
-        map.put("qualityNames",qualityNames);
-        map.put("projectNos",purch.getPurchNo()); // 采购合同号
-        map.put("purchaseNames",purchaseNames);
-        map.put("inspectApplyNo",inspectApplyNo1);
+        Map<String, Object> map = new HashMap<>();
+        map.put("qualityNames", qualityNames);
+        map.put("projectNos", purch.getPurchNo()); // 采购合同号
+        map.put("purchaseNames", purchaseNames);
+        map.put("inspectApplyNo", inspectApplyNo1);
         sendSms(map);
     }
-
-
-
 
 
     //到货报检通知：到货报检单下达后同时通知质检经办人
@@ -702,29 +702,30 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 //发送短信
                 if (smsarray.size() > 0) {
-                    Map<String,String> map= new HashMap();
-                    map.put("areaCode","86");
-                    map.put("to",smsarray.toString());
-                    map.put("content","您好，采购合同号："+map1.get("projectNos")+"，报检单号："+map1.get("inspectApplyNo")+"，采购经办人："+map1.get("purchaseNames")+"，已申请报检，请及时处理。感谢您对我们的支持与信任！");
-                    map.put("subType","0");
-                    map.put("groupSending","0");
-                    map.put("useType","订单");
+                    Map<String, String> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", smsarray.toString());
+                    map.put("content", "您好，采购合同号：" + map1.get("projectNos") + "，报检单号：" + map1.get("inspectApplyNo") + "，采购经办人：" + map1.get("purchaseNames") + "，已申请报检，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
                     String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送短信返回状态"+s1);
+                    logger.info("发送短信返回状态" + s1);
                 }
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
             }
 
         }
     }
 
     /**
-     *  推送数据到入库部门
+     * 推送数据到入库部门
+     *
      * @param inspectApply
      */
-    public  void pushInspectApply(InspectApply inspectApply){
+    public void pushInspectApply(InspectApply inspectApply) {
         // 推送数据到入库部门
         Instock instock = new Instock();
         instock.setInspectReport(null);
@@ -732,8 +733,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         Project project = null; //项目信息
         Set<Project> projects = inspectApply.getPurch().getProjects();
-        for (Project project2 : projects){
-            project=project==null?project2:project;
+        for (Project project2 : projects) {
+            project = project == null ? project2 : project;
         }
 
       /*  if(project != null){
@@ -748,7 +749,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 添加入库商品
 
         List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();    //报检商品信息
-        for (InspectApplyGoods applyGoods : inspectApplyGoodsList){ //报检商品
+        for (InspectApplyGoods applyGoods : inspectApplyGoodsList) { //报检商品
 
             InstockGoods instockGoods = new InstockGoods(); //添加出库商品
 
@@ -775,7 +776,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     }
 
-     //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
+    //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
     //处理数据信息                                            合格数量（报检数量）
     public void disposeData(InspectApply inspectApply) throws Exception {
 
@@ -783,14 +784,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         //计算合格总数量
         List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();    //报检商品信息
-        for (InspectApplyGoods applyGoods : inspectApplyGoodsList){//报检商品
+        for (InspectApplyGoods applyGoods : inspectApplyGoodsList) {//报检商品
             hegeNum += applyGoods.getInspectNum(); //合格数量  (报检数量)
         }
 
 
         Set<Project> projectSet = inspectApply.getPurch().getProjects();
         Project project = null; //项目信息
-        for (Project projects : projectSet){
+        for (Project projects : projectSet) {
             project = project == null ? projects : project;
         }
 
@@ -805,7 +806,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         inspectReportServiceImpl.sendSms(map);
     }
-
 
 
 }

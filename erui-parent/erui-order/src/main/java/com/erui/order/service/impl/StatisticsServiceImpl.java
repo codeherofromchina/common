@@ -1289,7 +1289,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                     Integer logisticsDataStatus = Integer.parseInt(params.get("logisticsDataStatus"));  //发运状态条件      1:未执行 2:执行中 3:已完成'
 
-                    Set<Order> orders = finBylogisticsDataStatus(logisticsDataStatus); //根据发运状态条件查询
+                    Set<Order> orders = finBylogisticsDataStatus(logisticsDataStatus,null); //根据发运状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
                     if (orders != null && orders.size() > 0) {
                         for (Order o : orders) {
@@ -1306,7 +1306,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(params.get("confirmTheStatus"))){
                     Integer confirmTheStatus = Integer.parseInt(params.get("confirmTheStatus"));  //发运状态条件      1:未执行 2:执行中 3:已完成'
 
-                    Set<Order> orders = finByConfirmTheStatus(confirmTheStatus); //根据收货状态条件查询
+                    Set<Order> orders = finBylogisticsDataStatus(confirmTheStatus,confirmTheStatus); //根据收货状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
                     if (orders != null && orders.size() > 0) {
                         for (Order o : orders) {
@@ -1609,7 +1609,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param logisticsDataStatus
      * @return
      */
-    public Set<Order> finBylogisticsDataStatus(Integer logisticsDataStatus) {
+    public Set<Order> finBylogisticsDataStatus(Integer logisticsDataStatus , Integer confirmTheStatus) {
         List<Order> all = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -1638,16 +1638,16 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         });
 
-        return disposeLogisticsDataStatus(all,logisticsDataStatus);
+        return disposeLogisticsDataStatus(all,logisticsDataStatus,confirmTheStatus);
 
     }
 
     /**
-     * 订单主流程监控  处理发运状态查询条件
+     * 订单主流程监控  处理发运状态查询条件  处理收款状态查询条件
      * @param logisticsDataStatus
      * @return
      */
-    public Set<Order> disposeLogisticsDataStatus(List<Order> orderList,Integer logisticsDataStatus){
+    public Set<Order> disposeLogisticsDataStatus(List<Order> orderList,Integer logisticsDataStatus , Integer confirmTheStatus){
         Set<Order> set = new HashSet();
         for (Order order : orderList){
             Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
@@ -1755,9 +1755,16 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                 IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
                                                 if(iogisticsData != null){
                                                     Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
-                                                    if (iogisticsDataStatus > 5){
-                                                        set.add(order);
-                                                        break out;
+                                                    if(confirmTheStatus == null){
+                                                        if (iogisticsDataStatus > 5){   //必须大于确认出库
+                                                            set.add(order);
+                                                            break out;
+                                                        }
+                                                    }else {
+                                                        if (iogisticsDataStatus > 5 && iogisticsData.getConfirmTheGoods() != null){
+                                                            set.add(order);
+                                                            break out;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1834,8 +1841,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                         IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
                                                         if(iogisticsData != null){
                                                             Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
-                                                            if (iogisticsDataStatus != 7){
-                                                                break Jump;
+                                                            if(confirmTheStatus == null){
+                                                                if (iogisticsDataStatus != 7){
+                                                                    break Jump;
+                                                                }
+                                                            }else {
+                                                                if (iogisticsDataStatus != 7 && iogisticsData.getConfirmTheGoods() == null ){
+                                                                    break Jump;
+                                                                }
                                                             }
                                                         }else {
                                                             break Jump;
@@ -1871,19 +1884,6 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         return set;
     }
-
-
-    /**
-     * 订单主流程监控  处理收款状态查询条件
-     * @param confirmTheStatus
-     * @return
-     */
-    public Set<Order> finByConfirmTheStatus(Integer confirmTheStatus) {
-
-        return null;
-    }
-
-
 
 
 

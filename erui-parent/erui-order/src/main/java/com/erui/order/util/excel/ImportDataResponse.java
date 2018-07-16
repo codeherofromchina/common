@@ -110,7 +110,6 @@ public class ImportDataResponse {
     public List<FailItem> getFailItems() {
         return failItems;
     }
-
     public void pushFailItem(String tableName, int index, String reason) {
         if (failItems == null) {
             failItems = new ArrayList<>();
@@ -155,7 +154,6 @@ public class ImportDataResponse {
         System.out.println(bigDecimal);
 
     }*/
-
 
     private static class FailItem {
         private String tableName;

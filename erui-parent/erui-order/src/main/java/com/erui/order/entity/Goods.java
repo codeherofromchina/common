@@ -128,7 +128,7 @@ public class Goods {
     private Date startDate;
     //执行单约定交付日期
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
     // 执行单变更后日期
     @Column(name = "exe_chg_date")
     private Date exeChgDate;
@@ -217,6 +217,16 @@ public class Goods {
     private String deliverDetailNo; //产品放行单号
     private String department;//所属事业部
     private BigDecimal price; //商品价格
+    @Column(name="mete_name")
+    private String meteName;//物料分类名称
+
+    public String getMeteName() {
+        return meteName;
+    }
+
+    public void setMeteName(String meteName) {
+        this.meteName = meteName;
+    }
 
     public String getDepartment() {
         return department;
@@ -242,11 +252,11 @@ public class Goods {
         this.startDate = startDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 

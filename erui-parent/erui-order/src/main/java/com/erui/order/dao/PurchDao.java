@@ -15,7 +15,7 @@ import java.util.List;
  * Created by wangxiaodan on 2017/12/11.
  */
 public interface PurchDao extends JpaRepository<Purch, Serializable>, JpaSpecificationExecutor<Purch> {
-
+    List<Purch> findByIdIn(Integer[] ids);
     public List<Purch> findByProjectsContractNoLike(String contractNo);
 
     List<Purch> findByProjectsProjectNoLike(String contractNos);
