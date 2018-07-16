@@ -1414,7 +1414,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
                                 inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
                             }
-                            if(contractGoodsNums <= inspectNums){ //不相等没有采购完成
+                            if(contractGoodsNums <= inspectNums || inspectNums == 0){ //不相等没有采购完成
                                 break external;
                             }else {
                                 result.add(project);
