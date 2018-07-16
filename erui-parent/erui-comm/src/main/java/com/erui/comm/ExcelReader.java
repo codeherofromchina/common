@@ -84,7 +84,8 @@ public class ExcelReader {
 
     private String[] readExcelRowContent(Row row)
             throws EncryptedDocumentException, InvalidFormatException, IOException {
-        int cells = row.getPhysicalNumberOfCells();
+//        int cells = row.getPhysicalNumberOfCells();
+        short cells = row.getLastCellNum();
         String[] result = null;
         if (cells > 0) {
             result = new String[cells];

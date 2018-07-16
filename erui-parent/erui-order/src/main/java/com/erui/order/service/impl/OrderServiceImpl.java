@@ -1342,9 +1342,13 @@ public class OrderServiceImpl implements OrderService {
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_CHECK, response, cellIndex)) {
                 continue;
             }
+            Integer orderId = null;
             if (StringUtils.isNotBlank(strArr[0])) {
-                int orderId = Integer.parseInt(strArr[0]);
+                orderId = Integer.parseInt(strArr[0]);
                 oc = orderDao.findOne(orderId);
+                /*if (oc == null) {
+                    continue;
+                }*/
             }
             if (StringUtils.isNotBlank(strArr[1])) {
                 oc.setOrderCategory(Integer.parseInt(strArr[1]));
@@ -1497,7 +1501,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, "合同总价非数字");
                     continue;
                 }
             }
@@ -1517,7 +1521,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, "合同总价（美元）非数字");
                     continue;
                 }
             }
@@ -1530,7 +1534,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "质保金 非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, "质保金 非数字");
                     continue;
                 }
             }
@@ -1542,7 +1546,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "预收款 非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, "预收款 非数字");
                     continue;
                 }
                 orderPayment.setType(1);
@@ -1558,7 +1562,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "发货前收款 非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, "发货前收款 非数字");
                     continue;
                 }
                 orderPayment.setType(2);
@@ -1584,7 +1588,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "收款金额 非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, "收款金额 非数字");
                     continue;
                 }
                 orderPayment.setType(1);
@@ -1599,7 +1603,7 @@ public class OrderServiceImpl implements OrderService {
                 orderDao.save(oc);
             } catch (Exception e) {
                 response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_CHECK.getTable(), cellIndex, e.getMessage());
                 continue;
             }
             orderCount++;
@@ -1610,4 +1614,145 @@ public class OrderServiceImpl implements OrderService {
         response.setDone(true);
         return response;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ImportDataResponse importProjectData(List<String[]> datas, boolean testOnly) {
+        ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        int size = datas.size();
+        Project project = null;
+        //Order order = null;
+        // 订单总数量
+        int projectCount = 0;
+        for (int index = 0; index < size; index++) {
+            int cellIndex = index + 2; // 数据从第二行开始
+            String[] strArr = datas.get(index);
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.PROJECT_MANAGE, response, cellIndex)) {
+                continue;
+            }
+            if (StringUtils.isNotBlank(strArr[0])) {
+                int orderId = Integer.parseInt(strArr[0]);
+                //order = orderDao.findOne(orderId);
+                project = projectDao.findByIdOrOrderId(null, orderId);
+            }
+            //添加项目
+            if (StringUtils.isNotBlank(strArr[1])) {
+                project.setContractNo(strArr[1]);
+            }
+            //项目开始日期
+            if (StringUtils.isNotBlank(strArr[2])) {
+                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd"));
+            }
+            //项目名称
+            if (StringUtils.isNotBlank(strArr[3])) {
+                project.setProjectName(strArr[3]);
+            }
+            //执行约定交付日期
+            if (StringUtils.isNotBlank(strArr[4])) {
+                project.setDeliveryDate(strArr[4]);
+            }
+            //合同总价
+            if (StringUtils.isNotBlank(strArr[5])) {
+                try {
+                    project.setTotalPriceUsd(new BigDecimal(strArr[5]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.PROJECT_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
+                    continue;
+                }
+            }
+            //初步利润
+            if (StringUtils.isNotBlank(strArr[6])) {
+                try {
+                    project.setProfitPercent(new BigDecimal(strArr[6]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.PROJECT_MANAGE.getTable(), cellIndex, "初步利润（美元）非数字");
+                    continue;
+                }
+            }
+            //利率
+            if (StringUtils.isNotBlank(strArr[7])) {
+                try {
+                    project.setProfit(new BigDecimal(strArr[7]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.PROJECT_MANAGE.getTable(), cellIndex, "利润（美元）非数字");
+                    continue;
+                }
+            }
+            //执行变更日期
+            if (StringUtils.isNotBlank(strArr[8])) {
+                project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd"));
+            }
+            //要求采购到货日期
+            if (StringUtils.isNotBlank(strArr[9])) {
+                project.setRequirePurchaseDate(DateUtil.parseString2DateNoException(strArr[9], "yyyy-MM-dd"));
+            }
+            //有无项目经理
+            if (StringUtils.isNotBlank(strArr[10])) {
+                project.setHasManager(Integer.parseInt(strArr[10]));
+            }
+            // 下发部门id
+            if (StringUtils.isNotBlank(strArr[11])) {
+                project.setSendDeptId(Integer.parseInt(strArr[11]));
+            }
+            //下发部门strArr[12]
+            //项目状态
+            if (StringUtils.isNotBlank(strArr[13])) {
+                project.setProjectStatus(strArr[13]);
+            }
+            //采购经办人id
+            if (StringUtils.isNotBlank(strArr[14])) {
+                project.setPurchaseUid(Integer.parseInt(strArr[14]));
+            }
+            //采购经办人
+            if (StringUtils.isNotBlank(strArr[15])) {
+                project.setPurchaseName(strArr[15]);
+            }
+            //品控经办人id
+            if (StringUtils.isNotBlank(strArr[16])) {
+                project.setQualityUid(Integer.parseInt(strArr[16]));
+            }
+            //品控经办人
+            if (StringUtils.isNotBlank(strArr[17])) {
+                project.setQualityName(strArr[17]);
+            }
+            //商务技术经办人id
+            if (StringUtils.isNotBlank(strArr[18])) {
+                project.setBusinessUid(Integer.parseInt(strArr[18]));
+            }
+            //商务技术经办人
+            if (StringUtils.isNotBlank(strArr[19])) {
+                project.setBusinessName(strArr[19]);
+            }
+            // 交付配送中心经理id
+            if (StringUtils.isNotBlank(strArr[20])) {
+                project.setManagerUid(Integer.parseInt(strArr[20]));
+            }
+            //交付配送中心经理 strArr[21]
+            if (strArr.length>22){
+            if (StringUtils.isNotBlank(strArr[22])) {
+                project.setRemarks(strArr[22]);
+            }
+            }
+            try {
+                projectDao.save(project);
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.PROJECT_MANAGE.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            response.incrSuccess();
+        }
+        response.getFailItems();
+        response.getSumMap().put("projectCount", new BigDecimal(projectCount)); // 订单总数量
+        response.setDone(true);
+        return response;
+    }
+
 }
