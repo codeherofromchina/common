@@ -1129,7 +1129,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setOrderId(order.getId());   //订单id / 点击销售合同号查询
                 omp.setTotalPriceUsd( order.getTotalPriceUsd()); // 合同总价(USD)
                 omp.setRegion(project.getRegion());     // 地区
-                omp.setCountry(project.getCountry());   //  国家
+                Map<String, String> bnMapZhCountry = findBnMapZhCountry();  //获取国家中英文   kay/vlaue
+                omp.setCountry(bnMapZhCountry.get(project.getCountry()));   //  国家
                 omp.setProjectNo(project.getProjectNo());   //项目号
                 omp.setProjectName(project.getProjectName());    //项目名称
                 omp.setOrderStatus(order.getStatus()); //订单状态
@@ -1345,21 +1346,22 @@ public class StatisticsServiceImpl implements StatisticsService {
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
-                //关联采购
-                Join<Project, Purch> purchRoot = root.join("purchs");
+                if(purchStatus != 1){
+                    //关联采购
+                    Join<Project, Purch> purchRoot = root.join("purchs");
+                    //  status    1:未编辑 2:待确认 3:已提交'
+                    //  purchStatus  1:未执行 2:执行中  3:已完成
+                 /*   if(purchStatus == 1){
+                        list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
+                    }else if(purchStatus == 2){
+                        list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
+                    }else{
+                        list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
+                    }*/
 
-                //  status    1:未编辑 2:待确认 3:已提交'
-                //  purchStatus  1:未执行 2:执行中  3:已完成
-                if(purchStatus == 1){
-                    list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
-                }else if(purchStatus == 2){
-                    list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
-                }else{
-                    list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
+                    list.add(cb.equal(purchRoot.get("deleteFlag").as(Integer.class),0)); //查询未删除
+                    list.add(cb.greaterThan(purchRoot.get("status").as(Integer.class),1)); //大于查询，不查询保存的信息
                 }
-
-                list.add(cb.equal(purchRoot.get("deleteFlag").as(Integer.class),0)); //查询未删除
-                list.add(cb.greaterThan(purchRoot.get("status").as(Integer.class),1)); //大于查询，不查询保存的信息
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -1370,9 +1372,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         List<Project> result = new ArrayList<>();
         if(purchStatus == 1){
-            outer:for (Project project : page){
+            for (Project project : page){
                 List<Purch> purchs = project.getPurchs();
-                if(purchs.size() > 0){
+                outer:if(purchs.size() > 0){
                    for (Purch purch : purchs){
                        List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
                        if(purchGoodsList != null){
@@ -1390,9 +1392,9 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
 
         }else if(purchStatus == 3){
-            outer:for (Project project : page){
+            for (Project project : page){
                 List<Purch> purchs = project.getPurchs();
-                if(purchs.size() > 0){
+                outer:if(purchs.size() > 0){
                     for (Purch purch : purchs){
                         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
                         if(purchGoodsList != null){
@@ -1410,9 +1412,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
             }
         }else if(purchStatus == 2){
-            outer:for (Project project : page){
+            for (Project project : page){
                 List<Purch> purchs = project.getPurchs();
-                if(purchs.size() > 0){
+                outer:if(purchs.size() > 0){
                     for (Purch purch : purchs){
                         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
                         if(purchGoodsList != null){
@@ -1895,7 +1897,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @return
      */
     public Integer disposePurchsStatus(List<Purch> purchs, List<Goods> orderGoodsList){
-        if(purchs.size() <= 0 && purchs == null){
+        if(purchs.size() == 0 || purchs == null){
             return 1;
         }else {
             Boolean flag = false;
