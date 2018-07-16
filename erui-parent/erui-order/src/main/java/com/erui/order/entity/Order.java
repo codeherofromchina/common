@@ -243,7 +243,7 @@ public class Order {
     @Column(name = "buyer_id")
     private Integer buyerId;
     @Column(name = "inquiry_id")
-    private Integer inquiryId;
+    private String inquiryId;
     //会员类别 1科瑞订单 2 易瑞订单
     @Column(name = "order_belongs")
     private Integer orderBelongs;
@@ -251,7 +251,6 @@ public class Order {
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     @Column(name = "order_category")
     private Integer orderCategory;
-
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
     @Column(name = "overseas_sales")
     private Integer overseasSales;
@@ -409,11 +408,11 @@ public class Order {
         this.buyerId = buyerId;
     }
 
-    public Integer getInquiryId() {
+    public String getInquiryId() {
         return inquiryId;
     }
 
-    public void setInquiryId(Integer inquiryId) {
+    public void setInquiryId(String inquiryId) {
         this.inquiryId = inquiryId;
     }
 
