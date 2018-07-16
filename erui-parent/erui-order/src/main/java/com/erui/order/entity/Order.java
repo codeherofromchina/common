@@ -185,7 +185,7 @@ public class Order {
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -263,6 +263,11 @@ public class Order {
     @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderAccountDeliver> orderAccountDelivers = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private List<DeliverConsign> deliverConsign;
 
     // 已发货总金额 （财务管理）
     @Column(name = "shipments_money")
@@ -1058,6 +1063,14 @@ public class Order {
 
     public List<OrderAccountDeliver> getOrderAccountDelivers() {
         return orderAccountDelivers;
+    }
+
+    public List<DeliverConsign> getDeliverConsign() {
+        return deliverConsign;
+    }
+
+    public void setDeliverConsign(List<DeliverConsign> deliverConsign) {
+        this.deliverConsign = deliverConsign;
     }
 
     public static enum StatusEnum {

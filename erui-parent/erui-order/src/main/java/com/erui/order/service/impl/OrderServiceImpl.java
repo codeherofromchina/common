@@ -1332,6 +1332,7 @@ public class OrderServiceImpl implements OrderService {
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         Order oc = null;
+        Project project = null;
         // 订单总数量
         int orderCount = 0;
         for (int index = 0; index < size; index++) {
@@ -1407,6 +1408,16 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(strArr[19])) {
                 oc.setRegion(strArr[19]);
             }
+           /*if (strArr[15] != null) {
+                try {
+                    oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_COUNT.getTable(), cellIndex, "数量字段非数字");
+                    continue;
+                }
+            }*/
             // 20 分销部id
             //分销部
             if (StringUtils.isNotBlank(strArr[21])) {
