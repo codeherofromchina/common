@@ -1,271 +1,271 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.erui.report.dao.PerformanceAssignMapper" >
-  <resultMap id="BaseResultMap" type="com.erui.report.model.PerformanceAssign" >
-    <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
-    <result column="work_num" property="workNum" jdbcType="VARCHAR" />
-    <result column="name_ch" property="nameCh" jdbcType="VARCHAR" />
-    <result column="salesman_type" property="salesmanType" jdbcType="VARCHAR" />
-    <result column="two_level_department" property="twoLevelDepartment" jdbcType="VARCHAR" />
-    <result column="three_level_department" property="threeLevelDepartment" jdbcType="VARCHAR" />
-    <result column="organization" property="organization" jdbcType="VARCHAR" />
-    <result column="station" property="station" jdbcType="VARCHAR" />
-    <result column="country_performance" property="countryPerformance" jdbcType="DECIMAL" />
-    <result column="assign_rate" property="assignRate" jdbcType="DECIMAL" />
-    <result column="salesman_performance" property="salesmanPerformance" jdbcType="DECIMAL" />
-    <result column="total_incr_buyer_count" property="totalIncrBuyerCount" jdbcType="INTEGER" />
-    <result column="incr_buyer_count" property="incrBuyerCount" jdbcType="INTEGER" />
-    <result column="assign_status" property="assignStatus" jdbcType="INTEGER" />
-    <result column="reject_reason" property="rejectReason" jdbcType="VARCHAR" />
-  </resultMap>
-  <sql id="Base_Column_List" >
+<mapper namespace="com.erui.report.dao.PerformanceAssignMapper">
+    <resultMap id="BaseResultMap" type="com.erui.report.model.PerformanceAssign">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="work_num" property="workNum" jdbcType="VARCHAR"/>
+        <result column="name_ch" property="nameCh" jdbcType="VARCHAR"/>
+        <result column="salesman_type" property="salesmanType" jdbcType="VARCHAR"/>
+        <result column="two_level_department" property="twoLevelDepartment" jdbcType="VARCHAR"/>
+        <result column="three_level_department" property="threeLevelDepartment" jdbcType="VARCHAR"/>
+        <result column="organization" property="organization" jdbcType="VARCHAR"/>
+        <result column="station" property="station" jdbcType="VARCHAR"/>
+        <result column="country_performance" property="countryPerformance" jdbcType="DECIMAL"/>
+        <result column="assign_rate" property="assignRate" jdbcType="DECIMAL"/>
+        <result column="salesman_performance" property="salesmanPerformance" jdbcType="DECIMAL"/>
+        <result column="total_incr_buyer_count" property="totalIncrBuyerCount" jdbcType="INTEGER"/>
+        <result column="incr_buyer_count" property="incrBuyerCount" jdbcType="INTEGER"/>
+        <result column="assign_status" property="assignStatus" jdbcType="INTEGER"/>
+        <result column="reject_reason" property="rejectReason" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
     id, start_time, work_num, name_ch, salesman_type, two_level_department, three_level_department,
     organization, station, country_performance, assign_rate, salesman_performance, total_incr_buyer_count,
     incr_buyer_count,assign_status,
     reject_reason
   </sql>
 
-  <!--根据月份查询指定国家业绩分配明细-->
-  <select id="selectCountryAssignDetailByTime" resultMap="BaseResultMap" parameterType="java.util.Map">
-    SELECT
-    <include refid="Base_Column_List" />
-    FROM  performance_assign
-    WHERE start_time BETWEEN
-    DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-    <if test="country!=null and country!=''">
-      AND  three_level_department= #{country}
-    </if>
-  </select>
-  <!--查询指定国家正在审核的业绩分配数据-->
-  <select id="selectAuditingPerformanceByCountry" resultMap="BaseResultMap" parameterType="java.util.Map">
-    SELECT
-    <include refid="Base_Column_List" />
-    FROM  performance_assign
-    WHERE start_time BETWEEN
-    DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-    <if test="country!=null and country!=''">
-      AND  three_level_department= #{country}
-    </if>
-    AND assign_status=1
-  </select>
+    <!--根据月份查询指定国家业绩分配明细-->
+    <select id="selectCountryAssignDetailByTime" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM performance_assign
+        WHERE start_time BETWEEN
+        DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        <if test="country!=null and country!=''">
+            AND three_level_department= #{country}
+        </if>
+    </select>
+    <!--查询指定国家正在审核的业绩分配数据-->
+    <select id="selectAuditingPerformanceByCountry" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM performance_assign
+        WHERE start_time BETWEEN
+        DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        <if test="country!=null and country!=''">
+            AND three_level_department= #{country}
+        </if>
+        AND assign_status=1
+    </select>
 
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
-    <include refid="Base_Column_List" />
-    from performance_assign
-    where id = #{id,jdbcType=BIGINT}
-  </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from performance_assign
+        where id = #{id,jdbcType=BIGINT}
+    </select>
 
     <!--审核 指定国家的业绩分配： 通过 、驳回-->
     <update id="auditPerformance" parameterType="java.util.Map">
-      UPDATE  performance_assign
-      <set>
-          assign_status=#{state}
-          <if test="rejectReason!=null and rejectReason!=''">
-            , reject_reason=#{rejectReason}
-          </if>
-      </set>
-      WHERE
-      start_time BETWEEN
-      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-      AND  three_level_department= #{country}
+        UPDATE performance_assign
+        <set>
+            assign_status=#{state}
+            <if test="rejectReason!=null and rejectReason!=''">
+                , reject_reason=#{rejectReason}
+            </if>
+        </set>
+        WHERE
+        start_time BETWEEN
+        DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        AND three_level_department= #{country}
     </update>
 
     <!--更新分配的业绩-->
     <update id="updatePerformanceAssign" parameterType="com.erui.report.model.PerformanceAssign">
-        UPDATE  performance_assign SET
-          assign_status =#{assignStatus}
-          <if test="assignRate !=null ">
+        UPDATE performance_assign SET
+        assign_status =#{assignStatus}
+        <if test="assignRate !=null ">
             , assign_rate =#{assignRate}
-          </if>
-          <if test="salesmanPerformance !=null ">
-           , salesman_performance =#{salesmanPerformance}
-          </if>
-          <if test="rejectReason !=null and rejectReason !=''">
-           , reject_reason =#{rejectReason}
-          </if>
-          <if test="incrBuyerCount !=null">
-           , incr_buyer_count =#{incrBuyerCount}
-          </if>
+        </if>
+        <if test="salesmanPerformance !=null ">
+            , salesman_performance =#{salesmanPerformance}
+        </if>
+        <if test="rejectReason !=null and rejectReason !=''">
+            , reject_reason =#{rejectReason}
+        </if>
+        <if test="incrBuyerCount !=null">
+            , incr_buyer_count =#{incrBuyerCount}
+        </if>
         WHERE start_time=#{startTime} AND work_num=#{workNum} AND three_level_department=#{threeLevelDepartment}
 
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
       delete from performance_assign
       where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.erui.report.model.PerformanceAssign" >
+    <insert id="insert" parameterType="com.erui.report.model.PerformanceAssign">
     insert into performance_assign (id, start_time, work_num, 
       name_ch, salesman_type, two_level_department,
       three_level_department, organization, station, 
       country_performance, assign_rate, salesman_performance, total_incr_buyer_count,
-    incr_buyer_count, total_incr_buyer_count,incr_buyer_count,assign_status, reject_reason)
+    incr_buyer_count,assign_status, reject_reason)
     values (#{id,jdbcType=BIGINT}, #{startTime,jdbcType=TIMESTAMP}, #{workNum,jdbcType=VARCHAR}, 
       #{nameCh,jdbcType=VARCHAR}, #{salesmanType,jdbcType=VARCHAR}, #{twoLevelDepartment,jdbcType=VARCHAR},
       #{threeLevelDepartment,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{station,jdbcType=VARCHAR}, 
       #{countryPerformance,jdbcType=DECIMAL}, #{assignRate,jdbcType=DECIMAL}, #{salesmanPerformance,jdbcType=DECIMAL}, 
-      #{totalIncrBuyerCount,jdbcType=INTEGER}, #{incrBuyerCount,jdbcType=INTEGER}, #{totalIncrBuyerCount,jdbcType=INTEGER},
-      #{incrBuyerCount,jdbcType=INTEGER}, #{assignStatus,jdbcType=INTEGER}, #{rejectReason,jdbcType=VARCHAR})
+      #{totalIncrBuyerCount,jdbcType=INTEGER}, #{incrBuyerCount,jdbcType=INTEGER},
+       #{assignStatus,jdbcType=INTEGER}, #{rejectReason,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.erui.report.model.PerformanceAssign" >
-    insert into performance_assign
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="startTime != null" >
-        start_time,
-      </if>
-      <if test="workNum != null" >
-        work_num,
-      </if>
-      <if test="nameCh != null" >
-        name_ch,
-      </if>
-      <if test="salesmanType != null" >
-        salesman_type,
-      </if>
-      <if test="twoLevelDepartment != null" >
-        two_level_department,
-      </if>
-      <if test="threeLevelDepartment != null" >
-        three_level_department,
-      </if>
-      <if test="organization != null" >
-        organization,
-      </if>
-      <if test="station != null" >
-        station,
-      </if>
-      <if test="countryPerformance != null" >
-        country_performance,
-      </if>
-      <if test="assignRate != null" >
-        assign_rate,
-      </if>
-      <if test="salesmanPerformance != null" >
-        salesman_performance,
-      </if>
-      <if test="totalIncrBuyerCount != null" >
-        total_incr_buyer_count,
-      </if>
-      <if test="incrBuyerCount != null" >
-        incr_buyer_count,
-      </if>
-      <if test="assignStatus != null" >
-        assign_status,
-      </if>
-      <if test="rejectReason != null" >
-        reject_reason,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=BIGINT},
-      </if>
-      <if test="startTime != null" >
-        #{startTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="workNum != null" >
-        #{workNum,jdbcType=VARCHAR},
-      </if>
-      <if test="nameCh != null" >
-        #{nameCh,jdbcType=VARCHAR},
-      </if>
-      <if test="salesmanType != null" >
-        #{salesmanType,jdbcType=VARCHAR},
-      </if>
-      <if test="twoLevelDepartment != null" >
-        #{twoLevelDepartment,jdbcType=VARCHAR},
-      </if>
-      <if test="threeLevelDepartment != null" >
-        #{threeLevelDepartment,jdbcType=VARCHAR},
-      </if>
-      <if test="organization != null" >
-        #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="station != null" >
-        #{station,jdbcType=VARCHAR},
-      </if>
-      <if test="countryPerformance != null" >
-        #{countryPerformance,jdbcType=DECIMAL},
-      </if>
-      <if test="assignRate != null" >
-        #{assignRate,jdbcType=DECIMAL},
-      </if>
-      <if test="salesmanPerformance != null" >
-        #{salesmanPerformance,jdbcType=DECIMAL},
-      </if>
-      <if test="totalIncrBuyerCount != null" >
-        #{totalIncrBuyerCount,jdbcType=INTEGER},
-      </if>
-      <if test="incrBuyerCount != null" >
-        #{incrBuyerCount,jdbcType=INTEGER},
-      </if>
-      <if test="assignStatus != null" >
-        #{assignStatus,jdbcType=INTEGER},
-      </if>
-      <if test="rejectReason != null" >
-        #{rejectReason,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
+    <insert id="insertSelective" parameterType="com.erui.report.model.PerformanceAssign">
+        insert into performance_assign
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="startTime != null">
+                start_time,
+            </if>
+            <if test="workNum != null">
+                work_num,
+            </if>
+            <if test="nameCh != null">
+                name_ch,
+            </if>
+            <if test="salesmanType != null">
+                salesman_type,
+            </if>
+            <if test="twoLevelDepartment != null">
+                two_level_department,
+            </if>
+            <if test="threeLevelDepartment != null">
+                three_level_department,
+            </if>
+            <if test="organization != null">
+                organization,
+            </if>
+            <if test="station != null">
+                station,
+            </if>
+            <if test="countryPerformance != null">
+                country_performance,
+            </if>
+            <if test="assignRate != null">
+                assign_rate,
+            </if>
+            <if test="salesmanPerformance != null">
+                salesman_performance,
+            </if>
+            <if test="totalIncrBuyerCount != null">
+                total_incr_buyer_count,
+            </if>
+            <if test="incrBuyerCount != null">
+                incr_buyer_count,
+            </if>
+            <if test="assignStatus != null">
+                assign_status,
+            </if>
+            <if test="rejectReason != null">
+                reject_reason,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="startTime != null">
+                #{startTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="workNum != null">
+                #{workNum,jdbcType=VARCHAR},
+            </if>
+            <if test="nameCh != null">
+                #{nameCh,jdbcType=VARCHAR},
+            </if>
+            <if test="salesmanType != null">
+                #{salesmanType,jdbcType=VARCHAR},
+            </if>
+            <if test="twoLevelDepartment != null">
+                #{twoLevelDepartment,jdbcType=VARCHAR},
+            </if>
+            <if test="threeLevelDepartment != null">
+                #{threeLevelDepartment,jdbcType=VARCHAR},
+            </if>
+            <if test="organization != null">
+                #{organization,jdbcType=VARCHAR},
+            </if>
+            <if test="station != null">
+                #{station,jdbcType=VARCHAR},
+            </if>
+            <if test="countryPerformance != null">
+                #{countryPerformance,jdbcType=DECIMAL},
+            </if>
+            <if test="assignRate != null">
+                #{assignRate,jdbcType=DECIMAL},
+            </if>
+            <if test="salesmanPerformance != null">
+                #{salesmanPerformance,jdbcType=DECIMAL},
+            </if>
+            <if test="totalIncrBuyerCount != null">
+                #{totalIncrBuyerCount,jdbcType=INTEGER},
+            </if>
+            <if test="incrBuyerCount != null">
+                #{incrBuyerCount,jdbcType=INTEGER},
+            </if>
+            <if test="assignStatus != null">
+                #{assignStatus,jdbcType=INTEGER},
+            </if>
+            <if test="rejectReason != null">
+                #{rejectReason,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
 
 
-  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.PerformanceAssign" >
-    update performance_assign
-    <set >
-      <if test="startTime != null" >
-        start_time = #{startTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="workNum != null" >
-        work_num = #{workNum,jdbcType=VARCHAR},
-      </if>
-      <if test="nameCh != null" >
-        name_ch = #{nameCh,jdbcType=VARCHAR},
-      </if>
-      <if test="salesmanType != null" >
-        salesman_type = #{salesmanType,jdbcType=VARCHAR},
-      </if>
-      <if test="twoLevelDepartment != null" >
-        two_level_department = #{twoLevelDepartment,jdbcType=VARCHAR},
-      </if>
-      <if test="threeLevelDepartment != null" >
-        three_level_department = #{threeLevelDepartment,jdbcType=VARCHAR},
-      </if>
-      <if test="organization != null" >
-        organization = #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="station != null" >
-        station = #{station,jdbcType=VARCHAR},
-      </if>
-      <if test="countryPerformance != null" >
-        country_performance = #{countryPerformance,jdbcType=DECIMAL},
-      </if>
-      <if test="assignRate != null" >
-        assign_rate = #{assignRate,jdbcType=DECIMAL},
-      </if>
-      <if test="salesmanPerformance != null" >
-        salesman_performance = #{salesmanPerformance,jdbcType=DECIMAL},
-      </if>
-      <if test="totalIncrBuyerCount != null" >
-        total_incr_buyer_count = #{totalIncrBuyerCount,jdbcType=INTEGER},
-      </if>
-      <if test="incrBuyerCount != null" >
-        incr_buyer_count = #{incrBuyerCount,jdbcType=INTEGER},
-      </if>
-      <if test="assignStatus != null" >
-        assign_status = #{assignStatus,jdbcType=INTEGER},
-      </if>
-      <if test="rejectReason != null" >
-        reject_reason = #{rejectReason,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.PerformanceAssign" >
+    <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.PerformanceAssign">
+        update performance_assign
+        <set>
+            <if test="startTime != null">
+                start_time = #{startTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="workNum != null">
+                work_num = #{workNum,jdbcType=VARCHAR},
+            </if>
+            <if test="nameCh != null">
+                name_ch = #{nameCh,jdbcType=VARCHAR},
+            </if>
+            <if test="salesmanType != null">
+                salesman_type = #{salesmanType,jdbcType=VARCHAR},
+            </if>
+            <if test="twoLevelDepartment != null">
+                two_level_department = #{twoLevelDepartment,jdbcType=VARCHAR},
+            </if>
+            <if test="threeLevelDepartment != null">
+                three_level_department = #{threeLevelDepartment,jdbcType=VARCHAR},
+            </if>
+            <if test="organization != null">
+                organization = #{organization,jdbcType=VARCHAR},
+            </if>
+            <if test="station != null">
+                station = #{station,jdbcType=VARCHAR},
+            </if>
+            <if test="countryPerformance != null">
+                country_performance = #{countryPerformance,jdbcType=DECIMAL},
+            </if>
+            <if test="assignRate != null">
+                assign_rate = #{assignRate,jdbcType=DECIMAL},
+            </if>
+            <if test="salesmanPerformance != null">
+                salesman_performance = #{salesmanPerformance,jdbcType=DECIMAL},
+            </if>
+            <if test="totalIncrBuyerCount != null">
+                total_incr_buyer_count = #{totalIncrBuyerCount,jdbcType=INTEGER},
+            </if>
+            <if test="incrBuyerCount != null">
+                incr_buyer_count = #{incrBuyerCount,jdbcType=INTEGER},
+            </if>
+            <if test="assignStatus != null">
+                assign_status = #{assignStatus,jdbcType=INTEGER},
+            </if>
+            <if test="rejectReason != null">
+                reject_reason = #{rejectReason,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.erui.report.model.PerformanceAssign">
     update performance_assign
     set start_time = #{startTime,jdbcType=TIMESTAMP},
       work_num = #{workNum,jdbcType=VARCHAR},
@@ -284,4 +284,22 @@
       reject_reason = #{rejectReason,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+    <!--批量插入分配信息-->
+    <insert id="insertList" parameterType="java.util.List">
+        insert into performance_assign ( start_time, work_num,
+        name_ch, salesman_type, two_level_department,
+        three_level_department, organization, station,
+        country_performance,total_incr_buyer_count,
+        incr_buyer_count,assign_status)
+        values
+        <foreach collection="list" item="assign"  separator="," >
+            ( #{assign.startTime,jdbcType=TIMESTAMP}, #{assign.workNum,jdbcType=VARCHAR},
+            #{assign.nameCh,jdbcType=VARCHAR}, #{assign.salesmanType,jdbcType=VARCHAR},
+            #{assign.twoLevelDepartment,jdbcType=VARCHAR},#{assign.threeLevelDepartment,jdbcType=VARCHAR},
+            #{assign.organization,jdbcType=VARCHAR}, #{assign.station,jdbcType=VARCHAR},
+            #{assign.countryPerformance,jdbcType=DECIMAL},#{assign.totalIncrBuyerCount,jdbcType=INTEGER},
+            #{assign.incrBuyerCount,jdbcType=INTEGER}, #{assign.assignStatus,jdbcType=INTEGER})
+        </foreach>
+    </insert>
 </mapper>

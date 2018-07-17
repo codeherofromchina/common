@@ -512,9 +512,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
     public void insertPerformanceAssign(List<PerformanceAssign> dataList) {
         if (CollectionUtils.isNotEmpty(dataList)) {
             PerformanceAssignMapper assignWriterMapper = writerSession.getMapper(PerformanceAssignMapper.class);
-            for (PerformanceAssign p : dataList) {
-                assignWriterMapper.insertSelective(p);
-            }
+            assignWriterMapper.insertList(dataList);
         }
     }
 
