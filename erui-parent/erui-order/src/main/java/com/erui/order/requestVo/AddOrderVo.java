@@ -165,7 +165,7 @@ public class AddOrderVo {
     //创建人姓名
     private String createUserName;
     private Integer buyerId;
-    private String inquiryId;
+    private Integer inquiryId;
     //合同总价（美元）
     private BigDecimal totalPriceUsd;
     //利率
@@ -245,11 +245,11 @@ public class AddOrderVo {
         this.buyerId = buyerId;
     }
 
-    public String getInquiryId() {
+    public Integer getInquiryId() {
         return inquiryId;
     }
 
-    public void setInquiryId(String inquiryId) {
+    public void setInquiryId(Integer inquiryId) {
         this.inquiryId = inquiryId;
     }
 

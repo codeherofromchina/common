@@ -244,7 +244,7 @@ public class Order {
     @Column(name = "buyer_id")
     private Integer buyerId;
     @Column(name = "inquiry_id")
-    private String inquiryId;
+    private Integer inquiryId;
     //会员类别 1科瑞订单 2 易瑞订单
     @Column(name = "order_belongs")
     private Integer orderBelongs;
@@ -405,11 +405,11 @@ public class Order {
         this.buyerId = buyerId;
     }
 
-    public String getInquiryId() {
+    public Integer getInquiryId() {
         return inquiryId;
     }
 
-    public void setInquiryId(String inquiryId) {
+    public void setInquiryId(Integer inquiryId) {
         this.inquiryId = inquiryId;
     }
 
