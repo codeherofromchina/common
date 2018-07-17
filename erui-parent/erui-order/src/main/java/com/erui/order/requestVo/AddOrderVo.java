@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class AddOrderVo {
     private Integer id;
-
     //销售合同号
     @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
@@ -165,7 +164,7 @@ public class AddOrderVo {
     //创建人姓名
     private String createUserName;
     private Integer buyerId;
-    private Integer inquiryId;
+    private String inquiryId;
     //合同总价（美元）
     private BigDecimal totalPriceUsd;
     //利率
@@ -245,11 +244,11 @@ public class AddOrderVo {
         this.buyerId = buyerId;
     }
 
-    public Integer getInquiryId() {
+    public String getInquiryId() {
         return inquiryId;
     }
 
-    public void setInquiryId(Integer inquiryId) {
+    public void setInquiryId(String inquiryId) {
         this.inquiryId = inquiryId;
     }
 

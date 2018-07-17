@@ -185,7 +185,7 @@ public class Order {
     @JoinTable(name = "order_attach",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -237,14 +237,13 @@ public class Order {
     private Boolean orderFinish = false;//true时可以确认收货
    /*@Column(name = "delivery_date_no")
     private Date deliveryDateNo;    //执行单约定交付日期*/
-
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
     @Column(name = "buyer_id")
     private Integer buyerId;
     @Column(name = "inquiry_id")
-    private Integer inquiryId;
+    private String inquiryId;
     //会员类别 1科瑞订单 2 易瑞订单
     @Column(name = "order_belongs")
     private Integer orderBelongs;
@@ -252,7 +251,6 @@ public class Order {
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     @Column(name = "order_category")
     private Integer orderCategory;
-
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
     @Column(name = "overseas_sales")
     private Integer overseasSales;
@@ -264,6 +262,11 @@ public class Order {
     @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderAccountDeliver> orderAccountDelivers = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private List<DeliverConsign> deliverConsign;
 
     // 已发货总金额 （财务管理）
     @Column(name = "shipments_money")
@@ -405,11 +408,11 @@ public class Order {
         this.buyerId = buyerId;
     }
 
-    public Integer getInquiryId() {
+    public String getInquiryId() {
         return inquiryId;
     }
 
-    public void setInquiryId(Integer inquiryId) {
+    public void setInquiryId(String inquiryId) {
         this.inquiryId = inquiryId;
     }
 
@@ -1059,6 +1062,14 @@ public class Order {
 
     public List<OrderAccountDeliver> getOrderAccountDelivers() {
         return orderAccountDelivers;
+    }
+
+    public List<DeliverConsign> getDeliverConsign() {
+        return deliverConsign;
+    }
+
+    public void setDeliverConsign(List<DeliverConsign> deliverConsign) {
+        this.deliverConsign = deliverConsign;
     }
 
     public static enum StatusEnum {

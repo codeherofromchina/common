@@ -20,4 +20,6 @@ public interface OrderDao extends JpaRepository<Order, Serializable>, JpaSpecifi
     List<Order> findByIdIn(Integer[] ids);
     @Query(value = "select count(t1) from Order t1 where t1.contractNo = :contractNo AND t1.deleteFlag = false")
     Long countByContractNo(@Param("contractNo")String contractNo);
+
+    List<Order> findByDeleteFlag(boolean b);
 }

@@ -136,6 +136,10 @@ public class Purch {
             inverseJoinColumns = @JoinColumn(name = "project_id"))
     @JsonIgnore
     private Set<Project> projects = new HashSet<>();
+/*
+    @ManyToMany(mappedBy="purchs")
+    @JsonIgnore
+    private Set<Project> projects = new HashSet<>();*/
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_attach",
