@@ -1623,14 +1623,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
 
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 2 ){
-                        if(instockNum != contractGoodsNums && instockNum != 0  && prePurchsedNums != contractGoodsNums && prePurchsedNums != 0){
+                        if(!instockNum.equals(contractGoodsNums) && instockNum != 0  && !prePurchsedNums.equals(contractGoodsNums) && prePurchsedNums != 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 3 ){
                        return null;
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 1 ){
-                        if(prePurchsedNums != contractGoodsNums && prePurchsedNums != 0 && instockNum == 0){
+                        if(!prePurchsedNums.equals(contractGoodsNums) && prePurchsedNums != 0 && instockNum == 0){
                             result.add(project);
                         }
 
