@@ -1564,7 +1564,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                             result.add(project);
                         }
                     }else if(inspectReportStatus2 == 2){
-                        if(prePurchsedNums != contractGoodsNums && prePurchsedNums != 0){
+                        if(!prePurchsedNums.equals(contractGoodsNums) && prePurchsedNums != 0){
                             result.add(project);
                         }
                     }
@@ -1592,7 +1592,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                             result.add(project);
                         }
                     }else if(instockStatus2 == 2){
-                        if(instockNum != contractGoodsNums && instockNum != 0){
+                        if(instockNum.equals(contractGoodsNums) && instockNum != 0){
                             result.add(project);
                         }
                     }
