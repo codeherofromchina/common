@@ -1151,7 +1151,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                 BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();   //     收款金额  /  已收款总金额
                 omp.setAlreadyGatheringMoney(alreadyGatheringMoney); //收款金额
                 BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining()== null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
-                omp.setReceivableAccountRemaining(receivableAccountRemaining); //   应收账款余额
+                BigDecimal exchangeRate = order.getExchangeRate();//订单利率
+                BigDecimal multiply = receivableAccountRemaining.multiply(exchangeRate);    //应收账款余额*订单利率=应收账款余额(USD)
+                omp.setReceivableAccountRemaining(multiply); //   应收账款余额
+                omp.setCurrencyBn(project.getCurrencyBn()); //   货币类型
 
                 orderMainProcess.add(omp);
             }
