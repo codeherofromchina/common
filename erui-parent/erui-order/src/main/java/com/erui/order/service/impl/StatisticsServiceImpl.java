@@ -1793,9 +1793,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                 IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
                                                 if(iogisticsData != null){
                                                     Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
+                                                    if(confirmTheStatus == null){
                                                         if (iogisticsDataStatus > 5){   //如果物流状态有不是待确定， 直接退出循环
                                                             break outer;
                                                         }
+                                                    }else {
+                                                        if (iogisticsData.getConfirmTheGoods() != null){   //如果物流状态有不是待确定， 直接退出循环
+                                                            break outer;
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -1931,10 +1937,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
 
-            }else Jump:if(logisticsDataStatus == 3){ //查找已完成
+            }else Jumps:if(logisticsDataStatus == 3){ //查找已完成
                 if(deliverConsignHas == 1){ //判断是否生成过出口通知单 1,，未生成过   直接退出本次order
-                    break Jump;
-                }else if (!deliverConsignC){  //生成过出口通知单，去继续往下判断    0:false    1:true  0：说明已经生成完出口
+                    break Jumps;
+                }else Jump:if (!deliverConsignC){  //生成过出口通知单，去继续往下判断    0:false    1:true  0：说明已经生成完出口
                     List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
                     if(deliverConsign.size() <= 0){ //如果没有出口通知单，说明没有执行
                         break Jump;
@@ -1999,7 +2005,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                                     break Jump;
                                                                 }
                                                             }else {
-                                                                if (iogisticsDataStatus != 7 && iogisticsData.getConfirmTheGoods() == null ){
+                                                                if (iogisticsDataStatus != 7 ){
+                                                                    break Jump;
+                                                                }else if(iogisticsData.getConfirmTheGoods() == null ){
                                                                     break Jump;
                                                                 }
                                                             }
@@ -2026,8 +2034,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                         set.add(order);
                         break Jump;
                     }
-                }else {
-                    break Jump;
                 }
 
 
@@ -2347,7 +2353,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                                             if(status1 < 7){
                                                 iogisticsDataStatusBoolean.add(false);
                                             }else {
-                                                iogisticsDataStatusBoolean.add(true);
+                                                if(flag != null){
+                                                    if(iogisticsData.getConfirmTheGoods() != null){
+                                                        iogisticsDataStatusBoolean.add(true);
+                                                    }else {
+                                                        iogisticsDataStatusBoolean.add(false);
+                                                    }
+                                                }else {
+                                                    iogisticsDataStatusBoolean.add(true);
+                                                }
                                             }
 
                                         }
