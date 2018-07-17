@@ -1140,9 +1140,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if(!"未执行".equals(omp.getPurchStatus())){    //采购未执行状态   不计算采购订单金额
                     omp.setPurchOrdermoney(disposePurchOrdermoney(purchs)); //采购订单金额
                 }
-                omp.setInspectReportStatus(disposeInspectReportStatus(order.getGoodsList()));   //  入库质检状态
+                omp.setInspectReportStatus(disposeInspectReportStatus(order));   //  入库质检状态
                 omp.setInstockStatus(disposeInstockStatus(order.getGoodsList()));   //入库状态
-                omp.setDeliverConsignStatus(disposeDeliverConsignStatus(order));  //订舱通知状态   / 出口通知单状态
+                    omp.setDeliverConsignStatus(disposeDeliverConsignStatus(order));  //订舱通知状态   / 出口通知单状态
                 omp.setDeliverDetailStatus(disposeDeliverDetailStatus(order.getGoodsList())); //出库状态
                 omp.setLogisticsDataStatus(disposeLogisticsDataStatus(order,null));//发运状态
                 omp.setLogisticsPrice(disposeLogisticsPrice(order));    //发运金额
@@ -1228,6 +1228,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if(StringUtil.isNotBlank(params.get("orderStatus"))){
                     list.add(cb.equal(orderRoot.get("status").as(Integer.class),params.get("orderStatus")));
                 }
+
+                list.add(cb.greaterThan(orderRoot.get("status").as(Integer.class),1));
 
                 //采购状态
                 if(StringUtil.isNotBlank(params.get("purchStatus"))){
@@ -1358,15 +1360,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if(purchStatus != 1){
                     //关联采购
                     Join<Project, Purch> purchRoot = root.join("purchs");
-                    //  status    1:未编辑 2:待确认 3:已提交'
-                    //  purchStatus  1:未执行 2:执行中  3:已完成
-                 /*   if(purchStatus == 1){
-                        list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
-                    }else if(purchStatus == 2){
-                        list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
-                    }else{
-                        list.add(cb.equal(purchRoot.get("status").as(Integer.class),purchStatus));
-                    }*/
 
                     list.add(cb.equal(purchRoot.get("deleteFlag").as(Integer.class),0)); //查询未删除
                     list.add(cb.greaterThan(purchRoot.get("status").as(Integer.class),1)); //大于查询，不查询保存的信息
@@ -1405,6 +1398,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 result.add(project);    //如果没有采购数量   说明没有执行
                                 break outer;
                             }
+                        }else {
+                            result.add(project);    //如果没有采购信息   说明没有执行
+                            break outer;
                         }
                     }
                 }
@@ -1417,13 +1413,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
                         if(purchGoodsList != null){
                             Integer contractGoodsNums = 0 ;
-                            Integer inspectNums = 0;
+                            Integer prePurchsedNums = 0;
                             for (PurchGoods purchGoods : purchGoodsList){
                                 Goods goods = purchGoods.getGoods();    //商品信息
                                 contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
-                                inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
+                                prePurchsedNums += goods.getPurchasedNum();//已采购数量
                             }
-                            if(contractGoodsNums <= inspectNums || inspectNums == 0){ //不相等没有采购完成
+                            if(contractGoodsNums <= prePurchsedNums || prePurchsedNums == 0){ //不相等没有采购完成
                                 break external;
                             }else {
                                 result.add(project);
@@ -1543,36 +1539,38 @@ public class StatisticsServiceImpl implements StatisticsService {
         String instockStatus = params.get("instockStatus");
 
         Set<Project> result = new HashSet<>();
-        if(StringUtil.isNotBlank(inspectReportStatus) && StringUtil.isBlank(instockStatus)){
+        if(StringUtil.isNotBlank(inspectReportStatus)){
             Integer inspectReportStatus2 = Integer.parseInt(inspectReportStatus);
 
             outer:for (Project project : all){
                 List<Goods> goodsList = project.getOrder().getGoodsList();
                 if(goodsList != null){
                     Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
+                    Integer prePurchsedNums = 0;
                     Integer inspectNums = 0;    // 本订单商品  已报检数量
                     for (Goods goods : goodsList){
                         contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                        prePurchsedNums += goods.getPurchasedNum();//已采购数量
                         inspectNums += goods.getInspectNum();// 已报检数量
                     }
                     //  inspectReportStatus  1:未执行 2:执行中  3:已完成
                     if(inspectReportStatus2 == 1){
-                        if(inspectNums == 0){
+                        if(prePurchsedNums == 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 3){
-                        if(inspectNums == contractGoodsNums){
+                        if(inspectNums >= contractGoodsNums && contractGoodsNums != 0){
                             result.add(project);
                         }
                     }else if(inspectReportStatus2 == 2){
-                        if(inspectNums != contractGoodsNums && inspectNums != 0){
+                        if(prePurchsedNums != contractGoodsNums && prePurchsedNums != 0){
                             result.add(project);
                         }
                     }
                 }
             }
-        }else if (StringUtil.isBlank(inspectReportStatus) && StringUtil.isNotBlank(instockStatus)){
+        }else if (StringUtil.isNotBlank(instockStatus)){
             Integer instockStatus2 = Integer.parseInt(instockStatus);
             outer:for (Project project : all){
                 List<Goods> goodsList = project.getOrder().getGoodsList();
@@ -1607,10 +1605,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                 List<Goods> goodsList = project.getOrder().getGoodsList();
                 if(goodsList != null){
                     Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
+                    Integer prePurchsedNums = 0;
                     Integer inspectNums = 0;    // 本订单商品  已报检数量
                     Integer instockNum = 0;    // 本订单商品  已入库数量
                     for (Goods goods : goodsList){
                         contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                        prePurchsedNums += goods.getPurchasedNum();//已采购数量
                         inspectNums += goods.getInspectNum();// 已报检数量
                         instockNum += goods.getInstockNum();// 已入库数量
                     }
@@ -1618,19 +1618,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                     if(inspectReportStatus2 == 1 && instockStatus2 == 2 || instockStatus2 == 3 ){
                         return null;
                     }else if (inspectReportStatus2 == 1 && instockStatus2 == 1){
-                        if(inspectNums == 0 && instockNum == 0){
+                        if(prePurchsedNums == 0 && instockNum == 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 2 ){
-                        if(instockNum != contractGoodsNums && instockNum != 0  && inspectNums != contractGoodsNums && inspectNums != 0){
+                        if(instockNum != contractGoodsNums && instockNum != 0  && prePurchsedNums != contractGoodsNums && prePurchsedNums != 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 3 ){
                        return null;
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 1 ){
-                        if(inspectNums != contractGoodsNums && inspectNums != 0 && instockNum == 0){
+                        if(prePurchsedNums != contractGoodsNums && prePurchsedNums != 0 && instockNum == 0){
                             result.add(project);
                         }
 
@@ -2096,23 +2096,26 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 入库质检状态
-     * @param goodsList
+     * @param order
      * @return
      */
-    public Integer disposeInspectReportStatus(List<Goods> goodsList) {
+    public Integer disposeInspectReportStatus(Order order) {
+        List<Goods> goodsList = order.getGoodsList();
         if (goodsList != null && goodsList.size() > 0){
             Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
+            Integer prePurchsedNums = 0;
             Integer inspectNums = 0;    // 本订单商品  已报检数量
 
             for (Goods goods : goodsList){
                 contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                prePurchsedNums += goods.getPurchasedNum();//已采购数量
                  inspectNums += goods.getInspectNum();// 已报检数量
             }
-            if(inspectNums == 0){
+            if(prePurchsedNums == 0){
                 return 1;
-            }else if (contractGoodsNums == inspectNums){
+            }else if (contractGoodsNums <= inspectNums){
                 return 3;
-            }else {
+            }else if(prePurchsedNums < contractGoodsNums && contractGoodsNums > inspectNums){
                 return 2;
             }
 
