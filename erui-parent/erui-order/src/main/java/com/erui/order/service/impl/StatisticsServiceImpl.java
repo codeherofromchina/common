@@ -1326,7 +1326,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                     list.add(idIn);
                 }
 
-
+                //收款状态
+                if(StringUtil.isNotBlank(params.get("payStatus"))){
+                    list.add(cb.equal(orderRoot.get("payStatus").as(String.class),params.get("payStatus")));
+                }
 
 
                 Predicate[] predicates = new Predicate[list.size()];
