@@ -1701,22 +1701,23 @@ public class StatisticsServiceImpl implements StatisticsService {
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
-                //查询状态前的基本条件
                 if(logisticsDataStatus != 1){
+                    //查询状态前的基本条件
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class),2)); //deliverConsignHas 是否已生成出口通知单 1：未生成 2： 已生成',
-                }
-                if( logisticsDataStatus == 3 ){
-                    list.add(cb.equal(root.get("deliverConsignC").as(Boolean.class),false));     //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
-                }
 
-                Join<Order, DeliverConsign> deliverConsignRoot = root.join("deliverConsign");
-                Join<DeliverConsign, DeliverDetail> deliverDetailRoot = deliverConsignRoot.join("deliverDetail");
-                Join<DeliverDetail, Iogistics> iogisticsRoot = deliverDetailRoot.join("iogistics");
-                Join<Iogistics, IogisticsData> iogisticsDataRoot = iogisticsRoot.join("iogisticsData");
-                if(logisticsDataStatus != 1){
-                    list.add(cb.equal(iogisticsDataRoot.get("status").as(Integer.class),7));    //  status  物流状态 5：合并出库信息 6：完善物流状态中 7：项目完结
-                }
+                    if( logisticsDataStatus == 3 ){
+                        list.add(cb.equal(root.get("deliverConsignC").as(Boolean.class),false));     //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
+                    }
 
+                    Join<Order, DeliverConsign> deliverConsignRoot = root.join("deliverConsign");
+                    Join<DeliverConsign, DeliverDetail> deliverDetailRoot = deliverConsignRoot.join("deliverDetail");
+                    Join<DeliverDetail, Iogistics> iogisticsRoot = deliverDetailRoot.join("iogistics");
+                    Join<Iogistics, IogisticsData> iogisticsDataRoot = iogisticsRoot.join("iogisticsData");
+                    if(logisticsDataStatus == 3){
+                        list.add(cb.equal(iogisticsDataRoot.get("status").as(Integer.class),7));    //  status  物流状态 5：合并出库信息 6：完善物流状态中 7：项目完结
+                    }
+
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -1800,7 +1801,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             }else out:if(logisticsDataStatus == 2){ //查找执行中
                 if(deliverConsignHas == 1){ //判断是否生成过出口通知单 1,，未生成过   直接退出本次order
                     break out;
-                }else{  //生成过出口通知单，去继续往下判断
+                }else {  //生成过出口通知单，去继续往下判断
                     List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
                     if(deliverConsign.size() <= 0){ //如果没有出口通知单，说明没有执行
                         break out;
@@ -1819,13 +1820,39 @@ public class StatisticsServiceImpl implements StatisticsService {
                             }
                         }
 
+                        List<Boolean> iogisticsDataStatusBoolean = new ArrayList<>();   //物流状态
+
+                        if(deliverConsignC){
+                            iogisticsDataStatusBoolean.add(false);
+                        }
+
                         if(!deliverConsignStatusList.contains(3)){  //如果出库通知单中没有状态等于已出库说明没有执行
                             break out;
+                        }
+                       List<Integer> deliverConsignStatusListS = new ArrayList<>();
+                        deliverConsignStatusListS.add(1);
+                        deliverConsignStatusListS.add(2);
+
+                        if(disposeList(deliverConsignStatusList,deliverConsignStatusListS)){
+                            iogisticsDataStatusBoolean.add(false);
                         }
 
                         if(!deliverDetailStatusList.contains(5)){   //如果出库状态中没有确认出库，说明没有执行
                             break out;
                         }
+
+                       List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                        deliverConsignStatusListS.add(1);
+                        deliverConsignStatusListS.add(2);
+                        deliverConsignStatusListS.add(3);
+                        deliverConsignStatusListS.add(4);
+
+                        if(disposeList(deliverDetailStatusList,deliverDetailStatusListS)){
+                            iogisticsDataStatusBoolean.add(false);
+                        }
+
+                        List<Boolean> iogisticsDataBoolean = new ArrayList<>(); //物流信息
+
 
                         for (DeliverConsign deliverConsign1 : deliverConsign){  //如果出库状态有确认出库 ，去判断物流是否有执行中
                             Integer status1 = deliverConsign1.getStatus();
@@ -1839,7 +1866,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                                         if (iogisticsList.size() != 0 ){
                                             for (Iogistics iogistics : iogisticsList){
                                                 IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                                if(iogisticsData != null){
+                                                if(iogisticsData == null){
+                                                    iogisticsDataBoolean.add(false);
+                                                }else {
+                                                    iogisticsDataBoolean.add(true);
+
+                                                    Integer status2 = iogisticsData.getStatus();
+                                                    if(status2 < 7){
+                                                        iogisticsDataStatusBoolean.add(false);
+                                                    }else {
+                                                        iogisticsDataStatusBoolean.add(true);
+                                                    }
+
+                                                }
+
+
+                                                /* if(iogisticsData != null){
                                                     Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
                                                     if(confirmTheStatus == null){
                                                         if (iogisticsDataStatus > 5){   //必须大于确认出库
@@ -1852,14 +1894,23 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                             break out;
                                                         }
                                                     }
-                                                }
+                                                }*/
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                        break out;
+                        List<Boolean> containsList = new ArrayList<>();   //未出库通知状态
+                        containsList.add(true);
+                        containsList.add(false);
+
+                        if(iogisticsDataBoolean.size() > 0  && iogisticsDataBoolean.contains(true) && iogisticsDataStatusBoolean.containsAll(containsList) ){
+                            set.add(order);
+                            break out;
+                        }else {
+                            break out;
+                        }
                     }
                 }
 
@@ -2264,7 +2315,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                                             }
                                         }
                                     }
-                                    return 1;
+
                                 }
 
                             }else {
@@ -2325,13 +2376,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                 }
                                             }
                                         }
-                                        return 1;
+                                        /*return 1;*/
                                     }
                                 }
                             }
                         }
                     }
                 }
+
 
                 if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(true) || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(true) ){
                     return 1;
