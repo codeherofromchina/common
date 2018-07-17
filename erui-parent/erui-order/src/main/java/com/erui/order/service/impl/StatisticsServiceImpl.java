@@ -1874,15 +1874,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                 }else {
                                                     iogisticsDataBoolean.add(true);
 
-                                                    Integer status2 = iogisticsData.getStatus();
-                                                    if(status2 < 7){
-                                                        iogisticsDataStatusBoolean.add(false);
+                                                    if(confirmTheStatus == null){   //是否是确认收货查询
+                                                        Integer status2 = iogisticsData.getStatus();
+                                                        if(status2 < 7){
+                                                            iogisticsDataStatusBoolean.add(false);
+                                                        }else {
+                                                            iogisticsDataStatusBoolean.add(true);
+                                                        }
                                                     }else {
-                                                        iogisticsDataStatusBoolean.add(true);
+                                                        Integer status2 = iogisticsData.getStatus();
+                                                        if(status2 == 7 &&  iogisticsData.getConfirmTheGoods() != null){ //确认收货时间不为空
+                                                            iogisticsDataStatusBoolean.add(true);
+                                                        }else {
+                                                            iogisticsDataStatusBoolean.add(false);
+                                                        }
                                                     }
-
                                                 }
-
 
                                                 /* if(iogisticsData != null){
                                                     Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
