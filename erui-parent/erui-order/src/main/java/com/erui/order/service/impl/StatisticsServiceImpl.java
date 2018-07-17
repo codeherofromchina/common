@@ -1216,6 +1216,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                     list.add(cb.like(root.get("country").as(String.class),"%"+params.get("country")+"%"));
                 }
 
+                String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE"};
+                list.add(root.get("projectStatus").in(projectStatus));
+
                     //关联订单
                 Join<Project, Order> orderRoot = root.join("order");
                 //订单状态
