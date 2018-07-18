@@ -1143,15 +1143,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setInspectReportStatus(disposeInspectReportStatus(order));   //  入库质检状态
                 omp.setInstockStatus(disposeInstockStatus(order.getGoodsList()));   //入库状态
                     omp.setDeliverConsignStatus(disposeDeliverConsignStatus(order));  //订舱通知状态   / 出口通知单状态
-                omp.setDeliverDetailStatus(disposeDeliverDetailStatus(order.getGoodsList())); //出库状态
+                omp.setDeliverDetailStatus(disposeDeliverDetailStatus(order)); //出库状态
                 omp.setLogisticsDataStatus(disposeLogisticsDataStatus(order,null));//发运状态
                 omp.setLogisticsPrice(disposeLogisticsPrice(order));    //发运金额
                 omp.setConfirmTheStatus(disposeLogisticsDataStatus(order,1));  //收货状态
                 omp.setPayStatus(order.getPayStatus()); //收款状态
-                BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();   //     收款金额  /  已收款总金额
+                String currencyBn = order.getCurrencyBn();//订单结算币种
+                BigDecimal exchangeRate = order.getExchangeRate();//订单利率
+
+                BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();  //已收款总金额
+                if(currencyBn != "USD"){
+                    omp.setAlreadyGatheringMoney(alreadyGatheringMoney.multiply(exchangeRate));//     收款金额  /  已收款总金额
+                }else {
+                    omp.setAlreadyGatheringMoney(alreadyGatheringMoney);//     收款金额  /  已收款总金额
+                }
                 omp.setAlreadyGatheringMoney(alreadyGatheringMoney); //收款金额
                 BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining()== null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
-                BigDecimal exchangeRate = order.getExchangeRate();//订单利率
                 BigDecimal multiply = receivableAccountRemaining.multiply(exchangeRate);    //应收账款余额*订单利率=应收账款余额(USD)
                 omp.setReceivableAccountRemaining(multiply); //   应收账款余额
                 omp.setCurrencyBn(project.getCurrencyBn()); //   货币类型
@@ -1666,11 +1673,176 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @return
      */
     public Set<Order> finByDeliverDetailStatus(Integer params) {
-        Set<Order> result = new HashSet<>();
-        List<Order> orderList = orderDao.findByDeleteFlag(false);   //0:未删除 1：已删除',
 
-        for (Order order : orderList){
-            List<Goods> goodsList = order.getGoodsList();
+            Set<Order> result = new HashSet<>();
+            List<Order> orderList = orderDao.findByDeleteFlag(false);   //0:未删除 1：已删除',
+
+            for (Order order : orderList) {
+                Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
+                Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
+
+                if (params == 1) {    //未执行
+                    if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                        result.add(order);
+                    } else {
+                        List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+                        if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
+                            result.add(order);
+                        } else {
+                            List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                            List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                            for (DeliverConsign deliverConsign1 : deliverConsign) {
+                                Integer status1 = deliverConsign1.getStatus();
+                                deliverConsignStatusList.add(status1);
+                                if (status1 > 2) {
+                                    DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                                    if (deliverDetail != null) {
+                                        Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                                        deliverDetailStatusList.add(status);
+                                    }
+                                }
+                            }
+                            if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
+                                result.add(order);
+                            }
+
+                            if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                                result.add(order);
+                            }
+                        }
+                    }
+                } else outer:if (params == 2) {
+                    if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                        break outer;
+                    } else {
+                        List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+                        if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
+                            break outer;
+                        } else {
+                            List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                            List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                            for (DeliverConsign deliverConsign1 : deliverConsign) {
+                                Integer status1 = deliverConsign1.getStatus();
+                                deliverConsignStatusList.add(status1);
+                                if (status1 > 2) {
+                                    DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                                    if (deliverDetail != null) {
+                                        Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                                        deliverDetailStatusList.add(status);
+                                    }
+                                }
+                            }
+
+                            Boolean flag = false;   //是否全部生成完成  如果没有生成完成是false
+                            Boolean flag2 = false;  //是否全部出库        如果等于true说明没有全部出库
+
+                            if (!deliverConsignC) {
+                                flag = true;
+                            }
+
+                            if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
+                                break outer;
+                            }
+
+
+                            if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                                break outer;
+                            }
+
+                            List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
+                            deliverConsignStatusFlag.add(1);
+                            deliverConsignStatusFlag.add(2);
+
+                            if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {
+                                flag2 = true;
+                            }
+
+                            List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                            deliverDetailStatusListS.add(1);
+                            deliverDetailStatusListS.add(2);
+                            deliverDetailStatusListS.add(3);
+                            deliverDetailStatusListS.add(4);
+
+                            if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
+                                result.add(order);
+                            } else {
+                                if (flag == false) {
+                                    result.add(order);
+                                } else {
+                                    if (flag2) {
+                                        result.add(order);
+                                    } else {
+                                        break outer;
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+                } else if (params == 3) {
+                    if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                        break outer;
+                    } else out:if (!deliverConsignC) {
+                        {
+                            List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+                            if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
+                                break out;
+                            } else {
+                                List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                                List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                                for (DeliverConsign deliverConsign1 : deliverConsign) {
+                                    Integer status1 = deliverConsign1.getStatus();
+                                    deliverConsignStatusList.add(status1);
+                                    if (status1 > 2) {
+                                        DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                                        if (deliverDetail != null) {
+                                            Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                                            deliverDetailStatusList.add(status);
+                                        }
+                                    }
+                                }
+
+
+                                if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
+                                    break out;
+                                }
+
+                                List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
+                                deliverConsignStatusFlag.add(1);
+                                deliverConsignStatusFlag.add(2);
+
+                                if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {
+                                    break out;
+                                }
+
+
+                                if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                                    break out;
+                                }
+
+
+                                List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                                deliverDetailStatusListS.add(1);
+                                deliverDetailStatusListS.add(2);
+                                deliverDetailStatusListS.add(3);
+                                deliverDetailStatusListS.add(4);
+
+                                if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
+                                    break out;
+                                }
+
+                                result.add(order);
+
+                            }
+                        }
+
+
+                    }
+
+
+
+           /* List<Goods> goodsList = order.getGoodsList();
             if(goodsList.size() > 0 ){
 
                 Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
@@ -1694,8 +1866,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                         result.add(order);
                     }
                 }
+            }*/
+                }
+
             }
-        }
         return result;
     }
 
@@ -1857,10 +2031,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
 
                        List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
-                        deliverConsignStatusListS.add(1);
-                        deliverConsignStatusListS.add(2);
-                        deliverConsignStatusListS.add(3);
-                        deliverConsignStatusListS.add(4);
+                        deliverDetailStatusListS.add(1);
+                        deliverDetailStatusListS.add(2);
+                        deliverDetailStatusListS.add(3);
+                        deliverDetailStatusListS.add(4);
 
                         if(disposeList(deliverDetailStatusList,deliverDetailStatusListS)){
                             iogisticsDataStatusBoolean.add(false);
@@ -2171,11 +2345,84 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 出库状态
-     * @param goodsList
+     * @param order
      * @return
      */
-    public Integer disposeDeliverDetailStatus(List<Goods> goodsList) {
-        if (goodsList != null && goodsList.size() > 0){
+    public Integer disposeDeliverDetailStatus(Order order) {
+
+        Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
+        Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
+
+            if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                return 1;
+            } else {
+                List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+                if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
+                    return 1;
+                } else {
+                    List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                    List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                    for (DeliverConsign deliverConsign1 : deliverConsign) {
+                        Integer status1 = deliverConsign1.getStatus();
+                        deliverConsignStatusList.add(status1);
+                        if (status1 > 2) {
+                            DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                            if (deliverDetail != null) {
+                                Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                                deliverDetailStatusList.add(status);
+                            }
+                        }
+                    }
+
+
+
+
+                    if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
+                        return 1;
+                    }
+
+                    if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                        return 1;
+                    }
+
+                    if (deliverConsignC) {
+                        return 2;
+                    }else {
+
+                        List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
+                        deliverConsignStatusFlag.add(1);
+                        deliverConsignStatusFlag.add(2);
+
+                        if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {  //出口发货通知单如果有没提交的  说明是执行中
+                            return 2;
+                        }
+
+
+
+                        List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                        deliverDetailStatusListS.add(1);
+                        deliverDetailStatusListS.add(2);
+                        deliverDetailStatusListS.add(3);
+                        deliverDetailStatusListS.add(4);
+
+                        if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
+                            return 2;
+                        }
+
+                        return  3;
+
+                    }
+
+
+                }
+
+            }
+
+
+
+
+
+       /* if (goodsList != null && goodsList.size() > 0){
             Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
             Integer outstockNums = 0;// 本订单中的全部  已发货数量
             for (Goods goods : goodsList){
@@ -2190,7 +2437,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 return 2;
             }
         }
-        return 1;
+        return 1;*/
     }
 
     /**
