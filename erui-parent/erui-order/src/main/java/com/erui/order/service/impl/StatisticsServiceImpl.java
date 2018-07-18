@@ -1420,15 +1420,17 @@ public class StatisticsServiceImpl implements StatisticsService {
                         if(purchGoodsList != null){
                             Integer contractGoodsNums = 0 ;
                             Integer prePurchsedNums = 0;
+                            Integer inspectNums = 0 ;   //已报检
                             for (PurchGoods purchGoods : purchGoodsList){
                                 Goods goods = purchGoods.getGoods();    //商品信息
                                 contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
                                 prePurchsedNums += goods.getPurchasedNum();//已采购数量
+                                inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
                             }
-                            if(contractGoodsNums <= prePurchsedNums || prePurchsedNums == 0){ //不相等没有采购完成
+                            if(contractGoodsNums >= prePurchsedNums && prePurchsedNums > 0 && contractGoodsNums > inspectNums){
+                                result.add(project);
                                 break external;
                             }else {
-                                result.add(project);
                                 break external;
                             }
                         }else {
@@ -2230,30 +2232,46 @@ public class StatisticsServiceImpl implements StatisticsService {
         if(purchs.size() == 0 || purchs == null){
             return 1;
         }else {
-            for (Purch purch : purchs){
-                List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
-                if(purchGoodsList != null){
-                    Integer contractGoodsNums = 0 ;
-                    Integer prePurchsedNums = 0;    //采购
-                    Integer inspectNums = 0 ;   //已报检
-                    for (PurchGoods purchGoods : purchGoodsList){
-                        Goods goods = purchGoods.getGoods();    //商品信息
-                        contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
-                        prePurchsedNums += goods.getPurchasedNum();//已采购数量
-                        inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
-                    }
-                    if(prePurchsedNums == 0){
-                        return 1;
-                    }else if(contractGoodsNums >= prePurchsedNums && prePurchsedNums > 0 && contractGoodsNums > inspectNums){
-                        return 2;
-                    }
-                    if(contractGoodsNums <= inspectNums){   //true  说明没有质检完成
-                        return 3;
+            List<Integer> purchStatusList = new ArrayList();
+            for (Purch purch : purchs) {
+                purchStatusList.add(purch.getStatus());
+            }
+
+            List<Integer> purchStatusListFlag = new ArrayList();
+            purchStatusListFlag.add(2);
+            purchStatusListFlag.add(3);
+
+            if(disposeList(purchStatusList,purchStatusListFlag)){
+                for (Purch purch : purchs){
+                    List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
+                    Integer status = purch.getStatus();
+                    if(status > 1){
+                        if(purchGoodsList != null){
+                            Integer contractGoodsNums = 0 ;
+                            Integer prePurchsedNums = 0;    //采购
+                            Integer inspectNums = 0 ;   //已报检
+                            for (PurchGoods purchGoods : purchGoodsList){
+                                Goods goods = purchGoods.getGoods();    //商品信息
+                                contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                                prePurchsedNums += goods.getPurchasedNum();//已采购数量
+                                inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
+                            }
+                            if(prePurchsedNums == 0){
+                                return 1;
+                            }else if(contractGoodsNums >= prePurchsedNums && prePurchsedNums > 0 && contractGoodsNums > inspectNums){
+                                return 2;
+                            }
+                            if(contractGoodsNums <= inspectNums){   //true  说明没有质检完成
+                                return 3;
+                            }
+                        }
                     }
                 }
             }
+                return 1;
+
         }
-        return 0;
+
     }
 
     /**
