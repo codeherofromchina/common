@@ -1588,11 +1588,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
 
                     }else if(instockStatus2 == 3){
-                        if(instockNum == contractGoodsNums){
+                        if(instockNum >= contractGoodsNums && instockNum != 0 ){
                             result.add(project);
                         }
                     }else if(instockStatus2 == 2){
-                        if(instockNum.equals(contractGoodsNums) && instockNum != 0){
+                        if(instockNum < contractGoodsNums && instockNum != 0){
                             result.add(project);
                         }
                     }
@@ -2139,9 +2139,9 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
             if(instockNums == 0){
                 return 1;
-            }else if (contractGoodsNums == instockNums){
+            }else if (contractGoodsNums <= instockNums){
                 return 3;
-            }else {
+            }else if(instockNums < contractGoodsNums && instockNums != 0) {
                 return 2;
             }
 
