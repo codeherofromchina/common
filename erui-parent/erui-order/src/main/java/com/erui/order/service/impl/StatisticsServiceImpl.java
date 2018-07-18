@@ -2136,14 +2136,14 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                                                     if(confirmTheStatus == null){   //是否是确认收货查询
                                                         Integer status2 = iogisticsData.getStatus();
-                                                        if(status2 < 7){
+                                                        if(status2 < 6){
                                                             iogisticsDataStatusBoolean.add(false);
                                                         }else {
                                                             iogisticsDataStatusBoolean.add(true);
                                                         }
                                                     }else {
                                                         Integer status2 = iogisticsData.getStatus();
-                                                        if(status2 == 7 &&  iogisticsData.getConfirmTheGoods() != null){ //确认收货时间不为空
+                                                        if(status2 == 6 &&  iogisticsData.getConfirmTheGoods() != null){ //确认收货时间不为空
                                                             iogisticsDataStatusBoolean.add(true);
                                                         }else {
                                                             iogisticsDataStatusBoolean.add(false);
