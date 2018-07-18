@@ -1157,7 +1157,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }else {
                     omp.setAlreadyGatheringMoney(alreadyGatheringMoney);//     收款金额  /  已收款总金额
                 }
-                omp.setAlreadyGatheringMoney(alreadyGatheringMoney); //收款金额
                 BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining()== null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
                 BigDecimal multiply = receivableAccountRemaining.multiply(exchangeRate);    //应收账款余额*订单利率=应收账款余额(USD)
                 omp.setReceivableAccountRemaining(multiply); //   应收账款余额
@@ -2245,7 +2244,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     }
                     if(prePurchsedNums == 0){
                         return 1;
-                    }else if(contractGoodsNums > prePurchsedNums && prePurchsedNums > 0){
+                    }else if(contractGoodsNums >= prePurchsedNums && prePurchsedNums > 0 && contractGoodsNums > inspectNums){
                         return 2;
                     }
                     if(contractGoodsNums <= inspectNums){   //true  说明没有质检完成
