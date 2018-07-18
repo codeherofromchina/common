@@ -1219,7 +1219,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     list.add(cb.like(root.get("country").as(String.class),"%"+params.get("country")+"%"));
                 }
 
-                String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE"};
+                String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE","CANCEL"};
                 list.add(root.get("projectStatus").in(projectStatus));
 
                     //关联订单
