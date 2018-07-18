@@ -1686,11 +1686,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                         result.add(order);
                     }
                 }else if(params == 3){
-                    if(outstockNums == contractGoodsNums){
+                    if(outstockNums >= contractGoodsNums && outstockNums != 0){
                         result.add(order);
                     }
                 }else {
-                    if (outstockNums != contractGoodsNums && outstockNums != 0){
+                    if (outstockNums < contractGoodsNums && outstockNums != 0){
                         result.add(order);
                     }
                 }
@@ -2139,7 +2139,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
             if(instockNums == 0){
                 return 1;
-            }else if (contractGoodsNums <= instockNums){
+            }else if (contractGoodsNums <= instockNums && instockNums != 0 ){
                 return 3;
             }else if(instockNums < contractGoodsNums && instockNums != 0) {
                 return 2;
@@ -2184,9 +2184,9 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
             if(outstockNums == 0){
                 return 1;
-            }else if (contractGoodsNums.equals(outstockNums)){
+            }else if (contractGoodsNums <= outstockNums && outstockNums != 0){
                 return 3;
-            }else {
+            }else if(outstockNums <  contractGoodsNums && outstockNums != 0) {
                 return 2;
             }
         }
