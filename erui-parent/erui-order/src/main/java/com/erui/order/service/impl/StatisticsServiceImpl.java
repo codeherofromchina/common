@@ -1208,7 +1208,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 //项目状态
                 if(StringUtil.isNotBlank(params.get("projectStatus"))){
-                    list.add(cb.like(root.get("projectStatus").as(String.class),"%"+params.get("projectStatus")+"%"));
+                    list.add(cb.equal(root.get("projectStatus").as(String.class),params.get("projectStatus")));
                 }
                 //地区
                 if(StringUtil.isNotBlank(params.get("region"))){
@@ -1623,29 +1623,29 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
 
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 2 ){
-                        if(!instockNum.equals(contractGoodsNums) && instockNum != 0  && !prePurchsedNums.equals(contractGoodsNums) && prePurchsedNums != 0){
+                        if(instockNum < contractGoodsNums && instockNum != 0  && prePurchsedNums < contractGoodsNums && prePurchsedNums != 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 3 ){
                        return null;
                     }else if(inspectReportStatus2 == 2 && instockStatus2 == 1 ){
-                        if(!prePurchsedNums.equals(contractGoodsNums) && prePurchsedNums != 0 && instockNum == 0){
+                        if(prePurchsedNums < contractGoodsNums && prePurchsedNums != 0 && instockNum == 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 3 && instockStatus2 == 1 ){
-                        if(instockNum == contractGoodsNums && instockNum == 0){
+                        if(inspectNums >= contractGoodsNums && instockNum == 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 3 && instockStatus2 == 2 ){
-                        if(instockNum == contractGoodsNums && instockNum != contractGoodsNums && instockNum != 0){
+                        if(inspectNums >= contractGoodsNums && instockNum != contractGoodsNums && instockNum != 0){
                             result.add(project);
                         }
 
                     }else if(inspectReportStatus2 == 3 && instockStatus2 == 3 ){
-                        if(instockNum == contractGoodsNums && instockNum == contractGoodsNums){
+                        if(inspectNums >= contractGoodsNums && instockNum == contractGoodsNums){
                             result.add(project);
                         }
 
