@@ -1388,26 +1388,41 @@ public class StatisticsServiceImpl implements StatisticsService {
                     result.add(project);    //如果没有采购信息   说明没有执行
                     break outer;
                 }else {
-                    for (Purch purch : purchs){
-                        List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
-                        if(purchGoodsList != null){
-                            Integer contractGoodsNums = 0 ;
-                            Integer prePurchsedNums = 0;
-                            for (PurchGoods purchGoods : purchGoodsList){
-                                Goods goods = purchGoods.getGoods();    //商品信息
-                                contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
-                                prePurchsedNums += goods.getPurchasedNum();//已采购数量
-                            }
-                            if(prePurchsedNums != 0){    // 不等于0说明是采购中/执行中
-                                break outer;
+
+                    List<Integer> purchStatusList = new ArrayList();
+                    for (Purch purch : purchs) {
+                        purchStatusList.add(purch.getStatus());
+                    }
+
+                    List<Integer> purchStatusListFlag = new ArrayList();
+                    purchStatusListFlag.add(2);
+                    purchStatusListFlag.add(3);
+
+                    if(disposeList(purchStatusList,purchStatusListFlag)){
+                        for (Purch purch : purchs){
+                            List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
+                            if(purchGoodsList != null){
+                                Integer contractGoodsNums = 0 ;
+                                Integer prePurchsedNums = 0;
+                                for (PurchGoods purchGoods : purchGoodsList){
+                                    Goods goods = purchGoods.getGoods();    //商品信息
+                                    contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                                    prePurchsedNums += goods.getPurchasedNum();//已采购数量
+                                }
+                                if(prePurchsedNums != 0){    // 不等于0说明是采购中/执行中
+                                    break outer;
+                                }else {
+                                    result.add(project);    //如果没有采购数量   说明没有执行
+                                    break outer;
+                                }
                             }else {
-                                result.add(project);    //如果没有采购数量   说明没有执行
+                                result.add(project);    //如果没有采购信息   说明没有执行
                                 break outer;
                             }
-                        }else {
-                            result.add(project);    //如果没有采购信息   说明没有执行
-                            break outer;
                         }
+                    }else {
+                        result.add(project);    //如果没有采购提交   说明没有执行
+                        break outer;
                     }
                 }
 
@@ -1415,53 +1430,79 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if(size == 0 || size == null){ //如果没有采购信息   说明没有执行
                     break external;
                 }else {
-                    for (Purch purch : purchs){
-                        List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
-                        if(purchGoodsList != null){
-                            Integer contractGoodsNums = 0 ;
-                            Integer prePurchsedNums = 0;
-                            Integer inspectNums = 0 ;   //已报检
-                            for (PurchGoods purchGoods : purchGoodsList){
-                                Goods goods = purchGoods.getGoods();    //商品信息
-                                contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
-                                prePurchsedNums += goods.getPurchasedNum();//已采购数量
-                                inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
-                            }
-                            if(contractGoodsNums >= prePurchsedNums && prePurchsedNums > 0 && contractGoodsNums > inspectNums){
-                                result.add(project);
-                                break external;
+                    List<Integer> purchStatusList = new ArrayList();
+                    for (Purch purch : purchs) {
+                        purchStatusList.add(purch.getStatus());
+                    }
+
+                    List<Integer> purchStatusListFlag = new ArrayList();
+                    purchStatusListFlag.add(2);
+                    purchStatusListFlag.add(3);
+
+                    if(disposeList(purchStatusList,purchStatusListFlag)){
+
+                        for (Purch purch : purchs){
+                            List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
+                            if(purchGoodsList != null){
+                                Integer contractGoodsNums = 0 ;
+                                Integer prePurchsedNums = 0;
+                                Integer inspectNums = 0 ;   //已报检
+                                for (PurchGoods purchGoods : purchGoodsList){
+                                    Goods goods = purchGoods.getGoods();    //商品信息
+                                    contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                                    prePurchsedNums += goods.getPurchasedNum();//已采购数量
+                                    inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
+                                }
+                                if(contractGoodsNums >= prePurchsedNums && prePurchsedNums > 0 && contractGoodsNums > inspectNums){
+                                    result.add(project);
+                                    break external;
+                                }else {
+                                    break external;
+                                }
                             }else {
                                 break external;
                             }
-                        }else {
-                            break external;
                         }
                     }
+                    break external;
                 }
             }else out:if(purchStatus == 3){    //已完成
                 if(size == 0 || size == null){ //如果没有采购信息   说明没有执行
                     break out;
                 }else {
-                    for (Purch purch : purchs){
-                        List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
-                        if(purchGoodsList != null){
-                            Integer contractGoodsNums = 0 ;
-                            Integer inspectNums = 0;
-                            for (PurchGoods purchGoods : purchGoodsList){
-                                Goods goods = purchGoods.getGoods();    //商品信息
-                                    contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
-                                    inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
-                            }
-                            if(contractGoodsNums <= inspectNums){ //不相等没有采购完成
-                                result.add(project);
-                                break out;
+                    List<Integer> purchStatusList = new ArrayList();
+                    for (Purch purch : purchs) {
+                        purchStatusList.add(purch.getStatus());
+                    }
+
+                    List<Integer> purchStatusListFlag = new ArrayList();
+                    purchStatusListFlag.add(2);
+                    purchStatusListFlag.add(3);
+
+                    if(disposeList(purchStatusList,purchStatusListFlag)){
+
+                        for (Purch purch : purchs){
+                            List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();    //获取采购商品信息
+                            if(purchGoodsList != null){
+                                Integer contractGoodsNums = 0 ;
+                                Integer inspectNums = 0;
+                                for (PurchGoods purchGoods : purchGoodsList){
+                                    Goods goods = purchGoods.getGoods();    //商品信息
+                                        contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
+                                        inspectNums += goods.getInspectNum();// 已报检数量 / 全部报检合格，才算采购完成
+                                }
+                                if(contractGoodsNums <= inspectNums){ //不相等没有采购完成
+                                    result.add(project);
+                                    break out;
+                                }else {
+                                    break out;
+                                }
                             }else {
                                 break out;
                             }
-                        }else {
-                            break out;
                         }
                     }
+                    break out;
                 }
             }
 
