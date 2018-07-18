@@ -28,6 +28,7 @@ public class OrderMainProcess {
     private Integer payStatus;   //收款状态
     private BigDecimal alreadyGatheringMoney; //    收款金额
     private BigDecimal receivableAccountRemaining;   //  应收账款余额
+    private String currencyBn; //货币类型
 
 
     public String getContractNo() {
@@ -204,5 +205,13 @@ public class OrderMainProcess {
 
     public void setReceivableAccountRemaining(BigDecimal receivableAccountRemaining) {
         this.receivableAccountRemaining = receivableAccountRemaining;
+    }
+
+    public String getCurrencyBn() {
+        return currencyBn;
+    }
+
+    public void setCurrencyBn(String currencyBn) {
+        this.currencyBn = currencyBn;
     }
 }
