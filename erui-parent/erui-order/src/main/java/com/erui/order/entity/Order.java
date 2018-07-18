@@ -381,7 +381,7 @@ public class Order {
 
     public String getTotalPriceUsdSplit() {
         if (getTotalPriceUsd() != null) {
-            DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
+            DecimalFormat decimalFormat = new DecimalFormat("#,###.#");
             String format = decimalFormat.format(getTotalPriceUsd());
             return format;
         }
