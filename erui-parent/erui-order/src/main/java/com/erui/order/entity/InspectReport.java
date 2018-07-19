@@ -141,9 +141,6 @@ public class InspectReport {
     @Transient
     private int pageSize = 20;
 
-    @Transient
-    private Integer queryYn ;
-
 
     public Integer getId() {
         return id;
@@ -384,14 +381,6 @@ public class InspectReport {
 
     public void setInspectGoodsList(List<InspectApplyGoods> inspectGoodsList) {
         this.inspectGoodsList = inspectGoodsList;
-    }
-
-    public Integer getQueryYn() {
-        return queryYn;
-    }
-
-    public void setQueryYn(Integer queryYn) {
-        this.queryYn = queryYn;
     }
 
     public Integer getInspectApplyID() {
