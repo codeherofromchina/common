@@ -1179,13 +1179,17 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         //处理分页数据
         if(projectList.hasContent()) {
-
             List<Project> content = projectList.getContent();
             resultMap.put("totalPage", projectList.getTotalPages());    //总页数       Math.ceil 向上取整  总条数/每页条数
-            resultMap.put("total",projectList.getTotalElements());    //总条数
+            resultMap.put("total", projectList.getTotalElements());    //总条数
             resultMap.put("rows",projectList.getSize());    //每页条数
+            resultMap.put("page",pageStr);    //页数
+        }else {
+            resultMap.put("totalPage", 0 );    //总页数       Math.ceil 向上取整  总条数/每页条数
+            resultMap.put("total", 0);    //总条数
+            resultMap.put("rows",0);    //每页条数
+            resultMap.put("page",0);    //页数
         }
-        resultMap.put("page",pageStr);    //页数
 
 
         return resultMap;
