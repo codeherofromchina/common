@@ -2645,6 +2645,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 List<Boolean> iogisticsDataBoolean = new ArrayList<>(); //物流信息
                 List<Boolean> iogisticsDataStatusBoolean = new ArrayList<>();   //物流状态
+                List<Boolean> iogisticsDataStatusList = new ArrayList<>();   //物流动态更新状态
+
 
 
                 for (DeliverConsign deliverConsign1 : deliverConsign){
@@ -2703,6 +2705,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                                             Integer status1 = iogisticsData.getStatus();
                                             if(status1 < 7){
                                                 iogisticsDataStatusBoolean.add(false);
+                                                if(status1 > 5){
+                                                    iogisticsDataStatusList.add(true);
+                                                }
                                             }else {
                                                 if(flag != null){
                                                     if(iogisticsData.getConfirmTheGoods() != null){
@@ -2766,11 +2771,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
 
-                if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(true) || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(true) ){
+                if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(true) || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(true) && iogisticsDataStatusList.size() == 0 ){
                     return 1;
-                }else if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(false) || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(false) ){
+                }else if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(false) && iogisticsDataStatusList.size() == 0  || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(false) && iogisticsDataStatusList.size() == 0 ){
                     return 3;
-                }else if(iogisticsDataStatusBoolean.size() > 0 ){
+                }else if(iogisticsDataStatusBoolean.size() > 0 || iogisticsDataStatusList.size() > 0 &&  iogisticsDataStatusList.contains(true) ){
                     return 2;
                 }
 
