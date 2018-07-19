@@ -1149,7 +1149,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setConfirmTheStatus(disposeLogisticsDataStatus(order,1));  //收货状态
                 omp.setPayStatus(order.getPayStatus()); //收款状态
                 String currencyBn = order.getCurrencyBn();//订单结算币种
-                BigDecimal exchangeRate = order.getExchangeRate();//订单利率
+                BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单利率
 
                 BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();  //已收款总金额
                 if(currencyBn != "USD"){
@@ -1179,13 +1179,17 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         //处理分页数据
         if(projectList.hasContent()) {
-
             List<Project> content = projectList.getContent();
             resultMap.put("totalPage", projectList.getTotalPages());    //总页数       Math.ceil 向上取整  总条数/每页条数
-            resultMap.put("total",projectList.getTotalElements());    //总条数
+            resultMap.put("total", projectList.getTotalElements());    //总条数
             resultMap.put("rows",projectList.getSize());    //每页条数
+            resultMap.put("page",pageStr);    //页数
+        }else {
+            resultMap.put("totalPage", 0 );    //总页数       Math.ceil 向上取整  总条数/每页条数
+            resultMap.put("total", 0);    //总条数
+            resultMap.put("rows",0);    //每页条数
+            resultMap.put("page",0);    //页数
         }
-        resultMap.put("page",pageStr);    //页数
 
 
         return resultMap;
