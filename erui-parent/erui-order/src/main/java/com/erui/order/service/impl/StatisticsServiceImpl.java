@@ -1160,7 +1160,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                 BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining()== null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
                 BigDecimal multiply = receivableAccountRemaining.multiply(exchangeRate);    //应收账款余额*订单利率=应收账款余额(USD)
                 omp.setReceivableAccountRemaining(multiply); //   应收账款余额
-                omp.setCurrencyBn(project.getCurrencyBn()); //   货币类型
+                omp.setCurrencyBn(project.getCurrencyBn()); //   订单货币类型
+                Purch purch = purchs.get(0);
+                if(purch != null){
+                    omp.setPurchCurrencyBn(purch.getCurrencyBn() == null ? "" : purch.getCurrencyBn());   //  采购币种
+                }
 
                 orderMainProcess.add(omp);
             }
