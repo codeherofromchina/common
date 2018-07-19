@@ -1149,7 +1149,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setConfirmTheStatus(disposeLogisticsDataStatus(order,1));  //收货状态
                 omp.setPayStatus(order.getPayStatus()); //收款状态
                 String currencyBn = order.getCurrencyBn();//订单结算币种
-                BigDecimal exchangeRate = order.getExchangeRate();//订单利率
+                BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单利率
 
                 BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();  //已收款总金额
                 if(currencyBn != "USD"){
