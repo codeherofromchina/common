@@ -167,7 +167,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                     list.add(cb.equal(root.get("process").as(Boolean.class), condition.getProcess()));
                 }
                 // 只查询是第一次报检单的质检信息
-                list.add(cb.equal(root.get("reportFirst"), Boolean.TRUE));
+                 list.add(cb.equal(root.get("reportFirst"), Boolean.TRUE));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);

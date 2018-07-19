@@ -1,14 +1,13 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 订单-项目信息
@@ -152,6 +151,13 @@ public class Project {
     private Integer overseasSales;
     @Column(name = "purch_time")
     private Date purchTime;
+    //采购
+    @ManyToMany(targetEntity = Purch.class,cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "purch_project",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "purch_id"))
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private List<Purch> purchs = new ArrayList<>();
 
     public Date getPurchTime() {
         return purchTime;
@@ -547,6 +553,14 @@ public class Project {
 
     public void setPurchaseName(String purchaseName) {
         this.purchaseName = purchaseName;
+    }
+
+    public List<Purch> getPurchs() {
+        return purchs;
+    }
+
+    public void setPurchs(List<Purch> purchs) {
+        this.purchs = purchs;
     }
 
     public boolean copyProjectDescTo(Project project) {

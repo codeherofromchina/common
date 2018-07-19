@@ -71,7 +71,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception{
         Project project = projectDao.findOne(purchRequisition.getProId());
-        if (!purchRequisition.getProjectNo().equals(project.getProjectNo())) {
+        PurchRequisition prt = purchRequisitionDao.findOne(purchRequisition.getId());
+        if (!purchRequisition.getProjectNo().equals(prt.getProjectNo())) {
             if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
                 throw new MyException("项目号已存在&&The project No. already exists");
             }
