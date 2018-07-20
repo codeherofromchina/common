@@ -695,7 +695,6 @@ public class OrderServiceImpl implements OrderService {
             }
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
-
         }
         return order1.getId();
     }
@@ -1304,7 +1303,8 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[46] != null) {
                 project.setHasManager(Integer.parseInt(strArr[46]));
             }
-            project.setDistributionDeptName(strArr[47]);
+            project.setBusinessUnitName(strArr[47]);
+            project.setDistributionDeptName(strArr[16]);
             project.setProjectStatus(strArr[48]);
             project.setRemarks(strArr[49]);
          /*   if (strArr[37] != null) {
