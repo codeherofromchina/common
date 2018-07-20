@@ -165,6 +165,10 @@ public class ExportDataController {
                     vo.setAttachmentSet(null);
                     vo.setGoodsList(null);
                     vo.setProject(null);
+                    vo.setOrderAccounts(null);
+                    vo.setDeliverConsign(null);
+                    vo.setOrderAccountDelivers(null);
+                    vo.setOrderPayments(null);
                 });
             }
             //"币种"
