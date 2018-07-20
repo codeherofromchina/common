@@ -340,6 +340,7 @@ public class ProjectServiceImpl implements ProjectService {
         for (Project project : pageList) {
             if (project.getOrder() != null) {
                 project.setoId(project.getOrder().getId());
+                project.setPurchs(null);
             }
         }
         return pageList;
@@ -508,8 +509,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (project != null) {
             project.getOrder().getGoodsList().size();
             List<Goods> goodsList = project.getOrder().getGoodsList();
-            if(goodsList.size() > 0){
-                for (Goods goods : goodsList){
+            if (goodsList.size() > 0) {
+                for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
             }
