@@ -507,6 +507,13 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectDao.findOne(id);
         if (project != null) {
             project.getOrder().getGoodsList().size();
+            List<Goods> goodsList = project.getOrder().getGoodsList();
+            if(goodsList.size() > 0){
+                for (Goods goods : goodsList){
+                    goods.setPurchGoods(null);
+                }
+            }
+
         }
         return project;
     }
