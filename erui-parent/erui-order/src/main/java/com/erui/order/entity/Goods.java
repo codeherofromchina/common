@@ -220,6 +220,12 @@ public class Goods {
     @Column(name="mete_name")
     private String meteName;//物料分类名称
 
+
+    // 务必没有修改PurchGoods权限的能力
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "goods_id")
+    private List<PurchGoods> purchGoods;
+
     public String getMeteName() {
         return meteName;
     }
@@ -750,5 +756,13 @@ public class Goods {
 
     public Date getLeaveDate() {
         return leaveDate;
+    }
+
+    public List<PurchGoods> getPurchGoods() {
+        return purchGoods;
+    }
+
+    public void setPurchGoods(List<PurchGoods> purchGoods) {
+        this.purchGoods = purchGoods;
     }
 }
