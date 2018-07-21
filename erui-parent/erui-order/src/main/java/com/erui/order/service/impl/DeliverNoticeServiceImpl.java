@@ -380,7 +380,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         deliverNotice.getDeliverConsigns().size();
        for (DeliverConsign deliverConsign : deliverNotice.getDeliverConsigns()){
            deliverConsign.getAttachmentSet().size();
-           deliverConsign.getDeliverConsignGoodsSet().size();
+           List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+           if (deliverConsignGoodsSet.size() > 0){
+               for (DeliverConsignGoods deliverConsignGoods  : deliverConsignGoodsSet){
+                   deliverConsignGoods.getGoods().setPurchGoods(null);
+               }
+           }
            for (DeliverConsignGoods deliverConsignGoods:deliverConsign.getDeliverConsignGoodsSet()){
                 deliverConsignGoods.getGoods().getId();
             }

@@ -75,7 +75,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public DeliverConsign findById(Integer id) {
         DeliverConsign deliverConsign = deliverConsignDao.findOne(id);
         if (deliverConsign != null) {
-            deliverConsign.getDeliverConsignGoodsSet().size();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            if(deliverConsignGoodsSet.size() > 0){
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                    deliverConsignGoods.getGoods().setPurchGoods(null);
+                }
+            }
             deliverConsign.getAttachmentSet().size();
         }
         return deliverConsign;

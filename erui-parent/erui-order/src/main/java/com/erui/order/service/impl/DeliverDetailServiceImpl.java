@@ -677,7 +677,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         one.getAttachmentList().size();
         List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns) {
-            deliverConsign.getDeliverConsignGoodsSet().size();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            if (deliverConsignGoodsSet.size() > 0){
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                    deliverConsignGoods.getGoods().setPurchGoods(null);
+                }
+            }
             Order order = deliverConsign.getOrder();
             order.getGoodsList().size();
         }
@@ -858,7 +863,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.getAttachmentList().size();
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns) {
-                deliverConsign.getDeliverConsignGoodsSet().size();
+                List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                if (deliverConsignGoodsSet.size() > 0){
+                    for (DeliverConsignGoods deliverConsignGoods  : deliverConsignGoodsSet){
+                        deliverConsignGoods.getGoods().setPurchGoods(null);
+                    }
+                }
                 Order order = deliverConsign.getOrder();
                 order.getGoodsList().size();
             }
