@@ -88,7 +88,7 @@ public class IogisticsController {
 
         //出库基本信息
         DeliverDetail deliverDetail = iogisticsList.getDeliverDetail();     // 出库信息
-        data.put("deliverDetailInfo", deliverDetail); // 基本信息
+
         DeliverConsign deliverConsign = deliverDetail.getDeliverConsign();  //出口通知单
         if(deliverConsign == null ){
             return new Result<>("无出库发货通知单关系");
@@ -98,14 +98,20 @@ public class IogisticsController {
         deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
         deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
         //处理商品信息
-        List<Map<String, Object>> goodsInfoList = DeliverDetailsController.goodsMessage(deliverDetail.getDeliverConsignGoodsList());
+        List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+        List<Map<String, Object>> goodsInfoList = DeliverDetailsController.goodsMessage(deliverConsignGoodsList);
         deliverNoticeInfo.put("goodsInfo", goodsInfoList);
         //附件信息
         Map<String, Object> map = DeliverDetailsController.attachmentLists(deliverDetail.getAttachmentList());
         deliverNoticeInfo.put("attachmentList2", map.get("attachmentList2"));    //品控部
         deliverNoticeInfo.put("attachmentList", map.get("attachmentList"));    //仓储物流部
-
+        deliverDetail.setIogistics(null);
+        deliverDetail.setDeliverNotice(null);
+        deliverDetail.setDeliverConsign(null);
+        deliverDetail.setDeliverConsignGoodsList(null);
+        data.put("deliverDetailInfo", deliverDetail); // 基本信息
         data.put("deliverNoticeInfo", deliverNoticeInfo);// 出库信息
+
         return new Result<>(data);
     }
 
