@@ -256,6 +256,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.getCreateUserId();
             deliverConsign.setDeliverConsignGoodsSet(null);
             deliverConsign.setAttachmentSet(null);
+            List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
+            if(goodsList.size() > 0){
+                for (Goods goods : goodsList){
+                    goods.setPurchGoods(null);
+                }
+            }
+
         }
         return deliverConsignList;
     }
