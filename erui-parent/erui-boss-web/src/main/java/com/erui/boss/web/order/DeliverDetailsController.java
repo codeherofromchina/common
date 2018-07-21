@@ -208,6 +208,7 @@ public class DeliverDetailsController {
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
             if(deliverConsignGoods.getSendNum() != 0){
                 Goods goods = deliverConsignGoods.getGoods();
+                goods.setPurchGoods(null);
                 Map<String, Object> goodsInfoMap = new HashMap<>();
                 goodsInfoMap.put("id", deliverConsignGoods.getId());
                 goodsInfoMap.put("goodsId", goods.getId());
