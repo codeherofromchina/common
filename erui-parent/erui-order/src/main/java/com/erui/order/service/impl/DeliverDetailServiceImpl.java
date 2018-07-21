@@ -126,7 +126,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         /*deliverDetail.getDeliverNotice().getId();*/
         deliverDetail.getAttachmentList().size();
-        deliverDetail.getDeliverConsignGoodsList().size();
+        List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+        if(deliverConsignGoodsList.size() > 0){
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
+                deliverConsignGoods.getGoods().setPurchGoods(null);
+            }
+        }
         return deliverDetail;
     }
 
