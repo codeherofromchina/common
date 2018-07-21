@@ -1142,7 +1142,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 omp.setInspectReportStatus(disposeInspectReportStatus(order));   //  入库质检状态
                 omp.setInstockStatus(disposeInstockStatus(order.getGoodsList()));   //入库状态
-                    omp.setDeliverConsignStatus(disposeDeliverConsignStatus(order));  //订舱通知状态   / 出口通知单状态
+                omp.setDeliverConsignStatus(disposeDeliverConsignStatus(order));  //订舱通知状态   / 出口通知单状态
                 omp.setDeliverDetailStatus(disposeDeliverDetailStatus(order)); //出库状态
                 omp.setLogisticsDataStatus(disposeLogisticsDataStatus(order,null));//发运状态
                 omp.setLogisticsPrice(disposeLogisticsPrice(order));    //发运金额
@@ -1298,21 +1298,25 @@ public class StatisticsServiceImpl implements StatisticsService {
                 //订舱通知状态
                 if(StringUtil.isNotBlank(params.get("deliverConsignStatus"))){
                     Integer deliverConsignStatus = Integer.parseInt(params.get("deliverConsignStatus"));
-                    if(deliverConsignStatus == 1){  //1:未执行 2:执行中 3:已完成'
-                        list.add(cb.isNull(orderRoot.get("deliverConsignHas").as(Integer.class)));     //deliverConsignHas 是否已生成出口通知单 1：未生成 2： 已生成',
-                    }else if(deliverConsignStatus == 2){
-                        list.add(cb.equal(orderRoot.get("deliverConsignHas").as(Integer.class),2));
-                        list.add(cb.equal(orderRoot.get("deliverConsignC").as(Boolean.class),true));     //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
-                    }else if(deliverConsignStatus == 3) {
-                        list.add(cb.equal(orderRoot.get("deliverConsignHas").as(Integer.class),2));
-                        list.add(cb.equal(orderRoot.get("deliverConsignC").as(Boolean.class),false));
+
+                    Set<Order> orders = finByDeliverConsignStatus(deliverConsignStatus); //根据订舱通知状态条件查询
+                    CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
+                    if (orders != null && orders.size() > 0) {
+                        for (Order o : orders) {
+                            idIn.value(o.getId());
+                        }
+                    } else {
+                        // 查找失败
+                        idIn.value(-1);
                     }
+                    list.add(idIn);
+
                 }
 
                 //出库状态
                 if (StringUtil.isNotBlank(params.get("deliverDetailStatus"))){
                     Integer deliverDetailStatus = Integer.parseInt(params.get("deliverDetailStatus"));
-                    Set<Order> orders = finByDeliverDetailStatus(deliverDetailStatus); //根据订舱通知状态条件查询
+                    Set<Order> orders = finByDeliverDetailStatus(deliverDetailStatus); //根据出库状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
                     if (orders != null && orders.size() > 0) {
                         for (Order o : orders) {
@@ -1370,6 +1374,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
+
+
 
         }, pageRequest);
 
@@ -1805,6 +1811,112 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
 
         return result;
+    }
+
+
+    /**
+     * 订单主流程监控 根据出库状态条件查询
+     * @param deliverConsignStatus
+     * @return
+     */
+    private Set<Order> finByDeliverConsignStatus(Integer deliverConsignStatus) {
+
+        Set<Order> result = new HashSet<>();
+        List<Order> orderList = orderDao.findByDeleteFlag(false);   //0:未删除 1：已删除',
+
+        if (orderList.size() > 0 ){
+            for (Order order : orderList){
+                Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //deliverConsignHas 是否已生成出口通知单 1：未生成 2： 已生成',
+                Boolean deliverConsignC = order.getDeliverConsignC(); //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
+
+                if(deliverConsignStatus == 1){  //1:未执行 2:执行中 3:已完成'
+                    if(deliverConsignHas == 1){ //未生成
+                        result.add(order);
+                    }else {
+
+                        List<Integer>  deliverConsignStatusList = new ArrayList<>();
+
+                        List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
+                        if(deliverConsignList.size() > 0){
+                            for (DeliverConsign deliverConsign1 : deliverConsignList){
+                                if(deliverConsign1 != null){
+                                    deliverConsignStatusList.add(deliverConsign1.getStatus());
+                                }
+                            }
+
+                            List<Integer>  deliverConsignFlagList = new ArrayList<>();
+                            deliverConsignFlagList.add(2);
+                            deliverConsignFlagList.add(3);
+
+                            if(!disposeList(deliverConsignFlagList,deliverConsignStatusList)){
+                                result.add(order);
+                            }
+                        }else {
+                            result.add(order);
+                        }
+                    }
+
+                }else if(deliverConsignStatus == 2){
+                    if(deliverConsignHas == 2){ //有生成
+                        List<Integer>  deliverConsignStatusList = new ArrayList<>();
+
+                        List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
+                        if(deliverConsignList.size() > 0){
+                            for (DeliverConsign deliverConsign1 : deliverConsignList){
+                                if(deliverConsign1 != null){
+                                    deliverConsignStatusList.add(deliverConsign1.getStatus());
+                                }
+                            }
+
+                            List<Integer>  deliverConsignFlagList = new ArrayList<>();
+                            deliverConsignFlagList.add(2);
+                            deliverConsignFlagList.add(3);
+
+                            if(deliverConsignC){    //是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
+                                if(disposeList(deliverConsignFlagList,deliverConsignStatusList)){
+                                    result.add(order);
+                                }
+                            }else {
+                                List<Integer>  deliverConsignFlagList2 = new ArrayList<>();
+                                deliverConsignFlagList2.add(2);
+                                deliverConsignFlagList2.add(1);
+                                if(disposeList(deliverConsignFlagList2,deliverConsignStatusList)){
+                                    result.add(order);
+                                }
+                            }
+
+                        }
+                    }
+
+                }else if(deliverConsignStatus == 3) {
+                    if(deliverConsignHas == 2 && deliverConsignC == false){
+                        List<Integer>  deliverConsignStatusList = new ArrayList<>();
+
+                        List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
+                        if(deliverConsignList.size() > 0){
+                            for (DeliverConsign deliverConsign1 : deliverConsignList){
+                                if(deliverConsign1 != null){
+                                    deliverConsignStatusList.add(deliverConsign1.getStatus());
+                                }
+                            }
+
+                            List<Integer>  deliverConsignFlagList = new ArrayList<>();
+                            deliverConsignFlagList.add(1);
+                            deliverConsignFlagList.add(2);
+
+                            if(!disposeList(deliverConsignFlagList,deliverConsignStatusList)){
+                                result.add(order);
+                            }
+
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        return  result;
     }
 
 
@@ -2513,9 +2625,36 @@ public class StatisticsServiceImpl implements StatisticsService {
             return 1;
         }else {
             if(deliverConsignC){    //0:false    1:true
-                return 2;
+                List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
+                if(deliverConsignList.size() > 0){
+                    for (DeliverConsign deliverConsign : deliverConsignList){
+                        Integer status = deliverConsign.getStatus();
+                        if(status > 1){
+                            return 2;
+                        }
+                    }
+                }
+                return 1;
             }else {
-                return 3;
+                List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
+                List<Integer> deliverConsignStatusList = new ArrayList<>();
+                if(deliverConsignList.size() > 0){
+                    for (DeliverConsign deliverConsign : deliverConsignList){
+                        Integer status = deliverConsign.getStatus();
+                        if(status > 1){
+                            deliverConsignStatusList.add(deliverConsign.getStatus());
+                        }
+                    }
+                }else {
+                    return 1;
+                }
+                if(deliverConsignStatusList.size() == 0){
+                    return 1;
+                }else if(deliverConsignStatusList.contains(2)){
+                    return 2;
+                }else {
+                    return 3;
+                }
             }
         }
     }
