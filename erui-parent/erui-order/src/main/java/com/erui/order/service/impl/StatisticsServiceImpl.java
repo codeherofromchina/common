@@ -1128,6 +1128,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setContractNo(project.getContractNo());     //销售合同号
                 omp.setOrderId(order.getId());   //订单id / 点击销售合同号查询
                 omp.setTotalPriceUsd( order.getTotalPriceUsd()); // 合同总价(USD)
+                omp.setCurrencyBn(order.getCurrencyBn()); //   订单货币类型
                 omp.setRegion(project.getRegion());     // 地区
                 Map<String, String> bnMapZhCountry = findBnMapZhCountry();  //获取国家中英文   kay/vlaue
                 omp.setCountry(bnMapZhCountry.get(project.getCountry()));   //  国家
@@ -1160,7 +1161,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining()== null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
                 BigDecimal multiply = receivableAccountRemaining.multiply(exchangeRate);    //应收账款余额*订单利率=应收账款余额(USD)
                 omp.setReceivableAccountRemaining(multiply); //   应收账款余额
-                omp.setCurrencyBn(project.getCurrencyBn()); //   订单货币类型
                 if(purchs.size() > 0){
                     Purch purch = purchs.get(0);
                     if(purch != null){
