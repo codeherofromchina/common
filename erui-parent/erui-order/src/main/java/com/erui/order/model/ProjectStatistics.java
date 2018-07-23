@@ -52,6 +52,7 @@ public class ProjectStatistics {
         this.overseasSales = order.getOverseasSales();
         this.currencyBn = order.getCurrencyBn();
         this.createTime = project.getCreateTime();
+        this.orderCategory = order.getOrderCategory();
     }
     //订单ID
     private Integer orderId;
@@ -138,6 +139,8 @@ public class ProjectStatistics {
     private String currencyBn;
     //项目创建时间
     private Date createTime;
+    //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
+    private Integer orderCategory;
 
     public Date getCreateTime() {
         return createTime;
@@ -543,6 +546,28 @@ public class ProjectStatistics {
 
     public void setCurrencyBn(String currencyBn) {
         this.currencyBn = currencyBn;
+    }
+
+    public String getOrderCategory() {
+        if(orderCategory != null){
+            switch (orderCategory) {
+                case 1:
+                    return "预投";
+                case 2:
+                    return "售后";
+                case 3:
+                    return "试用";
+                case 4:
+                    return "现货（出库）";
+                case 5:
+                    return "订单";
+            }
+        }
+        return null;
+    }
+
+    public void setOrderCategory(Integer orderCategory) {
+        this.orderCategory = orderCategory;
     }
 }
 
