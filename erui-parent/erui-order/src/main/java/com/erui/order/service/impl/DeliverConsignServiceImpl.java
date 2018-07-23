@@ -144,6 +144,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 //        goodsDao.save(goodsList.values());
         deliverConsignDao.saveAndFlush(deliverConsignUpdate);
         if (deliverConsign.getStatus() == 3) {
+            Project project = order.getProject();
+            order.setDeliverConsignHas(2);
+            project.setDeliverConsignHas(2);
+            orderDao.save(order);
+            projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);
 
             //推送出库信息
