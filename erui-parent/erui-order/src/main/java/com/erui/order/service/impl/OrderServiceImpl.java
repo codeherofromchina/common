@@ -208,8 +208,8 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
                 }
                //事业部
-                if (condition.getBusinessUnitId02() != null) {
-                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId02()));
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId02())) {
+                    list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
                 //根据区域所在国家查询
                /* String[] country = null;
@@ -1016,8 +1016,8 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
                 }
                 //事业部
-                if (condition.getBusinessUnitId02() != null) {
-                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId02()));
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId02())) {
+                    list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
                 //根据区域所在国家查询
                /* String[] country = null;

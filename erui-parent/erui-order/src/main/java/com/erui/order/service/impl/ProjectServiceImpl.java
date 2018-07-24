@@ -266,8 +266,8 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid02()));
                 }
                 //根据下发部门
-                if (condition.getSendDeptId02() != null) {
-                    list.add(cb.equal(root.get("sendDeptId").as(Integer.class), condition.getSendDeptId02()));
+                if (StringUtils.isNotBlank(condition.getSendDeptId02())) {
+                    list.add(cb.equal(root.get("sendDeptId").as(String.class), condition.getSendDeptId02()));
                 }
                 //下发部门
                 String[] bid = null;
@@ -626,8 +626,8 @@ public class ProjectServiceImpl implements ProjectService {
                     list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid02()));
                 }
                 //根据下发部门
-                if (condition.getSendDeptId02() != null) {
-                    list.add(cb.equal(root.get("sendDeptId").as(Integer.class), condition.getSendDeptId02()));
+                if (StringUtils.isNotBlank(condition.getSendDeptId02())) {
+                    list.add(cb.equal(root.get("sendDeptId").as(String.class), condition.getSendDeptId02()));
                 }
                 //下发部门
                 String[] bid = null;
