@@ -144,6 +144,7 @@ public class DeliverDetailController {
         List<Map<String, Object>> goodsInfoList = new ArrayList<>();
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
             Goods goods = deliverConsignGoods.getGoods();
+            goods.setPurchGoods(null);
 
             Map<String, Object> goodsInfoMap = new HashMap<>();
             goodsInfoMap.put("id", deliverConsignGoods.getId());

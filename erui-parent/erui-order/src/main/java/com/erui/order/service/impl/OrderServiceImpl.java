@@ -97,7 +97,13 @@ public class OrderServiceImpl implements OrderService {
     public Order findByIdLang(Integer id, String lang) {
         Order order = orderDao.findOne(id);
         if (order != null) {
-            order.getGoodsList().size();
+            Integer size = order.getGoodsList().size();
+            if(size > 0 ){
+                List<Goods> goodsList = order.getGoodsList();
+                for (Goods goods : goodsList){
+                    goods.setPurchGoods(null);
+                }
+            }
             order.getAttachmentSet().size();
             order.getOrderPayments().size();
             // 获取执行分公司、分销部

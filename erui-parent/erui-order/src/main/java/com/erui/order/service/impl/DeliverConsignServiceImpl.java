@@ -75,7 +75,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public DeliverConsign findById(Integer id) {
         DeliverConsign deliverConsign = deliverConsignDao.findOne(id);
         if (deliverConsign != null) {
-            deliverConsign.getDeliverConsignGoodsSet().size();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            if(deliverConsignGoodsSet.size() > 0){
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                    deliverConsignGoods.getGoods().setPurchGoods(null);
+                }
+            }
             deliverConsign.getAttachmentSet().size();
         }
         return deliverConsign;
@@ -139,6 +144,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 //        goodsDao.save(goodsList.values());
         deliverConsignDao.saveAndFlush(deliverConsignUpdate);
         if (deliverConsign.getStatus() == 3) {
+            Project project = order.getProject();
+            order.setDeliverConsignHas(2);
+            project.setDeliverConsignHas(2);
+            orderDao.save(order);
+            projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);
 
             //推送出库信息
@@ -251,6 +261,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.getCreateUserId();
             deliverConsign.setDeliverConsignGoodsSet(null);
             deliverConsign.setAttachmentSet(null);
+            List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
+            if(goodsList.size() > 0){
+                for (Goods goods : goodsList){
+                    goods.setPurchGoods(null);
+                }
+            }
+
         }
         return deliverConsignList;
     }

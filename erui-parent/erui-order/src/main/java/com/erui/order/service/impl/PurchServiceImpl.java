@@ -68,7 +68,12 @@ public class PurchServiceImpl implements PurchService {
             Purch puch = purchDao.findOne(id);
             puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
             puch.getAttachments().size(); // 获取采购的附件信息
-            puch.getPurchGoodsList().size(); //获取采购商品信息
+            List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
+            if(purchGoodsList.size() > 0){
+                for (PurchGoods purchGoods : purchGoodsList){
+                    purchGoods.getGoods().setPurchGoods(null );
+                }
+            }
             List<String> projectNoList = new ArrayList<>();
             for (Project p : puch.getProjects()) {
                 projectNoList.add(p.getProjectNo());
