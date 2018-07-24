@@ -204,9 +204,13 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 //商务技术经办人
-               /* if (condition.getTechnicalId() != null) {
-                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
-                }*/
+                if (condition.getTechnicalId02() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
+                }
+               //事业部
+                if (condition.getBusinessUnitId02() != null) {
+                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId02()));
+                }
                 //根据区域所在国家查询
                /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
@@ -1008,9 +1012,13 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
                 }
                 //商务技术经办人
-               /* if (condition.getTechnicalId() != null) {
-                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId()));
-                }*/
+                if (condition.getTechnicalId02() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
+                }
+                //事业部
+                if (condition.getBusinessUnitId02() != null) {
+                    list.add(cb.equal(root.get("businessUnitId").as(Integer.class), condition.getBusinessUnitId02()));
+                }
                 //根据区域所在国家查询
                /* String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
