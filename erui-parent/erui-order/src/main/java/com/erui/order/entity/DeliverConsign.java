@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -70,9 +71,28 @@ public class DeliverConsign {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<DeliverConsignGoods> deliverConsignGoodsSet = new ArrayList<>();
 
+    @Column(name = "advance_money")
+    private  BigDecimal advanceMoney;   //预收金额      /应收账款余额
+
+    @Column(name = "this_shipments_money")
+    private  BigDecimal thisShipmentsMoney;   //本批次发货金额
+
+    @Column(name = "line_of_credit")
+    private BigDecimal lineOfCredit;    //授信额度
+
+    @Column(name = "credit_available")
+    private BigDecimal creditAvailable;    //可用授信额度
+
+    @Transient
+    private BigDecimal exchangeRate;    //订单汇率
+
+
+
+
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
     }
+
 
     public void setDeliverConsignPayments(List<DeliverConsignPayment> deliverConsignPayments) {
         this.deliverConsignPayments = deliverConsignPayments;
@@ -236,5 +256,45 @@ public class DeliverConsign {
 
     public void setDeliverDetail(DeliverDetail deliverDetail) {
         this.deliverDetail = deliverDetail;
+    }
+
+    public BigDecimal getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(BigDecimal exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
+    public BigDecimal getLineOfCredit() {
+        return lineOfCredit;
+    }
+
+    public void setLineOfCredit(BigDecimal lineOfCredit) {
+        this.lineOfCredit = lineOfCredit;
+    }
+
+    public BigDecimal getCreditAvailable() {
+        return creditAvailable;
+    }
+
+    public void setCreditAvailable(BigDecimal creditAvailable) {
+        this.creditAvailable = creditAvailable;
+    }
+
+    public BigDecimal getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(BigDecimal advanceMoney) {
+        this.advanceMoney = advanceMoney;
+    }
+
+    public BigDecimal getThisShipmentsMoney() {
+        return thisShipmentsMoney;
+    }
+
+    public void setThisShipmentsMoney(BigDecimal thisShipmentsMoney) {
+        this.thisShipmentsMoney = thisShipmentsMoney;
     }
 }

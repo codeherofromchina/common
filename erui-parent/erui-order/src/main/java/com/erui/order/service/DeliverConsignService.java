@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.DeliverNotice;
+import com.erui.order.entity.Order;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface DeliverConsignService {
      * @param id
      * @return
      */
-    DeliverConsign findById(Integer id);
+    DeliverConsign findById(Integer id) throws Exception;
 
     /**
      * 根据出口发货通知单 查询信息
@@ -59,4 +60,7 @@ public interface DeliverConsignService {
      * @return
      */
     List<DeliverConsign> findByOrderId(Integer orderId);
+
+
+    DeliverConsign queryCreditData(Order order) throws Exception;
 }
