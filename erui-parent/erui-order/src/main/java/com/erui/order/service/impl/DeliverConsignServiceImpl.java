@@ -294,6 +294,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     throw new Exception(e);
                 }
                 BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable();//可用授信额度
+                if (creditAvailable.compareTo(multiply) == 1 || creditAvailable.compareTo(multiply) == 0){  //可用授信额度 大于 使用的授信的额度时 ，  去调用授信接口
+
+                }
+
 
             }
 
@@ -589,7 +593,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
     }
 
-
+    /**
+     * 根据订单中crm编码，查询授信信息
+     * @param order
+     * @return
+     * @throws Exception
+     */
     public DeliverConsign queryCreditData( Order order) throws Exception {
         //拿取局部返回信息
         String returnMassage;
@@ -668,6 +677,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         return deliverConsign;
     }
+
+
+    /**
+     * 根据
+     */
 
 
 }
