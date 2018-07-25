@@ -60,7 +60,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         PurchRequisition purchRequisition = purchRequisitionDao.findByIdOrOrderId(id, orderId);
         if (purchRequisition != null) {
             purchRequisition.setProId(purchRequisition.getProject().getId());
-            purchRequisition.getGoodsList().size();
+            List<Goods> goodsList = purchRequisition.getGoodsList();
+            if(goodsList.size() > 0){
+                for (Goods goods : goodsList){
+                    goods.setPurchGoods(null);
+                }
+            }
             purchRequisition.getAttachmentSet().size();
             return purchRequisition;
         }
