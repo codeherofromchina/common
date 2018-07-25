@@ -1,6 +1,5 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.Company;
 
 import java.util.List;
@@ -31,5 +30,5 @@ public interface CompanyService {
      * @param
      * @return
      */
-    List<Company> findAll(String areaBn, String name);
+    List<Company> findAll(String areaBn, String name,String enName);
 }

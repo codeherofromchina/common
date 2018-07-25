@@ -57,6 +57,8 @@ public class ProjectListCondition {
     private Integer warehouseUid;
     //商务技术
     private Integer businessUid;
+    //商务技术
+    private Integer businessUid02;
     //项目创建开始日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date startTime;
@@ -65,9 +67,27 @@ public class ProjectListCondition {
     private Date endTime;
     //下发部门
     private String sendDeptId;
+    //下发部门
+    private String sendDeptId02;
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getBusinessUid02() {
+        return businessUid02;
+    }
+
+    public void setBusinessUid02(Integer businessUid02) {
+        this.businessUid02 = businessUid02;
+    }
+
+    public String getSendDeptId02() {
+        return sendDeptId02;
+    }
+
+    public void setSendDeptId02(String sendDeptId02) {
+        this.sendDeptId02 = sendDeptId02;
+    }
 
     public String getSendDeptId() {
         return sendDeptId;

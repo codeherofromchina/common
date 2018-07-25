@@ -615,13 +615,13 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
-        String[] header = new String[]{"项目创建日期","项目开始日期", "销售合同号","订单类别", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
-                "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "订单类型", "海外销类型", "项目金额（美元）",
+        String[] header = new String[]{"项目创建日期","项目开始日期", "销售合同号","订单类别", "海外销类型","询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
+                "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型",   "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
                 "项目状态", "流程进度"};
-        String[] keys = new String[]{"createTime","startDate", "contractNo","orderCategory", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
-                "proCate", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "orderTypeName", "overseasSalesName", "totalPrice",
+        String[] keys = new String[]{"createTime","startDate", "contractNo","orderCategory", "overseasSalesName", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
+                "proCate", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName",  "totalPrice",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercentStr", "grantTypeName", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
                 "projectStatusName", "processProgressName"};

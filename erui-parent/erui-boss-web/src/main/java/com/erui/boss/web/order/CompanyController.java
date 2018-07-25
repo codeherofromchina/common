@@ -1,9 +1,7 @@
 package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
-import com.erui.order.entity.Area;
 import com.erui.order.entity.Company;
-import com.erui.order.service.AreaService;
 import com.erui.order.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +45,7 @@ public class CompanyController {
         if (!map.containsKey("areaBn")) {
             map.put("areaBn", "");
         }
-        List<Company> companyList = companyService.findAll(map.get("areaBn"),map.get("name"));
+        List<Company> companyList = companyService.findAll(map.get("areaBn"),map.get("name"),map.get("enName"));
         companyList.parallelStream().forEach(vo -> {
             vo.setDeptSet(null);
             vo.setArea(null);

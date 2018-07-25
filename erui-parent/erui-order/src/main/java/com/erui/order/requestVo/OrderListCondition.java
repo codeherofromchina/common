@@ -58,6 +58,8 @@ public class OrderListCondition {
     private Integer deliverConsignHas;
     //商务技术经办人
     private Integer technicalId;
+    //商务技术经办人
+    private Integer technicalId02;
     // 语言 en / zh
     private String lang;
     //所属地区
@@ -66,9 +68,27 @@ public class OrderListCondition {
     private Integer receivableAccountRemaining;
     //执行事业部
     private String businessUnitId;
+    //执行事业部
+    private String businessUnitId02;
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getTechnicalId02() {
+        return technicalId02;
+    }
+
+    public void setTechnicalId02(Integer technicalId02) {
+        this.technicalId02 = technicalId02;
+    }
+
+    public String getBusinessUnitId02() {
+        return businessUnitId02;
+    }
+
+    public void setBusinessUnitId02(String businessUnitId02) {
+        this.businessUnitId02 = businessUnitId02;
+    }
 
     public String getBusinessUnitId() {
         return businessUnitId;
