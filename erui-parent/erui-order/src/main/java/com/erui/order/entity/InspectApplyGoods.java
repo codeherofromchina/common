@@ -16,7 +16,7 @@ public class InspectApplyGoods {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "inspect_apply_id")
     @JsonIgnore
     private InspectApply inspectApply;
