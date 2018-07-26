@@ -3,6 +3,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
 import com.erui.order.entity.OrderAccountDeliver;
@@ -70,6 +72,10 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "addGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Result<Object> result = new Result<>();
         if(orderAcciuntAdd == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -138,6 +144,10 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Result<Object> result = new Result<>();
         if(orderAccount == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
