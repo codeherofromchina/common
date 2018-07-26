@@ -80,11 +80,12 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
+        Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
         if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT && paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-            Order order = projectUpdate.getOrder();
+            //Order order = projectUpdate.getOrder();
             order.setStatus(Order.StatusEnum.INIT.getCode());
             order.setProject(null);
             orderDao.save(order);
@@ -92,7 +93,7 @@ public class ProjectServiceImpl implements ProjectService {
             return true;
         } else {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
-                Order order = projectUpdate.getOrder();
+                //Order order = projectUpdate.getOrder();
                 projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 project.copyProjectDescTo(projectUpdate);
                 order.setStatus(Order.StatusEnum.DONE.getCode());
@@ -155,7 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
-                    Order order = projectUpdate.getOrder();
+                    //Order order = projectUpdate.getOrder();
                     try {
                         order.getGoodsList().forEach(gd -> {
                                     gd.setStartDate(projectUpdate.getStartDate());
@@ -174,6 +175,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
             projectUpdate.setUpdateTime(new Date());
+            applicationContext.publishEvent(new OrderProgressEvent(order, 2));
             Project project1 = projectDao.save(projectUpdate);
 
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
