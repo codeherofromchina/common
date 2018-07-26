@@ -277,7 +277,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             //（1）当“本批次发货金额”≤“预收金额”+“可用授信额度/汇率”时，系统判定可以正常发货。
             //（2）当“本批次发货金额”＞“预收金额”+“可用授信额度/汇率”时，系统判定不允许发货
-            BigDecimal advanceMoney = deliverConsign1.getAdvanceMoney()== null ? BigDecimal.valueOf(0) : deliverConsign1.getAdvanceMoney();//预收金额      /应收账款余额
+            BigDecimal advanceMoney = order.getAdvanceMoney()== null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();//预收金额      /应收账款余额
             BigDecimal thisShipmentsMoney = deliverConsign1.getThisShipmentsMoney()== null ? BigDecimal.valueOf(0) : deliverConsign1.getThisShipmentsMoney();//本批次发货金额
             BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单中利率
 

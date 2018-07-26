@@ -301,14 +301,15 @@ public class Order {
         return inspectN;
     }
 
+    @Column(name = "advance_money")
+    private BigDecimal advanceMoney;    //预收金额
+
     @Transient
     private BigDecimal lineOfCredit;    //授信额度
 
     @Transient
     private BigDecimal creditAvailable;    //可用授信额度
 
-    @Transient
-    private BigDecimal advanceMoney;    //预收金额
 
     @Transient
     private BigDecimal thisShipmentsMoney;    //本批次发货金额   未用到返回字段使用

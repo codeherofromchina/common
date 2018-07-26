@@ -8,6 +8,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.OrderAccountService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,6 +54,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     private StatisticsDao statisticsDao;
+
+    @Autowired
+    private DeliverConsignService deliverConsignService;
 
 
 
@@ -187,9 +191,14 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
 
         /**
-         *更新订单中已收款总金额
+         *更新订单中预收金额
          */
-        orderAccountsDispose(id);
+        Order order1 = orderAccountsDispose(id);
+
+        /**
+         * 处理预收金额，以及发送修改授信额度
+         */
+        disposeLineOfCredit(order1);
 
     }
 
@@ -202,7 +211,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void updateGatheringRecord(ServletRequest request, OrderAcciuntAdd orderAccount) {
+    public void updateGatheringRecord(ServletRequest request, OrderAcciuntAdd orderAccount) throws Exception {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId()); //查询收款
 
 
@@ -242,7 +251,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         /**
          *更新订单中已收款总金额
          */
-        orderAccountsDispose(order.getId());
+        Order order1 = orderAccountsDispose(order.getId());
+
+        /**
+         * 处理预收金额，以及发送修改授信额度
+         */
+        disposeLineOfCredit(order1);
 
     }
 
@@ -650,7 +664,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     //更新订单中已收款总金额
     @Transactional(rollbackFor = Exception.class)
-    public void orderAccountsDispose(Integer orderId){
+    public Order orderAccountsDispose(Integer orderId){
 
         //获取发货信息
         List<OrderAccount> byOrderIdAndDelYn = orderAccountDao.findByOrderIdAndDelYn(orderId, 1);
@@ -685,10 +699,46 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         one.setReceivableAccountRemaining(shipmentsMoney.subtract(one.getAlreadyGatheringMoney()));// 应收账款余额
 
-        orderDao.save(one);
+        Order save = orderDao.save(one);
+
+        return save;
     }
 
 
 
+    public  void disposeLineOfCredit(Order order1) throws Exception {
+        BigDecimal alreadyGatheringMoney = order1.getAlreadyGatheringMoney();//已收款总金额
+        BigDecimal shipmentsMoney = order1.getShipmentsMoney(); //已发货总金额
+        BigDecimal subtract1 = alreadyGatheringMoney.subtract(shipmentsMoney); // 已收款总金额 - 已发货总金额
+        if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){ //判断 已发货总金额是否 大于 已收款总金额  。
+
+            //如果大于  查看可用授信额度
+            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order1);
+
+            BigDecimal creditAvailable = deliverConsign1.getCreditAvailable();// 可用授信额度
+            BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit();    //授信额度
+
+            BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
+            if (subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //判断是否有欠款   所欠大于0
+                //判断收款多出发货的钱 是否 能够还所欠授信额度
+                BigDecimal subtract2 = subtract1.subtract(subtract);    //收款多出发货的钱   -   所欠授信额度
+                if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
+                    order1.setAdvanceMoney(subtract2);
+                    // 调用授信接口，修改授信额度
+                    deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract);
+                }else {
+                    // 调用授信接口，修改授信额度  回款
+                    deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract2);
+                    order1.setAdvanceMoney(BigDecimal.valueOf(0));  //预收金额
+                }
+
+            }else { //如果没有欠款 收款多出发货的钱，使用到预售金额
+                order1.setAdvanceMoney(subtract1);  //预收金额
+            }
+            orderDao.save(order1);
+
+        }
+
+    }
 
 }

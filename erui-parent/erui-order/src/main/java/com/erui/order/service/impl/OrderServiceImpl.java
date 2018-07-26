@@ -119,6 +119,24 @@ public class OrderServiceImpl implements OrderService {
             String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
             order.setDistributionDeptName(distributionDeptName);
         }
+
+        // and  处理授信数据信息
+
+        //预收金额
+        BigDecimal subtract = order.getAdvanceMoney() == null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();
+            order.setAdvanceMoney(subtract);     //预收金额
+        try {
+            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
+            order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
+            order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
+
+        }catch (Exception e){
+            logger.info("CRM返回信息：" + e);
+            order.setLineOfCredit(BigDecimal.valueOf(0)); //授信额度
+            order.setCreditAvailable(BigDecimal.valueOf(0)); //可用授信额度
+        }
+        //end
+
         return order;
     }
 
@@ -503,7 +521,6 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
-            projectAdd.setProcessProgress("1");
             //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
@@ -683,7 +700,6 @@ public class OrderServiceImpl implements OrderService {
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
-            project.setProcessProgress("1");
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
