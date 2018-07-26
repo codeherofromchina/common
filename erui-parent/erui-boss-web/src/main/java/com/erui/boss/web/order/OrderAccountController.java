@@ -152,7 +152,11 @@ public class OrderAccountController {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款时间不能为空");
         }else {
-            orderAccountService.updateGatheringRecord(request,orderAccount);
+            try {
+                orderAccountService.updateGatheringRecord(request,orderAccount);
+            }catch (Exception e){
+                new Result<>().setMsg(e.getMessage());
+            }
         }
         return new Result<>();
     }
