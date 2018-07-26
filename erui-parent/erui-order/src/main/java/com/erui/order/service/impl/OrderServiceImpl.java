@@ -125,8 +125,8 @@ public class OrderServiceImpl implements OrderService {
 
         // and  处理授信数据信息
 
-        BigDecimal currencyBnShipmentsMoney =  new BigDecimal(order.getCurrencyBnShipmentsMoney() == null ? "0" : order.getCurrencyBnShipmentsMoney());  //已发货总金额 （财务管理
-        BigDecimal currencyBnAlreadyGatheringMoney = new BigDecimal(order.getCurrencyBnAlreadyGatheringMoney() == null ? "0" : order.getCurrencyBnAlreadyGatheringMoney());//已收款总金额
+        BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+        BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
 
         //收款总金额  -  发货总金额
         BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
