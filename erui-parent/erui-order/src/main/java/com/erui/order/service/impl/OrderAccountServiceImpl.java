@@ -193,12 +193,21 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         /**
          *更新订单中预收金额
          */
-        Order order1 = orderAccountsDispose(id);
+        Order order1 = null;
+        try {
+            order1 = orderAccountsDispose(id);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
 
         /**
          * 处理预收金额，以及发送修改授信额度
          */
-        disposeLineOfCredit(order1);
+        try {
+            disposeLineOfCredit(order1);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
 
     }
 
@@ -240,8 +249,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccounts.setPaymentDate(orderAccount.getPaymentDate());
         orderAccounts.setGoodsPrice(orderAccount.getGoodsPrice());
         orderAccounts.setDeliverDate(orderAccount.getDeliverDate());
-
-
 
 
         orderAccounts.setUpdateTime(new Date());
@@ -715,27 +722,29 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             //如果大于  查看可用授信额度
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order1);
 
-            BigDecimal creditAvailable = deliverConsign1.getCreditAvailable();// 可用授信额度
-            BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit();    //授信额度
+            if(deliverConsign1 != null){
+                BigDecimal creditAvailable = deliverConsign1.getCreditAvailable();// 可用授信额度
+                BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit();    //授信额度
 
-            BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
-            if (subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //判断是否有欠款   所欠大于0
-                //判断收款多出发货的钱 是否 能够还所欠授信额度
-                BigDecimal subtract2 = subtract1.subtract(subtract);    //收款多出发货的钱   -   所欠授信额度
-                if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
-                    order1.setAdvanceMoney(subtract2);
-                    // 调用授信接口，修改授信额度
-                    deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract);
-                }else {
-                    // 调用授信接口，修改授信额度  回款
-                    deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract2);
-                    order1.setAdvanceMoney(BigDecimal.valueOf(0));  //预收金额
+                BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
+                if (subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //判断是否有欠款   所欠大于0
+                    //判断收款多出发货的钱 是否 能够还所欠授信额度
+                    BigDecimal subtract2 = subtract1.subtract(subtract);    //收款多出发货的钱   -   所欠授信额度
+                    if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
+                        order1.setAdvanceMoney(subtract2);
+                        // 调用授信接口，修改授信额度
+                        deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract);
+                    }else {
+                        // 调用授信接口，修改授信额度  回款
+                        deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract2);
+                        order1.setAdvanceMoney(BigDecimal.valueOf(0));  //预收金额
+                    }
+
+                }else { //如果没有欠款 收款多出发货的钱，使用到预售金额
+                    order1.setAdvanceMoney(subtract1);  //预收金额
                 }
-
-            }else { //如果没有欠款 收款多出发货的钱，使用到预售金额
-                order1.setAdvanceMoney(subtract1);  //预收金额
+                orderDao.save(order1);
             }
-            orderDao.save(order1);
 
         }
 

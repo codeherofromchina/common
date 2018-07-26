@@ -95,7 +95,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Integer status = deliverConsign.getStatus();    //获取出口发货通知单状态
 
         if(status != 3){    //如果是保存状态，可用授信额度需要实时更新
-            DeliverConsign deliverConsign1 = queryCreditData(order);
+            DeliverConsign deliverConsign1;
+            try {
+                deliverConsign1 = queryCreditData(order);
+            }catch (Exception e){
+                throw  new Exception(e.getMessage());
+            }
             deliverConsign.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
         }
 
@@ -299,11 +304,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
 
                 if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
-
-                    buyerCreditPaymentByOrder(order , 1 ,subtract);
-
+                    try {
+                        buyerCreditPaymentByOrder(order , 1 ,subtract);
+                    }catch (Exception e){
+                        logger.info("查询授信返回信息：" + e);
+                        throw new Exception(e);
+                    }
                 }
-
 
             }else {
                 throw new Exception("可用授信额度不足");
@@ -627,7 +634,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             returnMassage = HttpRequest.sendPost(url, jsonParam, header);
             logger.info("人员详情返回信息：" + returnMassage);
         }catch (Exception ex){
-            throw new Exception(String.format("查询授信信息失败"));
+            throw new Exception(String.format("获取客户授信信息失败"));
         }
 
         JSONObject jsonObject = JSONObject.parseObject(returnMassage);
@@ -713,6 +720,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             header.put("accept", "*/*");
             returnMassage = HttpRequest.sendPost(url, jsonParam, header);
             logger.info("人员详情返回信息：" + returnMassage);
+
+            JSONObject jsonObject = JSONObject.parseObject(returnMassage);
+            Integer code = jsonObject.getInteger("code");   //获取查询状态
+            if(code != 1){  //查询数据正确返回 1
+                String message = jsonObject.getString("message");
+                throw new Exception(message);
+            }
+
+
         }catch (Exception ex){
             throw new Exception(String.format("查询授信信息失败"));
         }
