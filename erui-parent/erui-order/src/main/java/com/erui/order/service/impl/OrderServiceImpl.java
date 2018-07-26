@@ -66,9 +66,6 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private IogisticsDataService iogisticsDataService;
 
-    @Autowired
-    private DeliverConsignService deliverConsignService;
-
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
 
@@ -122,32 +119,6 @@ public class OrderServiceImpl implements OrderService {
             String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
             order.setDistributionDeptName(distributionDeptName);
         }
-
-        // and  处理授信数据信息
-
-        BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
-        BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
-
-        //收款总金额  -  发货总金额
-        BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
-        if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //-1 小于     0 等于      1 大于
-            order.setAdvanceMoney(subtract);     //预收金额
-        }else {
-            order.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
-        }
-
-        try {
-            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
-            order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
-            order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
-
-        }catch (Exception e){
-            logger.info("CRM返回信息：" + e);
-            order.setLineOfCredit(BigDecimal.valueOf(0)); //授信额度
-            order.setCreditAvailable(BigDecimal.valueOf(0)); //可用授信额度
-        }
-        //end
-
         return order;
     }
 
@@ -532,6 +503,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
+            projectAdd.setProcessProgress("1");
             //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
@@ -711,6 +683,7 @@ public class OrderServiceImpl implements OrderService {
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
+            project.setProcessProgress("1");
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
