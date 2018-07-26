@@ -97,6 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
                 projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 project.copyProjectDescTo(projectUpdate);
                 order.setStatus(Order.StatusEnum.DONE.getCode());
+                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
                 orderDao.save(order);
             } else {
                 // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
@@ -175,7 +176,6 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
             projectUpdate.setUpdateTime(new Date());
-            applicationContext.publishEvent(new OrderProgressEvent(order, 2));
             Project project1 = projectDao.save(projectUpdate);
 
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
