@@ -5,6 +5,7 @@ import com.erui.order.entity.DeliverNotice;
 import com.erui.order.entity.Order;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -63,4 +64,6 @@ public interface DeliverConsignService {
 
 
     DeliverConsign queryCreditData(Order order) throws Exception;
+
+    void  buyerCreditPaymentByOrder(Order order ,Integer flag,BigDecimal orderMoney) throws Exception;
 }

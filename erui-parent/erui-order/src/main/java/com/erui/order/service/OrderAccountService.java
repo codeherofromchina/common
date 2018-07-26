@@ -50,7 +50,7 @@ public interface OrderAccountService {
      * @param orderAccount
      * @return
      */
-    void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount);
+    void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount) throws Exception;
 
 
 

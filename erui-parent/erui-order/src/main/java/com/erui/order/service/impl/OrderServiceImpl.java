@@ -125,17 +125,9 @@ public class OrderServiceImpl implements OrderService {
 
         // and  处理授信数据信息
 
-        BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
-        BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
-
-        //收款总金额  -  发货总金额
-        BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
-        if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //-1 小于     0 等于      1 大于
+        //预收金额
+        BigDecimal subtract = order.getAdvanceMoney() == null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();
             order.setAdvanceMoney(subtract);     //预收金额
-        }else {
-            order.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
-        }
-
         try {
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
             order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
