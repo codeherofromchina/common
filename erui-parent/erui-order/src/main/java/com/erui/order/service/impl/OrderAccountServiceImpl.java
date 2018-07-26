@@ -201,10 +201,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
 
         /**
-         * 处理预收金额，以及发送修改授信额度
+         * 修改授信额度
          */
         try {
-            disposeLineOfCredit(order1);
+            disposeLineOfCredit(orderAccount1,order1);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -259,11 +259,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          *更新订单中已收款总金额
          */
         Order order1 = orderAccountsDispose(order.getId());
-
-        /**
-         * 处理预收金额，以及发送修改授信额度
-         */
-        disposeLineOfCredit(order1);
 
     }
 
@@ -712,42 +707,45 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     }
 
 
+    public  void disposeLineOfCredit(OrderAccount orderAccount, Order order) throws Exception {
+        BigDecimal money = orderAccount.getMoney();//回款金额
+        BigDecimal discount = orderAccount.getDiscount();//其他扣款金额
+        BigDecimal moneySum = money.add(discount);   //  本次回款总金额
 
-    public  void disposeLineOfCredit(Order order1) throws Exception {
-        BigDecimal alreadyGatheringMoney = order1.getAlreadyGatheringMoney();//已收款总金额
-        BigDecimal shipmentsMoney = order1.getShipmentsMoney(); //已发货总金额
-        BigDecimal subtract1 = alreadyGatheringMoney.subtract(shipmentsMoney); // 已收款总金额 - 已发货总金额
-        if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){ //判断 已发货总金额是否 大于 已收款总金额  。
 
-            //如果大于  查看可用授信额度
-            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order1);
+        //  查看可用授信额度
+        DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
+        if(deliverConsign1 != null){
+            BigDecimal creditAvailable = deliverConsign1.getCreditAvailable();// 可用授信额度
+            BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit();    //授信额度
 
-            if(deliverConsign1 != null){
-                BigDecimal creditAvailable = deliverConsign1.getCreditAvailable();// 可用授信额度
-                BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit();    //授信额度
+            BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
+            if (subtract.compareTo(BigDecimal.valueOf(0)) == 1 ){    //判断是否有欠款   所欠大于0
 
-                BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
-                if (subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //判断是否有欠款   所欠大于0
-                    //判断收款多出发货的钱 是否 能够还所欠授信额度
-                    BigDecimal subtract2 = subtract1.subtract(subtract);    //收款多出发货的钱   -   所欠授信额度
-                    if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
-                        order1.setAdvanceMoney(subtract2);
-                        // 调用授信接口，修改授信额度
-                        deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract);
-                    }else {
-                        // 调用授信接口，修改授信额度  回款
-                        deliverConsignService.buyerCreditPaymentByOrder(order1 , 2 ,subtract2);
-                        order1.setAdvanceMoney(BigDecimal.valueOf(0));  //预收金额
+                //判断本次回款总金额 是否 能够还所欠授信额度
+                BigDecimal subtract2 = subtract.subtract(moneySum);    //所欠授信额度   -   本次回款总金额
+                if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
+                    try {
+                        //如果金额正好的话     调用授信接口，修改授信额度
+                        deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,moneySum);
+                    }catch (Exception e){
+                        throw new Exception(e.getMessage());
                     }
 
-                }else { //如果没有欠款 收款多出发货的钱，使用到预售金额
-                    order1.setAdvanceMoney(subtract1);  //预收金额
+                }else {
+                    try {
+                        // 如果还款金额  大于  所欠授信额度的话  直接还给所欠钱数
+                        deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract);
+                    }catch (Exception e){
+                        throw new Exception(e.getMessage());
+                    }
                 }
-                orderDao.save(order1);
+
             }
 
         }
-
     }
+
+
 
 }
