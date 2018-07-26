@@ -60,8 +60,6 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private CompanyService companyService;
-    @Autowired
-    private DeliverDetailService deliverDetailService;
 
     @Autowired
     private IogisticsDataService iogisticsDataService;
@@ -98,9 +96,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderDao.findOne(id);
         if (order != null) {
             Integer size = order.getGoodsList().size();
-            if(size > 0 ){
+            if (size > 0) {
                 List<Goods> goodsList = order.getGoodsList();
-                for (Goods goods : goodsList){
+                for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
             }
@@ -207,7 +205,7 @@ public class OrderServiceImpl implements OrderService {
                 if (condition.getTechnicalId02() != null) {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
                 }
-               //事业部
+                //事业部
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId02())) {
                     list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
@@ -503,6 +501,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
+            projectAdd.setProcessProgress("1");
             //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
@@ -681,6 +680,7 @@ public class OrderServiceImpl implements OrderService {
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
+            project.setProcessProgress("1");
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
