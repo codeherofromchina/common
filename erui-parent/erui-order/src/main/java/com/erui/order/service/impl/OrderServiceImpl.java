@@ -66,9 +66,6 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private IogisticsDataService iogisticsDataService;
 
-    @Autowired
-    private DeliverConsignService deliverConsignService;
-
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
 
