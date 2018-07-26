@@ -275,30 +275,38 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             // 处理授信额度  and
 
-            //本批次发货金额-预收金额的值为负数时，不同步授信数据
-            //当“本批次发货金额-预收金额的值为正数时，这个正数值*汇率就是使用的授信额度，授信信息同步到授信管理中去
+            //（1）当“本批次发货金额”≤“预收金额”+“可用授信额度/汇率”时，系统判定可以正常发货。
+            //（2）当“本批次发货金额”＞“预收金额”+“可用授信额度/汇率”时，系统判定不允许发货
             BigDecimal advanceMoney = deliverConsign1.getAdvanceMoney()== null ? BigDecimal.valueOf(0) : deliverConsign1.getAdvanceMoney();//预收金额      /应收账款余额
             BigDecimal thisShipmentsMoney = deliverConsign1.getThisShipmentsMoney()== null ? BigDecimal.valueOf(0) : deliverConsign1.getThisShipmentsMoney();//本批次发货金额
-            BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
-            if (subtract.compareTo(BigDecimal.valueOf(0)) == 1){    //  -1 小于     0 等于      1 大于
-                BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单中利率
-                BigDecimal multiply = subtract.multiply(subtract);  //使用的授信额度
+            BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单中利率
 
-                //获取授信额度信息
-                DeliverConsign deliverConsignByCreditData;
-                try {
-                    deliverConsignByCreditData = queryCreditData(order);
-                    order.setCreditAvailable(deliverConsignByCreditData.getCreditAvailable()); //可用授信额度
-                }catch (Exception e){
-                    logger.info("查询授信返回信息：" + e);
-                    throw new Exception(e);
+            //获取授信额度信息
+            DeliverConsign deliverConsignByCreditData;
+            try {
+                deliverConsignByCreditData = queryCreditData(order);
+
+            }catch (Exception e){
+                logger.info("查询授信返回信息：" + e);
+                throw new Exception(e);
+            }
+            BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable();//可用授信额度
+            BigDecimal divide = creditAvailable.divide(exchangeRate);//可用授信额度/利率
+            BigDecimal add = divide.add(advanceMoney);  //预收金额”+“可用授信额度/汇率      可发货额度
+
+            if (thisShipmentsMoney.compareTo(add) == 1 || thisShipmentsMoney.compareTo(add) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
+
+                BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
+
+                if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
+
+                    buyerCreditPaymentByOrder(order , 1 ,subtract);
+
                 }
-                BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable();//可用授信额度
-                if (creditAvailable.compareTo(multiply) == 1 || creditAvailable.compareTo(multiply) == 0){  //可用授信额度 大于 使用的授信的额度时 ，  去调用授信接口
-
-                }
 
 
+            }else {
+                throw new Exception("可用授信额度不足");
             }
 
             // 处理授信额度  end
@@ -680,8 +688,36 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
 
     /**
-     * 根据
+     * 处理授信额度
+     * @param order 订单信息
+     * @param flag  支出还是回款标识
+     * @param orderMoney    支出OR回款金额
      */
+    public void  buyerCreditPaymentByOrder(Order order ,Integer flag,BigDecimal orderMoney) throws Exception {
+        String contractNo = order.getContractNo();  //销售合同号
+        String crmCode = order.getCrmCode();    //crm编码
+
+        //拿取局部返回信息
+        String returnMassage;
+        try {
+            //拼接查询授信路径
+            String url = creditExtension + "V2/Buyercredit/buyerCreditPaymentByOrder";
+            //获取token
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+
+            // 根据id获取人员信息
+            String jsonParam = "{\"contract_no\":\""+contractNo+"\",\"order_money\":\""+orderMoney+"\",\"order_type\":\""+flag+"\",\"crm_code\":\""+crmCode+"\"}";
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            returnMassage = HttpRequest.sendPost(url, jsonParam, header);
+            logger.info("人员详情返回信息：" + returnMassage);
+        }catch (Exception ex){
+            throw new Exception(String.format("查询授信信息失败"));
+        }
+
+    }
 
 
 }
