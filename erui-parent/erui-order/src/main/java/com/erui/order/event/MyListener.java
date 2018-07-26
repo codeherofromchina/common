@@ -42,12 +42,8 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
                 project.setProcessProgress(Project.ProjectProgressEnum.SUBMIT.getNum().toString());
             }
         } else if (type == 2 && processProgress < 2) {
-            if (order.getOverseasSales() == 3 || order.getOrderCategory() == 4) {
-                project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
-            } else {
                 order.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
                 project.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
-            }
         } else if (type == 3 && processProgress < 3) {
             order.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
