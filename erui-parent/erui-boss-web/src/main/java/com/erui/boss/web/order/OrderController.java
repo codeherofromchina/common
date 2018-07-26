@@ -193,6 +193,10 @@ public class OrderController {
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Order order = orderService.findByIdLang(map.get("id"), CookiesUtil.getLang(request));
         if (order != null) {
             order.setOrderAccountDelivers(null);

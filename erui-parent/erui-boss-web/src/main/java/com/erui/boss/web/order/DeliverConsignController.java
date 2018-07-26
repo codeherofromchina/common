@@ -40,7 +40,7 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "get")
-    public Result<Object> get(@RequestParam(name = "id") Integer id) {
+    public Result<Object> get(@RequestParam(name = "id") Integer id) throws Exception {
         DeliverConsign deliverConsign = deliverConsignService.findById(id);
         return new Result<>(deliverConsign);
     }
@@ -53,18 +53,26 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "orderInfoForAdd", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderInfoForAdd(@RequestBody Map<String, Integer> map) {
+    public Result<Object> orderInfoForAdd(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         if (map.get("orderId") != null) {
-            Order order = orderService.detail(map.get("orderId"));
-            Map<String, Object> data = new HashMap<>();
-            data.put("orderId", order.getId());
-            data.put("deptId", order.getExecCoId());
-            data.put("deptName", order.getExecCoName());
-            data.put("createUserId", order.getAgentId());
-            data.put("coId", order.getSigningCo());
-            //    data.put("coName",order.getId());
-            data.put("goodsList", order.getGoodsList());
-            return new Result<>(data);
+            try {
+                Order order = orderService.detail(map.get("orderId"));
+                Map<String, Object> data = new HashMap<>();
+                data.put("orderId", order.getId());
+                data.put("deptId", order.getExecCoId());
+                data.put("deptName", order.getExecCoName());
+                data.put("createUserId", order.getAgentId());
+                data.put("coId", order.getSigningCo());
+                //    data.put("coName",order.getId());
+                data.put("goodsList", order.getGoodsList());
+                return new Result<>(data);
+            }catch (Exception e){
+                return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
+            }
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
     }
@@ -106,10 +114,18 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "queryDeliverConsignDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<DeliverConsign> queryOrderDesc(@RequestBody Map<String, Integer> map) {
+    public Result<Object> queryOrderDesc(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         if (map.get("id") != null) {
-            DeliverConsign deliverConsign = deliverConsignService.findById(map.get("id"));
-            return new Result<>(deliverConsign);
+            try {
+                DeliverConsign deliverConsign = deliverConsignService.findById(map.get("id"));
+                return new Result<>(deliverConsign);
+            }catch (Exception e){
+                return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
+            }
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
     }
