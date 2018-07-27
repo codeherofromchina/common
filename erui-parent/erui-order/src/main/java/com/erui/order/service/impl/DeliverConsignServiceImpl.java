@@ -776,14 +776,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
                 try {
                     JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, subtract);
-
-                    Integer code = jsonObject.getInteger("code");   //获取查询状态
-                    if(code != 1){  //查询数据正确返回 1
-                        String message = jsonObject.getString("message");
-                        throw new Exception(message);
-                    }
-                    if(code == 1){
-                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                    JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                    if(data == null){  //查询数据正确返回 1
+                        throw new Exception("同步授信额度失败");
+                    }else {
                         return data;
                     }
                 }catch (Exception e){

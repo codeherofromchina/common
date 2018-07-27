@@ -776,13 +776,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     try {
                         //如果金额正好的话     调用授信接口，修改授信额度
                         JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,moneySum);
-                        Integer code = jsonObject.getInteger("code");   //获取查询状态
-                        if(code != 1){  //查询数据正确返回 1
-                            String message = jsonObject.getString("message");
-                            throw new Exception(message);
-                        }
-                        if(code == 1){
-                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                        if(data == null){  //查询数据正确返回 1
+                            throw new Exception("同步授信额度失败");
+                        }else {
                             return data;
                         }
                     }catch (Exception e){
@@ -793,13 +790,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     try {
                         // 如果还款金额  大于  所欠授信额度的话  直接还给所欠钱数
                         JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract);
-                        Integer code = jsonObject.getInteger("code");   //获取查询状态
-                        if(code != 1){  //查询数据正确返回 1
-                            String message = jsonObject.getString("message");
-                            throw new Exception(message);
-                        }
-                        if(code == 1){
-                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                        if(data == null){  //查询数据正确返回 1
+                            throw new Exception("同步授信额度失败");
+                        }else {
                             return data;
                         }
                     }catch (Exception e){
