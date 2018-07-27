@@ -758,7 +758,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         BigDecimal divide = creditAvailable.divide(exchangeRate);//可用授信额度/利率
         BigDecimal add = divide.add(advanceMoney);  //预收金额”+“可用授信额度/汇率      可发货额度
 
-        if (thisShipmentsMoney.compareTo(add) == 1 || thisShipmentsMoney.compareTo(add) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
+        if (add.compareTo(thisShipmentsMoney) == 1 || add.compareTo(thisShipmentsMoney) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
 
             BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
 
