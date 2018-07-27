@@ -6,7 +6,6 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchService;
@@ -141,8 +140,6 @@ public class PurchServiceImpl implements PurchService {
                 }
                 idSet.add(id);
                 Map<String, Object> map = new HashMap<>();
-
-
                 List<String> contractNoList = new ArrayList<>();
                 List<String> projectNoList = new ArrayList<>();
                 purch.getProjects().stream().forEach(project -> {
@@ -301,7 +298,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAttachments(attachments);
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
-        Set<Project> projectSet = new HashSet<>();
+        List<Project> projectSet = new ArrayList<>();
         List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 检查是否传入采购数量或者替换商品
@@ -427,7 +424,7 @@ public class PurchServiceImpl implements PurchService {
 
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
-        Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
+        List<Project> projectSet = new ArrayList<>(); // 声明项目的容器
         // 数据库现在的采购商品信息
         Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         Set<Integer> existId = new HashSet<>();

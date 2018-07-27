@@ -530,6 +530,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Project findByIdOrOrderId(Integer id, Integer orderId) {
         Project project = projectDao.findByIdOrOrderId(id, orderId);
         if (project != null) {
+            project.setPurchs(null);
             List<Goods> goodsList = project.getGoodsList();
             if(goodsList.size() > 0){
                 for (Goods goods : goodsList){
@@ -541,7 +542,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return null;
     }
-
     @Override
     public List<Project> findProjectExport(ProjectListCondition condition) {
         Sort sort = new Sort(Sort.Direction.DESC, "id");

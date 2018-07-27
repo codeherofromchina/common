@@ -548,7 +548,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 判断是不是第一次报检并设置相应信息
         if (inspectApply.isMaster()) {
             report.setCheckTimes(1);
-            Set<Project> projects = inspectApply.getPurch().getProjects();
+            List<Project> projects = inspectApply.getPurch().getProjects();
             if (projects != null && projects.size() > 0) {
                 Project project = projects.parallelStream().findFirst().get();
                 report.setCheckUserId(project.getQualityUid());
@@ -754,7 +754,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
 
         Project project = null; //项目信息
-        Set<Project> projects = inspectApply.getPurch().getProjects();
+        List<Project> projects = inspectApply.getPurch().getProjects();
         for (Project project2 : projects) {
             project = project == null ? project2 : project;
         }
@@ -809,9 +809,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         for (InspectApplyGoods applyGoods : inspectApplyGoodsList) {//报检商品
             hegeNum += applyGoods.getInspectNum(); //合格数量  (报检数量)
         }
-
-
-        Set<Project> projectSet = inspectApply.getPurch().getProjects();
+        List<Project> projectSet = inspectApply.getPurch().getProjects();
         Project project = null; //项目信息
         for (Project projects : projectSet) {
             project = project == null ? projects : project;
