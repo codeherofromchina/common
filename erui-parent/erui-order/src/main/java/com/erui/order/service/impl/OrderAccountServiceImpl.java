@@ -708,8 +708,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
 
     public  void disposeLineOfCredit(OrderAccount orderAccount, Order order) throws Exception {
-        BigDecimal money = orderAccount.getMoney();//回款金额
-        BigDecimal discount = orderAccount.getDiscount();//其他扣款金额
+        BigDecimal money = orderAccount.getMoney() == null ? BigDecimal.valueOf(0) : orderAccount.getMoney();//回款金额
+        BigDecimal discount = orderAccount.getDiscount()  == null ? BigDecimal.valueOf(0) : orderAccount.getDiscount();//其他扣款金额
         BigDecimal moneySum = money.add(discount);   //  本次回款总金额
 
 
