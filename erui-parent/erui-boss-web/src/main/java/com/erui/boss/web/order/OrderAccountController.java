@@ -173,7 +173,7 @@ public class OrderAccountController {
             try {
                 orderAccountService.updateGatheringRecord(request,orderAccount);
             }catch (Exception e){
-                new Result<>().setMsg(e.getMessage());
+                return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
             }
         }
         return new Result<>();

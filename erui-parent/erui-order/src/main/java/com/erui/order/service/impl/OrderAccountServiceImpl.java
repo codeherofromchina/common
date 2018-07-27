@@ -148,7 +148,10 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          * 修改授信额度  删除新增的授信额度
          */
         try {
-            delCreditPayment(orderAccounts.getCreditLogId());
+            Integer creditLogId = orderAccounts.getCreditLogId();
+            if(creditLogId != null){
+                delCreditPayment(creditLogId);
+            }
         }catch (Exception e){
             throw new Exception(e);
         }
@@ -301,7 +304,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             BigDecimal newSumMoney = newMoney.add(newDiscount1);   //旧本笔收款总金额
 
             if(newSumMoney.compareTo(formerSumMoney) != 0){
-                disposeCreditPayment(order1,newSumMoney,formerSumMoney,orderAccount1);
+                try {
+                    disposeCreditPayment(order1,newSumMoney,formerSumMoney,orderAccount1);
+                }catch (Exception e){
+                    throw new Exception(e);
+                }
+
             }
 
         }catch (Exception e){
@@ -865,7 +873,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         BigDecimal creditAvailable = deliverConsign.getCreditAvailable();    // 可用授信额度
         BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //应还授信额度
 
-        if(subtract.compareTo(BigDecimal.valueOf(0)) == -1){ //有应还授信额度再处理，  如果没有可还的不用处理
+        if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){ //有应还授信额度再处理，  如果没有可还的不用处理
 
 
             /**
@@ -878,7 +886,11 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
             if(subtract1.compareTo(BigDecimal.valueOf(0)) == -1){ //修改前大，  从授信中减去
                 add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的收款金额负值
-                updateCreditPayment(crmCode,add);  // 修改授信额度
+                try {
+                    updateCreditPayment(crmCode,add);  // 修改授信额度
+                }catch (Exception e){
+                    throw new Exception(e);
+                }
             }else if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){    //修改后大 ，  添加授信
                 //判断修改后多出的值，是否能还完所欠的授信额度      应还授信额度 >   多出的收款金额
                 if(subtract.compareTo(subtract1) == 1 || subtract.compareTo(subtract1) == 0){ //如果大于或等于   直接新增
@@ -929,7 +941,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         String returnMassage;
         try {
             //拼接查询授信路径
-            String url = creditExtension + "V2/Buyercredit/deleteBuyerCreditOrderLogByOrderInfo";
+            String url = creditExtension + "V2/Buyercredit/updateBuyerCreditByOrderInfo";
             //获取token
             String eruiToken = (String) ThreadLocalUtil.getObject();
 
@@ -966,7 +978,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         String returnMassage;
         try {
             //拼接查询授信路径
-            String url = creditExtension + "V2/Buyercredit/deleteBuyerCreditOrderLogByOrderInfo";
+            String url = creditExtension + "/V2/Buyercredit/updateBuyerCreditOrderLogByOrderInfo";
             //获取token
             String eruiToken = (String) ThreadLocalUtil.getObject();
 
