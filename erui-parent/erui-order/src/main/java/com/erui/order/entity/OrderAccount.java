@@ -57,6 +57,12 @@ public class OrderAccount {
     @Column(name = "del_yn")
     private Integer delYn =1;  //删除标识    0：删除   1：存在'''
 
+
+    @Column(name = "credit_log_id")
+    private Integer creditLogId;  //授信记录id
+
+
+
     public Integer getId() {
         return id;
     }
@@ -174,5 +180,13 @@ public class OrderAccount {
 
     public void setDelYn(Integer delYn) {
         this.delYn = delYn;
+    }
+
+    public Integer getCreditLogId() {
+        return creditLogId;
+    }
+
+    public void setCreditLogId(Integer creditLogId) {
+        this.creditLogId = creditLogId;
     }
 }

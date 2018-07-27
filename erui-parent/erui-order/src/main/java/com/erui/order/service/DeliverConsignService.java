@@ -1,5 +1,6 @@
 package com.erui.order.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.DeliverNotice;
 import com.erui.order.entity.Order;
@@ -65,5 +66,5 @@ public interface DeliverConsignService {
 
     DeliverConsign queryCreditData(Order order) throws Exception;
 
-    void  buyerCreditPaymentByOrder(Order order ,Integer flag,BigDecimal orderMoney) throws Exception;
+    JSONObject buyerCreditPaymentByOrder(Order order , Integer flag, BigDecimal orderMoney) throws Exception;
 }

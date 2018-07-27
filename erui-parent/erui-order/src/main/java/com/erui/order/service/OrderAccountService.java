@@ -34,7 +34,7 @@ public interface OrderAccountService {
      *  根据收款信息id 逻辑删除
      * @param id       收款信息id
      */
-    void delGatheringRecord(ServletRequest request,Integer id);
+    void delGatheringRecord(ServletRequest request,Integer id) throws Exception;
 
 
     /**

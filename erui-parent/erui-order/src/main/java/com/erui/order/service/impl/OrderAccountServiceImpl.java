@@ -1,8 +1,12 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.*;
@@ -14,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -58,6 +63,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Autowired
     private DeliverConsignService deliverConsignService;
 
+    @Value("#{orderProp[CREDIT_EXTENSION]}")
+    private String creditExtension;  //授信服务器地址
 
 
   /*  @Value("#{orderProp[CRM_URL]}")
@@ -98,7 +105,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional
-    public void delGatheringRecord(ServletRequest request, Integer id) {
+    public void delGatheringRecord(ServletRequest request, Integer id) throws Exception {
 
 
         /**
@@ -135,6 +142,16 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          *更新订单中已收款总金额
          */
         orderAccountsDispose(id1);
+
+
+        /**
+         * 修改授信额度  删除新增的授信额度
+         */
+        try {
+            delCreditPayment(orderAccounts.getCreditLogId());
+        }catch (Exception e){
+            throw new Exception(e);
+        }
 
 
     }
@@ -204,7 +221,16 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          * 修改授信额度
          */
         try {
-            disposeLineOfCredit(orderAccount1,order1);
+            JSONObject jsonObject = disposeLineOfCredit(orderAccount1, order1);
+            if(jsonObject == null){
+                throw new Exception("授信记录同步失败");
+            }else {
+                Integer log_id = jsonObject.getInteger("log_id");
+                if(log_id > 0 ){
+                    orderAccount1.setCreditLogId(log_id);   //添加授信记录id
+                    orderAccountDao.save(orderAccount1);
+                }
+            }
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -223,11 +249,16 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     public void updateGatheringRecord(ServletRequest request, OrderAcciuntAdd orderAccount) throws Exception {
         OrderAccount orderAccounts = orderAccountDao.findOne(orderAccount.getId()); //查询收款
 
+        BigDecimal money = orderAccounts.getMoney() == null ? BigDecimal.valueOf(0) : orderAccounts.getMoney();    //旧回款金额
+        BigDecimal discount1 = orderAccounts.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccounts.getDiscount(); //旧其他扣款金额
+        BigDecimal formerSumMoney = money.add(discount1);   //旧本笔收款总金额
 
         /**
          * 修改 log日志 订单执行跟踪  订单执行跟踪 回款时间
          */
         OrderLog orderLog = orderLogDao.findByOrderAccountId(orderAccount.getId()); //查询日志
+
+
         Order order = orderAccounts.getOrder(); //订单
         String currencyBn = order.getCurrencyBn();   //金额类型
 
@@ -252,13 +283,30 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
 
         orderAccounts.setUpdateTime(new Date());
-        orderAccountDao.saveAndFlush(orderAccounts);
+        OrderAccount orderAccount1 = orderAccountDao.saveAndFlush(orderAccounts);
 
 
         /**
          *更新订单中已收款总金额
          */
         Order order1 = orderAccountsDispose(order.getId());
+
+
+        /**
+         *  根据修改的收款信息      修改授信额度
+         */
+        try {
+            BigDecimal newMoney = orderAccount1.getMoney() == null ? BigDecimal.valueOf(0) : orderAccount1.getMoney();    //旧回款金额
+            BigDecimal newDiscount1 = orderAccount1.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount1.getDiscount(); //旧其他扣款金额
+            BigDecimal newSumMoney = newMoney.add(newDiscount1);   //旧本笔收款总金额
+
+            if(newSumMoney.compareTo(formerSumMoney) != 0){
+                disposeCreditPayment(order1,newSumMoney,formerSumMoney,orderAccount1);
+            }
+
+        }catch (Exception e){
+            throw new Exception(e);
+        }
 
     }
 
@@ -707,7 +755,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     }
 
 
-    public  void disposeLineOfCredit(OrderAccount orderAccount, Order order) throws Exception {
+    public  JSONObject disposeLineOfCredit(OrderAccount orderAccount, Order order) throws Exception {
         BigDecimal money = orderAccount.getMoney() == null ? BigDecimal.valueOf(0) : orderAccount.getMoney();//回款金额
         BigDecimal discount = orderAccount.getDiscount()  == null ? BigDecimal.valueOf(0) : orderAccount.getDiscount();//其他扣款金额
         BigDecimal moneySum = money.add(discount);   //  本次回款总金额
@@ -727,7 +775,16 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
                     try {
                         //如果金额正好的话     调用授信接口，修改授信额度
-                        deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,moneySum);
+                        JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,moneySum);
+                        Integer code = jsonObject.getInteger("code");   //获取查询状态
+                        if(code != 1){  //查询数据正确返回 1
+                            String message = jsonObject.getString("message");
+                            throw new Exception(message);
+                        }
+                        if(code == 1){
+                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                            return data;
+                        }
                     }catch (Exception e){
                         throw new Exception(e.getMessage());
                     }
@@ -735,7 +792,16 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 }else {
                     try {
                         // 如果还款金额  大于  所欠授信额度的话  直接还给所欠钱数
-                        deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract);
+                        JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract);
+                        Integer code = jsonObject.getInteger("code");   //获取查询状态
+                        if(code != 1){  //查询数据正确返回 1
+                            String message = jsonObject.getString("message");
+                            throw new Exception(message);
+                        }
+                        if(code == 1){
+                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                            return data;
+                        }
                     }catch (Exception e){
                         throw new Exception(e.getMessage());
                     }
@@ -744,8 +810,192 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             }
 
         }
+        return null;
     }
 
 
+    /**
+     * 修改授信额度  删除新增的授信额度
+     * @param creditLogId
+     */
+    public void delCreditPayment(Integer creditLogId) throws Exception {
+
+        //拿取局部返回信息
+        String returnMassage;
+        try {
+            //拼接查询授信路径
+            String url = creditExtension + "V2/Buyercredit/deleteBuyerCreditOrderLogByOrderInfo";
+            //获取token
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+
+            // 根据id获取人员信息
+            String jsonParam = "{\"log_id\":\""+creditLogId+"\"}";
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            returnMassage = HttpRequest.sendPost(url, jsonParam, header);
+            logger.info("人员详情返回信息：" + returnMassage);
+
+            JSONObject jsonObject = JSONObject.parseObject(returnMassage);
+            Integer code = jsonObject.getInteger("code");   //获取查询状态
+            if(code != 1){  //查询数据正确返回 1
+                String message = jsonObject.getString("message");
+                throw new Exception(message);
+            }
+
+        }catch (Exception ex){
+            throw new Exception(String.format("查询授信信息失败"));
+        }
+
+
+    }
+
+
+
+
+    /**
+     * 根据修改的收款信息      计算额度
+     * @param order
+     *  @param newSumMoney     //修改后的收款总金额
+     * @param formerSumMoney    //修改前的收款总金额
+     * @param orderAccount //修改后的收款信息
+     */
+    public void disposeCreditPayment(Order order, BigDecimal newSumMoney, BigDecimal formerSumMoney, OrderAccount orderAccount) throws Exception {
+
+        String crmCode = order.getCrmCode();//crm客户码
+
+        //获取授信信息
+        DeliverConsign deliverConsign = deliverConsignService.queryCreditData(order);
+        BigDecimal lineOfCredit = deliverConsign.getLineOfCredit();//授信额度
+        BigDecimal creditAvailable = deliverConsign.getCreditAvailable();    // 可用授信额度
+        BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //应还授信额度
+
+        if(subtract.compareTo(BigDecimal.valueOf(0)) == -1){ //有应还授信额度再处理，  如果没有可还的不用处理
+
+
+            /**
+             * 处理授信金额
+             */
+
+            BigDecimal add = null; //需要同步到授信的可用授信额度
+
+            BigDecimal subtract1 = newSumMoney.subtract(formerSumMoney);//修改后   -   修改前   =  相差的收款金额
+
+            if(subtract1.compareTo(BigDecimal.valueOf(0)) == -1){ //修改前大，  从授信中减去
+                add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的收款金额负值
+                updateCreditPayment(crmCode,add);  // 修改授信额度
+            }else if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){    //修改后大 ，  添加授信
+                //判断修改后多出的值，是否能还完所欠的授信额度      应还授信额度 >   多出的收款金额
+                if(subtract.compareTo(subtract1) == 1 || subtract.compareTo(subtract1) == 0){ //如果大于或等于   直接新增
+                    add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的正值
+                    try {
+                        updateCreditPayment(crmCode,add);  // 修改授信额度
+                    }catch (Exception e){
+                        throw new Exception(e);
+                    }
+
+                }else { //如果下于，说明收款金额大，只还所欠的授信额度
+                    add = creditAvailable.add(subtract);      // 可用授信额度  +  所欠的授信额度
+                    try {
+                        updateCreditPayment(crmCode,add);  // 修改授信额度
+                    }catch (Exception e){
+                        throw new Exception(e);
+                    }
+                }
+            }
+
+
+            /**
+             * 处理授信记录
+             */
+            try {
+                if(add.compareTo(BigDecimal.valueOf(0)) == 1){
+                    updateCreditPaymentLog(orderAccount.getCreditLogId(), "+"+newSumMoney , add);
+                }
+            }catch (Exception e){
+                throw new Exception(e);
+            }
+
+
+        }
+
+
+
+
+    }
+
+    /**
+     * 根据修改的收款信息      修改授信额度
+     * @param crmCode   //crm客户码
+     * @param creditAvailable    //可用授信额度
+     */
+    public void updateCreditPayment(String crmCode, BigDecimal creditAvailable) throws Exception {
+        //拿取局部返回信息
+        String returnMassage;
+        try {
+            //拼接查询授信路径
+            String url = creditExtension + "V2/Buyercredit/deleteBuyerCreditOrderLogByOrderInfo";
+            //获取token
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+
+            // 根据id获取人员信息
+            String jsonParam = "{\"crm_code\":\""+crmCode+"\",\"credit_available\":\""+creditAvailable+"\"}";
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            returnMassage = HttpRequest.sendPost(url, jsonParam, header);
+            logger.info("人员详情返回信息：" + returnMassage);
+
+            JSONObject jsonObject = JSONObject.parseObject(returnMassage);
+            Integer code = jsonObject.getInteger("code");   //获取查询状态
+            if(code != 1){  //查询数据正确返回 1
+                String message = jsonObject.getString("message");
+                throw new Exception(message);
+            }
+
+        }catch (Exception ex){
+            throw new Exception(String.format("查询授信信息失败"));
+        }
+
+    }
+
+    /**
+     * 根据修改的收款信息       处理授信记录
+     * @param log_id   //日志ID
+     * @param use_credit_granted    //使用额度,带正负号
+     * @param credit_available    //可用额度
+     */
+    public void updateCreditPaymentLog(Integer log_id, String use_credit_granted, BigDecimal credit_available) throws Exception {
+        //拿取局部返回信息
+        String returnMassage;
+        try {
+            //拼接查询授信路径
+            String url = creditExtension + "V2/Buyercredit/deleteBuyerCreditOrderLogByOrderInfo";
+            //获取token
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+
+            // 根据id获取人员信息
+            String jsonParam = "{\"log_id\":\""+log_id+"\",\"use_credit_granted\":\""+use_credit_granted+"\",\"credit_available\":\""+credit_available+"\"}";
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            returnMassage = HttpRequest.sendPost(url, jsonParam, header);
+            logger.info("人员详情返回信息：" + returnMassage);
+
+            JSONObject jsonObject = JSONObject.parseObject(returnMassage);
+            Integer code = jsonObject.getInteger("code");   //获取查询状态
+            if(code != 1){  //查询数据正确返回 1
+                String message = jsonObject.getString("message");
+                throw new Exception(message);
+            }
+
+        }catch (Exception ex){
+            throw new Exception(String.format("同步授信记录失败"));
+        }
+
+    }
 
 }

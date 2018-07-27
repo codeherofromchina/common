@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import javax.validation.constraints.Null;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -217,7 +216,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
 
             try {
-                disposeAdvanceMoney(order,deliverConsign1);
+                JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
+                if(jsonObject == null){
+                    throw new Exception("授信记录同步失败");
+                }
             }catch (Exception e){
                 throw new Exception(e.getMessage());
             }
@@ -313,7 +315,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             
             try {
-                disposeAdvanceMoney(order,deliverConsign1);
+                JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
+                if(jsonObject == null){
+                    throw new Exception("授信记录同步失败");
+                }
             }catch (Exception e){
                 throw new Exception(e.getMessage());
             }
@@ -698,10 +703,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     /**
      * 处理授信额度
      * @param order 订单信息
-     * @param flag  支出还是回款标识
+     * @param flag  支出还是回款标识   1：支出   2：回款
      * @param orderMoney    支出OR回款金额
      */
-    public void  buyerCreditPaymentByOrder(Order order ,Integer flag,BigDecimal orderMoney) throws Exception {
+    public JSONObject buyerCreditPaymentByOrder(Order order , Integer flag, BigDecimal orderMoney) throws Exception {
         String contractNo = order.getContractNo();  //销售合同号
         String crmCode = order.getCrmCode();    //crm编码
 
@@ -729,15 +734,21 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 throw new Exception(message);
             }
 
+            if(code == 1){
+                JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                return data;
+            }
 
         }catch (Exception ex){
             throw new Exception(String.format("查询授信信息失败"));
         }
 
+        return null;
+
     }
 
 
-    public void  disposeAdvanceMoney(Order order , DeliverConsign deliverConsign1) throws Exception {
+    public JSONObject  disposeAdvanceMoney(Order order , DeliverConsign deliverConsign1) throws Exception {
 
         //（1）当“本批次发货金额”≤“预收金额”+“可用授信额度/汇率”时，系统判定可以正常发货。
         //（2）当“本批次发货金额”＞“预收金额”+“可用授信额度/汇率”时，系统判定不允许发货
@@ -764,7 +775,17 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
                 try {
-                    buyerCreditPaymentByOrder(order , 1 ,subtract);
+                    JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, subtract);
+
+                    Integer code = jsonObject.getInteger("code");   //获取查询状态
+                    if(code != 1){  //查询数据正确返回 1
+                        String message = jsonObject.getString("message");
+                        throw new Exception(message);
+                    }
+                    if(code == 1){
+                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                        return data;
+                    }
                 }catch (Exception e){
                     logger.info("查询授信返回信息：" + e);
                     throw new Exception(e);
@@ -774,6 +795,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }else {
             throw new Exception("可用授信额度不足");
         }
+
+        return null;
 
     }
 

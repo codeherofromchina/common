@@ -57,11 +57,19 @@ public class OrderAccountController {
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        orderAccountService.delGatheringRecord(request,orderAcciuntAdd.getId());
-        return new Result<>();
+        try {
+            orderAccountService.delGatheringRecord(request,orderAcciuntAdd.getId());
+            return new Result<>();
+        }catch (Exception e){
+            return new Result<>().setMsg(e.getMessage());
+        }
     }
 
 
