@@ -777,10 +777,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         //  查看可用授信额度
         DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
         if(deliverConsign1 != null){
+
+            BigDecimal flag = null;
+
             BigDecimal creditAvailable = deliverConsign1.getCreditAvailable();// 可用授信额度
             BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit();    //授信额度
-
             BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
+
             if (subtract.compareTo(BigDecimal.valueOf(0)) == 1 ){    //判断是否有欠款   所欠大于0
 
                 //判断本次回款总金额 是否 能够还所欠授信额度
@@ -793,6 +796,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                         if(data == null){  //查询数据正确返回 1
                             throw new Exception("同步授信额度失败");
                         }else {
+                            BigDecimal subtract1 = moneySum.subtract(subtract); //本次回款总金额   -   所欠授信额度  //判断还差多少需要还的
+                            flag = subtract1;
                             return data;
                         }
                     }catch (Exception e){
@@ -801,6 +806,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
                 }else {
                     try {
+
+                        BigDecimal subtract1 = moneySum.subtract(subtract); //本次回款总金额   -   所欠授信额度  //判断多出了多少
+                        flag = subtract1;  //获取正值
                         // 如果还款金额  大于  所欠授信额度的话  直接还给所欠钱数
                         JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract);
                         JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
@@ -813,8 +821,24 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                         throw new Exception(e.getMessage());
                     }
                 }
-
             }
+
+            BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+            BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
+
+            //收款总金额  -  发货总金额
+            BigDecimal subtract1 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+            if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
+                BigDecimal advanceMoney = order.getAdvanceMoney() == null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();
+                BigDecimal add = advanceMoney.add(flag);    //查看是负数还是正数
+                if(add.compareTo(BigDecimal.valueOf(0)) == 1){
+                    order.setAdvanceMoney(add);
+                }else {
+                    order.setAdvanceMoney(BigDecimal.valueOf(0));
+                }
+            }
+
+            orderDao.save(order);
 
         }
         return null;
@@ -874,65 +898,99 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         //获取授信信息
         DeliverConsign deliverConsign = deliverConsignService.queryCreditData(order);
-        BigDecimal lineOfCredit = deliverConsign.getLineOfCredit();//授信额度
-        BigDecimal creditAvailable = deliverConsign.getCreditAvailable();    // 可用授信额度
-        BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //应还授信额度
+        BigDecimal lineOfCredit1 = deliverConsign.getLineOfCredit();    //授信额度
+        if(lineOfCredit1.compareTo(BigDecimal.valueOf(0)) == 1){        //必须有授信额度
+            BigDecimal lineOfCredit = deliverConsign.getLineOfCredit();//授信额度
+            BigDecimal creditAvailable = deliverConsign.getCreditAvailable();    // 可用授信额度
+            BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //应还授信额度
 
-        if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){ //有应还授信额度再处理，  如果没有可还的不用处理
+            if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){ //有应还授信额度再处理，  如果没有可还的不用处理
+
+                /**
+                 * 处理授信金额
+                 */
+
+                BigDecimal advanceMoney = order.getAdvanceMoney();//预收金额
+
+                BigDecimal add = null; //需要同步到授信的可用授信额度
+
+                BigDecimal subtract1 = newSumMoney.subtract(formerSumMoney);//修改后   -   修改前   =  相差的收款金额
+
+                if(subtract1.compareTo(BigDecimal.valueOf(0)) == -1){ //修改前大，  从授信中减去
+                    add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的收款金额负值
+                    try {
+                        updateCreditPayment(crmCode,add);  // 修改授信额度
+                    }catch (Exception e){
+                        throw new Exception(e);
+                    }
+                }else if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){    //修改后大 ，  添加授信
+                    BigDecimal add1 = advanceMoney.add(subtract1);  // 预收金额  +   相差的正值
+
+                    //判断修改后多出的值，是否能还完所欠的授信额度      应还授信额度 >   多出的收款金额
+                    Integer i = subtract.compareTo(subtract1);
+                    if(i == 1 || i == 0){ //如果大于或等于   直接新增
+                        add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的正值
+                        order.setAdvanceMoney(BigDecimal.valueOf(0));
+                        try {
+                            updateCreditPayment(crmCode,add);  // 修改授信额度
+                        }catch (Exception e){
+                            throw new Exception(e);
+                        }
+
+                    }else { //如果小于，说明收款金额大，只还所欠的授信额度
+                        BigDecimal subtract2 = subtract1.subtract(subtract);    //获取多出的值
+                        order.setAdvanceMoney(subtract2.add(advanceMoney));
+                        try {
+                            updateCreditPayment(crmCode,subtract);  // 修改授信额度
+                        }catch (Exception e){
+                            throw new Exception(e);
+                        }
+                    }
+                }
 
 
-            /**
-             * 处理授信金额
-             */
-
-            BigDecimal add = null; //需要同步到授信的可用授信额度
-
-            BigDecimal subtract1 = newSumMoney.subtract(formerSumMoney);//修改后   -   修改前   =  相差的收款金额
-
-            if(subtract1.compareTo(BigDecimal.valueOf(0)) == -1){ //修改前大，  从授信中减去
-                add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的收款金额负值
+                /**
+                 * 处理授信记录
+                 */
                 try {
-                    updateCreditPayment(crmCode,add);  // 修改授信额度
+                    if(add.compareTo(BigDecimal.valueOf(0)) == 1){
+                        updateCreditPaymentLog(reditLogId, "+"+newSumMoney , add);
+                    }
                 }catch (Exception e){
                     throw new Exception(e);
                 }
-            }else if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){    //修改后大 ，  添加授信
-                //判断修改后多出的值，是否能还完所欠的授信额度      应还授信额度 >   多出的收款金额
-                if(subtract.compareTo(subtract1) == 1 || subtract.compareTo(subtract1) == 0){ //如果大于或等于   直接新增
-                    add = creditAvailable.add(subtract1);      // 可用授信额度  +  修改后相差的正值
-                    try {
-                        updateCreditPayment(crmCode,add);  // 修改授信额度
-                    }catch (Exception e){
-                        throw new Exception(e);
+
+
+            }else { //如果授信中没有可还的   优先处理预收的
+
+                BigDecimal advanceMoney = order.getAdvanceMoney();//预收金额
+
+                BigDecimal add = null; //需要同步到授信的可用授信额度
+
+                BigDecimal subtract1 = newSumMoney.subtract(formerSumMoney);//修改后   -   修改前   =  相差的收款金额            可能是正负值
+
+
+                if(subtract1.compareTo(BigDecimal.valueOf(0)) == -1){ //修改前大，  从授信中减去
+                    BigDecimal add1 = advanceMoney.add(subtract1);  // 预收金额  +   相差的负值
+                    if(add1.compareTo(BigDecimal.valueOf(0)) == 1){ //如果是大于，直接修改预收
+                        order.setAdvanceMoney(add1);
+                    }else {     //如果是负值  从授信中去减
+                        try {
+                            add = creditAvailable.add(add1);      //   可用授信额度  +  （预收金额  +   相差的负值   ） =负值的时候
+                            updateCreditPayment(crmCode,add);  // 修改授信额度
+                        }catch (Exception e){
+                            throw new Exception(e);
+                        }
                     }
 
-                }else { //如果下于，说明收款金额大，只还所欠的授信额度
-                    add = creditAvailable.add(subtract);      // 可用授信额度  +  所欠的授信额度
-                    try {
-                        updateCreditPayment(crmCode,add);  // 修改授信额度
-                    }catch (Exception e){
-                        throw new Exception(e);
-                    }
+                }else if(subtract1.compareTo(BigDecimal.valueOf(0)) == 1){    //修改后大 ，  添加授信
+                    BigDecimal add1 = advanceMoney.add(subtract1);  // 预收金额  +   相差的正值
+                        order.setAdvanceMoney(add1);
                 }
             }
-
-
-            /**
-             * 处理授信记录
-             */
-            try {
-                if(add.compareTo(BigDecimal.valueOf(0)) == 1){
-                    updateCreditPaymentLog(reditLogId, "+"+newSumMoney , add);
-                }
-            }catch (Exception e){
-                throw new Exception(e);
-            }
-
-
         }
 
-
-
+    orderDao.save(order);
 
     }
 

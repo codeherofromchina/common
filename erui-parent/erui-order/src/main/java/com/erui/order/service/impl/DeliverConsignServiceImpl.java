@@ -807,7 +807,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     }
 
                 }else {
-                    throw new Exception("可用授信额度不足");
+                    throw new Exception("预收金额和可用授信额度不足");
                 }
             }else {
 
@@ -816,11 +816,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
 
                         if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
-                            throw new Exception("可用授信额度不足");
+                            throw new Exception("预收金额和可用授信额度不足");
                         }
 
                 }else {
-                    throw new Exception("可用授信额度不足");
+                    throw new Exception("预收金额和可用授信额度不足");
                 }
 
             }
