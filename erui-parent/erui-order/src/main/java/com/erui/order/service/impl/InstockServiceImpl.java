@@ -148,14 +148,14 @@ public class InstockServiceImpl implements InstockService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
                 map.put("inspectApplyNo", instock.getInspectApplyNo());
-                List<String> ContractNoList = new ArrayList<>();
-                List<String> projectNoList = new ArrayList<>();
-                List<String> purchNoList = new ArrayList<>();
+                Set<String> contractNoList = new HashSet<>();
+                Set<String> projectNoList = new HashSet<>();
+                Set<String> purchNoList = new HashSet<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
                 instockGoodsList.stream().forEach(instockGoods -> {
                     if (StringUtil.isNotBlank(instockGoods.getContractNo())){
-                        ContractNoList.add(instockGoods.getContractNo());
+                        contractNoList.add(instockGoods.getContractNo());
                     }
                     PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
                     Goods goods = purchGoods.getGoods();
@@ -166,8 +166,11 @@ public class InstockServiceImpl implements InstockService {
                     }
 
                 });
-                map.put("contractNos", StringUtils.join(ContractNoList, ","));
-                map.put("projectNos", StringUtils.join(projectNoList, ","));
+                List<String> cNoList = new ArrayList<>(contractNoList);
+                List<String> pNoList = new ArrayList<>(projectNoList);
+                List<String> prNoList = new ArrayList<>(purchNoList);
+                map.put("contractNos", StringUtils.join(cNoList, ","));
+                map.put("projectNos", StringUtils.join(pNoList, ","));
                 map.put("department", instock.getDepartment());
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
@@ -179,7 +182,7 @@ public class InstockServiceImpl implements InstockService {
                 map.put("uid",instock.getUid());
                 map.put("outCheck",instock.getOutCheck());//是否外检（ 0：否   1：是）
                 if(purchNoList.size() > 0){
-                    map.put("purchNo",StringUtils.join(purchNoList, ","));   //采购合同号
+                    map.put("purchNo",StringUtils.join(prNoList, ","));   //采购合同号
                 }
 
                 list.add(map);
