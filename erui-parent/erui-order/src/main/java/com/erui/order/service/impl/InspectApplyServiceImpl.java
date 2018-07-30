@@ -548,7 +548,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 判断是不是第一次报检并设置相应信息
         if (inspectApply.isMaster()) {
             report.setCheckTimes(1);
-            List<Project> projects = inspectApply.getPurch().getProjects();
+            List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();
+            List<Project> projects = new ArrayList<>();
+            for (InspectApplyGoods iag:inspectApplyGoodsList){
+                projects.add(iag.getGoods().getProject());
+            }
             if (projects != null && projects.size() > 0) {
                 Project project = projects.parallelStream().findFirst().get();
                 report.setCheckUserId(project.getQualityUid());
