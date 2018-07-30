@@ -68,9 +68,9 @@ public class PurchServiceImpl implements PurchService {
             puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
             puch.getAttachments().size(); // 获取采购的附件信息
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
-            if(purchGoodsList.size() > 0){
-                for (PurchGoods purchGoods : purchGoodsList){
-                    purchGoods.getGoods().setPurchGoods(null );
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
                 }
             }
             List<String> projectNoList = new ArrayList<>();
@@ -298,7 +298,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAttachments(attachments);
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
-        List<Project> projectSet = new ArrayList<>();
+        Set<Project> projectSet = new HashSet<>();
         List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 检查是否传入采购数量或者替换商品
@@ -346,7 +346,8 @@ public class PurchServiceImpl implements PurchService {
             throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
         }
         purch.setPurchGoodsList(purchGoodsList);
-        purch.setProjects(projectSet);
+        List<Project> projectList = new ArrayList<>(projectSet);
+        purch.setProjects(projectList);
         // 保存采购单
         purchDao.save(purch);
         // 检查项目是否已经采购完成
@@ -424,7 +425,7 @@ public class PurchServiceImpl implements PurchService {
 
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
-        List<Project> projectSet = new ArrayList<>(); // 声明项目的容器
+        Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
         // 数据库现在的采购商品信息
         Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         Set<Integer> existId = new HashSet<>();
@@ -592,7 +593,8 @@ public class PurchServiceImpl implements PurchService {
 
         }
         dbPurch.setPurchGoodsList(purchGoodsList);
-        dbPurch.setProjects(projectSet);
+        List<Project> projectList = new ArrayList<>(projectSet);
+        dbPurch.setProjects(projectList);
 
         // 删除不关联的商品信息
         if (dbPurchGoodsMap.size() > 0) {
