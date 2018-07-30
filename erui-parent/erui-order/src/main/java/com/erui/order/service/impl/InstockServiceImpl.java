@@ -1,6 +1,5 @@
 package com.erui.order.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
@@ -13,11 +12,9 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
-import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.InstockService;
-import javassist.expr.NewArray;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,9 +148,9 @@ public class InstockServiceImpl implements InstockService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
                 map.put("inspectApplyNo", instock.getInspectApplyNo());
-                Set<String> ContractNoList = new HashSet<>();
-                Set<String> projectNoList = new HashSet<>();
-                Set<String> purchNoList = new HashSet<>();
+                List<String> ContractNoList = new ArrayList<>();
+                List<String> projectNoList = new ArrayList<>();
+                List<String> purchNoList = new ArrayList<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
                 instockGoodsList.stream().forEach(instockGoods -> {

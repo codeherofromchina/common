@@ -230,12 +230,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 //到货报检通知：到货报检单下达后同时通知质检经办人
                 Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
                 Set<String> purchaseNameList = new HashSet<>(); //采购经办人
-                for (Project project : purch.getProjects()) {
-                    if (StringUtil.isNotBlank(project.getQualityName())) {
-                        qualityNameList.add(project.getQualityUid());
+                for (InspectApplyGoods inspectApplyGoods : mapIGoods.getValue()) {
+                    if (StringUtil.isNotBlank(inspectApplyGoods.getGoods().getProject().getQualityName())) {
+                        qualityNameList.add(inspectApplyGoods.getGoods().getProject().getQualityUid());
                     }
-                    if (StringUtil.isNotBlank(project.getPurchaseName())) {
-                        purchaseNameList.add(project.getPurchaseName());
+                    if (StringUtil.isNotBlank(inspectApplyGoods.getGoods().getProject().getPurchaseName())) {
+                        purchaseNameList.add(inspectApplyGoods.getGoods().getProject().getPurchaseName());
                     }
                 }
                 String qualityNames = StringUtils.join(qualityNameList, ",");  //质检经办人
