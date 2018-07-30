@@ -225,9 +225,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          */
         try {
             JSONObject jsonObject = disposeLineOfCredit(orderAccount1, order1);
-            if(jsonObject == null){
-                throw new Exception("授信记录同步失败");
-            }else {
+            if(jsonObject != null) {
                 Integer log_id = jsonObject.getInteger("log_id");
                 if(log_id > 0 ){
                     orderAccount1.setCreditLogId(log_id);   //添加授信记录id
@@ -299,18 +297,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          *  根据修改的收款信息      修改授信额度
          */
         try {
-            BigDecimal newMoney = orderAccount1.getMoney() == null ? BigDecimal.valueOf(0) : orderAccount1.getMoney();    //旧回款金额
-            BigDecimal newDiscount1 = orderAccount1.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount1.getDiscount(); //旧其他扣款金额
-            BigDecimal newSumMoney = newMoney.add(newDiscount1);   //旧本笔收款总金额
 
-            if(newSumMoney.compareTo(formerSumMoney) != 0){
-                try {
-                    disposeCreditPayment(order1,newSumMoney,formerSumMoney,orderAccount1);
-                }catch (Exception e){
-                    throw new Exception(e);
+            Integer creditLogId = orderAccount1.getCreditLogId();       //授信记录id
+
+            if(creditLogId != null){
+                BigDecimal newMoney = orderAccount1.getMoney() == null ? BigDecimal.valueOf(0) : orderAccount1.getMoney();    //旧回款金额
+                BigDecimal newDiscount1 = orderAccount1.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount1.getDiscount(); //旧其他扣款金额
+                BigDecimal newSumMoney = newMoney.add(newDiscount1);   //旧本笔收款总金额
+
+                if(newSumMoney.compareTo(formerSumMoney) != 0){
+
+                    try {
+                        disposeCreditPayment(order1,newSumMoney,formerSumMoney,creditLogId);
+                    }catch (Exception e){
+                        throw new Exception(e);
+                    }
+
                 }
-
             }
+
 
         }catch (Exception e){
             throw new Exception(e);
@@ -861,9 +866,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param order
      *  @param newSumMoney     //修改后的收款总金额
      * @param formerSumMoney    //修改前的收款总金额
-     * @param orderAccount //修改后的收款信息
+     * @param reditLogId //
      */
-    public void disposeCreditPayment(Order order, BigDecimal newSumMoney, BigDecimal formerSumMoney, OrderAccount orderAccount) throws Exception {
+    public void disposeCreditPayment(Order order, BigDecimal newSumMoney, BigDecimal formerSumMoney, Integer reditLogId) throws Exception {
 
         String crmCode = order.getCrmCode();//crm客户码
 
@@ -917,7 +922,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
              */
             try {
                 if(add.compareTo(BigDecimal.valueOf(0)) == 1){
-                    updateCreditPaymentLog(orderAccount.getCreditLogId(), "+"+newSumMoney , add);
+                    updateCreditPaymentLog(reditLogId, "+"+newSumMoney , add);
                 }
             }catch (Exception e){
                 throw new Exception(e);

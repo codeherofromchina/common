@@ -103,21 +103,30 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }catch (Exception e){
                 throw  new Exception(e.getMessage());
             }
-            //如果是保存状态，可用授信额度需要实时更新
-            deliverConsign.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
 
+            if(deliverConsign1 != null){
+                //如果是保存状态，可用授信额度需要实时更新
+                deliverConsign.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
 
-            //获取预收
-            BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
-            BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
+                //获取预收
+                BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+                BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
 
-            //收款总金额  -  发货总金额
-            BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
-            if(subtract.compareTo(BigDecimal.valueOf(0)) != -1 ){    //-1 小于     0 等于      1 大于
-                deliverConsign.setAdvanceMoney(subtract);     //预收金额
+                //收款总金额  -  发货总金额
+                BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+                if(subtract.compareTo(BigDecimal.valueOf(0)) != -1 ){    //-1 小于     0 等于      1 大于
+                    deliverConsign.setAdvanceMoney(subtract);     //预收金额
+                }else {
+                    deliverConsign.setAdvanceMoney(BigDecimal.valueOf(0.00));     //预收金额
+                }
+
             }else {
-                deliverConsign.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
+                deliverConsign.setCreditAvailable(BigDecimal.valueOf(0.00));    //可用授信额度
+                deliverConsign.setAdvanceMoney(BigDecimal.valueOf(0.00));     //预收金额
             }
+
+
+
 
         }
 
@@ -217,9 +226,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             try {
                 JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
-                if(jsonObject == null){
-                    throw new Exception("授信记录同步失败");
-                }
             }catch (Exception e){
                 throw new Exception(e.getMessage());
             }
@@ -316,9 +322,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             
             try {
                 JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
-                if(jsonObject == null){
-                    throw new Exception("授信记录同步失败");
-                }
             }catch (Exception e){
                 throw new Exception(e.getMessage());
             }
@@ -645,58 +648,62 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         JSONObject jsonObject = JSONObject.parseObject(returnMassage);
         Integer code = jsonObject.getInteger("code");   //获取查询状态
-        if(code != 1){  //查询数据正确返回 1
+        if(code != 1 ||  code != 401){  //查询数据正确返回 1
             String message = jsonObject.getString("message");
             throw new Exception(message);
         }
+        if(code == 1 ){
+            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
 
-        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
-
-        BigDecimal nolcGranted = BigDecimal.valueOf(0);
-        BigDecimal lcgranted = BigDecimal.valueOf(0);
-        String accountSettle = null;
-        BigDecimal creditAvailable = null;
-        if (data != null){
-            nolcGranted = data.getBigDecimal("nolc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("nolc_granted"); //非信用证授信额度
-            lcgranted = data.getBigDecimal("lc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("lc_granted"); // 信用证授信额度
-            accountSettle = data.getString("account_settle"); // OA",(OA非信用证;L/C信用证)
-            creditAvailable = data.getBigDecimal("credit_available"); // 可用授信额度
-        }
-
-        //收款方式：
-        //L/C:信用证，授信使用信用证
-        //OA:托收，电汇，信汇，票汇，授信使用非信用证
-        String paymentModeBn = order.getPaymentModeBn();    //获取订单收款方式
-        String accountSettles = null;   //收款方式属于什么授信类型
-
-        if(paymentModeBn != null){
-            if(paymentModeBn.equals("1")){ //  1:信用证          //['1' => '信用证','2' => '托收','3'=>"电汇",'4'=>"信汇",'5'=>"票汇"];
-                accountSettles = "L/C";
-            }else if(paymentModeBn.equals("2") || paymentModeBn.equals("3") || paymentModeBn.equals("4") || paymentModeBn.equals("5") ){
-                accountSettles = "OA";
+            BigDecimal nolcGranted = BigDecimal.valueOf(0);
+            BigDecimal lcgranted = BigDecimal.valueOf(0);
+            String accountSettle = null;
+            BigDecimal creditAvailable = null;
+            if (data != null){
+                nolcGranted = data.getBigDecimal("nolc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("nolc_granted"); //非信用证授信额度
+                lcgranted = data.getBigDecimal("lc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("lc_granted"); // 信用证授信额度
+                accountSettle = data.getString("account_settle"); // OA",(OA非信用证;L/C信用证)
+                creditAvailable = data.getBigDecimal("credit_available"); // 可用授信额度
             }
-        }
 
-        DeliverConsign deliverConsign = new DeliverConsign();
+            //收款方式：
+            //L/C:信用证，授信使用信用证
+            //OA:托收，电汇，信汇，票汇，授信使用非信用证
+            String paymentModeBn = order.getPaymentModeBn();    //获取订单收款方式
+            String accountSettles = null;   //收款方式属于什么授信类型
 
-        if(accountSettle != null && accountSettles != null){
-            if(accountSettle.equals(accountSettles) && accountSettle.equals("L/C")){    //信用证
-                deliverConsign.setLineOfCredit(lcgranted);   //信用证授信额度
-                deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+            if(paymentModeBn != null){
+                if(paymentModeBn.equals("1")){ //  1:信用证          //['1' => '信用证','2' => '托收','3'=>"电汇",'4'=>"信汇",'5'=>"票汇"];
+                    accountSettles = "L/C";
+                }else if(paymentModeBn.equals("2") || paymentModeBn.equals("3") || paymentModeBn.equals("4") || paymentModeBn.equals("5") ){
+                    accountSettles = "OA";
+                }
+            }
 
-            }else if (accountSettle.equals(accountSettles) && accountSettle.equals("OA")){  //非信用证
-                deliverConsign.setLineOfCredit(nolcGranted);   //非信用证授信额度
-                deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+            DeliverConsign deliverConsign = new DeliverConsign();
+
+            if(accountSettle != null && accountSettles != null){
+                if(accountSettle.equals(accountSettles) && accountSettle.equals("L/C")){    //信用证
+                    deliverConsign.setLineOfCredit(lcgranted);   //信用证授信额度
+                    deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+
+                }else if (accountSettle.equals(accountSettles) && accountSettle.equals("OA")){  //非信用证
+                    deliverConsign.setLineOfCredit(nolcGranted);   //非信用证授信额度
+                    deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+                }else {
+                    deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
+                    deliverConsign.setCreditAvailable(BigDecimal.valueOf(0));    // 可用授信额度
+                }
             }else {
                 deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
                 deliverConsign.setCreditAvailable(BigDecimal.valueOf(0));    // 可用授信额度
             }
-        }else {
-            deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
-            deliverConsign.setCreditAvailable(BigDecimal.valueOf(0));    // 可用授信额度
+
+            return deliverConsign;
         }
 
-        return deliverConsign;
+        return  null;
+
     }
 
 
@@ -752,9 +759,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         //（1）当“本批次发货金额”≤“预收金额”+“可用授信额度/汇率”时，系统判定可以正常发货。
         //（2）当“本批次发货金额”＞“预收金额”+“可用授信额度/汇率”时，系统判定不允许发货
-        BigDecimal advanceMoney = order.getAdvanceMoney()== null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();//预收金额      /应收账款余额
-        BigDecimal thisShipmentsMoney = deliverConsign1.getThisShipmentsMoney()== null ? BigDecimal.valueOf(0) : deliverConsign1.getThisShipmentsMoney();//本批次发货金额
-        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单中利率
+        BigDecimal advanceMoney = order.getAdvanceMoney()== null ? BigDecimal.valueOf(0.00) : order.getAdvanceMoney();//预收金额      /应收账款余额
+        BigDecimal thisShipmentsMoney = deliverConsign1.getThisShipmentsMoney()== null ? BigDecimal.valueOf(0.00) : deliverConsign1.getThisShipmentsMoney();//本批次发货金额
+        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0.00) : order.getExchangeRate();//订单中利率
 
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData;
@@ -765,31 +772,34 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             logger.info("查询授信返回信息：" + e);
             throw new Exception(e);
         }
-        BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable();//可用授信额度
-        BigDecimal divide = creditAvailable.divide(exchangeRate);//可用授信额度/利率
-        BigDecimal add = divide.add(advanceMoney);  //预收金额”+“可用授信额度/汇率      可发货额度
 
-        if (add.compareTo(thisShipmentsMoney) == 1 || add.compareTo(thisShipmentsMoney) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
+        if(deliverConsignByCreditData != null){
+            BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable();//可用授信额度
+            BigDecimal divide = creditAvailable.divide(exchangeRate);//可用授信额度/利率
+            BigDecimal add = divide.add(advanceMoney);  //预收金额”+“可用授信额度/汇率      可发货额度
 
-            BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
+            if (add.compareTo(thisShipmentsMoney) == 1 || add.compareTo(thisShipmentsMoney) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
 
-            if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
-                try {
-                    JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, subtract);
-                    JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
-                    if(data == null){  //查询数据正确返回 1
-                        throw new Exception("同步授信额度失败");
-                    }else {
-                        return data;
+                BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
+
+                if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
+                    try {
+                        JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, subtract);
+                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                        if(data == null){  //查询数据正确返回 1
+                            throw new Exception("同步授信额度失败");
+                        }else {
+                            return data;
+                        }
+                    }catch (Exception e){
+                        logger.info("查询授信返回信息：" + e);
+                        throw new Exception(e);
                     }
-                }catch (Exception e){
-                    logger.info("查询授信返回信息：" + e);
-                    throw new Exception(e);
                 }
-            }
 
-        }else {
-            throw new Exception("可用授信额度不足");
+            }else {
+                throw new Exception("可用授信额度不足");
+            }
         }
 
         return null;

@@ -137,13 +137,17 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
-            order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
-            order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
-
+            if(deliverConsign1 != null){
+                order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
+                order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
+            }else {
+                order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
+                order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
+            }
         }catch (Exception e){
             logger.info("CRM返回信息：" + e);
-            order.setLineOfCredit(BigDecimal.valueOf(0)); //授信额度
-            order.setCreditAvailable(BigDecimal.valueOf(0)); //可用授信额度
+            order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
+            order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
         }
         //end
 
