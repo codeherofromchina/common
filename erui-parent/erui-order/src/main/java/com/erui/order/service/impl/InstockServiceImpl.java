@@ -194,13 +194,14 @@ public class InstockServiceImpl implements InstockService {
     }
 
     private List<String> removeRepeat(List<String> list) {
+        List<String> myList = new ArrayList<>();
         if (list.size() > 0) {
             for (int i = 0; i < list.size(); i++) {
-                if (!list.contains(list.get(i))) {
-                    list.add(list.get(i));
+                if (!myList.contains(list.get(i))) {
+                    myList.add(list.get(i));
                 }
             }
-            return list;
+            return myList;
         }
         return null;
     }
