@@ -166,11 +166,11 @@ public class InstockServiceImpl implements InstockService {
                     }
 
                 });
-                Set<String> cNoList = new HashSet<>(contractNoList);
+              /*  Set<String> cNoList = new HashSet<>(contractNoList);
                 Set<String> pNoList = new HashSet<>(projectNoList);
-                Set<String> prNoList = new HashSet<>(purchNoList);
-                map.put("contractNos", StringUtils.join(cNoList, ","));
-                map.put("projectNos", StringUtils.join(pNoList, ","));
+                Set<String> prNoList = new HashSet<>(purchNoList);*/
+                map.put("contractNos", StringUtils.join(removeRepeat(contractNoList), ","));
+                map.put("projectNos", StringUtils.join(removeRepeat(projectNoList), ","));
                 map.put("department", instock.getDepartment());
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
@@ -182,7 +182,7 @@ public class InstockServiceImpl implements InstockService {
                 map.put("uid", instock.getUid());
                 map.put("outCheck", instock.getOutCheck());//是否外检（ 0：否   1：是）
                 if (purchNoList.size() > 0) {
-                    map.put("purchNo", StringUtils.join(prNoList, ","));   //采购合同号
+                    map.put("purchNo", StringUtils.join(removeRepeat(purchNoList), ","));   //采购合同号
                 }
 
                 list.add(map);
@@ -193,6 +193,17 @@ public class InstockServiceImpl implements InstockService {
         return resultPage;
     }
 
+    private List<String> removeRepeat(List<String> list) {
+        if (list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                if (!list.contains(list.get(i))) {
+                    list.add(list.get(i));
+                }
+            }
+            return list;
+        }
+        return null;
+    }
 
     // 根据销售号和项目号查询采购列表信息
     private Set<Instock> findByProjectNoAndContractNo(String projectNo, String contractNo) {
