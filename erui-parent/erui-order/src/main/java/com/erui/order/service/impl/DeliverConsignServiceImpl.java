@@ -773,7 +773,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             throw new Exception(e);
         }
 
-        if(deliverConsignByCreditData != null){
             BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable();//可用授信额度
             BigDecimal divide = creditAvailable.divide(exchangeRate);//可用授信额度/利率
             BigDecimal add = divide.add(advanceMoney);  //预收金额”+“可用授信额度/汇率      可发货额度
@@ -782,7 +781,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
                 BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
 
-                if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
+
+                BigDecimal lineOfCredit = deliverConsignByCreditData.getLineOfCredit(); //授信额度
+                if(subtract.compareTo(BigDecimal.valueOf(0)) == 1 && lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1 ){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
                     try {
                         JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, subtract);
                         JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
@@ -800,7 +801,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }else {
                 throw new Exception("可用授信额度不足");
             }
-        }
 
         return null;
 
