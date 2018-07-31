@@ -34,7 +34,7 @@ public interface OrderAccountService {
      *  根据收款信息id 逻辑删除
      * @param id       收款信息id
      */
-    void delGatheringRecord(ServletRequest request,Integer id);
+    void delGatheringRecord(ServletRequest request,Integer id) throws Exception;
 
 
     /**
@@ -50,7 +50,7 @@ public interface OrderAccountService {
      * @param orderAccount
      * @return
      */
-    void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount);
+    void updateGatheringRecord(ServletRequest request,OrderAcciuntAdd orderAccount) throws Exception;
 
 
 
@@ -89,7 +89,7 @@ public interface OrderAccountService {
      * @param request
      * @param id
      */
-    void delOrderAccountDeliver(ServletRequest request, Integer id);
+    void delOrderAccountDeliver(ServletRequest request, Integer id) throws Exception;
 
     /**
      *  添加一条发货信息
@@ -104,5 +104,5 @@ public interface OrderAccountService {
      * @param request
      * @param orderAccount
      */
-    void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount);
+    void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) throws Exception;
 }

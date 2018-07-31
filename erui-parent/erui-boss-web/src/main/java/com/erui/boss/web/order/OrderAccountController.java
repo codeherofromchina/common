@@ -3,6 +3,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderAccount;
 import com.erui.order.entity.OrderAccountDeliver;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -55,11 +58,19 @@ public class OrderAccountController {
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
     public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        orderAccountService.delGatheringRecord(request,orderAcciuntAdd.getId());
-        return new Result<>();
+        try {
+            orderAccountService.delGatheringRecord(request,orderAcciuntAdd.getId());
+            return new Result<>();
+        }catch (Exception e){
+            return new Result<>().setMsg(e.getMessage());
+        }
     }
 
 
@@ -70,6 +81,10 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "addGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Result<Object> result = new Result<>();
         if(orderAcciuntAdd == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -113,7 +128,12 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value="findById", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> findById(@RequestBody OrderAcciuntAdd orderAcciuntAdd){
+    public Result<Object> findById(@RequestBody OrderAcciuntAdd orderAcciuntAdd , ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
+
         Result<Object> result = new Result<>();
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             result.setCode(ResultStatusEnum.FAIL.getCode());
@@ -138,6 +158,10 @@ public class OrderAccountController {
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Result<Object> result = new Result<>();
         if(orderAccount == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -152,7 +176,11 @@ public class OrderAccountController {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("回款时间不能为空");
         }else {
-            orderAccountService.updateGatheringRecord(request,orderAccount);
+            try {
+                orderAccountService.updateGatheringRecord(request,orderAccount);
+            }catch (Exception e){
+                return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
+            }
         }
         return new Result<>();
     }
@@ -164,7 +192,11 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "endGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount){
+    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount ,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Result<Object> result = new Result<>();
         if(orderAccount == null || orderAccount.getId() == null){
             result.setCode(ResultStatusEnum.FAIL.getCode());
@@ -188,7 +220,11 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "gatheringMessage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringMessage(@RequestBody Order order){
+    public Result<Object> gatheringMessage(@RequestBody Order order ,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         if(order == null || order.getId() == null){
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
@@ -208,7 +244,10 @@ public class OrderAccountController {
      * @return
      */
    @RequestMapping(value = "gatheringManage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringManage(@RequestBody OrderListCondition condition){
+    public Result<Object> gatheringManage(@RequestBody OrderListCondition condition,ServletRequest request){
+       String eruiToken = CookiesUtil.getEruiToken(request);
+       ThreadLocalUtil.setObject(eruiToken);
+
        Page<Order> orderbyId= orderAccountService.gatheringManage(condition);
        for (Order order1 : orderbyId){
            order1.setAttachmentSet(null);
@@ -227,7 +266,11 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value="queryOrderAccountDeliver", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> queryOrderAccountDeliver(@RequestBody Map<String,Integer> map){
+    public Result<Object> queryOrderAccountDeliver(@RequestBody Map<String,Integer> map,ServletRequest request){
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         List<OrderAccountDeliver> orderAccountDeliversList = orderAccountService.queryOrderAccountDeliver(map.get("id"));
         for (OrderAccountDeliver orderAccountDeliver :orderAccountDeliversList){
             orderAccountDeliver.setOrder(null);
@@ -245,8 +288,13 @@ public class OrderAccountController {
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货信息id不能为空");
         }
-        orderAccountService.delOrderAccountDeliver(request,orderAcciuntAdd.getId());
-        return new Result<>();
+        try {
+            orderAccountService.delOrderAccountDeliver(request,orderAcciuntAdd.getId());
+            return new Result<>();
+        }catch (Exception e){
+            return new Result<>().setMsg(e.getMessage());
+        }
+
     }
 
 
@@ -307,7 +355,14 @@ public class OrderAccountController {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
         }else if (orderAccount.getDeliverDate() == null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货时间不能为空");
-        }else {orderAccountService.updateOrderAccountDeliver(request, orderAccount);return new Result<>();}
+        }else {
+            try {
+                orderAccountService.updateOrderAccountDeliver(request, orderAccount);
+                return new Result<>();
+            }catch (Exception e){
+                return new Result<>().setMsg(e.getMessage());
+            }
+        }
 
     }
 

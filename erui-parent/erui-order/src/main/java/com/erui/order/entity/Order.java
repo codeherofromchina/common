@@ -301,6 +301,21 @@ public class Order {
         return inspectN;
     }
 
+    @Column(name = "advance_money")
+    private BigDecimal advanceMoney;    //预收金额
+
+    @Transient
+    private BigDecimal lineOfCredit;    //授信额度
+
+    @Transient
+    private BigDecimal creditAvailable;    //可用授信额度
+
+
+    @Transient
+    private BigDecimal thisShipmentsMoney;    //本批次发货金额   未用到返回字段使用
+
+
+
     public void setInspectN(Integer inspectN) {
         this.inspectN = inspectN;
     }
@@ -1130,5 +1145,37 @@ public class Order {
             }
         }
         return null;
+    }
+
+    public BigDecimal getLineOfCredit() {
+        return lineOfCredit;
+    }
+
+    public void setLineOfCredit(BigDecimal lineOfCredit) {
+        this.lineOfCredit = lineOfCredit;
+    }
+
+    public BigDecimal getCreditAvailable() {
+        return creditAvailable;
+    }
+
+    public void setCreditAvailable(BigDecimal creditAvailable) {
+        this.creditAvailable = creditAvailable;
+    }
+
+    public BigDecimal getThisShipmentsMoney() {
+        return thisShipmentsMoney;
+    }
+
+    public void setThisShipmentsMoney(BigDecimal thisShipmentsMoney) {
+        this.thisShipmentsMoney = thisShipmentsMoney;
+    }
+
+    public BigDecimal getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(BigDecimal advanceMoney) {
+        this.advanceMoney = advanceMoney;
     }
 }
