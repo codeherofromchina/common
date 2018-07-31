@@ -824,7 +824,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
         if(deliverConsign1 != null && deliverConsign1.getLineOfCredit() != null && deliverConsign1.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
 
-            BigDecimal flag = null;
+            BigDecimal flag = BigDecimal.valueOf(0);
 
             BigDecimal creditAvailable = deliverConsign1.getCreditAvailable().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);// 可用授信额度
             BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
