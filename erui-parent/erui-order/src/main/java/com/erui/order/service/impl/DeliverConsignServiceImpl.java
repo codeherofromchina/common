@@ -766,9 +766,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         //（1）当“本批次发货金额”≤“预收金额”+“可用授信额度/汇率”时，系统判定可以正常发货。
         //（2）当“本批次发货金额”＞“预收金额”+“可用授信额度/汇率”时，系统判定不允许发货
-        BigDecimal advanceMoney = deliverConsign1.getAdvanceMoney()== null ? BigDecimal.valueOf(0.00) : deliverConsign1.getAdvanceMoney();//预收金额      /应收账款余额
+        BigDecimal advanceMoney = order.getAdvanceMoney()== null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();//预收金额      /应收账款余额
         BigDecimal thisShipmentsMoney = deliverConsign1.getThisShipmentsMoney()== null ? BigDecimal.valueOf(0.00) : deliverConsign1.getThisShipmentsMoney();//本批次发货金额
-        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0.00) : order.getExchangeRate();//订单中利率
+        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单中利率
 
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData;
@@ -782,7 +782,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getCreditAvailable() ;//可用授信额度
             BigDecimal divide = creditAvailable.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);//可用授信额度/利率
-            BigDecimal add = divide.add(advanceMoney);  //预收金额”+“可用授信额度/汇率      可发货额度
+            BigDecimal add = divide.add(advanceMoney);  //“可用授信额度/汇率 + 预收金额”      可发货额度
 
             BigDecimal lineOfCredit = deliverConsignByCreditData.getLineOfCredit() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getLineOfCredit(); //授信额度
             if( lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1 ){   // 判断是否有授信额度
