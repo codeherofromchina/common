@@ -767,7 +767,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         //（2）当“本批次发货金额”＞“预收金额”+“可用授信额度/汇率”时，系统判定不允许发货
         BigDecimal advanceMoney = order.getAdvanceMoney()== null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();//预收金额      /应收账款余额
         BigDecimal thisShipmentsMoney = deliverConsign1.getThisShipmentsMoney()== null ? BigDecimal.valueOf(0.00) : deliverConsign1.getThisShipmentsMoney();//本批次发货金额
-        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单中利率
+        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
 
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData;
@@ -785,28 +785,40 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             BigDecimal lineOfCredit = deliverConsignByCreditData.getLineOfCredit() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getLineOfCredit(); //授信额度
             if( lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1 ){   // 判断是否有授信额度
-                if (add.compareTo(thisShipmentsMoney) == 1 || add.compareTo(thisShipmentsMoney) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
 
-                    BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);
+                BigDecimal subtract1 = advanceMoney.subtract(thisShipmentsMoney); //预收  减去  本次发货金额
 
+                if(subtract1.compareTo(BigDecimal.valueOf(0)) == -1){   //先判断是否有预收，预收够不够本次发货的
 
-                    if(subtract.compareTo(BigDecimal.valueOf(0)) == 1 ){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
-                        try {
-                            JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, subtract);
-                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
-                            if(data == null){  //查询数据正确返回 1
-                                throw new Exception("同步授信额度失败");
-                            }else {
-                                return data;
+                    //判断授信额度够不够
+                    BigDecimal add1 = divide.add(subtract1);
+
+                    if(add1.compareTo(BigDecimal.valueOf(0)) == 1 || add1.compareTo(BigDecimal.valueOf(0)) == 0){  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
+
+                        BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);    // 本次发货金额  -  预收金额  = 需要使用授信的额度
+
+                        BigDecimal multiply = subtract.multiply(exchangeRate);  //需要使用授信的额度 * 汇率
+
+                        if(multiply.compareTo(BigDecimal.valueOf(0)) == 1 ){  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
+                            try {
+                                JSONObject jsonObject = buyerCreditPaymentByOrder(order, 1, multiply);
+                                JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                                if(data == null){  //查询数据正确返回 1
+                                    throw new Exception("同步授信额度失败");
+                                }else {
+                                    return data;
+                                }
+                            }catch (Exception e){
+                                logger.info("查询授信返回信息：" + e);
+                                throw new Exception(e);
                             }
-                        }catch (Exception e){
-                            logger.info("查询授信返回信息：" + e);
-                            throw new Exception(e);
+                        }else {
+                            throw new Exception("预收金额和可用授信额度不足");
                         }
-                    }
 
-                }else {
-                    throw new Exception("预收金额和可用授信额度不足");
+                    }else {
+                        throw new Exception("预收金额和可用授信额度不足");
+                    }
                 }
             }else {
 
