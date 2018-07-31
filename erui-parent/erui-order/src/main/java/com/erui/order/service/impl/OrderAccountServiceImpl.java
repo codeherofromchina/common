@@ -921,7 +921,18 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 orderDao.save(order);
             }
 
+        }else {
+            BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+            BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
+
+            //收款总金额  -  发货总金额
+            BigDecimal subtract1 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+            if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
+                order.setAdvanceMoney(subtract1);
+            }
+            orderDao.save(order);
         }
+
         return null;
     }
 
