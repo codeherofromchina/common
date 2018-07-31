@@ -1172,7 +1172,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             order.setAdvanceMoney(BigDecimal.valueOf(0));
         }
 
-
+        orderDao.save(order);
 
     }
 

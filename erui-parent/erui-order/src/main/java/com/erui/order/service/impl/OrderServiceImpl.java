@@ -124,7 +124,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // and  处理授信数据信息
-        BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+       /* BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
         BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
 
         //收款总金额  -  发货总金额
@@ -133,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAdvanceMoney(subtract);     //预收金额
         }else {
             order.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
-        }
+        }*/
 
         try {
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
