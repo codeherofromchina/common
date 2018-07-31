@@ -821,7 +821,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         //  查看可用授信额度
         DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
-        if(deliverConsign1 != null){
+        if(deliverConsign1 != null && deliverConsign1.getLineOfCredit() != null && deliverConsign1.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
 
             BigDecimal flag = null;
 
