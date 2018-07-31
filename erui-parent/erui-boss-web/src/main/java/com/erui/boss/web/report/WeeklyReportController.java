@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,22 @@ public class WeeklyReportController {
         Map<String, Object> registerData = weeklyReportService.selectBuyerRegistCountGroupByArea(params);
         //查询各地区的时间段内会员数 中国算一个地区
         Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
-        return new Result<>(registerData);
+        // 查询各地区时间段内询单数
+        Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByArea(params);
+        // 查询各个地区时间段内的报价数量和金额信息
+        Map<String,Object> quoteInfoData = weeklyReportService.selectQuoteInfoGroupByArea(params);
+        // 查询各个地区时间段内的订单数量和金额信息
+        Map<String,Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByArea(params);
+
+
+        Map<String,Map> data = new HashMap<>();
+        data.put("registerInfo",registerData); // 新用户注册数据信息
+        data.put("memberNumInfo",buyerData); // 会员数数据信息
+        data.put("inqNumInfo",inqNumInfoData); // 询单数量数据信息
+        data.put("quoteInfo",quoteInfoData); // 报价数量/金额数据信息
+        data.put("orderInfo",orderInfoData); // 订单数量/金额数据信息
+
+        return new Result<>(data);
     }
 
     /**

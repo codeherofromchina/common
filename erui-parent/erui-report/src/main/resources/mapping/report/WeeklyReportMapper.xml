@@ -18,6 +18,103 @@
         GROUP BY area HAVING area IS NOT NULL
     </select>
 
+    <!--根据时间查询各个地区询单总数量-->
+    <select id="selectInquiryCountWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            count(1) AS total,
+            countryCn as area
+        FROM
+            (
+                SELECT
+                    t1.id,
+                    t1.country_bn,
+                    (
+                        CASE t1.country_bn
+                        WHEN 'China' THEN
+                            '中国'
+                        ELSE
+                            t3. NAME
+                        END
+                    ) AS countryCn
+                FROM
+                    erui_rfq.inquiry t1,
+                    erui_operation.market_area_country t2,
+                    erui_operation.market_area t3
+                WHERE
+                    t1.country_bn = t2.country_bn
+                AND t2.market_area_bn = t3.bn
+                AND t3.lang = 'zh'
+                AND t1.created_at BETWEEN DATE_FORMAT(
+                    #{startTime},
+                    "%Y/%m/%d %H:%i:%s"
+                )
+                AND DATE_FORMAT(
+                    #{endTime},
+                    "%Y/%m/%d %H:%i:%s"
+                )
+            ) AS tb
+        GROUP BY
+            countryCn
+    </select>
+
+    <select id="selectQuoteInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            count(id) AS total_num,
+            sum(
+                ifnull(total_quote_price, 0)
+            ) AS total_price,
+            countryCn AS area
+        FROM
+            (
+                SELECT
+                    t1.id,
+                    t2.total_quote_price,
+                    (
+                        CASE t1.country_bn
+                        WHEN 'China' THEN
+                            '中国'
+                        ELSE
+                            t4. NAME
+                        END
+                    ) AS countryCn
+                FROM
+                    erui_rfq.inquiry t1
+                LEFT OUTER JOIN erui_rfq.final_quote t2 ON t1.id = t2.inquiry_id,
+                erui_operation.market_area_country t3,
+                erui_operation.market_area t4
+            WHERE
+                t1.country_bn = t3.country_bn
+            AND t3.market_area_bn = t4.bn
+            AND t4.lang = 'zh'
+            AND t1.quote_status IN ('QUOTED', 'COMPLETED')
+            AND t1.updated_at BETWEEN DATE_FORMAT(
+                #{startTime},
+                "%Y/%m/%d %H:%i:%s"
+            )
+            AND DATE_FORMAT(
+                #{endTime},
+                "%Y/%m/%d %H:%i:%s"
+            )
+            ) AS tb
+        GROUP BY
+            countryCn
+    </select>
 
 
+
+    <select id="selectOrderInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT countryCn AS area, COUNT(id) AS total_num
+            , SUM(ifnull(total_price_usd, 0)) AS total_price
+        FROM (
+            SELECT CASE t1.country
+                    WHEN 'China' THEN '中国'
+                    ELSE t2.name
+                END AS countryCn, t1.id, t1.total_price_usd
+            FROM erui_new_order.order t1, erui_operation.market_area t2
+            WHERE t1.region = t2.bn
+                AND t2.lang = 'zh'
+                AND t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+        ) tb
+        GROUP BY countryCn
+    </select>
 </mapper>
