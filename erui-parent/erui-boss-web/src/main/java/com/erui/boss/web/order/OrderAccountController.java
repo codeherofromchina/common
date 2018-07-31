@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class OrderAccountController {
      */
     @RequestMapping(value="delGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+    public  Result<Object> delGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -80,7 +79,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "addGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+    public  Result<Object> addGatheringRecord(@RequestBody OrderAcciuntAdd orderAcciuntAdd,HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -128,7 +127,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value="findById", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> findById(@RequestBody OrderAcciuntAdd orderAcciuntAdd , ServletRequest request){
+    public Result<Object> findById(@RequestBody OrderAcciuntAdd orderAcciuntAdd , HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -157,7 +156,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "updateGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+    public  Result<Object> updateGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount,HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -192,7 +191,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "endGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount ,ServletRequest request){
+    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount ,HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -220,7 +219,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "gatheringMessage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringMessage(@RequestBody Order order ,ServletRequest request){
+    public Result<Object> gatheringMessage(@RequestBody Order order ,HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -244,7 +243,7 @@ public class OrderAccountController {
      * @return
      */
    @RequestMapping(value = "gatheringManage",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> gatheringManage(@RequestBody OrderListCondition condition,ServletRequest request){
+    public Result<Object> gatheringManage(@RequestBody OrderListCondition condition,HttpServletRequest request){
        String eruiToken = CookiesUtil.getEruiToken(request);
        ThreadLocalUtil.setObject(eruiToken);
 
@@ -266,7 +265,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value="queryOrderAccountDeliver", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> queryOrderAccountDeliver(@RequestBody Map<String,Integer> map,ServletRequest request){
+    public Result<Object> queryOrderAccountDeliver(@RequestBody Map<String,Integer> map,HttpServletRequest request){
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -284,7 +283,7 @@ public class OrderAccountController {
      */
     @RequestMapping(value="delOrderAccountDeliver", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public  Result<Object> delOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+    public  Result<Object> delOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,HttpServletRequest request){
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货信息id不能为空");
         }
@@ -304,7 +303,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "addOrderAccountDeliver",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> addOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,ServletRequest request){
+    public  Result<Object> addOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAcciuntAdd,HttpServletRequest request){
         Result<Object> result = new Result<>();
         if(orderAcciuntAdd == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -344,7 +343,7 @@ public class OrderAccountController {
      * @return
      */
     @RequestMapping(value = "updateOrderAccountDeliver",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public  Result<Object> updateOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAccount,ServletRequest request){
+    public  Result<Object> updateOrderAccountDeliver(@RequestBody OrderAcciuntAdd orderAccount,HttpServletRequest request){
         Result<Object> result = new Result<>();
         if(orderAccount == null ){
             return new Result<>(ResultStatusEnum.DATA_NULL);
