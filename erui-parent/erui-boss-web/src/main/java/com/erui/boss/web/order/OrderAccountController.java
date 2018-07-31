@@ -288,8 +288,13 @@ public class OrderAccountController {
         if(orderAcciuntAdd == null || orderAcciuntAdd.getId() == null){
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货信息id不能为空");
         }
-        orderAccountService.delOrderAccountDeliver(request,orderAcciuntAdd.getId());
-        return new Result<>();
+        try {
+            orderAccountService.delOrderAccountDeliver(request,orderAcciuntAdd.getId());
+            return new Result<>();
+        }catch (Exception e){
+            return new Result<>().setMsg(e.getMessage());
+        }
+
     }
 
 
@@ -350,7 +355,14 @@ public class OrderAccountController {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货金额不能为空");
         }else if (orderAccount.getDeliverDate() == null) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("发货时间不能为空");
-        }else {orderAccountService.updateOrderAccountDeliver(request, orderAccount);return new Result<>();}
+        }else {
+            try {
+                orderAccountService.updateOrderAccountDeliver(request, orderAccount);
+                return new Result<>();
+            }catch (Exception e){
+                return new Result<>().setMsg(e.getMessage());
+            }
+        }
 
     }
 
