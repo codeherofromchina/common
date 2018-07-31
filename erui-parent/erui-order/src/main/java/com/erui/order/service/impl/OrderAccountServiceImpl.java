@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import javax.servlet.ServletRequest;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
@@ -514,7 +515,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void delOrderAccountDeliver(ServletRequest request, Integer id) {
+    public void delOrderAccountDeliver(ServletRequest request, Integer id) throws Exception {
 
         /**
          ** 逻辑删除收款记录
@@ -523,10 +524,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         orderAccountDeliver.setDelYn(0);
         OrderAccountDeliver save = orderAccountDeliverDao.save(orderAccountDeliver);//收款记录  逻辑删除
 
+
+        Order order;
         /**
          * 更新订单中已发货总金额
          */
-        orderAccountDeliverDispose(save.getOrder().getId());
+        try {
+            order  = orderAccountDeliverDispose(save.getOrder().getId());
+        } catch (Exception e) {
+            throw new Exception(String.format("发货信息删除失败"));
+        }
+
+
+        try {
+            if(order != null){
+                disposeAdvanceMoney(order);  //处理预收金额
+            }
+        } catch (Exception e) {
+            throw new Exception(String.format("预收金额更新失败"));
+        }
 
     }
 
@@ -538,16 +554,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addOrderAccountDeliver(OrderAccountDeliver orderAccountDeliver, ServletRequest request) throws Exception {
+
+        Order order;
         try {
             OrderAccountDeliver orderAccountDeliverAdd = orderAccountDeliverDao.save(orderAccountDeliver);
             /**
              * 更新订单中已发货总金额
              */
-            orderAccountDeliverDispose(orderAccountDeliverAdd.getOrder().getId());
+            order = orderAccountDeliverDispose(orderAccountDeliverAdd.getOrder().getId());
         } catch (Exception e) {
             throw new Exception(String.format("发货信息添加失败"));
         }
 
+        try {
+            if(order != null){
+             disposeAdvanceMoney(order);  //处理预收金额
+            }
+        } catch (Exception e) {
+            throw new Exception(String.format("预收金额更新失败"));
+        }
 
     }
 
@@ -561,7 +586,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) {
+    public void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) throws Exception {
         OrderAccountDeliver one = orderAccountDeliverDao.findOne(orderAccount.getId());//查询发货信息
 
         one.setDesc(orderAccount.getDesc());
@@ -570,11 +595,25 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         orderAccountDeliverDao.saveAndFlush(one);
 
-
+        Order order;
         /**
          * 更新订单中已发货总金额
          */
-        orderAccountDeliverDispose(one.getOrder().getId());
+        try {
+            order = orderAccountDeliverDispose(one.getOrder().getId());
+        } catch (Exception e) {
+            throw new Exception(String.format("发货信息添加失败"));
+        }
+
+
+        try {
+            if(order != null){
+                disposeAdvanceMoney(order);  //处理预收金额
+            }
+        } catch (Exception e) {
+            throw new Exception(String.format("预收金额更新失败"));
+        }
+
     }
 
     /**
@@ -703,7 +742,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     //更新订单中已发货总金额
     @Transactional(rollbackFor = Exception.class)
-    public void orderAccountDeliverDispose(Integer orderId){
+    public Order orderAccountDeliverDispose(Integer orderId){
 
         //获取发货信息
         List<OrderAccountDeliver> byOrderIdAndDelYn = orderAccountDeliverDao.findByOrderIdAndDelYn(orderId, 1);
@@ -721,7 +760,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         one.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
         BigDecimal alreadyGatheringMoney = one.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : one.getAlreadyGatheringMoney();  //已收款总金额
         one.setReceivableAccountRemaining(shipmentsMoneySum.subtract(alreadyGatheringMoney));// 应收账款余额
-        orderDao.save(one);
+        Order save = orderDao.save(one);
+        if(save != null){
+            return save;
+        }
+
+        return  null;
     }
 
 
@@ -1072,6 +1116,54 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }catch (Exception ex){
             throw new Exception(String.format("同步授信记录失败"));
         }
+
+    }
+
+    /**
+     * 处理预收金额
+     * @param order
+     */
+    public  void  disposeAdvanceMoney(Order order) throws Exception {
+        BigDecimal shipmentsMoney = order.getShipmentsMoney();//已发货总金额
+        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney();// 已收款总金额
+
+        BigDecimal subtract = alreadyGatheringMoney.subtract(shipmentsMoney);   //多出的 收款 金额
+        if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){
+
+            //查询授信信息
+            DeliverConsign deliverConsign = deliverConsignService.queryCreditData(order);
+
+            BigDecimal lineOfCredit = deliverConsign.getLineOfCredit();//授信额度
+            if(lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1){ //必须有额度
+                //可用授信额度
+                BigDecimal creditAvailable = deliverConsign.getCreditAvailable();
+                //授信额度  -  可用授信额度   判断是否有额度
+                BigDecimal subtract2 = lineOfCredit.subtract(creditAvailable);  //欠授信额度
+                if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1){      //如果有所欠的
+                    BigDecimal subtract1 = subtract2.subtract(subtract);    // 欠授信额度  -  多出的 收款 金额
+                    //如果欠授信额度大   或者正好    取正值。  预收金额为0
+                    if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 || subtract1.compareTo(BigDecimal.valueOf(0)) == 0){
+                        order.setAdvanceMoney(subtract);
+                    }else { //取多出的负值
+                        BigDecimal abs = subtract1.abs(); //取正值
+                        order.setAdvanceMoney(abs);
+                    }
+
+                }else { //如果没有直接处理到  预收金额
+                    order.setAdvanceMoney(subtract);
+                }
+
+            }else { //如果没有多出的直接处理到  预收金额
+                order.setAdvanceMoney(subtract);
+            }
+
+
+
+        }else {
+            order.setAdvanceMoney(BigDecimal.valueOf(0));
+        }
+
+
 
     }
 

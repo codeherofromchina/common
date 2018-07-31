@@ -89,7 +89,7 @@ public interface OrderAccountService {
      * @param request
      * @param id
      */
-    void delOrderAccountDeliver(ServletRequest request, Integer id);
+    void delOrderAccountDeliver(ServletRequest request, Integer id) throws Exception;
 
     /**
      *  添加一条发货信息
@@ -104,5 +104,5 @@ public interface OrderAccountService {
      * @param request
      * @param orderAccount
      */
-    void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount);
+    void updateOrderAccountDeliver(ServletRequest request, OrderAcciuntAdd orderAccount) throws Exception;
 }
