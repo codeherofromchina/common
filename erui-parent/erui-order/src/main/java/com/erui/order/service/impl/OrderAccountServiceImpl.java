@@ -1124,8 +1124,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param order
      */
     public  void  disposeAdvanceMoney(Order order) throws Exception {
-        BigDecimal shipmentsMoney = order.getShipmentsMoney();//已发货总金额
-        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney();// 已收款总金额
+        BigDecimal shipmentsMoney = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();//已发货总金额
+        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();// 已收款总金额
 
         BigDecimal subtract = alreadyGatheringMoney.subtract(shipmentsMoney);   //多出的 收款 金额
         if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){
