@@ -135,14 +135,14 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
-            if(deliverConsign1 != null){
+            if (deliverConsign1 != null) {
                 order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
                 order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
-            }else {
+            } else {
                 order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
                 order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.info("CRM返回信息：" + e);
             order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
             order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
@@ -475,6 +475,7 @@ public class OrderServiceImpl implements OrderService {
             }
             goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
+            goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
             goods.setContractGoodsNum(pGoods.getContractGoodsNum());
@@ -650,6 +651,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
+            goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
             goods.setContractGoodsNum(pGoods.getContractGoodsNum());
