@@ -1,14 +1,13 @@
 package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
-import com.erui.comm.util.data.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 采购信息
@@ -135,7 +134,7 @@ public class Purch {
             joinColumns = @JoinColumn(name = "purch_id"),
             inverseJoinColumns = @JoinColumn(name = "project_id"))
     @JsonIgnore
-    private Set<Project> projects = new HashSet<>();
+    private List<Project> projects = new ArrayList<>();
 /*
     @ManyToMany(mappedBy="purchs")
     @JsonIgnore
@@ -424,11 +423,11 @@ public class Purch {
         this.rows = rows;
     }
 
-    public Set<Project> getProjects() {
+    public List<Project> getProjects() {
         return projects;
     }
 
-    public void setProjects(Set<Project> projects) {
+    public void setProjects(List<Project> projects) {
         this.projects = projects;
     }
 

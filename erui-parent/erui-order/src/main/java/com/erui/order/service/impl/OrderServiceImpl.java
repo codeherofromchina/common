@@ -60,8 +60,6 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private CompanyService companyService;
-    @Autowired
-    private DeliverDetailService deliverDetailService;
 
     @Autowired
     private IogisticsDataService iogisticsDataService;
@@ -101,9 +99,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderDao.findOne(id);
         if (order != null) {
             Integer size = order.getGoodsList().size();
-            if(size > 0 ){
+            if (size > 0) {
                 List<Goods> goodsList = order.getGoodsList();
-                for (Goods goods : goodsList){
+                for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
             }
@@ -124,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // and  处理授信数据信息
-        BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+       /* BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
         BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
 
         //收款总金额  -  发货总金额
@@ -133,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAdvanceMoney(subtract);     //预收金额
         }else {
             order.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
-        }
+        }*/
 
         try {
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
@@ -239,7 +237,7 @@ public class OrderServiceImpl implements OrderService {
                 if (condition.getTechnicalId02() != null) {
                     list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
                 }
-               //事业部
+                //事业部
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId02())) {
                     list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
@@ -713,6 +711,7 @@ public class OrderServiceImpl implements OrderService {
             project.setPurchDone(Boolean.FALSE);
             project.setCreateTime(new Date());
             project.setUpdateTime(new Date());
+            project.setProcessProgress("1");
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息

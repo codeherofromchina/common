@@ -6,7 +6,6 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchService;
@@ -69,9 +68,9 @@ public class PurchServiceImpl implements PurchService {
             puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
             puch.getAttachments().size(); // 获取采购的附件信息
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
-            if(purchGoodsList.size() > 0){
-                for (PurchGoods purchGoods : purchGoodsList){
-                    purchGoods.getGoods().setPurchGoods(null );
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
                 }
             }
             List<String> projectNoList = new ArrayList<>();
@@ -141,8 +140,6 @@ public class PurchServiceImpl implements PurchService {
                 }
                 idSet.add(id);
                 Map<String, Object> map = new HashMap<>();
-
-
                 List<String> contractNoList = new ArrayList<>();
                 List<String> projectNoList = new ArrayList<>();
                 purch.getProjects().stream().forEach(project -> {
@@ -349,7 +346,8 @@ public class PurchServiceImpl implements PurchService {
             throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
         }
         purch.setPurchGoodsList(purchGoodsList);
-        purch.setProjects(projectSet);
+        List<Project> projectList = new ArrayList<>(projectSet);
+        purch.setProjects(projectList);
         // 保存采购单
         purchDao.save(purch);
         // 检查项目是否已经采购完成
@@ -595,7 +593,8 @@ public class PurchServiceImpl implements PurchService {
 
         }
         dbPurch.setPurchGoodsList(purchGoodsList);
-        dbPurch.setProjects(projectSet);
+        List<Project> projectList = new ArrayList<>(projectSet);
+        dbPurch.setProjects(projectList);
 
         // 删除不关联的商品信息
         if (dbPurchGoodsMap.size() > 0) {

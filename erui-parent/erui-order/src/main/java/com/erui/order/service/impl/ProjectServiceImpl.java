@@ -80,11 +80,12 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         Project projectUpdate = projectDao.findOne(project.getId());
+        Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
         if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT && paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-            Order order = projectUpdate.getOrder();
+            //Order order = projectUpdate.getOrder();
             order.setStatus(Order.StatusEnum.INIT.getCode());
             order.setProject(null);
             orderDao.save(order);
@@ -92,10 +93,11 @@ public class ProjectServiceImpl implements ProjectService {
             return true;
         } else {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
-                Order order = projectUpdate.getOrder();
+                //Order order = projectUpdate.getOrder();
                 projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 project.copyProjectDescTo(projectUpdate);
                 order.setStatus(Order.StatusEnum.DONE.getCode());
+                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
                 orderDao.save(order);
             } else {
                 // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
@@ -155,7 +157,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
-                    Order order = projectUpdate.getOrder();
+                    //Order order = projectUpdate.getOrder();
                     try {
                         order.getGoodsList().forEach(gd -> {
                                     gd.setStartDate(projectUpdate.getStartDate());
@@ -528,6 +530,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Project findByIdOrOrderId(Integer id, Integer orderId) {
         Project project = projectDao.findByIdOrOrderId(id, orderId);
         if (project != null) {
+            project.setPurchs(null);
             List<Goods> goodsList = project.getGoodsList();
             if(goodsList.size() > 0){
                 for (Goods goods : goodsList){
@@ -539,7 +542,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return null;
     }
-
     @Override
     public List<Project> findProjectExport(ProjectListCondition condition) {
         Sort sort = new Sort(Sort.Direction.DESC, "id");

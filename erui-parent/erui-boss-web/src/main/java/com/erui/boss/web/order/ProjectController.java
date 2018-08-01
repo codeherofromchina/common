@@ -122,13 +122,15 @@ public class ProjectController {
                 return new Result<>();
             } else {
                 errorMsg = "项目状态错误";
+                return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
             }
         } catch (Exception ex) {
-            errorMsg = ex.getMessage();
+            ex.getMessage();
             logger.error("异常错误", ex);
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }
+
     /**
      * 获取项目详情
      *
@@ -162,6 +164,7 @@ public class ProjectController {
         if (project != null) {
             if (project.getPurchRequisition() != null) {
                 project.getPurchRequisition().setGoodsList(null);
+                project.setPurchs(null);
             }
 
             // 按照父子商品排序

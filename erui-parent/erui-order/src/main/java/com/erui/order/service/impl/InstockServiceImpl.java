@@ -97,14 +97,14 @@ public class InstockServiceImpl implements InstockService {
                 if (StringUtil.isNotBlank(condition.get("status"))) {
                     //Status   0未入库   1已入库
                     int status = Integer.parseInt(condition.get("status"));
-                    if(status == 0){
+                    if (status == 0) {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 3)); //小于
-                    }else if(status == 1){
+                    } else if (status == 1) {
                         list.add(cb.greaterThan(root.get("status").as(Integer.class), 2));  //大于
                     }
                 }
                 //是否外检（ 0：否   1：是）
-                if (StringUtil.isNotBlank(condition.get("outCheck"))){
+                if (StringUtil.isNotBlank(condition.get("outCheck"))) {
                     list.add(cb.equal(root.get("outCheck").as(Integer.class), condition.get("outCheck")));
                 }
                 // 根据入库日期查询
@@ -115,7 +115,7 @@ public class InstockServiceImpl implements InstockService {
                         logger.error("日期转换错误", e);
                     }
                 }
-                  // 仓库经办人
+                // 仓库经办人
                 if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
 
                     Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
@@ -125,12 +125,12 @@ public class InstockServiceImpl implements InstockService {
                 }
 
                 // 销售合同号 、 项目号查询
-                if(StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo")) ){
-                   Set<Integer> a= queryProjectNoAndContractNo(condition.get("projectNo"),condition.get("contractNo"));
+                if (StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo"))) {
+                    Set<Integer> a = queryProjectNoAndContractNo(condition.get("projectNo"), condition.get("contractNo"));
                     Integer[] objectArray2 = a.toArray(new Integer[a.size()]);
-                    if(objectArray2.length == 0){
+                    if (objectArray2.length == 0) {
                         list.add(root.get("id").in(-1));
-                    }else{
+                    } else {
                         list.add(root.get("id").in(objectArray2));
                     }
                 }
@@ -148,38 +148,41 @@ public class InstockServiceImpl implements InstockService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
                 map.put("inspectApplyNo", instock.getInspectApplyNo());
-                Set<String> ContractNoList = new HashSet<>();
-                Set<String> projectNoList = new HashSet<>();
-                Set<String> purchNoList = new HashSet<>();
+                List<String> contractNoList = new ArrayList<>();
+                List<String> projectNoList = new ArrayList<>();
+                List<String> purchNoList = new ArrayList<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
                 instockGoodsList.stream().forEach(instockGoods -> {
-                    if (StringUtil.isNotBlank(instockGoods.getContractNo())){
-                        ContractNoList.add(instockGoods.getContractNo());
+                    if (StringUtil.isNotBlank(instockGoods.getContractNo())) {
+                        contractNoList.add(instockGoods.getContractNo());
                     }
                     PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
                     Goods goods = purchGoods.getGoods();
                     purchNoList.add(purchGoods.getPurch().getPurchNo());
 
-                    if (StringUtil.isNotBlank(goods.getProjectNo())){
+                    if (StringUtil.isNotBlank(goods.getProjectNo())) {
                         projectNoList.add(goods.getProjectNo());
                     }
 
                 });
-                map.put("contractNos", StringUtils.join(ContractNoList, ","));
-                map.put("projectNos", StringUtils.join(projectNoList, ","));
+              /*  Set<String> cNoList = new HashSet<>(contractNoList);
+                Set<String> pNoList = new HashSet<>(projectNoList);
+                Set<String> prNoList = new HashSet<>(purchNoList);*/
+                map.put("contractNos", StringUtils.join(removeRepeat(contractNoList), ","));
+                map.put("projectNos", StringUtils.join(removeRepeat(projectNoList), ","));
                 map.put("department", instock.getDepartment());
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
                 // 入库时间
 
-                map.put("instockDate", instock.getInstockDate() != null?new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()):null);
+                map.put("instockDate", instock.getInstockDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()) : null);
                 map.put("status", instock.getStatus());
                 map.put("uname", instock.getUname());
-                map.put("uid",instock.getUid());
-                map.put("outCheck",instock.getOutCheck());//是否外检（ 0：否   1：是）
-                if(purchNoList.size() > 0){
-                    map.put("purchNo",StringUtils.join(purchNoList, ","));   //采购合同号
+                map.put("uid", instock.getUid());
+                map.put("outCheck", instock.getOutCheck());//是否外检（ 0：否   1：是）
+                if (purchNoList.size() > 0) {
+                    map.put("purchNo", StringUtils.join(removeRepeat(purchNoList), ","));   //采购合同号
                 }
 
                 list.add(map);
@@ -190,6 +193,18 @@ public class InstockServiceImpl implements InstockService {
         return resultPage;
     }
 
+    private List<String> removeRepeat(List<String> list) {
+        List<String> myList = new ArrayList<>();
+        if (list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                if (!myList.contains(list.get(i))) {
+                    myList.add(list.get(i));
+                }
+            }
+            return myList;
+        }
+        return null;
+    }
 
     // 根据销售号和项目号查询采购列表信息
     private Set<Instock> findByProjectNoAndContractNo(String projectNo, String contractNo) {
@@ -214,7 +229,7 @@ public class InstockServiceImpl implements InstockService {
                 }
             });
 
-            if(list != null) {
+            if (list != null) {
                 result = new HashSet<>(list);
             }
 
@@ -303,13 +318,12 @@ public class InstockServiceImpl implements InstockService {
             }
         }
         if (instockGoodsMap.size() > 0) {
-            throw new Exception(String.format("%s%s%s","入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The number of goods in the warehouse"));
+            throw new Exception(String.format("%s%s%s", "入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The number of goods in the warehouse"));
         }
-            instockDao.save(dbInstock);
+        instockDao.save(dbInstock);
 
-            return true;
-        }
-
+        return true;
+    }
 
 
     @Override
@@ -318,7 +332,7 @@ public class InstockServiceImpl implements InstockService {
         Instock instock = instockDao.findOne(id);
         instock.getAttachmentList().size();
         List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
-        for (InstockGoods v :instockGoodsList){
+        for (InstockGoods v : instockGoodsList) {
             InspectApplyGoods inspectApplyGoods = v.getInspectApplyGoods();
             inspectApplyGoods.getPurchGoods().getInspectNum();
             inspectApplyGoods.getGoods().getId();
@@ -350,10 +364,10 @@ public class InstockServiceImpl implements InstockService {
         // 保存基本信息
         dbInstock.setUid(instock.getUid());  //仓库经办人ID
         dbInstock.setUname(instock.getUname());  //仓库经办人名字
-        if(StringUtil.isBlank(dbInstock.getSubmenuName())){
+        if (StringUtil.isBlank(dbInstock.getSubmenuName())) {
             dbInstock.setSubmenuName(name); //分单员经办人姓名
         }
-        if(dbInstock.getSubmenuId() == null){
+        if (dbInstock.getSubmenuId() == null) {
             dbInstock.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
         }
         Instock instockSave = instockDao.save(dbInstock);
@@ -361,11 +375,11 @@ public class InstockServiceImpl implements InstockService {
 
         //V2.0入库转交经办人：入库分单员转交推送给入库经办人
         Map<String, Object> map = new HashMap();
-        map.put("projectNo",instockSave.getInstockGoodsList().get(0).getProjectNo());  //项目号
-        map.put("inspectApplyNo",instockSave.getInspectApplyNo()); //报检单号
-        map.put("submenuName",instockSave.getSubmenuName());   //入库分单员名称
-        map.put("logisticsUserId",instockSave.getUid());   //入库经办人id
-        map.put("yn",1); //入库
+        map.put("projectNo", instockSave.getInstockGoodsList().get(0).getProjectNo());  //项目号
+        map.put("inspectApplyNo", instockSave.getInspectApplyNo()); //报检单号
+        map.put("submenuName", instockSave.getSubmenuName());   //入库分单员名称
+        map.put("logisticsUserId", instockSave.getUid());   //入库经办人id
+        map.put("yn", 1); //入库
         try {
             sendSms(map);
         } catch (Exception e) {
@@ -377,7 +391,7 @@ public class InstockServiceImpl implements InstockService {
 
 
     @Transactional(readOnly = true)
-    public Set queryProjectNoAndContractNo(String projectNo ,String contractNo) {
+    public Set queryProjectNoAndContractNo(String projectNo, String contractNo) {
 
         List<Instock> page = instockDao.findAll(new Specification<Instock>() {
             @Override
@@ -399,12 +413,11 @@ public class InstockServiceImpl implements InstockService {
         });
 
         Set<Integer> idSer = new HashSet<Integer>();
-        for (Instock page1 : page){
+        for (Instock page1 : page) {
             idSer.add(page1.getId());
         }
         return idSer;
     }
-
 
 
     //V2.0入库转交经办人：入库分单员转交推送给入库经办人
@@ -418,34 +431,34 @@ public class InstockServiceImpl implements InstockService {
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
             try {
-                    // 根据入库经办人id获取人员信息
-                    String jsonParam = "{\"id\":\"" + map1.get("logisticsUserId") + "\"}";
-                    String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                    logger.info("人员详情返回信息：" + s);
-                    JSONObject jsonObject = JSONObject.parseObject(s);
-                    Integer code = jsonObject.getInteger("code");
-                    if (code == 1) {
-                        JSONObject data = jsonObject.getJSONObject("data");
-                        String  mobile = data.getString("mobile");  //获取入库经办人手机号
-                        //发送短信
-                        Map<String, String> map = new HashMap();
-                        map.put("areaCode", "86");
-                        map.put("to", "[\"" + mobile + "\"]");
+                // 根据入库经办人id获取人员信息
+                String jsonParam = "{\"id\":\"" + map1.get("logisticsUserId") + "\"}";
+                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + s);
+                JSONObject jsonObject = JSONObject.parseObject(s);
+                Integer code = jsonObject.getInteger("code");
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    String mobile = data.getString("mobile");  //获取入库经办人手机号
+                    //发送短信
+                    Map<String, String> map = new HashMap();
+                    map.put("areaCode", "86");
+                    map.put("to", "[\"" + mobile + "\"]");
 
-                        if(Integer.valueOf((Integer) map1.get("yn")) == 1){
-                            map.put("content", "您好，项目号："+map1.get("projectNo")+"，报检单号："+map1.get("inspectApplyNo")+"，入库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
-                        }else{
-                            map.put("content", "您好，销售合同号："+map1.get("projectNo")+"，产品放行单号："+map1.get("inspectApplyNo")+"，出库分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
-                        }
-                        map.put("subType", "0");
-                        map.put("groupSending", "0");
-                        map.put("useType", "订单");
-                        String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                        logger.info("发送短信返回状态" + s1);
+                    if (Integer.valueOf((Integer) map1.get("yn")) == 1) {
+                        map.put("content", "您好，项目号：" + map1.get("projectNo") + "，报检单号：" + map1.get("inspectApplyNo") + "，入库分单员：" + map1.get("submenuName") + "，请及时处理。感谢您对我们的支持与信任！");
+                    } else {
+                        map.put("content", "您好，销售合同号：" + map1.get("projectNo") + "，产品放行单号：" + map1.get("inspectApplyNo") + "，出库分单员：" + map1.get("submenuName") + "，请及时处理。感谢您对我们的支持与信任！");
+                    }
+                    map.put("subType", "0");
+                    map.put("groupSending", "0");
+                    map.put("useType", "订单");
+                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                    logger.info("发送短信返回状态" + s1);
                 }
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
             }
 
         }
@@ -453,7 +466,7 @@ public class InstockServiceImpl implements InstockService {
 
 
     //获取当前登录用户
-    public  Map<String ,String> ssoUser(String eruiToken){
+    public Map<String, String> ssoUser(String eruiToken) {
         if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, String> header = new HashMap<>();
             String jsonParam = "{\"token\":\"" + eruiToken + "\"}";
@@ -467,8 +480,8 @@ public class InstockServiceImpl implements InstockService {
 
             Map mapUser = new HashMap<>();
             if (jsonObject.getInteger("code") == 200) {
-                mapUser.put("name",jsonObject.getString("name"));
-                mapUser.put("id",jsonObject.getString("id"));
+                mapUser.put("name", jsonObject.getString("name"));
+                mapUser.put("id", jsonObject.getString("id"));
             }
             return mapUser;
         }
