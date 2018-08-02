@@ -41,4 +41,46 @@ public interface WeeklyReportService {
      * @return
      */
     Map<String,Object> selectOrderInfoGroupByArea(Map<String, Object> params);
+
+    /**
+     * 查询各个事业部时间端内的询单数量
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectInqNumGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 查询各个事业部时间段的报价数量、金额（万美元）、用时信息
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectQuoteInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 查询各个事业部的报价用时
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectQuoteTimeInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 查询各个事业部的订单数量和金额
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectOrderInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 查询各个事业部供应商数量信息
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectSupplierNumInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     *
+     * @param params
+     * @return
+     */
+    Map<String,Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params);
 }

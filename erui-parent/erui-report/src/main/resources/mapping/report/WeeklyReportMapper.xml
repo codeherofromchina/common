@@ -13,7 +13,7 @@
           LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
           LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
         ) as a
-        WHERE createdAt   BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        WHERE createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         GROUP BY area HAVING area IS NOT NULL
     </select>
@@ -116,5 +116,138 @@
                 AND t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
         ) tb
         GROUP BY countryCn
+    </select>
+
+    <!-- 根据时间查询各个事业部的询单数量信息 -->
+    <select id="selectInquiryCountWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            COUNT(t1.id) AS total, t2.`name`
+        FROM
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_sys.org t2 ON t1.org_id = t2.id
+                AND t2.deleted_flag = 'N'
+        WHERE
+            t1.deleted_flag = 'N'
+                AND t1.created_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+        GROUP BY t2.`name`
+    </select>
+
+    <!-- 根据时间查询各个事业部的报价数量和金额信息 -->
+    <select id="selectQuoteInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            COUNT(t1.id) AS total_num,
+            SUM(IFNULL(total_quote_price, 0)) AS total_price,
+            t2.`name`
+        FROM
+            erui_rfq.inquiry t1
+                LEFT OUTER JOIN
+            erui_sys.org t2 ON t1.org_id = t2.id
+                AND t2.`deleted_flag` = 'N'
+                LEFT OUTER JOIN
+            erui_rfq.final_quote t3 ON t1.id = t3.inquiry_id
+                AND t3.`deleted_flag` = 'N'
+        WHERE
+            t1.deleted_flag = 'N'
+            AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+            AND t1.updated_at BETWEEN DATE_FORMAT(
+                #{startTime},
+                "%Y/%m/%d %H:%i:%s"
+            )
+            AND DATE_FORMAT(
+                #{endTime},
+                "%Y/%m/%d %H:%i:%s"
+            )
+        GROUP BY t2.`name`
+    </select>
+
+    <!-- 根据时间查询各个事业部的报价用时 -->
+    <select id="selectQuoteTimeWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            SUM(IFNULL(t3.diff, 0)) AS diff, t2.`name`
+        FROM
+            erui_rfq.inquiry t1
+                LEFT OUTER JOIN
+            erui_sys.org t2 ON t1.org_id = t2.id
+                AND t2.`deleted_flag` = 'N',
+            (SELECT
+                inquiry_id,
+                    TIMESTAMPDIFF(MINUTE, MIN(CASE in_node
+                        WHEN 'DRAFT' THEN into_at
+                        ELSE NULL
+                    END), MAX(CASE out_node
+                        WHEN 'MARKET_CONFIRMING' THEN out_at
+                        ELSE NULL
+                    END)) AS diff
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                in_node = 'DRAFT'
+                    OR out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id) t3
+        WHERE
+            t1.id = t3.inquiry_id
+                AND t1.deleted_flag = 'N'
+                AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+            AND t1.updated_at BETWEEN DATE_FORMAT(
+                #{startTime},
+                "%Y/%m/%d %H:%i:%s"
+            )
+            AND DATE_FORMAT(
+                #{endTime},
+                "%Y/%m/%d %H:%i:%s"
+            )
+        GROUP BY t2.name
+    </select>
+    <select id="selectOrderInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.name,
+            COUNT(t1.id) AS total_num,
+            SUM(IFNULL(total_price_usd, 0)) AS total_price
+        FROM
+            erui_new_order.order t1
+                LEFT OUTER JOIN
+            erui_sys.org t2 ON t1.business_unit_id = t2.id
+        WHERE t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+        GROUP BY t2.name;
+    </select>
+
+    <select id="selectSupplierNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.name, COUNT(1) AS total
+        FROM
+            erui_supplier.supplier t1
+                LEFT OUTER JOIN
+            erui_sys.org t2 ON t1.org_id = t2.id
+                AND t2.deleted_flag = 'N'
+        WHERE
+            t1.status = 'APPROVED'
+                AND t1.deleted_flag = 'N'
+                AND t1.expire_status = 'N'
+                AND t1.checked_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+        GROUP BY t2.name
+    </select>
+
+    <select id="selectSpuAndSkuNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.name,
+            COUNT(t1.spu) AS total_spu,
+            SUM(t1.sku) AS total_sku
+        FROM
+            (SELECT
+                spu,
+                    MAX(bizline_id) AS bizline_id,
+                    CONVERT( SUM(sku_count - sku_count_notvalid) / COUNT(id) , SIGNED) AS sku
+            FROM
+                erui_goods.product
+            WHERE
+                deleted_flag = 'N'
+                AND `status` = 'VALID'
+                AND created_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+            GROUP BY spu) AS t1
+                LEFT OUTER JOIN
+            erui_sys.org t2 ON t2.id = t1.bizline_id
+                AND t2.deleted_flag = 'N'
+        GROUP BY t2.name
     </select>
 </mapper>
