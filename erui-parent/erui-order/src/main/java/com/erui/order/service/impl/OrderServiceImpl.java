@@ -425,6 +425,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Integer checkContractNo(String contractNo, Integer id) {
+        Order order = null;
+        if (id != null) {
+            order = orderDao.findOne(id);
+        }
+        if (order != null && !order.getContractNo().equals(contractNo)) {
+            if (order != null && !StringUtils.equals("", contractNo) && orderDao.countByContractNo(contractNo) > 1) {
+                return 1;
+            }
+        } else {
+            if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) > 0) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
@@ -562,50 +580,50 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
-  /*  // 检查和贸易术语相关字段的完整性
-    private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
-        String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
-        String toCountry = addOrderVo.getToCountry(); // 目的国
-        String transportType = addOrderVo.getTransportType(); // 运输方式
-        String toPort = addOrderVo.getToPort(); // 目的港
-        String toPlace = addOrderVo.getToPlace(); // 目的地
-        if (StringUtils.isBlank(tradeTerms)) {
-            throw new MyException("贸易术语不能为空");
-        }
-        if (StringUtils.isBlank(toCountry)) {
-            throw new MyException("目的国不能为空");
-        }
-        switch (tradeTerms) {
-            case "EXW":
-            case "FCA":
-                if (StringUtils.isBlank(transportType)) {
-                    throw new MyException("运输方式不能为空");
-                }
-                break;
-            case "CNF":
-            case "CFR":
-            case "CIF":
-                if (StringUtils.isBlank(toPort)) {
-                    throw new MyException("目的港不能为空");
-                }
-                break;
-            case "CPT":
-            case "CIP":
-                if (StringUtils.isBlank(toPort)) {
-                    throw new MyException("目的港不能为空");
-                }
-                if (StringUtils.isBlank(toPlace)) {
-                    throw new MyException("目的地不能为空");
-                }
-                break;
-            case "DAT":
-            case "DAP":
-            case "DDP":
-                if (StringUtils.isBlank(toPlace)) {
-                    throw new MyException("目的地不能为空");
-                }
-                break;
-            *//*
+    /*  // 检查和贸易术语相关字段的完整性
+      private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
+          String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
+          String toCountry = addOrderVo.getToCountry(); // 目的国
+          String transportType = addOrderVo.getTransportType(); // 运输方式
+          String toPort = addOrderVo.getToPort(); // 目的港
+          String toPlace = addOrderVo.getToPlace(); // 目的地
+          if (StringUtils.isBlank(tradeTerms)) {
+              throw new MyException("贸易术语不能为空");
+          }
+          if (StringUtils.isBlank(toCountry)) {
+              throw new MyException("目的国不能为空");
+          }
+          switch (tradeTerms) {
+              case "EXW":
+              case "FCA":
+                  if (StringUtils.isBlank(transportType)) {
+                      throw new MyException("运输方式不能为空");
+                  }
+                  break;
+              case "CNF":
+              case "CFR":
+              case "CIF":
+                  if (StringUtils.isBlank(toPort)) {
+                      throw new MyException("目的港不能为空");
+                  }
+                  break;
+              case "CPT":
+              case "CIP":
+                  if (StringUtils.isBlank(toPort)) {
+                      throw new MyException("目的港不能为空");
+                  }
+                  if (StringUtils.isBlank(toPlace)) {
+                      throw new MyException("目的地不能为空");
+                  }
+                  break;
+              case "DAT":
+              case "DAP":
+              case "DDP":
+                  if (StringUtils.isBlank(toPlace)) {
+                      throw new MyException("目的地不能为空");
+                  }
+                  break;
+              *//*
                 case "FOB":
                 case "FAS":
                     break;
@@ -614,7 +632,6 @@ public class OrderServiceImpl implements OrderService {
             *//*
         }
     }*/
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
