@@ -79,7 +79,7 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrder(@RequestBody @Valid AddOrderVo addOrderVo, HttpServletRequest request) throws Exception{
+    public Result<Object> addOrder(@RequestBody @Valid AddOrderVo addOrderVo, HttpServletRequest request) throws Exception {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         logger.info("OrderController.addOrder()");
         boolean continueFlag = false;
@@ -170,17 +170,17 @@ public class OrderController {
         if (!continueFlag) {
             return result;
         }
-            Integer id;
-            String eruiToken = CookiesUtil.getEruiToken(request);
-            ThreadLocalUtil.setObject(eruiToken);
-            if (addOrderVo.getId() != null) {
-                id = orderService.updateOrder(addOrderVo);
-            } else {
-                id = orderService.addOrder(addOrderVo);
-            }
-            if (id != null) {
-                return new Result<>(id);
-            }
+        Integer id;
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        if (addOrderVo.getId() != null) {
+            id = orderService.updateOrder(addOrderVo);
+        } else {
+            id = orderService.addOrder(addOrderVo);
+        }
+        if (id != null) {
+            return new Result<>(id);
+        }
 
         return result;
 
@@ -244,6 +244,19 @@ public class OrderController {
         if (flag) {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            return result;
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "checkContract", method = RequestMethod.GET)
+    public Result<Object> checkContract(String contractNo, Integer id) {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        Integer i = orderService.checkContractNo(contractNo, id);
+        if (i == 0) {
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setData(i);
             return result;
         }
         return result;

@@ -41,21 +41,20 @@ public class PurchRequisitionController {
 
     /**
      * 采购申请列表
-     * @param condition
-     *  { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
-     *      要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
+     *
+     * @param condition { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
+     *                  要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
      * @return {
-     *          contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
-     *          businessName:商务技术经办人,startDate:项目开始日期,
-     *          submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
-     *      }
+     * contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
+     * businessName:商务技术经办人,startDate:项目开始日期,
+     * submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
+     * }
      */
     @RequestMapping(value = "listByPage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> listByPage(@RequestBody Map<String,String> condition) {
-        Page<Map<String,Object>> page =  purchRequisitionService.listByPage(condition);
+    public Result<Object> listByPage(@RequestBody Map<String, String> condition) {
+        Page<Map<String, Object>> page = purchRequisitionService.listByPage(condition);
         return new Result<>(page);
     }
-
 
 
     @RequestMapping(value = "queryPurchRequisition", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -74,7 +73,7 @@ public class PurchRequisitionController {
      * @return
      */
     @RequestMapping(value = "addPurchDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) throws Exception{
+    public Result<Object> addPurchDesc(@RequestBody Map<String, Integer> proMap) throws Exception {
         Project project = projectService.findDesc(proMap.get("proId"));
         if (project != null) {
             Map<String, Object> map = new HashMap<>();
@@ -96,7 +95,7 @@ public class PurchRequisitionController {
      * @return
      */
     @RequestMapping(value = "addPurchaseRequestion", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition , HttpServletRequest request) throws Exception{
+    public Result<Object> addPurchase(@RequestBody PurchRequisition purchRequisition, HttpServletRequest request) throws Exception {
         Result<Object> result = new Result<>();
         if (StringUtils.isBlank(purchRequisition.getProjectNo()) || StringUtils.equals(purchRequisition.getProjectNo(), "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
@@ -111,17 +110,17 @@ public class PurchRequisitionController {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("交货地点不能为空");
         } else {
-                boolean flag;
-                String eruiToken = CookiesUtil.getEruiToken(request);
-                ThreadLocalUtil.setObject(eruiToken);
-                if (purchRequisition.getId() != null) {
-                    flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
-                } else {
-                    flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
-                }
-                if (flag) {
-                    return result;
-                }
+            boolean flag;
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+            if (purchRequisition.getId() != null) {
+                flag = purchRequisitionService.updatePurchRequisition(purchRequisition);
+            } else {
+                flag = purchRequisitionService.insertPurchRequisition(purchRequisition);
+            }
+            if (flag) {
+                return result;
+            }
            /* try {
             } catch (Exception ex) {
                 logger.error("采购申请单单操作失败：{}", purchRequisition, ex);
@@ -131,6 +130,22 @@ public class PurchRequisitionController {
                     return result;
                 }
             }*/
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "checkProject", method = RequestMethod.GET)
+    public Result<Object> checkProject(String projectNo, Integer id) {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        Integer i = null;
+        if (id != null || projectNo != null) {
+            i = purchRequisitionService.checkProjectNo(projectNo, id);
+        }
+        if (i == 0) {
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setData(i);
+            return result;
         }
         return result;
     }
