@@ -252,10 +252,11 @@ public class OrderController {
     @RequestMapping(value = "checkContract", method = RequestMethod.GET)
     public Result<Object> checkContract(String contractNo, Integer id) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        Integer integer = orderService.checkContractNo(contractNo, id);
-        if (integer == 0) {
+        Integer i = orderService.checkContractNo(contractNo, id);
+        if (i == 0) {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setData(i);
             return result;
         }
         return result;
