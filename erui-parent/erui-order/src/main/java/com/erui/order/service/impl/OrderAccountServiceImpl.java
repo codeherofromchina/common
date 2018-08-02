@@ -1174,13 +1174,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param order
      */
     public  void  disposeAdvanceMoney(Order order) throws Exception {
-        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
 
-        BigDecimal shipmentsMoneyUSD = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();//已发货总金额
-        BigDecimal shipmentsMoney = shipmentsMoneyUSD.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);
-
-        BigDecimal alreadyGatheringMoneyUSD = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();// 已收款总金额
-        BigDecimal alreadyGatheringMoney = alreadyGatheringMoneyUSD.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal shipmentsMoney = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();//已发货总金额
+        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();// 已收款总金额
 
         BigDecimal subtract = alreadyGatheringMoney.subtract(shipmentsMoney);   //多出的 收款 金额
         if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){
