@@ -53,7 +53,7 @@ public class StatisticsController {
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (SaleStatistics statistics : data) {
             String region = StringUtils.defaultString(statistics.getRegionZh(), "");
-            BigDecimal orderAmount = statistics.getOrderAmount();
+            BigDecimal orderAmount = statistics.getOrderAmount() == null ? BigDecimal.valueOf(0) : statistics.getOrderAmount();
             if (regionTotalAmountMap.containsKey(region)) {
                 RegionTotalAmount regionTotalAmount = regionTotalAmountMap.get(region);
                 regionTotalAmount.setTotalAmount(regionTotalAmount.getTotalAmount().add(orderAmount));
