@@ -146,6 +146,8 @@ public class PurchRequisitionController {
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
             result.setData(i);
             return result;
+        }else {
+            result.setData(i);
         }
         return result;
     }
