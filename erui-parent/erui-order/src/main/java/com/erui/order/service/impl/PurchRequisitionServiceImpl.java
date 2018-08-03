@@ -80,10 +80,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             prt = purchRequisitionDao.findOne(id);
         }
         if (prt != null && !prt.getProjectNo().equals(projectNo)) {
-            if (!StringUtils.equals("", projectNo) && purchRequisitionDao.countByProjectNo(projectNo) > 1) {
-                flag = 1;
-            } else {
+            if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) <= 1) {
                 flag = 0;
+            } else {
+                flag = 1;
             }
         } else {
             if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) > 0) {

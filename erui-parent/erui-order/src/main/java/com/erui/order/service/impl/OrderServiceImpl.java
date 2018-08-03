@@ -423,6 +423,7 @@ public class OrderServiceImpl implements OrderService {
                 }).collect(Collectors.toList());
         orderDao.save(collect);
     }
+
     //确认检测销售合同号
     @Override
     public Integer checkContractNo(String contractNo, Integer id) {
@@ -431,11 +432,11 @@ public class OrderServiceImpl implements OrderService {
         if (id != null && id != 0) {
             order = orderDao.findOne(id);
         }
-        if (order != null && !order.getContractNo().equals(contractNo)) {
-            if (order != null && !StringUtils.equals("", contractNo) && orderDao.countByContractNo(contractNo) > 1) {
-                flag = 1;
-            } else {
+        if (order != null && order.getContractNo().equals(contractNo)) {
+            if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) <= 1) {
                 flag = 0;
+            } else {
+                flag = 1;
             }
         } else {
             if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) > 0) {
