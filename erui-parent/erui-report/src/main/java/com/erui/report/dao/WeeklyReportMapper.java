@@ -93,7 +93,7 @@ public interface WeeklyReportMapper {
      * @param params
      * @return
      */
-    Map<String, String> selectInquiryCountWhereTimeGroupByCountryTotal(Map<String, Object> params);
+    Integer selectInquiryCountWhereTimeGroupByCountryTotal(Map<String, Object> params);
 
 
     /**
@@ -102,7 +102,7 @@ public interface WeeklyReportMapper {
      * @param params
      * @return
      */
-    Map<String, String> selectQuoteInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
+    Integer selectQuoteInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
 
     /**
      * 根据时间查询各个地区的总和订单数量
@@ -110,5 +110,5 @@ public interface WeeklyReportMapper {
      * @param params
      * @return
      */
-    Map<String, String> selectOrderInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
+    Integer selectOrderInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
 }

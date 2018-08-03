@@ -197,6 +197,7 @@ public class WeeklyReportController {
      * @param params
      * @return
      */
+    @ResponseBody
     @RequestMapping(value = "/platformDataDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Object platformDataDetail(@RequestBody(required = true) Map<String, Object> params) {
         String startTime = (String) params.get("startTime");
@@ -218,15 +219,11 @@ public class WeeklyReportController {
         Map<String,Object> quoteInfoData = weeklyReportService.selectQuoteInfoGroupByAreaTotal(params);
         // 查询时间段内的订单数量
         Map<String,Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByAreaTotal(params);
-
+        // 谷歌统计信息
+        Map<String,Object> googleStatistics = weeklyReportService.googleStatisticsInfo(params);
 
         Map<String,Map> data = new HashMap<>();
-
-        data.put("pv_num",inqNumInfoData); // PV信息
-        data.put("uv_num",inqNumInfoData); // UV信息
-        data.put("jump_num",inqNumInfoData); // 跳出率据信息
-        data.put("avg_num",inqNumInfoData); // 平均回话时长信息
-
+        data.put("googleStatistics",googleStatistics); // 谷歌统计信息
         data.put("inqNumInfo",inqNumInfoData); // 询单数量数据信息
         data.put("quoteInfo",quoteInfoData); // 报价数量数据信息
         data.put("orderInfo",orderInfoData); // 订单数量数据信息
@@ -235,4 +232,41 @@ public class WeeklyReportController {
         return new Result<>(data);
     }
 
+
+
+    /**
+     * 导出平台数据分析
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequestMapping(value = "/exportPlatformDataDetail")
+    public Object exportPlatformDataDetail(HttpServletResponse response, String startTime, String endTime) {
+        Map<String, Object> params = new HashMap();
+        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
+            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+        } else {
+            params.put("startTime", startTime);
+            params.put("endTime", endTime);
+            //处理时间参数
+            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
+            if (params == null) {
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+        }
+
+        HSSFWorkbook wb = weeklyReportService.genPlatformDataDetail(params);
+        //excel文件名
+        String fileName = "平台数据分析" + System.currentTimeMillis() + ".xls";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

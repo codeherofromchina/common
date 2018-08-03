@@ -132,4 +132,17 @@ public interface WeeklyReportService {
      */
     HSSFWorkbook genOrgDetailExcel(Map<String, Object> params);
 
+    /**
+     * 谷歌统计信息
+     * @param params
+     * @return
+     */
+    Map<String,Object> googleStatisticsInfo(Map<String, Object> params);
+
+    /**
+     * 导出平台数据分析
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genPlatformDataDetail(Map<String, Object> params);
 }

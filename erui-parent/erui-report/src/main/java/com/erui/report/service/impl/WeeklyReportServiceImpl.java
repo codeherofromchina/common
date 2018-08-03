@@ -708,70 +708,50 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
     @Override
     public Map<String, Object> selectInqNumGroupByAreaTotal(Map<String, Object> params) {
-        Object currentTotal = null,lastwestTotal = null;
-
-        Map<String, String> currentWeekData = readMapper.selectInquiryCountWhereTimeGroupByCountryTotal(params); // 本周数据
-        if (currentWeekData != null){
-            currentTotal = currentWeekData.get("total_all");
+        Integer currentWeekTotal = readMapper.selectInquiryCountWhereTimeGroupByCountryTotal(params); // 本周数据
+        Integer lastWeekTotal = null;
+        if (params.get("chainStartTime") != null) {
+            Map<String, Object> params02 = new HashMap<>();
+            params02.put("startTime", params.get("chainStartTime"));
+            params02.put("endTime", params.get("chainEndTime"));
+            lastWeekTotal = readMapper.selectInquiryCountWhereTimeGroupByCountryTotal(params02); // 上周数据
         }
-        Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", params.get("chainStartTime"));
-        params02.put("endTime", params.get("startTime"));
-        Map<String, String> lastWeekData = readMapper.selectInquiryCountWhereTimeGroupByCountryTotal(params02); // 上周数据
-        if (lastWeekData != null){
-            lastwestTotal = lastWeekData.get("total_all");
-        }
-
         Map<String, Object> result = new HashMap<>();
-        result.put("inquiry_currentWeekCounts", currentTotal);
-        result.put("inquiry_lastWeekCounts", lastwestTotal);
+        result.put("currentWeekTotal", currentWeekTotal == null ? 0 : currentWeekTotal);
+        result.put("lastWeekTotal", lastWeekTotal == null ? 0 : lastWeekTotal);
         return result;
     }
 
     @Override
     public Map<String, Object> selectQuoteInfoGroupByAreaTotal(Map<String, Object> params) {
-        Object currentWeekCounts = null,lastWeekCounts = null;
-
-        Map<String, String> currentWeekData = readMapper.selectQuoteInfoWhereTimeGroupByCountryTotal(params); // 本周报价数据
-        if (currentWeekData != null){
-            currentWeekCounts = currentWeekData.get("total_all");
+        Integer currentWeekTotal = readMapper.selectQuoteInfoWhereTimeGroupByCountryTotal(params); // 本周报价数据
+        Integer lastWeekTotal = null;
+        if (params.get("chainStartTime") != null) {
+            Map<String, Object> params02 = new HashMap<>();
+            params02.put("startTime", params.get("chainStartTime"));
+            params02.put("endTime", params.get("chainEndTime"));
+            lastWeekTotal = readMapper.selectQuoteInfoWhereTimeGroupByCountryTotal(params02); // 上周数据
         }
-        Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", params.get("chainStartTime"));
-        params02.put("endTime", params.get("startTime"));
-        Map<String, String> lastWeekData = readMapper.selectQuoteInfoWhereTimeGroupByCountryTotal(params02); // 上周报价数据
-        if (lastWeekData != null){
-            lastWeekCounts = lastWeekData.get("total_all");
-        }
-
         Map<String, Object> result = new HashMap<>();
-        result.put("quote_currentWeekCounts", currentWeekCounts);
-        result.put("quote_lastWeekCounts", lastWeekCounts);
-
+        result.put("currentWeekTotal", currentWeekTotal == null ? 0 : currentWeekTotal);
+        result.put("lastWeekTotal", lastWeekTotal == null ? 0 : lastWeekTotal);
         return result;
     }
 
     @Override
     public Map<String, Object> selectOrderInfoGroupByAreaTotal(Map<String, Object> params) {
-        Object currentWeekCounts = null, lastWeekCounts = null;
-        Map<String, String> currentWeekData = readMapper.selectOrderInfoWhereTimeGroupByCountryTotal(params); // 本周报价数据
-        if (currentWeekData != null) {
-            currentWeekCounts = currentWeekData.get("total_all");
+        Integer currentWeekTotal = readMapper.selectOrderInfoWhereTimeGroupByCountryTotal(params); // 本周报价数据
+        Integer lastWeekTotal = null;
+        if (params.get("chainStartTime") != null) {
+            Map<String, Object> params02 = new HashMap<>();
+            params02.put("startTime", params.get("chainStartTime"));
+            params02.put("endTime", params.get("chainEndTime"));
+            lastWeekTotal = readMapper.selectOrderInfoWhereTimeGroupByCountryTotal(params02); // 上周数据
         }
-        Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", params.get("chainStartTime"));
-        params02.put("endTime", params.get("startTime"));
-        Map<String, String> lastWeekData = readMapper.selectOrderInfoWhereTimeGroupByCountryTotal(params02); // 上周报价数据
-        if (lastWeekData != null) {
-            lastWeekCounts = lastWeekData.get("total_all");
-        }
-
-
         Map<String, Object> result = new HashMap<>();
-        result.put("order_currentWeekCounts", currentWeekCounts);
-        result.put("order_lastWeekCounts", lastWeekCounts);
+        result.put("currentWeekTotal", currentWeekTotal == null ? 0 : currentWeekTotal);
+        result.put("lastWeekTotal", lastWeekTotal == null? 0 : lastWeekTotal);
         return result;
-
     }
     /**
      * 导出地区统计的周报信息
@@ -1006,6 +986,74 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         ExcelCustomStyle.insertRow(workbook, 0, 0 , 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "事业部周报（"+params.get("startTime")+"-"+params.get("endTime")+"）");
         return workbook;
+    }
 
+    /**
+     * 谷歌统计信息
+     * TODO 待实现
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, Object> googleStatisticsInfo(Map<String, Object> params) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("currentWeekPV", 0);
+        result.put("lastWeekPV", 0);
+        result.put("currentWeekUV", 0);
+        result.put("lastWeekUV", 0);
+        result.put("currentWeekJUMP", 0);
+        result.put("lastWeekJUMP", 0);
+        result.put("currentWeekAVG", 0);
+        result.put("lastWeekAVG", 0);
+        return result;
+    }
+
+
+    @Override
+    public HSSFWorkbook genPlatformDataDetail(Map<String, Object> params) {
+        // 准备数据
+        // 查询时间段内询单数
+        Map<String, Object> inqNumInfoData = selectInqNumGroupByAreaTotal(params);
+        // 查询时间段内的报价数量
+        Map<String,Object> quoteInfoData = selectQuoteInfoGroupByAreaTotal(params);
+        // 查询时间段内的订单数量
+        Map<String,Object> orderInfoData = selectOrderInfoGroupByAreaTotal(params);
+        // 谷歌统计信息
+        Map<String,Object> googleStatistics = googleStatisticsInfo(params);
+        // 标题
+        String[] header = new String[]{"PV", "", "UV", "", "询单", "", "报价", "", "订单","", "跳出率（%）","", "平均会话时长",""};
+        // 处理数据
+        Object[] row01 = new Object[]{"本周","上周","本周","上周","本周","上周","本周","上周","本周","上周","本周","上周","本周","上周"};
+        Object[] row02 = new Object[]{
+                googleStatistics.get("currentWeekPV"),googleStatistics.get("lastWeekPV"),
+                googleStatistics.get("currentWeekUV"),googleStatistics.get("lastWeekUV"),
+                inqNumInfoData.get("currentWeekTotal"),inqNumInfoData.get("lastWeekTotal"),quoteInfoData.get("currentWeekTotal"),quoteInfoData.get("lastWeekTotal"),
+                orderInfoData.get("currentWeekTotal"),orderInfoData.get("lastWeekTotal"),
+                googleStatistics.get("currentWeekJUMP"),googleStatistics.get("lastWeekJUMP"),
+                googleStatistics.get("currentWeekAVG"),googleStatistics.get("lastWeekAVG")
+            };
+        List<Object[]> datas = new ArrayList<>();
+        datas.add(row01);
+        datas.add(row02);
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(datas, header, null,
+                "平台数据分析周报");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        // 合并单元格
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,0,1);
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,2,3);
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,4,5);
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,6,7);
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,8,9);
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,10,11);
+        ExcelCustomStyle.mergedCell(workbook,0,0,0,12,13);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0 , 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "平台数据分析周报（"+params.get("startTime")+"-"+params.get("endTime")+"）");
+        return workbook;
     }
 }
