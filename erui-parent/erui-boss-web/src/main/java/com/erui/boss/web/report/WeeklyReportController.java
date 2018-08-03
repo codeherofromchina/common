@@ -6,13 +6,15 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.service.WeeklyReportService;
 import com.erui.report.util.ParamsUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +23,7 @@ import java.util.Map;
 /**
  * 周报
  */
-@RestController
+@Controller
 @RequestMapping("/report/weeklyReport")
 public class WeeklyReportController {
 
@@ -34,6 +36,7 @@ public class WeeklyReportController {
      * @param params
      * @return
      */
+    @ResponseBody
     @RequestMapping(value = "/areaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Object areaDetail(@RequestBody(required = true) Map<String, Object> params) {
         String startTime = (String) params.get("startTime");
@@ -71,12 +74,50 @@ public class WeeklyReportController {
         return new Result<>(data);
     }
 
+
+    /**
+     * 导出地区明细
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequestMapping(value = "/exportAreaDetail")
+    public Object exportAreaDetail(HttpServletResponse response, String startTime, String endTime) {
+        Map<String, Object> params = new HashMap();
+        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
+            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+        } else {
+            params.put("startTime", startTime);
+            params.put("endTime", endTime);
+            //处理时间参数
+            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
+            if (params == null) {
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+        }
+
+        HSSFWorkbook wb = weeklyReportService.genAreaDetailExcel(params);
+        //excel文件名
+        String fileName = "地区周报明细" + System.currentTimeMillis() + ".xls";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * 事业部明细
      *
      * @param params
      * @return
      */
+    @ResponseBody
     @RequestMapping(value = "/orgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Object orgDetail(@RequestBody(required = true) Map<String, Object> params) {
         String startTime = (String) params.get("startTime");
@@ -111,6 +152,43 @@ public class WeeklyReportController {
         data.put("spuSkuNumInfoData", spuSkuNumInfoData); // spu/sku数量数据信息
 
         return new Result<>(data);
+    }
+
+
+    /**
+     * 导出事业部明细
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequestMapping(value = "/exportOrgDetail")
+    public Object exportOrgDetail(HttpServletResponse response, String startTime, String endTime) {
+        Map<String, Object> params = new HashMap();
+        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
+            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+        } else {
+            params.put("startTime", startTime);
+            params.put("endTime", endTime);
+            //处理时间参数
+            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
+            if (params == null) {
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+        }
+
+        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params);
+        //excel文件名
+        String fileName = "事业部周报明细" + System.currentTimeMillis() + ".xls";
+        try {
+            RequestCreditController.setResponseHeader(response, fileName);
+            wb.write(response.getOutputStream());
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

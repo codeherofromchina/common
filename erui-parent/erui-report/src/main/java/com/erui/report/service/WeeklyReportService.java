@@ -1,5 +1,8 @@
 package com.erui.report.service;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +88,7 @@ public interface WeeklyReportService {
     Map<String,Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params);
 
     /**
+
      * 查询时间段内询单数
      * @param params    {"chainStartTime":"2018/07/03","startTime":"2018/07/09","endTime":"2018/07/15"}
      *                  chainStartTime:上周开始时间
@@ -114,4 +118,18 @@ public interface WeeklyReportService {
      * @return
      */
     Map<String,Object> selectOrderInfoGroupByAreaTotal(Map<String, Object> params);
+    /**
+     * 生成周报-周报页签中的excel数据
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genAreaDetailExcel(Map<String, Object> params);
+
+    /**
+     * 生成周报-事业部页签中的excel数据
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genOrgDetailExcel(Map<String, Object> params);
+
 }

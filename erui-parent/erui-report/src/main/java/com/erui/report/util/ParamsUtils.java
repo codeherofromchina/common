@@ -63,7 +63,6 @@ public class ParamsUtils {
             params.put("chainEndTime", DateUtil.formatDateToString(lastWeekDateTime02, DateUtil.FULL_FORMAT_STR));
             return params;
         }
-
         return null;
     }
 
