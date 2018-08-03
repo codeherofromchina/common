@@ -248,7 +248,7 @@ public class OrderController {
         }
         return result;
     }
-
+    //检测销售合同号
     @RequestMapping(value = "checkContract", method = RequestMethod.GET)
     public Result<Object> checkContract(String contractNo, Integer id) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);

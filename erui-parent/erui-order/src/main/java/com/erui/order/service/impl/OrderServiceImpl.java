@@ -423,7 +423,7 @@ public class OrderServiceImpl implements OrderService {
                 }).collect(Collectors.toList());
         orderDao.save(collect);
     }
-
+    //确认检测销售合同号
     @Override
     public Integer checkContractNo(String contractNo, Integer id) {
         Order order = null;
