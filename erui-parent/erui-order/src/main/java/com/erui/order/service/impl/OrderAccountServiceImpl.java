@@ -568,7 +568,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         try {
             if(order != null){
-             disposeAdvanceMoney(order);  //处理预收金额
+                if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                    disposeAdvanceMoney(order);  //处理预收金额
+                }
             }
         } catch (Exception e) {
             throw new Exception(String.format("预收金额更新失败"));
