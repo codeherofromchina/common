@@ -61,8 +61,8 @@ public class ParamsUtils {
             Date lastWeekDateTime02 = DateUtil.sometimeCalendar(startTime, 1, Calendar.SECOND);
             params.put("chainStartTime", DateUtil.formatDateToString(lastWeekDateTime, DateUtil.FULL_FORMAT_STR));
             params.put("chainEndTime", DateUtil.formatDateToString(lastWeekDateTime02, DateUtil.FULL_FORMAT_STR));
+            return params;
         }
-
         return null;
     }
 

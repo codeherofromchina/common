@@ -1,5 +1,8 @@
 package com.erui.report.service;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.util.List;
 import java.util.Map;
 
@@ -83,4 +86,18 @@ public interface WeeklyReportService {
      * @return
      */
     Map<String,Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 生成周报-周报页签中的excel数据
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genAreaDetailExcel(Map<String, Object> params);
+
+    /**
+     * 生成周报-事业部页签中的excel数据
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genOrgDetailExcel(Map<String, Object> params);
 }

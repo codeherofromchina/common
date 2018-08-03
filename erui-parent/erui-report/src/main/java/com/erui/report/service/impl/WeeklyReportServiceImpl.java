@@ -1,8 +1,14 @@
 package com.erui.report.service.impl;
 
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
+import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.WeeklyReportMapper;
 import com.erui.report.service.WeeklyReportService;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -63,7 +69,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         lastWeekCounts.add(lastWeekTotal);
         //返回结果
         Map<String, Object> result = new HashMap<>();
-        result.put("AREAS", areaList);
+        result.put("areaList", areaList);
         result.put("currentWeekCounts", currentWeekCounts);
         result.put("lastWeekCounts", lastWeekCounts);
         return result;
@@ -355,7 +361,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             Map<String, Object> params02 = new HashMap<>();
             params02.put("startTime", params.get("chainStartTime"));
             params02.put("endTime", params.get("chainEndTime"));
-            lastWeekData = readMapper.selectOrderInfoWhereTimeGroupByCountry(params02); // 上周订单数据
+            lastWeekData = readMapper.selectInquiryCountWhereTimeGroupByOrg(params02); // 上周询单数据
         } else {
             lastWeekData = new ArrayList<>();
         }
@@ -696,5 +702,241 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         result.put("historySpuCounts", historySpuCounts);
         result.put("historySkuCounts", historySkuCounts);
         return result;
+    }
+
+
+    /**
+     * 导出地区统计的周报信息
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public HSSFWorkbook genAreaDetailExcel(Map<String, Object> params) {
+        // 准备数据
+        //查询各地区的时间段内新用户注册数，中国算一个地区
+        Map<String, Object> registerData = selectBuyerRegistCountGroupByArea(params);
+        //查询各地区的时间段内会员数 中国算一个地区
+        Map<String, Object> buyerData = selectBuyerCountGroupByArea(params);
+        // 查询各地区时间段内询单数
+        Map<String, Object> inqNumInfoData = selectInqNumGroupByArea(params);
+        // 查询各个地区时间段内的报价数量和金额信息
+        Map<String, Object> quoteInfoData = selectQuoteInfoGroupByArea(params);
+        // 查询各个地区时间段内的订单数量和金额信息
+        Map<String, Object> orderInfoData = selectOrderInfoGroupByArea(params);
+        // 标题
+        String[] header = new String[]{"", "地区", "北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国", "合计"};
+        // 处理数据
+        // 第一行数据
+        List<Object> row01 = new ArrayList<>();
+        row01.add("新用户注册");
+        row01.add("上周");
+        row01.addAll((List<Object>) registerData.get("lastWeekCounts"));
+        // 第二行数据
+        List<Object> row02 = new ArrayList<>();
+        row02.add("");row02.add("本周");
+        row02.addAll((List<Object>) registerData.get("currentWeekCounts"));
+        // 第三行数据
+        List<Object> row03 = new ArrayList<>();
+        row03.add("会员数");row03.add("上周");
+        row03.addAll((List<Object>) buyerData.get("lastWeekCounts"));
+        // 第四行数据
+        List<Object> row04 = new ArrayList<>();
+        row04.add("");row04.add("本周");
+        row04.addAll((List<Object>) buyerData.get("currentWeekCounts"));
+        // 第五行数据
+        List<Object> row05 = new ArrayList<>();
+        row05.add("");row05.add("2018.1.1-" + params.get("endTime"));
+        row05.addAll((List<Object>) buyerData.get("historyCounts"));
+        // 第六行数据
+        List<Object> row06 = new ArrayList<>();
+        row06.add("询单数量（个）");row06.add("上周");
+        row06.addAll((List<Object>) inqNumInfoData.get("lastWeekCounts"));
+        // 第七行数据
+        List<Object> row07 = new ArrayList<>();
+        row07.add("");row07.add("本周");
+        row07.addAll((List<Object>) inqNumInfoData.get("currentWeekCounts"));
+        // 第八行数据
+        List<Object> row08 = new ArrayList<>();
+        row08.add("报价个数（个）");row08.add("上周");
+        row08.addAll((List<Object>) quoteInfoData.get("lastWeekCounts"));
+        // 第九行数据
+        List<Object> row09 = new ArrayList<>();
+        row09.add("");row09.add("本周");
+        row09.addAll((List<Object>) quoteInfoData.get("currentWeekCounts"));
+        // 第十行数据
+        List<Object> row10 = new ArrayList<>();
+        row10.add("报价金额（万美元）");row10.add("上周");
+        row10.addAll((List<Object>) quoteInfoData.get("lastWeekAmounts"));
+        // 第十一行数据
+        List<Object> row11 = new ArrayList<>();
+        row11.add("");row11.add("本周");
+        row11.addAll((List<Object>) quoteInfoData.get("currentWeekAmounts"));
+        // 第十二行数据
+        List<Object> row12 = new ArrayList<>();
+        row12.add("订单数量（个）");row12.add("上周");
+        row12.addAll((List<Object>) orderInfoData.get("lastWeekCounts"));
+        // 第十三行数据
+        List<Object> row13 = new ArrayList<>();
+        row13.add("");row13.add("本周");
+        row13.addAll((List<Object>) orderInfoData.get("currentWeekCounts"));
+        // 第十四行数据
+        List<Object> row14 = new ArrayList<>();
+        row14.add("订单金额（万美元）");row14.add("上周");
+        row14.addAll((List<Object>) orderInfoData.get("lastWeekAmounts"));
+        // 第十五行数据
+        List<Object> row15 = new ArrayList<>();
+        row15.add("");row15.add("本周");
+        row15.addAll((List<Object>) orderInfoData.get("currentWeekAmounts"));
+        // 第十六行数据
+        List<Object> row16 = new ArrayList<>();
+        row16.add("");row16.add("2018.1.1-" + params.get("endTime"));
+        row16.addAll((List<Object>) orderInfoData.get("historyAmounts"));
+        List<Object[]> datas = new ArrayList<>();
+        datas.add(row01.toArray());
+        datas.add(row02.toArray());
+        datas.add(row03.toArray());
+        datas.add(row04.toArray());
+        datas.add(row05.toArray());
+        datas.add(row06.toArray());
+        datas.add(row07.toArray());
+        datas.add(row08.toArray());
+        datas.add(row09.toArray());
+        datas.add(row10.toArray());
+        datas.add(row11.toArray());
+        datas.add(row12.toArray());
+        datas.add(row13.toArray());
+        datas.add(row14.toArray());
+        datas.add(row15.toArray());
+        datas.add(row16.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(datas, header, null,
+                "地区周报");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        // 合并单元格
+        ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,3,5,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,6,7,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,8,9,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,10,11,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,12,13,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,14,16,0,0);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0 , 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "地区周报（"+params.get("startTime")+"-"+params.get("endTime")+"）");
+        return workbook;
+    }
+
+
+    @Override
+    public HSSFWorkbook genOrgDetailExcel(Map<String, Object> params) {
+        // 准备数据
+        // 询单数量信息
+        Map<String, Object> inqNumInfoData = selectInqNumGroupByOrg(params);
+        // 报价数量、金额、用时
+        Map<String, Object> quoteInfoData = selectQuoteInfoGroupByOrg(params);
+        // 查询订单数量、金额
+        Map<String, Object> orderInfoData = selectOrderInfoGroupByOrg(params);
+        // 查询合格供应商数量信息
+        Map<String, Object> supplierNumInfoData = selectSupplierNumInfoGroupByOrg(params);
+        // 查询事业部spu和sku数量信息
+        Map<String, Object> spuSkuNumInfoData = selectSpuAndSkuNumInfoGroupByOrg(params);
+        // 标题
+        String[] header = new String[]{"", "事业部", "易瑞-钻完井设备", "易瑞-钻完井设备", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞","其他"};
+        // 处理数据
+        List<Object> row01 = new ArrayList<>();
+        row01.add("询单数量");row01.add("上周");
+        row01.addAll((List<Object>) inqNumInfoData.get("lastWeekCounts"));
+        List<Object> row02 = new ArrayList<>();
+        row02.add("");row02.add("本周");
+        row02.addAll((List<Object>) inqNumInfoData.get("currentWeekCounts"));
+        List<Object> row03 = new ArrayList<>();
+        row03.add("报价数量");row03.add("本周");
+        row03.addAll((List<Object>) quoteInfoData.get("currentWeekCounts"));
+        List<Object> row04 = new ArrayList<>();
+        row04.add("报价金额（万美元）");row04.add("本周");
+        row04.addAll((List<Object>) quoteInfoData.get("currentWeekAmounts"));
+        List<Object> row05 = new ArrayList<>();
+        row05.add("报价用时");row05.add("上周");
+        row05.addAll((List<Object>) quoteInfoData.get("lastWeekTimes"));
+        List<Object> row06 = new ArrayList<>();
+        row06.add("");row06.add("本周");
+        row06.addAll((List<Object>) quoteInfoData.get("currentWeekTimes"));
+        List<Object> row07 = new ArrayList<>();
+        row07.add("订单数量");row07.add("上周");
+        row07.addAll((List<Object>) orderInfoData.get("lastWeekCounts"));
+        List<Object> row08 = new ArrayList<>();
+        row08.add("");row08.add("本周");
+        row08.addAll((List<Object>) orderInfoData.get("currentWeekCounts"));
+        List<Object> row09 = new ArrayList<>();
+        row09.add("订单金额");row09.add("上周");
+        row09.addAll((List<Object>) orderInfoData.get("lastWeekAmount"));
+        List<Object> row10 = new ArrayList<>();
+        row10.add("");row10.add("本周");
+        row10.addAll((List<Object>) orderInfoData.get("currentWeekAmount"));
+        List<Object> row11 = new ArrayList<>();
+        row11.add("");row11.add("2018.1.1-" + params.get("endTime"));
+        row11.addAll((List<Object>) orderInfoData.get("historyAmount"));
+        List<Object> row12 = new ArrayList<>();
+        row12.add("合格供应商数量");row12.add("本周");
+        row12.addAll((List<Object>) supplierNumInfoData.get("currentWeekCounts"));
+        List<Object> row13 = new ArrayList<>();
+        row13.add("");row13.add("2018.1.1-2018.7.19");
+        row13.addAll((List<Object>) supplierNumInfoData.get("historyCounts"));
+        List<Object> row14 = new ArrayList<>();
+        row14.add("上架SKU数量");row14.add("本周");
+        row14.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSkuCounts"));
+        List<Object> row15 = new ArrayList<>();
+        row15.add("");row15.add("2018.1.1-2018.7.19");
+        row15.addAll((List<Object>) spuSkuNumInfoData.get("historySkuCounts"));
+        List<Object> row16 = new ArrayList<>();
+        row16.add("上架SPU数量");row16.add("本周");
+        row16.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSpuCounts"));
+        List<Object> row17 = new ArrayList<>();
+        row17.add("");row17.add("2018.1.1-2018.7.19");
+        row17.addAll((List<Object>) spuSkuNumInfoData.get("historySpuCounts"));
+        // 填充数据
+        List<Object[]> datas = new ArrayList<>();
+        datas.add(row01.toArray());
+        datas.add(row02.toArray());
+        datas.add(row03.toArray());
+        datas.add(row04.toArray());
+        datas.add(row05.toArray());
+        datas.add(row06.toArray());
+        datas.add(row07.toArray());
+        datas.add(row08.toArray());
+        datas.add(row09.toArray());
+        datas.add(row10.toArray());
+        datas.add(row11.toArray());
+        datas.add(row12.toArray());
+        datas.add(row13.toArray());
+        datas.add(row14.toArray());
+        datas.add(row15.toArray());
+        datas.add(row16.toArray());
+        datas.add(row17.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(datas, header, null,
+                "事业部周报");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        // 合并单元格
+        ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,5,6,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,7,8,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,9,11,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,12,13,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,14,15,0,0);
+        ExcelCustomStyle.mergedCell(workbook,0,16,17,0,0);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0 , 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "事业部周报（"+params.get("startTime")+"-"+params.get("endTime")+"）");
+        return workbook;
     }
 }

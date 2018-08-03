@@ -12,6 +12,7 @@
           FROM erui_buyer.buyer AS buyers
           LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
           LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
+          WHERE buyers.deleted_flag='N'
         ) as a
         WHERE createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -41,7 +42,8 @@
                     erui_operation.market_area_country t2,
                     erui_operation.market_area t3
                 WHERE
-                    t1.country_bn = t2.country_bn
+                    t1.deleted_flag = 'N'
+                AND t1.country_bn = t2.country_bn
                 AND t2.market_area_bn = t3.bn
                 AND t3.lang = 'zh'
                 AND t1.created_at BETWEEN DATE_FORMAT(
@@ -84,6 +86,7 @@
                 erui_operation.market_area t4
             WHERE
                 t1.country_bn = t3.country_bn
+            AND t1.deleted_flag = 'N'
             AND t3.market_area_bn = t4.bn
             AND t4.lang = 'zh'
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
