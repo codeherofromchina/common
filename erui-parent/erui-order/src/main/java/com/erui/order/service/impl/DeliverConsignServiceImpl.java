@@ -97,9 +97,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if(status != 3){
 
             //获取授信信息
-            DeliverConsign deliverConsign1;
+            DeliverConsign deliverConsign1 = null;
             try {
-                deliverConsign1 = queryCreditData(order);
+                if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                    deliverConsign1 = queryCreditData(order);
+                }
             }catch (Exception e){
                 throw  new Exception(e.getMessage());
             }
@@ -770,15 +772,18 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
 
         //获取授信额度信息
-        DeliverConsign deliverConsignByCreditData;
+        DeliverConsign deliverConsignByCreditData = null;
         try {
-            deliverConsignByCreditData = queryCreditData(order);
+            if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                deliverConsignByCreditData = queryCreditData(order);
+            }
 
         }catch (Exception e){
             logger.info("查询授信返回信息：" + e);
             throw new Exception(e);
         }
 
+        if(deliverConsignByCreditData != null){
             BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getCreditAvailable() ;//可用授信额度
             BigDecimal divide = creditAvailable.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);//可用授信额度/利率
             BigDecimal add = divide.add(advanceMoney);  //“可用授信额度/汇率 + 预收金额”      可发货额度
@@ -824,18 +829,30 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
                 if(advanceMoney.compareTo(BigDecimal.valueOf(0)) == 1){ //小于0  说明收款多    等于0，说明没有
 
-                        BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
+                    BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
 
-                        if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
-                            throw new Exception("预收金额和可用授信额度不足");
-                        }
+                    if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
+                        throw new Exception("预收金额和可用授信额度不足");
+                    }
 
                 }else {
                     throw new Exception("预收金额和可用授信额度不足");
                 }
 
             }
+        }else {
+            if(advanceMoney.compareTo(BigDecimal.valueOf(0)) == 1){ //小于0  说明收款多    等于0，说明没有
 
+                BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
+
+                if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
+                    throw new Exception("预收金额和可用授信额度不足");
+                }
+
+            }else {
+                throw new Exception("预收金额和可用授信额度不足");
+            }
+        }
 
 
         return null;
