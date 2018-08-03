@@ -427,19 +427,24 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Integer checkContractNo(String contractNo, Integer id) {
         Order order = null;
-        if (id != null) {
+        int flag = 1;
+        if (id != null && id != 0) {
             order = orderDao.findOne(id);
         }
         if (order != null && !order.getContractNo().equals(contractNo)) {
             if (order != null && !StringUtils.equals("", contractNo) && orderDao.countByContractNo(contractNo) > 1) {
-                return 1;
+                flag = 1;
+            } else {
+                flag = 0;
             }
         } else {
             if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) > 0) {
-                return 1;
+                flag = 1;
+            } else {
+                flag = 0;
             }
         }
-        return 0;
+        return flag;
     }
 
     @Override

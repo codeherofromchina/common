@@ -75,19 +75,24 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Override
     public int checkProjectNo(String projectNo, Integer id) {
         PurchRequisition prt = null;
-        if (id != null) {
+        int flag = 1;
+        if (id != null && id != 0) {
             prt = purchRequisitionDao.findOne(id);
         }
         if (prt != null && !prt.getProjectNo().equals(projectNo)) {
             if (!StringUtils.equals("", projectNo) && purchRequisitionDao.countByProjectNo(projectNo) > 1) {
-                return 1;
+                flag = 1;
+            } else {
+                flag = 0;
             }
         } else {
             if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) > 0) {
-                return 1;
+                flag = 1;
+            } else {
+                flag = 0;
             }
         }
-        return 0;
+        return flag;
     }
 
     @Transactional(rollbackFor = Exception.class)

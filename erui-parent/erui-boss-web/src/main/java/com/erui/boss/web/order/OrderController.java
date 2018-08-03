@@ -253,11 +253,11 @@ public class OrderController {
     public Result<Object> checkContract(String contractNo, Integer id) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         Integer i = orderService.checkContractNo(contractNo, id);
-        if (i == 0) {
+        if (i.equals(0)) {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setEnMsg(ResultStatusEnum.SUCCESS.getEnMsg());
             result.setData(i);
-            return result;
         } else {
             result.setData(i);
         }
