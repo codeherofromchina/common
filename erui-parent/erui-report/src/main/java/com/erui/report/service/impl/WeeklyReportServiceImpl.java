@@ -573,7 +573,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         // 其他数据处理
         Integer curWeekOtherOrgCount = currentWeekDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_num")).intValue()).reduce(0, (a, b) -> a + b);
         BigDecimal curWeekOtherOrgPrice = currentWeekDataMap.values().parallelStream().map(vo -> (BigDecimal) vo.get("total_price")).reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
-        Integer lastWeekOtherOrgCount = lastWeekDataMap.values().parallelStream().map(vo -> ((Long) vo.get("diff")).intValue()).reduce(0, (a, b) -> a + b);
+        Integer lastWeekOtherOrgCount = lastWeekDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_num")).intValue()).reduce(0, (a, b) -> a + b);
         BigDecimal lastWeekOtherOrgPrice = lastWeekDataMap.values().parallelStream().map(vo -> (BigDecimal) vo.get("total_price")).reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
         BigDecimal historyOtherOrgPrice = historyDataMap.values().parallelStream().map(vo -> (BigDecimal) vo.get("total_price")).reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
         orgList.add("其他");
