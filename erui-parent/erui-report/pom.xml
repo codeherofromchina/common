@@ -92,7 +92,17 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-analytics</artifactId>
+			<version>v2.4-rev134-1.23.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.gdata/core -->
+		<dependency>
+			<groupId>com.google.gdata</groupId>
+			<artifactId>core</artifactId>
+			<version>1.47.1</version>
+		</dependency>
 
 
 	</dependencies>

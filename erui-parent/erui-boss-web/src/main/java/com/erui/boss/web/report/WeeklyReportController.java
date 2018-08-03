@@ -120,9 +120,41 @@ public class WeeklyReportController {
      * @return
      */
     @RequestMapping(value = "/platformDataDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object platformDataDetail(@RequestBody(required = true) Map<String, String> params) {
+    public Object platformDataDetail(@RequestBody(required = true) Map<String, Object> params) {
+        String startTime = (String) params.get("startTime");
+        String endTime = (String) params.get("endTime");
+        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
+            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+        } else {
+            //处理时间参数
+            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
+            if (params == null) {
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+        }
 
-        return null;
+        // 查询时间段内询单数
+        Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByAreaTotal(params);
+        // 查询时间段内的报价数量
+        Map<String,Object> quoteInfoData = weeklyReportService.selectQuoteInfoGroupByAreaTotal(params);
+        // 查询时间段内的订单数量
+        Map<String,Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByAreaTotal(params);
+
+
+        Map<String,Map> data = new HashMap<>();
+
+        data.put("pv_num",inqNumInfoData); // PV信息
+        data.put("uv_num",inqNumInfoData); // UV信息
+        data.put("jump_num",inqNumInfoData); // 跳出率据信息
+        data.put("avg_num",inqNumInfoData); // 平均回话时长信息
+
+        data.put("inqNumInfo",inqNumInfoData); // 询单数量数据信息
+        data.put("quoteInfo",quoteInfoData); // 报价数量数据信息
+        data.put("orderInfo",orderInfoData); // 订单数量数据信息
+
+
+        return new Result<>(data);
     }
 
 }

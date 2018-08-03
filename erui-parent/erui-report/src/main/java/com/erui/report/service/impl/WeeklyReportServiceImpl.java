@@ -697,4 +697,72 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         result.put("historySkuCounts", historySkuCounts);
         return result;
     }
+
+
+    @Override
+    public Map<String, Object> selectInqNumGroupByAreaTotal(Map<String, Object> params) {
+        Object currentTotal = null,lastwestTotal = null;
+
+        Map<String, String> currentWeekData = readMapper.selectInquiryCountWhereTimeGroupByCountryTotal(params); // 本周数据
+        if (currentWeekData != null){
+            currentTotal = currentWeekData.get("total_all");
+        }
+        Map<String, Object> params02 = new HashMap<>();
+        params02.put("startTime", params.get("chainStartTime"));
+        params02.put("endTime", params.get("startTime"));
+        Map<String, String> lastWeekData = readMapper.selectInquiryCountWhereTimeGroupByCountryTotal(params02); // 上周数据
+        if (lastWeekData != null){
+            lastwestTotal = lastWeekData.get("total_all");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("inquiry_currentWeekCounts", currentTotal);
+        result.put("inquiry_lastWeekCounts", lastwestTotal);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> selectQuoteInfoGroupByAreaTotal(Map<String, Object> params) {
+        Object currentWeekCounts = null,lastWeekCounts = null;
+
+        Map<String, String> currentWeekData = readMapper.selectQuoteInfoWhereTimeGroupByCountryTotal(params); // 本周报价数据
+        if (currentWeekData != null){
+            currentWeekCounts = currentWeekData.get("total_all");
+        }
+        Map<String, Object> params02 = new HashMap<>();
+        params02.put("startTime", params.get("chainStartTime"));
+        params02.put("endTime", params.get("startTime"));
+        Map<String, String> lastWeekData = readMapper.selectQuoteInfoWhereTimeGroupByCountryTotal(params02); // 上周报价数据
+        if (lastWeekData != null){
+            lastWeekCounts = lastWeekData.get("total_all");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("quote_currentWeekCounts", currentWeekCounts);
+        result.put("quote_lastWeekCounts", lastWeekCounts);
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> selectOrderInfoGroupByAreaTotal(Map<String, Object> params) {
+        Object currentWeekCounts = null,lastWeekCounts = null;
+        Map<String, String> currentWeekData = readMapper.selectOrderInfoWhereTimeGroupByCountryTotal(params); // 本周报价数据
+        if (currentWeekData != null){
+            currentWeekCounts = currentWeekData.get("total_all");
+        }
+        Map<String, Object> params02 = new HashMap<>();
+        params02.put("startTime", params.get("chainStartTime"));
+        params02.put("endTime", params.get("startTime"));
+        Map<String, String> lastWeekData = readMapper.selectOrderInfoWhereTimeGroupByCountryTotal(params02); // 上周报价数据
+        if (lastWeekData != null){
+            lastWeekCounts = lastWeekData.get("total_all");
+        }
+
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("order_currentWeekCounts", currentWeekCounts);
+        result.put("order_lastWeekCounts", lastWeekCounts);
+        return result;
+    }
 }

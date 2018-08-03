@@ -86,4 +86,29 @@ public interface WeeklyReportMapper {
      * @return
      */
     List<Map<String,Object>> selectSpuAndSkuNumWhereTimeGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 根据时间查询各个地区的总和订单数量
+     *
+     * @param params
+     * @return
+     */
+    Map<String, String> selectInquiryCountWhereTimeGroupByCountryTotal(Map<String, Object> params);
+
+
+    /**
+     * 根据时间查询各个地区的总和报价
+     *
+     * @param params
+     * @return
+     */
+    Map<String, String> selectQuoteInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
+
+    /**
+     * 根据时间查询各个地区的总和订单数量
+     *
+     * @param params
+     * @return
+     */
+    Map<String, String> selectOrderInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
 }

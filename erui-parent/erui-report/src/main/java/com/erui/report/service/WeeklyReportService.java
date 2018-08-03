@@ -83,4 +83,35 @@ public interface WeeklyReportService {
      * @return
      */
     Map<String,Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 查询时间段内询单数
+     * @param params    {"chainStartTime":"2018/07/03","startTime":"2018/07/09","endTime":"2018/07/15"}
+     *                  chainStartTime:上周开始时间
+     *                  startTime：本周开始时间
+     *                  endTime:本周结束时间
+     * @return
+     */
+    Map<String,Object> selectInqNumGroupByAreaTotal(Map<String, Object> params);
+
+    /**
+     * 查询时间段内询单数
+     * @param params    {"chainStartTime":"2018/07/03","startTime":"2018/07/09","endTime":"2018/07/15"}
+     *                  chainStartTime:上周开始时间
+     *                  startTime：本周开始时间
+     *                  endTime:本周结束时间
+     * @return
+     */
+    Map<String,Object> selectQuoteInfoGroupByAreaTotal(Map<String, Object> params);
+
+
+    /**
+     * 查询时间段内询单数
+     * @param params    {"chainStartTime":"2018/07/03","startTime":"2018/07/09","endTime":"2018/07/15"}
+     *                  chainStartTime:上周开始时间
+     *                  startTime：本周开始时间
+     *                  endTime:本周结束时间
+     * @return
+     */
+    Map<String,Object> selectOrderInfoGroupByAreaTotal(Map<String, Object> params);
 }
