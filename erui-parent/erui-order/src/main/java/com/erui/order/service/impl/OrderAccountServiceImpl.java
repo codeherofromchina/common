@@ -568,7 +568,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         try {
             if(order != null){
-             disposeAdvanceMoney(order);  //处理预收金额
+                if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                    disposeAdvanceMoney(order);  //处理预收金额
+                }
             }
         } catch (Exception e) {
             throw new Exception(String.format("预收金额更新失败"));
@@ -821,7 +823,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
 
         //  查看可用授信额度
-        if(order.getCrmCode() != null){
+        if(order.getCrmCode() != null && order.getCrmCode() != ""){
             DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
             if(deliverConsign1 != null && deliverConsign1.getLineOfCredit() != null && deliverConsign1.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
 

@@ -97,9 +97,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if(status != 3){
 
             //获取授信信息
-            DeliverConsign deliverConsign1;
+            DeliverConsign deliverConsign1 = null;
             try {
-                deliverConsign1 = queryCreditData(order);
+                if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                    deliverConsign1 = queryCreditData(order);
+                }
             }catch (Exception e){
                 throw  new Exception(e.getMessage());
             }
@@ -626,81 +628,91 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public DeliverConsign queryCreditData( Order order) throws Exception {
         //拿取局部返回信息
         String returnMassage;
-        try {
-            //获取当前订单用户crm客户码
-            String crmCode = order.getCrmCode();
-            //拼接查询授信路径
-            String url = creditExtension + "V2/Buyercredit/getCreditInfoByCrmCode";
-            //获取token
-            String eruiToken = (String) ThreadLocalUtil.getObject();
+        //获取当前订单用户crm客户码
+        String crmCode = order.getCrmCode();
+        if(crmCode != null && crmCode != ""){
+            try {
 
-            // 根据id获取人员信息
-            String jsonParam = "{\"crm_code\":\""+crmCode+"\"}";
-            Map<String, String> header = new HashMap<>();
-            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-            header.put("Content-Type", "application/json");
-            header.put("accept", "*/*");
-            returnMassage = HttpRequest.sendPost(url, jsonParam, header);
-            logger.info("人员详情返回信息：" + returnMassage);
-        }catch (Exception ex){
-            throw new Exception(String.format("获取客户授信信息失败"));
-        }
+                //拼接查询授信路径
+                String url = creditExtension + "V2/Buyercredit/getCreditInfoByCrmCode";
+                //获取token
+                String eruiToken = (String) ThreadLocalUtil.getObject();
 
-        JSONObject jsonObject = JSONObject.parseObject(returnMassage);
-        Integer code = jsonObject.getInteger("code");   //获取查询状态
-        if(code != 1  &&  code != -401 ){  //查询数据正确返回 1
-            String message = jsonObject.getString("message");
-            throw new Exception(message);
-        }
-        if(code == 1 ){
-            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
-
-            BigDecimal nolcGranted = BigDecimal.valueOf(0);
-            BigDecimal lcgranted = BigDecimal.valueOf(0);
-            String accountSettle = null;
-            BigDecimal creditAvailable = null;
-            if (data != null){
-                nolcGranted = data.getBigDecimal("nolc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("nolc_granted"); //非信用证授信额度
-                lcgranted = data.getBigDecimal("lc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("lc_granted"); // 信用证授信额度
-                accountSettle = data.getString("account_settle"); // OA",(OA非信用证;L/C信用证)
-                creditAvailable = data.getBigDecimal("credit_available"); // 可用授信额度
+                // 根据id获取人员信息
+                String jsonParam = "{\"crm_code\":\""+crmCode+"\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                returnMassage = HttpRequest.sendPost(url, jsonParam, header);
+                logger.info("人员详情返回信息：" + returnMassage);
+            }catch (Exception ex){
+                throw new Exception(String.format("获取客户授信信息失败"));
             }
 
-            //收款方式：
-            //L/C:信用证，授信使用信用证
-            //OA:托收，电汇，信汇，票汇，授信使用非信用证
-            String paymentModeBn = order.getPaymentModeBn();    //获取订单收款方式
-            String accountSettles = null;   //收款方式属于什么授信类型
+            JSONObject jsonObject = JSONObject.parseObject(returnMassage);
+            Integer code = jsonObject.getInteger("code");   //获取查询状态
+           /* if(code != 1  &&  code != -401 ){  //查询数据正确返回 1
+                String message = jsonObject.getString("message");
+                throw new Exception(message);
+            }*/
+            if(code == 1 ){
+                JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
 
-            if(paymentModeBn != null){
-                if(paymentModeBn.equals("1")){ //  1:信用证          //['1' => '信用证','2' => '托收','3'=>"电汇",'4'=>"信汇",'5'=>"票汇"];
-                    accountSettles = "L/C";
-                }else if(paymentModeBn.equals("2") || paymentModeBn.equals("3") || paymentModeBn.equals("4") || paymentModeBn.equals("5") ){
-                    accountSettles = "OA";
+                BigDecimal nolcGranted = BigDecimal.valueOf(0);
+                BigDecimal lcgranted = BigDecimal.valueOf(0);
+                String accountSettle = null;
+                BigDecimal creditAvailable = null;
+                if (data != null){
+                    nolcGranted = data.getBigDecimal("nolc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("nolc_granted"); //非信用证授信额度
+                    lcgranted = data.getBigDecimal("lc_granted") == null ? BigDecimal.valueOf(0) : data.getBigDecimal("lc_granted"); // 信用证授信额度
+                    accountSettle = data.getString("account_settle"); // OA",(OA非信用证;L/C信用证)
+                    creditAvailable = data.getBigDecimal("credit_available"); // 可用授信额度
                 }
-            }
 
-            DeliverConsign deliverConsign = new DeliverConsign();
+                //收款方式：
+                //L/C:信用证，授信使用信用证
+                //OA:托收，电汇，信汇，票汇，授信使用非信用证
+                String paymentModeBn = order.getPaymentModeBn();    //获取订单收款方式
+                String accountSettles = null;   //收款方式属于什么授信类型
 
-            if(accountSettle != null && accountSettles != null){
-                if(accountSettle.equals(accountSettles) && accountSettle.equals("L/C")){    //信用证
-                    deliverConsign.setLineOfCredit(lcgranted);   //信用证授信额度
-                    deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+                if(paymentModeBn != null){
+                    if(paymentModeBn.equals("1")){ //  1:信用证          //['1' => '信用证','2' => '托收','3'=>"电汇",'4'=>"信汇",'5'=>"票汇"];
+                        accountSettles = "L/C";
+                    }else if(paymentModeBn.equals("2") || paymentModeBn.equals("3") || paymentModeBn.equals("4") || paymentModeBn.equals("5") ){
+                        accountSettles = "OA";
+                    }
+                }
 
-                }else if (accountSettle.equals(accountSettles) && accountSettle.equals("OA")){  //非信用证
-                    deliverConsign.setLineOfCredit(nolcGranted);   //非信用证授信额度
-                    deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+                DeliverConsign deliverConsign = new DeliverConsign();
+
+                if(accountSettle != null && accountSettles != null){
+                    if(accountSettle.equals(accountSettles) && accountSettle.equals("L/C")){    //信用证
+                        deliverConsign.setLineOfCredit(lcgranted);   //信用证授信额度
+                        deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+
+                    }else if (accountSettle.equals(accountSettles) && accountSettle.equals("OA")){  //非信用证
+                        deliverConsign.setLineOfCredit(nolcGranted);   //非信用证授信额度
+                        deliverConsign.setCreditAvailable(creditAvailable);    // 可用授信额度
+                    }else {
+                        deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
+                        deliverConsign.setCreditAvailable(BigDecimal.valueOf(0));    // 可用授信额度
+                    }
                 }else {
                     deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
                     deliverConsign.setCreditAvailable(BigDecimal.valueOf(0));    // 可用授信额度
                 }
+
+                return deliverConsign;
             }else {
+                DeliverConsign deliverConsign = new DeliverConsign();
+
                 deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
                 deliverConsign.setCreditAvailable(BigDecimal.valueOf(0));    // 可用授信额度
-            }
 
-            return deliverConsign;
-        }else if(code == -401){
+                return deliverConsign;
+            }
+        }else {
             DeliverConsign deliverConsign = new DeliverConsign();
 
             deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
@@ -708,7 +720,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             return deliverConsign;
         }
-        return  null;
 
     }
 
@@ -770,15 +781,18 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
 
         //获取授信额度信息
-        DeliverConsign deliverConsignByCreditData;
+        DeliverConsign deliverConsignByCreditData = null;
         try {
-            deliverConsignByCreditData = queryCreditData(order);
+            if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                deliverConsignByCreditData = queryCreditData(order);
+            }
 
         }catch (Exception e){
             logger.info("查询授信返回信息：" + e);
             throw new Exception(e);
         }
 
+        if(deliverConsignByCreditData != null){
             BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getCreditAvailable() ;//可用授信额度
             BigDecimal divide = creditAvailable.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);//可用授信额度/利率
             BigDecimal add = divide.add(advanceMoney);  //“可用授信额度/汇率 + 预收金额”      可发货额度
@@ -824,18 +838,30 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
                 if(advanceMoney.compareTo(BigDecimal.valueOf(0)) == 1){ //小于0  说明收款多    等于0，说明没有
 
-                        BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
+                    BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
 
-                        if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
-                            throw new Exception("预收金额和可用授信额度不足");
-                        }
+                    if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
+                        throw new Exception("预收金额和可用授信额度不足");
+                    }
 
                 }else {
                     throw new Exception("预收金额和可用授信额度不足");
                 }
 
             }
+        }else {
+            if(advanceMoney.compareTo(BigDecimal.valueOf(0)) == 1){ //小于0  说明收款多    等于0，说明没有
 
+                BigDecimal subtract = advanceMoney.subtract(thisShipmentsMoney); // 预收金额   -    本批次发货金额
+
+                if(subtract.compareTo(BigDecimal.valueOf(0)) == -1 ){  //小于0的话，说明预收金额不够花钱金额
+                    throw new Exception("预收金额和可用授信额度不足");
+                }
+
+            }else {
+                throw new Exception("预收金额和可用授信额度不足");
+            }
+        }
 
 
         return null;
