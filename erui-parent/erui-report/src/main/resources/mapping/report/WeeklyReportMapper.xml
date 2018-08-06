@@ -140,7 +140,7 @@
     <select id="selectQuoteInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             COUNT(t1.id) AS total_num,
-            SUM(IFNULL(total_quote_price, 0)) AS total_price,
+            SUM(IFNULL(total_quote_price/10000, 0)) AS total_price,
             t2.`name`
         FROM
             erui_rfq.inquiry t1
