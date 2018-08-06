@@ -79,7 +79,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         if (id != null && id != 0) {
             prt = purchRequisitionDao.findOne(id);
         }
-        if (prt != null && !prt.getProjectNo().equals(projectNo)) {
+        if (prt != null && prt.getProjectNo().equals(projectNo)) {
             if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) <= 1) {
                 flag = 0;
             } else {
@@ -111,6 +111,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         }
         if (project != null) {
             project.getOrder().getGoodsList().size();
+
         }
         PurchRequisition purchRequisitionUpdate = purchRequisitionDao.findOne(purchRequisition.getId());
         purchRequisitionUpdate.setProject(project);
