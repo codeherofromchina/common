@@ -721,8 +721,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             return deliverConsign;
         }
 
-        return  null;
-
     }
 
 
