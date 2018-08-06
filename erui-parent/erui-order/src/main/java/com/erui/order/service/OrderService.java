@@ -103,4 +103,6 @@ public interface OrderService {
     ImportDataResponse importData(List<String[]> datas, boolean testOnly);
     ImportDataResponse importOrder(List<String[]> datas, boolean testOnly);
     ImportDataResponse importProjectData(List<String[]> datas, boolean testOnly);
+
+    Integer checkContractNo(String contractNo,Integer id);
 }

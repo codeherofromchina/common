@@ -55,7 +55,7 @@ public class CompanyServiceImpl implements CompanyService {
                 if (!StringUtils.isBlank(areaBn)) {
                     area = areaBn.split(",");
                 }
-                if (area.length > 0) {
+                if (area != null && area.length > 0) {
                     list.add(root.get("areaBn").in(area));
                 }
                 //根据公司名称
