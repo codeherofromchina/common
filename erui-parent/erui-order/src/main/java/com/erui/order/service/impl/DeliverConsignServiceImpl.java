@@ -652,10 +652,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             JSONObject jsonObject = JSONObject.parseObject(returnMassage);
             Integer code = jsonObject.getInteger("code");   //获取查询状态
-            if(code != 1  &&  code != -401 ){  //查询数据正确返回 1
+           /* if(code != 1  &&  code != -401 ){  //查询数据正确返回 1
                 String message = jsonObject.getString("message");
                 throw new Exception(message);
-            }
+            }*/
             if(code == 1 ){
                 JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
 
@@ -704,7 +704,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
 
                 return deliverConsign;
-            }else if(code == -401){
+            }else {
                 DeliverConsign deliverConsign = new DeliverConsign();
 
                 deliverConsign.setLineOfCredit(BigDecimal.valueOf(0));   //授信额度
