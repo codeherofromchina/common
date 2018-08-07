@@ -8,6 +8,7 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ public class PurchServiceImpl implements PurchService {
     private OrderDao orderDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private BackLogService backLogService;
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -774,7 +777,7 @@ public class PurchServiceImpl implements PurchService {
      *
      * @param projectIds 项目ID列表
      */
-    private void checkProjectPurchDone(List<Integer> projectIds) {
+    private void checkProjectPurchDone(List<Integer> projectIds) throws Exception {
         List<Integer> updateIds = new ArrayList<>();
         if (projectIds.size() > 0) {
             List<Project> projectList = projectDao.findByIdIn(projectIds);
@@ -791,6 +794,15 @@ public class PurchServiceImpl implements PurchService {
                 }
                 if (purchDone) {
                     updateIds.add(project.getId());
+
+                    //采购数量是已完毕 ，删除   “办理采购申请”  待办提示
+                    BackLog backLog = new BackLog();
+                    backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+                    backLog.setHostId(project.getId());
+                    backLogService.updateBackLogByDelYn(backLog);
+
+
+
                 }
             }
             if (updateIds.size() > 0) {

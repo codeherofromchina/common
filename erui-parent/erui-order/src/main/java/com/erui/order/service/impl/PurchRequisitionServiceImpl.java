@@ -10,6 +10,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.PurchRequisitionService;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +47,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private GoodsDao goodsDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private BackLogService backLogService;
+    @Autowired
+    private BackLogDao backLogDao;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -146,7 +152,32 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             order.setProjectNo(purchRequisition1.getProjectNo());
             order.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             orderDao.save(order);
-            projectDao.save(project1);
+            Project save = projectDao.save(project1);
+
+            //采购申请单发送以后 ，删除   “办理采购申请”  待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
+            backLog.setHostId(project1.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+            //如果项目状态是提交状态  通知商务技术经办人办理采购申请
+            BackLog newBackLog = new BackLog();
+            newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+            newBackLog.setPlaceSystem("订单");   //所在系统
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+            newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+            String contractNo = save.getContractNo();   //销售合同号
+            String projectNo = save.getProjectNo();//项目号
+            newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+            newBackLog.setHostId(save.getId());    //父ID，列表页id
+            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+            newBackLog.setUid(purchaseUid);   ////经办人id
+            newBackLog.setDelYn(1);
+            backLogDao.save(newBackLog);
+
+
             try {
                 //TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
@@ -160,7 +191,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean insertPurchRequisition(PurchRequisition purchRequisition) {
+    public boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception {
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
             throw new MyException("项目号已存在&&The project No. already exists");
@@ -219,7 +250,33 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             order.setProjectNo(purchRequisition1.getProjectNo());
             order.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             orderDao.save(order);
-            projectDao.save(project1);
+            Project save = projectDao.save(project1);
+
+            //采购申请单发送以后 ，删除   “办理采购申请”  待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
+            backLog.setHostId(project1.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+            //如果项目状态是提交状态  通知商务技术经办人办理采购申请
+            BackLog newBackLog = new BackLog();
+            newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+            newBackLog.setPlaceSystem("订单");   //所在系统
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+            newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+            String contractNo = save.getContractNo();   //销售合同号
+            String projectNo = save.getProjectNo();//项目号
+            newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+            newBackLog.setHostId(save.getId());    //父ID，列表页id
+            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+            newBackLog.setUid(purchaseUid);   ////经办人id
+            newBackLog.setDelYn(1);
+            backLogDao.save(newBackLog);
+
+
+
             try {
                 // TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);

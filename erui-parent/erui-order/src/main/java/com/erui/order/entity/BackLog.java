@@ -1,6 +1,9 @@
 package com.erui.order.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -9,10 +12,11 @@ import java.util.Date;
 public class BackLog {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "create_date")
-    private Date createDate;    //提交时间
+    private String createDate;    //提交时间
 
     @Column(name = "place_system")
     private String placeSystem; //所在系统
@@ -55,6 +59,7 @@ public class BackLog {
     private Integer delYn; //删除标识   0：删除   1：存在
 
     @Column(name = "delete_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date deleteTime; //删除时间
 
     @Transient
@@ -74,11 +79,11 @@ public class BackLog {
         this.id = id;
     }
 
-    public Date getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 
@@ -177,4 +182,51 @@ public class BackLog {
     public void setRows(Integer rows) {
         this.rows = rows;
     }
+
+
+    public static enum ProjectStatusEnum {
+
+        TRANSACTIONPROJECT("TRANSACTIONPROJECT", "办理项目/驳回", 1), EXECUTEPROJECT("EXECUTEPROJECT", "执行项目/驳回", 2),PURCHREQUISITION("PURCHREQUISITION", "办理采购申请", 3),
+        PURCHORDER("PURCHORDER", "办理采购订单", 4), INSPECTREPORT("INSPECTREPORT", "办理报检单", 5),
+        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), TURNDOWN("TURNDOWN", "驳回", 11);
+        private String code;
+        private String msg;
+
+        private Integer num;
+
+        ProjectStatusEnum(String code, String msg, Integer num) {
+
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
+
+        public static Project.ProjectStatusEnum fromCode(String code) {
+            if (StringUtils.isNotBlank(code)) {
+                for (Project.ProjectStatusEnum statusEnum : Project.ProjectStatusEnum.values()) {
+                    if (statusEnum.getCode().equals(code)) {
+                        return statusEnum;
+
+                    }
+                }
+            }
+            return null;
+
+        }
+    }
+
+
 }
