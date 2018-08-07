@@ -64,7 +64,7 @@
         SELECT
             count(id) AS total_num,
             sum(
-                ifnull(total_quote_price/10000, 0)
+                ifnull(total_quote_price, 0)
             ) AS total_price,
             countryCn AS area
         FROM
@@ -108,7 +108,7 @@
 
     <select id="selectOrderInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT countryCn AS area, COUNT(id) AS total_num
-            , SUM(ifnull(total_price_usd/10000, 0)) AS total_price
+            , SUM(ifnull(total_price_usd, 0)) AS total_price
         FROM (
             SELECT CASE t1.country
                     WHEN 'China' THEN '中国'
@@ -142,7 +142,7 @@
     <select id="selectQuoteInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             COUNT(t1.id) AS total_num,
-            SUM(IFNULL(total_quote_price/10000, 0)) AS total_price,
+            SUM(IFNULL(total_quote_price, 0)) AS total_price,
             t2.`name`
         FROM
             erui_rfq.inquiry t1
@@ -208,7 +208,7 @@
         SELECT
             t2.name,
             COUNT(t1.id) AS total_num,
-            SUM(IFNULL(total_price_usd/10000, 0)) AS total_price
+            SUM(IFNULL(total_price_usd, 0)) AS total_price
         FROM
             erui_new_order.order t1
                 LEFT OUTER JOIN
