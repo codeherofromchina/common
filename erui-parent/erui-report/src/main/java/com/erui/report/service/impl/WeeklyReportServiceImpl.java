@@ -483,7 +483,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             // 上周指定事业部报价用时处理
             Map<String, Object> lastMap = lastWeekDataMap.remove(org);
             if (lastMap != null) {
-                long totalTime = ((BigDecimal) curMap.get("diff")).longValue();
+                long totalTime = ((BigDecimal) lastMap.get("diff")).longValue();
                 lastWeekTimes.add(totalTime);
             } else {
                 lastWeekTimes.add(0L);
