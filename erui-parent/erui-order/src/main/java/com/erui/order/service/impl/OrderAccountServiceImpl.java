@@ -568,7 +568,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         try {
             if(order != null){
-             disposeAdvanceMoney(order);  //处理预收金额
+                if(order.getCrmCode() != null && order.getCrmCode() != ""){
+                    disposeAdvanceMoney(order);  //处理预收金额
+                }
             }
         } catch (Exception e) {
             throw new Exception(String.format("预收金额更新失败"));
@@ -821,29 +823,63 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
 
         //  查看可用授信额度
-        DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
-        if(deliverConsign1 != null && deliverConsign1.getLineOfCredit() != null && deliverConsign1.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
+        if(order.getCrmCode() != null && order.getCrmCode() != ""){
+            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
+            if(deliverConsign1 != null && deliverConsign1.getLineOfCredit() != null && deliverConsign1.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
 
-            BigDecimal flag = BigDecimal.valueOf(0);
+                BigDecimal flag = BigDecimal.valueOf(0);
 
-            BigDecimal creditAvailable = deliverConsign1.getCreditAvailable().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);// 可用授信额度
-            BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
-            BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
+                BigDecimal creditAvailable = deliverConsign1.getCreditAvailable().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);// 可用授信额度
+                BigDecimal lineOfCredit = deliverConsign1.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
+                BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
 
-            if (subtract.compareTo(BigDecimal.valueOf(0)) == 1 ){    //判断是否有欠款   所欠大于0
+                if (subtract.compareTo(BigDecimal.valueOf(0)) == 1 ){    //判断是否有欠款   所欠大于0
 
-                //判断本次回款总金额 是否 能够还所欠授信额度
-                BigDecimal subtract2 = subtract.subtract(moneySum);    //所欠授信额度   -   本次回款总金额
-                if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
-                    try {
-                        //如果金额正好的话     调用授信接口，修改授信额度
-                        JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,moneySum.multiply(exchangeRate));
-                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
-                        if(data == null){  //查询数据正确返回 1
-                            throw new Exception("同步授信额度失败");
-                        }else {
-                            BigDecimal subtract1 = moneySum.subtract(subtract); //本次回款总金额   -   所欠授信额度  //判断还差多少需要还的
-                            flag = subtract1;
+                    //判断本次回款总金额 是否 能够还所欠授信额度
+                    BigDecimal subtract2 = subtract.subtract(moneySum);    //所欠授信额度   -   本次回款总金额
+                    if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
+                        try {
+                            //如果金额正好的话     调用授信接口，修改授信额度
+                            JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,moneySum.multiply(exchangeRate));
+                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
+                            if(data == null){  //查询数据正确返回 1
+                                throw new Exception("同步授信额度失败");
+                            }else {
+                                BigDecimal subtract1 = moneySum.subtract(subtract); //本次回款总金额   -   所欠授信额度  //判断还差多少需要还的
+                                flag = subtract1;
+
+
+                                BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+                                BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
+
+                                //收款总金额  -  发货总金额
+                                BigDecimal subtract3 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+                                if (subtract3.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
+                                    BigDecimal advanceMoney = order.getAdvanceMoney() == null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();
+                                    BigDecimal add = advanceMoney.add(subtract1);    //查看是负数还是正数
+                                    if(add.compareTo(BigDecimal.valueOf(0)) == 1){
+                                        order.setAdvanceMoney(add);
+                                    }else {
+                                        order.setAdvanceMoney(BigDecimal.valueOf(0));
+                                    }
+                                }
+                                orderDao.save(order);
+
+
+                                return data;
+                            }
+                        }catch (Exception e){
+                            throw new Exception(e.getMessage());
+                        }
+
+                    }else {
+                        try {
+
+                            BigDecimal subtract1 = moneySum.subtract(subtract); //本次回款总金额   -   所欠授信额度  //判断多出了多少
+                            flag = subtract1;  //获取正值
+                            // 如果还款金额  大于  所欠授信额度的话  直接还给所欠钱数
+                            JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract.multiply(exchangeRate));
+                            JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
 
 
                             BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
@@ -863,51 +899,30 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                             orderDao.save(order);
 
 
-                            return data;
+
+
+                            if(data == null){  //查询数据正确返回 1
+                                throw new Exception("同步授信额度失败");
+                            }else {
+                                return data;
+                            }
+                        }catch (Exception e){
+                            throw new Exception(e.getMessage());
                         }
-                    }catch (Exception e){
-                        throw new Exception(e.getMessage());
                     }
+
 
                 }else {
-                    try {
+                    BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+                    BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
 
-                        BigDecimal subtract1 = moneySum.subtract(subtract); //本次回款总金额   -   所欠授信额度  //判断多出了多少
-                        flag = subtract1;  //获取正值
-                        // 如果还款金额  大于  所欠授信额度的话  直接还给所欠钱数
-                        JSONObject jsonObject = deliverConsignService.buyerCreditPaymentByOrder(order , 2 ,subtract.multiply(exchangeRate));
-                        JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
-
-
-                        BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
-                        BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
-
-                        //收款总金额  -  发货总金额
-                        BigDecimal subtract3 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
-                        if (subtract3.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
-                            BigDecimal advanceMoney = order.getAdvanceMoney() == null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();
-                            BigDecimal add = advanceMoney.add(subtract1);    //查看是负数还是正数
-                            if(add.compareTo(BigDecimal.valueOf(0)) == 1){
-                                order.setAdvanceMoney(add);
-                            }else {
-                                order.setAdvanceMoney(BigDecimal.valueOf(0));
-                            }
-                        }
-                        orderDao.save(order);
-
-
-
-
-                        if(data == null){  //查询数据正确返回 1
-                            throw new Exception("同步授信额度失败");
-                        }else {
-                            return data;
-                        }
-                    }catch (Exception e){
-                        throw new Exception(e.getMessage());
+                    //收款总金额  -  发货总金额
+                    BigDecimal subtract1 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+                    if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
+                        order.setAdvanceMoney(subtract1);
                     }
+                    orderDao.save(order);
                 }
-
 
             }else {
                 BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
@@ -920,6 +935,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 }
                 orderDao.save(order);
             }
+
 
         }else {
             BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
@@ -934,6 +950,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         }
 
         return null;
+
     }
 
 
@@ -1174,13 +1191,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param order
      */
     public  void  disposeAdvanceMoney(Order order) throws Exception {
-        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
 
-        BigDecimal shipmentsMoneyUSD = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();//已发货总金额
-        BigDecimal shipmentsMoney = shipmentsMoneyUSD.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);
-
-        BigDecimal alreadyGatheringMoneyUSD = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();// 已收款总金额
-        BigDecimal alreadyGatheringMoney = alreadyGatheringMoneyUSD.divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal shipmentsMoney = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();//已发货总金额
+        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();// 已收款总金额
 
         BigDecimal subtract = alreadyGatheringMoney.subtract(shipmentsMoney);   //多出的 收款 金额
         if(subtract.compareTo(BigDecimal.valueOf(0)) == 1){

@@ -61,8 +61,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         if (purchRequisition != null) {
             purchRequisition.setProId(purchRequisition.getProject().getId());
             List<Goods> goodsList = purchRequisition.getGoodsList();
-            if(goodsList.size() > 0){
-                for (Goods goods : goodsList){
+            if (goodsList.size() > 0) {
+                for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
             }
@@ -72,9 +72,32 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return null;
     }
 
+    @Override
+    public int checkProjectNo(String projectNo, Integer id) {
+        PurchRequisition prt = null;
+        int flag = 1;
+        if (id != null && id != 0) {
+            prt = purchRequisitionDao.findOne(id);
+        }
+        if (prt != null && prt.getProjectNo().equals(projectNo)) {
+            if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) <= 1) {
+                flag = 0;
+            } else {
+                flag = 1;
+            }
+        } else {
+            if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) > 0) {
+                flag = 1;
+            } else {
+                flag = 0;
+            }
+        }
+        return flag;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception{
+    public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
         Project project = projectDao.findOne(purchRequisition.getProId());
         PurchRequisition prt = purchRequisitionDao.findOne(purchRequisition.getId());
         if (!purchRequisition.getProjectNo().equals(prt.getProjectNo())) {
@@ -88,6 +111,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         }
         if (project != null) {
             project.getOrder().getGoodsList().size();
+
         }
         PurchRequisition purchRequisitionUpdate = purchRequisitionDao.findOne(purchRequisition.getId());
         purchRequisitionUpdate.setProject(project);
@@ -142,11 +166,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean insertPurchRequisition(PurchRequisition purchRequisition)  {
+    public boolean insertPurchRequisition(PurchRequisition purchRequisition) {
         Project project = projectDao.findOne(purchRequisition.getProId());
-            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
-                throw new MyException("项目号已存在&&The project No. already exists");
-            }
+        if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
+            throw new MyException("项目号已存在&&The project No. already exists");
+        }
         if (project != null) {
             project.getOrder().getGoodsList().size();
         }
@@ -362,4 +386,5 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         Page<Map<String, Object>> result = new PageImpl<Map<String, Object>>(dataList, pageRequest, pageList.getTotalElements());
         return result;
     }
+
 }
