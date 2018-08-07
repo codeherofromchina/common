@@ -46,6 +46,7 @@
                 AND t1.country_bn = t2.country_bn
                 AND t2.market_area_bn = t3.bn
                 AND t3.lang = 'zh'
+                AND t1.status != 'DRAFT'
                 AND t1.created_at BETWEEN DATE_FORMAT(
                     #{startTime},
                     "%Y/%m/%d %H:%i:%s"
@@ -90,7 +91,7 @@
             AND t3.market_area_bn = t4.bn
             AND t4.lang = 'zh'
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
-            AND t1.updated_at BETWEEN DATE_FORMAT(
+            AND t1.created_at BETWEEN DATE_FORMAT(
                 #{startTime},
                 "%Y/%m/%d %H:%i:%s"
             )
