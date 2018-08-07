@@ -864,7 +864,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 "地区周报");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 17);
         // 合并单元格
         ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
         ExcelCustomStyle.mergedCell(workbook,0,3,5,0,0);
@@ -973,7 +973,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 "事业部周报");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 17);
         // 合并单元格
         ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
         ExcelCustomStyle.mergedCell(workbook,0,5,6,0,0);
