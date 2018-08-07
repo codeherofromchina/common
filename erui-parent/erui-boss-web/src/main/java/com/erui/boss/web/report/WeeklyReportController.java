@@ -50,6 +50,10 @@ public class WeeklyReportController {
             if (params == null) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
+            //环比为前7天的数据
+            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
+            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
+            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
         //查询各地区的时间段内新用户注册数，中国算一个地区
@@ -96,6 +100,10 @@ public class WeeklyReportController {
             if (params == null) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
+            //环比为前7天的数据
+            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
+            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
+            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
         HSSFWorkbook wb = weeklyReportService.genAreaDetailExcel(params);
@@ -131,6 +139,10 @@ public class WeeklyReportController {
             if (params == null) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
+            //环比为前7天的数据
+            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
+            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
+            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
         // 询单数量信息
@@ -176,6 +188,10 @@ public class WeeklyReportController {
             if (params == null) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
+            //环比为前7天的数据
+            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
+            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
+            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
         HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params);
@@ -211,6 +227,10 @@ public class WeeklyReportController {
             if (params == null) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
+            //环比为前7天的数据
+            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
+            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
+            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
         // 查询时间段内询单数
@@ -255,6 +275,10 @@ public class WeeklyReportController {
             if (params == null) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
+            //环比为前7天的数据
+            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
+            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
+            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
         HSSFWorkbook wb = weeklyReportService.genPlatformDataDetail(params);
