@@ -366,8 +366,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             lastWeekData = new ArrayList<>();
         }
         // 将数据转换为map数据，方便遍历事业部时查找数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> vo.get("name").toString().trim(), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo ->  vo.get("name").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
 
 
         List<String> orgList = new ArrayList<>();//存放事业部列表
@@ -411,7 +411,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     @Override
     public Map<String, Object> selectQuoteInfoGroupByOrg(Map<String, Object> params) {
         List<Map<String, Object>> currentWeekData = readMapper.selectQuoteInfoWhereTimeGroupByOrg(params);
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> vo.get("name").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
 
         List<String> orgList = new ArrayList<>();//存放事业部列表
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各事业部报价数量
@@ -464,8 +464,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         } else {
             lastWeekData = new ArrayList<>();
         }
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo ->  vo.get("name").toString().trim(), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo ->  vo.get("name").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         // 处理数据
         List<String> orgList = new ArrayList<>();//存放事业部列表
         List<Long> currentWeekTimes = new ArrayList<>();//存放本周各事业部报价用时
@@ -522,9 +522,9 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         params03.put("endTime", "2018-07-09 23:59:59");
         List<Map<String, Object>> historyWeekData = readMapper.selectOrderInfoWhereTimeGroupByOrg(params03); // 历史订单数据
 
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo ->vo.get("name").toString().trim(), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> vo.get("name").toString().trim(), vo -> vo));
-        Map<String, Map<String, Object>> historyDataMap = historyWeekData.stream().collect(Collectors.toMap(vo -> vo.get("name").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> historyDataMap = historyWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
 
         // 处理数据
         List<String> orgList = new ArrayList<>();//存放事业部列表
@@ -603,8 +603,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         params02.put("startTime", "2018-01-01 00:00:00");
         params02.put("endTime", "2018-07-19 23:59:59");
         List<Map<String, Object>> historyData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params02); // 上周报价用时数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo ->  vo.get("name").toString().trim(), vo -> vo));
-        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> vo.get("name").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         // 处理数据
         List<String> orgList = new ArrayList<>();//存放事业部列表
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各事业部供应商数
@@ -651,8 +651,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         params02.put("startTime", "2018-01-01 00:00:00");
         params02.put("endTime", "2018-07-19 23:59:59");
         List<Map<String, Object>> historyData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params02); // 累计spu/sku数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo ->  vo.get("name").toString().trim(), vo -> vo));
-        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> vo.get("name").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         // 处理数据
         List<String> orgList = new ArrayList<>();//存放事业部列表
         List<Integer> currentWeekSpuCounts = new ArrayList<>();
