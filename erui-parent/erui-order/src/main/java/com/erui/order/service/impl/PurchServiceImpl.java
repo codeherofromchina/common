@@ -795,7 +795,7 @@ public class PurchServiceImpl implements PurchService {
                 if (purchDone) {
                     updateIds.add(project.getId());
 
-                    //采购数量是已完毕 ，删除   “办理采购申请”  待办提示
+                    //采购数量是已完毕 ，删除   “办理采购订单”  待办提示
                     BackLog backLog = new BackLog();
                     backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
                     backLog.setHostId(project.getId());
