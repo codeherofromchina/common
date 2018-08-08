@@ -113,13 +113,13 @@
             SELECT CASE t1.country
                     WHEN 'China' THEN '中国'
                     ELSE t2.name
-                END AS countryCn, t1.id, t1.total_price_usd
-            FROM erui_new_order.order t1, erui_operation.market_area t2
-            WHERE t1.region = t2.bn
+                END AS countryCn, t1.id, t1.total_price_usd ,t3.start_date
+            FROM erui_new_order.order t1, erui_operation.market_area t2 , project t3
+            WHERE t1.region = t2.bn  AND t3.order_id=t1.id
                 AND t2.lang = 'zh'
                 AND  t1.status>2
                 AND t1.delete_flag=0
-                AND t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+                AND t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
         ) tb
         GROUP BY countryCn
     </select>
