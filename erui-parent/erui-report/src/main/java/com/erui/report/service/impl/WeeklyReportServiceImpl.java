@@ -75,15 +75,15 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     @Override
     public Map<String, Object> selectBuyerCountGroupByArea(Map<String, Object> params) {
         List<String> areaList = new ArrayList<>(Arrays.asList(AREAS));
-        //获取本周各地区的注册数 中国算是一个独立的地区
+        //获取本周各地区的会员数数 中国算是一个独立的地区
         List<Map<String, Object>> thisWeekList = readMapper.selectBuyerCountGroupByAreaAndChina(params);
-        //获取上周各地区的注册数 中国算是一个独立的地区
+        //获取上周各地区的会员数 中国算是一个独立的地区
         List<Map<String, Object>> lastWeekList = null;
         if (params.get("chainStartTime") != null) { // 存在上周数据
             Map<String, Object> params02 = new HashMap<>();
             params02.put("startTime", params.get("chainStartTime"));
             params02.put("endTime", params.get("chainEndTime"));
-            lastWeekList = readMapper.selectRegisterCountGroupByAreaAndChina(params02);
+            lastWeekList = readMapper.selectBuyerCountGroupByAreaAndChina(params02);
         } else {
             lastWeekList = new ArrayList<>();
         }
