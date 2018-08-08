@@ -114,7 +114,7 @@
                     WHEN 'China' THEN '中国'
                     ELSE t2.name
                 END AS countryCn, t1.id, t1.total_price_usd ,t3.start_date
-            FROM erui_new_order.order t1, erui_operation.market_area t2 , project t3
+            FROM erui_new_order.order t1, erui_operation.market_area t2 , erui_new_order.project t3
             WHERE t1.region = t2.bn  AND t3.order_id=t1.id
                 AND t2.lang = 'zh'
                 AND  t1.status>2
@@ -207,16 +207,27 @@
         GROUP BY t2.name
     </select>
     <select id="selectOrderInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
-            t2.name,
-            COUNT(t1.id) AS total_num,
-            SUM(IFNULL(total_price_usd, 0)) AS total_price
-        FROM
-            erui_new_order.order t1
+       SELECT t4.name  , COUNT(t4.oid) AS total_num ,SUM(IFNULL(t4.total_price, 0)) AS total_price
+        FROM (
+            SELECT
+                  ( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                      OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                      WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                      ELSE t2.name
+                    END)  AS name,
+				  t1.id AS oid,
+                  t1.total_price_usd AS total_price
+            FROM
+                erui_new_order.order t1
                 LEFT OUTER JOIN
-            erui_sys.org t2 ON t1.business_unit_id = t2.id
-        WHERE t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-        GROUP BY t2.name;
+                 erui_sys.org t2 ON t1.business_unit_id = t2.id
+                LEFT OUTER JOIN
+                erui_new_order.project t3 ON t1.id=t3.order_id
+                 WHERE t1.status>2 AND t1.delete_flag=0
+                 and  t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+            ) AS t4  GROUP BY t4.name;
     </select>
 
     <select id="selectSupplierNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
