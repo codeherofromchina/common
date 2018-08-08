@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> implements WeeklyReportService {
 
     private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国"};
-    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-钻完井设备", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
+    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业用具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
     private static final BigDecimal WAN_DOLLOR = new BigDecimal("10000");
 
     @Override
@@ -38,8 +38,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         } else {
             lastWeekList = new ArrayList<>();
         }
-        Map<String, Map<String, Object>> thisWeekMap = thisWeekList.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekMap = lastWeekList.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
+        Map<String, Map<String, Object>> thisWeekMap = thisWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekMap = lastWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
 
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各地区新注册数量
         List<Integer> lastWeekCounts = new ArrayList<>();//存放上周各地区新注册数量
@@ -85,7 +85,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         params02.put("startTime", "2018-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> allAddUpList = readMapper.selectRegisterCountGroupByAreaAndChina(params02);
-        Map<String, Map<String, Object>> allAddUpMap = allAddUpList.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
+        Map<String, Map<String, Object>> allAddUpMap = allAddUpList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
 
         List<Integer> allAddUpCounts = new ArrayList<>(); //存放从18.1.1开始的各地区新注册数量
         int totalCount = 0;
@@ -131,8 +131,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             lastWeekData = new ArrayList<>();
         }
         // 将数据转换为map数据，方便遍历地区时查找数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo ->vo.get("area").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo ->vo.get("area").toString().trim(), vo -> vo));
 
         // 编辑需要数据的地区，并填充返回结果
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各地区新注册数量
@@ -187,8 +187,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             lastWeekData = new ArrayList<>();
         }
         // 将数据转换为map数据，方便遍历地区时查找数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
 
         // 编辑需要数据的地区，并填充返回结果
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各地区报价数量
@@ -265,9 +265,9 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         params03.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectOrderInfoWhereTimeGroupByCountry(params03); // 历史订单数据
         // 将数据转换为map数据，方便遍历地区时查找数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
-        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
-        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> (String) vo.get("area"), vo -> vo));
+        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo ->vo.get("area").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
 
         // 编辑需要数据的地区，并填充返回结果
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各地区订单数量
@@ -483,7 +483,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             // 上周指定事业部报价用时处理
             Map<String, Object> lastMap = lastWeekDataMap.remove(org);
             if (lastMap != null) {
-                long totalTime = ((BigDecimal) curMap.get("diff")).longValue();
+                long totalTime = ((BigDecimal) lastMap.get("diff")).longValue();
                 lastWeekTimes.add(totalTime);
             } else {
                 lastWeekTimes.add(0L);
@@ -864,7 +864,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 "地区周报");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 17);
         // 合并单元格
         ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
         ExcelCustomStyle.mergedCell(workbook,0,3,5,0,0);
@@ -973,7 +973,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 "事业部周报");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 17);
         // 合并单元格
         ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
         ExcelCustomStyle.mergedCell(workbook,0,5,6,0,0);

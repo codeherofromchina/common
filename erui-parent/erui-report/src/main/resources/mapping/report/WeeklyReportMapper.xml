@@ -46,6 +46,7 @@
                 AND t1.country_bn = t2.country_bn
                 AND t2.market_area_bn = t3.bn
                 AND t3.lang = 'zh'
+                AND t1.status != 'DRAFT'
                 AND t1.created_at BETWEEN DATE_FORMAT(
                     #{startTime},
                     "%Y/%m/%d %H:%i:%s"
@@ -90,7 +91,7 @@
             AND t3.market_area_bn = t4.bn
             AND t4.lang = 'zh'
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
-            AND t1.updated_at BETWEEN DATE_FORMAT(
+            AND t1.created_at BETWEEN DATE_FORMAT(
                 #{startTime},
                 "%Y/%m/%d %H:%i:%s"
             )
@@ -116,6 +117,8 @@
             FROM erui_new_order.order t1, erui_operation.market_area t2
             WHERE t1.region = t2.bn
                 AND t2.lang = 'zh'
+                AND  t1.status>2
+                AND t1.delete_flag=0
                 AND t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
         ) tb
         GROUP BY countryCn
@@ -131,7 +134,8 @@
             erui_sys.org t2 ON t1.org_id = t2.id
                 AND t2.deleted_flag = 'N'
         WHERE
-            t1.deleted_flag = 'N'
+                t1.deleted_flag = 'N'
+                AND t1.status != 'DRAFT'
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
         GROUP BY t2.`name`
     </select>
@@ -262,6 +266,7 @@
             erui_rfq.inquiry t1
         WHERE
             t1.deleted_flag = 'N'
+                AND t1.status != 'DRAFT'
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
@@ -274,7 +279,7 @@
         WHERE
             t1.deleted_flag = 'N'
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
-                AND t1.updated_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
+                AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
     <select id="selectOrderInfoWhereTimeGroupByCountryTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
