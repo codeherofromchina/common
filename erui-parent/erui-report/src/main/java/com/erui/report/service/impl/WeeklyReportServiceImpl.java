@@ -1,14 +1,11 @@
 package com.erui.report.service.impl;
 
-import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.WeeklyReportMapper;
 import com.erui.report.service.WeeklyReportService;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,7 +17,7 @@ import java.util.stream.Collectors;
 public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> implements WeeklyReportService {
 
     private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国"};
-    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业用具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
+    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
     private static final BigDecimal WAN_DOLLOR = new BigDecimal("10000");
 
     @Override
@@ -525,7 +522,6 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         Map<String, Map<String, Object>> historyDataMap = historyWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
-
         // 处理数据
         List<String> orgList = new ArrayList<>();//存放事业部列表
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各事业部订单数量
@@ -536,7 +532,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
         for (String org : ORGS) {
             orgList.add(org);
-            // 本周
+            // 本周数据
             Map<String, Object> curMap = currentWeekDataMap.remove(org);
             if (curMap != null) {
                 int totalNum = ((Long) curMap.get("total_num")).intValue();
@@ -548,7 +544,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 currentWeekCounts.add(0);
                 currentWeekAmount.add(BigDecimal.ZERO);
             }
-            // 上周指定事业部报价用时处理
+            // 上周数据
             Map<String, Object> lastMap = lastWeekDataMap.remove(org);
             if (lastMap != null) {
                 int totalNum = ((Long) lastMap.get("total_num")).intValue();
@@ -560,7 +556,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 lastWeekCounts.add(0);
                 lastWeekAmount.add(BigDecimal.ZERO);
             }
-
+            //历史数据
             Map<String, Object> historyMap = historyDataMap.remove(org);
             if (historyMap != null) {
                 BigDecimal totalPrice = (BigDecimal) historyMap.get("total_price");
