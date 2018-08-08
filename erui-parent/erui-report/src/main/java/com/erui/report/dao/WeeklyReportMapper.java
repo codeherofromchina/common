@@ -16,6 +16,13 @@ public interface WeeklyReportMapper {
      * @return
      */
     List<Map<String, Object>> selectRegisterCountGroupByAreaAndChina(Map<String, Object> params);
+    /**
+     * 根据时间过去各地区的普通和高级会员数 中国算是各独立的地区
+     *
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> selectBuyerCountGroupByAreaAndChina(Map<String, Object> params);
 
 
     /**
