@@ -2,19 +2,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.erui.report.dao.WeeklyReportMapper">
 
+
     <!--根据时间过去各地区的新注册会员数中国算是各独立的地区-->
     <select id="selectRegisterCountGroupByAreaAndChina" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT COUNT(1) AS  registerCount ,area FROM
         (
-          SELECT buyers.buyer_no AS buyerNo,buyers.buyer_code AS buyerCode ,buyers.created_at AS createdAt ,
-                  buyers.source AS source ,areasBn.country_bn AS country,
+        SELECT buyers.buyer_no AS buyerNo,buyers.buyer_code AS buyerCode ,
+        (case when (buyers.`source` = 1) then '后台' when (buyers.`source` = 2) then '门户' when (buyers.`source` = 3) then '移动端' end)
+        AS `source`,
+        (case when (buyers.`buyer_level` = 52) then '普通会员' when (buyers.`buyer_level` = 53) then '高级会员' end) AS `level`,
+        buyers.created_at AS createdAt ,
+        areasBn.country_bn AS country,
+        (CASE  WHEN  areasBn.country_bn ='China'  THEN '中国' ELSE areasZh.name END )  as area
+        FROM erui_buyer.buyer AS buyers
+        LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
+        LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
+        WHERE buyers.deleted_flag='N'
+        ) as a
+        WHERE source IN ('后台','门户')  and  createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        GROUP BY area HAVING area IS NOT NULL
+    </select>
+    <!--根据时间过去各地区的会员数（普通会员和高级会员）中国算是各独立的地区-->
+    <select id="selectBuyerCountGroupByAreaAndChina" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT COUNT(1) AS  registerCount ,area FROM
+        (
+          SELECT buyers.buyer_no AS buyerNo,buyers.buyer_code AS buyerCode ,
+            	(case when (buyers.`source` = 1) then '后台' when (buyers.`source` = 2) then '门户' when (buyers.`source` = 3) then '移动端' end)
+            	 AS `source`,
+				  (case when (buyers.`buyer_level` = 52) then '普通会员' when (buyers.`buyer_level` = 53) then '高级会员' end) AS `level`,
+                  buyers.created_at AS createdAt ,
+                  areasBn.country_bn AS country,
                   (CASE  WHEN  areasBn.country_bn ='China'  THEN '中国' ELSE areasZh.name END )  as area
           FROM erui_buyer.buyer AS buyers
           LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
           LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
           WHERE buyers.deleted_flag='N'
         ) as a
-        WHERE createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        WHERE level IN ('普通会员','高级会员')  and  createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         GROUP BY area HAVING area IS NOT NULL
     </select>
