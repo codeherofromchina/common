@@ -87,13 +87,20 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         } else {
             lastWeekList = new ArrayList<>();
         }
+        //获取历史数据
+        Map<String, Object> params02 = new HashMap<>();
+        params02.put("startTime", "2018-01-01 00:00:00");
+        params02.put("endTime", params.get("endTime"));
+        List<Map<String, Object>> allAddUpList = readMapper.selectBuyerCountGroupByAreaAndChina(params02);
         Map<String, Map<String, Object>> thisWeekMap = thisWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
         Map<String, Map<String, Object>> lastWeekMap = lastWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
-
+        Map<String, Map<String, Object>> allAddUpMap = allAddUpList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
         List<Integer> currentWeekCounts = new ArrayList<>();//存放本周各地区新注册数量
         List<Integer> lastWeekCounts = new ArrayList<>();//存放上周各地区新注册数量
+        List<Integer> allAddUpCounts = new ArrayList<>(); //存放从18.1.1开始的各地区新注册数量
         int currentWeekTotal = 0;
         int lastWeekTotal = 0;
+        int totalCount = 0;
         for (String area : areaList) {
             if (thisWeekMap.containsKey(area)) {
                 Map<String, Object> map = thisWeekMap.get(area);
@@ -111,26 +118,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             } else {
                 lastWeekCounts.add(0);
             }
-        }
-        //添加上合计数据
-        areaList.add("合计");
-        currentWeekCounts.add(currentWeekTotal);
-        lastWeekCounts.add(lastWeekTotal);
-        //返回结果
-        Map<String, Object> result = new HashMap<>();
-        result.put("areaList", areaList);
-        result.put("currentWeekCounts", currentWeekCounts);
-        result.put("lastWeekCounts", lastWeekCounts);
-        // 查询从2018.1.1开始后注册的所有用户数
-        Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", "2018-01-01 00:00:00");
-        params02.put("endTime", params.get("endTime"));
-        List<Map<String, Object>> allAddUpList = readMapper.selectBuyerCountGroupByAreaAndChina(params02);
-        Map<String, Map<String, Object>> allAddUpMap = allAddUpList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
 
-        List<Integer> allAddUpCounts = new ArrayList<>(); //存放从18.1.1开始的各地区新注册数量
-        int totalCount = 0;
-        for (String area : areaList) {
             if (allAddUpMap.containsKey(area)) {
                 Map<String, Object> map = allAddUpMap.get(area);
                 int registerCount = Integer.parseInt(map.get("registerCount").toString());
@@ -141,8 +129,15 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             }
         }
         //添加上合计数据
+        areaList.add("合计");
+        currentWeekCounts.add(currentWeekTotal);
+        lastWeekCounts.add(lastWeekTotal);
         allAddUpCounts.add(totalCount);
-        // 添加上累计注册会员数量
+        //返回结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("areaList", areaList);
+        result.put("currentWeekCounts", currentWeekCounts);
+        result.put("lastWeekCounts", lastWeekCounts);
         result.put("historyCounts", allAddUpCounts);
 
         return result;
