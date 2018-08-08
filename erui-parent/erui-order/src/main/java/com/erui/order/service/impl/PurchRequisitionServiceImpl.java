@@ -161,7 +161,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             backLogService.updateBackLogByDelYn(backLog);
 
 
-            //如果项目状态是提交状态  通知商务技术经办人办理采购申请
+            //项目中采购申请提交以后  通知采购经办人办理采购申请
             BackLog newBackLog = new BackLog();
             newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
             newBackLog.setPlaceSystem("订单");   //所在系统
@@ -259,7 +259,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             backLogService.updateBackLogByDelYn(backLog);
 
 
-            //如果项目状态是提交状态  通知商务技术经办人办理采购申请
+            //项目中采购申请提交以后  通知采购经办人办理采购申请
             BackLog newBackLog = new BackLog();
             newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
             newBackLog.setPlaceSystem("订单");   //所在系统
