@@ -203,14 +203,7 @@ FROM
 		WHERE
 			t1.deleted_flag = 'N'
 		AND t1.quote_status IN ('QUOTED', 'COMPLETED')
-		AND t1.updated_at BETWEEN DATE_FORMAT(
-                #{startTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-            AND DATE_FORMAT(
-                #{endTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
+		AND t1.updated_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
 	) AS t4
 GROUP BY
 	t4.`name`
@@ -219,8 +212,20 @@ GROUP BY
     <!-- 根据时间查询各个事业部的报价用时 -->
     <select id="selectQuoteTimeWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            SUM(IFNULL(t3.diff, 0)) AS diff, t2.`name`
+          SUM(IFNULL(t4.diff, 0)) AS diff,
+          t4.name
         FROM
+        (
+          SELECT
+            t3.diff AS diff,
+						( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                      OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                      WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                      ELSE t2.name
+                    END)  AS name
+          FROM
             erui_rfq.inquiry t1
                 LEFT OUTER JOIN
             erui_sys.org t2 ON t1.org_id = t2.id
@@ -240,19 +245,13 @@ GROUP BY
                 in_node = 'DRAFT'
                     OR out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id) t3
-        WHERE
+          WHERE
             t1.id = t3.inquiry_id
                 AND t1.deleted_flag = 'N'
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
-            AND t1.updated_at BETWEEN DATE_FORMAT(
-                #{startTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-            AND DATE_FORMAT(
-                #{endTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-        GROUP BY t2.name
+            AND t1.updated_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+            ) AS t4
+        GROUP BY t4.name
     </select>
     <select id="selectOrderInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
        SELECT t4.name  , COUNT(t4.oid) AS total_num ,SUM(IFNULL(t4.total_price, 0)) AS total_price
@@ -279,19 +278,31 @@ GROUP BY
     </select>
 
     <select id="selectSupplierNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
-            t2.name, COUNT(1) AS total
-        FROM
-            erui_supplier.supplier t1
-                LEFT OUTER JOIN
-            erui_sys.org t2 ON t1.org_id = t2.id
-                AND t2.deleted_flag = 'N'
-        WHERE
-            t1.status = 'APPROVED'
-                AND t1.deleted_flag = 'N'
-                AND t1.expire_status = 'N'
-                AND t1.checked_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-        GROUP BY t2.name
+           SELECT t4.name ,COUNT(1) AS total
+    FROM
+    (
+    SELECT
+                        t1.id AS sid,
+                    ( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                       OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                       WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                       ELSE t2.name
+                      END)  AS name
+
+            FROM
+                erui_supplier.supplier t1
+                    LEFT OUTER JOIN
+                erui_sys.org t2 ON t1.org_id = t2.id
+                    AND t2.deleted_flag = 'N'
+            WHERE
+                t1.status = 'APPROVED'
+                    AND t1.deleted_flag = 'N'
+                    AND t1.expire_status = 'N'
+             AND t1.checked_at BETWEEN DATE_FORMAT("2018/01/01 00:00:00","%Y/%m/%d %H:%i:%s") and DATE_FORMAT("2018/08/10 00:00:00","%Y/%m/%d %H:%i:%s")
+    ) AS t4
+            GROUP BY t4.name
     </select>
 
     <select id="selectSpuAndSkuNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
