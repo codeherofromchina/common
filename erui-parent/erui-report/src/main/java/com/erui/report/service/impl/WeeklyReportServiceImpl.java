@@ -9,7 +9,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -555,7 +554,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         }
         Map<String, Object> params03 = new HashMap<>();
         params03.put("startTime", "2018-01-01 00:00:00");
-        params03.put("endTime", "2018-07-09 23:59:59");
+        params03.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyWeekData = readMapper.selectOrderInfoWhereTimeGroupByOrg(params03); // 历史订单数据
 
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
@@ -640,7 +639,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<Map<String, Object>> currentWeekData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params);
         Map<String, Object> params02 = new HashMap<>();
         params02.put("startTime", "2018-01-01 00:00:00");
-        params02.put("endTime", "2018-07-19 23:59:59");
+        params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params02); // 上周报价用时数据
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
@@ -688,7 +687,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<Map<String, Object>> currentWeekData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params);
         Map<String, Object> params02 = new HashMap<>();
         params02.put("startTime", "2018-01-01 00:00:00");
-        params02.put("endTime", "2018-07-19 23:59:59");
+        params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params02); // 累计spu/sku数据
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
@@ -972,19 +971,19 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         row12.add("合格供应商数量");row12.add("本周");
         row12.addAll((List<Object>) supplierNumInfoData.get("currentWeekCounts"));
         List<Object> row13 = new ArrayList<>();
-        row13.add("");row13.add("2018.1.1-2018.7.19");
+        row13.add("");row13.add("2018.1.1-"+params.get("endTime"));
         row13.addAll((List<Object>) supplierNumInfoData.get("historyCounts"));
         List<Object> row14 = new ArrayList<>();
         row14.add("上架SKU数量");row14.add("本周");
         row14.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSkuCounts"));
         List<Object> row15 = new ArrayList<>();
-        row15.add("");row15.add("2018.1.1-2018.7.19");
+        row15.add("");row15.add("2018.1.1-"+params.get("endTime"));
         row15.addAll((List<Object>) spuSkuNumInfoData.get("historySkuCounts"));
         List<Object> row16 = new ArrayList<>();
         row16.add("上架SPU数量");row16.add("本周");
         row16.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSpuCounts"));
         List<Object> row17 = new ArrayList<>();
-        row17.add("");row17.add("2018.1.1-2018.7.19");
+        row17.add("");row17.add("2018.1.1-"+params.get("endTime"));
         row17.addAll((List<Object>) spuSkuNumInfoData.get("historySpuCounts"));
         // 填充数据
         List<Object[]> datas = new ArrayList<>();
