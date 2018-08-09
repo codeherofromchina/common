@@ -42,8 +42,7 @@ public class WeeklyReportController {
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
-            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         } else {
             //处理时间参数
             params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
@@ -90,8 +89,7 @@ public class WeeklyReportController {
     public Object exportAreaDetail(HttpServletResponse response, String startTime, String endTime) {
         Map<String, Object> params = new HashMap();
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
-            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         } else {
             params.put("startTime", startTime);
             params.put("endTime", endTime);
@@ -131,8 +129,7 @@ public class WeeklyReportController {
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
-            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         } else {
             //处理时间参数
             params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
@@ -178,8 +175,7 @@ public class WeeklyReportController {
     public Object exportOrgDetail(HttpServletResponse response, String startTime, String endTime) {
         Map<String, Object> params = new HashMap();
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
-            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         } else {
             params.put("startTime", startTime);
             params.put("endTime", endTime);
@@ -219,8 +215,7 @@ public class WeeklyReportController {
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
-            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         } else {
             //处理时间参数
             params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
@@ -265,8 +260,7 @@ public class WeeklyReportController {
     public Object exportPlatformDataDetail(HttpServletResponse response, String startTime, String endTime) {
         Map<String, Object> params = new HashMap();
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
-            params.put("startTime", "2018-01-01 00:00:00"); // 从2018年开始查询
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, new Date())); // 到当前时间结束
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         } else {
             params.put("startTime", startTime);
             params.put("endTime", endTime);

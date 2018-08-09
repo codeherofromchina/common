@@ -1012,7 +1012,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                     String[] countriesArr = countriesStr.split(",");
                     list.add(orderRoot.get("country").in(countriesArr));
                 }
-
+                //  crmCode名称
+                String crmCode = condition.get("crmCode");
+                if (StringUtil.isNotBlank(crmCode)) {
+                    list.add(cb.like(orderRoot.get("crmCode").as(String.class), "%" + crmCode + "%"));
+                }
                 // 销售合同号
                 String contractNo = condition.get("contractNo");
                 if (StringUtil.isNotBlank(contractNo)) {
