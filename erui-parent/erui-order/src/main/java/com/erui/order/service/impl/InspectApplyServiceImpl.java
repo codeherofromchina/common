@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private InspectReportServiceImpl inspectReportServiceImpl;
+
+    @Autowired
+    private BackLogDao backLogDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -248,6 +252,24 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 map.put("purchaseNames", purchaseNames);
                 map.put("inspectApplyNo", inspectApplyNo);
                 sendSms(map);
+
+
+                //当有报检单提交的时候，通知办理入库质检
+                BackLog newBackLog = new BackLog();
+                newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+                newBackLog.setPlaceSystem("订单");   //所在系统
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+              /*  String contractNo = save.getContractNo();   //销售合同号
+                String projectNo = save.getProjectNo();//项目号
+                newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+                newBackLog.setHostId(save.getId());    //父ID，列表页id
+                Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+                newBackLog.setUid(purchaseUid);   ////经办人id*/
+                newBackLog.setDelYn(1);
+                backLogDao.save(newBackLog);
+
 
             } else if (directInstockGoods) {
                 //  判断采购是否已经完成并修正

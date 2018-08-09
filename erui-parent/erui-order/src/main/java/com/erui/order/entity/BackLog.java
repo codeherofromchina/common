@@ -187,8 +187,8 @@ public class BackLog {
     public static enum ProjectStatusEnum {
 
         TRANSACTIONPROJECT("TRANSACTIONPROJECT", "办理项目/驳回", 1), EXECUTEPROJECT("EXECUTEPROJECT", "执行项目/驳回", 2),PURCHREQUISITION("PURCHREQUISITION", "办理采购申请", 3),
-        PURCHORDER("PURCHORDER", "办理采购订单", 4), INSPECTREPORT("INSPECTREPORT", "办理报检单", 5),
-        DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
+        PURCHORDER("PURCHORDER", "办理采购订单", 4), INSPECTAPPLY("INSPECTAPPLY", "办理报检单", 5),INSPECTREPORT("INSPECTREPORT", "办理入库质检", 6),
+        UNSHIPPED("UNSHIPPED", "正常待发运", 7),
         DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), TURNDOWN("TURNDOWN", "驳回", 11);
         private String code;
         private String msg;

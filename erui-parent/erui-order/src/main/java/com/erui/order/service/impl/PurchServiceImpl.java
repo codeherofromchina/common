@@ -801,8 +801,6 @@ public class PurchServiceImpl implements PurchService {
                     backLog.setHostId(project.getId());
                     backLogService.updateBackLogByDelYn(backLog);
 
-
-
                 }
             }
             if (updateIds.size() > 0) {
