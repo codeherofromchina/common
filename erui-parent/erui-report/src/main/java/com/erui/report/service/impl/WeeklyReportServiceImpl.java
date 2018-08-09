@@ -684,13 +684,20 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     @Override
     public Map<String, Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params) {
         // 准备数据
-        List<Map<String, Object>> currentWeekData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params);
+//        List<Map<String, Object>> currentWeekData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params);
+        List<Map<String, Object>> currentSpuWeekData = readMapper.selectSpuNumWhereTimeGroupByOrg(params);
+        List<Map<String, Object>> currentSkuWeekData = readMapper.selectSkuNumWhereTimeGroupByOrg(params);
         Map<String, Object> params02 = new HashMap<>();
         params02.put("startTime", "2018-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
-        List<Map<String, Object>> historyData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params02); // 累计spu/sku数据
-        Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
-        Map<String, Map<String, Object>> historyDataMap = historyData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+//        List<Map<String, Object>> historyData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params02); // 累计spu/sku数据
+        List<Map<String, Object>> historySpuData = readMapper.selectSpuNumWhereTimeGroupByOrg(params02);
+        List<Map<String, Object>> historySkuData = readMapper.selectSkuNumWhereTimeGroupByOrg(params02);
+        Map<String, Map<String, Object>> currentSpuWeekDataMap = currentSpuWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> currentSkuWeekDataMap = currentSkuWeekData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> historySpuDataMap = historySpuData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> historySkuDataMap = historySkuData.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+
         // 处理数据
         List<String> orgList = new ArrayList<>();//存放事业部列表
         List<Integer> currentWeekSpuCounts = new ArrayList<>();
@@ -699,34 +706,44 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<Integer> historySkuCounts = new ArrayList<>();
         for (String org : ORGS) {
             orgList.add(org);
-            // 本周指定事业部报价用时处理
-            Map<String, Object> curMap = currentWeekDataMap.remove(org);
-            if (curMap != null) {
-                int totalSpu = ((Long) curMap.get("total_spu")).intValue();
-                int totalSku = ((BigDecimal) curMap.get("total_sku")).intValue();
+            // 本周spu数据
+            Map<String, Object> curSpuMap = currentSpuWeekDataMap.remove(org);
+            if (curSpuMap != null) {
+                int totalSpu = ((Long) curSpuMap.get("total_spu")).intValue();
                 currentWeekSpuCounts.add(totalSpu);
-                currentWeekSkuCounts.add(totalSku);
             } else {
                 currentWeekSpuCounts.add(0);
+            }
+            // 本周sku数据
+            Map<String, Object> curSkuMap = currentSkuWeekDataMap.remove(org);
+            if (curSkuMap != null) {
+                int totalSku = ((Long) curSkuMap.get("total_sku")).intValue();
+                currentWeekSkuCounts.add(totalSku);
+            } else {
                 currentWeekSkuCounts.add(0);
             }
-            // 上周指定事业部报价用时处理
-            Map<String, Object> historyMap = historyDataMap.remove(org);
-            if (historyMap != null) {
-                int totalSpu = ((Long) historyMap.get("total_spu")).intValue();
-                int totalSku = ((BigDecimal) historyMap.get("total_sku")).intValue();
+            // 上周spu数据
+            Map<String, Object> historySpuMap = historySpuDataMap.remove(org);
+            if (historySpuMap != null) {
+                int totalSpu = ((Long) historySpuMap.get("total_spu")).intValue();
                 historySpuCounts.add(totalSpu);
-                historySkuCounts.add(totalSku);
             } else {
                 historySpuCounts.add(0);
+            }
+            // 上周sku数据
+            Map<String, Object> historySkuMap = historySkuDataMap.remove(org);
+            if (historySkuMap != null) {
+                int totalSku = ((Long) historySkuMap.get("total_sku")).intValue();
+                historySkuCounts.add(totalSku);
+            } else {
                 historySkuCounts.add(0);
             }
         }
         //处理其它事业部数据
-        Integer curWeekOtherOrgSpuNum = currentWeekDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_spu")).intValue()).reduce(0, (a, b) -> a + b);
-        Integer curWeekOtherOrgSkuNum = currentWeekDataMap.values().parallelStream().map(vo -> ((BigDecimal) vo.get("total_sku")).intValue()).reduce(0, (a, b) -> a + b);
-        Integer historyOtherOrgSpuNum = historyDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_spu")).intValue()).reduce(0, (a, b) -> a + b);
-        Integer historyOtherOrgSkuNum = historyDataMap.values().parallelStream().map(vo -> ((BigDecimal) vo.get("total_sku")).intValue()).reduce(0, (a, b) -> a + b);
+        Integer curWeekOtherOrgSpuNum = currentSpuWeekDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_spu")).intValue()).reduce(0, (a, b) -> a + b);
+        Integer curWeekOtherOrgSkuNum = currentSkuWeekDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_sku")).intValue()).reduce(0, (a, b) -> a + b);
+        Integer historyOtherOrgSpuNum = historySpuDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_spu")).intValue()).reduce(0, (a, b) -> a + b);
+        Integer historyOtherOrgSkuNum = historySkuDataMap.values().parallelStream().map(vo -> ((Long) vo.get("total_sku")).intValue()).reduce(0, (a, b) -> a + b);
         orgList.add("其他");
         currentWeekSpuCounts.add(curWeekOtherOrgSpuNum);
         currentWeekSkuCounts.add(curWeekOtherOrgSkuNum);
