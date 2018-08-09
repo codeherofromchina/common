@@ -241,7 +241,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 Map<String, Object> map = currentWeekDataMap.get(area);
                 int totalNum = Integer.parseInt(map.get("total_num").toString());
                 BigDecimal totalPrice = (BigDecimal) map.get("total_price");
-                totalPrice = totalPrice.divide(wanDollor, 2, RoundingMode.HALF_DOWN);
+                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_HALF_UP);
                 currentWeekTotalNum += totalNum;
                 currentWeekTotalPrice = currentWeekTotalPrice.add(totalPrice);
                 currentWeekCounts.add(totalNum);
@@ -254,7 +254,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 Map<String, Object> map = lastWeekDataMap.get(area);
                 int totalNum = Integer.parseInt(map.get("total_num").toString());
                 BigDecimal totalPrice = (BigDecimal) map.get("total_price");
-                totalPrice = totalPrice.divide(wanDollor, 2, RoundingMode.HALF_DOWN);
+                totalPrice = totalPrice.divide(wanDollor, 2,BigDecimal.ROUND_HALF_UP);
                 lastWeekTotalNum += totalNum;
                 lastWeekTotalPrice = lastWeekTotalPrice.add(totalPrice);
                 lastWeekCounts.add(totalNum);
@@ -324,7 +324,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 Map<String, Object> map = currentWeekDataMap.get(area);
                 int totalNum = Integer.parseInt(map.get("total_num").toString());
                 BigDecimal totalPrice = (BigDecimal) map.get("total_price");
-                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_HALF_UP);
                 currentWeekTotalNum += totalNum;
                 currentWeekTotalPrice = currentWeekTotalPrice.add(totalPrice);
                 currentWeekCounts.add(totalNum);
@@ -337,7 +337,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 Map<String, Object> map = lastWeekDataMap.get(area);
                 int totalNum = Integer.parseInt(map.get("total_num").toString());
                 BigDecimal totalPrice = (BigDecimal) map.get("total_price");
-                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_HALF_UP);
                 lastWeekTotalNum += totalNum;
                 lastWeekTotalPrice = lastWeekTotalPrice.add(totalPrice);
                 lastWeekCounts.add(totalNum);
@@ -351,7 +351,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 Map<String, Object> map = historyDataMap.get(area);
                 int totalNum = Integer.parseInt(map.get("total_num").toString());
                 BigDecimal totalPrice = (BigDecimal) map.get("total_price");
-                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(wanDollor, 2, BigDecimal.ROUND_HALF_UP);
                 historyTotalNum += totalNum;
                 historyTotalPrice = historyTotalPrice.add(totalPrice);
                 historyCounts.add(totalNum);
@@ -459,7 +459,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curMap != null) {
                 Long totalNum = (Long) curMap.get("total_num");
                 BigDecimal totalPrice = (BigDecimal) curMap.get("total_price");
-                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 currentWeekCounts.add(totalNum.intValue());
                 currentWeekAmounts.add(totalPrice);
             } else {
@@ -576,7 +576,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curMap != null) {
                 int totalNum = ((Long) curMap.get("total_num")).intValue();
                 BigDecimal totalPrice = (BigDecimal) curMap.get("total_price");
-                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 currentWeekCounts.add(totalNum);
                 currentWeekAmount.add(totalPrice);
             } else {
@@ -588,7 +588,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (lastMap != null) {
                 int totalNum = ((Long) lastMap.get("total_num")).intValue();
                 BigDecimal totalPrice = (BigDecimal) lastMap.get("total_price");
-                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 lastWeekCounts.add(totalNum);
                 lastWeekAmount.add(totalPrice);
             } else {
@@ -599,7 +599,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             Map<String, Object> historyMap = historyDataMap.remove(org);
             if (historyMap != null) {
                 BigDecimal totalPrice = (BigDecimal) historyMap.get("total_price");
-                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_DOWN);
+                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 historyAmount.add(totalPrice);
             } else {
                 historyAmount.add(BigDecimal.ZERO);
@@ -612,6 +612,10 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         BigDecimal lastWeekOtherOrgPrice = lastWeekDataMap.values().parallelStream().map(vo -> (BigDecimal) vo.get("total_price")).reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
         BigDecimal historyOtherOrgPrice = historyDataMap.values().parallelStream().map(vo -> (BigDecimal) vo.get("total_price")).reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
         orgList.add("其他");
+        //单位万美元
+        curWeekOtherOrgPrice=curWeekOtherOrgPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
+        lastWeekOtherOrgPrice=lastWeekOtherOrgPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
+        historyOtherOrgPrice=historyOtherOrgPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
         currentWeekCounts.add(curWeekOtherOrgCount);
         currentWeekAmount.add(curWeekOtherOrgPrice);
         lastWeekCounts.add(lastWeekOtherOrgCount);
