@@ -371,7 +371,7 @@ GROUP BY
     and scg.onshelf_flag='Y'
     LEFT JOIN erui_operation.bizline t2 ON p.bizline_id=t2.id
     where   g.deleted_flag='N'  and p.deleted_flag='N'  and g.lang='en'
-            and scg.created_at BETWEEN DATE_FORMAT("2018/06/01 00:00:00","%Y/%m/%d %H:%i:%s") and DATE_FORMAT("2018/08/10 00:00:00","%Y/%m/%d %H:%i:%s")
+            and scg.created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     ) AS t4
      GROUP BY t4.name;
 
@@ -387,6 +387,7 @@ GROUP BY
         WHERE
             t1.deleted_flag = 'N'
                 AND t1.status != 'DRAFT'
+               AND t1.inquiry_source IN ('Mall' ,'Portal')
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
@@ -400,6 +401,7 @@ GROUP BY
         WHERE
             t1.deleted_flag = 'N'
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+                AND t1.inquiry_source IN ('Mall' ,'Portal')
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
