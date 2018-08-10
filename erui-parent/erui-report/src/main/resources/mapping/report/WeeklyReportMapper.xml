@@ -387,6 +387,7 @@ GROUP BY
         WHERE
             t1.deleted_flag = 'N'
                 AND t1.status != 'DRAFT'
+               AND t1.inquiry_source IN ('Mall' ,'Portal')
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
@@ -400,6 +401,7 @@ GROUP BY
         WHERE
             t1.deleted_flag = 'N'
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+                AND t1.inquiry_source IN ('Mall' ,'Portal')
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
