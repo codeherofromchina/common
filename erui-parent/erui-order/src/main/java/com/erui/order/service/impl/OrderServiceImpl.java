@@ -35,7 +35,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,9 +66,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private DeliverConsignService deliverConsignService;
-
-    @Autowired
-    private  BackLogDao backLogDao;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -428,22 +424,28 @@ public class OrderServiceImpl implements OrderService {
         orderDao.save(collect);
     }
 
+    //确认检测销售合同号
     @Override
     public Integer checkContractNo(String contractNo, Integer id) {
         Order order = null;
-        if (id != null) {
+        int flag = 1;
+        if (id != null && id != 0) {
             order = orderDao.findOne(id);
         }
-        if (order != null && !order.getContractNo().equals(contractNo)) {
-            if (order != null && !StringUtils.equals("", contractNo) && orderDao.countByContractNo(contractNo) > 1) {
-                return 1;
+        if (order != null && order.getContractNo().equals(contractNo)) {
+            if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) <= 1) {
+                flag = 0;
+            } else {
+                flag = 1;
             }
         } else {
             if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) > 0) {
-                return 1;
+                flag = 1;
+            } else {
+                flag = 0;
             }
         }
-        return 0;
+        return flag;
     }
 
     @Override
@@ -580,22 +582,6 @@ public class OrderServiceImpl implements OrderService {
 
             //销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
-
-            //添加待办事项
-            BackLog backLog = new BackLog();
-            backLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-            backLog.setPlaceSystem("订单");   //所在系统
-            backLog.setFunctionExplainName(BackLog.ProjectStatusEnum.transactionProject.getMsg());  //功能名称
-            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.transactionProject.getNum());    //功能访问路径标识
-            backLog.setReturnNo(project2.getContractNo());  //返回单号    销售合同号
-            String region = project2.getRegion();   //所属地区
-            String country = project2.getCountry();  //国家
-            backLog.setInformTheContent(region+" | "+country);  //提示内容
-            backLog.setHostId(project2.getId());    //父ID，列表页id
-            Integer businessUid = project2.getBusinessUid();//商务技术经办人id
-            backLog.setUid(businessUid);   ////经办人id
-            backLog.setDelYn(1);
-            backLogDao.save(backLog);
         }
         return order.getId();
     }
@@ -773,24 +759,6 @@ public class OrderServiceImpl implements OrderService {
             }
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
-
-
-            //添加待办事项
-            BackLog backLog = new BackLog();
-            backLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-            backLog.setPlaceSystem("订单");   //所在系统
-            backLog.setFunctionExplainName(BackLog.ProjectStatusEnum.transactionProject.getMsg());  //功能名称
-            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.transactionProject.getNum());    //功能访问路径标识
-            backLog.setReturnNo(project2.getContractNo());  //返回单号    销售合同号
-            String region = project2.getRegion();   //所属地区
-            String country = project2.getCountry();  //国家
-            backLog.setInformTheContent(region+" | "+country);  //提示内容
-            backLog.setHostId(project2.getId());    //父ID，列表页id
-            Integer businessUid = project2.getBusinessUid();//商务技术经办人id
-            backLog.setUid(businessUid);   ////经办人id
-            backLog.setDelYn(1);
-            backLogDao.save(backLog);
-
         }
         return order1.getId();
     }

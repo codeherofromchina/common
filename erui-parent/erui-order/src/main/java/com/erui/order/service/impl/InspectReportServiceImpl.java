@@ -6,11 +6,13 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.InspectReportService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,6 +57,8 @@ public class InspectReportServiceImpl implements InspectReportService {
     private InstockDao instockDao;
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+    @Autowired
+    private BackLogService backLogService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -392,12 +397,14 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (inspectApplyParent != null) {
                 inspectApplyParent.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
                 inspectApplyDao.save(inspectApplyParent);
+
             }
             inspectApply.setStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
             inspectApply.setPubStatus(hegeFlag ? InspectApply.StatusEnum.QUALIFIED.getCode() : InspectApply.StatusEnum.UNQUALIFIED.getCode());
             inspectApplyDao.save(inspectApply);
+
         }
-        inspectReportDao.save(dbInspectReport);
+        InspectReport save1 = inspectReportDao.save(dbInspectReport);
 
         // 最后判断采购是否完成，且存在合格的商品数量
         if (statusEnum == InspectReport.StatusEnum.DONE && hegeNum > 0) {
@@ -413,15 +420,25 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (doneFlag) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
+
+
+                //全部质检合格以后，删除   “办理入库质检”  待办提示
+                BackLog backLog2 = new BackLog();
+                backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
+                backLog2.setHostId(purch.getId());
+                backLogService.updateBackLogByDelYn(backLog2);
+
+                //全部质检合格以后，删除   “办理报检单”  待办提示
+                BackLog backLog = new BackLog();
+                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                backLog.setHostId(purch.getId());
+                backLogService.updateBackLogByDelYn(backLog);
+
             }
 
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
-            /*if (project != null) {
-                instock.setUid(project.getWarehouseUid());       //仓库经办人ID
-                instock.setUname(project.getWarehouseName());   //仓库经办人名字
-            }*/
             instock.setInspectApplyNo(dbInspectReport.getInspectApplyNo()); // 报检单号
             instock.setSupplierName(dbInspectReport.getInspectApply().getPurch().getSupplierName()); // 供应商
             instock.setStatus(Instock.StatusEnum.INIT.getStatus());
@@ -448,7 +465,36 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             instock.setInstockGoodsList(instockGoodsList);
             instock.setOutCheck(1); //是否外检（ 0：否   1：是）
-            instockDao.save(instock);
+            Instock save = instockDao.save(instock);
+
+                List<String> projectNoList = new ArrayList<>();
+                List<InstockGoods> instockGoodsLists = save.getInstockGoodsList();
+                instockGoodsLists.stream().forEach(instockGoods -> {
+                    PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+                    Goods goods = purchGoods.getGoods();
+                    if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                        projectNoList.add(goods.getProjectNo());
+                    }
+                });
+
+            //质检合格提交以后  通知分单员办理入库/分单
+            BackLog newBackLog = new BackLog();
+            newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+            newBackLog.setPlaceSystem("订单");   //所在系统
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
+            String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
+            newBackLog.setReturnNo(inspectApplyNo);  //返回单号
+            String supplierName = save1.getSupplierName();  //供应商名称
+            newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+            newBackLog.setHostId(save.getId());    //父ID，列表页id
+            /* TODO
+            Integer purchaseUid = save.getAgentId();//采购经办人id
+            newBackLog.setUid(purchaseUid);   ////经办人id
+            newBackLog.setDelYn(1);
+            backLogDao.save(newBackLog);
+*/
+
         }
 
         // 流程进度推送

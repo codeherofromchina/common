@@ -77,12 +77,16 @@ public class BackLogServiceImpl implements BackLogService{
     @Override
     public void addBackLogByDelYn(BackLog backLog) throws Exception {
 
-        try {
-            BackLog save = backLogDao.save(backLog);
-        }catch (Exception e){
-            logger.error("新增待办事项失败："+e);
-            throw new Exception(e);
-        }
+       List<BackLog> backLogList = backLogDao.finByPlaceSystemAndHostId(backLog.getPlaceSystem(),backLog.getHostId());
+
+       if(backLogList.size() <= 0){
+           try {
+               BackLog save = backLogDao.save(backLog);
+           }catch (Exception e){
+               logger.error("新增待办事项失败："+e);
+               throw new Exception(e);
+           }
+       }
     }
 
 

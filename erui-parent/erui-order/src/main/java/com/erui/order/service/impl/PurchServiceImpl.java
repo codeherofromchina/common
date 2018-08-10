@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,8 @@ public class PurchServiceImpl implements PurchService {
     private AttachmentService attachmentService;
     @Autowired
     private BackLogService backLogService;
+    @Autowired
+    private BackLogDao backLogDao;
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -352,7 +355,46 @@ public class PurchServiceImpl implements PurchService {
         List<Project> projectList = new ArrayList<>(projectSet);
         purch.setProjects(projectList);
         // 保存采购单
-        purchDao.save(purch);
+        Purch save = purchDao.save(purch);
+
+        if(save.getStatus() == 2){
+            List<Project> projects = save.getProjects();
+            Set<String>  contractNoSet = new HashSet<>();
+            Set<String>  projectNoSet = new HashSet<>();
+            if(projects.size() > 0){
+                for (Project project : projects){
+                    String contractNo = project.getContractNo();
+                    if(contractNo != null){
+                        contractNoSet.add(contractNo);
+                    }
+                    String projectNo = project.getProjectNo();
+                    if(projectNo != null){
+                        projectNoSet.add(projectNo);
+                    }
+                }
+
+                //采购新增提交以后  通知采购经办人办理报检单
+                BackLog newBackLog = new BackLog();
+                newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+                newBackLog.setPlaceSystem("订单");   //所在系统
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
+                newBackLog.setInformTheContent(projectNoSet+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setHostId(save.getId());    //父ID，列表页id
+                Integer purchaseUid = save.getAgentId();//采购经办人id
+                newBackLog.setUid(purchaseUid);   ////经办人id
+                newBackLog.setDelYn(1);
+                backLogDao.save(newBackLog);
+
+            }
+
+        }
+
+
+
+
+
         // 检查项目是否已经采购完成
         List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIds);
@@ -626,7 +668,44 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         // 更新采购单
-        purchDao.save(dbPurch);
+        Purch save = purchDao.save(dbPurch);
+        if(save.getStatus() == 2){
+            List<Project> projects = save.getProjects();
+            Set<String>  contractNoSet = new HashSet<>();
+            Set<String>  projectNoSet = new HashSet<>();
+            if(projects.size() > 0){
+                for (Project project : projects){
+                    String contractNo = project.getContractNo();
+                    if(contractNo != null){
+                        contractNoSet.add(contractNo);
+                    }
+                    String projectNo = project.getProjectNo();
+                    if(projectNo != null){
+                        projectNoSet.add(projectNo);
+                    }
+                }
+
+                //采购新增提交以后  通知采购经办人办理报检单
+                BackLog newBackLog = new BackLog();
+                newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+                newBackLog.setPlaceSystem("订单");   //所在系统
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
+                newBackLog.setInformTheContent(projectNoSet+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setHostId(save.getId());    //父ID，列表页id
+                Integer purchaseUid = save.getAgentId();//采购经办人id
+                newBackLog.setUid(purchaseUid);   ////经办人id
+                newBackLog.setDelYn(1);
+                backLogDao.save(newBackLog);
+
+            }
+
+        }
+
+
+
+
         // 检查项目是否已经采购完成
         List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIdList);
