@@ -165,7 +165,7 @@ public class ProjectServiceImpl implements ProjectService {
                         Integer managerUid = projectUpdate.getManagerUid();//项目经理
                         newBackLog.setUid(managerUid);   //项目经理id
                         newBackLog.setDelYn(1);
-                        backLogDao.save(newBackLog);
+                        backLogService.addBackLogByDelYn(newBackLog);
 
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {

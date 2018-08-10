@@ -77,7 +77,7 @@ public class BackLogServiceImpl implements BackLogService{
     @Override
     public void addBackLogByDelYn(BackLog backLog) throws Exception {
 
-       List<BackLog> backLogList = backLogDao.finByPlaceSystemAndHostId(backLog.getPlaceSystem(),backLog.getHostId());
+       List<BackLog> backLogList = backLogDao.finByPlaceSystemAndHostIdAndUid(backLog.getPlaceSystem(),backLog.getHostId(),backLog.getUid());
 
        if(backLogList.size() <= 0){
            try {

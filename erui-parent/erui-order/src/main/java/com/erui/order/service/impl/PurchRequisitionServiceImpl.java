@@ -175,7 +175,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer purchaseUid = save.getPurchaseUid();//采购经办人id
             newBackLog.setUid(purchaseUid);   ////经办人id
             newBackLog.setDelYn(1);
-            backLogDao.save(newBackLog);
+            backLogService.addBackLogByDelYn(newBackLog);
 
 
             try {
