@@ -130,7 +130,6 @@
     </select>
 
 
-
     <select id="selectOrderInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT countryCn AS area, COUNT(id) AS total_num
             , SUM(ifnull(total_price_usd, 0)) AS total_price
@@ -151,8 +150,17 @@
 
     <!-- 根据时间查询各个事业部的询单数量信息 -->
     <select id="selectInquiryCountWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
-            COUNT(t1.id) AS total, t2.`name`
+
+       SELECT t4.name  , COUNT(t4.inqId) AS total
+        FROM (
+					SELECT
+            t1.id AS inqId,( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                      OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                      WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                      ELSE t2.name
+                    END)  AS name
         FROM
             erui_rfq.inquiry t1
                 LEFT JOIN
@@ -161,43 +169,63 @@
         WHERE
                 t1.deleted_flag = 'N'
                 AND t1.status != 'DRAFT'
-                AND t1.created_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-        GROUP BY t2.`name`
+                AND t1.created_at   BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+				) AS t4
+        GROUP BY t4.`name`
     </select>
 
     <!-- 根据时间查询各个事业部的报价数量和金额信息 -->
     <select id="selectQuoteInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
-            COUNT(t1.id) AS total_num,
-            SUM(IFNULL(total_quote_price, 0)) AS total_price,
-            t2.`name`
-        FROM
-            erui_rfq.inquiry t1
-                LEFT OUTER JOIN
-            erui_sys.org t2 ON t1.org_id = t2.id
-                AND t2.`deleted_flag` = 'N'
-                LEFT OUTER JOIN
-            erui_rfq.final_quote t3 ON t1.id = t3.inquiry_id
-                AND t3.`deleted_flag` = 'N'
-        WHERE
-            t1.deleted_flag = 'N'
-            AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
-            AND t1.updated_at BETWEEN DATE_FORMAT(
-                #{startTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-            AND DATE_FORMAT(
-                #{endTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-        GROUP BY t2.`name`
+
+       SELECT
+	      COUNT(t4.inqId) AS total_num,
+	SUM(IFNULL(t4.total_quote_price, 0)
+	) AS total_price,
+	t4. name
+FROM
+	(
+		SELECT
+			t1.id AS inqId,
+			total_quote_price,
+			( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                      OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                      WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                      ELSE t2.name
+                    END)  AS  name
+		FROM
+			erui_rfq.inquiry t1
+		LEFT OUTER JOIN erui_sys.org t2 ON t1.org_id = t2.id
+		AND t2.`deleted_flag` = 'N'
+		LEFT OUTER JOIN erui_rfq.final_quote t3 ON t1.id = t3.inquiry_id
+		AND t3.`deleted_flag` = 'N'
+		WHERE
+			t1.deleted_flag = 'N'
+		AND t1.quote_status IN ('QUOTED', 'COMPLETED')
+		AND t1.updated_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+	) AS t4
+GROUP BY
+	t4.`name`
     </select>
 
     <!-- 根据时间查询各个事业部的报价用时 -->
     <select id="selectQuoteTimeWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            SUM(IFNULL(t3.diff, 0)) AS diff, t2.`name`
+          SUM(IFNULL(t4.diff, 0)) AS diff,
+          t4.name
         FROM
+        (
+          SELECT
+            t3.diff AS diff,
+						( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                      OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                      WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                      ELSE t2.name
+                    END)  AS name
+          FROM
             erui_rfq.inquiry t1
                 LEFT OUTER JOIN
             erui_sys.org t2 ON t1.org_id = t2.id
@@ -217,19 +245,13 @@
                 in_node = 'DRAFT'
                     OR out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id) t3
-        WHERE
+          WHERE
             t1.id = t3.inquiry_id
                 AND t1.deleted_flag = 'N'
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
-            AND t1.updated_at BETWEEN DATE_FORMAT(
-                #{startTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-            AND DATE_FORMAT(
-                #{endTime},
-                "%Y/%m/%d %H:%i:%s"
-            )
-        GROUP BY t2.name
+            AND t1.updated_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+            ) AS t4
+        GROUP BY t4.name
     </select>
     <select id="selectOrderInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
        SELECT t4.name  , COUNT(t4.oid) AS total_num ,SUM(IFNULL(t4.total_price, 0)) AS total_price
@@ -256,19 +278,30 @@
     </select>
 
     <select id="selectSupplierNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
-            t2.name, COUNT(1) AS total
-        FROM
-            erui_supplier.supplier t1
-                LEFT OUTER JOIN
-            erui_sys.org t2 ON t1.org_id = t2.id
-                AND t2.deleted_flag = 'N'
-        WHERE
-            t1.status = 'APPROVED'
-                AND t1.deleted_flag = 'N'
-                AND t1.expire_status = 'N'
-                AND t1.checked_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-        GROUP BY t2.name
+           SELECT t4.name ,COUNT(1) AS total
+    FROM
+    (
+    SELECT
+                        t1.id AS sid,
+                    ( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                       OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                       WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                       ELSE t2.name
+                      END)  AS name
+
+            FROM
+                erui_supplier.supplier t1
+                    LEFT OUTER JOIN
+                erui_sys.org t2 ON t1.org_id = t2.id
+                    AND t2.deleted_flag = 'N'
+            WHERE
+                t1.status = 'APPROVED'
+                    AND t1.deleted_flag = 'N'
+             AND t1.checked_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    ) AS t4
+            GROUP BY t4.name
     </select>
 
     <select id="selectSpuAndSkuNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
@@ -293,9 +326,60 @@
                 AND t2.deleted_flag = 'N'
         GROUP BY t2.name
     </select>
+    <select id="selectSpuNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+            SELECT 	count(DISTINCT t4.spu) AS total_spu,
+            t4.name
+        FROM
+        (
+        SELECT
+             p.spu AS spu,
+            ( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                       OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                       WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                       ELSE t2.name
+                      END)  AS name
+        from erui_goods.product p LEFT JOIN erui_goods.show_cat_product  scp on scp.spu=p.spu and scp.lang=p.lang
+        and scp.onshelf_flag='Y'
+        LEFT JOIN erui_operation.bizline t2 ON p.bizline_id=t2.id
+        where p.deleted_flag='N' and p.lang='en'
+          and scp.created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        ) AS t4
+        GROUP BY t4.name;
+
+    </select>
+    <select id="selectSkuNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+
+    SELECT
+    count(DISTINCT t4.sku) AS total_sku,
+            t4.name
+    FROM
+    (
+    SELECT
+            g.sku AS sku ,
+            ( CASE
+                      WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                      WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
+                       OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
+                       WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
+                       ELSE t2.name
+                      END)  AS name
+    from erui_goods.goods g
+    LEFT JOIN erui_goods.product p on p.spu=g.spu and p.lang=g.lang
+    LEFT JOIN erui_goods.show_cat_goods  scg on scg.sku=g.sku and scg.lang=g.lang
+    and scg.onshelf_flag='Y'
+    LEFT JOIN erui_operation.bizline t2 ON p.bizline_id=t2.id
+    where   g.deleted_flag='N'  and p.deleted_flag='N'  and g.lang='en'
+            and scg.created_at BETWEEN DATE_FORMAT("2018/06/01 00:00:00","%Y/%m/%d %H:%i:%s") and DATE_FORMAT("2018/08/10 00:00:00","%Y/%m/%d %H:%i:%s")
+    ) AS t4
+     GROUP BY t4.name;
+
+    </select>
 
     <!--根据时间查询询单总数量-->
-    <select id="selectInquiryCountWhereTimeGroupByCountryTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+    <select id="selectInquiryCountWhereTimeGroupByCountryTotal" parameterType="java.util.Map"
+            resultType="java.lang.Integer">
         SELECT
             COUNT(id) AS total_all
         FROM
@@ -307,7 +391,8 @@
     </select>
 
 
-    <select id="selectQuoteInfoWhereTimeGroupByCountryTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+    <select id="selectQuoteInfoWhereTimeGroupByCountryTotal" parameterType="java.util.Map"
+            resultType="java.lang.Integer">
        SELECT
             COUNT(id) AS total_all
         FROM
@@ -318,8 +403,11 @@
                 AND t1.created_at BETWEEN DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
-    <select id="selectOrderInfoWhereTimeGroupByCountryTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select count(1) as total FROM erui_new_order.order t1
-          where t1.create_time BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+    <select id="selectOrderInfoWhereTimeGroupByCountryTotal" parameterType="java.util.Map"
+            resultType="java.lang.Integer">
+         select count(1) as total FROM erui_new_order.order t1 , erui_new_order.project t3
+          where t3.order_id=t1.id  AND  t1.status>2
+                AND t1.delete_flag=0
+           AND t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
     </select>
 </mapper>
