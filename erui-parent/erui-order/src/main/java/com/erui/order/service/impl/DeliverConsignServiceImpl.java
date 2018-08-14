@@ -333,7 +333,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 throw new Exception(e.getMessage());
             }
 
-
             //出口发货通知单提交的时候，推送给出库分单员  办理分单
             addBackLog(order,deliverDetail);
 

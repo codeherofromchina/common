@@ -186,26 +186,22 @@ public class BackLog {
 
     public static enum ProjectStatusEnum {
 
-        TRANSACTIONORDER("TRANSACTIONORDER", "办理项目", 1), REJECTORDER("REJECTORDER", "驳回订单", 0), EXECUTEPROJECT("EXECUTEPROJECT", "执行项目", 2),REJECTPROJRCT("REJECTPROJRCT", "驳回项目", 2),
-        PURCHREQUISITION("PURCHREQUISITION", "办理采购申请", 3),PURCHORDER("PURCHORDER", "办理采购订单", 4), INSPECTAPPLY("INSPECTAPPLY", "办理报检单", 5),INSPECTREPORT("INSPECTREPORT", "办理入库质检", 6),
-        INSTOCKSUBMENU("INSTOCKSUBMENU", "办理分单", 7),TRANSACTINSTOCK("TRANSACTINSTOCK", "办理入库", 7),
-        INSTOCKSUBMENUDELIVER("INSTOCKSUBMENUDELIVER", "办理分单", 8),TRANSACTDELIVER("TRANSACTDELIVER", "办理出库", 8), DELIVERDETAIL("DELIVERDETAIL", "办理出库质检", 9),NOTARIZEDELIVER("NOTARIZEDELIVER", "确认出库", 8),
-          TURNDOWN("TURNDOWN", "驳回", 11);
-        private String code;
+        TRANSACTIONORDER("办理项目", 1), REJECTORDER( "驳回订单", 0), EXECUTEPROJECT( "执行项目", 2),REJECTPROJRCT( "驳回项目", 2),
+        PURCHREQUISITION( "办理采购申请", 3),PURCHORDER("办理采购订单", 4), INSPECTAPPLY( "办理报检单", 5),INSPECTREPORT( "办理入库质检", 6),
+        INSTOCKSUBMENU( "办理分单", 7),TRANSACTINSTOCK( "办理入库", 7),
+        INSTOCKSUBMENUDELIVER( "办理分单", 8),TRANSACTDELIVER( "办理出库", 8), DELIVERDETAIL("办理出库质检", 9),NOTARIZEDELIVER("确认出库", 8),
+        LOGISTICS( "办理物流分单", 10),LOGISTICSDATA("办理物流", 11);
         private String msg;
 
         private Integer num;
 
-        ProjectStatusEnum(String code, String msg, Integer num) {
+        ProjectStatusEnum( String msg, Integer num) {
 
-            this.code = code;
+
             this.msg = msg;
             this.num = num;
         }
 
-        public String getCode() {
-            return code;
-        }
 
         public String getMsg() {
             return msg;
@@ -215,18 +211,6 @@ public class BackLog {
             return num;
         }
 
-        public static Project.ProjectStatusEnum fromCode(String code) {
-            if (StringUtils.isNotBlank(code)) {
-                for (Project.ProjectStatusEnum statusEnum : Project.ProjectStatusEnum.values()) {
-                    if (statusEnum.getCode().equals(code)) {
-                        return statusEnum;
-
-                    }
-                }
-            }
-            return null;
-
-        }
     }
 
 
