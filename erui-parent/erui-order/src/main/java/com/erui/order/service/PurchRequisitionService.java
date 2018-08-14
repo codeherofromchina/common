@@ -18,7 +18,7 @@ public interface PurchRequisitionService {
 
     boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception;
 
-    boolean insertPurchRequisition(PurchRequisition purchRequisition);
+    boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception;
 
     /**
      * 查询采购申请列表
