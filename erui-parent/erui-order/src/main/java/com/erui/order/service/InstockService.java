@@ -50,5 +50,5 @@ public interface InstockService {
      * @param instock
      * @return
      */
-    boolean instockDeliverAgent(Instock instock);
+    boolean instockDeliverAgent(Instock instock) throws Exception;
 }

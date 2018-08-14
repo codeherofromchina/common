@@ -11,6 +11,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,6 +60,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private InspectReportServiceImpl inspectReportServiceImpl;
+
+    @Autowired
+    private BackLogDao backLogDao;
+
+    @Autowired
+    private BackLogService backLogService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -226,7 +234,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApplyDao.save(inspectApplyAdd);
             // 推送数据到入库质检中
             if (inspectApplyAdd.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
-                pushDataToInspectReport(inspectApplyAdd);
+                InspectReport inspectReport = pushDataToInspectReport(inspectApplyAdd);
                 //到货报检通知：到货报检单下达后同时通知质检经办人
                 Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
                 Set<String> purchaseNameList = new HashSet<>(); //采购经办人
@@ -249,6 +257,29 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 map.put("inspectApplyNo", inspectApplyNo);
                 sendSms(map);
 
+
+                //当有报检单提交的时候，通知办理入库质检
+                List<Project> projects = purch.getProjects();
+                if(projects.size() > 0){
+                    Set<String> projectNoSet = new HashSet<>(); //项目号
+                    for (Project project : projects){
+                        String projectNo = project.getProjectNo();
+                        if(projectNo != null){
+                            projectNoSet.add(projectNo);
+                        }
+                    }
+                    for (Project project : projects){
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+                        String purchNo = purch.getPurchNo();//采购合同号
+                        newBackLog.setInformTheContent(projectNoSet+" | "+purchNo);  //提示内容
+                        newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
+                        newBackLog.setUid(project.getQualityUid());   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
+                }
             } else if (directInstockGoods) {
                 //  判断采购是否已经完成并修正
                 checkPurchHasDone(inspectApplyAdd.getPurch());
@@ -389,10 +420,36 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 完善提交后的后续操作
         if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             // 推送数据到入库质检中
-            pushDataToInspectReport(dbInspectApply);
+            InspectReport inspectReport = pushDataToInspectReport(dbInspectApply);
 
             //到货报检通知：到货报检单下达后同时通知质检经办人
             disposeSmsDate(dbInspectApply, inspectApply);
+
+            //当有报检单提交的时候，通知办理入库质检
+            List<Project> projects = purch.getProjects();
+            if(projects.size() > 0){
+                Set<String> projectNoSet = new HashSet<>(); //项目号
+                for (Project project : projects){
+                    String projectNo = project.getProjectNo();
+                    if(projectNo != null){
+                        projectNoSet.add(projectNo);
+                    }
+                }
+                for (Project project : projects){
+                    BackLog newBackLog = new BackLog();
+                    newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+                    newBackLog.setPlaceSystem("订单");   //所在系统
+                    newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
+                    newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
+                    newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+                    String purchNo = purch.getPurchNo();//采购合同号
+                    newBackLog.setInformTheContent(projectNoSet+" | "+purchNo);  //提示内容
+                    newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
+                    newBackLog.setUid(project.getQualityUid());   ////经办人id
+                    newBackLog.setDelYn(1);
+                    backLogDao.save(newBackLog);
+                }
+            }
 
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
@@ -537,7 +594,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     /**
      * 向入库质检推送数据
      */
-    private void pushDataToInspectReport(InspectApply inspectApply) {
+    private InspectReport pushDataToInspectReport(InspectApply inspectApply) {
         // 新建质检信息并完善
         InspectReport report = new InspectReport();
         report.setInspectApply(inspectApply);
@@ -588,8 +645,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         });
         report.setInspectGoodsList(inspectApplyGoodsList);
         // 保存推送的质检信息并等待人工质检
-        inspectReportDao.save(report);
+        InspectReport save = inspectReportDao.save(report);
+        if(save != null){
+            return save;
+        }
 
+        return null;
     }
 
     @Override
