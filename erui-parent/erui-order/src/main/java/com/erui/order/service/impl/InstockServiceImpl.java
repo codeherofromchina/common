@@ -14,6 +14,7 @@ import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.InstockService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,6 +52,8 @@ public class InstockServiceImpl implements InstockService {
     private GoodsDao goodsDao;
     @Autowired
     private InspectApplyGoodsDao inspectApplyGoodsDao;
+    @Autowired
+    private BackLogService backLogService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -269,6 +272,27 @@ public class InstockServiceImpl implements InstockService {
                 goodsDao.saveAndFlush(one);
                 applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(), 6));
             }
+
+            //入库提交的时候   删除分单员的信息推送   办理分单
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
+            backLog.setHostId(dbInstock.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+            //入库提交的时候   删除分单人的信息推送   办理入库
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
+            backLog2.setHostId(dbInstock.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+
+        }else if(instock.getStatus() == 2){
+
+            //入库提交的时候   删除分单员的信息推送   办理分单
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
+            backLog.setHostId(dbInstock.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
         }
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
@@ -350,7 +374,7 @@ public class InstockServiceImpl implements InstockService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean instockDeliverAgent(Instock instock) {
+    public boolean instockDeliverAgent(Instock instock) throws Exception {
 
 
         //获取经办分单人信息
@@ -385,6 +409,36 @@ public class InstockServiceImpl implements InstockService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //指派分单人的时候   删除分单员的信息推送  办理分单
+        BackLog backLog2 = new BackLog();
+        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
+        backLog2.setHostId(instockSave.getId());
+        backLogService.updateBackLogByDelYn(backLog2);
+
+
+        //推送给分单人待办事项  办理入库
+        BackLog newBackLog = new BackLog();
+        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
+        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
+        InspectReport inspectReport = dbInstock.getInspectReport();
+
+        List<String> projectNoList = new ArrayList<>();
+        List<InstockGoods> instockGoodsLists = dbInstock.getInstockGoodsList();
+        instockGoodsLists.stream().forEach(instockGoods -> {
+            PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+            Goods goods = purchGoods.getGoods();
+            if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                projectNoList.add(goods.getProjectNo());
+            }
+        });
+        String inspectApplyNo = inspectReport.getInspectApplyNo();  //报检单号
+        newBackLog.setReturnNo(inspectApplyNo);  //返回单号
+        String supplierName = inspectReport.getSupplierName();  //供应商名称
+        newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+        newBackLog.setHostId(instockSave.getId());    //父ID，列表页id
+        newBackLog.setUid(dbInstock.getUid());   ////经办人id
+        backLogService.addBackLogByDelYn(newBackLog);
 
         return true;
     }

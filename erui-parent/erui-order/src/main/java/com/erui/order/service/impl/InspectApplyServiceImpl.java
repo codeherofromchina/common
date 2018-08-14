@@ -11,6 +11,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.InspectApplyService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,6 +63,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private BackLogDao backLogDao;
+
+    @Autowired
+    private BackLogService backLogService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -266,8 +270,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     }
                     for (Project project : projects){
                         BackLog newBackLog = new BackLog();
-                        newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-                        newBackLog.setPlaceSystem("订单");   //所在系统
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
@@ -275,8 +277,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                         newBackLog.setInformTheContent(projectNoSet+" | "+purchNo);  //提示内容
                         newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
                         newBackLog.setUid(project.getQualityUid());   ////经办人id
-                        newBackLog.setDelYn(1);
-                        backLogDao.save(newBackLog);
+                        backLogService.addBackLogByDelYn(newBackLog);
                     }
                 }
             } else if (directInstockGoods) {

@@ -423,11 +423,10 @@ public class InspectReportServiceImpl implements InspectReportService {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
 
-
                 //全部质检合格以后，删除   “办理入库质检”  待办提示
                 BackLog backLog2 = new BackLog();
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
-                backLog2.setHostId(purch.getId());
+                backLog2.setHostId(save1.getId());
                 backLogService.updateBackLogByDelYn(backLog2);
 
                 //全部质检合格以后，删除   “办理报检单”  待办提示
@@ -520,8 +519,6 @@ public class InspectReportServiceImpl implements InspectReportService {
             if(listAll.size() > 0){
                 for (Integer in : listAll){ //分单员有几个人推送几条
                     BackLog newBackLog = new BackLog();
-                    newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-                    newBackLog.setPlaceSystem("订单");   //所在系统
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
                     String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
@@ -530,7 +527,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                     newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
                     newBackLog.setHostId(save.getId());    //父ID，列表页id
                     newBackLog.setUid(in);   ////经办人id
-                    newBackLog.setDelYn(1);
                     backLogService.addBackLogByDelYn(newBackLog);
                 }
             }

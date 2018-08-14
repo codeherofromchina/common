@@ -12,4 +12,5 @@ public interface BackLogDao extends JpaRepository<BackLog, Serializable>,JpaSpec
 
     List<BackLog> finByPlaceSystemAndHostIdAndUid(String placeSystem, Integer hostId, Integer uid);
 
+    BackLog findBackLogByUid(Integer num, Integer id);
 }

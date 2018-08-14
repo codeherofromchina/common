@@ -17,6 +17,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,6 +77,9 @@ public class BackLogServiceImpl implements BackLogService{
      */
     @Override
     public void addBackLogByDelYn(BackLog backLog) throws Exception {
+        backLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
+        backLog.setPlaceSystem("订单");   //所在系统
+        backLog.setDelYn(1);
 
        List<BackLog> backLogList = backLogDao.finByPlaceSystemAndHostIdAndUid(backLog.getPlaceSystem(),backLog.getHostId(),backLog.getUid());
 

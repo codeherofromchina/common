@@ -375,17 +375,14 @@ public class PurchServiceImpl implements PurchService {
 
                 //采购新增提交以后  通知采购经办人办理报检单
                 BackLog newBackLog = new BackLog();
-                newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-                newBackLog.setPlaceSystem("订单");   //所在系统
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
                 newBackLog.setInformTheContent(projectNoSet+" | "+save.getSupplierName());  //提示内容
-                newBackLog.setHostId(save.getId());    //父ID，列表页id
+                newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id
-                newBackLog.setDelYn(1);
-                backLogDao.save(newBackLog);
+                backLogService.addBackLogByDelYn(newBackLog);
 
             }
 
@@ -687,8 +684,6 @@ public class PurchServiceImpl implements PurchService {
 
                 //采购新增提交以后  通知采购经办人办理报检单
                 BackLog newBackLog = new BackLog();
-                newBackLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-                newBackLog.setPlaceSystem("订单");   //所在系统
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
@@ -696,8 +691,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setHostId(save.getId());    //父ID，列表页id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id
-                newBackLog.setDelYn(1);
-                backLogDao.save(newBackLog);
+                backLogService.addBackLogByDelYn(newBackLog);
 
             }
 
