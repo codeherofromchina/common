@@ -56,6 +56,10 @@ public class BackLogServiceImpl implements BackLogService{
             public Predicate toPredicate(Root<BackLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
+                if(backLog.getUid() != null){
+                    list.add(cb.equal(root.get("uid").as(Integer.class), backLog.getUid()));
+                }
+
                 //根据删除标识
                 list.add(cb.equal(root.get("delYn").as(Integer.class), 1));
 
