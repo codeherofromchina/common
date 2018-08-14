@@ -54,6 +54,7 @@
                 SELECT
                     t1.id,
                     t1.country_bn,
+					t4.diff,
                     (
                         CASE t1.country_bn
                         WHEN 'China' THEN
@@ -65,21 +66,21 @@
                 FROM
                     erui_rfq.inquiry t1,
                     erui_operation.market_area_country t2,
-                    erui_operation.market_area t3
+                    erui_operation.market_area t3,
+									(
+									SELECT inquiry_id ,  MIN(out_at)  AS diff
+									FROM erui_rfq.inquiry_check_log
+									WHERE  in_node='DRAFT' OR out_node='BIZ_DISPATCHING'
+									GROUP BY inquiry_id)AS t4
                 WHERE
-                    t1.deleted_flag = 'N'
+                t1.deleted_flag = 'N'
+				AND  t1.id = t4.inquiry_id
                 AND t1.country_bn = t2.country_bn
                 AND t2.market_area_bn = t3.bn
                 AND t3.lang = 'zh'
                 AND t1.status != 'DRAFT'
-                AND t1.created_at BETWEEN DATE_FORMAT(
-                    #{startTime},
-                    "%Y/%m/%d %H:%i:%s"
-                )
-                AND DATE_FORMAT(
-                    #{endTime},
-                    "%Y/%m/%d %H:%i:%s"
-                )
+                AND t4.diff BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                               and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
             ) AS tb
         GROUP BY
             countryCn
@@ -232,7 +233,7 @@ GROUP BY
                 AND t2.`deleted_flag` = 'N',
             (SELECT
                 inquiry_id,
-                    TIMESTAMPDIFF(MINUTE, MIN(CASE in_node
+                    TIMESTAMPDIFF(HOUR, MIN(CASE in_node
                         WHEN 'DRAFT' THEN into_at
                         ELSE NULL
                     END), MAX(CASE out_node

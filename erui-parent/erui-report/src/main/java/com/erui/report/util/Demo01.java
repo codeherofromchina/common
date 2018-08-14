@@ -13,7 +13,7 @@ public class Demo01 {
         URL url = new URL("https://www.google.com/");
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
-        
+
 
         // Set properties of the connection
         urlConnection.setDoInput(true);
