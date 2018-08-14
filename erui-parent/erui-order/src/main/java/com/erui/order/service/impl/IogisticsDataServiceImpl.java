@@ -6,6 +6,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.IogisticsDataService;
 import com.erui.order.util.IReceiverDate;
 import org.slf4j.Logger;
@@ -54,6 +55,10 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
     @Autowired
     private DeliverDetailDao deliverDetailDao;
+
+    @Autowired
+    private BackLogService backLogService;
+
 
     /**
      * 物流跟踪管理（V 2.0）   列表页查询
@@ -143,7 +148,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void logisticsActionAddOrSave(IogisticsData iogisticsData) {
+    public void logisticsActionAddOrSave(IogisticsData iogisticsData) throws Exception {
 
         IogisticsData one = iogisticsDataDao.findOne(iogisticsData.getId());
         //物流经办人
@@ -321,6 +326,12 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                                 }
                             }
                         }
+
+                        //出库信息管理添加经办人确定以后删除  确认出库  待办信息
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICSDATA.getNum());    //功能访问路径标识
+                        backLog2.setHostId(iogisticsData.getId());
+                        backLogService.updateBackLogByDelYn(backLog2);
 
                     }
                 }

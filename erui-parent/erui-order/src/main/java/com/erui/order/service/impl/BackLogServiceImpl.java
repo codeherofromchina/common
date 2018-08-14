@@ -56,6 +56,10 @@ public class BackLogServiceImpl implements BackLogService{
             public Predicate toPredicate(Root<BackLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
+                if(backLog.getUid() != null){
+                    list.add(cb.equal(root.get("uid").as(Integer.class), backLog.getUid()));
+                }
+
                 //根据删除标识
                 list.add(cb.equal(root.get("delYn").as(Integer.class), 1));
 
@@ -81,7 +85,7 @@ public class BackLogServiceImpl implements BackLogService{
         backLog.setPlaceSystem("订单");   //所在系统
         backLog.setDelYn(1);
 
-       List<BackLog> backLogList = backLogDao.finByPlaceSystemAndHostIdAndUid(backLog.getPlaceSystem(),backLog.getHostId(),backLog.getUid());
+       List<BackLog> backLogList = backLogDao.findByPlaceSystemAndHostIdAndUid(backLog.getPlaceSystem(),backLog.getHostId(),backLog.getUid());
 
        if(backLogList.size() <= 0){
            try {

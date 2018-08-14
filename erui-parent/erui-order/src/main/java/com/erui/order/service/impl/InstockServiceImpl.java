@@ -416,7 +416,6 @@ public class InstockServiceImpl implements InstockService {
         backLog2.setHostId(instockSave.getId());
         backLogService.updateBackLogByDelYn(backLog2);
 
-
         //推送给分单人待办事项  办理入库
         BackLog newBackLog = new BackLog();
         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称

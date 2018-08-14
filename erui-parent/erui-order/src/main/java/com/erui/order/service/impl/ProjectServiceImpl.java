@@ -239,7 +239,7 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
-                        BackLog backLogs = backLogDao.findBackLogByUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(),projectUpdate.getId());
+                        BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(),projectUpdate.getId());
                         if(backLogs != null){
                             backLogs.setUid(projectUpdate.getBusinessUid()); //商务技术经办人id
                             backLogDao.save(backLogs);

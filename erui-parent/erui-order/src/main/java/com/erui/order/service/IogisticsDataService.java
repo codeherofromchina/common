@@ -15,7 +15,7 @@ public interface IogisticsDataService {
 
     IogisticsData iogisticsDataById(Integer id) throws Exception;
 
-    void logisticsActionAddOrSave(IogisticsData iogisticsData);
+    void logisticsActionAddOrSave(IogisticsData iogisticsData) throws Exception;
 
     IogisticsData queryByTheAwbNo(String theAwbNo);
 

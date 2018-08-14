@@ -10,7 +10,7 @@ import java.util.List;
 public interface BackLogDao extends JpaRepository<BackLog, Serializable>,JpaSpecificationExecutor<BackLog> {
     List<BackLog> findByFunctionExplainIdAndHostId(Integer functionExplainId, Integer hostId);
 
-    List<BackLog> finByPlaceSystemAndHostIdAndUid(String placeSystem, Integer hostId, Integer uid);
+    List<BackLog> findByPlaceSystemAndHostIdAndUid(String placeSystem, Integer hostId, Integer uid);
 
-    BackLog findBackLogByUid(Integer num, Integer id);
+    BackLog findByFunctionExplainIdAndUid(Integer num, Integer id);
 }

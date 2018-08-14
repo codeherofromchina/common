@@ -181,7 +181,11 @@ public class IogisticsDataController {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
         }
 
-        iogisticsDataService.logisticsActionAddOrSave(iogisticsData);
+        try {
+            iogisticsDataService.logisticsActionAddOrSave(iogisticsData);
+        }catch (Exception e){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
+        }
         return new Result<>();
     }
 
