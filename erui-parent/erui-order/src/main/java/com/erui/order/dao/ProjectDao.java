@@ -18,12 +18,12 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
     List<Project> findByPurchReqCreateAndPurchDone(Integer purchReqCreate, Boolean b);
 
 
-    List<Project> findByPurchReqCreateAndPurchDoneAndPurchaseUid(Integer purchReqCreate, Boolean b,Integer purchaseUid);
+    List<Project> findByPurchReqCreateAndPurchDoneAndPurchaseUid(Integer purchReqCreate, Boolean b, Integer purchaseUid);
 
 
     @Modifying
     @Query("update Project p set p.purchDone = true where p.id in :ids")
-    public void updateProjectPurchDone(@Param(value = "ids") List<Integer> ids);
+    void updateProjectPurchDone(@Param(value = "ids") List<Integer> ids);
 
     /**
      * 根据项目ID查找项目列表
@@ -40,6 +40,7 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
      * @return
      */
     Project findByIdOrOrderId(@Param(value = "id") Integer id, @Param(value = "orderId") Integer orderId);
+
     /**
      * 判断项目名称是否重复
      *
@@ -47,6 +48,15 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
      * @return Long
      */
     @Query(value = "select t1.id from Project t1 where t1.projectName= :projectName")
-    Integer findIdByProjectName(@Param("projectName")String projectName);
+    Integer findIdByProjectName(@Param("projectName") String projectName);
 
+    /**
+     * @Author:SHIGS
+     * @Description修改项目状态
+     * @Date:14:22 2018/8/16
+     * @modified By
+     */
+    @Modifying
+    @Query("update Project p set p.projectStatus = 'DONE' ,p.processProgress = 9 where p.id in :ids")
+    void updateProjectStatus(@Param(value = "ids") List<Integer> ids);
 }
