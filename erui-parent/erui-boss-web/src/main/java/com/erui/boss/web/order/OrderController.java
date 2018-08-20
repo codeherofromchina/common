@@ -91,7 +91,7 @@ public class OrderController {
             if (StringUtils.isBlank(addOrderVo.getContractNo()) && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
                 result.setMsg("销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOverseasSales().equals(4) && !addOrderVo.getOverseasSales().equals(5)) {
+            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && (!addOrderVo.getOrderCategory().equals(6) || addOrderVo.getOverseasSales() > 3)) {
                 result.setMsg("海外销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo()) && !addOrderVo.getOrderCategory().equals(6)) {
@@ -130,9 +130,11 @@ public class OrderController {
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(3)) {
-                result.setMsg("回款责任人不能为空");
-                result.setEnMsg("Collection manager must be filled in");
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(3)) {
+                if (!addOrderVo.getOrderCategory().equals(6)) {
+                    result.setMsg("回款责任人不能为空");
+                    result.setEnMsg("Collection manager must be filled in");
+                }
             } else if (addOrderVo.getBusinessUnitId() == null) {
                 result.setMsg("事业部不能为空");
                 result.setEnMsg("Distribution must be filled in");
