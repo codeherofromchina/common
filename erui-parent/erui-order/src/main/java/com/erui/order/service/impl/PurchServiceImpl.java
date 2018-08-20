@@ -351,7 +351,7 @@ public class PurchServiceImpl implements PurchService {
         List<Project> projectList = new ArrayList<>(projectSet);
         purch.setProjects(projectList);
         // 保存采购单
-        if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus().equals(2)) {
+        if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             purch.setStatus(3);
         }
         purchDao.save(purch);
@@ -632,7 +632,7 @@ public class PurchServiceImpl implements PurchService {
         }
         // 更新采购单
         if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus().equals(2)) {
-            purch.setStatus(5);
+            purch.setStatus(3);
         }
         purchDao.save(dbPurch);
         // 检查项目是否已经采购完成
