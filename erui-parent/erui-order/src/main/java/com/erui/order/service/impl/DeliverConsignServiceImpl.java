@@ -567,6 +567,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
 
+    public static void main(String[] args) {
+
+
+
+    }
 
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
     public void sendSms(Map<String,Object> map1) throws  Exception {

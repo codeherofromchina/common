@@ -19,6 +19,7 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.ProjectService;
+import com.erui.order.service.StatisticsService;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -58,6 +59,8 @@ public class ProjectServiceImpl implements ProjectService {
     private BackLogService backLogService;
     @Autowired
     private BackLogDao backLogDao;
+    @Autowired
+    private StatisticsService statisticsService;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -120,8 +123,10 @@ public class ProjectServiceImpl implements ProjectService {
             String contractNo = order.getContractNo();  //销售合同号
             newBackLog.setReturnNo(contractNo);  //返回单号
             String region = order.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
             String country = order.getCountry();//国家
-            newBackLog.setInformTheContent(StringUtils.join(region,",")+" | "+country);  //提示内容
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
             newBackLog.setHostId(order.getId());    //父ID，列表页id    订单id
             Integer agentId = order.getAgentId();   //市场经办人id
             newBackLog.setUid(agentId);   ////经办人id
@@ -184,8 +189,10 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
                         String region = projectUpdate.getRegion();   //所属地区
+                        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                         String country = projectUpdate.getCountry();  //国家
-                        newBackLog.setInformTheContent(region+" | "+country);  //提示内容
+                        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
                         newBackLog.setHostId(projectUpdate.getId());    //父ID，列表页id
                         Integer managerUid = projectUpdate.getManagerUid();//项目经理
                         newBackLog.setUid(managerUid);   //项目经理id
@@ -211,8 +218,10 @@ public class ProjectServiceImpl implements ProjectService {
                         String contractNo = order.getContractNo();  //销售合同号
                         newBackLog.setReturnNo(contractNo);  //返回单号
                         String region = order.getRegion();//地区
+                        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                         String country = order.getCountry();//国家
-                        newBackLog.setInformTheContent(StringUtils.join(region,",")+" | "+country);  //提示内容
+                        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
                         newBackLog.setHostId(projectUpdate.getId());    //父ID，列表页id    项目id
                         Integer technicalId = order.getTechnicalId();   //商务技术经办人id
                         newBackLog.setUid(technicalId);   ////经办人id
@@ -293,8 +302,10 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
                     newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
                     String region = projectUpdate.getRegion();   //所属地区
+                    Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                     String country = projectUpdate.getCountry();  //国家
-                    newBackLog.setInformTheContent(region+" | "+country);  //提示内容
+                    Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                    newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(projectUpdate.getId());    //父ID，列表页id
                     Integer businessUid = projectUpdate.getBusinessUid();//商务技术经办人id
                     newBackLog.setUid(businessUid);   ////经办人id

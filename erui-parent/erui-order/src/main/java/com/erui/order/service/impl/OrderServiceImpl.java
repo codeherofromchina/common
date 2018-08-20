@@ -61,6 +61,8 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private CompanyService companyService;
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Autowired
     private IogisticsDataService iogisticsDataService;
@@ -602,8 +604,10 @@ public class OrderServiceImpl implements OrderService {
             String contractNo = orderUpdate.getContractNo();  //销售合同号
             newBackLog.setReturnNo(contractNo);  //返回单号
             String region = orderUpdate.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
             String country = orderUpdate.getCountry();//国家
-            newBackLog.setInformTheContent(StringUtils.join(region,",")+" | "+country);  //提示内容
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
             newBackLog.setHostId(project2.getId());    //父ID，列表页id    项目id
             Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
             newBackLog.setUid(technicalId);   ////经办人id
@@ -802,8 +806,10 @@ public class OrderServiceImpl implements OrderService {
             String contractNo = order1.getContractNo();  //销售合同号
             newBackLog.setReturnNo(contractNo);  //返回单号
             String region = order1.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
             String country = order1.getCountry();//国家
-            newBackLog.setInformTheContent(StringUtils.join(region,",")+" | "+country);  //提示内容
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
             newBackLog.setHostId(project2.getId());    //父ID，列表页id    项目id
             Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
             newBackLog.setUid(technicalId);   ////经办人id

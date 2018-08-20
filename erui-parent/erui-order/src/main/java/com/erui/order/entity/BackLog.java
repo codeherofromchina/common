@@ -26,21 +26,7 @@ public class BackLog {
 
     @Column(name = "function_explain_id")
     private Integer functionExplainId; //功能访问路径标识
-   /*
-    1：办理项目/驳回
-    2：执行项目/驳回
-    3：办理采购申请
-    4：办理采购订单
-    5：办理报检单
-    6：办理入库质检
-    7：办理出库质检
-    8：办理入库/分单
-    9：办理出库/分单
-    10:办理入库/分单	物流管理
-    11:物流跟踪
-    12:办理出口通知单
-    13：办理收款
-    */
+
     @Column(name = "return_no")
     private String returnNo; //返回单号
 
