@@ -631,8 +631,8 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         // 更新采购单
-        if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus()>1) {
-            purch.setStatus(3);
+        if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
+            dbPurch.setStatus(3);
         }
         purchDao.save(dbPurch);
         // 检查项目是否已经采购完成
