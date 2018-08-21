@@ -332,11 +332,11 @@ public class WeeklyReportController {
             return null;
         }
         //获取历史数据
-        params.put("startTime","2018-01-01 00:00:00");
+        params.put("onshelf_at_start","2018-01-01 00:00:00");
         Date start = DateUtil.parseString2DateNoException("2018-01-01 00:00:00", DateUtil.FULL_FORMAT_STR);
-        Date endDate = DateUtil.parseString2DateNoException(String.valueOf(params.get("endTime")), DateUtil.FULL_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(String.valueOf(params.get("onshelf_at_end")), DateUtil.FULL_FORMAT_STR);
         if (start.after(endDate)) {
-           params.put("endTime","2018-01-01 00:00:01");
+           params.put("onshelf_at_end","2018-01-01 00:00:01");
         }
         List<Map<String, Object>> spuHistoryList = sendPutToES(params, eruiToken, esproductUrl);
         if(spuHistoryList==null){
