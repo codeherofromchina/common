@@ -444,7 +444,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     newBackLog.setInformTheContent(projectNoSet+" | "+purchNo);  //提示内容
                     newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
                     newBackLog.setUid(project.getQualityUid());   ////经办人id
-                    backLogService.findBackLogByList(newBackLog);
+                    backLogService.addBackLogByDelYn(newBackLog);
                 }
             }
 
