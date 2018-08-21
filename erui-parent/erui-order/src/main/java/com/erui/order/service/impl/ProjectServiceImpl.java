@@ -309,7 +309,7 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setHostId(projectUpdate.getId());    //父ID，列表页id
                     Integer businessUid = projectUpdate.getBusinessUid();//商务技术经办人id
                     newBackLog.setUid(businessUid);   ////经办人id
-                    backLogDao.save(newBackLog);
+                    backLogService.findBackLogByList(newBackLog);
                 }
             }
             projectUpdate.setUpdateTime(new Date());
