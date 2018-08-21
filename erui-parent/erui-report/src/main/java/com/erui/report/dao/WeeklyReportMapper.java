@@ -107,6 +107,12 @@ public interface WeeklyReportMapper {
     List<Map<String,Object>> selectSkuNumWhereTimeGroupByOrg(Map<String, Object> params);
 
     /**
+     * 产品线列表
+     * @return
+     */
+    List<Map<String,Object>> selectProductLineList();
+
+    /**
      * 根据时间查询各个地区的总和订单数量
      *
      * @param params
