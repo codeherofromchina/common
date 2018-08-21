@@ -1,10 +1,12 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.WeeklyReportMapper;
 import com.erui.report.service.WeeklyReportService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -682,6 +684,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
 
     @Override
+    @Deprecated
     public Map<String, Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params) {
         // 准备数据
 //        List<Map<String, Object>> currentWeekData = readMapper.selectSpuAndSkuNumWhereTimeGroupByOrg(params);
@@ -759,6 +762,136 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         return result;
     }
 
+    @Override
+   public  Map<String,Object> handleSpuSkuResult( List<Map<String,Object>>  spuList, List<Map<String,Object>> skuList,
+             List<Map<String, Object>> spuHistoryList, List<Map<String, Object>> skuHistoryList) {
+        //获取产品线列表 ，skuList、spuList都为产品线id 转变成产品线name
+        List<Map<String,Object>> pLineList=readMapper.selectProductLineList();
+        Map<String, Map<String, Object>>  pLineMap= pLineList.stream().collect(Collectors.toMap(m -> m.get("id").toString(), m -> m));
+        if(CollectionUtils.isNotEmpty(spuList)){
+            Iterator<Map<String, Object>> iterator = spuList.iterator();
+            while(iterator.hasNext()){
+                Map<String, Object> m = iterator.next();
+                String key = m.get("key").toString();
+                if(pLineMap.containsKey(key)){
+                    Map<String, Object> lineMap = pLineMap.get(key);
+                    String name = lineMap.get("name").toString();
+                    m.put("name",name);
+                }else {
+                   iterator.remove();
+                }
+            }
+
+        }
+        if(CollectionUtils.isNotEmpty(skuList)){
+            Iterator<Map<String, Object>> iterator = skuList.iterator();
+            while(iterator.hasNext()){
+                Map<String, Object> m = iterator.next();
+                String key = m.get("key").toString();
+                if(pLineMap.containsKey(key)){
+                    Map<String, Object> lineMap = pLineMap.get(key);
+                    String name = lineMap.get("name").toString();
+                    m.put("name",name);
+                }else {
+                    iterator.remove();
+                }
+            }
+        }
+        if(CollectionUtils.isNotEmpty(spuHistoryList)){
+            Iterator<Map<String, Object>> iterator = spuHistoryList.iterator();
+            while(iterator.hasNext()){
+                Map<String, Object> m = iterator.next();
+                String key = m.get("key").toString();
+                if(pLineMap.containsKey(key)){
+                    Map<String, Object> lineMap = pLineMap.get(key);
+                    String name = lineMap.get("name").toString();
+                    m.put("name",name);
+                }else {
+                    iterator.remove();
+                }
+            }
+
+        }
+        if(CollectionUtils.isNotEmpty(skuHistoryList)){
+            Iterator<Map<String, Object>> iterator = skuHistoryList.iterator();
+            while(iterator.hasNext()){
+                Map<String, Object> m = iterator.next();
+                String key = m.get("key").toString();
+                if(pLineMap.containsKey(key)){
+                    Map<String, Object> lineMap = pLineMap.get(key);
+                    String name = lineMap.get("name").toString();
+                    m.put("name",name);
+                }else {
+                    iterator.remove();
+                }
+            }
+        }
+
+        Map<String, Map<String, Object>> currentSpuWeekDataMap = spuList.stream().collect(Collectors.toMap(vo ->  vo.get("name").toString(), vo -> vo));
+        Map<String, Map<String, Object>> currentSkuWeekDataMap = skuList.stream().collect(Collectors.toMap(vo -> vo.get("name").toString(), vo -> vo));
+        Map<String, Map<String, Object>> historySpuDataMap = spuHistoryList.stream().collect(Collectors.toMap(vo ->vo.get("name").toString(), vo -> vo));
+        Map<String, Map<String, Object>> historySkuDataMap = skuHistoryList.stream().collect(Collectors.toMap(vo ->vo.get("name").toString(), vo -> vo));
+
+        // 处理数据
+        List<String> orgList = new ArrayList<>();//存放事业部列表
+        List<Integer> currentWeekSpuCounts = new ArrayList<>();
+        List<Integer> currentWeekSkuCounts = new ArrayList<>();
+        List<Integer> historySpuCounts = new ArrayList<>();
+        List<Integer> historySkuCounts = new ArrayList<>();
+        for (String org : ORGS) {
+            orgList.add(org);
+            // 本周spu数据
+            Map<String, Object> curSpuMap = currentSpuWeekDataMap.remove(org);
+            if (curSpuMap != null) {
+                int totalSpu =  Integer.parseInt(curSpuMap.get("doc_count").toString());
+                currentWeekSpuCounts.add(totalSpu);
+            } else {
+                currentWeekSpuCounts.add(0);
+            }
+            // 本周sku数据
+            Map<String, Object> curSkuMap = currentSkuWeekDataMap.remove(org);
+            if (curSkuMap != null) {
+                int totalSku = Integer.parseInt(curSkuMap.get("doc_count").toString());
+                currentWeekSkuCounts.add(totalSku);
+            } else {
+                currentWeekSkuCounts.add(0);
+            }
+            // 上周spu数据
+            Map<String, Object> historySpuMap = historySpuDataMap.remove(org);
+            if (historySpuMap != null) {
+                int totalSpu = Integer.parseInt(historySpuMap.get("doc_count").toString());
+                historySpuCounts.add(totalSpu);
+            } else {
+                historySpuCounts.add(0);
+            }
+            // 上周sku数据
+            Map<String, Object> historySkuMap = historySkuDataMap.remove(org);
+            if (historySkuMap != null) {
+                int totalSku =  Integer.parseInt(historySpuMap.get("doc_count").toString());
+                historySkuCounts.add(totalSku);
+            } else {
+                historySkuCounts.add(0);
+            }
+        }
+        //处理其它事业部数据
+        Integer curWeekOtherOrgSpuNum = currentSpuWeekDataMap.values().parallelStream().map(vo -> (Integer.parseInt(vo.get("doc_count").toString()))).reduce(0, (a, b) -> a + b);
+        Integer curWeekOtherOrgSkuNum = currentSkuWeekDataMap.values().parallelStream().map(vo -> (Integer.parseInt(vo.get("doc_count").toString()))).reduce(0, (a, b) -> a + b);
+        Integer historyOtherOrgSpuNum = historySpuDataMap.values().parallelStream().map(vo -> (Integer.parseInt(vo.get("doc_count").toString()))).reduce(0, (a, b) -> a + b);
+        Integer historyOtherOrgSkuNum = historySkuDataMap.values().parallelStream().map(vo -> (Integer.parseInt(vo.get("doc_count").toString()))).reduce(0, (a, b) -> a + b);
+        orgList.add("其他");
+        currentWeekSpuCounts.add(curWeekOtherOrgSpuNum);
+        currentWeekSkuCounts.add(curWeekOtherOrgSkuNum);
+        historySpuCounts.add(historyOtherOrgSpuNum);
+        historySkuCounts.add(historyOtherOrgSkuNum);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("orgList", orgList);
+        result.put("currentWeekSpuCounts", currentWeekSpuCounts);
+        result.put("currentWeekSkuCounts", currentWeekSkuCounts);
+        result.put("historySpuCounts", historySpuCounts);
+        result.put("historySkuCounts", historySkuCounts);
+        return result;
+    }
 
 
     @Override

@@ -373,6 +373,11 @@
         GROUP BY t4.name;
 
     </select>
+    <!--获取产品线列表-->
+    <select id="selectProductLineList" resultType="java.util.Map">
+        SELECT id ,`name` FROM erui_operation.bizline
+    </select>
+
     <select id="selectSkuNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
 
     SELECT
