@@ -173,7 +173,7 @@ public class BackLog {
     public static enum ProjectStatusEnum {
 
         TRANSACTIONORDER("办理项目", 1), REJECTORDER( "驳回订单", 0), EXECUTEPROJECT( "执行项目", 2),REJECTPROJRCT( "驳回项目", 2),
-        PURCHREQUISITION( "办理采购申请", 3),PURCHORDER("办理采购订单", 4), INSPECTAPPLY( "办理报检单", 5),INSPECTREPORT( "办理入库质检", 6),
+         PURCHREQUISITION( "办理采购申请", 3),PURCHORDER("办理采购订单", 4), INSPECTAPPLY( "办理报检单", 5),INSPECTREPORT( "办理入库质检", 6),
         INSTOCKSUBMENU( "办理分单", 7),TRANSACTINSTOCK( "办理入库", 7),
         INSTOCKSUBMENUDELIVER( "办理分单", 8),TRANSACTDELIVER( "办理出库", 8), DELIVERDETAIL("办理出库质检", 9),NOTARIZEDELIVER("确认出库", 8),
         LOGISTICS( "办理物流分单", 10),LOGISTICSDATA("办理物流", 11);
