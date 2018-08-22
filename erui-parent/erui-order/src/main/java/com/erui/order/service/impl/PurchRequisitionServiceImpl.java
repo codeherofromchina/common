@@ -163,7 +163,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             //采购申请单发送以后 ，删除   “办理采购申请”  待办提示（采购申请只发送一次）
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
-            backLog.setHostId(project1.getId());
+            backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
 
@@ -258,7 +258,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             //采购申请单发送以后 ，删除   “办理采购申请”  待办提示   （采购申请只发送一次）
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
-            backLog.setHostId(project1.getId());
+            backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
             //项目中采购申请提交以后  通知采购经办人办理采购申请        (采购申请只发送一次，全部采购完成删除)
