@@ -1008,10 +1008,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 Join<Project, Order> orderRoot = root.join("order");
                 String countriesStr = condition.get("countries");
-                if (StringUtils.isNotBlank(countriesStr)) {
+               /* if (StringUtils.isNotBlank(countriesStr)) {
                     String[] countriesArr = countriesStr.split(",");
                     list.add(orderRoot.get("country").in(countriesArr));
-                }
+                }*/
                 //  crmCode名称
                 String crmCode = condition.get("crmCode");
                 if (StringUtil.isNotBlank(crmCode)) {

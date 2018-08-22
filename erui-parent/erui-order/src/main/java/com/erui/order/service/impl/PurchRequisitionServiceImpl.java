@@ -135,8 +135,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
             goods.setProType(dcGoods.getProType());
-            goods.setMeteName(dcGoods.getMeteName());
-            goods.setMeteType(dcGoods.getMeteType());
+            //goods.setMeteName(dcGoods.getMeteName());
+            //goods.setMeteType(dcGoods.getMeteType());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
@@ -229,8 +229,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
             goods.setProType(dcGoods.getProType());
-            goods.setMeteType(dcGoods.getMeteType());
-            goods.setMeteName(dcGoods.getMeteName());
+            //goods.setMeteType(dcGoods.getMeteType());
+            //goods.setMeteName(dcGoods.getMeteName());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
