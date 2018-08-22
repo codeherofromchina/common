@@ -91,9 +91,11 @@ public class OrderController {
             if (StringUtils.isBlank(addOrderVo.getContractNo()) && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
                 result.setMsg("销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && addOrderVo.getOverseasSales() > 3 && !addOrderVo.getOrderCategory().equals(6)) {
-                result.setMsg("海外销售合同号不能为空");
-                result.setEnMsg("The order No. must be filled in");
+            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && !addOrderVo.getOverseasSales().equals(4) && !addOrderVo.getOverseasSales().equals(5)) {
+                if (!addOrderVo.getOrderCategory().equals(6)) {
+                    result.setMsg("海外销售合同号不能为空");
+                    result.setEnMsg("The order No. must be filled in");
+                }
             } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo()) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("物流报价单号不能为空");
                 result.setEnMsg("Logistics quotation No. must be filled in");
