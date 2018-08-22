@@ -226,9 +226,35 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 inspectApplyAdd.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
                 inspectApplyAdd.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
                 //推送数据到入库部门
-                pushInspectApply(inspectApplyAdd);
+                Instock instock = pushInspectApply(inspectApplyAdd);
                 //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
                 disposeData(inspectApplyAdd);
+
+
+                // 厂家直接发货添加 入库办理 事项
+                //推送给分单人待办事项  办理入库
+                BackLog newBackLog = new BackLog();
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
+                InspectReport inspectReport = instock.getInspectReport();
+
+                List<String> projectNoList = new ArrayList<>();
+                List<InstockGoods> instockGoodsLists = instock.getInstockGoodsList();
+                instockGoodsLists.stream().forEach(instockGoods -> {
+                    PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+                    Goods goods = purchGoods.getGoods();
+                    if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                        projectNoList.add(goods.getProjectNo());
+                    }
+                });
+                String inspectApplyNo = inspectReport.getInspectApplyNo();  //报检单号
+                newBackLog.setReturnNo(inspectApplyNo);  //返回单号
+                String supplierName = inspectReport.getSupplierName();  //供应商名称
+                newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+                newBackLog.setHostId(instock.getId());    //父ID，列表页id
+                newBackLog.setUid(instock.getUid());   ////经办人id
+                backLogService.addBackLogByDelYn(newBackLog);
+
             }
             // 保存报检单信息
             inspectApplyDao.save(inspectApplyAdd);
@@ -809,7 +835,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      *
      * @param inspectApply
      */
-    public void pushInspectApply(InspectApply inspectApply) {
+    public Instock pushInspectApply(InspectApply inspectApply) {
         // 推送数据到入库部门
         Instock instock = new Instock();
         instock.setInspectReport(null);
@@ -856,7 +882,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         instock.setInstockGoodsList(instockGoodsList);
         instock.setOutCheck(0); //是否外检（ 0：否   1：是）
 
-        instockDao.save(instock);
+        Instock save = instockDao.save(instock);
+
+        return save;
 
     }
 

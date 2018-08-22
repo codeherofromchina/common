@@ -408,6 +408,12 @@ public class InspectReportServiceImpl implements InspectReportService {
         }
         InspectReport save1 = inspectReportDao.save(dbInspectReport);
 
+        //全部质检合格以后，删除   “办理入库质检”  待办提示
+        BackLog backLog2 = new BackLog();
+        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
+        backLog2.setHostId(save1.getId());
+        backLogService.updateBackLogByDelYn(backLog2);
+
         // 最后判断采购是否完成，且存在合格的商品数量
         if (statusEnum == InspectReport.StatusEnum.DONE && hegeNum > 0) {
             Purch purch = dbInspectReport.getInspectApply().getPurch();
@@ -422,12 +428,6 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (doneFlag) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
-
-                //全部质检合格以后，删除   “办理入库质检”  待办提示
-                BackLog backLog2 = new BackLog();
-                backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
-                backLog2.setHostId(save1.getId());
-                backLogService.updateBackLogByDelYn(backLog2);
 
                 //全部质检合格以后，删除   “办理报检单”  待办提示
                 BackLog backLog = new BackLog();
@@ -445,6 +445,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             instock.setStatus(Instock.StatusEnum.INIT.getStatus());
             instock.setCreateTime(new Date());
             List<InstockGoods> instockGoodsList = new ArrayList<>();
+
             // 入库商品
             for (InspectApplyGoods inspectGoods : dbInspectReport.getInspectGoodsList()) {
                 int qualifiedNum = inspectGoods.getInspectNum() - inspectGoods.getUnqualified();
@@ -480,18 +481,15 @@ public class InspectReportServiceImpl implements InspectReportService {
 
 
             //质检合格提交以后  通知分单员办理入库/分单
-
             List<Integer> listAll = new ArrayList<>(); //分单员id
 
             //获取token
             String eruiToken = (String) ThreadLocalUtil.getObject();
             if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
-
                 Map<String, String> header = new HashMap<>();
                 header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
                 header.put("accept", "*/*");
-
                 try {
                     //获取仓库分单员
                     String jsonParam = "{\"role_no\":\"O019\"}";
@@ -515,7 +513,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                     throw new  Exception("出库分单员待办事项推送失败");
                 }
             }
-
             if(listAll.size() > 0){
                 for (Integer in : listAll){ //分单员有几个人推送几条
                     BackLog newBackLog = new BackLog();
