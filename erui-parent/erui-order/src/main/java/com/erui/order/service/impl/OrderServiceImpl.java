@@ -801,8 +801,8 @@ public class OrderServiceImpl implements OrderService {
 
             //订单提交 推送“待办”到项目
             BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
             String contractNo = order1.getContractNo();  //销售合同号
             newBackLog.setReturnNo(contractNo);  //返回单号
             String region = order1.getRegion();//地区
