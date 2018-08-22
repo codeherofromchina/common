@@ -88,21 +88,21 @@ public class OrderController {
             result.setMsg("销售合同号不能为空");
             result.setEnMsg("The order No. must be filled in");
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) { // 提交
-            if (addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3 && StringUtils.isBlank(addOrderVo.getContractNo())) {
+            if (StringUtils.isBlank(addOrderVo.getContractNo()) && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
                 result.setMsg("销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (!addOrderVo.getOverseasSales().equals(4) && !addOrderVo.getOverseasSales().equals(5)) {
-                if (!addOrderVo.getOrderCategory().equals(6) && StringUtils.isBlank(addOrderVo.getContractNoOs())) {
+            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && !addOrderVo.getOverseasSales().equals(4) && !addOrderVo.getOverseasSales().equals(5)) {
+                if (!addOrderVo.getOrderCategory().equals(6)) {
                     result.setMsg("海外销售合同号不能为空");
                     result.setEnMsg("The order No. must be filled in");
                 }
-            } else if (!addOrderVo.getOrderCategory().equals(6) && StringUtils.isBlank(addOrderVo.getLogiQuoteNo())) {
+            } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo()) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("物流报价单号不能为空");
                 result.setEnMsg("Logistics quotation No. must be filled in");
             } else if (addOrderVo.getOrderType() == null) {
                 result.setMsg("订单类型不能为空");
                 result.setEnMsg("Order type must be filled in");
-            } else if (addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3 && addOrderVo.getSigningDate() == null) {
+            } else if (addOrderVo.getSigningDate() == null && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
                 result.setMsg("订单签约日期不能为空");
                 result.setEnMsg("Order contract date must be filled in");
             } else if (addOrderVo.getDeliveryDate() == null) {
@@ -126,15 +126,14 @@ public class OrderController {
             } else if (StringUtils.isBlank(addOrderVo.getCountry())) {
                 result.setMsg("国家不能为空");
                 result.setEnMsg("Country name must be filled in");
-            } else if (addOrderVo.getOrderCategory() != 1 && StringUtils.isBlank(addOrderVo.getCrmCode())) {
+            } else if (StringUtils.isBlank(addOrderVo.getCrmCode()) && addOrderVo.getOrderCategory() != 1) {
                 result.setMsg("CRM客户代码不能为空");
                 result.setEnMsg("CRM No. must be filled in");
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (!addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(3)) {
-                if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()))
-                    result.setMsg("回款责任人不能为空");
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(3)) {
+                result.setMsg("回款责任人不能为空");
                 result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {
                 result.setMsg("事业部不能为空");
@@ -154,7 +153,7 @@ public class OrderController {
             } else if (addOrderVo.getTaxBearing() == null) {
                 result.setMsg("是否含税不能为空");
                 result.setEnMsg("Tax-inclusive or not must be filled in ");
-            } else if (addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3 && StringUtils.isBlank(addOrderVo.getPaymentModeBn())) {
+            } else if (StringUtils.isBlank(addOrderVo.getPaymentModeBn()) && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
                 result.setMsg("收款方式不能为空");
                 result.setEnMsg("Payment term must be filled in");
             } else if (addOrderVo.getAcquireId() == null) {
