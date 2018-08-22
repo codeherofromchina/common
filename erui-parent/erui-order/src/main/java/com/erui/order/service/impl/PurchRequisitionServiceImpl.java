@@ -171,7 +171,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             BackLog newBackLog = new BackLog();
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-            newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
             String contractNo = save.getContractNo();   //销售合同号
             String projectNo = save.getProjectNo();//项目号
             newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
@@ -265,7 +265,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             BackLog newBackLog = new BackLog();
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-            newBackLog.setReturnNo(null);  //返回单号    返回空，两个标签
+            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
             String contractNo = save.getContractNo();   //销售合同号
             String projectNo = save.getProjectNo();//项目号
             newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
