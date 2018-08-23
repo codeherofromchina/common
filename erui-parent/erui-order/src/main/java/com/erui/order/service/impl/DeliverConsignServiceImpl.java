@@ -925,6 +925,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 newBackLog.setReturnNo(order.getContractNo());  //返回单号
                 newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
                 newBackLog.setHostId(deliverDetai.getId());    //父ID，列表页id
+                newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
                 newBackLog.setUid(in);   ////经办人id
                 backLogService.addBackLogByDelYn(newBackLog);
             }

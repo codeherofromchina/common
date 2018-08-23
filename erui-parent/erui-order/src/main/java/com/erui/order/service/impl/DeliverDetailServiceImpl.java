@@ -414,6 +414,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
                     }
                     goodsDao.save(goods);
+
                 }
             }
         }
@@ -590,6 +591,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 sendSms(map);
             }
+
+
+
+            //出库提交删除  办理出库 代办
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
+            backLog.setHostId(one.getId());
+            backLogService.updateBackLogByDelYn(backLog);
 
 
             //出库提交的时候不管有没有经办人都去判断删除一下   删除分单员的信息推送  办理分单
@@ -1074,6 +1083,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         newBackLog.setReturnNo(order.getContractNo());  //返回单号
         newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
         newBackLog.setHostId(one.getId());    //父ID，列表页id
+        newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
         newBackLog.setUid(save.getWareHouseman());   ////经办人id
         backLogService.addBackLogByDelYn(newBackLog);
 
@@ -1324,6 +1334,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             newBackLog.setReturnNo(order.getContractNo());  //返回单号
             newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
             newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
+            newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
             newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
             backLogService.addBackLogByDelYn(newBackLog);
 
