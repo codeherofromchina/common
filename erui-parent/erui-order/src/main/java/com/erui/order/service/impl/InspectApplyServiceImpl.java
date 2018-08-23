@@ -300,7 +300,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
                         String purchNo = purch.getPurchNo();//采购合同号
-                        newBackLog.setInformTheContent(projectNoSet+" | "+purchNo);  //提示内容
+                        String join = StringUtils.join(projectNoSet, ",");
+                        newBackLog.setInformTheContent(join+" | "+purchNo);  //提示内容
                         newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
                         newBackLog.setUid(project.getQualityUid());   ////经办人id
                         backLogService.addBackLogByDelYn(newBackLog);
@@ -467,7 +468,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
                     newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
                     String purchNo = purch.getPurchNo();//采购合同号
-                    newBackLog.setInformTheContent(projectNoSet+" | "+purchNo);  //提示内容
+                    newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+purchNo);  //提示内容
                     newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
                     newBackLog.setUid(project.getQualityUid());   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);

@@ -378,7 +378,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(projectNoSet+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id
@@ -687,7 +687,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(projectNoSet+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id
