@@ -116,7 +116,7 @@ public class BackLogServiceImpl implements BackLogService{
     public void updateBackLogByDelYn(BackLog backLog) throws Exception {
         List<BackLog> backLogList = null;
         try {
-            backLogList =backLogDao.findByFunctionExplainIdAndHostId(backLog.getFunctionExplainId(),backLog.getHostId());
+            backLogList =backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),1);
         }catch (Exception e){
             logger.error("逻辑删除 - 查询待办事项失败："+e);
             throw new Exception(e);
