@@ -10,10 +10,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.service.AttachmentService;
-import com.erui.order.service.BackLogService;
-import com.erui.order.service.DeliverConsignService;
-import com.erui.order.service.OrderService;
+import com.erui.order.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +60,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private BackLogService backLogService;
+
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
@@ -923,7 +923,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(order.getContractNo());  //返回单号
-                newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
+                String region = order.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = order.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
                 newBackLog.setHostId(deliverDetai.getId());    //父ID，列表页id
                 newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
                 newBackLog.setUid(in);   ////经办人id

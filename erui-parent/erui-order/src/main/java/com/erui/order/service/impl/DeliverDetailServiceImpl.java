@@ -17,6 +17,7 @@ import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.DeliverDetailService;
+import com.erui.order.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +84,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Autowired
     private BackLogService backLogService;
+
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -670,7 +674,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.DELIVERDETAIL.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERDETAIL.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(order.getContractNo());  //返回单号
-                newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
+                String region = order.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = order.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
                 newBackLog.setHostId(deliverDetail1.getId());    //父ID，列表页id
                 newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
                 backLogService.addBackLogByDelYn(newBackLog);
@@ -1081,7 +1089,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getMsg());  //功能名称
         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
         newBackLog.setReturnNo(order.getContractNo());  //返回单号
-        newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
+        String region = order.getRegion();   //所属地区
+        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+        String country = order.getCountry();  //国家
+        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
         newBackLog.setHostId(one.getId());    //父ID，列表页id
         newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
         newBackLog.setUid(save.getWareHouseman());   ////经办人id
@@ -1332,13 +1344,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getMsg());  //功能名称
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
             newBackLog.setReturnNo(order.getContractNo());  //返回单号
-            newBackLog.setInformTheContent(order.getRegion()+" | "+order.getCountry());  //提示内容
+            String region = order.getRegion();   //所属地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+            String country = order.getCountry();  //国家
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
             newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
             newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
             newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
             backLogService.addBackLogByDelYn(newBackLog);
-
-
 
         }
 
