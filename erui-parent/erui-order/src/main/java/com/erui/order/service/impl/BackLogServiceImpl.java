@@ -85,11 +85,13 @@ public class BackLogServiceImpl implements BackLogService{
         backLog.setPlaceSystem("订单");   //所在系统
         backLog.setDelYn(1);
 
+        String informTheContent = backLog.getInformTheContent(); //返回内容
+
         List<BackLog> backLogList = null;
         if(backLog.getFollowId() != null){
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndFollowIdAndUidAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getFollowId(),backLog.getUid(),1);
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndFollowIdAndUidAndDelYnAndInformTheContent(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getFollowId(),backLog.getUid(),1,informTheContent);
         }else {
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndUidAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getUid(),1);
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndUidAndDelYnAndInformTheContent(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getUid(),1,informTheContent);
         }
 
        if(backLogList.size() <= 0 ){
