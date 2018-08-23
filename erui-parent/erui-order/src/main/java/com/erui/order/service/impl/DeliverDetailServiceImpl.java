@@ -602,6 +602,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
             backLog.setHostId(one.getId());
+            backLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
             backLogService.updateBackLogByDelYn(backLog);
 
 
@@ -609,6 +610,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             BackLog backLog2 = new BackLog();
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
             backLog2.setHostId(one.getId());
+            backLog2.setFollowId(1);  // 1：为办理和分单    4：为确认出库
             backLogService.updateBackLogByDelYn(backLog2);
 
 
@@ -721,8 +723,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
             //确认出库提交删除 确认出库  待办信息
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERDETAIL.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
             backLog2.setHostId(deliverDetail1.getId());
+            backLog2.setFollowId(4);
             backLogService.updateBackLogByDelYn(backLog2);
 
 
@@ -1081,6 +1084,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         BackLog backLog2 = new BackLog();
         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
         backLog2.setHostId(one.getId());
+        backLog2.setFollowId(1);  // 1：为办理和分单    4：为确认出库
         backLogService.updateBackLogByDelYn(backLog2);
 
         //指派分单人以后  添加分单人的待办信息  办理办理出库
