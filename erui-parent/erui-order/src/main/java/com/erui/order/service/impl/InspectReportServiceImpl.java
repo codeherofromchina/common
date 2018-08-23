@@ -408,11 +408,13 @@ public class InspectReportServiceImpl implements InspectReportService {
         }
         InspectReport save1 = inspectReportDao.save(dbInspectReport);
 
-        //全部质检合格以后，删除   “办理入库质检”  待办提示
+
+        //质检以后，删除   “办理入库质检”  待办提示
         BackLog backLog2 = new BackLog();
         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
         backLog2.setHostId(save1.getId());
         backLogService.updateBackLogByDelYn(backLog2);
+
 
         // 最后判断采购是否完成，且存在合格的商品数量
         if (statusEnum == InspectReport.StatusEnum.DONE && hegeNum > 0) {
