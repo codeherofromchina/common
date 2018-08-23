@@ -106,7 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
             //项目驳回，删除   “办理项目”  待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            backLog.setHostId(projectUpdate.getId());
+            backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
             //项目驳回，删除    如果有项目经理驳回信息删除
@@ -173,7 +173,7 @@ public class ProjectServiceImpl implements ProjectService {
                         //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
                         BackLog backLog = new BackLog();
                         backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-                        backLog.setHostId(projectUpdate.getId());
+                        backLog.setHostId(order.getId());
                         backLogService.updateBackLogByDelYn(backLog);
 
                         //项目驳回 商务技术经办人办理项目指定项目经理以后    如果有项目经理驳回信息删除
