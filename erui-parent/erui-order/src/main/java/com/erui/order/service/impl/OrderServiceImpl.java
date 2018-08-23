@@ -608,7 +608,7 @@ public class OrderServiceImpl implements OrderService {
             String country = orderUpdate.getCountry();//国家
             Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
             newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(project2.getId());    //父ID，列表页id    项目id
+            newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
             Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
             newBackLog.setUid(technicalId);   ////经办人id
             backLogService.addBackLogByDelYn(newBackLog);

@@ -204,6 +204,12 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
                         projectDao.save(projectUpdate);
 
+                        //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+                        backLog2.setHostId(projectUpdate.getId());
+                        backLogService.updateBackLogByDelYn(backLog2);
+
                         //项目经理办理的时候 如果是驳回状态  删除 项目经理的  执行项目  待办信息
                         BackLog backLog = new BackLog();
                         backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
