@@ -116,21 +116,37 @@ public class ProjectServiceImpl implements ProjectService {
             backLogService.updateBackLogByDelYn(backLog2);
 
 
+
             //订单中推送“项目驳回”待办信息
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
-            String contractNo = order.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = order.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = order.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(order.getId());    //父ID，列表页id    订单id
+
+            //获取推送人信息
+            Set<Integer> userIdS = new HashSet<>();
             Integer agentId = order.getAgentId();   //市场经办人id
-            newBackLog.setUid(agentId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+            if(agentId != null){
+                userIdS.add(agentId);
+            }
+            Integer createUserId = order.getCreateUserId();   //创建人id
+            if(createUserId != null){
+                userIdS.add(createUserId);
+            }
+            if(userIdS.size() > 0){
+                for (Integer userId : userIdS){
+                    BackLog newBackLog = new BackLog();
+                    newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
+                    newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+                    String contractNo = order.getContractNo();  //销售合同号
+                    newBackLog.setReturnNo(contractNo);  //返回单号
+                    String region = order.getRegion();//地区
+                    Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                    String country = order.getCountry();//国家
+                    Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                    newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                    newBackLog.setHostId(order.getId());    //父ID，列表页id    订单id
+                    newBackLog.setUid(userId);   ////经办人id
+                    backLogService.addBackLogByDelYn(newBackLog);
+                }
+            }
+
 
             return true;
         } else {

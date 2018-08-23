@@ -590,11 +590,12 @@ public class OrderServiceImpl implements OrderService {
             sendSms(order);
 
 
-            //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
+            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
+
 
 
             //订单提交 推送“待办”到项目
