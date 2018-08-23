@@ -87,9 +87,9 @@ public class BackLogServiceImpl implements BackLogService{
 
         List<BackLog> backLogList = null;
         if(backLog.getFollowId() != null){
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndFollowIdAndUid(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getFollowId(),backLog.getUid());
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndFollowIdAndUidAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getFollowId(),backLog.getUid(),1);
         }else {
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndUid(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getUid());
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndUidAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getUid(),1);
         }
 
        if(backLogList.size() <= 0 ){
