@@ -147,7 +147,6 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
 
-
             return true;
         } else {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {

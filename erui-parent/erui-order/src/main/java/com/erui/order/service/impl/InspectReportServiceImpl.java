@@ -479,54 +479,56 @@ public class InspectReportServiceImpl implements InspectReportService {
                 }
             });
 
+            if (hegeNum != 0) {
+                    //质检合格提交以后  通知分单员办理入库/分单
+                List<Integer> listAll = new ArrayList<>(); //分单员id
 
-            //质检合格提交以后  通知分单员办理入库/分单
-            List<Integer> listAll = new ArrayList<>(); //分单员id
+                //获取token
+                String eruiToken = (String) ThreadLocalUtil.getObject();
+                if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+                    Map<String, String> header = new HashMap<>();
+                    header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                    header.put("Content-Type", "application/json");
+                    header.put("accept", "*/*");
+                    try {
+                        //获取仓库分单员
+                        String jsonParam = "{\"role_no\":\"O019\"}";
+                        String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                        logger.info("人员详情返回信息：" + s2);
 
-            //获取token
-            String eruiToken = (String) ThreadLocalUtil.getObject();
-            if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
-                Map<String, String> header = new HashMap<>();
-                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");
-                header.put("accept", "*/*");
-                try {
-                    //获取仓库分单员
-                    String jsonParam = "{\"role_no\":\"O019\"}";
-                    String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
-                    logger.info("人员详情返回信息：" + s2);
-
-                    // 获取人员手机号
-                    JSONObject jsonObjects = JSONObject.parseObject(s2);
-                    Integer codes = jsonObjects.getInteger("code");
-                    if (codes == 1) {    //判断请求是否成功
-                        // 获取数据信息
-                        JSONArray data1 = jsonObjects.getJSONArray("data");
-                        for (int i = 0; i < data1.size(); i++) {
-                            JSONObject ob = (JSONObject) data1.get(i);
-                            listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                        // 获取人员手机号
+                        JSONObject jsonObjects = JSONObject.parseObject(s2);
+                        Integer codes = jsonObjects.getInteger("code");
+                        if (codes == 1) {    //判断请求是否成功
+                            // 获取数据信息
+                            JSONArray data1 = jsonObjects.getJSONArray("data");
+                            for (int i = 0; i < data1.size(); i++) {
+                                JSONObject ob = (JSONObject) data1.get(i);
+                                listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                            }
+                        }else {
+                            throw new  Exception("出库分单员待办事项推送失败");
                         }
-                    }else {
+                    }catch (Exception e){
                         throw new  Exception("出库分单员待办事项推送失败");
                     }
-                }catch (Exception e){
-                    throw new  Exception("出库分单员待办事项推送失败");
+                }
+                if(listAll.size() > 0){
+                    for (Integer in : listAll){ //分单员有几个人推送几条
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
+                        String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
+                        newBackLog.setReturnNo(inspectApplyNo);  //返回单号
+                        String supplierName = save1.getSupplierName();  //供应商名称
+                        newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+                        newBackLog.setHostId(save.getId());    //父ID，列表页id
+                        newBackLog.setUid(in);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
                 }
             }
-            if(listAll.size() > 0){
-                for (Integer in : listAll){ //分单员有几个人推送几条
-                    BackLog newBackLog = new BackLog();
-                    newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
-                    newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
-                    String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
-                    newBackLog.setReturnNo(inspectApplyNo);  //返回单号
-                    String supplierName = save1.getSupplierName();  //供应商名称
-                    newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
-                    newBackLog.setHostId(save.getId());    //父ID，列表页id
-                    newBackLog.setUid(in);   ////经办人id
-                    backLogService.addBackLogByDelYn(newBackLog);
-                }
-            }
+
         }
 
         // 流程进度推送
