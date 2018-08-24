@@ -221,18 +221,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 inspectApplyGoods.setInspectApply(inspectApplyAdd);
             }
             inspectApplyAdd.setInspectApplyGoodsList(mapIGoods.getValue());
+            Instock instock = null;
             if (directInstockGoods) {
                 // 厂家直接发货且是提交，则直接设置为合格状态
                 inspectApplyAdd.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
                 inspectApplyAdd.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
                 //推送数据到入库部门
-                Instock instock = pushInspectApply(inspectApplyAdd);
+                instock = pushInspectApply(inspectApplyAdd);
                 //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
                 disposeData(inspectApplyAdd);
-
-                // 厂家直接发货添加 入库办理 事项
-                //推送给分单人待办事项  办理分单
-                instocksubmenu(instock);
 
             }
             // 保存报检单信息
@@ -288,6 +285,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             } else if (directInstockGoods) {
                 //  判断采购是否已经完成并修正
                 checkPurchHasDone(inspectApplyAdd.getPurch());
+            }
+
+            if (directInstockGoods) {
+                // 厂家直接发货添加 入库办理 事项
+                //推送给分单人待办事项  办理分单
+                instocksubmenu(instock);
+
             }
         }
         return true;
@@ -408,21 +412,17 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 设置报检商品信息
         dbInspectApply.setInspectApplyGoodsList(inspectApplyGoodsList);
-
+        Instock instock = null;
         if (directInstockGoods) {
             // 厂家直接发货且是提交，则直接设置为合格状态
             dbInspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
 
             //推送数据到入库部门
-            Instock instock = pushInspectApply(dbInspectApply);
+            instock = pushInspectApply(dbInspectApply);
 
             //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
             disposeData(dbInspectApply);
-
-            // 厂家直接发货添加 入库办理 事项
-            //推送给分单人待办事项  办理分单
-            instocksubmenu(instock);
 
         }
         // 保存报检单
@@ -462,6 +462,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             //  判断采购是否已经完成并修正
             checkPurchHasDone(dbInspectApply.getPurch());
         }
+
+        if (directInstockGoods) {
+            // 厂家直接发货添加 入库办理 事项
+            //推送给分单人待办事项  办理分单
+            instocksubmenu(instock);
+
+        }
+
         return true;
     }
 
@@ -905,16 +913,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         // 厂家直接发货添加 入库办理 事项
         //推送给分单人待办事项  办理分单
-        List<String> projectNoList = new ArrayList<>();
+        Set<String> projectNoSet = new HashSet<>();
         List<InstockGoods> instockGoodsLists = instock.getInstockGoodsList();
         instockGoodsLists.stream().forEach(instockGoods -> {
             PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
             Goods goods = purchGoods.getGoods();
             if (StringUtil.isNotBlank(goods.getProjectNo())) {
-                projectNoList.add(goods.getProjectNo());
+                projectNoSet.add(goods.getProjectNo());
             }
         });
-
         List<Integer> listAll = new ArrayList<>(); //分单员id
 
         //获取token
@@ -955,7 +962,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 String inspectApplyNo = instock.getInspectApplyNo();  //报检单号
                 newBackLog.setReturnNo(inspectApplyNo);  //返回单号
                 String supplierName = instock.getSupplierName();  //供应商名称
-                newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+supplierName);  //提示内容
                 newBackLog.setHostId(instock.getId());    //父ID，列表页id
                 newBackLog.setUid(in);   ////经办人id
                 backLogService.addBackLogByDelYn(newBackLog);

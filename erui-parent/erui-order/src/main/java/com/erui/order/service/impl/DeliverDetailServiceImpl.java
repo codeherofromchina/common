@@ -670,17 +670,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }else {
                 //如果不是厂家直发添加   质检待办信息
                 //出库提交以后添加  办理出库质检
-                Order order = one.getDeliverConsign().getOrder();
+                DeliverConsign deliverConsign = one.getDeliverConsign();
+                Order order = deliverConsign.getOrder();
                 Project project1 = order.getProject();
                 BackLog newBackLog = new BackLog();
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.DELIVERDETAIL.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERDETAIL.getNum());    //功能访问路径标识
-                newBackLog.setReturnNo(order.getContractNo());  //返回单号
-                String region = order.getRegion();   //所属地区
-                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                String country = order.getCountry();  //国家
-                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号  出口通知单号
+                newBackLog.setInformTheContent(order.getContractNo()+ " | "+project1.getProjectNo());  //提示内容  销售合同号，项目号
                 newBackLog.setHostId(deliverDetail1.getId());    //父ID，列表页id
                 newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
                 backLogService.addBackLogByDelYn(newBackLog);
@@ -1342,17 +1339,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             //出库质检提交  添加 确认出库 待办
-            Order order = dbDeliverDetail.getDeliverConsign().getOrder();
+            DeliverConsign deliverConsign = dbDeliverDetail.getDeliverConsign();
+            Order order = deliverConsign.getOrder();
             Project project1 = order.getProject();
             BackLog newBackLog = new BackLog();
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getMsg());  //功能名称
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
-            newBackLog.setReturnNo(order.getContractNo());  //返回单号
-            String region = order.getRegion();   //所属地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = order.getCountry();  //国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号
+            newBackLog.setInformTheContent(order.getContractNo()+ " | "+project1.getProjectNo());  //提示内容
             newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
             newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
             newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id

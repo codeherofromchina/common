@@ -420,8 +420,6 @@ public class InstockServiceImpl implements InstockService {
         BackLog newBackLog = new BackLog();
         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
-        InspectReport inspectReport = dbInstock.getInspectReport();
-
         List<String> projectNoList = new ArrayList<>();
         List<InstockGoods> instockGoodsLists = dbInstock.getInstockGoodsList();
         instockGoodsLists.stream().forEach(instockGoods -> {
@@ -431,9 +429,9 @@ public class InstockServiceImpl implements InstockService {
                 projectNoList.add(goods.getProjectNo());
             }
         });
-        String inspectApplyNo = inspectReport.getInspectApplyNo();  //报检单号
+        String inspectApplyNo = dbInstock.getInspectApplyNo();  //报检单号
         newBackLog.setReturnNo(inspectApplyNo);  //返回单号
-        String supplierName = inspectReport.getSupplierName();  //供应商名称
+        String supplierName = dbInstock.getSupplierName();  //供应商名称
         newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
         newBackLog.setHostId(instockSave.getId());    //父ID，列表页id
         newBackLog.setUid(dbInstock.getUid());   ////经办人id
