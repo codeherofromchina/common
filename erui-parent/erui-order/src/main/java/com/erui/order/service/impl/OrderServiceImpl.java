@@ -35,6 +35,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,12 +61,17 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private CompanyService companyService;
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Autowired
     private IogisticsDataService iogisticsDataService;
 
     @Autowired
     private DeliverConsignService deliverConsignService;
+
+    @Autowired
+    private BackLogService  backLogService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -582,6 +588,32 @@ public class OrderServiceImpl implements OrderService {
 
             //销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
+
+
+            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+
+            //订单提交 推送“待办”到项目
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+            String contractNo = orderUpdate.getContractNo();  //销售合同号
+            newBackLog.setReturnNo(contractNo);  //返回单号
+            String region = orderUpdate.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+            String country = orderUpdate.getCountry();//国家
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
+            Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
+            newBackLog.setUid(technicalId);   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
         }
         return order.getId();
     }
@@ -759,6 +791,33 @@ public class OrderServiceImpl implements OrderService {
             }
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
+
+
+            //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+
+
+            //订单提交 推送“待办”到项目
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+            String contractNo = order1.getContractNo();  //销售合同号
+            newBackLog.setReturnNo(contractNo);  //返回单号
+            String region = order1.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+            String country = order1.getCountry();//国家
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setHostId(order.getId());    //父ID，列表页id    项目id
+            Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
+            newBackLog.setUid(technicalId);   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
         }
         return order1.getId();
     }

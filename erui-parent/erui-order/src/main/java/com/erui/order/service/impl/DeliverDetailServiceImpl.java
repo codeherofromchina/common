@@ -15,7 +15,9 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.DeliverDetailService;
+import com.erui.order.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +81,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Autowired
     private InstockServiceImpl getInstockServiceImpl;
+
+    @Autowired
+    private BackLogService backLogService;
+
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -410,6 +418,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
                     }
                     goodsDao.save(goods);
+
                 }
             }
         }
@@ -533,6 +542,40 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         String deliverConsignNo = deliverDetail1.getDeliverConsign().getDeliverConsignNo();//出口通知单号
 
 
+        //获取分单人id
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取物流分单员
+                String jsonParam = "{\"role_no\":\"O020\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) {    //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                    }
+                }else {
+                    throw new  Exception("出库分单员查询失败");
+                }
+            }catch (Exception e){
+                throw new  Exception("出库分单员查询失败");
+            }
+        }
 
 
 
@@ -552,6 +595,24 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 sendSms(map);
             }
+
+
+
+            //出库提交删除  办理出库 代办
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
+            backLog.setHostId(one.getId());
+            backLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+            //出库提交的时候不管有没有经办人都去判断删除一下   删除分单员的信息推送  办理分单
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
+            backLog2.setHostId(one.getId());
+            backLog2.setFollowId(1);  // 1：为办理和分单    4：为确认出库
+            backLogService.updateBackLogByDelYn(backLog2);
+
 
             //如果不外检  是厂家直发的话，直接修改状态
             if(outboundNums == 0){  //判断出库总数量
@@ -581,7 +642,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 iogistics.setLogisticsUserId(logisticsUid); //物流经办人id
                 iogistics.setLogisticsUserName(logisticsName);   //物流经办人名称
                 iogistics.setOutCheck(0);
-                iogisticsDao.save(iogistics);
+                Iogistics save = iogisticsDao.save(iogistics);
 
                 // 如果是厂家直发 在出库提交的时候直接推送到出库信息管理      出库通知：出库单下达后通知物流分单员
                 Map<String,Object> map = new HashMap<>();
@@ -590,6 +651,39 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 map.put("wareHousemanName",deliverDetail1.getWareHousemanName());        //仓储经办人名字
                 map.put("status",5);        //发送短信标识
                 sendSms(map);
+
+                //如果是厂家直发，直接将待办信息提示到出库信息管理
+                if(listAll.size() > 0) {
+                    for (Integer in : listAll) { //分单员有几个人推送几条
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICS.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(deliverDetail1.getDeliverDetailNo());  //返回单号    产品放行单号
+                        newBackLog.setInformTheContent(deliverConsignNo+" | "+contractNo);  //提示内容
+                        newBackLog.setHostId(save.getId());    //父ID，列表页id
+                        newBackLog.setUid(in);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
+                }
+
+
+            }else {
+                //如果不是厂家直发添加   质检待办信息
+                //出库提交以后添加  办理出库质检
+                Order order = one.getDeliverConsign().getOrder();
+                Project project1 = order.getProject();
+                BackLog newBackLog = new BackLog();
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.DELIVERDETAIL.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERDETAIL.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(order.getContractNo());  //返回单号
+                String region = order.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = order.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                newBackLog.setHostId(deliverDetail1.getId());    //父ID，列表页id
+                newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
+                backLogService.addBackLogByDelYn(newBackLog);
 
             }
         }
@@ -627,6 +721,14 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
             }
 
+            //确认出库提交删除 确认出库  待办信息
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
+            backLog2.setHostId(deliverDetail1.getId());
+            backLog2.setFollowId(4);
+            backLogService.updateBackLogByDelYn(backLog2);
+
+
             if(outboundNums > 0){    //外检
                 Iogistics iogistics = new Iogistics();  //物流信息
 
@@ -638,7 +740,23 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 iogistics.setLogisticsUserId(logisticsUid); //物流经办人id
                 iogistics.setLogisticsUserName(logisticsName);   //物流经办人名称
                 iogistics.setOutCheck(1);
-                iogisticsDao.save(iogistics);
+                Iogistics save = iogisticsDao.save(iogistics);
+
+                //确认出库添加  办理物流分单  待办
+                if(listAll.size() > 0) {
+                    for (Integer in : listAll) { //分单员有几个人推送几条
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICS.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(deliverDetail1.getDeliverDetailNo());  //返回单号    产品放行单号
+                        newBackLog.setInformTheContent(deliverConsignNo+" | "+contractNo);  //提示内容
+                        newBackLog.setHostId(save.getId());    //父ID，列表页id
+                        newBackLog.setUid(in);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
+                }
+
+
             }
             if(straightNums > 0){   //不外检
                 Iogistics iogistics = new Iogistics();  //物流信息
@@ -651,10 +769,24 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 iogistics.setLogisticsUserId(logisticsUid); //物流经办人id
                 iogistics.setLogisticsUserName(logisticsName);   //物流经办人名称
                 iogistics.setOutCheck(0);
-                iogisticsDao.save(iogistics);
+                Iogistics save = iogisticsDao.save(iogistics);
+
+
+                //确认出库添加  办理物流分单  待办
+                if(listAll.size() > 0) {
+                    for (Integer in : listAll) { //分单员有几个人推送几条
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICS.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(deliverDetail1.getDeliverDetailNo());  //返回单号    产品放行单号
+                        newBackLog.setInformTheContent(deliverConsignNo+" | "+contractNo);  //提示内容
+                        newBackLog.setHostId(save.getId());    //父ID，列表页id
+                        newBackLog.setUid(in);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
+                }
+
             }
-
-
 
         }
 
@@ -913,14 +1045,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail) {
+    public boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail) throws Exception {
 
         //获取经办分单人信息
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
         String name = stringStringMap.get("name");
         String id = stringStringMap.get("id");
-
 
 
         //保存经办人信息
@@ -933,8 +1064,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if(one.getSubmenuId() == null){
             one.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
         }
-        deliverDetailDao.save(one);
-
+        DeliverDetail save = deliverDetailDao.save(one);
 
 
         //V2.0出库转交经办人：出库分单员转交推送给出库经办人
@@ -949,6 +1079,30 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //指派分单人的时候   删除分单员的信息推送  办理分单
+        BackLog backLog2 = new BackLog();
+        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
+        backLog2.setHostId(one.getId());
+        backLog2.setFollowId(1);  // 1：为办理和分单    4：为确认出库
+        backLogService.updateBackLogByDelYn(backLog2);
+
+        //指派分单人以后  添加分单人的待办信息  办理办理出库
+        Order order = save.getDeliverConsign().getOrder();
+        BackLog newBackLog = new BackLog();
+        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getMsg());  //功能名称
+        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
+        newBackLog.setReturnNo(order.getContractNo());  //返回单号
+        String region = order.getRegion();   //所属地区
+        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+        String country = order.getCountry();  //国家
+        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+        newBackLog.setHostId(one.getId());    //父ID，列表页id
+        newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
+        newBackLog.setUid(save.getWareHouseman());   ////经办人id
+        backLogService.addBackLogByDelYn(newBackLog);
+
         return true;
     }
 
@@ -1167,7 +1321,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }
 
             //出库质检结果通知：将合格商品通知仓库经办人（合格）（如果仓库经办人不是徐健，那么还要单独发给徐健）
-
             Project project = null; //项目信息
             //获取项目信息
             DeliverConsign deliverConsign1 = dbDeliverDetail.getDeliverConsign();
@@ -1179,6 +1332,31 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             map.put("deliverDetailNo",dbDeliverDetail.getDeliverDetailNo());        //产品放行单号
             map.put("status",4);        //发送短信标识
             sendSms(map);
+
+
+            //出库质检提交删除 办理出库质检  待办信息
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERDETAIL.getNum());    //功能访问路径标识
+            backLog2.setHostId(dbDeliverDetail.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+
+
+            //出库质检提交  添加 确认出库 待办
+            Order order = dbDeliverDetail.getDeliverConsign().getOrder();
+            Project project1 = order.getProject();
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
+            newBackLog.setReturnNo(order.getContractNo());  //返回单号
+            String region = order.getRegion();   //所属地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+            String country = order.getCountry();  //国家
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
+            newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
+            newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
 
         }
 

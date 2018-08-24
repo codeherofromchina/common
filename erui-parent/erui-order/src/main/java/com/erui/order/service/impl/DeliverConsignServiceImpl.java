@@ -10,9 +10,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.service.AttachmentService;
-import com.erui.order.service.DeliverConsignService;
-import com.erui.order.service.OrderService;
+import com.erui.order.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,13 +52,17 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
 
-
     @Autowired
     private DeliverDetailDao deliverDetailDao;
 
-
     @Autowired
     ProjectDao projectDao;
+
+    @Autowired
+    private BackLogService backLogService;
+
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
@@ -211,7 +213,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-            pushOutbound(deliverConsignUpdate,deliverDetailNo);
+            DeliverDetail deliverDetail = pushOutbound(deliverConsignUpdate, deliverDetailNo);
 
 
             // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
@@ -231,6 +233,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }catch (Exception e){
                 throw new Exception(e.getMessage());
             }
+
+
+            //出口发货通知单提交的时候，推送给出库分单员  办理分单
+            addBackLog(order,deliverDetail);
 
         }
         return true;
@@ -306,7 +312,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             //发送短信  and
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();
-            pushOutbound(deliverConsign1,deliverDetailNo);
+            DeliverDetail deliverDetail = pushOutbound(deliverConsign1, deliverDetailNo);
 
 
             // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
@@ -321,14 +327,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
             //发送短信  end
 
-            
             try {
                 JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
             }catch (Exception e){
                 throw new Exception(e.getMessage());
             }
 
-
+            //出口发货通知单提交的时候，推送给出库分单员  办理分单
+            addBackLog(order,deliverDetail);
 
         }
         return true;
@@ -483,7 +489,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * 根据出口通知单，推送出库信息
      */
 
-    public void pushOutbound(DeliverConsign deliverConsign1,String deliverDetailNo) throws Exception {
+    public DeliverDetail pushOutbound(DeliverConsign deliverConsign1,String deliverDetailNo) throws Exception {
 
         // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
         DeliverDetail deliverDetail = new DeliverDetail();
@@ -515,7 +521,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
         deliverDetail.setDeliverConsignGoodsList(new ArrayList<>(deliverConsign1.getDeliverConsignGoodsSet()));
         try {
-            deliverDetailDao.saveAndFlush(deliverDetail);
+            DeliverDetail deliverDetail1 = deliverDetailDao.saveAndFlush(deliverDetail);
+            return deliverDetail1;
         } catch (Exception e) {
             throw new Exception("推送出库信息失败");
         }
@@ -560,6 +567,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
 
+    public static void main(String[] args) {
+
+
+
+    }
 
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
     public void sendSms(Map<String,Object> map1) throws  Exception {
@@ -863,10 +875,70 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
         }
 
-
         return null;
 
     }
+
+
+    public void addBackLog(Order order ,DeliverDetail deliverDetai) throws Exception {
+
+        //出口发货通知单提交的时候，推送给出库分单员  办理分单
+
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取仓库分单员
+                String jsonParam = "{\"role_no\":\"O019\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) {    //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                    }
+                }else {
+                    throw new  Exception("出库分单员查询失败");
+                }
+            }catch (Exception e){
+                throw new  Exception("出库分单员查询失败");
+            }
+        }
+
+        if(listAll.size() > 0) {
+            for (Integer in : listAll) { //分单员有几个人推送几条
+                BackLog newBackLog = new BackLog();
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(order.getContractNo());  //返回单号
+                String region = order.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = order.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                newBackLog.setHostId(deliverDetai.getId());    //父ID，列表页id
+                newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
+                newBackLog.setUid(in);   ////经办人id
+                backLogService.addBackLogByDelYn(newBackLog);
+            }
+        }
+
+
+
+    }
+
 
 
 }
