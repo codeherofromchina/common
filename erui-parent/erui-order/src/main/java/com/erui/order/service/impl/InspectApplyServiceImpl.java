@@ -257,7 +257,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
             }
             // 保存报检单信息
-            inspectApplyDao.save(inspectApplyAdd);
+            InspectApply save = inspectApplyDao.save(inspectApplyAdd);
             // 推送数据到入库质检中
             if (inspectApplyAdd.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
                 InspectReport inspectReport = pushDataToInspectReport(inspectApplyAdd);
@@ -298,7 +298,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                         BackLog newBackLog = new BackLog();
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
-                        newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+                        newBackLog.setReturnNo(save.getInspectApplyNo());  //返回单号    返回空，两个标签
                         String purchNo = purch.getPurchNo();//采购合同号
                         String join = StringUtils.join(projectNoSet, ",");
                         newBackLog.setInformTheContent(join+" | "+purchNo);  //提示内容
@@ -443,7 +443,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             disposeData(dbInspectApply);
         }
         // 保存报检单
-        inspectApplyDao.save(dbInspectApply);
+        InspectApply save = inspectApplyDao.save(dbInspectApply);
         // 完善提交后的后续操作
         if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             // 推送数据到入库质检中
@@ -466,7 +466,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     BackLog newBackLog = new BackLog();
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
-                    newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+                    newBackLog.setReturnNo(save.getInspectApplyNo());  //返回单号    报检单号
                     String purchNo = purch.getPurchNo();//采购合同号
                     newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+purchNo);  //提示内容
                     newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
