@@ -221,39 +221,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 inspectApplyGoods.setInspectApply(inspectApplyAdd);
             }
             inspectApplyAdd.setInspectApplyGoodsList(mapIGoods.getValue());
+            Instock instock = null;
             if (directInstockGoods) {
                 // 厂家直接发货且是提交，则直接设置为合格状态
                 inspectApplyAdd.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
                 inspectApplyAdd.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
                 //推送数据到入库部门
-                Instock instock = pushInspectApply(inspectApplyAdd);
+                instock = pushInspectApply(inspectApplyAdd);
                 //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
                 disposeData(inspectApplyAdd);
-
-
-                // 厂家直接发货添加 入库办理 事项
-                //推送给分单人待办事项  办理入库
-                BackLog newBackLog = new BackLog();
-                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
-                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
-                InspectReport inspectReport = instock.getInspectReport();
-
-                List<String> projectNoList = new ArrayList<>();
-                List<InstockGoods> instockGoodsLists = instock.getInstockGoodsList();
-                instockGoodsLists.stream().forEach(instockGoods -> {
-                    PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
-                    Goods goods = purchGoods.getGoods();
-                    if (StringUtil.isNotBlank(goods.getProjectNo())) {
-                        projectNoList.add(goods.getProjectNo());
-                    }
-                });
-                String inspectApplyNo = inspectReport.getInspectApplyNo();  //报检单号
-                newBackLog.setReturnNo(inspectApplyNo);  //返回单号
-                String supplierName = inspectReport.getSupplierName();  //供应商名称
-                newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
-                newBackLog.setHostId(instock.getId());    //父ID，列表页id
-                newBackLog.setUid(instock.getUid());   ////经办人id
-                backLogService.addBackLogByDelYn(newBackLog);
 
             }
             // 保存报检单信息
@@ -283,7 +259,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 map.put("inspectApplyNo", inspectApplyNo);
                 sendSms(map);
 
-
                 //当有报检单提交的时候，通知办理入库质检
                 List<Project> projects = purch.getProjects();
                 if(projects.size() > 0){
@@ -310,6 +285,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             } else if (directInstockGoods) {
                 //  判断采购是否已经完成并修正
                 checkPurchHasDone(inspectApplyAdd.getPurch());
+            }
+
+            if (directInstockGoods) {
+                // 厂家直接发货添加 入库办理 事项
+                //推送给分单人待办事项  办理分单
+                instocksubmenu(instock);
+
             }
         }
         return true;
@@ -430,17 +412,18 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 设置报检商品信息
         dbInspectApply.setInspectApplyGoodsList(inspectApplyGoodsList);
-
+        Instock instock = null;
         if (directInstockGoods) {
             // 厂家直接发货且是提交，则直接设置为合格状态
             dbInspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             dbInspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
 
             //推送数据到入库部门
-            pushInspectApply(dbInspectApply);
+            instock = pushInspectApply(dbInspectApply);
 
             //入库质检结果通知：质检人员将合格商品通知仓库经办人(质检申请 厂家直接发货    空入)
             disposeData(dbInspectApply);
+
         }
         // 保存报检单
         InspectApply save = inspectApplyDao.save(dbInspectApply);
@@ -479,6 +462,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             //  判断采购是否已经完成并修正
             checkPurchHasDone(dbInspectApply.getPurch());
         }
+
+        if (directInstockGoods) {
+            // 厂家直接发货添加 入库办理 事项
+            //推送给分单人待办事项  办理分单
+            instocksubmenu(instock);
+
+        }
+
         return true;
     }
 
@@ -918,4 +909,64 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     }
 
 
+    public void  instocksubmenu(Instock instock) throws Exception {
+
+        // 厂家直接发货添加 入库办理 事项
+        //推送给分单人待办事项  办理分单
+        Set<String> projectNoSet = new HashSet<>();
+        List<InstockGoods> instockGoodsLists = instock.getInstockGoodsList();
+        instockGoodsLists.stream().forEach(instockGoods -> {
+            PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+            Goods goods = purchGoods.getGoods();
+            if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                projectNoSet.add(goods.getProjectNo());
+            }
+        });
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取仓库分单员
+                String jsonParam = "{\"role_no\":\"O019\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) {    //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                    }
+                }else {
+                    throw new  Exception("出库分单员待办事项推送失败");
+                }
+            }catch (Exception e){
+                throw new  Exception("出库分单员待办事项推送失败");
+            }
+        }
+        if(listAll.size() > 0){
+            for (Integer in : listAll){ //分单员有几个人推送几条
+                BackLog newBackLog = new BackLog();
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
+                String inspectApplyNo = instock.getInspectApplyNo();  //报检单号
+                newBackLog.setReturnNo(inspectApplyNo);  //返回单号
+                String supplierName = instock.getSupplierName();  //供应商名称
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+supplierName);  //提示内容
+                newBackLog.setHostId(instock.getId());    //父ID，列表页id
+                newBackLog.setUid(in);   ////经办人id
+                backLogService.addBackLogByDelYn(newBackLog);
+            }
+        }
+    }
 }

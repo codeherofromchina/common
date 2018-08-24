@@ -473,13 +473,13 @@ public class InspectReportServiceImpl implements InspectReportService {
             instock.setOutCheck(1); //是否外检（ 0：否   1：是）
             Instock save = instockDao.save(instock);
 
-            List<String> projectNoList = new ArrayList<>();
+            Set<String> projectNoSet = new HashSet<>();
             List<InstockGoods> instockGoodsLists = save.getInstockGoodsList();
             instockGoodsLists.stream().forEach(instockGoods -> {
                 PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
                 Goods goods = purchGoods.getGoods();
                 if (StringUtil.isNotBlank(goods.getProjectNo())) {
-                    projectNoList.add(goods.getProjectNo());
+                    projectNoSet.add(goods.getProjectNo());
                 }
             });
 
@@ -525,7 +525,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
                         newBackLog.setReturnNo(inspectApplyNo);  //返回单号
                         String supplierName = save1.getSupplierName();  //供应商名称
-                        newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+                        newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+supplierName);  //提示内容
                         newBackLog.setHostId(save.getId());    //父ID，列表页id
                         newBackLog.setUid(in);   ////经办人id
                         backLogService.addBackLogByDelYn(newBackLog);

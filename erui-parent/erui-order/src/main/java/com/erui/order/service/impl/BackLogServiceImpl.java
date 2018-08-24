@@ -81,6 +81,7 @@ public class BackLogServiceImpl implements BackLogService{
      */
     @Override
     public void addBackLogByDelYn(BackLog backLog) throws Exception {
+
         backLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
         backLog.setPlaceSystem("订单");   //所在系统
         backLog.setDelYn(1);
