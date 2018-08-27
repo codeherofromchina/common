@@ -307,7 +307,7 @@ public class Order {
     @Column(name = "auditing_user_id")
     private String auditingUserId;   //当前审核人ID，逗号分隔多个
 
-    @Column(name = "country_leader")
+    @Column(name = "country_leader_id")
     private Integer countryLeaderId; //国家负责人ID
 
     @Column(name = "country_leader")

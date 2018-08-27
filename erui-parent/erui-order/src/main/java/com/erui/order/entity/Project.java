@@ -159,7 +159,7 @@ public class Project {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
 
-    @Column(name = "overseas_sales")
+    @Column(name = "logistics_audit")
     private Integer logistics_audit; //'是否需要物流审核  1:不需要  2：需要',
 
     @Column(name = "auditing_level")

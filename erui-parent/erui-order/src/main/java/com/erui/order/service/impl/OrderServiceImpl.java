@@ -35,7 +35,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +45,9 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     // 用户升级方法
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
+    static final BigDecimal STEP_ONE_PRICE = new BigDecimal("100000");
+    static final BigDecimal STEP_TWO_PRICE = new BigDecimal("3000000");
+    static final BigDecimal STEP_THREE_PRICE = new BigDecimal("10000000");
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
@@ -71,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
     private DeliverConsignService deliverConsignService;
 
     @Autowired
-    private BackLogService  backLogService;
+    private BackLogService backLogService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -597,7 +599,6 @@ public class OrderServiceImpl implements OrderService {
             backLogService.updateBackLogByDelYn(backLog);
 
 
-
             //订单提交 推送“待办”到项目
             BackLog newBackLog = new BackLog();
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
@@ -608,7 +609,7 @@ public class OrderServiceImpl implements OrderService {
             Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
             String country = orderUpdate.getCountry();//国家
             Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
             newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
             Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
             newBackLog.setUid(technicalId);   ////经办人id
@@ -732,6 +733,16 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
+        if (addOrderVo.getTotalPriceUsd().doubleValue() <= STEP_ONE_PRICE.doubleValue()) {
+            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+            order.setCountryLeader(addOrderVo.getCountryLeader());
+        } else if (STEP_ONE_PRICE.doubleValue() < addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
+            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+            order.setAreaLeader(addOrderVo.getAreaLeader());
+        } else {
+            order.setAreaVpId(addOrderVo.getAreaVpId());
+            order.setAreaVp(addOrderVo.getAreaVp());
+        }
         Order order1 = orderDao.save(order);
         Date signingDate = null;
         if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -792,15 +803,11 @@ public class OrderServiceImpl implements OrderService {
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
 
-
             //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
-
-
-
 
             //订单提交 推送“待办”到项目
             BackLog newBackLog = new BackLog();
@@ -812,7 +819,7 @@ public class OrderServiceImpl implements OrderService {
             Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
             String country = order1.getCountry();//国家
             Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
             newBackLog.setHostId(order.getId());    //父ID，列表页id    项目id
             Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
             newBackLog.setUid(technicalId);   ////经办人id
