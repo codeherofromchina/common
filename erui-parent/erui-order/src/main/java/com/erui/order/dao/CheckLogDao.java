@@ -11,5 +11,5 @@ import java.io.Serializable;
  * @Date Created in 15:45 2018/8/27
  * @modified By
  */
-public interface checkLogDao extends JpaRepository<CheckLog, Serializable> {
+public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> {
 }
