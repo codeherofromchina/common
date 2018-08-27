@@ -172,7 +172,7 @@ public class Project {
     private Integer auditingProcess;//'-- 审核进度',
 
     @Column(name = "auditing_user_id")
-    private Integer auditingUserId;//'当前审核人ID',
+    private String auditingUserId;//'当前审核人ID',
 
     @Column(name = "auditing_user")
     private String auditingUser;//'当前审核人',
@@ -237,11 +237,11 @@ public class Project {
         this.auditingProcess = auditingProcess;
     }
 
-    public Integer getAuditingUserId() {
+    public String getAuditingUserId() {
         return auditingUserId;
     }
 
-    public void setAuditingUserId(Integer auditingUserId) {
+    public void setAuditingUserId(String auditingUserId) {
         this.auditingUserId = auditingUserId;
     }
 
