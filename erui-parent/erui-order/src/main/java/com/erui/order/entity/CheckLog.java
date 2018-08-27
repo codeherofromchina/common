@@ -11,7 +11,7 @@ public class CheckLog {
     private Integer id;
 
     /**
-     * 订单id
+     * 订单或项目id
      */
     @Column(name = "order_id")
     private Integer orderId;

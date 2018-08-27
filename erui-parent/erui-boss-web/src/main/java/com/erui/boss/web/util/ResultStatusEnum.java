@@ -34,7 +34,10 @@ public enum ResultStatusEnum {
     DUPLICATE_ERROR(22,"值不唯一","Not unique"),
     COMPANY_NOT_EXIST(23,"公司不存在","The company does not exist"),
     LACK_OF_AUTHORITY(24,"权限不足","Lack of authority"),
-    SQLDATA_ERROR(25,"数据错误,请检查数据是否规范","Data error, please check if the data is normal");
+    SQLDATA_ERROR(25,"数据错误,请检查数据是否规范","Data error, please check if the data is normal"),
+    ORDER_AUDIT_NOT_DONE_ERROR(26,"订单审核状态未完成","Order audit status is not completed"),
+    PROJECT_NOT_EXIST(27,"项目不存在","project not exist"),
+    NOT_NOW_AUDITOR(28,"非审核人，不能操作","Non auditor can not operate.");
     private int code;
     private String msg;
     private String enMsg;

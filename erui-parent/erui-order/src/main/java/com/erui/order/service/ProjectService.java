@@ -86,4 +86,14 @@ public interface ProjectService {
      * @modified By
      */
     List<Project> findProjectExport(ProjectListCondition condition);
+
+    /**
+     * 审核项目
+     * @param project
+     * @param auditorId
+     * @param rejectFlag
+     * @param reason
+     * @return
+     */
+    boolean audit(Project project, String auditorId,String auditorName, boolean rejectFlag, String reason);
 }
