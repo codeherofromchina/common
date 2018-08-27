@@ -1349,7 +1349,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             newBackLog.setInformTheContent(order.getContractNo()+ " | "+project1.getProjectNo());  //提示内容
             newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
             newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
-            newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
+            newBackLog.setUid(dbDeliverDetail.getWareHouseman());   //经办人id  仓库经办人id
             backLogService.addBackLogByDelYn(newBackLog);
 
         }
