@@ -16,21 +16,21 @@ import java.util.List;
 public class AddOrderVo {
     private Integer id;
     //销售合同号
-    @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
+    @Size(max = 255, message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
 
     //框架协议号
-    @Size(max = 255,message = "框架协议号填写不规范，请重新输入")
+    @Size(max = 255, message = "框架协议号填写不规范，请重新输入")
     private String frameworkNo;
     //海外销售合同号
-    @Size(max = 255,message = "海外销售合同号填写不规范，请重新输入")
+    @Size(max = 255, message = "海外销售合同号填写不规范，请重新输入")
     private String contractNoOs;
 
     //PO号
     private String poNo;
 
     //物流协议号
-    @Size(max = 255,message = "物流报价单号填写不规范，请重新输入")
+    @Size(max = 255, message = "物流报价单号填写不规范，请重新输入")
     private String logiQuoteNo;
     //询报价
     private String inquiryNo;
@@ -45,7 +45,7 @@ public class AddOrderVo {
     private Date signingDate;
 
     //合同签订日期
-    @Size(max = 255,message = "合同交货日期填写不规范，请重新输入")
+    @Size(max = 255, message = "合同交货日期填写不规范，请重新输入")
     private String deliveryDate;
 
     //签约主体公司
@@ -180,6 +180,18 @@ public class AddOrderVo {
 
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
     private Integer overseasSales;
+    //审批流所需
+    private Integer countryLeaderId; //国家负责人ID
+
+    private String countryLeader;   //国家负责人
+
+    private Integer areaLeaderId;   //区域负责Id
+
+    private String areaLeader;      //区域负责人
+
+    private Integer areaVpId;       //区域VP ID
+
+    private String areaVp;          //区域VP
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -187,6 +199,54 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getCountryLeaderId() {
+        return countryLeaderId;
+    }
+
+    public void setCountryLeaderId(Integer countryLeaderId) {
+        this.countryLeaderId = countryLeaderId;
+    }
+
+    public String getCountryLeader() {
+        return countryLeader;
+    }
+
+    public void setCountryLeader(String countryLeader) {
+        this.countryLeader = countryLeader;
+    }
+
+    public Integer getAreaLeaderId() {
+        return areaLeaderId;
+    }
+
+    public void setAreaLeaderId(Integer areaLeaderId) {
+        this.areaLeaderId = areaLeaderId;
+    }
+
+    public String getAreaLeader() {
+        return areaLeader;
+    }
+
+    public void setAreaLeader(String areaLeader) {
+        this.areaLeader = areaLeader;
+    }
+
+    public Integer getAreaVpId() {
+        return areaVpId;
+    }
+
+    public void setAreaVpId(Integer areaVpId) {
+        this.areaVpId = areaVpId;
+    }
+
+    public String getAreaVp() {
+        return areaVp;
+    }
+
+    public void setAreaVp(String areaVp) {
+        this.areaVp = areaVp;
+    }
 
     public Integer getOrderCategory() {
         return orderCategory;

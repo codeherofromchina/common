@@ -2,6 +2,7 @@ package com.erui.order.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+
 @Entity
 @Table(name = "check_log")
 public class CheckLog {
@@ -43,13 +44,13 @@ public class CheckLog {
      * 下一个审核进度名称/下一节点
      */
     @Column(name = "next_auditing_process")
-    private Integer nextAuditingProcess;
+    private String nextAuditingProcess;
 
     /**
      * 下一个审id
      */
     @Column(name = "next_auditing_user_id")
-    private Integer nextAuditingUserId;
+    private String nextAuditingUserId;
 
     /**
      * 审核意见/操作说明
@@ -58,7 +59,7 @@ public class CheckLog {
     private String auditingMsg;
 
     /**
-     *  1：立项   2：通过  -1：驳回
+     * 1：立项   2：通过  -1：驳回
      */
     private String operation;
 
@@ -176,34 +177,19 @@ public class CheckLog {
      *
      * @return next_auditing_process - 下一个审核进度名称/下一节点
      */
-    public Integer getNextAuditingProcess() {
+    public String getNextAuditingProcess() {
         return nextAuditingProcess;
     }
 
-    /**
-     * 设置下一个审核进度名称/下一节点
-     *
-     * @param nextAuditingProcess 下一个审核进度名称/下一节点
-     */
-    public void setNextAuditingProcess(Integer nextAuditingProcess) {
+    public void setNextAuditingProcess(String nextAuditingProcess) {
         this.nextAuditingProcess = nextAuditingProcess;
     }
 
-    /**
-     * 获取下一个审id
-     *
-     * @return next_auditing_user_id - 下一个审id
-     */
-    public Integer getNextAuditingUserId() {
+    public String getNextAuditingUserId() {
         return nextAuditingUserId;
     }
 
-    /**
-     * 设置下一个审id
-     *
-     * @param nextAuditingUserId 下一个审id
-     */
-    public void setNextAuditingUserId(Integer nextAuditingUserId) {
+    public void setNextAuditingUserId(String nextAuditingUserId) {
         this.nextAuditingUserId = nextAuditingUserId;
     }
 
@@ -237,7 +223,7 @@ public class CheckLog {
     /**
      * 设置 1：立项   2：通过  -1：驳回
      *
-     * @param operation  1：立项   2：通过  -1：驳回
+     * @param operation 1：立项   2：通过  -1：驳回
      */
     public void setOperation(String operation) {
         this.operation = operation == null ? null : operation.trim();

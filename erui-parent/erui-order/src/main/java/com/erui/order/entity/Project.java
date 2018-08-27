@@ -169,7 +169,7 @@ public class Project {
     private Integer auditingStatus; //'审核状态 --   添加一个驳回到订单中的状态（驳回1、驳回2）',
 
     @Column(name = "auditing_process")
-    private Integer auditingProcess;//'-- 审核进度',
+    private String auditingProcess;//'-- 审核进度',
 
     @Column(name = "auditing_user_id")
     private String auditingUserId;//'当前审核人ID',
@@ -229,11 +229,11 @@ public class Project {
         this.auditingStatus = auditingStatus;
     }
 
-    public Integer getAuditingProcess() {
+    public String getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(Integer auditingProcess) {
+    public void setAuditingProcess(String auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 
