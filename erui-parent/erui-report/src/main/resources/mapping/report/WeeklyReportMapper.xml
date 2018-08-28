@@ -223,8 +223,8 @@
                 t1.deleted_flag = 'N'
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
         ) AS t5
-    WHERE  t5.createTime BETWEEN DATE_FORMAT('2018/01/01 00:00:00',"%Y/%m/%d %H:%i:%s")
-            and DATE_FORMAT('2018/09/01 00:00:00',"%Y/%m/%d %H:%i:%s")
+    WHERE  t5.createTime BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     GROUP BY
         t5.`name`
     </select>
