@@ -142,5 +142,5 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail);
+    boolean storehouseManageDeliverAgent(DeliverDetail deliverDetail) throws Exception;
 }
