@@ -160,7 +160,7 @@ public class Project {
     private List<Purch> purchs = new ArrayList<>();
 
     @Column(name = "logistics_audit")
-    private Integer logistics_audit; //'是否需要物流审核  1:不需要  2：需要',
+    private Integer logisticsAudit; //'是否需要物流审核  1:不需要  2：需要',
 
     @Column(name = "auditing_level")
     private Integer auditingLevel;  //'审批分级    2、3、4级'
@@ -195,8 +195,8 @@ public class Project {
     @Column(name = "bu_vp_auditer_id")
     private Integer buvVpAuditerId;   //'事业部vp审核人',
 
-    @Column(name = "ceoid")
-    private Integer ceo_id;             //'eo审核人id',
+    @Column(name = "ceo_id")
+    private Integer ceoId;             //'eo审核人id',
 
     private String ceo;                 //  'eo审核人',
 
@@ -205,12 +205,12 @@ public class Project {
 
     private String chairman;           //董事长审核人
 
-    public Integer getLogistics_audit() {
-        return logistics_audit;
+    public Integer getLogisticsAudit() {
+        return logisticsAudit;
     }
 
-    public void setLogistics_audit(Integer logistics_audit) {
-        this.logistics_audit = logistics_audit;
+    public void setLogisticsAudit(Integer logisticsAudit) {
+        this.logisticsAudit = logisticsAudit;
     }
 
     public Integer getAuditingLevel() {
@@ -301,12 +301,12 @@ public class Project {
         this.buvVpAuditerId = buvVpAuditerId;
     }
 
-    public Integer getCeo_id() {
-        return ceo_id;
+    public Integer getCeoId() {
+        return ceoId;
     }
 
-    public void setCeo_id(Integer ceo_id) {
-        this.ceo_id = ceo_id;
+    public void setCeoId(Integer ceoId) {
+        this.ceoId = ceoId;
     }
 
     public String getCeo() {
