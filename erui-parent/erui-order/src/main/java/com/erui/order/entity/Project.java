@@ -160,7 +160,7 @@ public class Project {
     private List<Purch> purchs = new ArrayList<>();
 
     @Column(name = "logistics_audit")
-    private Integer logisticsAudit; //'是否需要物流审核  1:不需要  2：需要',
+    private Integer logisticsAudit; //'是否需要物流审核  1/其他:不需要  2：需要',
 
     @Column(name = "auditing_level")
     private Integer auditingLevel;  //'审批分级    2、3、4级'

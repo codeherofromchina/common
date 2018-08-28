@@ -13,6 +13,7 @@ import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.MyEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.BackLogService;
@@ -72,7 +73,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public Project findById(Integer id) {
-        return projectDao.findOne(id);
+        Project project = projectDao.findOne(id);
+        if (project != null) {
+            project.getOrder();
+        }
+        return project;
     }
 
     @Override
@@ -212,6 +217,9 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
 
+                    } else {
+                        // 无项目经理提交项目时检查审核信息参数 2018-08-28
+                        submitProjectProcessCheckAuditParams(project,projectUpdate,order);
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
@@ -267,6 +275,10 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setRemarks(project.getRemarks());
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
+                        // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
+                        submitProjectProcessCheckAuditParams(project,projectUpdate,order);
+
+
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
                         BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
                         if (backLogs != null) {
@@ -300,6 +312,7 @@ public class ProjectServiceImpl implements ProjectService {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
                     applicationContext.publishEvent(new OrderProgressEvent(order, 2));
                     orderDao.save(order);
@@ -337,7 +350,7 @@ public class ProjectServiceImpl implements ProjectService {
             Project project1 = projectDao.save(projectUpdate);
 
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
-            if (project1.getProjectStatus() == Project.ProjectStatusEnum.HASMANAGER.getCode()) {
+            if (Project.ProjectStatusEnum.HASMANAGER.getCode().equals(project1.getProjectStatus())) {
                 Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
                 sendSms(project1, managerUid);
             }
@@ -345,6 +358,47 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         return true;
+    }
+
+
+    /**
+     * 提交项目过程中检查审核相关参数
+     */
+    private void submitProjectProcessCheckAuditParams(Project project,Project projectUpdate,Order order) throws MyException{
+        Integer logisticsAudit = project.getLogisticsAudit();
+        Integer logisticsAuditerId = project.getLogisticsAuditerId();
+        String logisticsAuditer = project.getLogisticsAuditer();
+        String buAuditer = project.getBuAuditer();
+        Integer buAuditerId = project.getBuAuditerId();
+        Integer auditingLevel = project.getAuditingLevel();
+        if (logisticsAudit == null) {
+            throw new MyException(String.format("%s%s%s", "参数错误，是否需要物流审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, do we need logistics audit?"));
+        }
+        logisticsAudit = logisticsAudit == 2 ? 2 : 1;
+        if (logisticsAudit == 2 && (StringUtils.isBlank(logisticsAuditer) || logisticsAuditerId == null) ) {
+            throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+        }
+        if (buAuditerId == null || StringUtils.isBlank(buAuditer)) {
+            throw new MyException(String.format("%s%s%s", "参数错误，事业部审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, business auditor can not be empty."));
+        }
+        Integer orderCategory = order.getOrderCategory();
+        if (orderCategory != null && orderCategory == 1) { // 预投
+            auditingLevel = 4; // 四级审核
+        } else if (orderCategory != null && orderCategory == 3){ // 试用
+            auditingLevel = 2; // 二级审核
+        } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
+            // 既不是预投。又不是试用，则需要检查参数
+            throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+        }
+        projectUpdate.setLogisticsAudit(logisticsAudit);
+        projectUpdate.setLogisticsAuditer(logisticsAuditer);
+        projectUpdate.setLogisticsAuditerId(logisticsAuditerId);
+        projectUpdate.setBuAuditer(buAuditer);
+        projectUpdate.setBuAuditerId(buAuditerId);
+        projectUpdate.setAuditingLevel(auditingLevel);
+        projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
+        projectUpdate.setAuditingUserId("30979,31274");
+        projectUpdate.setAuditingStatus(2); // 审核中
     }
 
     @Transactional(readOnly = true)
@@ -939,6 +993,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingStatus_i = 3;
             auditingProcess_i = "1"; // 事业部利润核算 处理
             auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(project.getId(),curAuditProcess,Integer.parseInt(auditorId),auditorName,project.getAuditingProcess(),project.getAuditingUserId(),reason,"-1",2);
         } else {
             Integer auditingLevel = project.getAuditingLevel();
@@ -953,8 +1008,9 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         // 处理日志
                     } else {
-                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
-                        auditingUserId_i = "30979,31274"; // 姜聪聪 / 展召申 // TODO 写死
+                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
+//                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
+//                        auditingUserId_i = "30979,31274"; // 姜聪聪 / 展召申
                     }
                     break;
                 case 2: // 法务审核
@@ -1000,20 +1056,20 @@ public class ProjectServiceImpl implements ProjectService {
                 case 6:
                     if (auditingLevel > 1) {
                         auditingProcess_i = "7"; //
-                        auditingUserId_i = "37884"; // TODO 黄姐ID找不到
+                        auditingUserId_i = "31973"; //黄永霞
                         break;
                     }
                     break;
                 case 7:
                     if (auditingLevel > 2) {
                         auditingProcess_i = "8"; //
-                        auditingUserId_i = "30772";
+                        auditingUserId_i = "30772"; //杨海涛
                         break;
                     }
                 case 8:
                     if (auditingLevel > 3) {
                         auditingProcess_i = "9"; //
-                        auditingUserId_i = "32024";
+                        auditingUserId_i = "32046"; //冷成志
                         break;
                     }
                 case 9:

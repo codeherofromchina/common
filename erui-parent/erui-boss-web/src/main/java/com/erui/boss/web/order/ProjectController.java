@@ -157,6 +157,11 @@ public class ProjectController {
         Project proStatus = projectService.findById(project.getId());
         String errorMsg = null;
         try {
+
+            if (proStatus == null){
+                errorMsg = "项目不存在";
+                return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
+            }
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
@@ -167,17 +172,17 @@ public class ProjectController {
                 return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
             }
 
-            if (proStatus != null && projectService.updateProject(project)) {
+            if (projectService.updateProject(project)) {
                 return new Result<>();
             } else {
                 errorMsg = "项目状态错误";
                 return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
             }
         } catch (Exception ex) {
-            ex.getMessage();
+            errorMsg = ex.getMessage();
             logger.error("异常错误", ex);
         }
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
     /**
