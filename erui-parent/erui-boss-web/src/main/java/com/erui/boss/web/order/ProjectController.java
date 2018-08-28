@@ -107,9 +107,9 @@ public class ProjectController {
 
     /**
      * 审核项目
-     * @param  type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
-     * @param  reason 驳回原因参数
-     * @param  projectId 要审核或驳回的项目ID
+     * param  type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+     * param  reason 驳回原因参数
+     * param  projectId 要审核或驳回的项目ID
      *
      * @return
      */
@@ -126,6 +126,7 @@ public class ProjectController {
         }
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
+        Object realname = request.getSession().getAttribute("realname");
         String auditingUserIds = project.getAuditingUserId();
         if (auditingUserIds == null || !equalsAny(String.valueOf(userId),auditingUserIds)) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
@@ -138,7 +139,7 @@ public class ProjectController {
         }
 
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = projectService.audit(project,String.valueOf(userId),rejectFlag,reason);
+        boolean flag = projectService.audit(project,String.valueOf(userId),String.valueOf(realname),rejectFlag,reason);
         if (flag) {
             return new Result<>();
         }
