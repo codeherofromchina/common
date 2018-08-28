@@ -34,12 +34,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.criteria.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -947,7 +942,7 @@ public class ProjectServiceImpl implements ProjectService {
             checkLog_i = fullCheckLogInfo(project.getId(),curAuditProcess,Integer.parseInt(auditorId),auditorName,project.getAuditingProcess(),project.getAuditingUserId(),reason,"-1",2);
         } else {
             Integer auditingLevel = project.getAuditingLevel();
-            Integer logistics_audit = project.getLogistics_audit();
+            Integer logistics_audit = project.getLogisticsAudit();
             // 处理进度
             switch (curAuditProcess) {
                 case 1: // 事业部利润核算
