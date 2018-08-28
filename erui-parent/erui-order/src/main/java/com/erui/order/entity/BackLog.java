@@ -55,6 +55,8 @@ public class BackLog {
     @Transient
     private Integer rows;
 
+    @Transient
+    private String titleContent;
 
 
 
@@ -170,6 +172,13 @@ public class BackLog {
         this.rows = rows;
     }
 
+    public String getTitleContent() {
+        return titleContent;
+    }
+
+    public void setTitleContent(String titleContent) {
+        this.titleContent = titleContent;
+    }
 
     public static enum ProjectStatusEnum {
 

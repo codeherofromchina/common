@@ -30,6 +30,16 @@ public class BackLogController {
     public Result<Object> findBackLogByList(@RequestBody BackLog backLog) {
         try {
             Page<BackLog> backLogList= backLogService.findBackLogByList(backLog);
+            if(backLogList.getTotalPages() > 0){
+                for (BackLog backLog1 : backLogList){
+                    String returnNo = backLog1.getReturnNo();
+                    if(null != returnNo){
+                        backLog1.setTitleContent(returnNo);
+                    }
+                }
+            }
+
+
             return new Result<>(backLogList);
         }catch (Exception e){
             logger.error("待办列表查询错误", e);
