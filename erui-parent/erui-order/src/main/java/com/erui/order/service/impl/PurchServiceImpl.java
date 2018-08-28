@@ -364,14 +364,9 @@ public class PurchServiceImpl implements PurchService {
 
         if(save.getStatus() == 2){
             List<Project> projects = save.getProjects();
-            Set<String>  contractNoSet = new HashSet<>();
             Set<String>  projectNoSet = new HashSet<>();
             if(projects.size() > 0){
                 for (Project project : projects){
-                    String contractNo = project.getContractNo();
-                    if(contractNo != null){
-                        contractNoSet.add(contractNo);
-                    }
                     String projectNo = project.getProjectNo();
                     if(projectNo != null){
                         projectNoSet.add(projectNo);
@@ -382,7 +377,7 @@ public class PurchServiceImpl implements PurchService {
                 BackLog newBackLog = new BackLog();
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
-                newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
+                newBackLog.setReturnNo(purch.getPurchNo());  //返回单号    返回空，两个标签
                 newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
@@ -675,14 +670,9 @@ public class PurchServiceImpl implements PurchService {
         Purch save = purchDao.save(dbPurch);
         if(save.getStatus() == 2){
             List<Project> projects = save.getProjects();
-            Set<String>  contractNoSet = new HashSet<>();
             Set<String>  projectNoSet = new HashSet<>();
             if(projects.size() > 0){
                 for (Project project : projects){
-                    String contractNo = project.getContractNo();
-                    if(contractNo != null){
-                        contractNoSet.add(contractNo);
-                    }
                     String projectNo = project.getProjectNo();
                     if(projectNo != null){
                         projectNoSet.add(projectNo);
@@ -693,7 +683,7 @@ public class PurchServiceImpl implements PurchService {
                 BackLog newBackLog = new BackLog();
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
-                newBackLog.setReturnNo(StringUtils.join(contractNoSet,","));  //返回单号    返回空，两个标签
+                newBackLog.setReturnNo(dbPurch.getPurchNo());  //返回单号    返回空，两个标签
                 newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
