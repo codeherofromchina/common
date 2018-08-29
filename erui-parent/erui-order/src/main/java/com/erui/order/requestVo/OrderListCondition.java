@@ -70,9 +70,18 @@ public class OrderListCondition {
     private String businessUnitId;
     //执行事业部
     private String businessUnitId02;
+    private Integer perLiableRepayId; //回款责任人
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
 
     public Integer getTechnicalId02() {
         return technicalId02;

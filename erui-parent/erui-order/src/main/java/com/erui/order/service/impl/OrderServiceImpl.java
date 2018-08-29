@@ -74,6 +74,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private BackLogService backLogService;
+    @Autowired
+    private CheckLogService checkLogService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -267,6 +269,10 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getCreateUserId() != null) {
                         createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
                     }
+                    Predicate perLiableRepayId = null;
+                    if (condition.getPerLiableRepayId() != null) {
+                        perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                    }
                     Predicate businessUnitId = null;
                     if (bid != null) {
                         businessUnitId = root.get("businessUnitId").in(bid);
@@ -281,16 +287,16 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        list.add(cb.or(and, createUserId));
+                        list.add(cb.or(and, createUserId, perLiableRepayId));
                     } else if (businessUnitId != null && technicalId == null) {
-                        list.add(cb.or(businessUnitId, createUserId));
+                        list.add(cb.or(businessUnitId, createUserId, perLiableRepayId));
                     } else if (technicalId != null && businessUnitId == null) {
-                        list.add(cb.or(technicalId, createUserId));
+                        list.add(cb.or(technicalId, createUserId, perLiableRepayId));
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId())));
                     }
                 } else {
                     //根据市场经办人查询
@@ -455,9 +461,14 @@ public class OrderServiceImpl implements OrderService {
         }
         return flag;
     }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean audit(Order order, String auditorId, String auditorName, boolean rejectFlag, String reason) {
+    public boolean audit(Order order, String auditorId, String auditorName, AddOrderVo addOrderVo) throws Exception {
+        // rejectFlag true:驳回项目   false:审核项目
+        // reason
+        boolean rejectFlag = "-1".equals(addOrderVo.getAuditingType());
+        String reason = addOrderVo.getAuditingReason();
         // 获取当前审核进度
         Integer auditingProcess = order.getAuditingProcess();
         String auditingUserId = order.getAuditingUserId();
@@ -476,10 +487,21 @@ public class OrderServiceImpl implements OrderService {
             //auditingUserId_i = String.valueOf(order.getBusinessUnitId());
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 2);
-        }else {
-            switch (curAuditProcess){
-                case 1: break;
-                default:return false;
+        } else {
+            switch (curAuditProcess) {
+                case 1:
+                    // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
+                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
+                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                        auditingProcess_i = checkLog.getNextAuditingProcess();
+                        auditingUserId_i = checkLog.getNextAuditingUserId();
+                        updateOrder(addOrderVo);
+                    } else {
+                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
+                    }
+                    break;
+                default:
+                    return false;
             }
         }
         return false;
@@ -577,10 +599,11 @@ public class OrderServiceImpl implements OrderService {
         goodsDao.delete(dbGoodsMap.values());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
+        order.setAuditingProcess(1);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
-            order.setAuditingProcess(1);
+            order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            order.setAuditingProcess(2);
+            order.setAuditingStatus(2);
         }
         Order orderUpdate = orderDao.saveAndFlush(order);
         Date signingDate = null;
@@ -802,10 +825,11 @@ public class OrderServiceImpl implements OrderService {
             order.setAreaVpId(addOrderVo.getAreaVpId());
             order.setAreaVp(addOrderVo.getAreaVp());
         }
+        order.setAuditingProcess(1);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
-            order.setAuditingProcess(1);
+            order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            order.setAuditingProcess(2);
+            order.setAuditingStatus(2);
         }
         Order order1 = orderDao.save(order);
         Date signingDate = null;

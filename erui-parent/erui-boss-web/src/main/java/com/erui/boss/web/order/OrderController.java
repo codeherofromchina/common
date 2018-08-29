@@ -189,16 +189,16 @@ public class OrderController {
     /**
      * 审核项目
      *
-     * @param params type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
-     * @param params reason 驳回原因参数
-     * @param params orderId 要审核或驳回的项目ID
+     * @param addOrderVo type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+     * @param addOrderVo reason 驳回原因参数
+     * @param addOrderVo orderId 要审核或驳回的项目ID
      * @return
      */
     @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditProject(HttpServletRequest request, Map<String, String> params) {
-        Integer orderId = Integer.parseInt(params.get("orderId")); // 订单ID
-        String reason = params.get("reason"); // 驳回原因
-        String type = params.get("type"); // 驳回or审核
+    public Result<Object> auditProject(HttpServletRequest request, AddOrderVo addOrderVo) throws Exception {
+        Integer orderId = addOrderVo.getId(); // 订单ID
+        String reason = addOrderVo.getAuditingReason(); // 驳回原因
+        String type = addOrderVo.getAuditingType(); // 驳回or审核
 
         // 判断订单是否存在，
         Order order = orderService.findById(orderId);
@@ -219,7 +219,7 @@ public class OrderController {
         }
 
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), rejectFlag, reason);
+        boolean flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), addOrderVo);
         if (flag) {
             return new Result<>();
         }

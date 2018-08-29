@@ -109,9 +109,9 @@ public interface OrderService {
      * 审核订单
      * @param order
      * @param auditorId
-     * @param rejectFlag
-     * @param reason
+     * @param
+     * @param
      * @return
      */
-    boolean audit(Order order, String auditorId,String auditorName, boolean rejectFlag, String reason);
+    boolean audit(Order order, String auditorId,String auditorName,AddOrderVo addOrderVo) throws Exception;
 }

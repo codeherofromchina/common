@@ -4,6 +4,7 @@ import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -194,6 +195,21 @@ public class AddOrderVo {
     private String areaVp;          //区域VP
 
     private Integer perLiableRepayId; //回款责任人
+    // 项目审核接口中使用，审核的原因字段
+    @Transient
+    private String auditingReason;
+    // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+    @Transient
+    private String auditingType;
+
+    public String getAuditingReason() {
+        return auditingReason;
+    }
+
+    public String getAuditingType() {
+        return auditingType;
+    }
+
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
