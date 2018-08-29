@@ -412,6 +412,10 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
+                // 审核状态查询
+                if (null != condition.getAuditingStatus()) {
+                    list.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+                }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
@@ -521,6 +525,12 @@ public class ProjectServiceImpl implements ProjectService {
                         list.add(businessUid);
                     }
                 }
+                // 审核人查询
+                if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
+                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
+                    list.add(cb.or(auditingUserIdP));
+                }
+
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
                     list.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
