@@ -769,6 +769,27 @@ public class Project {
         project.setProjectStatus(this.projectStatus);
         return true;
     }
+    // 项目审核接口中使用，审核的原因字段
+    @Transient
+    private String auditingReason;
+    // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+    @Transient
+    private String auditingType;
+    public String getAuditingReason() {
+        return auditingReason;
+    }
+
+    public void setAuditingReason(String auditingReason) {
+        this.auditingReason = auditingReason;
+    }
+
+    public String getAuditingType() {
+        return auditingType;
+    }
+
+    public void setAuditingType(String auditingType) {
+        this.auditingType = auditingType;
+    }
 
     /**
      * 是否已经创建采购申请单枚举类

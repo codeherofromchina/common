@@ -114,10 +114,10 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditProject(HttpServletRequest request,Map<String,String> params){
-        Integer projectId = Integer.parseInt(params.get("projectId")); // 项目ID
-        String reason = params.get("reason"); // 驳回原因
-        String type = params.get("type"); // 驳回or审核
+    public Result<Object> auditProject(HttpServletRequest request,Project pProject){
+        Integer projectId = pProject.getId(); // 项目ID
+        String reason = pProject.getAuditingReason(); // 驳回原因
+        String type = pProject.getAuditingType(); // 驳回or审核
 
         // 判断项目是否存在，
         Project project = projectService.findById(projectId);
@@ -166,11 +166,11 @@ public class ProjectController {
             ThreadLocalUtil.setObject(eruiToken);
 
             // 审核流出添加代码 2018-08-27
-            Order order = proStatus.getOrder();
-            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
-                /// 订单的审核状态未通过，则项目办理失败
-                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
-            }
+//            Order order = proStatus.getOrder();
+//            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
+//                /// 订单的审核状态未通过，则项目办理失败
+//                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
+//            }
 
             if (projectService.updateProject(project)) {
                 return new Result<>();
