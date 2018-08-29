@@ -287,15 +287,24 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        list.add(cb.or(and, createUserId, perLiableRepayId));
+                        if (perLiableRepayId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                        }
+                        list.add(cb.or(and, createUserId));
                     } else if (businessUnitId != null && technicalId == null) {
-                        list.add(cb.or(businessUnitId, createUserId, perLiableRepayId));
+                        if (perLiableRepayId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                        }
+                        list.add(cb.or(businessUnitId, createUserId));
                     } else if (technicalId != null && businessUnitId == null) {
-                        list.add(cb.or(technicalId, createUserId, perLiableRepayId));
+                        if (perLiableRepayId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                        }
+                        list.add(cb.or(technicalId, createUserId));
                     }
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
-                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
+                    if (condition.getAgentId() != null || condition.getCreateUserId() != null && condition.getPerLiableRepayId() != null) {
                         list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId())));
                     }
                 } else {
@@ -495,7 +504,6 @@ public class OrderServiceImpl implements OrderService {
                     if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
-                        updateOrder(addOrderVo);
                     } else {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
                     }
@@ -503,7 +511,14 @@ public class OrderServiceImpl implements OrderService {
                 default:
                     return false;
             }
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+
         }
+        checkLogService.insert(checkLog_i);
+        checkLogService.insert(checkLog_i);
+        addOrderVo.setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        addOrderVo.setAuditingUserId(auditingUserId_i);
+        addOrderVo.setAuditingStatus(auditingStatus_i);
         return false;
     }
 

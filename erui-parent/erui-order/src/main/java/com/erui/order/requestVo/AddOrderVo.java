@@ -182,6 +182,11 @@ public class AddOrderVo {
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
     private Integer overseasSales;
     //审批流所需
+    private Integer auditingStatus;   //审核状态
+
+    private Integer auditingProcess; //审核进度
+
+    private String auditingUserId;   //当前审核人ID，逗号分隔多个
     private Integer countryLeaderId; //国家负责人ID
 
     private String countryLeader;   //国家负责人
@@ -217,6 +222,38 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
+
+    public Integer getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
+    public void setAuditingReason(String auditingReason) {
+        this.auditingReason = auditingReason;
+    }
+
+    public void setAuditingType(String auditingType) {
+        this.auditingType = auditingType;
+    }
 
     public Integer getPerLiableRepayId() {
         return perLiableRepayId;
