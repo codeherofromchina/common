@@ -91,10 +91,10 @@ public class OrderController {
             if (StringUtils.isBlank(addOrderVo.getContractNo()) && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
                 result.setMsg("销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && addOrderVo.getOverseasSales() != 4 && addOrderVo.getOverseasSales() != 5) {
+            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && !addOrderVo.getOverseasSales().equals(4) && !addOrderVo.getOverseasSales().equals(5) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("海外销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo())) {
+            } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo()) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("物流报价单号不能为空");
                 result.setEnMsg("Logistics quotation No. must be filled in");
             } else if (addOrderVo.getOrderType() == null) {
@@ -130,7 +130,7 @@ public class OrderController {
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(3)) {
                 result.setMsg("回款责任人不能为空");
                 result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {
@@ -184,6 +184,46 @@ public class OrderController {
 
         return result;
 
+    }
+
+    /**
+     * 审核项目
+     *
+     * @param params type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+     * @param params reason 驳回原因参数
+     * @param params orderId 要审核或驳回的项目ID
+     * @return
+     */
+    @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> auditProject(HttpServletRequest request, Map<String, String> params) {
+        Integer orderId = Integer.parseInt(params.get("orderId")); // 订单ID
+        String reason = params.get("reason"); // 驳回原因
+        String type = params.get("type"); // 驳回or审核
+
+        // 判断订单是否存在，
+        Order order = orderService.findById(orderId);
+        if (order == null) {
+            return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
+        }
+        // 获取当前登录用户ID并比较是否是当前用户审核
+        Object userId = request.getSession().getAttribute("userid");
+        Object userName = request.getSession().getAttribute("realname");
+        String auditingUserIds = order.getAuditingUserId();
+        if (auditingUserIds == null || !StringUtils.equals(String.valueOf(userId), auditingUserIds)) {
+            return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
+        }
+        // 判断是否是驳回并判断原因参数
+        boolean rejectFlag = "-1".equals(type);
+        if (rejectFlag && StringUtils.isBlank(reason)) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+
+        // 判断通过，审核项目并返回是否审核成功
+        boolean flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), rejectFlag, reason);
+        if (flag) {
+            return new Result<>();
+        }
+        return new Result<>(ResultStatusEnum.FAIL);
     }
 
     /**
@@ -248,6 +288,7 @@ public class OrderController {
         }
         return result;
     }
+
     //检测销售合同号
     @RequestMapping(value = "checkContract", method = RequestMethod.GET)
     public Result<Object> checkContract(String contractNo, Integer id) {

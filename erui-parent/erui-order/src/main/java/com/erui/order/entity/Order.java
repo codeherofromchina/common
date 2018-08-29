@@ -325,6 +325,17 @@ public class Order {
     @Column(name = "area_vp")
     private String areaVp;          //区域VP
 
+    @Column(name = "per_liable_repay_id")
+    private Integer perLiableRepayId; //回款责任人
+
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
 
     public Integer getAuditingStatus() {
         return auditingStatus;

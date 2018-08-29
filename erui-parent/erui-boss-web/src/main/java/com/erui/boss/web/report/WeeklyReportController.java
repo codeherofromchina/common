@@ -1,5 +1,7 @@
 package com.erui.boss.web.report;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
@@ -8,17 +10,27 @@ import com.erui.report.service.WeeklyReportService;
 import com.erui.report.util.ParamsUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * 周报
@@ -125,7 +137,7 @@ public class WeeklyReportController {
      */
     @ResponseBody
     @RequestMapping(value = "/orgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object orgDetail(@RequestBody(required = true) Map<String, Object> params) {
+    public Object orgDetail(@RequestBody(required = true) Map<String, Object> params,HttpServletRequest request) throws IOException {
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
@@ -150,9 +162,13 @@ public class WeeklyReportController {
         Map<String, Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByOrg(params);
         // 查询合格供应商数量信息
         Map<String, Object> supplierNumInfoData = weeklyReportService.selectSupplierNumInfoGroupByOrg(params);
-        // 查询事业部spu和sku数量信息
-        Map<String, Object> spuSkuNumInfoData = weeklyReportService.selectSpuAndSkuNumInfoGroupByOrg(params);
-
+//        // 查询事业部spu和sku数量信息
+//        Map<String, Object> spuSkuNumInfoData = weeklyReportService.selectSpuAndSkuNumInfoGroupByOrg(params);
+        Cookie[] cookies = request.getCookies();
+        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params,cookies);
+        if(spuSkuNumInfoData==null){
+            return new Result<>(ResultStatusEnum.GET_USERINFO_ERROR);
+        }
         Map<String, Map> data = new HashMap<>();
         data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
         data.put("quoteInfo", quoteInfoData); // 报价数据信息
@@ -286,5 +302,75 @@ public class WeeklyReportController {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Value("#{webProp[esproduct_url]}")
+    private  String esproductUrl;
+
+    @Value("#{webProp[esgoods_url]}")
+    private  String esgoodsUrl;
+
+
+    /**
+     * 从es中获取各事业部的spu、sku数量
+     * @return
+     */
+    public   Map<String, Object> getSpuSkuNumGroupByOrgToES(Map<String,Object> params, Cookie[] cookies) throws IOException {
+        String token = PerformanceController.getToken(cookies);
+        String eruiToken="eruitoken="+token;
+        if(StringUtil.isEmpty(token)){
+            return null;
+        }
+        params.put("onshelf_at_start",params.get("startTime").toString());
+        params.put("onshelf_at_end",params.get("endTime").toString());
+        List<Map<String, Object>> spuList = sendPutToES(params, eruiToken, esproductUrl);
+        if(spuList==null){
+            return null;
+        }
+        List<Map<String, Object>> skuList = sendPutToES(params, eruiToken, esgoodsUrl);
+        if(skuList==null){
+            return null;
+        }
+        //获取历史数据
+        params.put("onshelf_at_start","2018-01-01 00:00:00");
+        Date start = DateUtil.parseString2DateNoException("2018-01-01 00:00:00", DateUtil.FULL_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(String.valueOf(params.get("onshelf_at_end")), DateUtil.FULL_FORMAT_STR);
+        if (start.after(endDate)) {
+           params.put("onshelf_at_end","2018-01-01 00:00:01");
+        }
+        List<Map<String, Object>> spuHistoryList = sendPutToES(params, eruiToken, esproductUrl);
+        if(spuHistoryList==null){
+            return null;
+        }
+        List<Map<String, Object>> skuHistoryList = sendPutToES(params, eruiToken, esgoodsUrl);
+        if(skuHistoryList==null){
+            return null;
+        }
+        Map<String,Object> result=weeklyReportService.handleSpuSkuResult(spuList,skuList,spuHistoryList,skuHistoryList);
+        return result;
+    }
+
+    List<Map<String,Object>> sendPutToES(Map<String,Object> params,String eruiToken,String url) throws IOException {
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPut putMethod=new HttpPut(url);
+        putMethod.setHeader("Cookie",eruiToken);
+        StringEntity paramEntity = new StringEntity(JSON.toJSONString(params), "utf-8");
+        putMethod.setEntity(paramEntity);
+        CloseableHttpResponse execute = httpClient.execute(putMethod);
+        HttpEntity entity = execute.getEntity();
+        String result =null;
+        if(entity!=null){
+            result= EntityUtils.toString(entity, "UTF-8");
+        }
+        Map<String,Object> spuMap = JSON.parseObject(result, Map.class);
+        List<Map<String,Object>> dataList=null;
+        if(spuMap!=null){
+            dataList=(List<Map<String,Object>>) spuMap.get("data");
+            if((int)spuMap.get("code")!=403&&dataList==null){
+                dataList=new ArrayList<>();
+            }
+        }
+       return  dataList;
     }
 }

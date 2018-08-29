@@ -85,7 +85,16 @@ public interface WeeklyReportService {
      * @param params
      * @return
      */
+
     Map<String,Object> selectSpuAndSkuNumInfoGroupByOrg(Map<String, Object> params);
+    /**
+     *c处理从ES获取的 spu和sku结果信息
+     * @param spuList
+     * @param skuList
+     * @return
+     */
+    Map<String,Object> handleSpuSkuResult( List<Map<String,Object>>  spuList, List<Map<String,Object>> skuList,
+                                           List<Map<String,Object>> spuHistoryList,List<Map<String,Object>> skuHistoryList);
 
     /**
 

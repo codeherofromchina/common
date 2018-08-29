@@ -344,7 +344,7 @@ public class PerformanceController {
      * @param cookies
      * @return
      */
-    private String getToken(Cookie[] cookies) {
+    public static  String getToken(Cookie[] cookies) {
         String token = null;
         if (ArrayUtils.isNotEmpty(cookies)) {
             for (int i = 0; i < cookies.length; i++) {

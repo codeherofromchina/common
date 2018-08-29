@@ -293,6 +293,30 @@ public class InstockServiceImpl implements InstockService {
             backLog.setHostId(dbInstock.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
+
+            //推送给分单人待办事项  办理入库
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
+            InspectReport inspectReport = dbInstock.getInspectReport();
+
+            List<String> projectNoList = new ArrayList<>();
+            List<InstockGoods> instockGoodsLists = dbInstock.getInstockGoodsList();
+            instockGoodsLists.stream().forEach(instockGoods -> {
+                PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+                Goods goods = purchGoods.getGoods();
+                if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                    projectNoList.add(goods.getProjectNo());
+                }
+            });
+            String inspectApplyNo = inspectReport.getInspectApplyNo();  //报检单号
+            newBackLog.setReturnNo(inspectApplyNo);  //返回单号
+            String supplierName = inspectReport.getSupplierName();  //供应商名称
+            newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
+            newBackLog.setHostId(dbInstock.getId());    //父ID，列表页id
+            newBackLog.setUid(instock.getUid());   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
         }
         // 保存附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());

@@ -192,6 +192,8 @@ public class AddOrderVo {
     private Integer areaVpId;       //区域VP ID
 
     private String areaVp;          //区域VP
+
+    private Integer perLiableRepayId; //回款责任人
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -199,6 +201,14 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
 
     public Integer getCountryLeaderId() {
         return countryLeaderId;
@@ -761,6 +771,7 @@ public class AddOrderVo {
         order.setCountry(this.country);
         order.setCrmCode(this.crmCode);
         order.setCustomerType(this.customerType);
+        order.setPerLiableRepayId(this.perLiableRepayId);
         order.setPerLiableRepay(this.perLiableRepay);
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);

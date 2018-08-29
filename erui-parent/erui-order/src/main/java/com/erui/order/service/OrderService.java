@@ -105,4 +105,13 @@ public interface OrderService {
     ImportDataResponse importProjectData(List<String[]> datas, boolean testOnly);
 
     Integer checkContractNo(String contractNo,Integer id);
+    /**
+     * 审核订单
+     * @param order
+     * @param auditorId
+     * @param rejectFlag
+     * @param reason
+     * @return
+     */
+    boolean audit(Order order, String auditorId,String auditorName, boolean rejectFlag, String reason);
 }
