@@ -455,6 +455,52 @@ public class OrderServiceImpl implements OrderService {
         }
         return flag;
     }
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean audit(Order order, String auditorId, String auditorName, boolean rejectFlag, String reason) {
+        // 获取当前审核进度
+        Integer auditingProcess = order.getAuditingProcess();
+        String auditingUserId = order.getAuditingUserId();
+        Integer curAuditProcess = null;
+        if (auditorId.equals(auditingUserId)) {
+            curAuditProcess = auditingProcess;
+        }
+        // 定义最后处理结果变量，最后统一操作
+        Integer auditingStatus_i = 2; // 默认状态为审核中
+        String auditingProcess_i = null; // 订单审核当前进度
+        String auditingUserId_i = null; // 订单审核当前人
+        CheckLog checkLog_i = null; // 审核日志
+        if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
+            auditingStatus_i = 3;
+            //auditingProcess_i = "1"; // 事业部利润核算 处理
+            //auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 2);
+        }else {
+            switch (curAuditProcess){
+                case 1: break;
+                default:return false;
+            }
+        }
+        return false;
+    }
+
+    // 处理日志
+    private CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+                                      String auditingMsg, String operation, int type) {
+        CheckLog checkLog = new CheckLog();
+        checkLog.setOrderId(orderId);
+        checkLog.setCreateTime(new Date());
+        checkLog.setAuditingProcess(auditingProcess);
+        checkLog.setAuditingUserId(auditorId);
+        checkLog.setAuditingUserName(auditorName);
+        checkLog.setNextAuditingProcess(nextAuditingProcess);
+        checkLog.setNextAuditingUserId(nextAuditingUserId);
+        checkLog.setAuditingMsg(auditingMsg);
+        checkLog.setOperation(operation);
+        checkLog.setType(type);
+        return checkLog;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -531,6 +577,11 @@ public class OrderServiceImpl implements OrderService {
         goodsDao.delete(dbGoodsMap.values());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
+        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
+            order.setAuditingProcess(1);
+        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            order.setAuditingProcess(2);
+        }
         Order orderUpdate = orderDao.saveAndFlush(order);
         Date signingDate = null;
         if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -566,6 +617,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
+            projectAdd.setAuditingStatus(1);
             //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
@@ -733,15 +785,27 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
-        if (addOrderVo.getTotalPriceUsd().doubleValue() <= STEP_ONE_PRICE.doubleValue()) {
+        //根据订单金额判断 填写审批人级别
+        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
             order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
             order.setCountryLeader(addOrderVo.getCountryLeader());
-        } else if (STEP_ONE_PRICE.doubleValue() < addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
+        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+            order.setCountryLeader(addOrderVo.getCountryLeader());
             order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
             order.setAreaLeader(addOrderVo.getAreaLeader());
-        } else {
+        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+            order.setCountryLeader(addOrderVo.getCountryLeader());
+            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+            order.setAreaLeader(addOrderVo.getAreaLeader());
             order.setAreaVpId(addOrderVo.getAreaVpId());
             order.setAreaVp(addOrderVo.getAreaVp());
+        }
+        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
+            order.setAuditingProcess(1);
+        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            order.setAuditingProcess(2);
         }
         Order order1 = orderDao.save(order);
         Date signingDate = null;
@@ -781,6 +845,8 @@ public class OrderServiceImpl implements OrderService {
             project.setUpdateTime(new Date());
             project.setProcessProgress("1");
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
+            //新建项目审批状态为未审核
+            project.setAuditingStatus(1);
             Project project2 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
