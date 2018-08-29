@@ -70,7 +70,10 @@ public class WeeklyReportController {
         //查询各地区的时间段内新用户注册数，中国算一个地区
         Map<String, Object> registerData = weeklyReportService.selectBuyerRegistCountGroupByArea(params);
         //查询各地区的时间段内会员数 中国算一个地区
-        Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
+        // Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
+
+        //查询各地区的时间段内普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数，中国算一个地区
+        Map<String, Object> buyerData = weeklyReportService.selectBuyerCountDetail(params);
         // 查询各地区时间段内询单数
         Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByArea(params);
         // 查询各个地区时间段内的报价数量和金额信息
@@ -81,7 +84,7 @@ public class WeeklyReportController {
 
         Map<String, Map> data = new HashMap<>();
         data.put("registerInfo", registerData); // 新用户注册数据信息
-        data.put("memberNumInfo", buyerData); // 会员数数据信息
+        data.put("memberNumInfo", buyerData); // //普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数
         data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
         data.put("quoteInfo", quoteInfoData); // 报价数量/金额数据信息
         data.put("orderInfo", orderInfoData); // 订单数量/金额数据信息

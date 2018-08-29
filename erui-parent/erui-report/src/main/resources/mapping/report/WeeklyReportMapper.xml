@@ -44,6 +44,42 @@
         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         GROUP BY area HAVING area IS NOT NULL
     </select>
+    <!--查询各地区的时间段内普通会员Erui注册数、普通会员ERUI&KERUI注册数、高级会员Erui注册数、高级会员ERUI&KERUI注册数-->
+    <select id="selectBuyerCountDetail" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT COUNT(1) AS  registerCount ,area ,level,buyerType FROM
+        (
+        SELECT buyers.buyer_code AS buyerNo,buyers.id AS buyerId ,
+        (case when (buyers.`source` = 1) then '后台' when (buyers.`source` = 2) then '门户' when (buyers.`source` = 3) then '移动端' end)
+        AS `source`,
+        (case when (buyers.`buyer_level` = 52) then '普通会员' when (buyers.`buyer_level` = 53) then '高级会员' end) AS `level`,
+        buyers.level_at AS level_at ,
+        areasBn.country_bn AS country,
+
+        (CASE  WHEN  areasBn.country_bn ='China'  THEN '中国' ELSE areasZh.name END )  as area,
+        crmType.buyerStatus AS buyerType
+        FROM erui_buyer.buyer AS buyers
+        LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
+        LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
+        LEFT JOIN
+        (
+        SELECT
+        crmCode,
+        (CASE WHEN COUNT(1)=2 THEN 'ERUIANDKERUI' WHEN COUNT(1)=1 AND order_belongs=1 THEN 'ERUI' ELSE 'KERUI' END) AS buyerStatus
+        FROM
+        (
+        SELECT crm_code crmCode , order_belongs
+        FROM erui_new_order.`order`
+        WHERE crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs IS NOT NULL AND order_belongs &lt;&gt; ''
+        GROUP BY crm_code,order_belongs
+        ) AS t group by t.crmCode
+
+        ) AS crmType ON buyers.buyer_code=crmType.crmCode
+        WHERE buyers.deleted_flag='N'
+        ) as a
+        WHERE level IN ('普通会员','高级会员')  and  level_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        GROUP BY area ,level,buyerType  HAVING area IS NOT NULL AND level IS NOT NULL AND buyerType IS NOT NULL
+    </select>
 
     <!--根据时间查询各个地区询单总数量-->
     <select id="selectInquiryCountWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
