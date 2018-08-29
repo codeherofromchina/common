@@ -26,20 +26,19 @@
     </select>
     <!--根据时间过去各地区的会员数（普通会员和高级会员）中国算是各独立的地区-->
     <select id="selectBuyerCountGroupByAreaAndChina" parameterType="java.util.Map" resultType="java.util.Map">
-
- SELECT COUNT(1) AS  registerCount ,area FROM
+        SELECT COUNT(1) AS  registerCount ,area FROM
         (
-          SELECT buyers.buyer_no AS buyerNo,buyers.id AS buyerId ,
-            	(case when (buyers.`source` = 1) then '后台' when (buyers.`source` = 2) then '门户' when (buyers.`source` = 3) then '移动端' end)
-            	 AS `source`,
-				  (case when (buyers.`buyer_level` = 52) then '普通会员' when (buyers.`buyer_level` = 53) then '高级会员' end) AS `level`,
-                  buyers.level_at AS level_at ,
-                  areasBn.country_bn AS country,
-                  (CASE  WHEN  areasBn.country_bn ='China'  THEN '中国' ELSE areasZh.name END )  as area
-          FROM erui_buyer.buyer AS buyers
-          LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
-          LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
-          WHERE buyers.deleted_flag='N' AND buyers.id IN (SELECT buyer_id FROM erui_new_order.`order` WHERE order_belongs=1)
+        SELECT buyers.buyer_code AS buyerNo,buyers.id AS buyerId ,
+        (case when (buyers.`source` = 1) then '后台' when (buyers.`source` = 2) then '门户' when (buyers.`source` = 3) then '移动端' end)
+        AS `source`,
+        (case when (buyers.`buyer_level` = 52) then '普通会员' when (buyers.`buyer_level` = 53) then '高级会员' end) AS `level`,
+        buyers.level_at AS level_at ,
+        areasBn.country_bn AS country,
+        (CASE  WHEN  areasBn.country_bn ='China'  THEN '中国' ELSE areasZh.name END )  as area
+        FROM erui_buyer.buyer AS buyers
+        LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
+        LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
+        WHERE buyers.deleted_flag='N' AND buyers.buyer_code IN (SELECT crm_code FROM erui_new_order.`order` WHERE crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs=1)
         ) as a
         WHERE level IN ('普通会员','高级会员')   and  level_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -113,7 +112,7 @@
                  t5.createAt
                 FROM
                     erui_rfq.inquiry t1
-                LEFT OUTER JOIN erui_rfq.final_quote t2 ON t1.id = t2.inquiry_id,
+                LEFT OUTER JOIN erui_rfq.quote t2 ON t1.id = t2.inquiry_id,
                 erui_operation.market_area_country t3,
                 erui_operation.market_area t4,
 								(
