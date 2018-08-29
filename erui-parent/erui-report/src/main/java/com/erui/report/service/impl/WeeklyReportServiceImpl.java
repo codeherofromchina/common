@@ -149,13 +149,20 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<String> areaList = new ArrayList<>(Arrays.asList(AREAS));
         //查询各地区的时间段内普通会员Erui注册数、普通会员ERUI&KERUI注册数、高级会员Erui注册数、高级会员ERUI&KERUI注册数
         List<Map<String, Object>> dataList = readMapper.selectBuyerCountDetail(params);
+        //获取历史数据
+        Map<String, Object> params02 = new HashMap<>();
+        params02.put("startTime", "2018-01-01 00:00:00");
+        params02.put("endTime", params.get("endTime"));
+        List<Map<String, Object>> allAddUpList = readMapper.selectBuyerCountDetail(params02);
         List<Integer> buyerCounts = new ArrayList<>();//存放各地区 会员数
+        List<Integer> allAddUpCounts = new ArrayList<>(); //存放从18.1.1开始的各地区会员数量
         List<Integer> normalEruiCounts = new ArrayList<>();//存放各地区 普通会员Erui类型的会员数
         List<Integer> normalEruiAndKeruiCounts = new ArrayList<>();//存放各地区 普通会员EruiAndKerui类型的会员数
         List<Integer> seniorEruiCounts = new ArrayList<>(); //存放各地区 高级会员Erui类型的会员数
         List<Integer> seniorEruiAndKeruiCounts = new ArrayList<>(); //存放各地区 高级会员EruiAndKerui类型的会员数
         for(String area :areaList){
             int totalCount=0;//各地区总会员数
+
             int normalEruiCode=0;
             int normalEruiAndKeruiCode=0;
             int seniorEruiCode=0;
@@ -203,6 +210,18 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             }
             //添加总会员数
             buyerCounts.add(totalCount);
+
+             //处理累计数据
+            int allAddUpCount=0;//各地区历史会员数
+            for(Map<String,Object> m: allAddUpList){
+                String area1 = String.valueOf(m.get("area"));
+                String buyerType = String.valueOf(m.get("buyerType"));
+                if(area.equals(area1)&&!"KERUI".equals(buyerType)){
+                    int registerCount = Integer.parseInt(m.get("registerCount").toString());
+                    allAddUpCount+=registerCount;
+                }
+            }
+            allAddUpCounts.add(allAddUpCount);
         }
         //返回结果
         Map<String, Object> result = new HashMap<>();
@@ -212,6 +231,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         result.put("normalEruiAndKeruiCounts", normalEruiAndKeruiCounts);
         result.put("seniorEruiCounts", seniorEruiCounts);
         result.put("seniorEruiAndKeruiCounts", seniorEruiAndKeruiCounts);
+        result.put("historyCounts", allAddUpCounts);
         return result;
     }
 
