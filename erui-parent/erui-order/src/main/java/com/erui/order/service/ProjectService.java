@@ -91,9 +91,8 @@ public interface ProjectService {
      * 审核项目
      * @param project
      * @param auditorId
-     * @param rejectFlag
-     * @param reason
+     * @param paramsProject  请求的参数
      * @return
      */
-    boolean audit(Project project, String auditorId,String auditorName, boolean rejectFlag, String reason);
+    boolean audit(Project project, String auditorId,String auditorName, Project paramsProject);
 }

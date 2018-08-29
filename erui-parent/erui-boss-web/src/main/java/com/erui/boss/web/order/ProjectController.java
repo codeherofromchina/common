@@ -109,7 +109,7 @@ public class ProjectController {
      * 审核项目
      * param  params type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
      * param  params reason 驳回原因参数
-     * param  params projectId 要审核或驳回的项目ID
+     * param  params id 要审核或驳回的项目ID
      *
      * @return
      */
@@ -139,7 +139,7 @@ public class ProjectController {
         }
 
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = projectService.audit(project,String.valueOf(userId),String.valueOf(realname),rejectFlag,reason);
+        boolean flag = projectService.audit(project,String.valueOf(userId),String.valueOf(realname),pProject);
         if (flag) {
             return new Result<>();
         }
@@ -164,6 +164,13 @@ public class ProjectController {
             }
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
+
+            // 判断是否需要审核
+            String auditingUserId = proStatus.getAuditingUserId();
+            if (auditingUserId != null) {
+                return auditProject(request,project);
+            }
+            // 如果不是审核，则继续走审核人流程
 
             // 审核流出添加代码 2018-08-27
 //            Order order = proStatus.getOrder();

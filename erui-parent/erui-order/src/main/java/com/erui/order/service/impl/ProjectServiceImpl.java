@@ -960,13 +960,17 @@ public class ProjectServiceImpl implements ProjectService {
      *
      * @param project
      * @param auditorId
-     * @param rejectFlag true:驳回项目   false:审核项目
-     * @param reason
+     * @param paramProject 参数项目
      * @return
      */
     @Transactional
     @Override
-    public boolean audit(Project project, String auditorId, String auditorName, boolean rejectFlag, String reason) {
+    public boolean audit(Project project, String auditorId, String auditorName,Project paramProject) {
+        //@param rejectFlag true:驳回项目   false:审核项目
+        //@param reason
+        boolean rejectFlag = "-1".equals(paramProject.getAuditingType());
+        String reason = paramProject.getAuditingReason();
+
         Order order = project.getOrder();
         // 获取当前审核进度
         String auditingProcess = project.getAuditingProcess();
@@ -1006,7 +1010,9 @@ public class ProjectServiceImpl implements ProjectService {
                     if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
-                        // 处理日志
+                        // 驳回后的修改
+                        paramProject.copyProjectDescTo(project); // 只修改基本信息
+                        //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
                     } else {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
 //                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
