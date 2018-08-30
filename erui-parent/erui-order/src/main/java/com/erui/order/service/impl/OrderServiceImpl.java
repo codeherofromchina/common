@@ -534,21 +534,21 @@ public class OrderServiceImpl implements OrderService {
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
                         //根据订单金额判断 填写审批人级别
-                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            if (addOrderVo.getFinancing() == 0) {
+                        if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                            if (order.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 审核完成
                                 auditingStatus_i = 4; // 完成
                                 auditingProcess_i = null; // 无下一审核进度和审核人
                                 auditingUserId_i = null;
-                            } else if (addOrderVo.getFinancing() == 1) {
+                            } else if (order.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
                                 auditingUserId_i = "018895";
                             }
-                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                        } else {
                             //订单金额大于10万小于300万 交给区域负责人审核
                             auditingProcess_i = "3";
-                            auditingUserId_i = addOrderVo.getAreaVpId().toString();
+                            auditingUserId_i = order.getAreaVpId().toString();
                         }
                     }
                     break;
@@ -560,7 +560,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
-                        if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                        if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
                             if (addOrderVo.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 审核完成
                                 auditingStatus_i = 4; // 完成
@@ -571,10 +571,10 @@ public class OrderServiceImpl implements OrderService {
                                 auditingProcess_i = "5"; // 融资审核
                                 auditingUserId_i = "018895";
                             }
-                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+                        } else {
                             //订单金额大于300万 交给区域VP审核
                             auditingProcess_i = "4";
-                            auditingUserId_i = addOrderVo.getAreaVpId().toString();
+                            auditingUserId_i = order.getAreaVpId().toString();
                         }
                     }
                     break;
@@ -585,12 +585,12 @@ public class OrderServiceImpl implements OrderService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
-                        if (addOrderVo.getFinancing() == 0) {
+                        if (order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 审核完成
                             auditingStatus_i = 4; // 完成
                             auditingProcess_i = null; // 无下一审核进度和审核人
                             auditingUserId_i = null;
-                        } else if (addOrderVo.getFinancing() == 1) {
+                        } else if (order.getFinancing() == 1) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "5"; // 融资审核
                             auditingUserId_i = "018895";//郭永涛
