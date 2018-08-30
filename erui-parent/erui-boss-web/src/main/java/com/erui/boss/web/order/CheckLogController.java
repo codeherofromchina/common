@@ -32,7 +32,7 @@ public class CheckLogController {
     @RequestMapping(value = "checkLogAll", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> checkLogAll(@RequestBody Map<String, Integer> map) {
         Integer orderId = null;
-        if (map.containsKey("orderId") && map.containsKey("type")) {
+        if (map.containsKey("orderId")) {
             orderId = map.get("orderId");
         }
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
