@@ -525,11 +525,7 @@ public class ProjectServiceImpl implements ProjectService {
                         list.add(businessUid);
                     }
                 }
-                // 审核人查询
-                if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
-                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
-                    list.add(cb.or(auditingUserIdP));
-                }
+
 
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
@@ -561,7 +557,15 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
-                return cb.and(predicates);
+                Predicate and = cb.and(predicates);
+
+                // 审核人查询,和其他关系是or，所有写在最后
+                if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
+                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
+                    return cb.or(and,auditingUserIdP);
+                } else {
+                    return and;
+                }
             }
         }, pageRequest);
         for (Project project : pageList) {
