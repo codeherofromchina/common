@@ -8,8 +8,14 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,11 +64,22 @@ public class CheckLogServiceImpl implements CheckLogService {
 
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
-        PageRequest request = new PageRequest(1, 10, Sort.Direction.DESC, "createTime");
-        CheckLog example = new CheckLog();
-        example.setOrderId(orderId);
-        example.setOperation("2");
-        Page<CheckLog> all = checkLogDao.findAll(Example.of(example), request);
+        PageRequest request = new PageRequest(0, 100, Sort.Direction.DESC, "createTime");
+        Page<CheckLog> all = checkLogDao.findAll(new Specification<CheckLog>() {
+            List<Predicate> list = new ArrayList<>();
+
+            @Override
+            public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                // 根据销售同号模糊查询
+                if (orderId != null) {
+                    list.add(cb.equal(root.get("orderId").as(Integer.class), orderId));
+                }
+                list.add(cb.lessThanOrEqualTo(root.get("operation").as(String.class), "2"));
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, request);
         List<CheckLog> checkLogList = all.getContent();
         if (checkLogList != null && checkLogList.size() > 0) {
             return checkLogList;
