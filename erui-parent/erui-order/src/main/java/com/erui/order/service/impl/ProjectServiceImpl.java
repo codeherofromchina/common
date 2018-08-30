@@ -1009,9 +1009,12 @@ public class ProjectServiceImpl implements ProjectService {
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
             auditingStatus_i = 3;
             auditingProcess_i = "1"; // 事业部利润核算 处理
-            auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            //auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            auditingUserId_i = String.valueOf(project.getBusinessUid());
+            // 设置项目为SUBMIT:未执行
+            project.setProjectStatus("SUBMIT");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
         } else {
             Integer auditingLevel = project.getAuditingLevel();
             Integer logistics_audit = project.getLogisticsAudit();
@@ -1025,6 +1028,8 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         // 驳回后的修改
                         paramProject.copyProjectDescTo(project); // 只修改基本信息
+                        paramProject.setProjectStatus("EXECUTING"); // 驳回处理后设置状态为执行中
+
                         //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
                     } else {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
@@ -1099,7 +1104,7 @@ public class ProjectServiceImpl implements ProjectService {
                 default:
                     return false;
             }
-            checkLog_i = fullCheckLogInfo(project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
         project.setAuditingProcess(auditingProcess_i);
