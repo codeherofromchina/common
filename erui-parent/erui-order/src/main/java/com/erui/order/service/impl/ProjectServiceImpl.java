@@ -1014,7 +1014,7 @@ public class ProjectServiceImpl implements ProjectService {
             // 设置项目为SUBMIT:未执行
             project.setProjectStatus("SUBMIT");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
         } else {
             Integer auditingLevel = project.getAuditingLevel();
             Integer logistics_audit = project.getLogisticsAudit();
@@ -1104,7 +1104,7 @@ public class ProjectServiceImpl implements ProjectService {
                 default:
                     return false;
             }
-            checkLog_i = fullCheckLogInfo(project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
         project.setAuditingProcess(auditingProcess_i);
