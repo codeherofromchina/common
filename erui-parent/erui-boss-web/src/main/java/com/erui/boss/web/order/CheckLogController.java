@@ -32,14 +32,16 @@ public class CheckLogController {
     @RequestMapping(value = "checkLogAll", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> checkLogAll(@RequestBody Map<String, Integer> map) {
         Integer orderId = null;
-        if (map.containsKey("orderId")) {
+        Integer type = null;
+        if (map.containsKey("orderId") && map.containsKey("type")) {
             orderId = map.get("orderId");
+            type = map.get("type");
         }
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         if (orderId == null || orderId < 0) {
             return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
         }
-        List<CheckLog> listByOrderId = checkLogService.findListByOrderId(orderId);
+        List<CheckLog> listByOrderId = checkLogService.findListByOrderId(type, orderId);
         if (listByOrderId.size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
@@ -63,7 +65,7 @@ public class CheckLogController {
             return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
         }
         List<CheckLog> listByOrderId = checkLogService.findPassed(orderId);
-        if (listByOrderId.size() == 0) {
+        if (listByOrderId == null || listByOrderId.size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(listByOrderId);

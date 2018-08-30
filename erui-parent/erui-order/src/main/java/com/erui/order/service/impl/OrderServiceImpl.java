@@ -503,11 +503,11 @@ public class OrderServiceImpl implements OrderService {
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
         } else {
+            // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
+            CheckLog checkLog = checkLogService.findLastLog(1, order.getId());
             switch (curAuditProcess) {
                 //回款责任人审批
                 case 1:
-                    // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
-                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
                     if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
@@ -519,28 +519,63 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 //国家负责人审批
                 case 2:
-                    //根据订单金额判断 填写审批人级别
-                    if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                        if (addOrderVo.getFinancing() == 0) {
-                            //若不是融资项目 且订单金额小于10万美元 审核完成
-                            auditingStatus_i = 4; // 完成
-                            auditingProcess_i = null; // 无下一审核进度和审核人
-                            auditingUserId_i = null;
-                        } else if (addOrderVo.getFinancing() == 1) {
-                            //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
-                            auditingProcess_i = "5"; // 融资审核
-                            auditingUserId_i = "018895";
+                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                        auditingProcess_i = checkLog.getNextAuditingProcess();
+                        auditingUserId_i = checkLog.getNextAuditingUserId();
+                        addOrderVo.copyBaseInfoTo(order);
+                    } else {
+                        //根据订单金额判断 填写审批人级别
+                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                            if (addOrderVo.getFinancing() == 0) {
+                                //若不是融资项目 且订单金额小于10万美元 审核完成
+                                auditingStatus_i = 4; // 完成
+                                auditingProcess_i = null; // 无下一审核进度和审核人
+                                auditingUserId_i = null;
+                            } else if (addOrderVo.getFinancing() == 1) {
+                                //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
+                                auditingProcess_i = "5"; // 融资审核
+                                auditingUserId_i = "018895";
+                            }
+                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                            //订单金额大于10万小于300万 交给区域负责人审核
+                            auditingProcess_i = "3";
+                            auditingUserId_i = addOrderVo.getAreaVpId().toString();
                         }
-                    } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                        //订单金额大于10万小于300万 交给区域负责人审核
-                        auditingProcess_i = "3";
-                        auditingUserId_i = addOrderVo.getAreaVpId().toString();
                     }
                     break;
 
                 //区域负责人
                 case 3:
-                    if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                        auditingProcess_i = checkLog.getNextAuditingProcess();
+                        auditingUserId_i = checkLog.getNextAuditingUserId();
+                        addOrderVo.copyBaseInfoTo(order);
+                    } else {
+                        if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                            if (addOrderVo.getFinancing() == 0) {
+                                //若不是融资项目 且订单金额小于10万美元 审核完成
+                                auditingStatus_i = 4; // 完成
+                                auditingProcess_i = null; // 无下一审核进度和审核人
+                                auditingUserId_i = null;
+                            } else if (addOrderVo.getFinancing() == 1) {
+                                //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
+                                auditingProcess_i = "5"; // 融资审核
+                                auditingUserId_i = "018895";
+                            }
+                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+                            //订单金额大于300万 交给区域VP审核
+                            auditingProcess_i = "4";
+                            auditingUserId_i = addOrderVo.getAreaVpId().toString();
+                        }
+                    }
+                    break;
+                //区域VP
+                case 4:
+                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                        auditingProcess_i = checkLog.getNextAuditingProcess();
+                        auditingUserId_i = checkLog.getNextAuditingUserId();
+                        addOrderVo.copyBaseInfoTo(order);
+                    } else {
                         if (addOrderVo.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 审核完成
                             auditingStatus_i = 4; // 完成
@@ -549,25 +584,8 @@ public class OrderServiceImpl implements OrderService {
                         } else if (addOrderVo.getFinancing() == 1) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "5"; // 融资审核
-                            auditingUserId_i = "018895";
+                            auditingUserId_i = "018895";//郭永涛
                         }
-                    } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-                        //订单金额大于300万 交给区域VP审核
-                        auditingProcess_i = "4";
-                        auditingUserId_i = addOrderVo.getAreaVpId().toString();
-                    }
-                    break;
-                //区域VP
-                case 4:
-                    if (addOrderVo.getFinancing() == 0) {
-                        //若不是融资项目 且订单金额小于10万美元 审核完成
-                        auditingStatus_i = 4; // 完成
-                        auditingProcess_i = null; // 无下一审核进度和审核人
-                        auditingUserId_i = null;
-                    } else if (addOrderVo.getFinancing() == 1) {
-                        //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
-                        auditingProcess_i = "5"; // 融资审核
-                        auditingUserId_i = "018895";//郭永涛
                     }
                     break;
                 //是否融资项目 是 融资审核

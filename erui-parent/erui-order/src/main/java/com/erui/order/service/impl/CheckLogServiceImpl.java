@@ -38,7 +38,7 @@ public class CheckLogServiceImpl implements CheckLogService {
      */
     @Override
     public CheckLog findLastLog(int type, Integer refId) {
-        PageRequest request = new PageRequest(1, 1, Sort.Direction.DESC, "createTime");
+        PageRequest request = new PageRequest(0, 1, Sort.Direction.DESC, "createTime");
         CheckLog example = new CheckLog();
         example.setType(type);
         example.setOrderId(refId);
@@ -55,9 +55,15 @@ public class CheckLogServiceImpl implements CheckLogService {
     }
 
     @Override
-    public List<CheckLog> findListByOrderId(Integer orderId) {
-        if (orderId != null && checkLogDao.findByOrderId(orderId).size() > 0) {
-            return checkLogDao.findByOrderId(orderId);
+    public List<CheckLog> findListByOrderId(int type, Integer orderId) {
+        PageRequest request = new PageRequest(0, 100, Sort.Direction.DESC, "createTime");
+        CheckLog example = new CheckLog();
+        example.setType(type);
+        example.setOrderId(orderId);
+        Page<CheckLog> all = checkLogDao.findAll(Example.of(example), request);
+        if (orderId != null && all.getSize() > 0) {
+            List<CheckLog> checkLogList = all.getContent();
+            return checkLogList;
         }
         return null;
     }

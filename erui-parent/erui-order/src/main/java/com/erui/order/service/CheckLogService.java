@@ -31,7 +31,7 @@ public interface CheckLogService {
       * @Date:18:38 2018/8/29
       * @modified By
       */
-     List<CheckLog> findListByOrderId(Integer orderId);
+     List<CheckLog> findListByOrderId(int type, Integer orderId);
     /**
      * @Author:SHIGS
      * @Description 根据订单查找已经通过审核的日志
