@@ -114,7 +114,7 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditProject(HttpServletRequest request,Project pProject){
+    public Result<Object> auditProject(HttpServletRequest request,@RequestBody Project pProject){
         Integer projectId = pProject.getId(); // 项目ID
         String reason = pProject.getAuditingReason(); // 驳回原因
         String type = pProject.getAuditingType(); // 驳回or审核
