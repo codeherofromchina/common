@@ -160,6 +160,13 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<Integer> normalEruiAndKeruiCounts = new ArrayList<>();//存放各地区 普通会员EruiAndKerui类型的会员数
         List<Integer> seniorEruiCounts = new ArrayList<>(); //存放各地区 高级会员Erui类型的会员数
         List<Integer> seniorEruiAndKeruiCounts = new ArrayList<>(); //存放各地区 高级会员EruiAndKerui类型的会员数
+        int buyerCountsCount = 0;
+        int normalEruiCountsCount = 0;
+        int normalEruiAndKeruiCountsCount = 0;
+        int  seniorEruiCountsCount = 0;
+        int seniorEruiAndKeruiCountsCount = 0;
+        int allAddUpCountsCount = 0;
+
         for(String area :areaList){
             int totalCount=0;//各地区总会员数
 
@@ -175,21 +182,25 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                      int registerCount = Integer.parseInt(m.get("registerCount").toString());
                      if("普通会员".equals(level)&&"ERUI".equals(buyerType)){
                          normalEruiCounts.add(registerCount);
+                         normalEruiCountsCount += registerCount;
                          totalCount+=registerCount;
                          normalEruiCode++;
                      }
                      if("普通会员".equals(level)&&"ERUIANDKERUI".equals(buyerType)){
                          normalEruiAndKeruiCounts.add(registerCount);
+                         normalEruiAndKeruiCountsCount+=registerCount;
                          totalCount+=registerCount;
                          normalEruiAndKeruiCode++;
                      }
                      if("高级会员".equals(level)&&"ERUI".equals(buyerType)){
                          seniorEruiCounts.add(registerCount);
+                         seniorEruiCountsCount+=registerCount;
                          totalCount+=registerCount;
                          seniorEruiCode++;
                      }
                      if("高级会员".equals(level)&&"ERUIANDKERUI".equals(buyerType)){
                          seniorEruiAndKeruiCounts.add(registerCount);
+                         seniorEruiAndKeruiCountsCount+=registerCount;
                          totalCount+=registerCount;
                          seniorEruiAndKeruiCode++;
                      }
@@ -210,6 +221,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             }
             //添加总会员数
             buyerCounts.add(totalCount);
+            buyerCountsCount+=totalCount;
 
              //处理累计数据
             int allAddUpCount=0;//各地区历史会员数
@@ -222,7 +234,16 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 }
             }
             allAddUpCounts.add(allAddUpCount);
+            allAddUpCountsCount += allAddUpCount;
         }
+        areaList.add("合计");
+        buyerCounts.add(buyerCountsCount);
+        normalEruiCounts.add(normalEruiCountsCount);
+        normalEruiAndKeruiCounts.add(normalEruiAndKeruiCountsCount);
+        seniorEruiCounts.add(seniorEruiCountsCount);
+        seniorEruiAndKeruiCounts.add(seniorEruiAndKeruiCountsCount);
+        allAddUpCounts.add(allAddUpCountsCount);
+
         //返回结果
         Map<String, Object> result = new HashMap<>();
         result.put("areaList", areaList);
