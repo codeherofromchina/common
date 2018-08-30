@@ -212,6 +212,8 @@ public class AddOrderVo {
     //要驳回的流程进度
     @Transient
     private Integer returnToProcess;
+    @Transient
+    private Integer checkLogId;//要驳回日志Id
 
 
     //附件信息
@@ -221,6 +223,14 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getCheckLogId() {
+        return checkLogId;
+    }
+
+    public void setCheckLogId(Integer checkLogId) {
+        this.checkLogId = checkLogId;
+    }
 
     public void setReturnToUser(Integer returnToUser) {
         this.returnToUser = returnToUser;

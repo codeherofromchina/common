@@ -76,6 +76,8 @@ public class OrderServiceImpl implements OrderService {
     private BackLogService backLogService;
     @Autowired
     private CheckLogService checkLogService;
+    @Autowired
+    private CheckLogDao checkLogDao;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -494,9 +496,10 @@ public class OrderServiceImpl implements OrderService {
         String auditingUserId_i = null; // 订单审核当前人
         CheckLog checkLog_i = null; // 审核日志
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
-            auditingStatus_i = addOrderVo.getReturnToUser(); //要驳回给谁
-            auditingProcess_i = addOrderVo.getReturnToProcess().toString(); //驳回给哪一步骤
-            auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            CheckLog checkLog = checkLogDao.findOne(addOrderVo.getCheckLogId());
+            auditingStatus_i = 3;//驳回状态
+            auditingProcess_i = checkLog.getAuditingProcess().toString(); //驳回给哪一步骤
+            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
         } else {
