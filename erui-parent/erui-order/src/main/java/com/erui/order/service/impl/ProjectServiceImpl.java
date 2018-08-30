@@ -218,7 +218,7 @@ public class ProjectServiceImpl implements ProjectService {
 
                     } else {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
-                        submitProjectProcessCheckAuditParams(project,projectUpdate,order);
+                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
@@ -275,7 +275,7 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
                         // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
-                        submitProjectProcessCheckAuditParams(project,projectUpdate,order);
+                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
 
 
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
@@ -363,7 +363,7 @@ public class ProjectServiceImpl implements ProjectService {
     /**
      * 提交项目过程中检查审核相关参数
      */
-    private void submitProjectProcessCheckAuditParams(Project project,Project projectUpdate,Order order) throws MyException{
+    private void submitProjectProcessCheckAuditParams(Project project, Project projectUpdate, Order order) throws MyException {
         Integer logisticsAudit = project.getLogisticsAudit();
         Integer logisticsAuditerId = project.getLogisticsAuditerId();
         String logisticsAuditer = project.getLogisticsAuditer();
@@ -374,7 +374,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new MyException(String.format("%s%s%s", "参数错误，是否需要物流审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, do we need logistics audit?"));
         }
         logisticsAudit = logisticsAudit == 2 ? 2 : 1;
-        if (logisticsAudit == 2 && (StringUtils.isBlank(logisticsAuditer) || logisticsAuditerId == null) ) {
+        if (logisticsAudit == 2 && (StringUtils.isBlank(logisticsAuditer) || logisticsAuditerId == null)) {
             throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
         }
         if (buAuditerId == null || StringUtils.isBlank(buAuditer)) {
@@ -383,7 +383,7 @@ public class ProjectServiceImpl implements ProjectService {
         Integer orderCategory = order.getOrderCategory();
         if (orderCategory != null && orderCategory == 1) { // 预投
             auditingLevel = 4; // 四级审核
-        } else if (orderCategory != null && orderCategory == 3){ // 试用
+        } else if (orderCategory != null && orderCategory == 3) { // 试用
             auditingLevel = 2; // 二级审核
         } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
             // 既不是预投。又不是试用，则需要检查参数
@@ -562,7 +562,7 @@ public class ProjectServiceImpl implements ProjectService {
                 // 审核人查询,和其他关系是or，所有写在最后
                 if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
                     Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
-                    return cb.or(and,auditingUserIdP);
+                    return cb.or(and, auditingUserIdP);
                 } else {
                     return and;
                 }
@@ -978,7 +978,7 @@ public class ProjectServiceImpl implements ProjectService {
      */
     @Transactional
     @Override
-    public boolean audit(Project project, String auditorId, String auditorName,Project paramProject) {
+    public boolean audit(Project project, String auditorId, String auditorName, Project paramProject) {
         //@param rejectFlag true:驳回项目   false:审核项目
         //@param reason
         boolean rejectFlag = "-1".equals(paramProject.getAuditingType());
@@ -1011,7 +1011,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingProcess_i = "1"; // 事业部利润核算 处理
             auditingUserId_i = String.valueOf(order.getBusinessUnitId());
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(project.getId(),curAuditProcess,Integer.parseInt(auditorId),auditorName,project.getAuditingProcess(),project.getAuditingUserId(),reason,"-1",2);
+            checkLog_i = fullCheckLogInfo(project.getOrder().getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
         } else {
             Integer auditingLevel = project.getAuditingLevel();
             Integer logistics_audit = project.getLogisticsAudit();
@@ -1044,12 +1044,12 @@ public class ProjectServiceImpl implements ProjectService {
                             auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
                         }
                     } else {
-                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("2",""),",");
-                        auditingUserId_i = StringUtils.strip(replace,",");
+                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("2", ""), ",");
+                        auditingUserId_i = StringUtils.strip(replace, ",");
                     }
                     break;
                 case 3:
-                    auditingProcess_i = auditingProcess.replace("3","4");
+                    auditingProcess_i = auditingProcess.replace("3", "4");
                     auditingUserId_i = auditingUserId.replace("31274", "39252"); // 直接进入到下一步结算审核
                     break;
                 case 4:
@@ -1064,8 +1064,8 @@ public class ProjectServiceImpl implements ProjectService {
                             auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
                         }
                     } else {
-                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("4",""),",");
-                        auditingUserId_i = StringUtils.strip(replace2,",");
+                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("4", ""), ",");
+                        auditingUserId_i = StringUtils.strip(replace2, ",");
                     }
                     break;
                 case 5: // 物流审核
@@ -1099,7 +1099,7 @@ public class ProjectServiceImpl implements ProjectService {
                 default:
                     return false;
             }
-            checkLog_i = fullCheckLogInfo(project.getId(),curAuditProcess,Integer.parseInt(auditorId),auditorName,auditingProcess_i,auditingUserId_i,reason,"2",2);
+            checkLog_i = fullCheckLogInfo(project.getOrder().getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
         project.setAuditingProcess(auditingProcess_i);
