@@ -2,6 +2,8 @@ package com.erui.order.service;
 
 import com.erui.order.entity.CheckLog;
 
+import java.util.List;
+
 /**
  * @Author:SHIGS
  * @Description
@@ -23,4 +25,18 @@ public interface CheckLogService {
      * @param checkLog_i
      */
     void insert(CheckLog checkLog_i);
+     /**
+      * @Author:SHIGS
+      * @Description 根据订单查找审批日志
+      * @Date:18:38 2018/8/29
+      * @modified By
+      */
+     List<CheckLog> findListByOrderId(Integer orderId);
+    /**
+     * @Author:SHIGS
+     * @Description 根据订单查找已经通过审核的日志
+     * @Date:18:38 2018/8/29
+     * @modified By
+     */
+    List<CheckLog> findPassed(Integer orderId);
 }

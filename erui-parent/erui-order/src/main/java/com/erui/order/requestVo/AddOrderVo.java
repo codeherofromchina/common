@@ -206,14 +206,13 @@ public class AddOrderVo {
     // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
     @Transient
     private String auditingType;
+    //要驳回给哪个人
+    @Transient
+    private Integer returnToUser;
+    //要驳回的流程进度
+    @Transient
+    private Integer returnToProcess;
 
-    public String getAuditingReason() {
-        return auditingReason;
-    }
-
-    public String getAuditingType() {
-        return auditingType;
-    }
 
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
@@ -222,6 +221,22 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getReturnToProcess() {
+        return returnToProcess;
+    }
+
+    public Integer getReturnToUser() {
+        return returnToUser;
+    }
+
+    public String getAuditingReason() {
+        return auditingReason;
+    }
+
+    public String getAuditingType() {
+        return auditingType;
+    }
 
     public Integer getAuditingStatus() {
         return auditingStatus;

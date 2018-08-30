@@ -194,8 +194,8 @@ public class OrderController {
      * @param addOrderVo orderId 要审核或驳回的项目ID
      * @return
      */
-    @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditProject(HttpServletRequest request, AddOrderVo addOrderVo) throws Exception {
+    @RequestMapping(value = "auditOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> auditOrder(HttpServletRequest request, AddOrderVo addOrderVo) throws Exception {
         Integer orderId = addOrderVo.getId(); // 订单ID
         String reason = addOrderVo.getAuditingReason(); // 驳回原因
         String type = addOrderVo.getAuditingType(); // 驳回or审核
@@ -217,7 +217,6 @@ public class OrderController {
         if (rejectFlag && StringUtils.isBlank(reason)) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
-
         // 判断通过，审核项目并返回是否审核成功
         boolean flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), addOrderVo);
         if (flag) {

@@ -498,7 +498,7 @@ public class OrderServiceImpl implements OrderService {
             auditingProcess_i = addOrderVo.getReturnToProcess().toString(); //驳回给哪一步骤
             auditingUserId_i = String.valueOf(order.getBusinessUnitId());
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
         } else {
             switch (curAuditProcess) {
                 //回款责任人审批

@@ -4,6 +4,7 @@ import com.erui.order.entity.CheckLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author:SHIGS
@@ -12,4 +13,5 @@ import java.io.Serializable;
  * @modified By
  */
 public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> {
+    List<CheckLog> findByOrderId(Integer orderId);
 }
