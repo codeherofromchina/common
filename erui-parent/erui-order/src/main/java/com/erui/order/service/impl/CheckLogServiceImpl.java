@@ -55,15 +55,9 @@ public class CheckLogServiceImpl implements CheckLogService {
     }
 
     @Override
-    public List<CheckLog> findListByOrderId(int type, Integer orderId) {
-        PageRequest request = new PageRequest(0, 100, Sort.Direction.DESC, "createTime");
-        CheckLog example = new CheckLog();
-        example.setType(type);
-        example.setOrderId(orderId);
-        Page<CheckLog> all = checkLogDao.findAll(Example.of(example), request);
-        if (orderId != null && all.getSize() > 0) {
-            List<CheckLog> checkLogList = all.getContent();
-            return checkLogList;
+    public List<CheckLog> findListByOrderId(Integer orderId) {
+        if (orderId != null && checkLogDao.findByOrderId(orderId).size() > 0) {
+            return checkLogDao.findByOrderId(orderId);
         }
         return null;
     }
