@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -28,8 +29,12 @@ public class CheckLogController {
      * @Date:20:09 2018/8/29
      * @modified By
      */
-    @RequestMapping(value = "checkLogAll", method = RequestMethod.GET)
-    public Result<Object> checkLogAll(Integer orderId) {
+    @RequestMapping(value = "checkLogAll", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> checkLogAll(@RequestBody Map<String, Integer> map) {
+        Integer orderId = null;
+        if (map.containsKey("orderId")) {
+            orderId = map.get("orderId");
+        }
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         if (orderId == null || orderId < 0) {
             return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
@@ -47,8 +52,12 @@ public class CheckLogController {
      * @Date:20:09 2018/8/29
      * @modified By
      */
-    @RequestMapping(value = "checkLogPassed", method = RequestMethod.GET)
-    public Result<Object> checkLogPassed(Integer orderId) {
+    @RequestMapping(value = "checkLogPassed", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> checkLogPassed(@RequestBody Map<String, Integer> map) {
+        Integer orderId = null;
+        if (map.containsKey("orderId")) {
+            orderId = map.get("orderId");
+        }
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         if (orderId == null || orderId < 0) {
             return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
