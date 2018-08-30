@@ -199,7 +199,6 @@ public class OrderController {
         Integer orderId = addOrderVo.getId(); // 订单ID
         String reason = addOrderVo.getAuditingReason(); // 驳回原因
         String type = addOrderVo.getAuditingType(); // 驳回or审核
-
         // 判断订单是否存在，
         Order order = orderService.findById(orderId);
         if (order == null) {

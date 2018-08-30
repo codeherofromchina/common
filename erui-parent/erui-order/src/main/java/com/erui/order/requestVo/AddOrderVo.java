@@ -222,6 +222,14 @@ public class AddOrderVo {
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
 
+    public void setReturnToUser(Integer returnToUser) {
+        this.returnToUser = returnToUser;
+    }
+
+    public void setReturnToProcess(Integer returnToProcess) {
+        this.returnToProcess = returnToProcess;
+    }
+
     public Integer getReturnToProcess() {
         return returnToProcess;
     }
