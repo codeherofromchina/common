@@ -1009,7 +1009,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
             auditingStatus_i = 3;
             auditingProcess_i = "1"; // 事业部利润核算 处理
-            auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            //auditingUserId_i = String.valueOf(order.getBusinessUnitId());
+            auditingUserId_i = String.valueOf(project.getBusinessUid());
             // 设置项目为SUBMIT:未执行
             project.setProjectStatus("SUBMIT");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
