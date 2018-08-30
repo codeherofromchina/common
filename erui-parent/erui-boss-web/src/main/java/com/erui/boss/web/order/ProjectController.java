@@ -4,7 +4,6 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
-import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
@@ -114,7 +113,7 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditProject(HttpServletRequest request,@RequestBody Project pProject){
+    public Result<Object> auditProject(HttpServletRequest request, @RequestBody Project pProject) {
         Integer projectId = pProject.getId(); // 项目ID
         String reason = pProject.getAuditingReason(); // 驳回原因
         String type = pProject.getAuditingType(); // 驳回or审核
@@ -128,18 +127,18 @@ public class ProjectController {
         Object userId = request.getSession().getAttribute("userid");
         Object realname = request.getSession().getAttribute("realname");
         String auditingUserIds = project.getAuditingUserId();
-        if (auditingUserIds == null || !equalsAny(String.valueOf(userId),auditingUserIds)) {
+        if (auditingUserIds == null || !equalsAny(String.valueOf(userId), auditingUserIds)) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
 
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
-        if(rejectFlag && StringUtils.isBlank(reason)) {
+        if (rejectFlag && StringUtils.isBlank(reason)) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
 
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = projectService.audit(project,String.valueOf(userId),String.valueOf(realname),pProject);
+        boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);
         if (flag) {
             return new Result<>();
         }
@@ -158,7 +157,7 @@ public class ProjectController {
         String errorMsg = null;
         try {
 
-            if (proStatus == null){
+            if (proStatus == null) {
                 errorMsg = "项目不存在";
                 return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
             }
@@ -168,7 +167,7 @@ public class ProjectController {
             // 判断是否需要审核
             String auditingUserId = proStatus.getAuditingUserId();
             if (auditingUserId != null) {
-                return auditProject(request,project);
+                return auditProject(request, project);
             }
             // 如果不是审核，则继续走审核人流程
 
@@ -237,17 +236,15 @@ public class ProjectController {
     }
 
 
-
-    private boolean equalsAny(String src,String... searchStr){
-        for (String search:searchStr) {
-            if (StringUtils.equals(src,search)) {
+    private boolean equalsAny(String src, String searchStr) {
+        String[] strings = searchStr.split(",");
+        for (String search : strings) {
+            if (StringUtils.equals(src, search)) {
                 return true;
             }
         }
         return false;
     }
-
-
 
 
 }
