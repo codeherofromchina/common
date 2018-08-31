@@ -1030,7 +1030,7 @@ public class ProjectServiceImpl implements ProjectService {
             switch (curAuditProcess) {
                 case 1: // 事业部利润核算
                     // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
-                    CheckLog checkLog = checkLogService.findLastLog(2, project.getId());
+                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
                     if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();

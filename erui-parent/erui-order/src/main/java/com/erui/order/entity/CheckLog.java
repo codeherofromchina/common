@@ -16,6 +16,9 @@ public class CheckLog {
     @Column(name = "order_id")
     private Integer orderId;
 
+    @Transient
+    private String processName;
+
     /**
      * 创建时间
      */
@@ -245,5 +248,55 @@ public class CheckLog {
      */
     public void setType(Integer type) {
         this.type = type;
+    }
+
+
+    public String getProcessName() {
+        AuditProcessingEnum anEnum = AuditProcessingEnum.findEnum(this.getType(), this.getAuditingProcess());
+        if (anEnum == null) {
+            return "--";
+        }
+        return anEnum.getName();
+    }
+
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
+
+
+    public enum AuditProcessingEnum {
+        // 0.订单提交立项 1.回款责任人审核、2.国家负责人审核、3.区域负责人审核、4.区域VP审核、5.融资专员审核
+        //  1.事业部利润核算、2.法务审核、3.财务审核、4.结算审核、5.物流审核、6.事业部审核、7.事业部VP审核、8.总裁审核、9.董事长审核
+        A(1, 0, "订单提交立项"), B(1, 1, "回款责任人审核"), C(1, 2, "国家负责人审核"), D(1, 3, "区域负责人审核"), E(1, 4, "区域VP审核"), F(1, 5, "融资专员审核"), G(2, 1, "事业部利润核算"),
+        H(2, 2, "法务审核"), I(2, 3, "财务审核"), J(2, 4, "结算审核"), K(2, 5, "物流审核"), L(2, 6, "事业部审核"), M(2, 7, "事业部VP审核"), N(2, 8, "总裁审核"), O(2, 9, "董事长审核");
+        int type;
+        int process;
+        String name;
+
+        AuditProcessingEnum(int type, int process, String name) {
+            this.type = type;
+            this.process = process;
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+
+        public static AuditProcessingEnum findEnum(Integer type, Integer process) {
+            if (type == null || process == null) {
+                return null;
+            }
+            int iType = type.intValue();
+            int iProcess = process.intValue();
+            AuditProcessingEnum[] values = AuditProcessingEnum.values();
+            for (AuditProcessingEnum value : values) {
+                if (iType == value.type && iProcess == value.process) {
+                    return value;
+                }
+            }
+            return null;
+        }
     }
 }
