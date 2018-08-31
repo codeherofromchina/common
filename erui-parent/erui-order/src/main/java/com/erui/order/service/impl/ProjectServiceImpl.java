@@ -1048,7 +1048,7 @@ public class ProjectServiceImpl implements ProjectService {
                 case 2: // 法务审核
                     String replace = auditingUserId.replace("30979", "");
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
-                        if (logistics_audit != null && logistics_audit == 1) { // 需要物流审核
+                        if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                             auditingProcess_i = "5"; //
                             auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
                         } else {
@@ -1068,7 +1068,7 @@ public class ProjectServiceImpl implements ProjectService {
                 case 4:
                     String replace2 = auditingUserId.replace("39252", "");
                     if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
-                        if (logistics_audit != null && logistics_audit == 1) { // 需要物流审核
+                        if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                             auditingProcess_i = "5"; //
                             auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
                         } else {
@@ -1091,7 +1091,6 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = "31973"; //黄永霞
                         break;
                     }
-                    break;
                 case 7:
                     if (auditingLevel > 2) {
                         auditingProcess_i = "8"; //
