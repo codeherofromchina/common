@@ -1091,7 +1091,6 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = "31973"; //黄永霞
                         break;
                     }
-                    break;
                 case 7:
                     if (auditingLevel > 2) {
                         auditingProcess_i = "8"; //

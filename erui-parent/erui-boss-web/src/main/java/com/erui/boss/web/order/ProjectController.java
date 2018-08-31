@@ -4,6 +4,7 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
+import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
@@ -172,11 +173,11 @@ public class ProjectController {
             // 如果不是审核，则继续走审核人流程
 
             // 审核流出添加代码 2018-08-27
-//            Order order = proStatus.getOrder();
-//            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
-//                /// 订单的审核状态未通过，则项目办理失败
-//                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
-//            }
+            Order order = proStatus.getOrder();
+            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
+                /// 订单的审核状态未通过，则项目办理失败
+                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
+            }
 
             if (projectService.updateProject(project)) {
                 return new Result<>();
