@@ -18,7 +18,7 @@ public interface PurchRequisitionService {
 
     boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception;
 
-    boolean insertPurchRequisition(PurchRequisition purchRequisition);
+    boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception;
 
     /**
      * 查询采购申请列表
@@ -28,4 +28,12 @@ public interface PurchRequisitionService {
      * @return
      */
     Page<Map<String,Object>> listByPage(Map<String, String> condition);
+     /**
+      * @Author:SHIGS
+      * @Description
+      * @Date:11:37 2018/8/2
+      * @modified By
+      */
+    int checkProjectNo(String projectNo, Integer id);
+
 }

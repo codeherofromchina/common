@@ -6,13 +6,14 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.comm.util.data.string.StringUtils;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.IogisticsDao;
 import com.erui.order.dao.IogisticsDataDao;
 import com.erui.order.entity.*;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.IogisticsDataService;
 import com.erui.order.service.IogisticsService;
+import com.sun.deploy.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ public class IogisticsServiceImpl implements IogisticsService {
 
     @Autowired
     private InstockServiceImpl getInstockServiceImpl;
+
+    @Autowired
+    private BackLogService backLogService;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -198,9 +202,14 @@ public class IogisticsServiceImpl implements IogisticsService {
         Set releaseDateSSet = new HashSet(); //放行日期  数据库存储的拼接字段
         Iogistics iogistics = null; //获取分单信息，获取物流经办人信息
 
+
+
+         Set<String> deliverConsignNoSet = new HashSet<>(); //出口发货通知单号
+
         int i = 0;
         for (String id : ids) {
             Iogistics one = iogisticsDao.findById(new Integer(id));
+            deliverConsignNoSet.add(one.getDeliverConsignNo());
             if (one == null) {
                 throw new Exception(String.format("%s%s%s", "出库详情信息id：" + id + " 不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,
                         "Out of Library details id:" + id + " does not exist"));
@@ -226,7 +235,14 @@ public class IogisticsServiceImpl implements IogisticsService {
 
             one.setOutYn(1);
             one.setIogisticsData(save);
-            iogisticsDao.save(one);
+            Iogistics save1 = iogisticsDao.save(one);
+
+            //出库信息管理添加经办人确定以后删除  确认出库  待办信息
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
+            backLog2.setHostId(save1.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+
         }
 
         String a = arr[0];  //获取随便一个销售合同号
@@ -245,7 +261,7 @@ public class IogisticsServiceImpl implements IogisticsService {
             save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
 
-        iogisticsDataDao.save(save);
+        IogisticsData save1 = iogisticsDataDao.save(save);
         Map<String, Object> map = new HashMap();
         map.put("contractNo",save.getContractNo());  //销售合同号
         map.put("theAwbNo",save.getTheAwbNo()); //运单号
@@ -254,6 +270,15 @@ public class IogisticsServiceImpl implements IogisticsService {
         sendSms(map);
 
 
+        //出库信息管理合并出库以后添加
+        BackLog newBackLog = new BackLog();
+        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICSDATA.getMsg());  //功能名称
+        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICSDATA.getNum());    //功能访问路径标识
+        newBackLog.setReturnNo(save1.getDeliverDetailNo());  //返回单号    产品放行单号
+        newBackLog.setInformTheContent(StringUtils.join(deliverConsignNoSet,",")+" | "+save1.getContractNo());  //提示内容   出口发货通知单号  销售合同号
+        newBackLog.setHostId(save1.getId());    //父ID，列表页id
+        newBackLog.setUid(save1.getLogisticsUserId());   ////经办人id
+        backLogService.addBackLogByDelYn(newBackLog);
 
         return true;
     }

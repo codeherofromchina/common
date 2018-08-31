@@ -8,6 +8,7 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,10 @@ public class PurchServiceImpl implements PurchService {
     private OrderDao orderDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private BackLogService backLogService;
+    @Autowired
+    private BackLogDao backLogDao;
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -68,9 +74,9 @@ public class PurchServiceImpl implements PurchService {
             puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
             puch.getAttachments().size(); // 获取采购的附件信息
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
-            if(purchGoodsList.size() > 0){
-                for (PurchGoods purchGoods : purchGoodsList){
-                    purchGoods.getGoods().setPurchGoods(null );
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
                 }
             }
             List<String> projectNoList = new ArrayList<>();
@@ -298,8 +304,8 @@ public class PurchServiceImpl implements PurchService {
         purch.setAttachments(attachments);
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
-        List<Project> projectSet = new ArrayList<>();
-        List<Goods> updateGoods = new ArrayList<>();
+        Set<Project> projectSet = new HashSet<>();
+        //List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 检查是否传入采购数量或者替换商品
             Integer purchaseNum = purchGoods.getPurchaseNum(); // 获取采购数量
@@ -335,7 +341,9 @@ public class PurchServiceImpl implements PurchService {
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                if (!goods.getOrder().getOrderCategory().equals(6)) {
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                }
             }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
@@ -346,9 +354,40 @@ public class PurchServiceImpl implements PurchService {
             throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
         }
         purch.setPurchGoodsList(purchGoodsList);
-        purch.setProjects(projectSet);
+        List<Project> projectList = new ArrayList<>(projectSet);
+        purch.setProjects(projectList);
         // 保存采购单
-        purchDao.save(purch);
+        if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
+            purch.setStatus(3);
+        }
+        Purch save = purchDao.save(purch);
+
+        if(save.getStatus() == 2){
+            List<Project> projects = save.getProjects();
+            Set<String>  projectNoSet = new HashSet<>();
+            if(projects.size() > 0){
+                for (Project project : projects){
+                    String projectNo = project.getProjectNo();
+                    if(projectNo != null){
+                        projectNoSet.add(projectNo);
+                    }
+                }
+
+                //采购新增提交以后  通知采购经办人办理报检单
+                BackLog newBackLog = new BackLog();
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(purch.getPurchNo());  //返回单号    返回空，两个标签
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
+                Integer purchaseUid = save.getAgentId();//采购经办人id
+                newBackLog.setUid(purchaseUid);   ////经办人id
+                backLogService.addBackLogByDelYn(newBackLog);
+
+            }
+
+        }
+
         // 检查项目是否已经采购完成
         List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIds);
@@ -424,7 +463,7 @@ public class PurchServiceImpl implements PurchService {
 
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
-        List<Project> projectSet = new ArrayList<>(); // 声明项目的容器
+        Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
         // 数据库现在的采购商品信息
         Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         Set<Integer> existId = new HashSet<>();
@@ -466,7 +505,9 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                    if (!goods.getOrder().getOrderCategory().equals(6)) {
+                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                    }
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
@@ -529,7 +570,6 @@ public class PurchServiceImpl implements PurchService {
                 }
                 // 正常添加
                 projectSet.add(project);
-
                 int oldPurchaseNum = purchGoods.getPurchaseNum();
                 purchGoods.setPurchaseNum(pg.getPurchaseNum() == null && pg.getPurchaseNum() < 0 ? 0 : pg.getPurchaseNum()); // 采购商品数量
                 purchGoods.setPurchasePrice(pg.getPurchasePrice()); // 采购单价
@@ -567,7 +607,9 @@ public class PurchServiceImpl implements PurchService {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                    if (!goods.getOrder().getOrderCategory().equals(6)) {
+                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                    }
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
@@ -592,7 +634,8 @@ public class PurchServiceImpl implements PurchService {
 
         }
         dbPurch.setPurchGoodsList(purchGoodsList);
-        dbPurch.setProjects(projectSet);
+        List<Project> projectList = new ArrayList<>(projectSet);
+        dbPurch.setProjects(projectList);
 
         // 删除不关联的商品信息
         if (dbPurchGoodsMap.size() > 0) {
@@ -621,7 +664,37 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         // 更新采购单
-        purchDao.save(dbPurch);
+        if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
+            dbPurch.setStatus(3);
+        }
+        Purch save = purchDao.save(dbPurch);
+        if(save.getStatus() == 2){
+            List<Project> projects = save.getProjects();
+            Set<String>  projectNoSet = new HashSet<>();
+            if(projects.size() > 0){
+                for (Project project : projects){
+                    String projectNo = project.getProjectNo();
+                    if(projectNo != null){
+                        projectNoSet.add(projectNo);
+                    }
+                }
+
+                //采购新增提交以后  通知采购经办人办理报检单
+                BackLog newBackLog = new BackLog();
+                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
+                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                newBackLog.setReturnNo(dbPurch.getPurchNo());  //返回单号    返回空，两个标签
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setHostId(save.getId());    //父ID，列表页id
+                Integer purchaseUid = save.getAgentId();//采购经办人id
+                newBackLog.setUid(purchaseUid);   ////经办人id
+                backLogService.addBackLogByDelYn(newBackLog);
+
+            }
+
+        }
+
+
         // 检查项目是否已经采购完成
         List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIdList);
@@ -644,7 +717,8 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于合同数量，则错误
         if (goods.getPrePurchsedNum() + purchaseNum > goods.getContractGoodsNum()) {
-            throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
+            throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sk" +
+                    "u :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
 
         }
         if (purchaseNum > 0 &&
@@ -772,14 +846,14 @@ public class PurchServiceImpl implements PurchService {
      *
      * @param projectIds 项目ID列表
      */
-    private void checkProjectPurchDone(List<Integer> projectIds) {
+    private void checkProjectPurchDone(List<Integer> projectIds) throws Exception {
         List<Integer> updateIds = new ArrayList<>();
+        List<Integer> proIds = new ArrayList<>();
+        List<Integer> orderIds = new ArrayList<>();
         if (projectIds.size() > 0) {
             List<Project> projectList = projectDao.findByIdIn(projectIds);
-
             for (Project project : projectList) {
                 List<Goods> goodsList = project.getOrder().getGoodsList();
-
                 boolean purchDone = true;
                 for (Goods goods : goodsList) {
                     if (!goods.getExchanged() && goods.getPurchasedNum() < goods.getContractGoodsNum()) {
@@ -789,10 +863,27 @@ public class PurchServiceImpl implements PurchService {
                 }
                 if (purchDone) {
                     updateIds.add(project.getId());
+                    if (project.getOrderCategory().equals(6)) {
+                        proIds.add(project.getId());
+                        orderIds.add(project.getOrder().getId());
+                    }
+
+                    //采购数量是已完毕 ，删除   “办理采购订单”  待办提示
+                    BackLog backLog = new BackLog();
+                    backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+                    backLog.setHostId(project.getId());
+                    backLogService.updateBackLogByDelYn(backLog);
+
                 }
             }
             if (updateIds.size() > 0) {
+                //项目采购完成
                 projectDao.updateProjectPurchDone(updateIds);
+                //当订单类型为国内订单时项目完结 订单状态修改为已完成 项目状态为已完成 流程进度修改为已发运
+                if (proIds.size() > 0) {
+                    projectDao.updateProjectStatus(proIds);
+                    orderDao.updateOrderStatus(orderIds);
+                }
             }
         }
     }

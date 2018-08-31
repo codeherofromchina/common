@@ -1008,11 +1008,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 Join<Project, Order> orderRoot = root.join("order");
                 String countriesStr = condition.get("countries");
-                if (StringUtils.isNotBlank(countriesStr)) {
+               /* if (StringUtils.isNotBlank(countriesStr)) {
                     String[] countriesArr = countriesStr.split(",");
                     list.add(orderRoot.get("country").in(countriesArr));
+                }*/
+                //  crmCode名称
+                String crmCode = condition.get("crmCode");
+                if (StringUtil.isNotBlank(crmCode)) {
+                    list.add(cb.like(orderRoot.get("crmCode").as(String.class), "%" + crmCode + "%"));
                 }
-
                 // 销售合同号
                 String contractNo = condition.get("contractNo");
                 if (StringUtil.isNotBlank(contractNo)) {
@@ -2487,55 +2491,60 @@ public class StatisticsServiceImpl implements StatisticsService {
         Integer purchReqCreate = project.getPurchReqCreate();   // 1：未创建  2：已创建 3:已创建并提交',
         Boolean purchDone = project.getPurchDone();     //是否采购完成，1：完成  0：未完成
         List<Purch> purchs = project.getPurchs();   //获取采购列表
-        if(purchReqCreate == 3){
-            if(purchs.size() == 0 || purchs == null){
-                return 1;
-            }else {
-                if(!purchDone){  //true 已完成  false 未完成
-                    List<Integer> purchStatusList = new ArrayList();
-                    for (Purch purch : purchs) {
-                        purchStatusList.add(purch.getStatus());
-                    }
-
-                    List<Integer> purchStatusListFlag = new ArrayList();
-                    purchStatusListFlag.add(2);
-                    purchStatusListFlag.add(3);
-
-                    if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
-                        return 2;
-                    }else {
-                        return 1;
-                    }
+        if(purchReqCreate != null){
+            if(purchReqCreate == 3){
+                if(purchs.size() == 0 || purchs == null){
+                    return 1;
                 }else {
-                    List<Integer> purchStatusList = new ArrayList();
-                    for (Purch purch : purchs) {
-                        purchStatusList.add(purch.getStatus());
-                    }
-
-                    List<Integer> purchStatusListFlag = new ArrayList();
-                    purchStatusListFlag.add(2);
-                    purchStatusListFlag.add(3);
-
-                    if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
-                        if(!purchStatusList.contains(2)){   //判断是否全部是 已完成   ,判断是否有执行中
-                            if(purchStatusList.contains(1)){    //判断是否还存在未执行的       如果有已完成，有未执行  返回执行中
-                                return 2;
-                            }else {
-                               return 3;
-                            }
-                        }else {
-                            return 2;
+                    if(!purchDone){  //true 已完成  false 未完成
+                        List<Integer> purchStatusList = new ArrayList();
+                        for (Purch purch : purchs) {
+                            purchStatusList.add(purch.getStatus());
                         }
 
-                    }else {
-                        return 1;
-                    }
-                }
+                        List<Integer> purchStatusListFlag = new ArrayList();
+                        purchStatusListFlag.add(2);
+                        purchStatusListFlag.add(3);
 
+                        if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
+                            return 2;
+                        }else {
+                            return 1;
+                        }
+                    }else {
+                        List<Integer> purchStatusList = new ArrayList();
+                        for (Purch purch : purchs) {
+                            purchStatusList.add(purch.getStatus());
+                        }
+
+                        List<Integer> purchStatusListFlag = new ArrayList();
+                        purchStatusListFlag.add(2);
+                        purchStatusListFlag.add(3);
+
+                        if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
+                            if(!purchStatusList.contains(2)){   //判断是否全部是 已完成   ,判断是否有执行中
+                                if(purchStatusList.contains(1)){    //判断是否还存在未执行的       如果有已完成，有未执行  返回执行中
+                                    return 2;
+                                }else {
+                                    return 3;
+                                }
+                            }else {
+                                return 2;
+                            }
+
+                        }else {
+                            return 1;
+                        }
+                    }
+
+                }
+            }else {
+                return 1;
             }
         }else {
             return 1;
         }
+
 
     }
 

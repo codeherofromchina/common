@@ -35,6 +35,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,9 +61,17 @@ public class OrderServiceImpl implements OrderService {
     private ProjectDao projectDao;
     @Autowired
     private CompanyService companyService;
+    @Autowired
+    private StatisticsService statisticsService;
 
     @Autowired
     private IogisticsDataService iogisticsDataService;
+
+    @Autowired
+    private DeliverConsignService deliverConsignService;
+
+    @Autowired
+    private BackLogService  backLogService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -117,6 +126,35 @@ public class OrderServiceImpl implements OrderService {
             String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
             order.setDistributionDeptName(distributionDeptName);
         }
+
+        // and  处理授信数据信息
+       /* BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+        BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
+
+        //收款总金额  -  发货总金额
+        BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+        if(subtract.compareTo(BigDecimal.valueOf(0)) != -1 ){    //-1 小于     0 等于      1 大于
+            order.setAdvanceMoney(subtract);     //预收金额
+        }else {
+            order.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
+        }*/
+
+        try {
+            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
+            if (deliverConsign1 != null) {
+                order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
+                order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
+            } else {
+                order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
+                order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
+            }
+        } catch (Exception e) {
+            logger.info("CRM返回信息：" + e);
+            order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
+            order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
+        }
+        //end
+
         return order;
     }
 
@@ -392,6 +430,30 @@ public class OrderServiceImpl implements OrderService {
         orderDao.save(collect);
     }
 
+    //确认检测销售合同号
+    @Override
+    public Integer checkContractNo(String contractNo, Integer id) {
+        Order order = null;
+        int flag = 1;
+        if (id != null && id != 0) {
+            order = orderDao.findOne(id);
+        }
+        if (order != null && order.getContractNo().equals(contractNo)) {
+            if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) <= 1) {
+                flag = 0;
+            } else {
+                flag = 1;
+            }
+        } else {
+            if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) > 0) {
+                flag = 1;
+            } else {
+                flag = 0;
+            }
+        }
+        return flag;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
@@ -443,6 +505,7 @@ public class OrderServiceImpl implements OrderService {
             }
             goods.setSku(sku);
             goods.setMeteType(pGoods.getMeteType());
+            goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
             goods.setContractGoodsNum(pGoods.getContractGoodsNum());
@@ -501,7 +564,6 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
-            projectAdd.setProcessProgress("1");
             //商务技术经办人名称
             Project project2 = projectDao.save(projectAdd);
             // 设置商品的项目信息
@@ -526,54 +588,80 @@ public class OrderServiceImpl implements OrderService {
 
             //销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
+
+
+            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+
+            //订单提交 推送“待办”到项目
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+            String contractNo = orderUpdate.getContractNo();  //销售合同号
+            newBackLog.setReturnNo(contractNo);  //返回单号
+            String region = orderUpdate.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+            String country = orderUpdate.getCountry();//国家
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
+            Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
+            newBackLog.setUid(technicalId);   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
         }
         return order.getId();
     }
 
-  /*  // 检查和贸易术语相关字段的完整性
-    private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
-        String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
-        String toCountry = addOrderVo.getToCountry(); // 目的国
-        String transportType = addOrderVo.getTransportType(); // 运输方式
-        String toPort = addOrderVo.getToPort(); // 目的港
-        String toPlace = addOrderVo.getToPlace(); // 目的地
-        if (StringUtils.isBlank(tradeTerms)) {
-            throw new MyException("贸易术语不能为空");
-        }
-        if (StringUtils.isBlank(toCountry)) {
-            throw new MyException("目的国不能为空");
-        }
-        switch (tradeTerms) {
-            case "EXW":
-            case "FCA":
-                if (StringUtils.isBlank(transportType)) {
-                    throw new MyException("运输方式不能为空");
-                }
-                break;
-            case "CNF":
-            case "CFR":
-            case "CIF":
-                if (StringUtils.isBlank(toPort)) {
-                    throw new MyException("目的港不能为空");
-                }
-                break;
-            case "CPT":
-            case "CIP":
-                if (StringUtils.isBlank(toPort)) {
-                    throw new MyException("目的港不能为空");
-                }
-                if (StringUtils.isBlank(toPlace)) {
-                    throw new MyException("目的地不能为空");
-                }
-                break;
-            case "DAT":
-            case "DAP":
-            case "DDP":
-                if (StringUtils.isBlank(toPlace)) {
-                    throw new MyException("目的地不能为空");
-                }
-                break;
-            *//*
+    /*  // 检查和贸易术语相关字段的完整性
+      private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
+          String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
+          String toCountry = addOrderVo.getToCountry(); // 目的国
+          String transportType = addOrderVo.getTransportType(); // 运输方式
+          String toPort = addOrderVo.getToPort(); // 目的港
+          String toPlace = addOrderVo.getToPlace(); // 目的地
+          if (StringUtils.isBlank(tradeTerms)) {
+              throw new MyException("贸易术语不能为空");
+          }
+          if (StringUtils.isBlank(toCountry)) {
+              throw new MyException("目的国不能为空");
+          }
+          switch (tradeTerms) {
+              case "EXW":
+              case "FCA":
+                  if (StringUtils.isBlank(transportType)) {
+                      throw new MyException("运输方式不能为空");
+                  }
+                  break;
+              case "CNF":
+              case "CFR":
+              case "CIF":
+                  if (StringUtils.isBlank(toPort)) {
+                      throw new MyException("目的港不能为空");
+                  }
+                  break;
+              case "CPT":
+              case "CIP":
+                  if (StringUtils.isBlank(toPort)) {
+                      throw new MyException("目的港不能为空");
+                  }
+                  if (StringUtils.isBlank(toPlace)) {
+                      throw new MyException("目的地不能为空");
+                  }
+                  break;
+              case "DAT":
+              case "DAP":
+              case "DDP":
+                  if (StringUtils.isBlank(toPlace)) {
+                      throw new MyException("目的地不能为空");
+                  }
+                  break;
+              *//*
                 case "FOB":
                 case "FAS":
                     break;
@@ -582,7 +670,6 @@ public class OrderServiceImpl implements OrderService {
             *//*
         }
     }*/
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
@@ -619,6 +706,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
+            goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
             goods.setNameZh(pGoods.getNameZh());
             goods.setContractGoodsNum(pGoods.getContractGoodsNum());
@@ -703,6 +791,33 @@ public class OrderServiceImpl implements OrderService {
             }
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
+
+
+            //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+
+
+            //订单提交 推送“待办”到项目
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+            String contractNo = order1.getContractNo();  //销售合同号
+            newBackLog.setReturnNo(contractNo);  //返回单号
+            String region = order1.getRegion();//地区
+            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+            String country = order1.getCountry();//国家
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+            newBackLog.setHostId(order.getId());    //父ID，列表页id    项目id
+            Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
+            newBackLog.setUid(technicalId);   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
         }
         return order1.getId();
     }

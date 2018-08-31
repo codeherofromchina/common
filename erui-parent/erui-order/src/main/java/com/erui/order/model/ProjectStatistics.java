@@ -561,6 +561,8 @@ public class ProjectStatistics {
                     return "现货（出库）";
                 case 5:
                     return "订单";
+                case 6:
+                    return "国内订单";
             }
         }
         return null;

@@ -79,7 +79,7 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrder(@RequestBody @Valid AddOrderVo addOrderVo, HttpServletRequest request) throws Exception{
+    public Result<Object> addOrder(@RequestBody @Valid AddOrderVo addOrderVo, HttpServletRequest request) throws Exception {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         logger.info("OrderController.addOrder()");
         boolean continueFlag = false;
@@ -91,10 +91,10 @@ public class OrderController {
             if (StringUtils.isBlank(addOrderVo.getContractNo()) && addOrderVo.getOrderCategory() != 3 && addOrderVo.getOverseasSales() != 3) {
                 result.setMsg("销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && addOrderVo.getOverseasSales() != 4 && addOrderVo.getOverseasSales() != 5) {
+            } else if (StringUtils.isBlank(addOrderVo.getContractNoOs()) && !addOrderVo.getOverseasSales().equals(4) && !addOrderVo.getOverseasSales().equals(5) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("海外销售合同号不能为空");
                 result.setEnMsg("The order No. must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo())) {
+            } else if (StringUtils.isBlank(addOrderVo.getLogiQuoteNo()) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("物流报价单号不能为空");
                 result.setEnMsg("Logistics quotation No. must be filled in");
             } else if (addOrderVo.getOrderType() == null) {
@@ -130,7 +130,7 @@ public class OrderController {
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(3)) {
                 result.setMsg("回款责任人不能为空");
                 result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {
@@ -170,17 +170,17 @@ public class OrderController {
         if (!continueFlag) {
             return result;
         }
-            Integer id;
-            String eruiToken = CookiesUtil.getEruiToken(request);
-            ThreadLocalUtil.setObject(eruiToken);
-            if (addOrderVo.getId() != null) {
-                id = orderService.updateOrder(addOrderVo);
-            } else {
-                id = orderService.addOrder(addOrderVo);
-            }
-            if (id != null) {
-                return new Result<>(id);
-            }
+        Integer id;
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        if (addOrderVo.getId() != null) {
+            id = orderService.updateOrder(addOrderVo);
+        } else {
+            id = orderService.addOrder(addOrderVo);
+        }
+        if (id != null) {
+            return new Result<>(id);
+        }
 
         return result;
 
@@ -193,6 +193,10 @@ public class OrderController {
      */
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Order> queryOrderDesc(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
+
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         Order order = orderService.findByIdLang(map.get("id"), CookiesUtil.getLang(request));
         if (order != null) {
             order.setOrderAccountDelivers(null);
@@ -241,6 +245,22 @@ public class OrderController {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
             return result;
+        }
+        return result;
+    }
+
+    //检测销售合同号
+    @RequestMapping(value = "checkContract", method = RequestMethod.GET)
+    public Result<Object> checkContract(String contractNo, Integer id) {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        Integer i = orderService.checkContractNo(contractNo, id);
+        if (i.equals(0)) {
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setEnMsg(ResultStatusEnum.SUCCESS.getEnMsg());
+            result.setData(i);
+        } else {
+            result.setData(i);
         }
         return result;
     }

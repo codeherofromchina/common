@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,4 +23,7 @@ public interface OrderDao extends JpaRepository<Order, Serializable>, JpaSpecifi
     Long countByContractNo(@Param("contractNo")String contractNo);
 
     List<Order> findByDeleteFlag(boolean b);
+    @Modifying
+    @Query("update Order o set o.status = 4 ,o.processProgress = 9 where o.id in :ids")
+    void updateOrderStatus(@Param(value = "ids") List<Integer> ids);
 }

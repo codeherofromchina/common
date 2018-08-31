@@ -10,6 +10,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.service.BackLogService;
 import com.erui.order.service.PurchRequisitionService;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +47,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private GoodsDao goodsDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private BackLogService backLogService;
+    @Autowired
+    private BackLogDao backLogDao;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -61,8 +67,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         if (purchRequisition != null) {
             purchRequisition.setProId(purchRequisition.getProject().getId());
             List<Goods> goodsList = purchRequisition.getGoodsList();
-            if(goodsList.size() > 0){
-                for (Goods goods : goodsList){
+            if (goodsList.size() > 0) {
+                for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
             }
@@ -72,9 +78,32 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return null;
     }
 
+    @Override
+    public int checkProjectNo(String projectNo, Integer id) {
+        PurchRequisition prt = null;
+        int flag = 1;
+        if (id != null && id != 0) {
+            prt = purchRequisitionDao.findOne(id);
+        }
+        if (prt != null && prt.getProjectNo().equals(projectNo)) {
+            if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) <= 1) {
+                flag = 0;
+            } else {
+                flag = 1;
+            }
+        } else {
+            if (!StringUtils.isBlank(projectNo) && purchRequisitionDao.countByProjectNo(projectNo) > 0) {
+                flag = 1;
+            } else {
+                flag = 0;
+            }
+        }
+        return flag;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception{
+    public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
         Project project = projectDao.findOne(purchRequisition.getProId());
         PurchRequisition prt = purchRequisitionDao.findOne(purchRequisition.getId());
         if (!purchRequisition.getProjectNo().equals(prt.getProjectNo())) {
@@ -88,6 +117,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         }
         if (project != null) {
             project.getOrder().getGoodsList().size();
+
         }
         PurchRequisition purchRequisitionUpdate = purchRequisitionDao.findOne(purchRequisition.getId());
         purchRequisitionUpdate.setProject(project);
@@ -105,8 +135,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
             goods.setProType(dcGoods.getProType());
-            goods.setMeteName(dcGoods.getMeteName());
-            goods.setMeteType(dcGoods.getMeteType());
+            //goods.setMeteName(dcGoods.getMeteName());
+            //goods.setMeteType(dcGoods.getMeteType());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
@@ -128,7 +158,29 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             order.setProjectNo(purchRequisition1.getProjectNo());
             order.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             orderDao.save(order);
-            projectDao.save(project1);
+            Project save = projectDao.save(project1);
+
+            //采购申请单发送以后 ，删除   “办理采购申请”  待办提示（采购申请只发送一次）
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+
+            //项目中采购申请提交以后  通知采购经办人办理采购订单
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+            String contractNo = save.getContractNo();   //销售合同号
+            String projectNo = save.getProjectNo();//项目号
+            newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+            newBackLog.setHostId(save.getId());    //父ID，列表页id   项目id
+            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+            newBackLog.setUid(purchaseUid);   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
+
             try {
                 //TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
@@ -142,11 +194,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean insertPurchRequisition(PurchRequisition purchRequisition)  {
+    public boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception {
         Project project = projectDao.findOne(purchRequisition.getProId());
-            if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
-                throw new MyException("项目号已存在&&The project No. already exists");
-            }
+        if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
+            throw new MyException("项目号已存在&&The project No. already exists");
+        }
         if (project != null) {
             project.getOrder().getGoodsList().size();
         }
@@ -177,8 +229,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Integer gid = dcGoods.getId();
             Goods goods = goodsMap.get(gid);
             goods.setProType(dcGoods.getProType());
-            goods.setMeteType(dcGoods.getMeteType());
-            goods.setMeteName(dcGoods.getMeteName());
+            //goods.setMeteType(dcGoods.getMeteType());
+            //goods.setMeteName(dcGoods.getMeteName());
             goods.setCheckMethod(dcGoods.getCheckMethod());
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
@@ -201,7 +253,27 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             order.setProjectNo(purchRequisition1.getProjectNo());
             order.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
             orderDao.save(order);
-            projectDao.save(project1);
+            Project save = projectDao.save(project1);
+
+            //采购申请单发送以后 ，删除   “办理采购申请”  待办提示   （采购申请只发送一次）
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+            //项目中采购申请提交以后  通知采购经办人办理采购申请        (采购申请只发送一次，全部采购完成删除)
+            BackLog newBackLog = new BackLog();
+            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+            String contractNo = save.getContractNo();   //销售合同号
+            String projectNo = save.getProjectNo();//项目号
+            newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+            newBackLog.setHostId(save.getId());    //父ID，列表页id
+            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+            newBackLog.setUid(purchaseUid);   ////经办人id
+            backLogService.addBackLogByDelYn(newBackLog);
+
             try {
                 // TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
@@ -362,4 +434,5 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         Page<Map<String, Object>> result = new PageImpl<Map<String, Object>>(dataList, pageRequest, pageList.getTotalElements());
         return result;
     }
+
 }
