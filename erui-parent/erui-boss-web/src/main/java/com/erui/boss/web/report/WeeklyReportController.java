@@ -70,7 +70,10 @@ public class WeeklyReportController {
         //查询各地区的时间段内新用户注册数，中国算一个地区
         Map<String, Object> registerData = weeklyReportService.selectBuyerRegistCountGroupByArea(params);
         //查询各地区的时间段内会员数 中国算一个地区
-        Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
+        // Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
+
+        //查询各地区的时间段内普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数，中国算一个地区
+        Map<String, Object> buyerData = weeklyReportService.selectBuyerCountDetail(params);
         // 查询各地区时间段内询单数
         Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByArea(params);
         // 查询各个地区时间段内的报价数量和金额信息
@@ -81,7 +84,7 @@ public class WeeklyReportController {
 
         Map<String, Map> data = new HashMap<>();
         data.put("registerInfo", registerData); // 新用户注册数据信息
-        data.put("memberNumInfo", buyerData); // 会员数数据信息
+        data.put("memberNumInfo", buyerData); // //普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数
         data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
         data.put("quoteInfo", quoteInfoData); // 报价数量/金额数据信息
         data.put("orderInfo", orderInfoData); // 订单数量/金额数据信息
@@ -188,7 +191,7 @@ public class WeeklyReportController {
      * @return
      */
     @RequestMapping(value = "/exportOrgDetail")
-    public Object exportOrgDetail(HttpServletResponse response, String startTime, String endTime) {
+    public Object exportOrgDetail(HttpServletRequest request,HttpServletResponse response, String startTime, String endTime) throws IOException {
         Map<String, Object> params = new HashMap();
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -205,8 +208,21 @@ public class WeeklyReportController {
             Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
             params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Cookie[] cookies = request.getCookies();
+        params.put("pageSize","10");
+        params.put("currentPage","1");
+        params.put("lang","zh");
+        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params,cookies);
+        if(spuSkuNumInfoData == null){
+            Integer[] zeroArr = new Integer[]{0,0,0,0,0,0,0,0};
+            spuSkuNumInfoData = new HashMap<>();
+            spuSkuNumInfoData.put("currentWeekSpuCounts", zeroArr);
+            spuSkuNumInfoData.put("currentWeekSkuCounts", zeroArr);
+            spuSkuNumInfoData.put("historySpuCounts", zeroArr);
+            spuSkuNumInfoData.put("historySkuCounts", zeroArr);
+        }
 
-        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params);
+        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params,spuSkuNumInfoData);
         //excel文件名
         String fileName = "事业部周报明细" + System.currentTimeMillis() + ".xls";
         try {

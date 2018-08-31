@@ -578,6 +578,17 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         }
 
 
+        if(status == 2 || status == 1){
+
+            //出库提交的时候不管有没有经办人都去判断删除一下   删除分单员的信息推送  办理分单
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
+            backLog2.setHostId(one.getId());
+            backLog2.setFollowId(1);  // 1：为办理和分单    4：为确认出库
+            backLogService.updateBackLogByDelYn(backLog2);
+
+        }
+
 
         //出库通知：通知质检经办人办理质检
         if(status == 2) {
@@ -604,14 +615,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             backLog.setHostId(one.getId());
             backLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
             backLogService.updateBackLogByDelYn(backLog);
-
-
-            //出库提交的时候不管有没有经办人都去判断删除一下   删除分单员的信息推送  办理分单
-            BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
-            backLog2.setHostId(one.getId());
-            backLog2.setFollowId(1);  // 1：为办理和分单    4：为确认出库
-            backLogService.updateBackLogByDelYn(backLog2);
 
 
             //如果不外检  是厂家直发的话，直接修改状态
@@ -1085,16 +1088,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         backLogService.updateBackLogByDelYn(backLog2);
 
         //指派分单人以后  添加分单人的待办信息  办理办理出库
-        Order order = save.getDeliverConsign().getOrder();
+        DeliverConsign deliverConsign = save.getDeliverConsign();
+        Order order = deliverConsign.getOrder();
         BackLog newBackLog = new BackLog();
         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getMsg());  //功能名称
         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
-        newBackLog.setReturnNo(order.getContractNo());  //返回单号
-        String region = order.getRegion();   //所属地区
-        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-        String country = order.getCountry();  //国家
-        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+        newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号   出口通知单号
+        newBackLog.setInformTheContent(order.getContractNo()+ " | "+order.getProjectNo());  //提示内容
         newBackLog.setHostId(one.getId());    //父ID，列表页id
         newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
         newBackLog.setUid(save.getWareHouseman());   ////经办人id
