@@ -394,6 +394,12 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setLogisticsAuditerId(logisticsAuditerId);
         projectUpdate.setBuAuditer(buAuditer);
         projectUpdate.setBuAuditerId(buAuditerId);
+        projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+        projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
+        projectUpdate.setCeo(project.getCeo());
+        projectUpdate.setCeoId(project.getCeoId());
+        projectUpdate.setChairman(project.getChairman());
+        projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
         projectUpdate.setAuditingUserId("30979,31274");
@@ -502,6 +508,8 @@ public class ProjectServiceImpl implements ProjectService {
                 Predicate businessUid = null;
                 if (condition.getBusinessUid() != null) {
                     businessUid = cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid());
+                } else {
+                    businessUid = cb.isNull(root.get("businessUid").as(Integer.class));
                 }
                 //项目经理
                 Predicate or = null;
