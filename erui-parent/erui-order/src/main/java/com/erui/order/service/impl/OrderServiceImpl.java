@@ -271,6 +271,10 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getCreateUserId() != null) {
                         createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
                     }
+                    Predicate auditingUserId = null;
+                    if (condition.getAuditingUserId() != null) {
+                        auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                    }
                     Predicate perLiableRepayId = null;
                     if (condition.getPerLiableRepayId() != null) {
                         perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
@@ -289,20 +293,32 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        if (perLiableRepayId != null) {
+                        if (perLiableRepayId != null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
+                        } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(and, createUserId, perLiableRepayId));
+                        } else if (perLiableRepayId == null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(and, createUserId));
                         }
                     } else if (businessUnitId != null && technicalId == null) {
-                        if (perLiableRepayId != null) {
-                            list.add(cb.or(businessUnitId, createUserId, perLiableRepayId));
+                        if (perLiableRepayId != null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
+                        } else if (perLiableRepayId != null && auditingUserId == null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                        } else if (perLiableRepayId == null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(businessUnitId, createUserId));
                         }
                     } else if (technicalId != null && businessUnitId == null) {
-                        if (perLiableRepayId != null) {
-                            list.add(cb.or(technicalId, createUserId, perLiableRepayId));
+                        if (perLiableRepayId != null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
+                        } else if (perLiableRepayId != null && auditingUserId == null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                        } else if (perLiableRepayId == null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(technicalId, createUserId));
                         }
@@ -310,7 +326,9 @@ public class OrderServiceImpl implements OrderService {
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null || condition.getCreateUserId() != null && condition.getPerLiableRepayId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId())));
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                condition.getCreateUserId()), cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId()),
+                                cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId())));
                     }
                 } else {
                     //根据市场经办人查询
