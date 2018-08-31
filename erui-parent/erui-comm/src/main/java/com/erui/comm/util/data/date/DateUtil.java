@@ -154,23 +154,25 @@ public class DateUtil {
 
     /**
      * 获取时间前多少毫秒的时间
+     *
      * @param startDate ：当前日期
-     *  @param   msec：毫秒数
+     * @param msec：毫秒数
      * @return
      * @throws
      * @author lirb
      * @date 2018年01月02日下午3:59:47
      */
     public static Date getBeforTime(Date startDate, long msec) {
-      if(startDate!=null){
-          long time = startDate.getTime();
-          long beforeTime=time-msec;
-          Calendar calendar = Calendar.getInstance();
-          calendar.setTimeInMillis(beforeTime);
-          return calendar.getTime();
-      }
+        if (startDate != null) {
+            long time = startDate.getTime();
+            long beforeTime = time - msec;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(beforeTime);
+            return calendar.getTime();
+        }
         return null;
     }
+
     /**
      * 获取操作后的日期, 对小时、分、秒操作
      *
@@ -214,11 +216,13 @@ public class DateUtil {
         date = getOperationTime(calendar.getTime(), 23, 59, 59);
         return date;
     }
+
     /**
      * 获取当前日期是星期几<br>
-     *@Author:lirb
+     *
      * @param dt
      * @return 当前日期是星期几
+     * @Author:lirb
      */
     public static String getWeekOfDate(Date dt) {
         Calendar cal = Calendar.getInstance();
@@ -228,12 +232,13 @@ public class DateUtil {
             w = 0;
         return weekDays[w];
     }
-     /**
-      * @Author:SHIGS
-      * @Description
-      * @Date:16:25 2017/11/15
-      * @modified By
-      */
+
+    /**
+     * @Author:SHIGS
+     * @Description
+     * @Date:16:25 2017/11/15
+     * @modified By
+     */
     public static Date getBeforeWeek(Date date, int week) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -246,6 +251,7 @@ public class DateUtil {
         date = getOperationTime(calendar.getTime(), 0, 0, 0);
         return date;
     }
+
     /**
      * @Author:lirb
      * @Description 获取本周六时间
@@ -263,8 +269,9 @@ public class DateUtil {
         }
         cal.set(Calendar.DAY_OF_MONTH, date + week - n);
         Date time = cal.getTime();
-        return  parseString2DateNoException(getStartTime(time,FULL_FORMAT_STR),FULL_FORMAT_STR);
+        return parseString2DateNoException(getStartTime(time, FULL_FORMAT_STR), FULL_FORMAT_STR);
     }
+
     /**
      * 得到本月的第一天
      *
@@ -370,20 +377,20 @@ public class DateUtil {
      * @modified By
      */
     public static int getDayBetween(Date d1, Date d2) {
-        return (int)NewDateUtil.getDuration(d1,d2, TimeUnit.DAYS) + 1;
+        return (int) NewDateUtil.getDuration(d1, d2, TimeUnit.DAYS) + 1;
 
         /**
-        Calendar calendar1 = Calendar.getInstance();
-        Calendar calendar2 = Calendar.getInstance();
-        calendar1.setTime(d1);
-        calendar2.setTime(d2);
-        int days = 0;
-        while (calendar1.before(calendar2)) {
-            days++;
-            calendar1.add(Calendar.DAY_OF_YEAR, 1);
-        }
-        return days;
-        **/
+         Calendar calendar1 = Calendar.getInstance();
+         Calendar calendar2 = Calendar.getInstance();
+         calendar1.setTime(d1);
+         calendar2.setTime(d2);
+         int days = 0;
+         while (calendar1.before(calendar2)) {
+         days++;
+         calendar1.add(Calendar.DAY_OF_YEAR, 1);
+         }
+         return days;
+         **/
 
     }
 
@@ -406,40 +413,43 @@ public class DateUtil {
             return new SimpleDateFormat("yyyy-MM-dd").parse(strdate);
         } catch (ParseException e) {
             e.printStackTrace();
-            LOGGER.info("转换异常[data:{},err:{}]",strdate,e);
+            LOGGER.info("转换异常[data:{},err:{}]", strdate, e);
         } catch (Exception ex) {
-            LOGGER.info("转换异常[data:{},err:{}]",strdate,ex);
+            LOGGER.info("转换异常[data:{},err:{}]", strdate, ex);
         }
         return null;
     }
+
     /**
-     * @author lirb
      * @param d
      * @param day
      * @return
+     * @author lirb
      */
-    public static Date getDateAfter(Date d,int day){
-        Calendar now =Calendar.getInstance();
+    public static Date getDateAfter(Date d, int day) {
+        Calendar now = Calendar.getInstance();
         now.setTime(d);
-        now.set(Calendar.DATE,now.get(Calendar.DATE)+day);
-        return getOperationTime( now.getTime(), 23, 59, 59);
+        now.set(Calendar.DATE, now.get(Calendar.DATE) + day);
+        return getOperationTime(now.getTime(), 23, 59, 59);
     }
 
     /**
      * 获取日期是当年第多少周
+     *
      * @param datetime
      * @return
      */
-    public static int getWeekNumber(Date datetime){
-        if(datetime!=null){
+    public static int getWeekNumber(Date datetime) {
+        if (datetime != null) {
             Calendar calendar = Calendar.getInstance();
             calendar.setFirstDayOfWeek(Calendar.MONDAY);
             calendar.setTime(datetime);
             int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
             return weekNumber;
         }
-        return  0;
+        return 0;
     }
+
     public static void main(String[] args) {
         //System.out.println(str2Date("1992-12-12"));
 //        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
@@ -463,9 +473,9 @@ public class DateUtil {
 //        System.out.println(formatter.format(beforTime));
         String today = "2017-11-11";
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date =null;
+        Date date = null;
         try {
-             date = format.parse(today);
+            date = format.parse(today);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -637,42 +647,62 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+
+    /**
+     * @Description 求某日期的前多少时间
+     * @param  timeUnit Calendar的常量数值，例如Calendar.SECOND
+     * @Date:14:09 2017/11/13
+     * @modified By
+     */
+    public static Date sometimeCalendar(Date date, int num, int timeUnit) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int time = calendar.get(timeUnit);
+        calendar.set(timeUnit, time - num);
+        return calendar.getTime();
+    }
+
     /**
      * 解析 "yyyyy年MM月"成 "yyyy-MM-dd" 格式的字符串
+     *
      * @param chDateStr
      * @return
      */
-    public static   Date  parseChDateStrToEnDateStr(String chDateStr)throws ParseException{
-        if(org.apache.commons.lang3.StringUtils.isNotEmpty(chDateStr)){
-            Date chDate =new SimpleDateFormat("yyyy年MM月").parse(chDateStr);
+    public static Date parseChDateStrToEnDateStr(String chDateStr) throws ParseException {
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(chDateStr)) {
+            Date chDate = new SimpleDateFormat("yyyy年MM月").parse(chDateStr);
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String date = format.format(chDate);
             Date startTime = format.parse(date);
             return startTime;
         }
-        return  null;
+        return null;
     }
+
     /**
      * 获取月份
+     *
      * @param datetime
      * @return
      */
-    public static int getMonth(Date datetime){
-        if(datetime!=null) {
+    public static int getMonth(Date datetime) {
+        if (datetime != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(datetime);
             int month = cal.get(Calendar.MONTH);
-            return month+1;
+            return month + 1;
         }
         return 0;
     }
+
     /**
      * 获取年份
+     *
      * @param datetime
      * @return
      */
-    public static int getYearNumber(Date datetime){
-        if(datetime!=null) {
+    public static int getYearNumber(Date datetime) {
+        if (datetime != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(datetime);
             int year = cal.get(Calendar.YEAR);
@@ -680,18 +710,20 @@ public class DateUtil {
         }
         return 0;
     }
+
     /**
      * 获取某年第多少周
+     *
      * @param datetime
-     * @return   2018年第23周
+     * @return 2018年第23周
      */
-    public static String getYearAndWeekNumber(Date datetime){
-        if(datetime!=null) {
+    public static String getYearAndWeekNumber(Date datetime) {
+        if (datetime != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(datetime);
             int year = cal.get(Calendar.YEAR);
             int week = cal.get(Calendar.WEEK_OF_YEAR);
-            return year+"年第"+week+"周";
+            return year + "年第" + week + "周";
         }
         return null;
     }
