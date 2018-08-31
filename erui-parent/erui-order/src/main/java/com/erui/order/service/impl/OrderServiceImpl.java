@@ -553,7 +553,7 @@ public class OrderServiceImpl implements OrderService {
                     } else {
                         //根据订单金额判断 填写审批人级别
                         if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            if (order.getFinancing() == 0) {
+                            if (order.getFinancing() == null && order.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 审核完成
                                 auditingStatus_i = 4; // 完成
                                 auditingProcess_i = null; // 无下一审核进度和审核人
@@ -579,7 +579,7 @@ public class OrderServiceImpl implements OrderService {
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            if (addOrderVo.getFinancing() == 0) {
+                            if (order.getFinancing() == null && addOrderVo.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 审核完成
                                 auditingStatus_i = 4; // 完成
                                 auditingProcess_i = null; // 无下一审核进度和审核人
@@ -603,7 +603,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
-                        if (order.getFinancing() == 0) {
+                        if (order.getFinancing() == null && order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 审核完成
                             auditingStatus_i = 4; // 完成
                             auditingProcess_i = null; // 无下一审核进度和审核人
