@@ -304,21 +304,21 @@ public class OrderServiceImpl implements OrderService {
                         }
                     } else if (businessUnitId != null && technicalId == null) {
                         if (perLiableRepayId != null && auditingUserId != null) {
-                            list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
+                            list.add(cb.or(businessUnitId, createUserId, perLiableRepayId, auditingUserId));
                         } else if (perLiableRepayId != null && auditingUserId == null) {
-                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                            list.add(cb.or(businessUnitId, createUserId, perLiableRepayId));
                         } else if (perLiableRepayId == null && auditingUserId != null) {
-                            list.add(cb.or(and, createUserId, auditingUserId));
+                            list.add(cb.or(businessUnitId, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(businessUnitId, createUserId));
                         }
                     } else if (technicalId != null && businessUnitId == null) {
                         if (perLiableRepayId != null && auditingUserId != null) {
-                            list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
+                            list.add(cb.or(technicalId, createUserId, perLiableRepayId, auditingUserId));
                         } else if (perLiableRepayId != null && auditingUserId == null) {
-                            list.add(cb.or(and, createUserId, perLiableRepayId));
+                            list.add(cb.or(technicalId, createUserId, perLiableRepayId));
                         } else if (perLiableRepayId == null && auditingUserId != null) {
-                            list.add(cb.or(and, createUserId, auditingUserId));
+                            list.add(cb.or(technicalId, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(technicalId, createUserId));
                         }
