@@ -209,6 +209,9 @@ public class WeeklyReportController {
             params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
         Cookie[] cookies = request.getCookies();
+        params.put("pageSize","10");
+        params.put("currentPage","1");
+        params.put("lang","zh");
         Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params,cookies);
         if(spuSkuNumInfoData == null){
             Integer[] zeroArr = new Integer[]{0,0,0,0,0,0,0,0};
