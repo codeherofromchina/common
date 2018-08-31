@@ -23,6 +23,13 @@ public interface WeeklyReportMapper {
      * @return
      */
     List<Map<String, Object>> selectBuyerCountGroupByAreaAndChina(Map<String, Object> params);
+    /**
+     * 查询各地区的时间段内普通会员Erui注册数、普通会员ERUI&KERUI注册数、高级会员Erui注册数、高级会员ERUI&KERUI注册数
+     *
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> selectBuyerCountDetail(Map<String, Object> params);
 
 
     /**

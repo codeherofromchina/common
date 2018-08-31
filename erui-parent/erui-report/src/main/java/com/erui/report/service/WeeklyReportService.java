@@ -20,6 +20,12 @@ public interface WeeklyReportService {
      * @return
      */
     Map<String, Object> selectBuyerCountGroupByArea(Map<String,Object> params);
+    /**
+     * 查询各地区的时间段内普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectBuyerCountDetail(Map<String,Object> params);
 
     /**
      * 查询各地区时间段内询单数
