@@ -327,7 +327,16 @@ public class Order {
 
     @Column(name = "per_liable_repay_id")
     private Integer perLiableRepayId; //回款责任人
+    @Column(name = "audi_remark")
+    private String audiRemark;//所经过审核人
 
+    public String getAudiRemark() {
+        return audiRemark;
+    }
+
+    public void setAudiRemark(String audiRemark) {
+        this.audiRemark = audiRemark;
+    }
 
     public Integer getPerLiableRepayId() {
         return perLiableRepayId;
