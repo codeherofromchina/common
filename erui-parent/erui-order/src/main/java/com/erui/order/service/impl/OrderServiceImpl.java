@@ -520,6 +520,9 @@ public class OrderServiceImpl implements OrderService {
             auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
+            if (auditingProcess_i.equals("0")) {
+                order.setStatus(1);
+            }
         } else {
             // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
             CheckLog checkLog = checkLogService.findLastLog(1, order.getId());
