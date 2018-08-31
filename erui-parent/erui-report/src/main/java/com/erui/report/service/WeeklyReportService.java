@@ -145,7 +145,7 @@ public interface WeeklyReportService {
      * @param params
      * @return
      */
-    HSSFWorkbook genOrgDetailExcel(Map<String, Object> params);
+    HSSFWorkbook genOrgDetailExcel(Map<String, Object> params,Map<String, Object> spuSkuNumInfoData);
 
     /**
      * 谷歌统计信息

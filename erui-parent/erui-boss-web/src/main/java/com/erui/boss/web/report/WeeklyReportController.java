@@ -191,7 +191,7 @@ public class WeeklyReportController {
      * @return
      */
     @RequestMapping(value = "/exportOrgDetail")
-    public Object exportOrgDetail(HttpServletResponse response, String startTime, String endTime) {
+    public Object exportOrgDetail(HttpServletRequest request,HttpServletResponse response, String startTime, String endTime) throws IOException {
         Map<String, Object> params = new HashMap();
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -208,8 +208,18 @@ public class WeeklyReportController {
             Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
             params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Cookie[] cookies = request.getCookies();
+        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params,cookies);
+        if(spuSkuNumInfoData == null){
+            Integer[] zeroArr = new Integer[]{0,0,0,0,0,0,0,0};
+            spuSkuNumInfoData = new HashMap<>();
+            spuSkuNumInfoData.put("currentWeekSpuCounts", zeroArr);
+            spuSkuNumInfoData.put("currentWeekSkuCounts", zeroArr);
+            spuSkuNumInfoData.put("historySpuCounts", zeroArr);
+            spuSkuNumInfoData.put("historySkuCounts", zeroArr);
+        }
 
-        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params);
+        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params,spuSkuNumInfoData);
         //excel文件名
         String fileName = "事业部周报明细" + System.currentTimeMillis() + ".xls";
         try {
