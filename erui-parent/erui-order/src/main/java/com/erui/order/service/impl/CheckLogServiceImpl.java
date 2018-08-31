@@ -74,7 +74,7 @@ public class CheckLogServiceImpl implements CheckLogService {
                 if (orderId != null) {
                     list.add(cb.equal(root.get("orderId").as(Integer.class), orderId));
                 }
-                list.add(cb.lessThanOrEqualTo(root.get("operation").as(String.class), "2"));
+                list.add(cb.between(root.get("operation").as(String.class), "1", "2"));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
