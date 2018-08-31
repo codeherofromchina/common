@@ -587,7 +587,7 @@ public class OrderServiceImpl implements OrderService {
                             } else if (addOrderVo.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
-                                auditingUserId_i = "018895";
+                                auditingUserId_i = "39535";
                             }
                         } else {
                             //订单金额大于300万 交给区域VP审核
