@@ -631,7 +631,11 @@ public class OrderServiceImpl implements OrderService {
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
         }
         checkLogService.insert(checkLog_i);
-        order.setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        if (auditingProcess_i != null) {
+            order.setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        } else {
+            order.setAuditingProcess(null);
+        }
         order.setAuditingUserId(auditingUserId_i);
         order.setAuditingStatus(auditingStatus_i);
         orderDao.save(order);

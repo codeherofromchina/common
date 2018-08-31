@@ -40,7 +40,7 @@ public class CheckLogController {
             return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
         }
         List<CheckLog> listByOrderId = checkLogService.findListByOrderId(orderId);
-        if (listByOrderId == null || listByOrderId.size() == 0) {
+        if (listByOrderId == null || listByOrderId.size() < 1) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(listByOrderId);
@@ -63,7 +63,7 @@ public class CheckLogController {
             return result.setStatus(ResultStatusEnum.FAIL).setMsg("订单号错误");
         }
         List<CheckLog> listByOrderId = checkLogService.findPassed(orderId);
-        if (listByOrderId == null || listByOrderId.size() == 0) {
+        if (listByOrderId == null || listByOrderId.size() < 1) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(listByOrderId);
