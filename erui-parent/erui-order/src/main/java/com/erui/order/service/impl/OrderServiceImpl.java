@@ -271,6 +271,10 @@ public class OrderServiceImpl implements OrderService {
                     if (condition.getCreateUserId() != null) {
                         createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
                     }
+                    Predicate auditingUserId = null;
+                    if (condition.getAuditingUserId() != null) {
+                        auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                    }
                     Predicate perLiableRepayId = null;
                     if (condition.getPerLiableRepayId() != null) {
                         perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
@@ -289,20 +293,32 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        if (perLiableRepayId != null) {
+                        if (auditingUserId != null && perLiableRepayId != null) {
+                            list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
+                        } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(and, createUserId, perLiableRepayId));
+                        } else if (perLiableRepayId == null && auditingUserId != null) {
+                            list.add(cb.or(and, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(and, createUserId));
                         }
                     } else if (businessUnitId != null && technicalId == null) {
-                        if (perLiableRepayId != null) {
+                        if (perLiableRepayId != null && auditingUserId != null) {
+                            list.add(cb.or(businessUnitId, createUserId, perLiableRepayId, auditingUserId));
+                        } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(businessUnitId, createUserId, perLiableRepayId));
+                        } else if (auditingUserId != null && perLiableRepayId == null) {
+                            list.add(cb.or(businessUnitId, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(businessUnitId, createUserId));
                         }
                     } else if (technicalId != null && businessUnitId == null) {
-                        if (perLiableRepayId != null) {
+                        if (perLiableRepayId != null && auditingUserId != null) {
+                            list.add(cb.or(technicalId, createUserId, perLiableRepayId, auditingUserId));
+                        } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(technicalId, createUserId, perLiableRepayId));
+                        } else if (auditingUserId != null && perLiableRepayId == null) {
+                            list.add(cb.or(technicalId, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(technicalId, createUserId));
                         }
@@ -310,7 +326,9 @@ public class OrderServiceImpl implements OrderService {
                 } else if (condition.getType() == 2) {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null || condition.getCreateUserId() != null && condition.getPerLiableRepayId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId())));
+                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                condition.getCreateUserId()), cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId()),
+                                cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId())));
                     }
                 } else {
                     //根据市场经办人查询
@@ -534,21 +552,21 @@ public class OrderServiceImpl implements OrderService {
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
                         //根据订单金额判断 填写审批人级别
-                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            if (addOrderVo.getFinancing() == 0) {
+                        if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                            if (order.getFinancing() == null && order.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 审核完成
                                 auditingStatus_i = 4; // 完成
                                 auditingProcess_i = null; // 无下一审核进度和审核人
                                 auditingUserId_i = null;
-                            } else if (addOrderVo.getFinancing() == 1) {
+                            } else if (order.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
                                 auditingUserId_i = "018895";
                             }
-                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                        } else {
                             //订单金额大于10万小于300万 交给区域负责人审核
                             auditingProcess_i = "3";
-                            auditingUserId_i = addOrderVo.getAreaVpId().toString();
+                            auditingUserId_i = order.getAreaLeaderId().toString();
                         }
                     }
                     break;
@@ -560,8 +578,8 @@ public class OrderServiceImpl implements OrderService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
-                        if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            if (addOrderVo.getFinancing() == 0) {
+                        if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                            if (order.getFinancing() == null && addOrderVo.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 审核完成
                                 auditingStatus_i = 4; // 完成
                                 auditingProcess_i = null; // 无下一审核进度和审核人
@@ -571,10 +589,10 @@ public class OrderServiceImpl implements OrderService {
                                 auditingProcess_i = "5"; // 融资审核
                                 auditingUserId_i = "018895";
                             }
-                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+                        } else {
                             //订单金额大于300万 交给区域VP审核
                             auditingProcess_i = "4";
-                            auditingUserId_i = addOrderVo.getAreaVpId().toString();
+                            auditingUserId_i = order.getAreaVpId().toString();
                         }
                     }
                     break;
@@ -585,12 +603,12 @@ public class OrderServiceImpl implements OrderService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
-                        if (addOrderVo.getFinancing() == 0) {
+                        if (order.getFinancing() == null && order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 审核完成
                             auditingStatus_i = 4; // 完成
                             auditingProcess_i = null; // 无下一审核进度和审核人
                             auditingUserId_i = null;
-                        } else if (addOrderVo.getFinancing() == 1) {
+                        } else if (order.getFinancing() == 1) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "5"; // 融资审核
                             auditingUserId_i = "018895";//郭永涛
