@@ -520,6 +520,9 @@ public class OrderServiceImpl implements OrderService {
             auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
+            if (auditingProcess_i.equals("0")) {
+                order.setStatus(1);
+            }
         } else {
             // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
             CheckLog checkLog = checkLogService.findLastLog(1, order.getId());
@@ -587,7 +590,7 @@ public class OrderServiceImpl implements OrderService {
                             } else if (addOrderVo.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
-                                auditingUserId_i = "018895";
+                                auditingUserId_i = "39535";
                             }
                         } else {
                             //订单金额大于300万 交给区域VP审核
@@ -628,7 +631,11 @@ public class OrderServiceImpl implements OrderService {
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
         }
         checkLogService.insert(checkLog_i);
-        order.setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        if (auditingProcess_i != null) {
+            order.setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        } else {
+            order.setAuditingProcess(null);
+        }
         order.setAuditingUserId(auditingUserId_i);
         order.setAuditingStatus(auditingStatus_i);
         orderDao.save(order);
