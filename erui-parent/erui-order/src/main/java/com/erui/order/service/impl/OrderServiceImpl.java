@@ -293,7 +293,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        if (perLiableRepayId != null && auditingUserId != null) {
+                        if (auditingUserId != null && perLiableRepayId != null) {
                             list.add(cb.or(and, createUserId, perLiableRepayId, auditingUserId));
                         } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(and, createUserId, perLiableRepayId));
@@ -307,7 +307,7 @@ public class OrderServiceImpl implements OrderService {
                             list.add(cb.or(businessUnitId, createUserId, perLiableRepayId, auditingUserId));
                         } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(businessUnitId, createUserId, perLiableRepayId));
-                        } else if (perLiableRepayId == null && auditingUserId != null) {
+                        } else if (auditingUserId != null && perLiableRepayId == null) {
                             list.add(cb.or(businessUnitId, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(businessUnitId, createUserId));
@@ -317,7 +317,7 @@ public class OrderServiceImpl implements OrderService {
                             list.add(cb.or(technicalId, createUserId, perLiableRepayId, auditingUserId));
                         } else if (perLiableRepayId != null && auditingUserId == null) {
                             list.add(cb.or(technicalId, createUserId, perLiableRepayId));
-                        } else if (perLiableRepayId == null && auditingUserId != null) {
+                        } else if (auditingUserId != null && perLiableRepayId == null) {
                             list.add(cb.or(technicalId, createUserId, auditingUserId));
                         } else {
                             list.add(cb.or(technicalId, createUserId));
@@ -566,7 +566,7 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             //订单金额大于10万小于300万 交给区域负责人审核
                             auditingProcess_i = "3";
-                            auditingUserId_i = order.getAreaVpId().toString();
+                            auditingUserId_i = order.getAreaLeaderId().toString();
                         }
                     }
                     break;
