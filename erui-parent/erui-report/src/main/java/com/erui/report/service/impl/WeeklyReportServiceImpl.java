@@ -979,7 +979,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             // 上周sku数据
             Map<String, Object> historySkuMap = historySkuDataMap.remove(org);
             if (historySkuMap != null) {
-                int totalSku =  Integer.parseInt(historySpuMap.get("doc_count").toString());
+                int totalSku =  Integer.parseInt(historySkuMap.get("doc_count").toString());
                 historySkuCounts.add(totalSku);
             } else {
                 historySkuCounts.add(0);
