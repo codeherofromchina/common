@@ -13,7 +13,7 @@ import com.erui.order.entity.*;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.IogisticsDataService;
 import com.erui.order.service.IogisticsService;
-import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
