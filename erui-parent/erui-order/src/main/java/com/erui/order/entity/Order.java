@@ -650,24 +650,28 @@ public class Order {
 
     public String getOrderSourceName() {
         // 1 门户订单 2 门户询单 3 线下订单',
-        if (getOrderSource() == 1) {
-            return "门户订单";
-        } else if (getOrderSource() == 2) {
-            return "市场询单";
-        } else if (getOrderSource() == 3) {
-            return "线下订单";
+        if (getOrderSource() != null) {
+            if (getOrderSource() == 1) {
+                return "门户订单";
+            } else if (getOrderSource() == 2) {
+                return "市场询单";
+            } else if (getOrderSource() == 3) {
+                return "线下订单";
+            }
         }
         return null;
     }
 
     public String getEnOrderSourceName() {
         // 1 门户订单 2 门户询单 3 线下订单',
-        if (getOrderSource() == 1) {
-            return "Online orders";
-        } else if (getOrderSource() == 2) {
-            return "BOSS inquiry";
-        } else if (getOrderSource() == 3) {
-            return "Offline orders";
+        if (getOrderSource() != null) {
+            if (getOrderSource() == 1) {
+                return "Online orders";
+            } else if (getOrderSource() == 2) {
+                return "BOSS inquiry";
+            } else if (getOrderSource() == 3) {
+                return "Offline orders";
+            }
         }
         return null;
     }
@@ -732,19 +736,25 @@ public class Order {
     }
 
     public String getOrderTypeName() {
-        if (getOrderType() == 1) {
-            return "油气";
-        } else {
-            return "非油气";
+        if (getOrderType() != null) {
+            if (getOrderType() == 1) {
+                return "油气";
+            } else {
+                return "非油气";
+            }
         }
+        return null;
     }
 
     public String getEnOrderTypeName() {
-        if (getOrderType() == 1) {
-            return "Oil & gas";
-        } else {
-            return "Non-oil or gas";
+        if (getOrderType() != null) {
+            if (getOrderType() == 1) {
+                return "Oil & gas";
+            } else {
+                return "Non-oil or gas";
+            }
         }
+        return null;
     }
 
     public void setOrderType(Integer orderType) {

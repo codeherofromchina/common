@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -36,6 +37,7 @@ public class CheckLogServiceImpl implements CheckLogService {
      * @param refId 项目或订单ID，根据type
      * @return
      */
+    @Transactional(readOnly = true)
     @Override
     public CheckLog findLastLog(int type, Integer refId) {
         PageRequest request = new PageRequest(0, 1, Sort.Direction.DESC, "createTime");
@@ -61,7 +63,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return null;
     }
-
+    @Transactional(readOnly = true)
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
         PageRequest request = new PageRequest(0, 100, Sort.Direction.DESC, "createTime");
