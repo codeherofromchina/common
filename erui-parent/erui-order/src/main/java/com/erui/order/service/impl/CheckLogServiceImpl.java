@@ -16,7 +16,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author:SHIGS
@@ -81,8 +83,12 @@ public class CheckLogServiceImpl implements CheckLogService {
             }
         }, request);
         List<CheckLog> checkLogList = all.getContent();
+        Set<CheckLog> checkLogSet = new HashSet<>();
         if (checkLogList != null && checkLogList.size() > 0) {
-            return checkLogList;
+            for (CheckLog cLog : checkLogList) {
+                checkLogSet.add(cLog);
+            }
+            return (List) checkLogSet;
         }
         return null;
     }
