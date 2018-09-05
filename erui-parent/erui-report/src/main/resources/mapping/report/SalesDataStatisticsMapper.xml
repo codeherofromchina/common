@@ -38,4 +38,33 @@
             DESC
         </if>
     </select>
+
+
+    <!--查询询单失败列表，按照失败时间查询-->
+    <select id="inquiryFailListByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t1.id,
+        t1.serial_no,
+        t2.`name` AS country_name,
+        t3.`name` AS org_name,
+        t4.`name` AS area_name,
+        t5.op_note,
+        t5.created_at
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_dict.country t2 ON t2.lang = 'zh' AND t2.bn = t1.country_bn
+        LEFT JOIN
+        erui_sys.org t3 ON t3.id = t1.org_id
+        AND t3.deleted_flag = 'N'
+        LEFT JOIN
+        erui_operation.market_area t4 ON t4.bn = t1.area_bn AND t4.lang = 'zh'
+        INNER JOIN
+        erui_rfq.inquiry_check_log t5
+        WHERE
+        t1.id = t5.inquiry_id
+        AND t5.action = 'FAIL'
+        AND t5.created_at BETWEEN #{startTime} AND #{endTime}
+        ORDER BY t5.created_at ASC;
+    </select>
 </mapper>

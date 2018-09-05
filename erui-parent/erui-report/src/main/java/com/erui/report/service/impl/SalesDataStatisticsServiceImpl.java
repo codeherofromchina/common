@@ -2,6 +2,8 @@ package com.erui.report.service.impl;
 
 import com.erui.report.dao.SalesDataStatisticsMapper;
 import com.erui.report.service.SalesDataStatisticsService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,17 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         return result;
     }
 
+    /**
+     * 分页查询询报价统计-询价失败列表
+     * @param params
+     */
+    public PageInfo<Map<String,Object>> inquiryFailListByPage(Map<String, Object> params){
+        PageHelper.startPage(params);
+        List<Map<String,Object>> failList = salesDataStatisticsMapper.inquiryFailListByPage(params);
+        PageInfo pageInfo = new PageInfo(failList);
+        return pageInfo;
+    }
+
 
     /**
      * 处理简单的名称和总数统计数据结果
@@ -58,4 +71,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         }
         return result;
     }
+
+
+
 }

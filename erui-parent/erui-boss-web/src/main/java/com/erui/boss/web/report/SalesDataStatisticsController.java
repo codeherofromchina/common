@@ -5,6 +5,8 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.SalesDataStatisticsService;
 import com.erui.report.util.ParamsUtils;
+import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,7 +71,6 @@ public class SalesDataStatisticsController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
 
-
         return new Result<>();
     }
 
@@ -80,10 +81,36 @@ public class SalesDataStatisticsController {
     @ResponseBody
     @RequestMapping("inquiryFailList")
     public Result<Object> inquiryFailList(@RequestBody Map<String,Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String pageNumStr = (String) params.get("pageNum");
+        String pageSizeStr = (String) params.get("pageSize");
+        Integer pageNum = null;
+        Integer pageSize = null;
+        if (StringUtils.isNumeric(pageNumStr)) {
+            pageNum = Integer.parseInt(pageNumStr);
+            if (pageNum < 1) {
+                pageNum = new Integer(1);
+            }
+        } else {
+            pageNum = new Integer(1);
+        }
+        if (StringUtils.isNumeric(pageSizeStr)) {
+            pageSize = Integer.parseInt(pageSizeStr);
+            if (pageSize < 1) {
+                pageSize = new Integer(20);
+            }
+        } else {
+            pageSize = new Integer(20);
+        }
+        params.put("pageNum",pageNum);
+        params.put("pageSize",pageSize);
 
+        PageInfo<Map<String, Object>> pageInfo = supplierchainService.inquiryFailListByPage(params);
 
-
-        return new Result<>();
+        return new Result<>(pageInfo);
     }
 
 

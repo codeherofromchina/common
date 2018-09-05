@@ -1,5 +1,7 @@
 package com.erui.report.service;
 
+import com.github.pagehelper.PageInfo;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,4 +28,10 @@ public interface SalesDataStatisticsService {
      *  {"name":[],counts:[]}
      */
     Map<String,List<Object>> agencyOrgStatisticsData(Map<String, Object> params);
+
+    /**
+     * 分页查询询报价统计-询价失败列表
+     * @param params
+     */
+    PageInfo<Map<String,Object>> inquiryFailListByPage(Map<String, Object> params);
 }

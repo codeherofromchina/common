@@ -326,7 +326,6 @@ public class WeeklyReportController {
     @Value("#{webProp[esgoods_url]}")
     private  String esgoodsUrl;
 
-
     /**
      * 从es中获取各事业部的spu、sku数量
      * @return

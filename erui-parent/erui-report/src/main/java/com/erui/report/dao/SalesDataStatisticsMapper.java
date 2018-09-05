@@ -21,4 +21,11 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> agencySupplierOrgStatisticsData(Map<String, Object> params);
+
+    /**
+     *  分页查询询报价统计-询价失败列表
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> inquiryFailListByPage(Map<String, Object> params);
 }
