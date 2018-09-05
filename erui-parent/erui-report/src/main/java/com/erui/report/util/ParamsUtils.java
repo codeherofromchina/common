@@ -62,8 +62,11 @@ public class ParamsUtils {
             params.put("chainStartTime", DateUtil.formatDateToString(lastWeekDateTime, DateUtil.FULL_FORMAT_STR));
             params.put("chainEndTime", DateUtil.formatDateToString(lastWeekDateTime02, DateUtil.FULL_FORMAT_STR));
             return params;
+        } else if (dateFormat.equals(DateUtil.SHORT_FORMAT_STR)) {
+            Date endTime = DateUtil.getOperationTime(endDate, 23, 59, 59);
+            params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.SHORT_FORMAT_STR));
         }
-        return null;
+        return params;
     }
 
     public static Map<String, Object> getChainParams(Map<String, Object> params) {
