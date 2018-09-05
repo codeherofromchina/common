@@ -73,5 +73,19 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     }
 
 
+    /**
+     * 流失会员
+     * @return
+     */
+    public int lossBuyer(Map<String,Object> params){
+
+
+
+
+
+
+        ;
+        return 0;
+    }
 
 }

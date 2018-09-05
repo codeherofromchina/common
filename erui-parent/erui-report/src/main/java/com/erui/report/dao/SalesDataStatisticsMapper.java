@@ -1,5 +1,6 @@
 package com.erui.report.dao;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -28,4 +29,12 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> inquiryFailListByPage(Map<String, Object> params);
+
+
+    /**
+     * 会员总数
+     * @param date
+     * @return
+     */
+    int buyerTotalCount(Date date);
 }
