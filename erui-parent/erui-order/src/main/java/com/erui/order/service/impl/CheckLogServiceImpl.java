@@ -15,10 +15,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author:SHIGS
@@ -76,6 +74,7 @@ public class CheckLogServiceImpl implements CheckLogService {
                 if (orderId != null) {
                     list.add(cb.equal(root.get("orderId").as(Integer.class), orderId));
                 }
+                list.add(cb.equal(root.get("type").as(Integer.class), 1));
                 list.add(cb.between(root.get("operation").as(String.class), "1", "2"));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -83,12 +82,13 @@ public class CheckLogServiceImpl implements CheckLogService {
             }
         }, request);
         List<CheckLog> checkLogList = all.getContent();
-        Set<CheckLog> checkLogSet = new HashSet<>();
+        Map<Integer, CheckLog> map = new HashMap<>();
         if (checkLogList != null && checkLogList.size() > 0) {
             for (CheckLog cLog : checkLogList) {
-                checkLogSet.add(cLog);
+                map.put(cLog.getAuditingProcess(), cLog);
             }
-            return (List) checkLogSet;
+            List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
+            return cList;
         }
         return null;
     }
