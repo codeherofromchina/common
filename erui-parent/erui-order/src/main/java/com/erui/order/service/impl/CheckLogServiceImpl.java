@@ -10,13 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author:SHIGS
@@ -36,6 +37,7 @@ public class CheckLogServiceImpl implements CheckLogService {
      * @param refId 项目或订单ID，根据type
      * @return
      */
+    @Transactional(readOnly = true)
     @Override
     public CheckLog findLastLog(int type, Integer refId) {
         PageRequest request = new PageRequest(0, 1, Sort.Direction.DESC, "createTime");
@@ -61,7 +63,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return null;
     }
-
+    @Transactional(readOnly = true)
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
         PageRequest request = new PageRequest(0, 100, Sort.Direction.DESC, "createTime");
@@ -74,6 +76,7 @@ public class CheckLogServiceImpl implements CheckLogService {
                 if (orderId != null) {
                     list.add(cb.equal(root.get("orderId").as(Integer.class), orderId));
                 }
+                list.add(cb.equal(root.get("type").as(Integer.class), 1));
                 list.add(cb.between(root.get("operation").as(String.class), "1", "2"));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -81,8 +84,13 @@ public class CheckLogServiceImpl implements CheckLogService {
             }
         }, request);
         List<CheckLog> checkLogList = all.getContent();
+        Map<Integer, CheckLog> map = new HashMap<>();
         if (checkLogList != null && checkLogList.size() > 0) {
-            return checkLogList;
+            for (CheckLog cLog : checkLogList) {
+                map.put(cLog.getAuditingProcess(), cLog);
+            }
+            List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
+            return cList;
         }
         return null;
     }

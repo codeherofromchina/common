@@ -10,6 +10,7 @@ public enum ResultStatusEnum {
     FAIL(1, "失败","Failed"),
     SERVER_ERROR(2, "服务器端异常","Server exception"),
     MISS_PARAM_ERROR(3, "缺少必要参数","Lack of necessary parameters"),
+    VALUE_NULL(31, "驳回原因不能为空","Reason is not Null"),
     PARAM_TYPE_ERROR(4, "参数类型错误","Error in parameter type"),
     REQUEST_METHOD_NOT_SUPPORT(5, "不支持的请求方法","Request method unsupported"),
     MEDIA_TYPE_NOT_SUPPORT(6, "不支持的MediaType","Media type unsupported"),

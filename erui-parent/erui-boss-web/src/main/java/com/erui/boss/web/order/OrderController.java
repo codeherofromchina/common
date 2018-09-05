@@ -55,6 +55,7 @@ public class OrderController {
                 vo.setGoodsList(null);
                 vo.setOrderAccountDelivers(null);
                 vo.setOrderAccounts(null);
+                vo.setDeliverConsignC(null);
             });
         }
         return new Result<>(orderPage);
@@ -214,7 +215,7 @@ public class OrderController {
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
         if (rejectFlag && StringUtils.isBlank(reason)) {
-            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+            return new Result<>(ResultStatusEnum.VALUE_NULL);
         }
         // 判断通过，审核项目并返回是否审核成功
         boolean flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), addOrderVo);
