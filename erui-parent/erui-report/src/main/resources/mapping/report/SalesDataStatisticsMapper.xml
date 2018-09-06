@@ -69,15 +69,21 @@
     </select>
 
 
-    <select id="buyerTotalCount" parameterType="java.lang.String" resultType="int">
+    <select id="buyerTotalCountGoupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        COUNT(1)
+        t2.`name` as countryName,COUNT(t1.id) as total
         FROM
-        erui_buyer.buyer
+        erui_buyer.buyer t1
+        left join erui_dict.country t2 on t2.lang='zh' and t1.country_bn = t2.bn
         WHERE
-        created_at < ${date}
-        AND (expiry_at > ${date}
-        OR expiry_at IS NULL)
-        AND `status` = 'PASS'
+        t1.created_at <= #{endTime}
+        AND (t1.expiry_at > #{endTime}
+        OR t1.expiry_at IS NULL)
+        AND t1.`status` = 'PASS'
+        group by t2.`name`
+        order by 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 </mapper>

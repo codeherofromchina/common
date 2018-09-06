@@ -33,8 +33,8 @@ public interface SalesDataStatisticsMapper {
 
     /**
      * 会员总数
-     * @param date
+     * @param params
      * @return
      */
-    int buyerTotalCount(Date date);
+    List<Map<String,Object>> buyerTotalCountGoupByCountry(Map<String, Object> params);
 }

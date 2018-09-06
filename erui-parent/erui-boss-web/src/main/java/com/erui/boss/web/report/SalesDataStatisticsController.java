@@ -60,18 +60,34 @@ public class SalesDataStatisticsController {
 
     /**
      * 询报价统计 -- 流失会员、活跃会员
-     * {} TODO 待完善
+     * {"type":"1","startTime":"2018-01-01","endTime":"2018-01-10","sort":"1"}
+     * type 1:活跃会员 其他：流失会员
+     * sort 1:正序/升序   其他：倒序/降序
      * @return
      */
-    @RequestMapping("quoteMemberStatistics")
+    @RequestMapping("inquiryMemberStatistics")
     @ResponseBody
-    public Result<Object> quoteMemberStatistics(@RequestBody Map<String,Object> params){
+    public Result<Object> inquiryMemberStatistics(@RequestBody Map<String,Object> params){
+        Map<String,List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-
-        return new Result<>();
+        Object type = params.get("type");
+        if (type != null && "1".equals(type.toString())) {
+            /// 活跃会员信息
+            data = supplierchainService.activeMemberStatistics(params);
+        } else {
+            /// 流失会员信息
+            data = supplierchainService.lossMemberStatistics(params);
+        }
+        Result<Object> result = new Result<>();
+        if (data == null) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
     }
 
     /**

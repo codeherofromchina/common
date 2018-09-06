@@ -72,20 +72,39 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         return result;
     }
 
-
     /**
-     * 流失会员
+     * 活跃会员统计信息
+     * @param params {"startTime":"","endTime":"","sort":"1"}
+     *          sort 1:正序/升序   其他：倒序/降序
      * @return
      */
-    public int lossBuyer(Map<String,Object> params){
+    @Override
+    public Map<String, List<Object>> activeMemberStatistics(Map<String, Object> params) {
+        // 查找会员总数
+        List<Map<String, Object>> memberTotalsGroupCountry = salesDataStatisticsMapper.buyerTotalCountGoupByCountry(params);
+        // 查找活跃会员数
 
 
 
 
 
-
-        ;
-        return 0;
+        return null;
     }
 
+    /**
+     * 流失会员统计信息
+     * @param params {"startTime":"","endTime":"","sort":"1"}
+     *          sort 1:正序/升序   其他：倒序/降序
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> lossMemberStatistics(Map<String, Object> params) {
+        // 查找会员总数
+        List<Map<String, Object>> memberTotalsGroupCountry = salesDataStatisticsMapper.buyerTotalCountGoupByCountry(params);
+        // 查找流失会员数
+
+
+
+        return null;
+    }
 }

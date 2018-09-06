@@ -34,4 +34,20 @@ public interface SalesDataStatisticsService {
      * @param params
      */
     PageInfo<Map<String,Object>> inquiryFailListByPage(Map<String, Object> params);
+
+    /**
+     * 查找活跃会员统计信息
+     * @param params {"startTime":"","endTime":"","sort":"1"}
+     *          sort 1:正序/升序   其他：倒序/降序
+     * @return
+     */
+    Map<String,List<Object>> activeMemberStatistics(Map<String, Object> params);
+
+    /**
+     * 查找流失会员统计信息
+     * @param params {"startTime":"","endTime":"","sort":"1"}
+     *          sort 1:正序/升序   其他：倒序/降序
+     * @return
+     */
+    Map<String,List<Object>> lossMemberStatistics(Map<String, Object> params);
 }
