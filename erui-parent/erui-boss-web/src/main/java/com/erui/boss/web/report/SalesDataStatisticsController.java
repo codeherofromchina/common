@@ -29,12 +29,13 @@ public class SalesDataStatisticsController {
     /**
      * 代理商统计
      * {"startTime":"2018-01-01","endTime":"2019-01-01","sort":"1","typeDimension":"country"}
+     *
      * @return
      */
     @RequestMapping("agencySupplierStatistics")
     @ResponseBody
-    public Result<Object> agencySupplierStatistics(@RequestBody Map<String,Object> params){
-        Map<String,List<Object>> data = null;
+    public Result<Object> agencySupplierStatistics(@RequestBody Map<String, Object> params) {
+        Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -44,7 +45,7 @@ public class SalesDataStatisticsController {
             data = supplierchainService.agencyOrgStatisticsData(params);
         } else if ("country".equals(typeDimension)) {
             data = supplierchainService.agencySupplierCountryStatisticsData(params);
-        } else if("saleCountry".equals(typeDimension)){
+        } else if ("saleCountry".equals(typeDimension)) {
             // TODO 这里待完善信息
             //data = supplierchainService.agencyOrgStatisticsData(params);
         }
@@ -63,12 +64,13 @@ public class SalesDataStatisticsController {
      * {"type":"1","startTime":"2018-01-01","endTime":"2018-01-10","sort":"1"}
      * type 1:活跃会员 其他：流失会员
      * sort 1:正序/升序   其他：倒序/降序
+     *
      * @return
      */
     @RequestMapping("inquiryMemberStatistics")
     @ResponseBody
-    public Result<Object> inquiryMemberStatistics(@RequestBody Map<String,Object> params){
-        Map<String,List<Object>> data = null;
+    public Result<Object> inquiryMemberStatistics(@RequestBody Map<String, Object> params) {
+        Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -92,11 +94,12 @@ public class SalesDataStatisticsController {
 
     /**
      * 询单失败列表
+     *
      * @return
      */
     @ResponseBody
     @RequestMapping("inquiryFailList")
-    public Result<Object> inquiryFailList(@RequestBody Map<String,Object> params) {
+    public Result<Object> inquiryFailList(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -121,8 +124,8 @@ public class SalesDataStatisticsController {
         } else {
             pageSize = new Integer(20);
         }
-        params.put("pageNum",pageNum);
-        params.put("pageSize",pageSize);
+        params.put("pageNum", pageNum);
+        params.put("pageSize", pageSize);
 
         PageInfo<Map<String, Object>> pageInfo = supplierchainService.inquiryFailListByPage(params);
 
@@ -131,12 +134,13 @@ public class SalesDataStatisticsController {
 
     /**
      * 事业部报价用时
+     *
      * @return
      */
     @ResponseBody
     @RequestMapping("orgQuoteTotalCostTime")
-    public Result<Object> orgQuoteTotalCostTime(@RequestBody Map<String,Object> params){
-        Map<String,List<Object>> data = null;
+    public Result<Object> orgQuoteTotalCostTime(@RequestBody Map<String, Object> params) {
+        Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -150,5 +154,40 @@ public class SalesDataStatisticsController {
         }
         return result;
     }
+
+
+    /**
+     * 会员询单额
+     * {"startTime":"","endTime":"","type":""}
+     * type  1：报价金额   2：询单数量   3：报价数量
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("memberInquiryAmount")
+    public Result<Object> memberInquiryAmount(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = (String) params.get("type");
+        Map<String, List<Object>> data = null;
+        Result<Object> result = new Result<>();
+        if ("1".equals(type)) {
+            // 报价金额按事业部统计
+            data = supplierchainService.quoteAmountGroupOrg(params);
+        } else if ("2".equals(type)) {
+            // 询单数量按事业部统计
+            data = supplierchainService.inquiryNumbersGroupOrg(params);
+        } else if ("3".equals(type)) {
+            // 报价数量按事业部统计
+            data = supplierchainService.quoteNumbersGroupOrg(params);
+        } else {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        }
+        result.setData(data);
+        return result;
+    }
+
 
 }

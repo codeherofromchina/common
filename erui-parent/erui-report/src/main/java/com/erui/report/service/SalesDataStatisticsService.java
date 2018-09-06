@@ -57,4 +57,25 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orgQuoteTotalCostTime(Map<String, Object> params);
+
+    /**
+     *报价金额按事业部统计
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> quoteAmountGroupOrg(Map<String, Object> params);
+
+    /**
+     * 询单数量按事业部统计
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> inquiryNumbersGroupOrg(Map<String, Object> params);
+
+    /**
+     * 报价数量按事业部统计
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> quoteNumbersGroupOrg(Map<String, Object> params);
 }

@@ -60,4 +60,46 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> orgQuoteTotalCostTime(Map<String, Object> params);
+
+    /**
+     * 总报价数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> quoteTotalNumGroupByArea(Map<String, Object> params);
+
+    /**
+     * 会员报价总数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> memberQuoteNumGroupByArea(Map<String, Object> params);
+
+    /**
+     * 总询单数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> inquiryTotalNumGroupByArea(Map<String, Object> params);
+
+    /**
+     * 会员询单总数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> memberInquiryNumGroupByArea(Map<String, Object> params);
+
+    /**
+     * 总报价金额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> quoteTotalAmountGroupByArea(Map<String, Object> params);
+
+    /**
+     * 会员报价总金额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> memberQuoteAmountGroupByArea(Map<String, Object> params);
 }

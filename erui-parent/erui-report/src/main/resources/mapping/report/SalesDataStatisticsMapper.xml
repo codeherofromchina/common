@@ -153,4 +153,164 @@
             tb.org_id = org.id
         GROUP BY tb.org_id order by 2 asc
     </select>
+
+    <!-- 总报价数量 -->
+    <select id="quoteTotalNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+            (SELECT
+                inquiry_id
+            FROM
+              erui_rfq.inquiry_check_log
+            WHERE
+                (in_node = 'BIZ_APPROVING'
+                    AND created_at BETWEEN #{startTime} AND #{endTime})
+                    OR (in_node = 'MARKET_APPROVING'
+                    AND created_at BETWEEN #{startTime} AND #{endTime})
+                    OR (in_node = 'MARKET_CONFIRMING'
+                    AND created_at BETWEEN #{startTime} AND #{endTime})
+                    OR (in_node = 'QUOTE_SENT'
+                    AND created_at BETWEEN #{startTime} AND #{endTime})
+            GROUP BY inquiry_id) t2
+        WHERE
+            t1.id = t2.inquiry_id
+                AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+                AND t1.`status` IN ('BIZ_APPROVING' , 'MARKET_APPROVING',
+                'MARKET_CONFIRMING',
+                'QUOTE_SENT')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+    <!-- 会员报价总数量 -->
+    <select id="memberQuoteNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+            (SELECT
+                inquiry_id
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE in_node = 'MARKET_CONFIRMING'
+                    AND created_at BETWEEN #{startTime} AND #{endTime}
+            GROUP BY inquiry_id) t2
+        WHERE
+            t1.id = t2.inquiry_id
+                AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 总询单数量 -->
+    <select id="inquiryTotalNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        (in_node = 'BIZ_APPROVING'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        OR (in_node = 'MARKET_APPROVING'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        OR (in_node = 'MARKET_CONFIRMING'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        OR (in_node = 'QUOTE_SENT'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        GROUP BY inquiry_id) t2
+        WHERE
+        t1.id = t2.inquiry_id
+        AND t1.`status` IN ('BIZ_APPROVING' , 'MARKET_APPROVING',
+        'MARKET_CONFIRMING',
+        'QUOTE_SENT')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+    <!-- 会员询单总数量 -->
+    <select id="memberInquiryNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE in_node = 'MARKET_CONFIRMING'
+        AND created_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY inquiry_id) t2
+        WHERE
+        t1.id = t2.inquiry_id
+        GROUP BY t3.`name`
+    </select>
+
+
+    <!-- 总报价金额 -->
+    <select id="quoteTotalAmountGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, sum(t4.total_quote_price) AS totalAmount
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        (in_node = 'BIZ_APPROVING'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        OR (in_node = 'MARKET_APPROVING'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        OR (in_node = 'MARKET_CONFIRMING'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        OR (in_node = 'QUOTE_SENT'
+        AND created_at BETWEEN #{startTime} AND #{endTime})
+        GROUP BY inquiry_id) t2,
+        erui_rfq.final_quote t4
+        WHERE
+        t1.id = t2.inquiry_id and t4.inquiry_id = t1.id
+        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+        AND t1.`status` IN ('BIZ_APPROVING' , 'MARKET_APPROVING',
+        'MARKET_CONFIRMING',
+        'QUOTE_SENT')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+    <!-- 会员报价总金额 -->
+    <select id="memberQuoteAmountGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, sum(t4.total_quote_price) AS totalAmount
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE in_node = 'MARKET_CONFIRMING'
+        AND created_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY inquiry_id) t2,
+        erui_rfq.final_quote t4
+        WHERE
+        t1.id = t2.inquiry_id and t4.inquiry_id = t1.id
+        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
+        GROUP BY t3.`name`
+    </select>
 </mapper>
