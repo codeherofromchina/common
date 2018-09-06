@@ -65,7 +65,7 @@
         t1.id = t5.inquiry_id
         AND t5.action = 'FAIL'
         AND t5.created_at BETWEEN #{startTime} AND #{endTime}
-        ORDER BY t5.created_at ASC;
+        ORDER BY t5.created_at ASC
     </select>
 
 
@@ -127,6 +127,30 @@
         t3.created_at <![CDATA[ <= ]]> #{endTime}
         AND t3.created_at <![CDATA[ >= ]]> DATE_ADD(#{startTime},
         INTERVAL - 3 MONTH))
-        GROUP BY t2.`name`;
+        GROUP BY t2.`name`
+    </select>
+
+    <!-- 事业部报价用时 -->
+    <select id="orgQuoteTotalCostTime" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            org.`name`, COUNT(tb.costTimes) / 60 AS costTimes
+        FROM
+            (SELECT
+                t1.id,
+                    t1.org_id,
+                    TIMESTAMPDIFF(MINUTE, t2.into_at, t2.out_at) / COUNT(t1.id) AS costTimes
+            FROM
+                erui_rfq.inquiry t1, erui_rfq.inquiry_check_log t2
+            WHERE
+                t1.id = t2.inquiry_id
+                    AND (t1.quote_status = 'QUOTED'
+                    OR t1.quote_status = 'COMPLETED')
+                    AND t2.out_node = 'BIZ_QUOTING'
+                    AND t1.created_at BETWEEN #{startTime} AND #{endTime}
+            GROUP BY t1.id , t1.org_id) AS tb,
+            erui_sys.org org
+        WHERE
+            tb.org_id = org.id
+        GROUP BY tb.org_id order by 2 asc
     </select>
 </mapper>

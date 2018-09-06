@@ -151,4 +151,26 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         result.put("rateList", rateList);
         return result;
     }
+
+
+    @Override
+    public Map<String, List<Object>> orgQuoteTotalCostTime(Map<String, Object> params) {
+        // 事业部报价用时
+        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.orgQuoteTotalCostTime(params);
+        if (totalBuyer == null || totalBuyer.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> costTimeList = new ArrayList<>();
+        for (Map<String, Object> map:totalBuyer) {
+            String name = (String)map.get("name");
+            BigDecimal costTimes = (BigDecimal)map.get("costTimes");
+            names.add(name);
+            costTimeList.add(costTimes.setScale(4,BigDecimal.ROUND_DOWN));
+        }
+        result.put("orgNames",names);
+        result.put("costTimes",costTimeList);
+        return result;
+    }
 }

@@ -53,4 +53,11 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> buyerActiveCountGoupByCountry(Map<String, Object> params);
+
+    /**
+     * 事业部报价用时
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orgQuoteTotalCostTime(Map<String, Object> params);
 }

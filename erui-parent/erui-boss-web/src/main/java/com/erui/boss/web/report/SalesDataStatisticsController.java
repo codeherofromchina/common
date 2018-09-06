@@ -136,10 +136,19 @@ public class SalesDataStatisticsController {
     @ResponseBody
     @RequestMapping("orgQuoteTotalCostTime")
     public Result<Object> orgQuoteTotalCostTime(@RequestBody Map<String,Object> params){
-
-
-
-        return null;
+        Map<String,List<Object>> data = null;
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        data = supplierchainService.orgQuoteTotalCostTime(params);
+        Result<Object> result = new Result<>();
+        if (data == null) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
     }
 
 }

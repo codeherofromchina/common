@@ -50,4 +50,11 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> lossMemberStatistics(Map<String, Object> params);
+
+    /**
+     * 事业部报价用时信息
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orgQuoteTotalCostTime(Map<String, Object> params);
 }

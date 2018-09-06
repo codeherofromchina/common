@@ -64,7 +64,8 @@ public class ParamsUtils {
             return params;
         } else if (dateFormat.equals(DateUtil.SHORT_FORMAT_STR)) {
             Date endTime = DateUtil.getOperationTime(endDate, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.SHORT_FORMAT_STR));
+            params.put("endTime", DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR));
+            params.put("startTime", DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR));
         }
         return params;
     }
