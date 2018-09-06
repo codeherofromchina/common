@@ -76,8 +76,8 @@
         erui_buyer.buyer t1
         left join erui_dict.country t2 on t2.lang='zh' and t1.country_bn = t2.bn
         WHERE
-        t1.created_at <= #{endTime}
-        AND (t1.expiry_at > #{endTime}
+        t1.created_at <![CDATA[ <= ]]> #{endTime}
+        AND (t1.expiry_at <![CDATA[ > ]]> #{endTime}
         OR t1.expiry_at IS NULL)
         AND t1.`status` = 'PASS'
         group by t2.`name`

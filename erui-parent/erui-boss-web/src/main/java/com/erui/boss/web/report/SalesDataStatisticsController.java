@@ -129,6 +129,17 @@ public class SalesDataStatisticsController {
         return new Result<>(pageInfo);
     }
 
+    /**
+     * 事业部报价用时
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orgQuoteTotalCostTime")
+    public Result<Object> orgQuoteTotalCostTime(@RequestBody Map<String,Object> params){
 
+
+
+        return null;
+    }
 
 }
