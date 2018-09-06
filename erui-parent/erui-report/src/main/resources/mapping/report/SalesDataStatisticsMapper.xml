@@ -74,7 +74,7 @@
         t2.`name` as countryName,COUNT(t1.id) as total
         FROM
         erui_buyer.buyer t1
-        left join erui_dict.country t2 on t2.lang='zh' and t1.country_bn = t2.bn
+        left join erui_operation.market_area t2 on t2.lang='zh' and t1.country_bn = t2.bn
         WHERE
         t1.created_at <![CDATA[ <= ]]> #{endTime}
         AND (t1.expiry_at <![CDATA[ > ]]> #{endTime}
@@ -85,5 +85,48 @@
         <if test="sort != 1" >
             DESC
         </if>
+    </select>
+
+    <select id="buyerLossCountGoupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name` AS countryName, COUNT(t1.id) AS total
+        FROM
+        erui_buyer.buyer t1
+        LEFT JOIN
+        erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
+        WHERE
+        t1.created_at BETWEEN #{startTime} AND #{endTime}
+        AND t1.`status` = 'PASS'
+        AND NOT EXISTS( SELECT
+        id
+        FROM
+        erui_rfq.inquiry t3
+        WHERE
+        t3.buyer_id = t1.id
+        AND t3.created_at <![CDATA[ >= ]]> t1.created_at
+        AND t3.created_at <![CDATA[ < ]]> DATE_ADD(t1.created_at,
+        INTERVAL 6 MONTH))
+        GROUP BY t2.`name`
+    </select>
+
+
+    <select id="buyerActiveCountGoupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name` AS countryName, COUNT(t1.id) AS total
+        FROM
+        erui_buyer.buyer t1
+        LEFT JOIN
+        erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
+        WHERE
+        t1.`status` = 'PASS'
+        AND t1.id IN (SELECT
+        buyer_id
+        FROM
+        erui_rfq.inquiry t3
+        WHERE
+        t3.created_at <![CDATA[ <= ]]> #{endTime}
+        AND t3.created_at <![CDATA[ >= ]]> DATE_ADD(#{startTime},
+        INTERVAL - 3 MONTH))
+        GROUP BY t2.`name`;
     </select>
 </mapper>

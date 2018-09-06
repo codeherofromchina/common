@@ -37,4 +37,20 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> buyerTotalCountGoupByCountry(Map<String, Object> params);
+
+
+    /**
+     * 会员流失数
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> buyerLossCountGoupByCountry(Map<String, Object> params);
+
+
+    /**
+     * 会员活跃数
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> buyerActiveCountGoupByCountry(Map<String, Object> params);
 }
