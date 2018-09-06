@@ -175,8 +175,8 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 // 根据订单审核状态
-                if (condition.getAuditingStatus() != null) {
-                    list.add(cb.equal(root.get("auditingStatus").as(String.class), condition.getAuditingStatus()));
+                if (condition.getAuditingProcess() != null) {
+                    list.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
                 }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {

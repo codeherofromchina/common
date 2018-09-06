@@ -72,14 +72,14 @@ public class OrderListCondition {
     private String businessUnitId02;
     private Integer perLiableRepayId; //回款责任人
     private String auditingUserId;   //当前审核人ID，逗号分隔多个
-    private Integer auditingStatus; //审核状态
+    private Integer auditingProcess; //审核状态
 
-    public Integer getAuditingStatus() {
-        return auditingStatus;
+    public Integer getAuditingProcess() {
+        return auditingProcess;
     }
 
-    public void setAuditingStatus(Integer auditingStatus) {
-        this.auditingStatus = auditingStatus;
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
     }
 
     public String getAuditingUserId() {
