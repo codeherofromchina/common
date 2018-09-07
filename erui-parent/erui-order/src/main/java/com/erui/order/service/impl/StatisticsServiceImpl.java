@@ -615,15 +615,15 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
-        String[] header = new String[]{"项目创建日期","项目开始日期", "销售合同号","订单类别", "海外销类型","询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
-                "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型",   "项目金额（美元）",
+        String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
+                "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
                 "项目状态", "流程进度"};
-        String[] keys = new String[]{"createTime","startDate", "contractNo","orderCategory", "overseasSalesName", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
-                "proCate", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName",  "totalPrice",
+        String[] keys = new String[]{"createTime", "startDate", "contractNo", "orderCategory", "overseasSalesName", "inquiryNo", "projectNo", "projectName", "contractNoOs", "logiQuoteNo",
+                "proCate", "execCoName", "businessUnitName", "regionZh", "crmCode", "customerTypeName", "totalPrice",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercentStr", "grantTypeName", "deliveryDate",
-                "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
+                "requirePurchaseDate", "exeChgDate", "businessUnitName", "agentName", "acquireId", "businessName", "tradeTerms",
                 "projectStatusName", "processProgressName"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectStatistics);
@@ -662,17 +662,17 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 完善出库物流信息
         result = mergeDeliverConsignGoodsInfo(result, statisticsDao.findDeliverConsignGoods(goodsIds));
 
-        Collections.sort(result ,new Comparator<GoodsBookDetail>(){
+        Collections.sort(result, new Comparator<GoodsBookDetail>() {
             @Override
             public int compare(GoodsBookDetail b1, GoodsBookDetail b2) {
                 String purchNo1 = b1.getPurchNo();
                 String purchNo2 = b2.getPurchNo();
-                if(purchNo1 != null && purchNo2 != null){
+                if (purchNo1 != null && purchNo2 != null) {
 
                     Collator ca = Collator.getInstance(Locale.CHINA);
-                    if(ca.compare(purchNo1,purchNo2) > 0){
+                    if (ca.compare(purchNo1, purchNo2) > 0) {
                         return 1;
-                    }else if(ca.compare(purchNo1,purchNo2) < 0){
+                    } else if (ca.compare(purchNo1, purchNo2) < 0) {
                         return -1;
                     }
                     return 0;
@@ -1038,10 +1038,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
                 }
                 // 分销部
+                String sendDeptId = condition.get("sendDeptId");
+                if (StringUtil.isNotBlank(sendDeptId)) {
+                    list.add(cb.equal(root.get("sendDeptId").as(String.class), sendDeptId));
+                }
+               /* // 分销部
                 String distributionDeptName = condition.get("distributionDeptName");
                 if (StringUtil.isNotBlank(distributionDeptName)) {
                     list.add(cb.equal(root.get("distributionDeptName").as(String.class), distributionDeptName));
-                }
+                }*/
                 // 事业部
                 String businessUnitName = condition.get("businessUnitName");
                 if (StringUtil.isNotBlank(businessUnitName)) {
@@ -1092,9 +1097,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
 
-
     /**
      * 订单主流程监控 数据处理
+     *
      * @param params
      * @return
      */
@@ -1118,12 +1123,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         }
         //查询数据
-        Page<Project> projectList =findProject(page,rows,params);
-        List<OrderMainProcess>  orderMainProcess = new ArrayList<>();
+        Page<Project> projectList = findProject(page, rows, params);
+        List<OrderMainProcess> orderMainProcess = new ArrayList<>();
         //处理数据
-        if(projectList.hasContent()){
+        if (projectList.hasContent()) {
             List<Project> content = projectList.getContent();
-            for (Project project : content){
+            for (Project project : content) {
                 OrderMainProcess omp = new OrderMainProcess();
                 Order order = project.getOrder();   //获取订单
                 List<Purch> purchs = project.getPurchs();   //采购列表
@@ -1131,7 +1136,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 omp.setContractNo(project.getContractNo());     //销售合同号
                 omp.setOrderId(order.getId());   //订单id / 点击销售合同号查询
-                omp.setTotalPriceUsd( order.getTotalPriceUsd()); // 合同总价(USD)
+                omp.setTotalPriceUsd(order.getTotalPriceUsd()); // 合同总价(USD)
                 omp.setCurrencyBn(order.getCurrencyBn()); //   订单货币类型
                 omp.setRegion(project.getRegion());     // 地区
                 Map<String, String> bnMapZhCountry = findBnMapZhCountry();  //获取国家中英文   kay/vlaue
@@ -1140,34 +1145,34 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setProjectName(project.getProjectName());    //项目名称
                 omp.setOrderStatus(order.getStatus()); //订单状态
                 omp.setProjectStatus(project.getProjectStatus());   //项目状态
-                omp.setPurchStatus(disposePurchsStatus(project,order.getGoodsList()));   //采购状态      根据采购条数，订单商品报检数量来判断
+                omp.setPurchStatus(disposePurchsStatus(project, order.getGoodsList()));   //采购状态      根据采购条数，订单商品报检数量来判断
                 omp.setProjectId(project.getId());//    项目id / 点击采购状态查询
-                if(!"未执行".equals(omp.getPurchStatus())){    //采购未执行状态   不计算采购订单金额
+                if (!"未执行".equals(omp.getPurchStatus())) {    //采购未执行状态   不计算采购订单金额
                     omp.setPurchOrdermoney(disposePurchOrdermoney(purchs)); //采购订单金额
                 }
                 omp.setInspectReportStatus(disposeInspectReportStatus(order));   //  入库质检状态
                 omp.setInstockStatus(disposeInstockStatus(order.getGoodsList()));   //入库状态
                 omp.setDeliverConsignStatus(disposeDeliverConsignStatus(order));  //订舱通知状态   / 出口通知单状态
                 omp.setDeliverDetailStatus(disposeDeliverDetailStatus(order)); //出库状态
-                omp.setLogisticsDataStatus(disposeLogisticsDataStatus(order,null));//发运状态
+                omp.setLogisticsDataStatus(disposeLogisticsDataStatus(order, null));//发运状态
                 omp.setLogisticsPrice(disposeLogisticsPrice(order));    //发运金额
-                omp.setConfirmTheStatus(disposeLogisticsDataStatus(order,1));  //收货状态
+                omp.setConfirmTheStatus(disposeLogisticsDataStatus(order, 1));  //收货状态
                 omp.setPayStatus(order.getPayStatus()); //收款状态
                 String currencyBn = order.getCurrencyBn();//订单结算币种
                 BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(0) : order.getExchangeRate();//订单利率
 
-                BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney()== null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();  //已收款总金额
-                if(currencyBn != "USD"){
+                BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();  //已收款总金额
+                if (currencyBn != "USD") {
                     omp.setAlreadyGatheringMoney(alreadyGatheringMoney.multiply(exchangeRate));//     收款金额  /  已收款总金额
-                }else {
+                } else {
                     omp.setAlreadyGatheringMoney(alreadyGatheringMoney);//     收款金额  /  已收款总金额
                 }
-                BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining()== null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
+                BigDecimal receivableAccountRemaining = order.getReceivableAccountRemaining() == null ? BigDecimal.valueOf(0) : order.getReceivableAccountRemaining();  //   应收账款余额
                 BigDecimal multiply = receivableAccountRemaining.multiply(exchangeRate);    //应收账款余额*订单利率=应收账款余额(USD)
                 omp.setReceivableAccountRemaining(multiply); //   应收账款余额
-                if(purchs.size() > 0){
+                if (purchs.size() > 0) {
                     Purch purch = purchs.get(0);
-                    if(purch != null){
+                    if (purch != null) {
                         omp.setPurchCurrencyBn(purch.getCurrencyBn() == null ? "" : purch.getCurrencyBn());   //  采购币种
                     }
 
@@ -1177,22 +1182,22 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         }
 
-        Map<String,Object> resultMap = new HashMap();
-        resultMap.put("content",orderMainProcess);  //数据信息
+        Map<String, Object> resultMap = new HashMap();
+        resultMap.put("content", orderMainProcess);  //数据信息
 
 
         //处理分页数据
-        if(projectList.hasContent()) {
+        if (projectList.hasContent()) {
             List<Project> content = projectList.getContent();
             resultMap.put("totalPage", projectList.getTotalPages());    //总页数       Math.ceil 向上取整  总条数/每页条数
             resultMap.put("total", projectList.getTotalElements());    //总条数
-            resultMap.put("rows",projectList.getSize());    //每页条数
-            resultMap.put("page",pageStr);    //页数
-        }else {
-            resultMap.put("totalPage", 0 );    //总页数       Math.ceil 向上取整  总条数/每页条数
+            resultMap.put("rows", projectList.getSize());    //每页条数
+            resultMap.put("page", pageStr);    //页数
+        } else {
+            resultMap.put("totalPage", 0);    //总页数       Math.ceil 向上取整  总条数/每页条数
             resultMap.put("total", 0);    //总条数
-            resultMap.put("rows",0);    //每页条数
-            resultMap.put("page",0);    //页数
+            resultMap.put("rows", 0);    //每页条数
+            resultMap.put("page", 0);    //页数
         }
 
 
@@ -1200,15 +1205,14 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
 
-
-
     /**
      * 订单主流程监控 查询数据
+     *
      * @param params
      * @return
      */
-    public  Page<Project> findProject(Integer page, Integer rows , Map<String,String> params){
-        PageRequest pageRequest = new PageRequest(page,rows,new Sort(Sort.Direction.DESC,"id"));
+    public Page<Project> findProject(Integer page, Integer rows, Map<String, String> params) {
+        PageRequest pageRequest = new PageRequest(page, rows, new Sort(Sort.Direction.DESC, "id"));
 
         Page<Project> projectList = projectDao.findAll(new Specification<Project>() {
             @Override
@@ -1216,44 +1220,44 @@ public class StatisticsServiceImpl implements StatisticsService {
                 List<Predicate> list = new ArrayList<>();
 
                 //销售合同号
-                if(StringUtil.isNotBlank(params.get("contractNo"))){
-                    list.add(cb.like(root.get("contractNo").as(String.class),"%"+params.get("contractNo")+"%"));
+                if (StringUtil.isNotBlank(params.get("contractNo"))) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + params.get("contractNo") + "%"));
                 }
                 //项目号
-                if(StringUtil.isNotBlank(params.get("projectNo"))){
-                    list.add(cb.like(root.get("projectNo").as(String.class),"%"+params.get("projectNo")+"%"));
+                if (StringUtil.isNotBlank(params.get("projectNo"))) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + params.get("projectNo") + "%"));
                 }
                 //项目名称
-                if(StringUtil.isNotBlank(params.get("projectName"))){
-                    list.add(cb.like(root.get("projectName").as(String.class),"%"+params.get("projectName")+"%"));
+                if (StringUtil.isNotBlank(params.get("projectName"))) {
+                    list.add(cb.like(root.get("projectName").as(String.class), "%" + params.get("projectName") + "%"));
                 }
                 //项目状态
-                if(StringUtil.isNotBlank(params.get("projectStatus"))){
-                    list.add(cb.equal(root.get("projectStatus").as(String.class),params.get("projectStatus")));
+                if (StringUtil.isNotBlank(params.get("projectStatus"))) {
+                    list.add(cb.equal(root.get("projectStatus").as(String.class), params.get("projectStatus")));
                 }
                 //地区
-                if(StringUtil.isNotBlank(params.get("region"))){
-                    list.add(cb.like(root.get("region").as(String.class),"%"+params.get("region")+"%"));
+                if (StringUtil.isNotBlank(params.get("region"))) {
+                    list.add(cb.like(root.get("region").as(String.class), "%" + params.get("region") + "%"));
                 }
                 //国家
-                if(StringUtil.isNotBlank(params.get("country"))){
-                    list.add(cb.like(root.get("country").as(String.class),"%"+params.get("country")+"%"));
+                if (StringUtil.isNotBlank(params.get("country"))) {
+                    list.add(cb.like(root.get("country").as(String.class), "%" + params.get("country") + "%"));
                 }
 
-                String[] projectStatus = {"EXECUTING","DONE","DELAYED_EXECUTION","DELAYED_COMPLETE","UNSHIPPED","DELAYED_UNSHIPPED","PAUSE","CANCEL"};
+                String[] projectStatus = {"EXECUTING", "DONE", "DELAYED_EXECUTION", "DELAYED_COMPLETE", "UNSHIPPED", "DELAYED_UNSHIPPED", "PAUSE", "CANCEL"};
                 list.add(root.get("projectStatus").in(projectStatus));
 
-                    //关联订单
+                //关联订单
                 Join<Project, Order> orderRoot = root.join("order");
                 //订单状态
-                if(StringUtil.isNotBlank(params.get("orderStatus"))){
-                    list.add(cb.equal(orderRoot.get("status").as(Integer.class),params.get("orderStatus")));
+                if (StringUtil.isNotBlank(params.get("orderStatus"))) {
+                    list.add(cb.equal(orderRoot.get("status").as(Integer.class), params.get("orderStatus")));
                 }
 
-                list.add(cb.greaterThan(orderRoot.get("status").as(Integer.class),1));
+                list.add(cb.greaterThan(orderRoot.get("status").as(Integer.class), 1));
 
                 //采购状态
-                if(StringUtil.isNotBlank(params.get("purchStatus"))){
+                if (StringUtil.isNotBlank(params.get("purchStatus"))) {
                     //获取采购状态条件
                     int purchStatus = Integer.parseInt(params.get("purchStatus"));
                     List<Project> projects = finByPurchStatus(purchStatus);     //根据采购状态查询
@@ -1269,7 +1273,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     list.add(idIn);
                 }
                 //入库质检状态
-                if(StringUtil.isNotBlank(params.get("inspectReportStatus"))){
+                if (StringUtil.isNotBlank(params.get("inspectReportStatus"))) {
 
                     Set<Project> Projects = finByInspectReportStatus(params);     //根据入库质检状态条件查询 or 入库状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
@@ -1285,7 +1289,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 }
                 //入库状态
-                if(StringUtil.isNotBlank(params.get("instockStatus"))){
+                if (StringUtil.isNotBlank(params.get("instockStatus"))) {
                     Set<Project> Projects = finByInstockStatus(params);     //根据入库质检状态条件查询 or 入库状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(root.get("id"));
                     if (Projects != null && Projects.size() > 0) {
@@ -1300,7 +1304,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 }
                 //订舱通知状态
-                if(StringUtil.isNotBlank(params.get("deliverConsignStatus"))){
+                if (StringUtil.isNotBlank(params.get("deliverConsignStatus"))) {
                     Integer deliverConsignStatus = Integer.parseInt(params.get("deliverConsignStatus"));
 
                     Set<Order> orders = finByDeliverConsignStatus(deliverConsignStatus); //根据订舱通知状态条件查询
@@ -1318,7 +1322,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
                 //出库状态
-                if (StringUtil.isNotBlank(params.get("deliverDetailStatus"))){
+                if (StringUtil.isNotBlank(params.get("deliverDetailStatus"))) {
                     Integer deliverDetailStatus = Integer.parseInt(params.get("deliverDetailStatus"));
                     Set<Order> orders = finByDeliverDetailStatus(deliverDetailStatus); //根据出库状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
@@ -1334,11 +1338,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
                 //发运状态
-                if (StringUtil.isNotBlank(params.get("logisticsDataStatus")) ){
+                if (StringUtil.isNotBlank(params.get("logisticsDataStatus"))) {
 
                     Integer logisticsDataStatus = Integer.parseInt(params.get("logisticsDataStatus"));  //发运状态条件      1:未执行 2:执行中 3:已完成'
 
-                    Set<Order> orders = finBylogisticsDataStatus(logisticsDataStatus,null); //根据发运状态条件查询
+                    Set<Order> orders = finBylogisticsDataStatus(logisticsDataStatus, null); //根据发运状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
                     if (orders != null && orders.size() > 0) {
                         for (Order o : orders) {
@@ -1352,10 +1356,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
                 //收货状态
-                if (StringUtil.isNotBlank(params.get("confirmTheStatus"))){
+                if (StringUtil.isNotBlank(params.get("confirmTheStatus"))) {
                     Integer confirmTheStatus = Integer.parseInt(params.get("confirmTheStatus"));  //发运状态条件      1:未执行 2:执行中 3:已完成'
 
-                    Set<Order> orders = finBylogisticsDataStatus(confirmTheStatus,confirmTheStatus); //根据收货状态条件查询
+                    Set<Order> orders = finBylogisticsDataStatus(confirmTheStatus, confirmTheStatus); //根据收货状态条件查询
                     CriteriaBuilder.In<Object> idIn = cb.in(orderRoot.get("id"));
                     if (orders != null && orders.size() > 0) {
                         for (Order o : orders) {
@@ -1369,8 +1373,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
                 //收款状态
-                if(StringUtil.isNotBlank(params.get("payStatus"))){
-                    list.add(cb.equal(orderRoot.get("payStatus").as(String.class),params.get("payStatus")));
+                if (StringUtil.isNotBlank(params.get("payStatus"))) {
+                    list.add(cb.equal(orderRoot.get("payStatus").as(String.class), params.get("payStatus")));
                 }
 
 
@@ -1378,7 +1382,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
-
 
 
         }, pageRequest);
@@ -1389,22 +1392,23 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 根据采购状态查询
+     *
      * @param purchStatus
      * @return
      */
-    public  List<Project> finByPurchStatus(Integer purchStatus){
+    public List<Project> finByPurchStatus(Integer purchStatus) {
 
         List<Project> page = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
-                if(purchStatus != 1){
+                if (purchStatus != 1) {
                     //关联采购
                     Join<Project, Purch> purchRoot = root.join("purchs");
 
-                    list.add(cb.equal(purchRoot.get("deleteFlag").as(Integer.class),0)); //查询未删除
-                    list.add(cb.greaterThan(purchRoot.get("status").as(Integer.class),1)); //大于查询，不查询保存的信息
+                    list.add(cb.equal(purchRoot.get("deleteFlag").as(Integer.class), 0)); //查询未删除
+                    list.add(cb.greaterThan(purchRoot.get("status").as(Integer.class), 1)); //大于查询，不查询保存的信息
                 }
 
                 Predicate[] predicates = new Predicate[list.size()];
@@ -1416,20 +1420,21 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         List<Project> result = new ArrayList<>();
 
-        if(page.size() > 0){
-            for (Project project : page){
+        if (page.size() > 0) {
+            for (Project project : page) {
                 Integer purchReqCreate = project.getPurchReqCreate();   // 1：未创建  2：已创建 3:已创建并提交',
                 Boolean purchDone = project.getPurchDone();     //是否采购完成，1：完成  0：未完成
 
                 List<Purch> purchs = project.getPurchs();   //获取采购列表
                 Integer size = purchs.size();   //获取采购长度
-                outer:if(purchStatus == 1){     // 采购状态条件：  1.未执行
+                outer:
+                if (purchStatus == 1) {     // 采购状态条件：  1.未执行
 
-                    if(purchReqCreate == 3){    // 3:已创建并提交'
-                        if(size == 0 || size == null){
+                    if (purchReqCreate == 3) {    // 3:已创建并提交'
+                        if (size == 0 || size == null) {
                             result.add(project);    //如果没有采购信息   说明没有执行
                             break outer;
-                        }else {
+                        } else {
 
                             List<Integer> purchStatusList = new ArrayList();
                             for (Purch purch : purchs) {
@@ -1440,25 +1445,24 @@ public class StatisticsServiceImpl implements StatisticsService {
                             purchStatusListFlag.add(2);
                             purchStatusListFlag.add(3);
 
-                            if(disposeList(purchStatusList,purchStatusListFlag)){
+                            if (disposeList(purchStatusList, purchStatusListFlag)) {
                                 break outer;
-                            }else {
+                            } else {
                                 result.add(project);    //如果没有采购提交   说明没有执行
                                 break outer;
                             }
                         }
-                    }else {
+                    } else {
                         result.add(project);    //如果没有采购信息   说明没有执行
                         break outer;
                     }
 
 
-
-                }else external:if(purchStatus == 2){    //执行中
-                    if(purchReqCreate == 3){
-                        if(size == 0 || size == null){ //如果没有采购信息   说明没有执行
+                } else external:if (purchStatus == 2) {    //执行中
+                    if (purchReqCreate == 3) {
+                        if (size == 0 || size == null) { //如果没有采购信息   说明没有执行
                             break external;
-                        }else {
+                        } else {
                             List<Integer> purchStatusList = new ArrayList();
                             for (Purch purch : purchs) {
                                 purchStatusList.add(purch.getStatus());
@@ -1468,39 +1472,39 @@ public class StatisticsServiceImpl implements StatisticsService {
                             purchStatusListFlag.add(2);
                             purchStatusListFlag.add(3);
 
-                            if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
-                                if(!purchStatusList.contains(2)){   //判断是否全部是 已完成   ,判断是否有执行中
-                                    if(purchStatusList.contains(1)){    //判断是否还存在未执行的       如果有已完成，有未执行  返回执行中
+                            if (disposeList(purchStatusList, purchStatusListFlag)) {   //判断是否 执行中，已完成都有
+                                if (!purchStatusList.contains(2)) {   //判断是否全部是 已完成   ,判断是否有执行中
+                                    if (purchStatusList.contains(1)) {    //判断是否还存在未执行的       如果有已完成，有未执行  返回执行中
                                         result.add(project);
                                         break external;
-                                    }else {
-                                        if(purchDone){   //如果全部是已完成，判断是否全部采购完成
+                                    } else {
+                                        if (purchDone) {   //如果全部是已完成，判断是否全部采购完成
                                             break external;
-                                        }else {
+                                        } else {
                                             result.add(project);
                                             break external;
                                         }
                                     }
-                                }else {
+                                } else {
                                     result.add(project);
                                     break external;
                                 }
 
-                            }else {
+                            } else {
                                 break external;
                             }
                         }
-                    }else {
+                    } else {
                         break external;
                     }
 
 
-                }else out:if(purchStatus == 3){    //已完成
+                } else out:if (purchStatus == 3) {    //已完成
 
-                    if(purchReqCreate == 3 && purchDone == true){
-                        if(size == 0 || size == null){ //如果没有采购信息   说明没有执行
+                    if (purchReqCreate == 3 && purchDone == true) {
+                        if (size == 0 || size == null) { //如果没有采购信息   说明没有执行
                             break out;
-                        }else {
+                        } else {
                             List<Integer> purchStatusList = new ArrayList();
                             for (Purch purch : purchs) {
                                 purchStatusList.add(purch.getStatus());
@@ -1510,12 +1514,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                             purchStatusListFlag.add(1);
                             purchStatusListFlag.add(2);
 
-                            if(!disposeList(purchStatusList,purchStatusListFlag)){
+                            if (!disposeList(purchStatusList, purchStatusListFlag)) {
                                 result.add(project);
                             }
                             break out;
                         }
-                    }else {
+                    } else {
                         break out;
                     }
 
@@ -1667,46 +1671,48 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控  入库质检状态条件
+     *
      * @return
      */
-    private Set<Project> finByInspectReportStatus(Map<String,String> params) {
+    private Set<Project> finByInspectReportStatus(Map<String, String> params) {
         List<Project> all = projectDao.findAll();
 
         //获取入库质检状态条件
         String inspectReportStatus = params.get("inspectReportStatus");
 
         Set<Project> result = new HashSet<>();
-        if(StringUtil.isNotBlank(inspectReportStatus)){
+        if (StringUtil.isNotBlank(inspectReportStatus)) {
             Integer inspectReportStatus2 = Integer.parseInt(inspectReportStatus);
 
-            outer:for (Project project : all){
+            outer:
+            for (Project project : all) {
                 List<Goods> goodsList = project.getOrder().getGoodsList();
-                if(goodsList != null && goodsList.size() > 0){
+                if (goodsList != null && goodsList.size() > 0) {
                     Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
                     Integer goodNums = 0;    // 本订单商品 检验合格商品数量
 
-                    for (Goods goods : goodsList){
+                    for (Goods goods : goodsList) {
                         contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
                         List<PurchGoods> purchGoodsList = goods.getPurchGoods();  //已报检商品信息
-                        if (purchGoodsList.size() > 0){
-                            for (PurchGoods purchGoods : purchGoodsList){
+                        if (purchGoodsList.size() > 0) {
+                            for (PurchGoods purchGoods : purchGoodsList) {
                                 Integer goodNum = purchGoods.getGoodNum() == null ? 0 : purchGoods.getGoodNum();//检验合格商品数量
                                 goodNums += goodNum;
                             }
                         }
                     }
                     //  inspectReportStatus  1:未执行 2:执行中  3:已完成
-                    if(inspectReportStatus2 == 1){
-                        if(goodNums == 0){
+                    if (inspectReportStatus2 == 1) {
+                        if (goodNums == 0) {
                             result.add(project);
                         }
 
-                    }else if(inspectReportStatus2 == 3){
-                        if(goodNums >= contractGoodsNums && goodNums != 0){
+                    } else if (inspectReportStatus2 == 3) {
+                        if (goodNums >= contractGoodsNums && goodNums != 0) {
                             result.add(project);
                         }
-                    }else if(inspectReportStatus2 == 2){
-                        if(goodNums < contractGoodsNums && goodNums != 0){
+                    } else if (inspectReportStatus2 == 2) {
+                        if (goodNums < contractGoodsNums && goodNums != 0) {
                             result.add(project);
                         }
                     }
@@ -1775,38 +1781,40 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控   入库状态条件查询
+     *
      * @return
      */
-    private Set<Project> finByInstockStatus(Map<String,String> params) {
+    private Set<Project> finByInstockStatus(Map<String, String> params) {
         List<Project> all = projectDao.findAll();
 
         //获取入库状态条件
         String instockStatus = params.get("instockStatus");
 
         Set<Project> result = new HashSet<>();
-       if (StringUtil.isNotBlank(instockStatus)){
+        if (StringUtil.isNotBlank(instockStatus)) {
             Integer instockStatus2 = Integer.parseInt(instockStatus);
-            outer:for (Project project : all){
+            outer:
+            for (Project project : all) {
                 List<Goods> goodsList = project.getOrder().getGoodsList();
-                if(goodsList != null){
+                if (goodsList != null) {
                     Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
                     Integer instockNum = 0;    // 本订单商品  已入库数量
-                    for (Goods goods : goodsList){
+                    for (Goods goods : goodsList) {
                         contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
                         instockNum += goods.getInstockNum();// 已入库数量
                     }
                     //  inspectReportStatus  1:未执行 2:执行中  3:已完成
-                    if(instockStatus2 == 1){
-                        if(instockNum == 0){
+                    if (instockStatus2 == 1) {
+                        if (instockNum == 0) {
                             result.add(project);
                         }
 
-                    }else if(instockStatus2 == 3){
-                        if(instockNum >= contractGoodsNums && instockNum != 0 ){
+                    } else if (instockStatus2 == 3) {
+                        if (instockNum >= contractGoodsNums && instockNum != 0) {
                             result.add(project);
                         }
-                    }else if(instockStatus2 == 2){
-                        if(instockNum < contractGoodsNums && instockNum != 0){
+                    } else if (instockStatus2 == 2) {
+                        if (instockNum < contractGoodsNums && instockNum != 0) {
                             result.add(project);
                         }
                     }
@@ -1820,6 +1828,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 根据出库状态条件查询
+     *
      * @param deliverConsignStatus
      * @return
      */
@@ -1828,63 +1837,63 @@ public class StatisticsServiceImpl implements StatisticsService {
         Set<Order> result = new HashSet<>();
         List<Order> orderList = orderDao.findByDeleteFlag(false);   //0:未删除 1：已删除',
 
-        if (orderList.size() > 0 ){
-            for (Order order : orderList){
+        if (orderList.size() > 0) {
+            for (Order order : orderList) {
                 Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //deliverConsignHas 是否已生成出口通知单 1：未生成 2： 已生成',
                 Boolean deliverConsignC = order.getDeliverConsignC(); //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
 
-                if(deliverConsignStatus == 1){  //1:未执行 2:执行中 3:已完成'
-                    if(deliverConsignHas == 1){ //未生成
+                if (deliverConsignStatus == 1) {  //1:未执行 2:执行中 3:已完成'
+                    if (deliverConsignHas == 1) { //未生成
                         result.add(order);
-                    }else {
+                    } else {
 
-                        List<Integer>  deliverConsignStatusList = new ArrayList<>();
+                        List<Integer> deliverConsignStatusList = new ArrayList<>();
 
                         List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
-                        if(deliverConsignList.size() > 0){
-                            for (DeliverConsign deliverConsign1 : deliverConsignList){
-                                if(deliverConsign1 != null){
+                        if (deliverConsignList.size() > 0) {
+                            for (DeliverConsign deliverConsign1 : deliverConsignList) {
+                                if (deliverConsign1 != null) {
                                     deliverConsignStatusList.add(deliverConsign1.getStatus());
                                 }
                             }
 
-                            List<Integer>  deliverConsignFlagList = new ArrayList<>();
+                            List<Integer> deliverConsignFlagList = new ArrayList<>();
                             deliverConsignFlagList.add(2);
                             deliverConsignFlagList.add(3);
 
-                            if(!disposeList(deliverConsignFlagList,deliverConsignStatusList)){
+                            if (!disposeList(deliverConsignFlagList, deliverConsignStatusList)) {
                                 result.add(order);
                             }
-                        }else {
+                        } else {
                             result.add(order);
                         }
                     }
 
-                }else if(deliverConsignStatus == 2){
-                    if(deliverConsignHas == 2){ //有生成
-                        List<Integer>  deliverConsignStatusList = new ArrayList<>();
+                } else if (deliverConsignStatus == 2) {
+                    if (deliverConsignHas == 2) { //有生成
+                        List<Integer> deliverConsignStatusList = new ArrayList<>();
 
                         List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
-                        if(deliverConsignList.size() > 0){
-                            for (DeliverConsign deliverConsign1 : deliverConsignList){
-                                if(deliverConsign1 != null){
+                        if (deliverConsignList.size() > 0) {
+                            for (DeliverConsign deliverConsign1 : deliverConsignList) {
+                                if (deliverConsign1 != null) {
                                     deliverConsignStatusList.add(deliverConsign1.getStatus());
                                 }
                             }
 
-                            List<Integer>  deliverConsignFlagList = new ArrayList<>();
+                            List<Integer> deliverConsignFlagList = new ArrayList<>();
                             deliverConsignFlagList.add(2);
                             deliverConsignFlagList.add(3);
 
-                            if(deliverConsignC){    //是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
-                                if(disposeList(deliverConsignFlagList,deliverConsignStatusList)){
+                            if (deliverConsignC) {    //是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
+                                if (disposeList(deliverConsignFlagList, deliverConsignStatusList)) {
                                     result.add(order);
                                 }
-                            }else {
-                                List<Integer>  deliverConsignFlagList2 = new ArrayList<>();
+                            } else {
+                                List<Integer> deliverConsignFlagList2 = new ArrayList<>();
                                 deliverConsignFlagList2.add(2);
                                 deliverConsignFlagList2.add(1);
-                                if(disposeList(deliverConsignFlagList2,deliverConsignStatusList)){
+                                if (disposeList(deliverConsignFlagList2, deliverConsignStatusList)) {
                                     result.add(order);
                                 }
                             }
@@ -1892,23 +1901,23 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
                     }
 
-                }else if(deliverConsignStatus == 3) {
-                    if(deliverConsignHas == 2 && deliverConsignC == false){
-                        List<Integer>  deliverConsignStatusList = new ArrayList<>();
+                } else if (deliverConsignStatus == 3) {
+                    if (deliverConsignHas == 2 && deliverConsignC == false) {
+                        List<Integer> deliverConsignStatusList = new ArrayList<>();
 
                         List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
-                        if(deliverConsignList.size() > 0){
-                            for (DeliverConsign deliverConsign1 : deliverConsignList){
-                                if(deliverConsign1 != null){
+                        if (deliverConsignList.size() > 0) {
+                            for (DeliverConsign deliverConsign1 : deliverConsignList) {
+                                if (deliverConsign1 != null) {
                                     deliverConsignStatusList.add(deliverConsign1.getStatus());
                                 }
                             }
 
-                            List<Integer>  deliverConsignFlagList = new ArrayList<>();
+                            List<Integer> deliverConsignFlagList = new ArrayList<>();
                             deliverConsignFlagList.add(1);
                             deliverConsignFlagList.add(2);
 
-                            if(!disposeList(deliverConsignFlagList,deliverConsignStatusList)){
+                            if (!disposeList(deliverConsignFlagList, deliverConsignStatusList)) {
                                 result.add(order);
                             }
 
@@ -1920,64 +1929,132 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         }
 
-        return  result;
+        return result;
     }
-
-
-
 
 
     /**
      * 订单主流程监控 根据出库状态条件查询
+     *
      * @param params
      * @return
      */
     public Set<Order> finByDeliverDetailStatus(Integer params) {
 
-            Set<Order> result = new HashSet<>();
-            List<Order> orderList = orderDao.findByDeleteFlag(false);   //0:未删除 1：已删除',
+        Set<Order> result = new HashSet<>();
+        List<Order> orderList = orderDao.findByDeleteFlag(false);   //0:未删除 1：已删除',
 
-            for (Order order : orderList) {
-                Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
-                Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
+        for (Order order : orderList) {
+            Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
+            Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
 
-                if (params == 1) {    //未执行
-                    if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+            if (params == 1) {    //未执行
+                if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                    result.add(order);
+                } else {
+                    List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+                    if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                         result.add(order);
                     } else {
-                        List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
-                        if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
-                            result.add(order);
-                        } else {
-                            List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
-                            List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
-                            for (DeliverConsign deliverConsign1 : deliverConsign) {
-                                Integer status1 = deliverConsign1.getStatus();
-                                deliverConsignStatusList.add(status1);
-                                if (status1 > 2) {
-                                    DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                    if (deliverDetail != null) {
-                                        Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                                        deliverDetailStatusList.add(status);
-                                    }
+                        List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                        List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {
+                            Integer status1 = deliverConsign1.getStatus();
+                            deliverConsignStatusList.add(status1);
+                            if (status1 > 2) {
+                                DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                                if (deliverDetail != null) {
+                                    Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                                    deliverDetailStatusList.add(status);
                                 }
-                            }
-                            if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
-                                result.add(order);
-                            }
-
-                            if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
-                                result.add(order);
                             }
                         }
+                        if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
+                            result.add(order);
+                        }
+
+                        if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                            result.add(order);
+                        }
                     }
-                } else outer:if (params == 2) {
-                    if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                }
+            } else outer:if (params == 2) {
+                if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                    break outer;
+                } else {
+                    List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+                    if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                         break outer;
                     } else {
+                        List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                        List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {
+                            Integer status1 = deliverConsign1.getStatus();
+                            deliverConsignStatusList.add(status1);
+                            if (status1 > 2) {
+                                DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                                if (deliverDetail != null) {
+                                    Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                                    deliverDetailStatusList.add(status);
+                                }
+                            }
+                        }
+
+                        Boolean flag = false;   //是否全部生成完成  如果没有生成完成是false
+                        Boolean flag2 = false;  //是否全部出库        如果等于true说明没有全部出库
+
+                        if (!deliverConsignC) {
+                            flag = true;
+                        }
+
+                        if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
+                            break outer;
+                        }
+
+
+                        if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                            break outer;
+                        }
+
+                        List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
+                        deliverConsignStatusFlag.add(1);
+                        deliverConsignStatusFlag.add(2);
+
+                        if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {
+                            flag2 = true;
+                        }
+
+                        List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                        deliverDetailStatusListS.add(1);
+                        deliverDetailStatusListS.add(2);
+                        deliverDetailStatusListS.add(3);
+                        deliverDetailStatusListS.add(4);
+
+                        if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
+                            result.add(order);
+                        } else {
+                            if (flag == false) {
+                                result.add(order);
+                            } else {
+                                if (flag2) {
+                                    result.add(order);
+                                } else {
+                                    break outer;
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            } else if (params == 3) {
+                if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+                    break outer;
+                } else out:if (!deliverConsignC) {
+                    {
                         List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
                         if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
-                            break outer;
+                            break out;
                         } else {
                             List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
                             List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
@@ -1993,20 +2070,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 }
                             }
 
-                            Boolean flag = false;   //是否全部生成完成  如果没有生成完成是false
-                            Boolean flag2 = false;  //是否全部出库        如果等于true说明没有全部出库
-
-                            if (!deliverConsignC) {
-                                flag = true;
-                            }
 
                             if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
-                                break outer;
-                            }
-
-
-                            if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
-                                break outer;
+                                break out;
                             }
 
                             List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
@@ -2014,8 +2080,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                             deliverConsignStatusFlag.add(2);
 
                             if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {
-                                flag2 = true;
+                                break out;
                             }
+
+
+                            if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                                break out;
+                            }
+
 
                             List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
                             deliverDetailStatusListS.add(1);
@@ -2024,81 +2096,16 @@ public class StatisticsServiceImpl implements StatisticsService {
                             deliverDetailStatusListS.add(4);
 
                             if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
-                                result.add(order);
-                            } else {
-                                if (flag == false) {
-                                    result.add(order);
-                                } else {
-                                    if (flag2) {
-                                        result.add(order);
-                                    } else {
-                                        break outer;
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                } else if (params == 3) {
-                    if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
-                        break outer;
-                    } else out:if (!deliverConsignC) {
-                        {
-                            List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
-                            if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                                 break out;
-                            } else {
-                                List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
-                                List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
-                                for (DeliverConsign deliverConsign1 : deliverConsign) {
-                                    Integer status1 = deliverConsign1.getStatus();
-                                    deliverConsignStatusList.add(status1);
-                                    if (status1 > 2) {
-                                        DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                        if (deliverDetail != null) {
-                                            Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                                            deliverDetailStatusList.add(status);
-                                        }
-                                    }
-                                }
-
-
-                                if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
-                                    break out;
-                                }
-
-                                List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
-                                deliverConsignStatusFlag.add(1);
-                                deliverConsignStatusFlag.add(2);
-
-                                if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {
-                                    break out;
-                                }
-
-
-                                if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
-                                    break out;
-                                }
-
-
-                                List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
-                                deliverDetailStatusListS.add(1);
-                                deliverDetailStatusListS.add(2);
-                                deliverDetailStatusListS.add(3);
-                                deliverDetailStatusListS.add(4);
-
-                                if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
-                                    break out;
-                                }
-
-                                result.add(order);
-
                             }
+
+                            result.add(order);
+
                         }
-
-
                     }
+
+
+                }
 
 
 
@@ -2127,37 +2134,38 @@ public class StatisticsServiceImpl implements StatisticsService {
                     }
                 }
             }*/
-                }
-
             }
+
+        }
         return result;
     }
 
     /**
      * 订单主流程监控 根据发运状态状态条件查询
+     *
      * @param logisticsDataStatus
      * @return
      */
-    public Set<Order> finBylogisticsDataStatus(Integer logisticsDataStatus , Integer confirmTheStatus) {
+    public Set<Order> finBylogisticsDataStatus(Integer logisticsDataStatus, Integer confirmTheStatus) {
         List<Order> all = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
-                if(logisticsDataStatus != 1){
+                if (logisticsDataStatus != 1) {
                     //查询状态前的基本条件
-                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class),2)); //deliverConsignHas 是否已生成出口通知单 1：未生成 2： 已生成',
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), 2)); //deliverConsignHas 是否已生成出口通知单 1：未生成 2： 已生成',
 
-                    if( logisticsDataStatus == 3 ){
-                        list.add(cb.equal(root.get("deliverConsignC").as(Boolean.class),false));     //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
+                    if (logisticsDataStatus == 3) {
+                        list.add(cb.equal(root.get("deliverConsignC").as(Boolean.class), false));     //deliverConsignC   是否存在商品可以创建发货通知单 0：无 1：有', 0:false    1:true
                     }
 
                     Join<Order, DeliverConsign> deliverConsignRoot = root.join("deliverConsign");
                     Join<DeliverConsign, DeliverDetail> deliverDetailRoot = deliverConsignRoot.join("deliverDetail");
                     Join<DeliverDetail, Iogistics> iogisticsRoot = deliverDetailRoot.join("iogistics");
                     Join<Iogistics, IogisticsData> iogisticsDataRoot = iogisticsRoot.join("iogisticsData");
-                    if(logisticsDataStatus == 3){
-                        list.add(cb.equal(iogisticsDataRoot.get("status").as(Integer.class),7));    //  status  物流状态 5：合并出库信息 6：完善物流状态中 7：项目完结
+                    if (logisticsDataStatus == 3) {
+                        list.add(cb.equal(iogisticsDataRoot.get("status").as(Integer.class), 7));    //  status  物流状态 5：合并出库信息 6：完善物流状态中 7：项目完结
                     }
 
                 }
@@ -2168,71 +2176,73 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
         });
 
-        return disposeLogisticsDataStatus(all,logisticsDataStatus,confirmTheStatus);
+        return disposeLogisticsDataStatus(all, logisticsDataStatus, confirmTheStatus);
 
     }
 
     /**
      * 订单主流程监控  处理发运状态查询条件  处理收款状态查询条件
+     *
      * @param logisticsDataStatus
      * @return
      */
-    public Set<Order> disposeLogisticsDataStatus(List<Order> orderList,Integer logisticsDataStatus , Integer confirmTheStatus){
+    public Set<Order> disposeLogisticsDataStatus(List<Order> orderList, Integer logisticsDataStatus, Integer confirmTheStatus) {
         Set<Order> set = new HashSet();
-        for (Order order : orderList){
+        for (Order order : orderList) {
             Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
             Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
-            outer:if(logisticsDataStatus == 1){   //查找未完成
-                if(deliverConsignHas == 1){ //判断是否生成过出口通知单 1,，未生成过
+            outer:
+            if (logisticsDataStatus == 1) {   //查找未完成
+                if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
                     set.add(order);
-                }else{  //判断出口通知单是否已经生成完
+                } else {  //判断出口通知单是否已经生成完
                     List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
-                    if(deliverConsign.size() <= 0){ //如果没有出口通知单，说明没有执行
+                    if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                         set.add(order);
-                    }else{
+                    } else {
 
                         List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
                         List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
-                        for (DeliverConsign deliverConsign1 : deliverConsign){
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {
                             Integer status1 = deliverConsign1.getStatus();
                             deliverConsignStatusList.add(status1);
-                            if(status1 > 2){
+                            if (status1 > 2) {
                                 DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                if(deliverDetail != null){
+                                if (deliverDetail != null) {
                                     Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
                                     deliverDetailStatusList.add(status);
                                 }
                             }
                         }
 
-                        if(!deliverConsignStatusList.contains(3)){  //如果出库通知单中没有状态等于已出库说明没有执行
+                        if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
                             set.add(order);
                         }
 
-                        if(!deliverDetailStatusList.contains(5)){   //如果出库状态中没有确认出库，说明没有执行
+                        if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
                             set.add(order);
                         }
 
-                       for (DeliverConsign deliverConsign1 : deliverConsign){  //如果出库状态有确认出库 ，去判断物流是否是执行中，如果有执行中，条数本订单循环
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {  //如果出库状态有确认出库 ，去判断物流是否是执行中，如果有执行中，条数本订单循环
                             Integer status1 = deliverConsign1.getStatus();
-                            if(status1 > 2){
+                            if (status1 > 2) {
                                 DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                if(deliverDetail != null){
+                                if (deliverDetail != null) {
 
                                     Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                                    if (status > 4){
+                                    if (status > 4) {
                                         List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
-                                        if (iogisticsList.size() != 0 ){
-                                            for (Iogistics iogistics : iogisticsList){
+                                        if (iogisticsList.size() != 0) {
+                                            for (Iogistics iogistics : iogisticsList) {
                                                 IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                                if(iogisticsData != null){
+                                                if (iogisticsData != null) {
                                                     Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
-                                                    if(confirmTheStatus == null){
-                                                        if (iogisticsDataStatus > 5){   //如果物流状态有不是待确定， 直接退出循环
+                                                    if (confirmTheStatus == null) {
+                                                        if (iogisticsDataStatus > 5) {   //如果物流状态有不是待确定， 直接退出循环
                                                             break outer;
                                                         }
-                                                    }else {
-                                                        if (iogisticsData.getConfirmTheGoods() != null){   //如果物流状态有不是待确定， 直接退出循环
+                                                    } else {
+                                                        if (iogisticsData.getConfirmTheGoods() != null) {   //如果物流状态有不是待确定， 直接退出循环
                                                             break outer;
                                                         }
                                                     }
@@ -2247,22 +2257,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                     }
                 }
 
-            }else out:if(logisticsDataStatus == 2){ //查找执行中
-                if(deliverConsignHas == 1){ //判断是否生成过出口通知单 1,，未生成过   直接退出本次order
+            } else out:if (logisticsDataStatus == 2) { //查找执行中
+                if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过   直接退出本次order
                     break out;
-                }else {  //生成过出口通知单，去继续往下判断
+                } else {  //生成过出口通知单，去继续往下判断
                     List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
-                    if(deliverConsign.size() <= 0){ //如果没有出口通知单，说明没有执行
+                    if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                         break out;
-                    }else{  //如果有出口通知单，继续判断
+                    } else {  //如果有出口通知单，继续判断
                         List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
                         List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
-                        for (DeliverConsign deliverConsign1 : deliverConsign){
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {
                             Integer status1 = deliverConsign1.getStatus();
                             deliverConsignStatusList.add(status1);
-                            if(status1 > 2){
+                            if (status1 > 2) {
                                 DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                if(deliverDetail != null){
+                                if (deliverDetail != null) {
                                     Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
                                     deliverDetailStatusList.add(status);
                                 }
@@ -2271,67 +2281,67 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                         List<Boolean> iogisticsDataStatusBoolean = new ArrayList<>();   //物流状态
 
-                        if(deliverConsignC){
+                        if (deliverConsignC) {
                             iogisticsDataStatusBoolean.add(false);
                         }
 
-                        if(!deliverConsignStatusList.contains(3)){  //如果出库通知单中没有状态等于已出库说明没有执行
+                        if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
                             break out;
                         }
-                       List<Integer> deliverConsignStatusListS = new ArrayList<>();
+                        List<Integer> deliverConsignStatusListS = new ArrayList<>();
                         deliverConsignStatusListS.add(1);
                         deliverConsignStatusListS.add(2);
 
-                        if(disposeList(deliverConsignStatusList,deliverConsignStatusListS)){
+                        if (disposeList(deliverConsignStatusList, deliverConsignStatusListS)) {
                             iogisticsDataStatusBoolean.add(false);
                         }
 
-                        if(!deliverDetailStatusList.contains(5)){   //如果出库状态中没有确认出库，说明没有执行
+                        if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
                             break out;
                         }
 
-                       List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                        List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
                         deliverDetailStatusListS.add(1);
                         deliverDetailStatusListS.add(2);
                         deliverDetailStatusListS.add(3);
                         deliverDetailStatusListS.add(4);
 
-                        if(disposeList(deliverDetailStatusList,deliverDetailStatusListS)){
+                        if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
                             iogisticsDataStatusBoolean.add(false);
                         }
 
                         List<Boolean> iogisticsDataBoolean = new ArrayList<>(); //物流信息
 
 
-                        for (DeliverConsign deliverConsign1 : deliverConsign){  //如果出库状态有确认出库 ，去判断物流是否有执行中
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {  //如果出库状态有确认出库 ，去判断物流是否有执行中
                             Integer status1 = deliverConsign1.getStatus();
-                            if(status1 > 2){
+                            if (status1 > 2) {
                                 DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                if(deliverDetail != null){
+                                if (deliverDetail != null) {
 
                                     Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                                    if (status > 4){
+                                    if (status > 4) {
                                         List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
-                                        if (iogisticsList.size() != 0 ){
-                                            for (Iogistics iogistics : iogisticsList){
+                                        if (iogisticsList.size() != 0) {
+                                            for (Iogistics iogistics : iogisticsList) {
                                                 IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                                if(iogisticsData == null){
+                                                if (iogisticsData == null) {
                                                     iogisticsDataBoolean.add(false);
-                                                }else {
+                                                } else {
                                                     iogisticsDataBoolean.add(true);
 
-                                                    if(confirmTheStatus == null){   //是否是确认收货查询
+                                                    if (confirmTheStatus == null) {   //是否是确认收货查询
                                                         Integer status2 = iogisticsData.getStatus();
-                                                        if(status2 < 6){
+                                                        if (status2 < 6) {
                                                             iogisticsDataStatusBoolean.add(false);
-                                                        }else {
+                                                        } else {
                                                             iogisticsDataStatusBoolean.add(true);
                                                         }
-                                                    }else {
+                                                    } else {
                                                         Integer status2 = iogisticsData.getStatus();
-                                                        if(status2 == 7 &&  iogisticsData.getConfirmTheGoods() != null){ //确认收货时间不为空
+                                                        if (status2 == 7 && iogisticsData.getConfirmTheGoods() != null) { //确认收货时间不为空
                                                             iogisticsDataStatusBoolean.add(true);
-                                                        }else {
+                                                        } else {
                                                             iogisticsDataStatusBoolean.add(false);
                                                         }
                                                     }
@@ -2361,43 +2371,43 @@ public class StatisticsServiceImpl implements StatisticsService {
                         containsList.add(true);
                         containsList.add(false);
 
-                        if(iogisticsDataBoolean.size() > 0  && iogisticsDataBoolean.contains(true) && iogisticsDataStatusBoolean.containsAll(containsList) ){
+                        if (iogisticsDataBoolean.size() > 0 && iogisticsDataBoolean.contains(true) && iogisticsDataStatusBoolean.containsAll(containsList)) {
                             set.add(order);
                             break out;
-                        }else {
+                        } else {
                             break out;
                         }
                     }
                 }
 
 
-            }else Jumps:if(logisticsDataStatus == 3){ //查找已完成
-                if(deliverConsignHas == 1){ //判断是否生成过出口通知单 1,，未生成过   直接退出本次order
+            } else Jumps:if (logisticsDataStatus == 3) { //查找已完成
+                if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过   直接退出本次order
                     break Jumps;
-                }else Jump:if (!deliverConsignC){  //生成过出口通知单，去继续往下判断    0:false    1:true  0：说明已经生成完出口
+                } else Jump:if (!deliverConsignC) {  //生成过出口通知单，去继续往下判断    0:false    1:true  0：说明已经生成完出口
                     List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
-                    if(deliverConsign.size() <= 0){ //如果没有出口通知单，说明没有执行
+                    if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                         break Jump;
-                    }else{  //如果有出口通知单，继续判断
+                    } else {  //如果有出口通知单，继续判断
                         List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
                         List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
-                        for (DeliverConsign deliverConsign1 : deliverConsign){
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {
                             Integer status1 = deliverConsign1.getStatus();
                             deliverConsignStatusList.add(status1);
-                            if(status1 > 2){
+                            if (status1 > 2) {
                                 DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                if(deliverDetail != null){
+                                if (deliverDetail != null) {
                                     Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
                                     deliverDetailStatusList.add(status);
                                 }
                             }
                         }
 
-                        if(!deliverConsignStatusList.contains(3)){  //如果出库通知单中没有确认状态等于已出库说明没有执行
+                        if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有确认状态等于已出库说明没有执行
                             break Jump;
                         }
 
-                        if(!deliverDetailStatusList.contains(5)){   //如果出库状态中没有确认出库，说明没有执行
+                        if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
                             break Jump;
                         }
 
@@ -2405,18 +2415,18 @@ public class StatisticsServiceImpl implements StatisticsService {
                         List<Boolean> iogisticsDataStatusBoolean = new ArrayList<>();   //物流状态
 
 
-                        for (DeliverConsign deliverConsign1 : deliverConsign){  //如果出库状态有确认出库 ，去判断物流是否有执行中
+                        for (DeliverConsign deliverConsign1 : deliverConsign) {  //如果出库状态有确认出库 ，去判断物流是否有执行中
 
                             List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
                             deliverConsignStatusFlag.add(1);
                             deliverConsignStatusFlag.add(2);
 
-                            if (!disposeList(deliverConsignStatusList,deliverConsignStatusFlag)){  //未出库通知状态  判断如果都已经出库返回false
+                            if (!disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {  //未出库通知状态  判断如果都已经出库返回false
 
                                 Integer status1 = deliverConsign1.getStatus();
-                                if(status1 > 2){
+                                if (status1 > 2) {
                                     DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                                    if(deliverDetail != null){
+                                    if (deliverDetail != null) {
 
                                         Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
 
@@ -2426,42 +2436,42 @@ public class StatisticsServiceImpl implements StatisticsService {
                                         statusFlag.add(3);
                                         statusFlag.add(4);
 
-                                        if(!disposeList(deliverDetailStatusList,statusFlag)){    //判断是否出库和未出库状态都有，如果有的话判断是否是执行中
-                                            if (status > 4){
+                                        if (!disposeList(deliverDetailStatusList, statusFlag)) {    //判断是否出库和未出库状态都有，如果有的话判断是否是执行中
+                                            if (status > 4) {
                                                 List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
-                                                if (iogisticsList.size() != 0 ){
-                                                    for (Iogistics iogistics : iogisticsList){
+                                                if (iogisticsList.size() != 0) {
+                                                    for (Iogistics iogistics : iogisticsList) {
                                                         IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                                        if(iogisticsData != null){
+                                                        if (iogisticsData != null) {
                                                             Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
-                                                            if(confirmTheStatus == null){
-                                                                if (iogisticsDataStatus != 7){
+                                                            if (confirmTheStatus == null) {
+                                                                if (iogisticsDataStatus != 7) {
                                                                     break Jump;
                                                                 }
-                                                            }else {
-                                                                if (iogisticsDataStatus != 7 ){
+                                                            } else {
+                                                                if (iogisticsDataStatus != 7) {
                                                                     break Jump;
-                                                                }else if(iogisticsData.getConfirmTheGoods() == null ){
+                                                                } else if (iogisticsData.getConfirmTheGoods() == null) {
                                                                     break Jump;
                                                                 }
                                                             }
-                                                        }else {
+                                                        } else {
                                                             break Jump;
                                                         }
                                                     }
-                                                }else {
+                                                } else {
                                                     break Jump;
                                                 }
                                             }
-                                        }else {
+                                        } else {
                                             break Jump;
                                         }
-                                    }else {
+                                    } else {
                                         break Jump;
                                     }
                                 }
 
-                            }else {
+                            } else {
                                 break Jump;
                             }
                         }
@@ -2479,24 +2489,23 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
 
-
-
     /**
      * 订单主流程监控 返回数据处理采购状态
+     *
      * @param project
      * @param orderGoodsList
      * @return
      */
-    public Integer disposePurchsStatus(Project project, List<Goods> orderGoodsList){
+    public Integer disposePurchsStatus(Project project, List<Goods> orderGoodsList) {
         Integer purchReqCreate = project.getPurchReqCreate();   // 1：未创建  2：已创建 3:已创建并提交',
         Boolean purchDone = project.getPurchDone();     //是否采购完成，1：完成  0：未完成
         List<Purch> purchs = project.getPurchs();   //获取采购列表
-        if(purchReqCreate != null){
-            if(purchReqCreate == 3){
-                if(purchs.size() == 0 || purchs == null){
+        if (purchReqCreate != null) {
+            if (purchReqCreate == 3) {
+                if (purchs.size() == 0 || purchs == null) {
                     return 1;
-                }else {
-                    if(!purchDone){  //true 已完成  false 未完成
+                } else {
+                    if (!purchDone) {  //true 已完成  false 未完成
                         List<Integer> purchStatusList = new ArrayList();
                         for (Purch purch : purchs) {
                             purchStatusList.add(purch.getStatus());
@@ -2506,12 +2515,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                         purchStatusListFlag.add(2);
                         purchStatusListFlag.add(3);
 
-                        if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
+                        if (disposeList(purchStatusList, purchStatusListFlag)) {   //判断是否 执行中，已完成都有
                             return 2;
-                        }else {
+                        } else {
                             return 1;
                         }
-                    }else {
+                    } else {
                         List<Integer> purchStatusList = new ArrayList();
                         for (Purch purch : purchs) {
                             purchStatusList.add(purch.getStatus());
@@ -2521,27 +2530,27 @@ public class StatisticsServiceImpl implements StatisticsService {
                         purchStatusListFlag.add(2);
                         purchStatusListFlag.add(3);
 
-                        if(disposeList(purchStatusList,purchStatusListFlag)){   //判断是否 执行中，已完成都有
-                            if(!purchStatusList.contains(2)){   //判断是否全部是 已完成   ,判断是否有执行中
-                                if(purchStatusList.contains(1)){    //判断是否还存在未执行的       如果有已完成，有未执行  返回执行中
+                        if (disposeList(purchStatusList, purchStatusListFlag)) {   //判断是否 执行中，已完成都有
+                            if (!purchStatusList.contains(2)) {   //判断是否全部是 已完成   ,判断是否有执行中
+                                if (purchStatusList.contains(1)) {    //判断是否还存在未执行的       如果有已完成，有未执行  返回执行中
                                     return 2;
-                                }else {
+                                } else {
                                     return 3;
                                 }
-                            }else {
+                            } else {
                                 return 2;
                             }
 
-                        }else {
+                        } else {
                             return 1;
                         }
                     }
 
                 }
-            }else {
+            } else {
                 return 1;
             }
-        }else {
+        } else {
             return 1;
         }
 
@@ -2550,33 +2559,35 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 计算采购金额
+     *
      * @param purchs
      * @return
      */
-    public  BigDecimal  disposePurchOrdermoney(List<Purch> purchs) {
+    public BigDecimal disposePurchOrdermoney(List<Purch> purchs) {
         BigDecimal totalPrice = BigDecimal.valueOf(0);
-        for (Purch purch : purchs){
-            totalPrice=totalPrice.add(purch.getTotalPrice() == null ? BigDecimal.valueOf(0) : purch.getTotalPrice()); //单条采购总金额
+        for (Purch purch : purchs) {
+            totalPrice = totalPrice.add(purch.getTotalPrice() == null ? BigDecimal.valueOf(0) : purch.getTotalPrice()); //单条采购总金额
         }
         return totalPrice;
     }
 
     /**
      * 订单主流程监控 入库质检状态
+     *
      * @param order
      * @return
      */
     public Integer disposeInspectReportStatus(Order order) {
         List<Goods> goodsList = order.getGoodsList();
-        if (goodsList != null && goodsList.size() > 0){
+        if (goodsList != null && goodsList.size() > 0) {
             Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
             Integer goodNums = 0;    // 本订单商品 检验合格商品数量
 
-            for (Goods goods : goodsList){
+            for (Goods goods : goodsList) {
                 contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
                 List<PurchGoods> purchGoodsList = goods.getPurchGoods();  //已报检商品信息
-                if (purchGoodsList.size() > 0){
-                    for (PurchGoods purchGoods : purchGoodsList){
+                if (purchGoodsList.size() > 0) {
+                    for (PurchGoods purchGoods : purchGoodsList) {
                         Integer goodNum = purchGoods.getGoodNum() == null ? 0 : purchGoods.getGoodNum();//检验合格商品数量
                         goodNums += goodNum;
                     }
@@ -2584,11 +2595,11 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
 
 
-            if(goodNums == 0){
+            if (goodNums == 0) {
                 return 1;
-            }else if (contractGoodsNums <= goodNums && goodNums != 0){
+            } else if (contractGoodsNums <= goodNums && goodNums != 0) {
                 return 3;
-            }else if( contractGoodsNums > goodNums && goodNums != 0){
+            } else if (contractGoodsNums > goodNums && goodNums != 0) {
                 return 2;
             }
 
@@ -2598,23 +2609,24 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 入库状态
+     *
      * @param goodsList
      * @return
      */
     public Integer disposeInstockStatus(List<Goods> goodsList) {
-        if (goodsList != null && goodsList.size() > 0){
+        if (goodsList != null && goodsList.size() > 0) {
             Integer contractGoodsNums = 0;  // 本订单商品  合同商品数量
             Integer instockNums = 0;    // 本订单商品  已入库数量
 
-            for (Goods goods : goodsList){
+            for (Goods goods : goodsList) {
                 contractGoodsNums += goods.getContractGoodsNum();//合同商品数量
                 instockNums += goods.getInstockNum();// 已入库数量
             }
-            if(instockNums == 0){
+            if (instockNums == 0) {
                 return 1;
-            }else if (contractGoodsNums <= instockNums && instockNums != 0 ){
+            } else if (contractGoodsNums <= instockNums && instockNums != 0) {
                 return 3;
-            }else if(instockNums < contractGoodsNums && instockNums != 0) {
+            } else if (instockNums < contractGoodsNums && instockNums != 0) {
                 return 2;
             }
 
@@ -2624,44 +2636,45 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 订舱通知状态
+     *
      * @param order
      * @return
      */
     public Integer disposeDeliverConsignStatus(Order order) {
         Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
         Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有',
-        if(deliverConsignHas == 1){
+        if (deliverConsignHas == 1) {
             return 1;
-        }else {
-            if(deliverConsignC){    //0:false    1:true
+        } else {
+            if (deliverConsignC) {    //0:false    1:true
                 List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
-                if(deliverConsignList.size() > 0){
-                    for (DeliverConsign deliverConsign : deliverConsignList){
+                if (deliverConsignList.size() > 0) {
+                    for (DeliverConsign deliverConsign : deliverConsignList) {
                         Integer status = deliverConsign.getStatus();
-                        if(status > 1){
+                        if (status > 1) {
                             return 2;
                         }
                     }
                 }
                 return 1;
-            }else {
+            } else {
                 List<DeliverConsign> deliverConsignList = order.getDeliverConsign();
                 List<Integer> deliverConsignStatusList = new ArrayList<>();
-                if(deliverConsignList.size() > 0){
-                    for (DeliverConsign deliverConsign : deliverConsignList){
+                if (deliverConsignList.size() > 0) {
+                    for (DeliverConsign deliverConsign : deliverConsignList) {
                         Integer status = deliverConsign.getStatus();
-                        if(status > 1){
+                        if (status > 1) {
                             deliverConsignStatusList.add(deliverConsign.getStatus());
                         }
                     }
-                }else {
+                } else {
                     return 1;
                 }
-                if(deliverConsignStatusList.size() == 0){
+                if (deliverConsignStatusList.size() == 0) {
                     return 1;
-                }else if(deliverConsignStatusList.contains(2)){
+                } else if (deliverConsignStatusList.contains(2)) {
                     return 2;
-                }else {
+                } else {
                     return 3;
                 }
             }
@@ -2671,6 +2684,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 出库状态
+     *
      * @param order
      * @return
      */
@@ -2679,70 +2693,67 @@ public class StatisticsServiceImpl implements StatisticsService {
         Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
         Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
 
-            if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+        if (deliverConsignHas == 1) { //判断是否生成过出口通知单 1,，未生成过
+            return 1;
+        } else {
+            List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
+            if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
                 return 1;
             } else {
-                List<DeliverConsign> deliverConsign = order.getDeliverConsign();//获取出口发货通知单
-                if (deliverConsign.size() <= 0) { //如果没有出口通知单，说明没有执行
+                List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
+                List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
+                for (DeliverConsign deliverConsign1 : deliverConsign) {
+                    Integer status1 = deliverConsign1.getStatus();
+                    deliverConsignStatusList.add(status1);
+                    if (status1 > 2) {
+                        DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                        if (deliverDetail != null) {
+                            Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                            deliverDetailStatusList.add(status);
+                        }
+                    }
+                }
+
+
+                if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
                     return 1;
+                }
+
+                if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
+                    return 1;
+                }
+
+                if (deliverConsignC) {
+                    return 2;
                 } else {
-                    List<Integer> deliverConsignStatusList = new ArrayList<>();   //拿到全部出口发货通知状态
-                    List<Integer> deliverDetailStatusList = new ArrayList<>();   //拿到全部出库状态
-                    for (DeliverConsign deliverConsign1 : deliverConsign) {
-                        Integer status1 = deliverConsign1.getStatus();
-                        deliverConsignStatusList.add(status1);
-                        if (status1 > 2) {
-                            DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                            if (deliverDetail != null) {
-                                Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                                deliverDetailStatusList.add(status);
-                            }
-                        }
-                    }
 
+                    List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
+                    deliverConsignStatusFlag.add(1);
+                    deliverConsignStatusFlag.add(2);
 
-
-
-                    if (!deliverConsignStatusList.contains(3)) {  //如果出库通知单中没有状态等于已出库说明没有执行
-                        return 1;
-                    }
-
-                    if (!deliverDetailStatusList.contains(5)) {   //如果出库状态中没有确认出库，说明没有执行
-                        return 1;
-                    }
-
-                    if (deliverConsignC) {
+                    if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {  //出口发货通知单如果有没提交的  说明是执行中
                         return 2;
-                    }else {
-
-                        List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
-                        deliverConsignStatusFlag.add(1);
-                        deliverConsignStatusFlag.add(2);
-
-                        if (disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {  //出口发货通知单如果有没提交的  说明是执行中
-                            return 2;
-                        }
-
-
-
-                        List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
-                        deliverDetailStatusListS.add(1);
-                        deliverDetailStatusListS.add(2);
-                        deliverDetailStatusListS.add(3);
-                        deliverDetailStatusListS.add(4);
-
-                        if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
-                            return 2;
-                        }
-
-                        return  3;
-
                     }
 
+
+                    List<Integer> deliverDetailStatusListS = new ArrayList<>();   //未出库通知状态
+                    deliverDetailStatusListS.add(1);
+                    deliverDetailStatusListS.add(2);
+                    deliverDetailStatusListS.add(3);
+                    deliverDetailStatusListS.add(4);
+
+                    if (disposeList(deliverDetailStatusList, deliverDetailStatusListS)) {
+                        return 2;
+                    }
+
+                    return 3;
 
                 }
 
+
             }
+
+        }
 
 
 
@@ -2768,65 +2779,66 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     /**
      * 订单主流程监控 发运状态  /  收款状态
+     *
      * @param order
      * @return
      */
-    private Integer disposeLogisticsDataStatus(Order order,Integer flag) {
+    private Integer disposeLogisticsDataStatus(Order order, Integer flag) {
         Integer deliverConsignHas = order.getDeliverConsignHas() == null ? 1 : order.getDeliverConsignHas();   //是否已生成出口通知单 1：未生成 2： 已生成',
         Boolean deliverConsignC = order.getDeliverConsignC();   //是否存在商品可以创建发货通知单 0：无 1：有'
-        if(deliverConsignHas == 1){
+        if (deliverConsignHas == 1) {
             return 1;
-        }else {
-            if(deliverConsignC){    //0:false    1:true
+        } else {
+            if (deliverConsignC) {    //0:false    1:true
                 List<DeliverConsign> deliverConsign = order.getDeliverConsign();//出口发货通知单
 
-                if(deliverConsign.size() <= 0){
+                if (deliverConsign.size() <= 0) {
                     return 1;
                 }
 
                 List<Integer> deliverConsignStatusList = new ArrayList<>();   //全部出口发货通知状态
                 List<Integer> deliverDetailStatusList = new ArrayList<>();   //全部出库状态
-                for (DeliverConsign deliverConsign1 : deliverConsign){
+                for (DeliverConsign deliverConsign1 : deliverConsign) {
                     Integer status1 = deliverConsign1.getStatus();
                     deliverConsignStatusList.add(status1);
-                    if(status1 > 2){
+                    if (status1 > 2) {
                         DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                        if(deliverDetail != null){
+                        if (deliverDetail != null) {
                             Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
                             deliverDetailStatusList.add(status);
                         }
                     }
                 }
 
-                if(!deliverConsignStatusList.contains(3)){
+                if (!deliverConsignStatusList.contains(3)) {
                     return 1;
                 }
-                if(!deliverDetailStatusList.contains(5)){
+                if (!deliverDetailStatusList.contains(5)) {
                     return 1;
                 }
 
 
-                for (DeliverConsign deliverConsign1 : deliverConsign){
+                for (DeliverConsign deliverConsign1 : deliverConsign) {
                     Integer status1 = deliverConsign1.getStatus();
-                    if(status1 > 2){
+                    if (status1 > 2) {
                         DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                        if(deliverDetail != null){
+                        if (deliverDetail != null) {
 
                             Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                            if (status > 4){
+                            if (status > 4) {
                                 List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
-                                if (iogisticsList.size() != 0 ){
-                                    for (Iogistics iogistics : iogisticsList){
+                                if (iogisticsList.size() != 0) {
+                                    for (Iogistics iogistics : iogisticsList) {
                                         IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                        if(iogisticsData != null){
+                                        if (iogisticsData != null) {
                                             Integer iogisticsDataStatus = iogisticsData.getStatus();    //获取物流状态
 
-                                            if(flag != null){
-                                                if (iogisticsDataStatus > 5 && iogisticsData.getConfirmTheGoods() != null ){
+                                            if (flag != null) {
+                                                if (iogisticsDataStatus > 5 && iogisticsData.getConfirmTheGoods() != null) {
                                                     return 2;
                                                 }
-                                            }else {
-                                                if (iogisticsDataStatus > 5){
+                                            } else {
+                                                if (iogisticsDataStatus > 5) {
                                                     return 2;
                                                 }
                                             }
@@ -2839,32 +2851,32 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 }
                 return 1;
-            }else {
+            } else {
 
                 List<DeliverConsign> deliverConsign = order.getDeliverConsign();//出口发货通知单
 
-                if(deliverConsign.size() <= 0){
+                if (deliverConsign.size() <= 0) {
                     return 1;
                 }
 
                 List<Integer> deliverConsignStatusList = new ArrayList<>();   //全部出口发货通知状态
                 List<Integer> deliverDetailStatusList = new ArrayList<>();   //全部出库状态
-                for (DeliverConsign deliverConsign1 : deliverConsign){
-                        Integer status1 = deliverConsign1.getStatus();
-                        deliverConsignStatusList.add(status1);
-                        if(status1 > 2){
-                            DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
-                            if(deliverDetail != null){
-                                Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
-                                deliverDetailStatusList.add(status);
-                            }
+                for (DeliverConsign deliverConsign1 : deliverConsign) {
+                    Integer status1 = deliverConsign1.getStatus();
+                    deliverConsignStatusList.add(status1);
+                    if (status1 > 2) {
+                        DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                        if (deliverDetail != null) {
+                            Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                            deliverDetailStatusList.add(status);
                         }
                     }
+                }
 
-                if(!deliverConsignStatusList.contains(3)){
+                if (!deliverConsignStatusList.contains(3)) {
                     return 1;
                 }
-                if(!deliverDetailStatusList.contains(5)){
+                if (!deliverDetailStatusList.contains(5)) {
                     return 1;
                 }
 
@@ -2873,74 +2885,73 @@ public class StatisticsServiceImpl implements StatisticsService {
                 List<Boolean> iogisticsDataStatusList = new ArrayList<>();   //物流动态更新状态
 
 
-
-                for (DeliverConsign deliverConsign1 : deliverConsign){
+                for (DeliverConsign deliverConsign1 : deliverConsign) {
                     List<Integer> deliverConsignStatusFlag = new ArrayList<>();   //未出库通知状态
                     deliverConsignStatusFlag.add(1);
                     deliverConsignStatusFlag.add(2);
 
-                    if (!disposeList(deliverConsignStatusList,deliverConsignStatusFlag)){   //未出库通知状态
+                    if (!disposeList(deliverConsignStatusList, deliverConsignStatusFlag)) {   //未出库通知状态
 
-                    Integer deliverConsignStatus = deliverConsign1.getStatus();
-                    if(deliverConsignStatus > 2){
-                        DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
+                        Integer deliverConsignStatus = deliverConsign1.getStatus();
+                        if (deliverConsignStatus > 2) {
+                            DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
 
-                        if(deliverDetail != null){
-                            Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
+                            if (deliverDetail != null) {
+                                Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
 
-                            List<Integer> statusFlag = new ArrayList<>();   //未出库状态
-                            statusFlag.add(1);
-                            statusFlag.add(2);
-                            statusFlag.add(3);
-                            statusFlag.add(4);
+                                List<Integer> statusFlag = new ArrayList<>();   //未出库状态
+                                statusFlag.add(1);
+                                statusFlag.add(2);
+                                statusFlag.add(3);
+                                statusFlag.add(4);
 
-                            if(disposeList(deliverDetailStatusList,statusFlag)){    //判断是否出库和未出库状态都有，如果有的话判断是否是执行中
+                                if (disposeList(deliverDetailStatusList, statusFlag)) {    //判断是否出库和未出库状态都有，如果有的话判断是否是执行中
 
-                                if (status > 4){
-                                    List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
-                                    if (iogisticsList.size() != 0 ){
-                                        for (Iogistics iogistics : iogisticsList){
-                                            IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                            if(iogisticsData != null){
-                                                Integer status1 = iogisticsData.getStatus();    //获取物流状态
-                                                if(flag != null){
-                                                    if (status1 > 5 && iogisticsData.getConfirmTheGoods() != null){
-                                                        return 2;
-                                                    }
-                                                }else{
-                                                    if (status1 > 5){
-                                                        return 2;
+                                    if (status > 4) {
+                                        List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
+                                        if (iogisticsList.size() != 0) {
+                                            for (Iogistics iogistics : iogisticsList) {
+                                                IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
+                                                if (iogisticsData != null) {
+                                                    Integer status1 = iogisticsData.getStatus();    //获取物流状态
+                                                    if (flag != null) {
+                                                        if (status1 > 5 && iogisticsData.getConfirmTheGoods() != null) {
+                                                            return 2;
+                                                        }
+                                                    } else {
+                                                        if (status1 > 5) {
+                                                            return 2;
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
+
                                     }
 
-                                }
-
-                            }else {
-                                List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
-                                    for (Iogistics iogistics : iogisticsList){
+                                } else {
+                                    List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
+                                    for (Iogistics iogistics : iogisticsList) {
                                         IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                                        if(iogisticsData == null){
+                                        if (iogisticsData == null) {
                                             iogisticsDataBoolean.add(false);
-                                        }else {
+                                        } else {
                                             iogisticsDataBoolean.add(true);
 
                                             Integer status1 = iogisticsData.getStatus();
-                                            if(status1 < 7){
+                                            if (status1 < 7) {
                                                 iogisticsDataStatusBoolean.add(false);
-                                                if(status1 > 5){
+                                                if (status1 > 5) {
                                                     iogisticsDataStatusList.add(true);
                                                 }
-                                            }else {
-                                                if(flag != null){
-                                                    if(iogisticsData.getConfirmTheGoods() != null){
+                                            } else {
+                                                if (flag != null) {
+                                                    if (iogisticsData.getConfirmTheGoods() != null) {
                                                         iogisticsDataStatusBoolean.add(true);
-                                                    }else {
+                                                    } else {
                                                         iogisticsDataStatusBoolean.add(false);
                                                     }
-                                                }else {
+                                                } else {
                                                     iogisticsDataStatusBoolean.add(true);
                                                 }
                                             }
@@ -2951,12 +2962,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 }
                             }
                         }
-                    }else {
+                    } else {
                         Integer deliverConsignStatus = deliverConsign1.getStatus();
-                        if(deliverConsignStatus > 2) {
+                        if (deliverConsignStatus > 2) {
                             DeliverDetail deliverDetail = deliverConsign1.getDeliverDetail();    //出库/质检单
 
-                            if (deliverDetail != null){
+                            if (deliverDetail != null) {
 
                                 Integer status = deliverDetail.getStatus(); //出库状态  如果不是确认出库，说明没有推送信息，说明没有走到分单
 
@@ -2966,7 +2977,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 statusFlag.add(3);
                                 statusFlag.add(4);
 
-                                if (disposeList(statusFlag,deliverDetailStatusList)) {    //判断是否出库和未出库状态都有，如果有的话判断是否是执行中
+                                if (disposeList(statusFlag, deliverDetailStatusList)) {    //判断是否出库和未出库状态都有，如果有的话判断是否是执行中
 
                                     if (status > 4) {
                                         List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //出库分单信息
@@ -2975,11 +2986,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                                                 IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
                                                 if (iogisticsData != null) {
                                                     Integer status1 = iogisticsData.getStatus();    //获取物流状态
-                                                    if(flag != null){
-                                                        if (status1 > 5 && iogisticsData.getConfirmTheGoods() != null ) {
+                                                    if (flag != null) {
+                                                        if (status1 > 5 && iogisticsData.getConfirmTheGoods() != null) {
                                                             return 2;
                                                         }
-                                                    }else{
+                                                    } else {
                                                         if (status1 > 5) {
                                                             return 2;
                                                         }
@@ -2996,17 +3007,17 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
 
 
-                if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(true) || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(true) && iogisticsDataStatusList.size() == 0 ){
+                if (iogisticsDataBoolean.size() > 0 && !iogisticsDataBoolean.contains(true) || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(true) && iogisticsDataStatusList.size() == 0) {
                     return 1;
-                }else if(iogisticsDataBoolean.size() > 0  && !iogisticsDataBoolean.contains(false) && iogisticsDataStatusList.size() == 0  || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(false) && iogisticsDataStatusList.size() == 0 ){
+                } else if (iogisticsDataBoolean.size() > 0 && !iogisticsDataBoolean.contains(false) && iogisticsDataStatusList.size() == 0 || iogisticsDataStatusBoolean.size() > 0 && !iogisticsDataStatusBoolean.contains(false) && iogisticsDataStatusList.size() == 0) {
                     return 3;
-                }else if(iogisticsDataStatusBoolean.size() > 0 || iogisticsDataStatusList.size() > 0 &&  iogisticsDataStatusList.contains(true) ){
+                } else if (iogisticsDataStatusBoolean.size() > 0 || iogisticsDataStatusList.size() > 0 && iogisticsDataStatusList.contains(true)) {
                     return 2;
                 }
 
             }
         }
-    return 1;
+        return 1;
     }
 
     /**
@@ -3216,6 +3227,7 @@ return  "";
 
     /**
      * 订单主流程监控 发运金额
+     *
      * @param order
      * @return
      */
@@ -3223,16 +3235,16 @@ return  "";
         BigDecimal logisticsPriceSum = BigDecimal.valueOf(0);
         Set<Integer> iogisticsDataIdList = new HashSet<>();
         List<DeliverConsign> deliverConsignList = order.getDeliverConsign();    //获取看货通知单表
-        if(deliverConsignList.size() > 0){
-            for (DeliverConsign deliverConsign : deliverConsignList){
+        if (deliverConsignList.size() > 0) {
+            for (DeliverConsign deliverConsign : deliverConsignList) {
                 DeliverDetail deliverDetail = deliverConsign.getDeliverDetail();    //获取出库表
-                if(deliverDetail != null){
+                if (deliverDetail != null) {
                     List<Iogistics> iogisticsList = deliverDetail.getIogistics();   //获取出库分单表
-                    if(iogisticsList.size() > 0){
-                        for (Iogistics iogistics : iogisticsList){
+                    if (iogisticsList.size() > 0) {
+                        for (Iogistics iogistics : iogisticsList) {
                             IogisticsData iogisticsData = iogistics.getIogisticsData(); //获取物流信息
-                            if(iogisticsData != null){
-                                if(iogisticsData.getStatus() > 5){
+                            if (iogisticsData != null) {
+                                if (iogisticsData.getStatus() > 5) {
                                     iogisticsDataIdList.add(iogisticsData.getId()); //获取物流id
                                 }
                             }
@@ -3244,10 +3256,10 @@ return  "";
             }
         }
 
-        if(iogisticsDataIdList.size() > 0){
+        if (iogisticsDataIdList.size() > 0) {
             List<IogisticsData> iogisticsDatList = iogisticsDataDao.findByIdIn(iogisticsDataIdList);
-            if(iogisticsDatList.size() > 0){
-                for (IogisticsData iogisticsData : iogisticsDatList){
+            if (iogisticsDatList.size() > 0) {
+                for (IogisticsData iogisticsData : iogisticsDatList) {
                     BigDecimal logisticsPriceUsd = iogisticsData.getLogisticsPriceUsd() == null ? BigDecimal.valueOf(0) : iogisticsData.getLogisticsPriceUsd();// 获取发运金额  必填项
                     logisticsPriceSum = logisticsPriceSum.add(logisticsPriceUsd);
                 }
@@ -3258,20 +3270,19 @@ return  "";
     }
 
 
-
-
     /**
      * 判断是否有相同，相同返回true
+     *
      * @param a
      * @param b
      * @return
      */
-    public Boolean disposeList(List<Integer> a , List<Integer> b){
+    public Boolean disposeList(List<Integer> a, List<Integer> b) {
         boolean flag = false;
 
-        for(Integer s2: a) {
-            for(Integer s1: b) {
-                if(s2.equals(s1)) {
+        for (Integer s2 : a) {
+            for (Integer s1 : b) {
+                if (s2.equals(s1)) {
                     flag = true;
                     break;
                 }
