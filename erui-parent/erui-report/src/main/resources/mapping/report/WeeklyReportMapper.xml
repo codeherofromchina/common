@@ -155,6 +155,7 @@
 									SELECT inquiry_id ,  MIN(out_at)  AS createAt
 									FROM erui_rfq.inquiry_check_log
 									WHERE  in_node='MARKET_APPROVING' OR out_node ='MARKET_CONFIRMING'
+									and out_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
 									GROUP BY inquiry_id)AS t5
             WHERE
                 t1.country_bn = t3.country_bn
@@ -163,7 +164,6 @@
             AND t4.lang = 'zh'
             AND t5.inquiry_id=t1.id
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
-            AND t5.createAt BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
             ) AS tb
         GROUP BY
             countryCn
