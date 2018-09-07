@@ -78,4 +78,18 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> quoteNumbersGroupOrg(Map<String, Object> params);
+
+    /**
+     * 订单数据统计-整体-按事业部分析
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsWholeInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 订单数据统计-整体-按地区分析
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsWholeInfoGroupByArea(Map<String, Object> params);
 }

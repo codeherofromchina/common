@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.rmi.runtime.Log;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -287,6 +288,57 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         result.put("names", names);
         result.put("totalNums", totalNums);
         result.put("memTotalNums", memTotalNums);
+        return result;
+    }
+
+
+    @Override
+    public Map<String, List<Object>> orderStatisticsWholeInfoGroupByArea(Map<String, Object> params) {
+        // 总询单数量
+        List<Map<String, Object>> orderInfoGroupArea = salesDataStatisticsMapper.orderStatisticsWholeInfoGroupByArea(params);
+        if (orderInfoGroupArea == null || orderInfoGroupArea.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> areaNames = new ArrayList<>();
+        List<Object> totalNums = new ArrayList<>();
+        List<Object> totalAmounts = new ArrayList<>();
+        for (Map<String, Object> map : orderInfoGroupArea) {
+            String orgName = (String) map.get("areaName");
+            BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
+            Long totalNum = (Long) map.get("totalNum");
+            areaNames.add(orgName == null ? UNKNOW : orgName);
+            totalNums.add(totalNum == null ? 0L : totalNum);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+        }
+        result.put("orgNames", areaNames);
+        result.put("totalNums", totalNums);
+        result.put("totalAmounts", totalAmounts);
+        return result;
+    }
+
+    @Override
+    public Map<String, List<Object>> orderStatisticsWholeInfoGroupByOrg(Map<String, Object> params) {
+        // 总询单数量
+        List<Map<String, Object>> orderInfoGroupOrg = salesDataStatisticsMapper.orderStatisticsWholeInfoGroupByOrg(params);
+        if (orderInfoGroupOrg == null || orderInfoGroupOrg.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> orgNames = new ArrayList<>();
+        List<Object> totalNums = new ArrayList<>();
+        List<Object> totalAmounts = new ArrayList<>();
+        for (Map<String, Object> map : orderInfoGroupOrg) {
+            String orgName = (String) map.get("orgName");
+            BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
+            Long totalNum = (Long) map.get("totalNum");
+            orgNames.add(orgName == null ? UNKNOW : orgName);
+            totalNums.add(totalNum == null ? 0L : totalNum);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+        }
+        result.put("orgNames", orgNames);
+        result.put("totalNums", totalNums);
+        result.put("totalAmounts", totalAmounts);
         return result;
     }
 }

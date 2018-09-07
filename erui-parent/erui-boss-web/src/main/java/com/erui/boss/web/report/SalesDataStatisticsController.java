@@ -189,5 +189,31 @@ public class SalesDataStatisticsController {
         return result;
     }
 
-
+    /**
+     * 订单数据统计 - 整体
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orderInfoWhole")
+    public Result<Object> orderStatisticsWholeInfo(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = (String) params.get("type");
+        Map<String, List<Object>> data = null;
+        Result<Object> result = new Result<>();
+        if ("1".equals(type)) {
+            // 按事业部分析
+            data = supplierchainService.orderStatisticsWholeInfoGroupByOrg(params);
+        } else if ("2".equals(type)) {
+            // 按地区分析
+            data = supplierchainService.orderStatisticsWholeInfoGroupByArea(params);
+        } else {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        }
+        result.setData(data);
+        return result;
+    }
 }

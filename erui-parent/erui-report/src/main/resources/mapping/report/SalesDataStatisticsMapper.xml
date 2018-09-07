@@ -313,4 +313,37 @@
         AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         GROUP BY t3.`name`
     </select>
+
+
+    <!-- 订单数据统计 - 整体 - 按地区纬度查询订单的金额和数量 -->
+    <select id="orderStatisticsWholeInfoGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.`name` AS areaName,
+            SUM(IFNULL(t1.total_price_usd, 0)) AS totalAmount,
+            COUNT(1) AS totalNum
+        FROM
+            erui_new_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn
+        WHERE
+            t1.`status` >= 3
+                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t2.`name`
+        ORDER BY 3 DESC
+    </select>
+    <!-- 订单数据统计 - 整体 - 按事业部纬度查询订单的金额和数量 -->
+    <select id="orderStatisticsWholeInfoGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            business_unit_id AS orgId,
+            business_unit_name AS orgName,
+            SUM(IFNULL(total_price_usd, 0)) AS totalAmount,
+            COUNT(1) AS totalNum
+        FROM
+            erui_new_order.`order`
+        WHERE
+            `status` >= 3
+                AND create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY business_unit_id , business_unit_name
+        ORDER BY 3 DESC
+    </select>
 </mapper>

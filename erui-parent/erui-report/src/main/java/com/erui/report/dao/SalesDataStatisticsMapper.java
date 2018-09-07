@@ -102,4 +102,18 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> memberQuoteAmountGroupByArea(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 - 整体 - 按地区纬度查询订单的金额和数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsWholeInfoGroupByArea(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 - 整体 - 按事业部纬度查询订单的金额和数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsWholeInfoGroupByOrg(Map<String, Object> params);
 }
