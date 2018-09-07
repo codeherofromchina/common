@@ -329,6 +329,16 @@ public class Order {
     private Integer perLiableRepayId; //回款责任人
     @Column(name = "audi_remark")
     private String audiRemark;//所经过审核人
+    @Column(name = "financing_commissioner_id")
+    private Integer financingCommissionerId;//融资专员Id
+
+    public Integer getFinancingCommissionerId() {
+        return financingCommissionerId;
+    }
+
+    public void setFinancingCommissionerId(Integer financingCommissionerId) {
+        this.financingCommissionerId = financingCommissionerId;
+    }
 
     public String getAudiRemark() {
         return audiRemark;
@@ -661,6 +671,7 @@ public class Order {
         }
         return null;
     }
+
 
     public String getEnOrderSourceName() {
         // 1 门户订单 2 门户询单 3 线下订单',

@@ -161,9 +161,10 @@ public class OrderServiceImpl implements OrderService {
 
         return order;
     }
+
     @Transactional
     @Override
-    public Page<Order> findByPage(final OrderListCondition condition) {
+    public Page<Order> findByPage(OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
@@ -172,6 +173,10 @@ public class OrderServiceImpl implements OrderService {
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                // 根据订单审核状态
+                if (condition.getAuditingProcess() != null) {
+                    list.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
                 }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
@@ -280,45 +285,103 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        list.add(cb.or(and, createUserId));
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            if (audiRemark != null) {
+                                list.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            }
+                            list.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
+                        } else {
+                            list.add(cb.or(and, createUserId));
+                        }
                     } else if (businessUnitId != null && technicalId == null) {
-                        list.add(cb.or(businessUnitId, createUserId));
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                list.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                list.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            list.add(cb.or(businessUnitId, createUserId));
+                        }
                     } else if (technicalId != null && businessUnitId == null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                list.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                list.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        }
                         list.add(cb.or(technicalId, createUserId));
-                    }
-                } else if (condition.getType() == 2) {
-                    //根据市场经办人查询
-                    if (condition.getAgentId() != null && condition.getCreateUserId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                condition.getCreateUserId())));
-                    } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
-                        list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
                     }
                 } else {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null && condition.getCreateUserId() != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                    condition.getCreateUserId())));
+                        }
+                    } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                    condition.getCreateUserId())));
+                        }
+                    }
+                } /*else {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null && condition.getCreateUserId() != null) {
                         list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
                                 condition.getCreateUserId())));
                     } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
                         list.add(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()));
                     }
-                   /* if (country != null) {
+                   *//* if (country != null) {
                         list.add(root.get("country").in(country));
-                    }*/
-                }
+                    }*//*
+                }*/
                 list.add(cb.equal(root.get("deleteFlag"), false));
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
-                Predicate and = cb.and(predicates);
+                /*Predicate and = cb.and(predicates);
                 // 审核人查询,和其他关系是or，所有写在最后
                 if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
                     Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
                     Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                     Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
-                    return cb.or(and, auditingUserId, perLiableRepayId, audiRemark);
+                    Predicate or = cb.or(auditingUserId, perLiableRepayId, audiRemark);
+                    return cb.and(and, or);
                 } else {
                     return and;
-                }
+                }*/
+                return cb.and(predicates);
             }
         }, pageRequest);
         if (pageList.hasContent()) {
@@ -552,7 +615,7 @@ public class OrderServiceImpl implements OrderService {
                             } else if (order.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
-                                auditingUserId_i = "39535";
+                                auditingUserId_i = order.getFinancingCommissionerId().toString();
                                 auditorIds.append("," + auditingUserId_i + ",");
                             }
                         } else {
@@ -581,7 +644,7 @@ public class OrderServiceImpl implements OrderService {
                             } else if (addOrderVo.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
-                                auditingUserId_i = "39535";
+                                auditingUserId_i = order.getFinancingCommissionerId().toString();
                                 auditorIds.append("," + auditingUserId_i + ",");
                             }
                         } else {
@@ -608,7 +671,7 @@ public class OrderServiceImpl implements OrderService {
                         } else if (order.getFinancing() == 1) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "5"; // 融资审核
-                            auditingUserId_i = "39535";//郭永涛
+                            auditingUserId_i = order.getFinancingCommissionerId().toString();//郭永涛
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     }
@@ -748,6 +811,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAreaVp(addOrderVo.getAreaVp());
         }
         order.setAuditingProcess(1);
+        order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -982,6 +1046,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         order.setAuditingProcess(1);
+        order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
