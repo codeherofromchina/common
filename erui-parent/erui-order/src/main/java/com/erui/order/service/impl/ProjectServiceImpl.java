@@ -216,7 +216,7 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
 
-                    } else {
+                    } else if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
@@ -274,8 +274,11 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setRemarks(project.getRemarks());
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
-                        // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
-                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+
+                        if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING) {
+                            // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
+                            submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+                        }
 
 
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
