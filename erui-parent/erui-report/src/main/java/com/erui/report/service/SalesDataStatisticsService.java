@@ -92,4 +92,55 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orderStatisticsWholeInfoGroupByArea(Map<String, Object> params);
+
+    /**
+     * 订单数据统计-整体-按国家分析
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsWholeInfoGroupByCountry(Map<String, Object> params);
+
+    /**
+     * 订单数据统计-利润-事业部利润率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsProfitPercentGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 订单数据统计-利润-地区利润率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsProfitPercentGroupByArea(Map<String, Object> params);
+
+
+    /**
+     * 订单数据统计-利润-国家利润率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsProfitPercentGroupByCountry(Map<String, Object> params);
+
+    /**
+     * 事业部成单率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsMonoRateGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 地区成单率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsMonoRateGroupByArea(Map<String, Object> params);
+
+
+    /**
+     * 国家成单率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderStatisticsMonoRateGroupByCountry(Map<String, Object> params);
 }

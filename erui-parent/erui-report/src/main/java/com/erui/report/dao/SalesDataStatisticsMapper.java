@@ -116,4 +116,53 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> orderStatisticsWholeInfoGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 - 整体 - 按国家纬度查询订单的金额和数量
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsWholeInfoGroupByCountry(Map<String, Object> params);
+
+    /**
+     * 订单信息的国家利润率
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsProfitPercentGroupByCountry(Map<String, Object> params);
+
+    /**
+     * 订单信息的地区利润率
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsProfitPercentGroupByArea(Map<String, Object> params);
+
+    /**
+     * 订单信息的事业部利润率
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsProfitPercentGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 订单信息的事业部成单率
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsMonoRateGroupByOrg(Map<String, Object> params);
+
+    /**
+     * 订单信息的地区成单率
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsMonoRateGroupByArea(Map<String, Object> params);
+
+    /**
+     * 订单信息的国家成单率
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderStatisticsMonoRateGroupByCountry(Map<String, Object> params);
 }

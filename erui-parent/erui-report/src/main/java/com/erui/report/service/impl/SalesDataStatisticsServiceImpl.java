@@ -311,11 +311,37 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             totalNums.add(totalNum == null ? 0L : totalNum);
             totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
         }
-        result.put("orgNames", areaNames);
+        result.put("names", areaNames);
         result.put("totalNums", totalNums);
         result.put("totalAmounts", totalAmounts);
         return result;
     }
+
+    @Override
+    public Map<String, List<Object>> orderStatisticsWholeInfoGroupByCountry(Map<String, Object> params) {
+        // 总询单数量
+        List<Map<String, Object>> orderInfoGroupCountry = salesDataStatisticsMapper.orderStatisticsWholeInfoGroupByCountry(params);
+        if (orderInfoGroupCountry == null || orderInfoGroupCountry.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> totalNums = new ArrayList<>();
+        List<Object> totalAmounts = new ArrayList<>();
+        for (Map<String, Object> map : orderInfoGroupCountry) {
+            String countryName = (String) map.get("countryName");
+            BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
+            Long totalNum = (Long) map.get("totalNum");
+            names.add(countryName == null ? UNKNOW : countryName);
+            totalNums.add(totalNum == null ? 0L : totalNum);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+        }
+        result.put("names", names);
+        result.put("totalNums", totalNums);
+        result.put("totalAmounts", totalAmounts);
+        return result;
+    }
+
 
     @Override
     public Map<String, List<Object>> orderStatisticsWholeInfoGroupByOrg(Map<String, Object> params) {
@@ -336,9 +362,152 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             totalNums.add(totalNum == null ? 0L : totalNum);
             totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
         }
-        result.put("orgNames", orgNames);
+        result.put("names", orgNames);
         result.put("totalNums", totalNums);
         result.put("totalAmounts", totalAmounts);
+        return result;
+    }
+
+    /**
+     * 订单数据统计-利润-事业部利润率
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderStatisticsProfitPercentGroupByOrg(Map<String, Object> params) {
+        // 订单信息的事业部利润率
+        List<Map<String, Object>> orgProfitPercent = salesDataStatisticsMapper.orderStatisticsProfitPercentGroupByOrg(params);
+        if (orgProfitPercent == null || orgProfitPercent.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = _handleOrderProfitPercent(orgProfitPercent);
+        return result;
+    }
+
+
+    @Override
+    public Map<String, List<Object>> orderStatisticsProfitPercentGroupByArea(Map<String, Object> params) {
+        // 订单信息的地区利润率
+        List<Map<String, Object>> areaProfitPercent = salesDataStatisticsMapper.orderStatisticsProfitPercentGroupByArea(params);
+        if (areaProfitPercent == null || areaProfitPercent.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = _handleOrderProfitPercent(areaProfitPercent);
+        return result;
+    }
+
+
+    @Override
+    public Map<String, List<Object>> orderStatisticsProfitPercentGroupByCountry(Map<String, Object> params) {
+        // 订单信息的国家利润率
+        List<Map<String, Object>> countryProfitPercent = salesDataStatisticsMapper.orderStatisticsProfitPercentGroupByCountry(params);
+        if (countryProfitPercent == null || countryProfitPercent.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = _handleOrderProfitPercent(countryProfitPercent);
+        return result;
+    }
+
+
+    /**
+     * 处理订单信息的利润率
+     *
+     * @param profitPercentInfo
+     * @return
+     */
+    private Map<String, List<Object>> _handleOrderProfitPercent(List<Map<String, Object>> profitPercentInfo) {
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> profitPercentList = new ArrayList<>();
+        for (Map<String, Object> map : profitPercentInfo) {
+            String name = (String) map.get("name");
+            BigDecimal profitPercent = (BigDecimal) map.get("profitPercent");
+            names.add(name == null ? UNKNOW : name);
+            profitPercentList.add(profitPercent == null ? BigDecimal.ZERO : profitPercent);
+        }
+        result.put("names", names);
+        result.put("profitPercents", profitPercentList);
+        return result;
+    }
+
+
+    /**
+     * 事业部成单数量和成单率信息
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderStatisticsMonoRateGroupByOrg(Map<String, Object> params) {
+        // 订单信息的国家利润率
+        List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByOrg(params);
+        if (countryMonoRate == null || countryMonoRate.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = _handleOrderMonoRate(countryMonoRate);
+        return result;
+    }
+    /**
+     * 地区成单数量和成单率信息
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderStatisticsMonoRateGroupByArea(Map<String, Object> params) {
+        // 订单信息的国家利润率
+        List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByArea(params);
+        if (countryMonoRate == null || countryMonoRate.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = _handleOrderMonoRate(countryMonoRate);
+        return result;
+    }
+    /**
+     * 国家成单数量和成单率信息
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderStatisticsMonoRateGroupByCountry(Map<String, Object> params) {
+        // 订单信息的国家利润率
+        List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByCountry(params);
+        if (countryMonoRate == null || countryMonoRate.size() == 0) {
+            return null;
+        }
+        Map<String, List<Object>> result = _handleOrderMonoRate(countryMonoRate);
+        return result;
+    }
+
+
+    /**
+     * 处理订单信息的成单率率
+     *
+     * @param monoRateInfo
+     * @return
+     */
+    private Map<String, List<Object>> _handleOrderMonoRate(List<Map<String, Object>> monoRateInfo) {
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> quoteNums = new ArrayList<>();
+        List<Object> doneNums = new ArrayList<>();
+        List<Object> rates = new ArrayList<>();
+        for (Map<String, Object> map : monoRateInfo) {
+            String name = (String) map.get("name");
+            Long quoteNum = (Long) map.get("quoteNum");
+            Long doneNum = (Long) map.get("doneNum");
+            BigDecimal rate = (BigDecimal) map.get("rate");
+            names.add(name == null ? UNKNOW : name);
+            quoteNums.add(quoteNum == null ? 0L : quoteNum);
+            doneNums.add(doneNum == null ? 0L : doneNum);
+            rates.add(rate == null ? BigDecimal.ZERO : rate);
+        }
+        result.put("names", names);
+        result.put("quoteNums", quoteNums);
+        result.put("doneNums", doneNums);
+        result.put("rates", rates);
         return result;
     }
 }

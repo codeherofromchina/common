@@ -210,6 +210,74 @@ public class SalesDataStatisticsController {
         } else if ("2".equals(type)) {
             // 按地区分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByArea(params);
+        } else if ("3".equals(type)) {
+            // 按国家分析
+            data = supplierchainService.orderStatisticsWholeInfoGroupByCountry(params);
+        } else {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        }
+        result.setData(data);
+        return result;
+    }
+
+
+    /**
+     * 订单数据统计 - 利润
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orderInfoProfitPercent")
+    public Result<Object> orderInfoProfitPercent(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = (String) params.get("type");
+        Map<String, List<Object>> data = null;
+        Result<Object> result = new Result<>();
+        if ("1".equals(type)) {
+            // 事业部利润率
+            data = supplierchainService.orderStatisticsProfitPercentGroupByOrg(params);
+        } else if ("2".equals(type)) {
+            // 地区利润率
+            data = supplierchainService.orderStatisticsProfitPercentGroupByArea(params);
+        } else if ("3".equals(type)) {
+            // 国家利润率
+            data = supplierchainService.orderStatisticsProfitPercentGroupByCountry(params);
+        } else {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        }
+        result.setData(data);
+        return result;
+    }
+
+
+
+    /**
+     * 订单数据统计 - 成单率
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orderInfoMonoRate")
+    public Result<Object> orderInfoMonoRate(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = (String) params.get("type");
+        Map<String, List<Object>> data = null;
+        Result<Object> result = new Result<>();
+        if ("1".equals(type)) {
+            // 事业部成单率
+            data = supplierchainService.orderStatisticsMonoRateGroupByOrg(params);
+        } else if ("2".equals(type)) {
+            // 地区成单率
+            data = supplierchainService.orderStatisticsMonoRateGroupByArea(params);
+        } else if ("3".equals(type)) {
+            // 国家成单率
+            data = supplierchainService.orderStatisticsMonoRateGroupByCountry(params);
         } else {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }
