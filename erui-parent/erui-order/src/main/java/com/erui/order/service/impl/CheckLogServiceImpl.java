@@ -103,6 +103,9 @@ public class CheckLogServiceImpl implements CheckLogService {
             List<CheckLog> checkLogList = findListByOrderIdOrderByCreateTimeDesc(orderId);
             Order order = orderService.findById(orderId);
             Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态
+            if (orderAuditingStatus == null) {
+                return resultCheckLogs;
+            }
             Project project = order.getProject();
             // 通过项目和订单判断可以驳回到之前的步骤列表
             for (CheckLog checkLog:checkLogList) {
