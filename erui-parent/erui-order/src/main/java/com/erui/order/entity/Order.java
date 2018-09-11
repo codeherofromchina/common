@@ -527,6 +527,9 @@ public class Order {
     }
 
     public String getOrderSourceName() {
+        if (getOrderSource() == null) {
+            return null;
+        }
         // 1 门户订单 2 门户询单 3 线下订单',
         if (getOrderSource() == 1) {
             return "门户订单";
@@ -538,6 +541,9 @@ public class Order {
         return null;
     }
     public String getEnOrderSourceName() {
+        if (getOrderSource() == null) {
+            return null;
+        }
         // 1 门户订单 2 门户询单 3 线下订单',
         if (getOrderSource() == 1) {
             return "Online orders";
@@ -608,14 +614,14 @@ public class Order {
     }
 
     public String getOrderTypeName() {
-        if (getOrderType() == 1) {
+        if (getOrderType() != null && getOrderType() == 1) {
             return "油气";
         } else {
             return "非油气";
         }
     }
     public String getEnOrderTypeName() {
-        if (getOrderType() == 1) {
+        if (getOrderType()!=null && getOrderType() == 1) {
             return "Oil & gas";
         } else {
             return "Non-oil or gas";
