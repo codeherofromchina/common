@@ -83,45 +83,23 @@
 
     <!--根据时间查询各个地区询单总数量-->
     <select id="selectInquiryCountWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
-            count(1) AS total,
-            countryCn as area
-        FROM
-            (
-                SELECT
-                    t1.id,
-                    t1.country_bn,
-					t4.diff,
-                    (
-                        CASE t1.country_bn
-                        WHEN 'China' THEN
-                            '中国'
-                        ELSE
-                            t3. NAME
-                        END
-                    ) AS countryCn
-                FROM
-                    erui_rfq.inquiry t1,
-                    erui_operation.market_area_country t2,
-                    erui_operation.market_area t3,
-									(
-									SELECT inquiry_id ,  MIN(out_at)  AS diff
-									FROM erui_rfq.inquiry_check_log
-									WHERE  in_node='DRAFT' OR out_node='BIZ_DISPATCHING'
-									GROUP BY inquiry_id)AS t4
-                WHERE
-                 t1.deleted_flag = 'N'
-				AND t1.status != 'DRAFT'
-                AND t1.inquiry_source='BOSS'
-				AND  t1.id = t4.inquiry_id
-                AND t1.country_bn = t2.country_bn
-                AND t2.market_area_bn = t3.bn
-                AND t3.lang = 'zh'
-                AND t4.diff BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                               and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-            ) AS tb
-        GROUP BY
-            countryCn
+            SELECT
+            COUNT(DISTINCT t1.serial_no) AS total, t3.`name` AS area
+            FROM
+            erui_rfq.inquiry AS t1
+            LEFT JOIN
+            erui_operation.market_area_country AS t2 ON t1.country_bn = t2.country_bn
+            LEFT JOIN
+            erui_operation.market_area AS t3 ON t2.market_area_bn = t3.bn
+            AND t3.deleted_flag = 'N'
+            AND t3.lang = 'zh'
+            WHERE
+            t1.deleted_flag = 'N'
+            AND t1.status <![CDATA[ <> ]]> 'DRAFT'
+            AND t1.inflow_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                               AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            AND t3.bn IS NOT NULL
+            GROUP BY t3.`name`;
     </select>
 
     <select id="selectQuoteInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
@@ -154,7 +132,9 @@
 								(
 									SELECT inquiry_id ,  MIN(out_at)  AS createAt
 									FROM erui_rfq.inquiry_check_log
-									WHERE  in_node='MARKET_APPROVING' OR out_node ='MARKET_CONFIRMING'
+									<!-- WHERE  in_node='MARKET_APPROVING' OR out_node ='MARKET_CONFIRMING' and -->
+                                    WHERE out_node ='MARKET_CONFIRMING' and
+									out_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
 									GROUP BY inquiry_id)AS t5
             WHERE
                 t1.country_bn = t3.country_bn
@@ -163,7 +143,6 @@
             AND t4.lang = 'zh'
             AND t5.inquiry_id=t1.id
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
-            AND t5.createAt BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
             ) AS tb
         GROUP BY
             countryCn
