@@ -510,4 +510,18 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         result.put("rates", rates);
         return result;
     }
+
+
+    /**
+     * 订单数据统计--购买力
+     * @param params
+     * @return
+     */
+    @Override
+    public PageInfo<Map<String, Object>> orderInfoPurchasingPower(Map<String, Object> params) {
+        PageHelper.startPage(params);
+        List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoPurchasingPower(params);
+        PageInfo pageInfo = new PageInfo(purchasingPowerList);
+        return pageInfo;
+    }
 }

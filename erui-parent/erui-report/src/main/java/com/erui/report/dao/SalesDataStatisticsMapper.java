@@ -165,4 +165,12 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> orderStatisticsMonoRateGroupByCountry(Map<String, Object> params);
+
+    /**
+     * 订单数据统计-购买力
+     * @param params
+     *  {"id":"记录ID","buyer_code":"客户编码","country_bn":"国家编码","countryName":"国家名称","area_bn":"地区编码","areaName":"地区名称","created_at":"采购时间","maxQuotePrice":"单笔订单最大金额","totalQuotePrice":"采购总金额"}
+     * @return
+     */
+    List<Map<String,Object>> orderInfoPurchasingPower(Map<String, Object> params);
 }

@@ -500,4 +500,63 @@
                 erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
             GROUP BY t2.`name`
     </select>
+
+    <!-- 销售数据统计 - 订单数据统计 - 购买力 - 订单信息的国家成单率 -->
+    <select id="orderInfoPurchasingPower" parameterType="java.util.Map" resultType="java.util.Map">
+          SELECT
+                tb1.id,
+                tb1.buyer_code,
+                tb1.country_bn,
+                tb4.`name` AS countryName,
+                tb1.area_bn,
+                tb3.`name` AS areaName,
+                tb1.created_at,
+                tb2.maxQuotePrice,
+                tb2.totalQuotePrice
+            FROM
+                (SELECT
+                    t1.*, t2.total_quote_price
+                FROM
+                    erui_rfq.inquiry t1, erui_rfq.final_quote t2
+                WHERE
+                    t1.id = t2.inquiry_id
+                        AND t1.`status` = 'QUOTE_SENT'
+                        <if test="startTime != null">
+                          AND t1.created_at BETWEEN #{startTime} AND #{endTime}) AS tb1,
+                        </if>
+                (SELECT
+                    t1.buyer_code,
+                        t1.country_bn,
+                        t1.area_bn,
+                        MAX(t2.total_quote_price) AS maxQuotePrice,
+                        SUM(t2.total_quote_price) AS totalQuotePrice
+                FROM
+                    erui_rfq.inquiry t1, erui_rfq.final_quote t2
+                WHERE
+                    t1.id = t2.inquiry_id
+                        AND t1.`status` = 'QUOTE_SENT'
+                        <if test="startTime != null">
+                          AND t1.created_at BETWEEN #{startTime} AND #{endTime}
+                        </if>
+                GROUP BY buyer_code , country_bn , area_bn) AS tb2
+                    LEFT JOIN
+                erui2_operation.market_area tb3 ON tb2.area_bn = tb3.bn AND tb3.lang = 'zh'
+                    LEFT JOIN
+                erui_dict.country tb4 ON tb2.country_bn = tb4.bn
+                    AND tb4.lang = 'zh'
+            WHERE
+                tb1.buyer_code = tb2.buyer_code
+                    AND tb1.country_bn = tb2.country_bn
+                    AND tb1.area_bn = tb2.area_bn
+                    AND tb1.total_quote_price = tb2.maxQuotePrice
+                <if test="countryBn != null">
+                    AND tb1.country_bn = #{countryBn}
+                </if>
+                <if test="areaBn != null">
+                    AND tb1.area_bn = #{areaBn}
+                </if>
+                <if test="buyerCode != null">
+                    AND tb1.buyer_code LIKE '%${buyerCode}%'
+                </if>
+    </select>
 </mapper>

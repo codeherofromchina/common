@@ -143,4 +143,11 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orderStatisticsMonoRateGroupByCountry(Map<String, Object> params);
+
+    /**
+     * 订单数据统计--购买力
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String,Object>> orderInfoPurchasingPower(Map<String, Object> params);
 }
