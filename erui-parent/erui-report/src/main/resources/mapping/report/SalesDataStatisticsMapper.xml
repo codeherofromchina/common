@@ -601,4 +601,54 @@
                     AND tb1.buyer_code LIKE '%${buyerCode}%'
                 </if>
     </select>
+
+
+    <!-- 销售数据统计 - 订单数据统计 - 新老会员贡献度 - 全部成单额 -->
+    <select id="allMembersContribution" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName,
+            SUM(t1.total_price_usd) AS totalAmount
+        FROM
+            erui_new_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
+            erui_new_order.`project` t2
+        WHERE
+            t1.id = t2.order_id
+                AND t2.project_status IN ('EXECUTING' , 'DONE',
+                'DELAYED_EXECUTION',
+                'DELAYED_COMPLETE',
+                'UNSHIPPED',
+                'DELAYED_UNSHIPPED',
+                'PAUSE')
+                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`;
+    </select>
+
+    <!-- 销售数据统计 - 订单数据统计 - 新老会员贡献度 - 全部成单额 -->
+    <select id="newMembersContribution" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName,
+            SUM(t1.total_price_usd) AS totalAmount
+        FROM
+            erui_new_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
+            erui_new_order.`project` t2,
+            erui_buyer.buyer t4
+        WHERE
+            t1.id = t2.order_id
+                AND t1.buyer_id = t4.id
+                AND t4.`status` = 'PASS'
+                AND t4.created_at BETWEEN DATE_ADD(#{startTime},
+                INTERVAL -3 MONTH) AND #{endTime}
+                AND t2.project_status IN ('EXECUTING' , 'DONE',
+                'DELAYED_EXECUTION',
+                'DELAYED_COMPLETE',
+                'UNSHIPPED',
+                'DELAYED_UNSHIPPED',
+                'PAUSE')
+                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`;
+    </select>
 </mapper>

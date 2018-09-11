@@ -367,4 +367,28 @@ public class SalesDataStatisticsController {
 
         return new Result<>(pageInfo);
     }
+
+
+    /**
+     * 订单数据统计 - 新老会员贡献度
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orderInfoMembersContribution")
+    public Result<Object> orderInfoMembersContribution(@RequestBody Map<String, Object> params){
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        Map<String, List<Object>> data = null;
+        data =  supplierchainService.orderInfoMembersContribution(params);
+        Result<Object> result = new Result<>();
+        if (data == null) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
+    }
 }

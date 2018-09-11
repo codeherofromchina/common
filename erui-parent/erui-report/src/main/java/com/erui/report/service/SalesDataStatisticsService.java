@@ -157,4 +157,11 @@ public interface SalesDataStatisticsService {
      * @return
      */
     PageInfo<Map<String,Object>> orderInfoBuyCycle(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 -- 新老会员贡献度
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderInfoMembersContribution(Map<String, Object> params);
 }

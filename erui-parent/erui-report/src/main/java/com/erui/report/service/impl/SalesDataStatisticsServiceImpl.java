@@ -448,6 +448,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> result = _handleOrderMonoRate(countryMonoRate);
         return result;
     }
+
     /**
      * 地区成单数量和成单率信息
      *
@@ -464,6 +465,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> result = _handleOrderMonoRate(countryMonoRate);
         return result;
     }
+
     /**
      * 国家成单数量和成单率信息
      *
@@ -514,6 +516,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     /**
      * 订单数据统计--购买力
+     *
      * @param params
      * @return
      */
@@ -527,6 +530,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     /**
      * 订单数据统计--复购周期
+     *
      * @param params
      * @return
      */
@@ -536,5 +540,39 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
+    }
+
+
+    @Override
+    public Map<String, List<Object>> orderInfoMembersContribution(Map<String, Object> params) {
+        List<Map<String, Object>> allContributionList = salesDataStatisticsMapper.allMembersContribution(params);
+        List<Map<String, Object>> newMembersContributionList = salesDataStatisticsMapper.newMembersContribution(params);
+        if (allContributionList != null && allContributionList.size() > 0) {
+            Map<String, BigDecimal> newMembersContributionMap = newMembersContributionList.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (BigDecimal) vo.get("totalAmount")));
+
+            Map<String, List<Object>> result = new HashMap<>();
+            List<Object> names = new ArrayList<>();
+            List<Object> allMember = new ArrayList<>();
+            List<Object> newMember = new ArrayList<>();
+            List<Object> oldMember = new ArrayList<>();
+            for (Map<String, Object> data : allContributionList) {
+                String areaName = (String) data.get("areaName");
+                BigDecimal allMemberDecimal = (BigDecimal) data.get("totalAmount");
+                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal;
+                BigDecimal newMemberDecimal = newMembersContributionMap.get(areaName);
+                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal;
+                BigDecimal oldMemberDecimal = allMemberDecimal.subtract(newMemberDecimal);
+                names.add(areaName == null ? UNKNOW : areaName);
+                allMember.add(allMemberDecimal);
+                newMember.add(newMemberDecimal);
+                oldMember.add(oldMemberDecimal);
+            }
+            result.put("names", names);
+            result.put("allMember", allMember);
+            result.put("newMember", newMember);
+            result.put("oldMember", oldMember);
+            return result;
+        }
+        return null;
     }
 }

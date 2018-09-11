@@ -182,4 +182,18 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> orderInfoBuyCycle(Map<String, Object> params);
+
+    /**
+     * 全部会员成单总额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> allMembersContribution(Map<String, Object> params);
+
+    /**
+     * 新会员成单总额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> newMembersContribution(Map<String, Object> params);
 }
