@@ -150,4 +150,11 @@ public interface SalesDataStatisticsService {
      * @return
      */
     PageInfo<Map<String,Object>> orderInfoPurchasingPower(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 -- 复购周期
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String,Object>> orderInfoBuyCycle(Map<String, Object> params);
 }

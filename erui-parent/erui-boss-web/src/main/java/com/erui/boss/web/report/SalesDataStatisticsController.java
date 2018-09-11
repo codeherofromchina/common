@@ -325,4 +325,46 @@ public class SalesDataStatisticsController {
 
         return new Result<>(pageInfo);
     }
+
+
+
+    /**
+     * 订单数据统计 - 复购周期
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orderInfoBuyCycle")
+    public Result<Object> orderInfoBuyCycle(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String pageNumStr = (String) params.get("pageNum");
+        String pageSizeStr = (String) params.get("pageSize");
+        Integer pageNum = null;
+        Integer pageSize = null;
+        if (StringUtils.isNumeric(pageNumStr)) {
+            pageNum = Integer.parseInt(pageNumStr);
+            if (pageNum < 1) {
+                pageNum = new Integer(1);
+            }
+        } else {
+            pageNum = new Integer(1);
+        }
+        if (StringUtils.isNumeric(pageSizeStr)) {
+            pageSize = Integer.parseInt(pageSizeStr);
+            if (pageSize < 1) {
+                pageSize = new Integer(20);
+            }
+        } else {
+            pageSize = new Integer(20);
+        }
+        params.put("pageNum", pageNum);
+        params.put("pageSize", pageSize);
+
+        PageInfo<Map<String, Object>> pageInfo = supplierchainService.orderInfoBuyCycle(params);
+
+        return new Result<>(pageInfo);
+    }
 }

@@ -524,4 +524,17 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
     }
+
+    /**
+     * 订单数据统计--复购周期
+     * @param params
+     * @return
+     */
+    @Override
+    public PageInfo<Map<String, Object>> orderInfoBuyCycle(Map<String, Object> params) {
+        PageHelper.startPage(params);
+        List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
+        PageInfo pageInfo = new PageInfo(purchasingPowerList);
+        return pageInfo;
+    }
 }
