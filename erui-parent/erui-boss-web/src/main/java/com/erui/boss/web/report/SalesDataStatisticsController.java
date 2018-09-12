@@ -225,7 +225,11 @@ public class SalesDataStatisticsController {
         } else {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }
-        result.setData(data);
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
         return result;
     }
 

@@ -49,7 +49,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @param params
      */
     public PageInfo<Map<String, Object>> inquiryFailListByPage(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"),(Integer) params.get("pageSize"));
         List<Map<String, Object>> failList = salesDataStatisticsMapper.inquiryFailListByPage(params);
         PageInfo pageInfo = new PageInfo(failList);
         return pageInfo;
@@ -522,7 +522,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public PageInfo<Map<String, Object>> orderInfoPurchasingPower(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"),(Integer) params.get("pageSize"));
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoPurchasingPower(params);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
@@ -536,7 +536,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public PageInfo<Map<String, Object>> orderInfoBuyCycle(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"),(Integer) params.get("pageSize"));
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
