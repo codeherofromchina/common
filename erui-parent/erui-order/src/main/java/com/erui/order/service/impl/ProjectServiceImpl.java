@@ -408,7 +408,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("30979,31274");
+        projectUpdate.setAuditingUserId("010022,31274");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1075,7 +1075,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     break;
                 case 2: // 法务审核
-                    String replace = auditingUserId.replace("30979", "");
+                    String replace = auditingUserId.replace("010022", "");
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                         if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                             auditingProcess_i = "5"; //
