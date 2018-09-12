@@ -104,8 +104,8 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String pageNumStr = (String) params.get("pageNum");
-        String pageSizeStr = (String) params.get("pageSize");
+        String pageNumStr = String.valueOf(params.get("pageNum"));
+        String pageSizeStr = String.valueOf(params.get("pageSize"));
         Integer pageNum = null;
         Integer pageSize = null;
         if (StringUtils.isNumeric(pageNumStr)) {
@@ -319,8 +319,8 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String pageNumStr = (String) params.get("pageNum");
-        String pageSizeStr = (String) params.get("pageSize");
+        String pageNumStr = String.valueOf(params.get("pageNum"));
+        String pageSizeStr = String.valueOf(params.get("pageSize"));
         Integer pageNum = null;
         Integer pageSize = null;
         if (StringUtils.isNumeric(pageNumStr)) {
@@ -361,8 +361,8 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String pageNumStr = (String) params.get("pageNum");
-        String pageSizeStr = (String) params.get("pageSize");
+        String pageNumStr = String.valueOf(params.get("pageNum"));
+        String pageSizeStr = String.valueOf(params.get("pageSize"));
         Integer pageNum = null;
         Integer pageSize = null;
         if (StringUtils.isNumeric(pageNumStr)) {
