@@ -30,6 +30,16 @@ public interface SalesDataStatisticsService {
     Map<String,List<Object>> agencyOrgStatisticsData(Map<String, Object> params);
 
     /**
+     * 按照地区统计代理商总数信息
+     * @param params {"startTime":"2018-01-01 00:00:00","endTime":"2018-01-01 23:59:59","sort":"1"}
+     *                  sort 1:正序/升序   其他：倒序/降序
+     * @return
+     *  {"name":[],counts:[]}
+     */
+    Map<String,List<Object>> agencyAreaStatisticsData(Map<String, Object> params);
+
+
+    /**
      * 分页查询询报价统计-询价失败列表
      * @param params
      */
@@ -164,4 +174,11 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orderInfoMembersContribution(Map<String, Object> params);
+
+    /**
+     * 事业部完成率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderInfoDoneRateGroupbyOrg(Map<String, Object> params);
 }

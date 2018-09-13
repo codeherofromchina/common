@@ -23,6 +23,14 @@ public interface SalesDataStatisticsMapper {
      */
     List<Map<String,Object>> agencySupplierOrgStatisticsData(Map<String, Object> params);
 
+
+    /**
+     * 查询代理供应商按照地区纬度、时间条件统计总数
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> agencySupplierAreaStatisticsData(Map<String, Object> params);
+
     /**
      *  分页查询询报价统计-询价失败列表
      * @param params
@@ -36,7 +44,7 @@ public interface SalesDataStatisticsMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> buyerTotalCountGoupByCountry(Map<String, Object> params);
+    List<Map<String,Object>> buyerTotalCountGoupByArea(Map<String, Object> params);
 
 
     /**
@@ -44,7 +52,7 @@ public interface SalesDataStatisticsMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> buyerLossCountGoupByCountry(Map<String, Object> params);
+    List<Map<String,Object>> buyerLossCountGoupByArea(Map<String, Object> params);
 
 
     /**
@@ -52,7 +60,7 @@ public interface SalesDataStatisticsMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> buyerActiveCountGoupByCountry(Map<String, Object> params);
+    List<Map<String,Object>> buyerActiveCountGoupByArea(Map<String, Object> params);
 
     /**
      * 事业部报价用时
@@ -196,4 +204,26 @@ public interface SalesDataStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> newMembersContribution(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 - 订单的事业部分组完成金额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderInfoDonePriceGroupbyOrg(Map<String, Object> params);
+
+    /**
+     * 订单数据统计 - 订单的地区分组完成金额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderInfoDonePriceGroupbyArea(Map<String, Object> params);
+
+
+    /**
+     * 订单数据统计 - 订单的国家分组完成金额
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> orderInfoDonePriceGroupbyCountry(Map<String, Object> params);
 }

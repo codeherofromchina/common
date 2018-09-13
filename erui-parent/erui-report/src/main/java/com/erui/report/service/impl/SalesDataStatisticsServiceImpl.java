@@ -1,20 +1,20 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.SalesDataStatisticsMapper;
+import com.erui.report.model.PerformanceIndicators;
+import com.erui.report.service.PerformanceIndicatorsService;
 import com.erui.report.service.SalesDataStatisticsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.rmi.runtime.Log;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +26,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     private static final String UNKNOW = "未知";
     @Autowired
     private SalesDataStatisticsMapper salesDataStatisticsMapper;
+    // 业绩指标业务类
+    @Autowired
+    private PerformanceIndicatorsService performanceIndicatorsService;
 
     @Override
     public Map<String, List<Object>> agencySupplierCountryStatisticsData(Map<String, Object> params) {
@@ -43,13 +46,22 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         return result;
     }
 
+
+    @Override
+    public Map<String, List<Object>> agencyAreaStatisticsData(Map<String, Object> params) {
+        Map<String, List<Object>> result = null;
+        List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierAreaStatisticsData(params);
+        result = _handleSimpleData(result, datas);
+        return result;
+    }
+
     /**
      * 分页查询询报价统计-询价失败列表
      *
      * @param params
      */
     public PageInfo<Map<String, Object>> inquiryFailListByPage(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> failList = salesDataStatisticsMapper.inquiryFailListByPage(params);
         PageInfo pageInfo = new PageInfo(failList);
         return pageInfo;
@@ -88,9 +100,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public Map<String, List<Object>> activeMemberStatistics(Map<String, Object> params) {
         // 查找会员总数
-        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByCountry(params);
+        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByArea(params);
         // 查找活跃会员数
-        List<Map<String, Object>> activeBuyer = salesDataStatisticsMapper.buyerActiveCountGoupByCountry(params);
+        List<Map<String, Object>> activeBuyer = salesDataStatisticsMapper.buyerActiveCountGoupByArea(params);
         if (totalBuyer == null || totalBuyer.size() == 0 || activeBuyer == null || activeBuyer.size() == 0) {
             return null;
         }
@@ -108,9 +120,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public Map<String, List<Object>> lossMemberStatistics(Map<String, Object> params) {
         // 查找会员总数
-        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByCountry(params);
+        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByArea(params);
         // 查找流失会员数
-        List<Map<String, Object>> lossBuyer = salesDataStatisticsMapper.buyerLossCountGoupByCountry(params);
+        List<Map<String, Object>> lossBuyer = salesDataStatisticsMapper.buyerLossCountGoupByArea(params);
         if (totalBuyer == null || totalBuyer.size() == 0 || lossBuyer == null || lossBuyer.size() == 0) {
             return null;
         }
@@ -522,7 +534,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public PageInfo<Map<String, Object>> orderInfoPurchasingPower(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoPurchasingPower(params);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
@@ -536,7 +548,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public PageInfo<Map<String, Object>> orderInfoBuyCycle(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
@@ -575,4 +587,63 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         }
         return null;
     }
+
+
+    /**
+     * 订单数据统计 - 事业部完成率
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
+        List<Map<String, Object>> planPriceList = orderInfoPlanPrice(params);
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
+        if (planPriceList == null || planPriceList.size() == 0) {
+            return null;
+        }
+        Map<Integer, BigDecimal> donePriceMap = donePriceList.parallelStream().collect(Collectors.toMap(vo -> (Integer) vo.get("orgId"), vo -> (BigDecimal) vo.get("totalPrice")));
+        List<Object> names = new ArrayList<>();
+        List<Object> rateList = new ArrayList<>();
+        for (Map<String, Object> planPrice : planPriceList) {
+            Object bn = planPrice.get("bn");
+            Object name = planPrice.get("name");
+            BigDecimal planQuota = (BigDecimal) planPrice.get("quota");
+            BigDecimal doneQuota = donePriceMap.get(bn);
+            if (doneQuota == null || doneQuota == BigDecimal.ZERO) {
+                rateList.add(0); // 完成率是0
+            } else {
+                rateList.add(doneQuota.divide(planQuota).setScale(4, BigDecimal.ROUND_DOWN));
+            }
+            names.add(name);
+        }
+        Map<String, List<Object>> result = new HashMap<>();
+        result.put("names", names);
+        result.put("rateList", rateList);
+        return result;
+    }
+
+    /**
+     * 查询计划业绩信息
+     *
+     * @param params type   1：事业部完成率   2：地区完成率   3：国家完成率
+     * @return
+     */
+    private List<Map<String, Object>> orderInfoPlanPrice(Map<String, Object> params) {
+        List<Map<String, Object>> planPrice = null;
+        Integer type = (Integer) params.get("type");
+        List<String> prescriptionList = NewDateUtil.allSpanYearList(DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.FULL_FORMAT_STR), DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.FULL_FORMAT_STR));
+        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsService.findByPrescription(prescriptionList);
+        if (type == 1) {
+
+
+        } else if (type == 2) {
+
+        } else if (type == 3) {
+
+        }
+        return planPrice;
+    }
+
+
 }
