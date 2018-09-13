@@ -46,8 +46,7 @@ public class SalesDataStatisticsController {
         } else if ("country".equals(typeDimension)) {
             data = supplierchainService.agencySupplierCountryStatisticsData(params);
         } else if ("saleCountry".equals(typeDimension)) {
-            // TODO 这里待完善信息
-            //data = supplierchainService.agencyOrgStatisticsData(params);
+            data = supplierchainService.agencyAreaStatisticsData(params);
         }
 
         Result<Object> result = new Result<>();
@@ -417,4 +416,37 @@ public class SalesDataStatisticsController {
         return result;
     }
 
+
+    /**
+     * 订单数据统计 - 完成率
+     * @param params
+     * {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
+     *  type  1：事业部完成率   2：地区完成率   3：国家完成率
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("orderInfoDoneRate")
+    public Result<Object> orderInfoDoneRate(@RequestBody Map<String, Object> params){
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        Result<Object> result = new Result<>();
+        Map<String, List<Object>> data = null;
+        Integer type = (Integer)params.get("type");
+        if (type == null) {
+        } else if (1== type) {
+            data =  supplierchainService.orderInfoDoneRateGroupbyOrg(params);
+        } else if (2 == type) {
+           // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
+        } else if (3 == type) {
+            //data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
+        }
+        if (data == null) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
+    }
 }

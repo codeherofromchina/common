@@ -67,4 +67,9 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
     }
+
+    @Override
+    public List<PerformanceIndicators> findByPrescription(List<String> prescriptionList) {
+        return null;
+    }
 }

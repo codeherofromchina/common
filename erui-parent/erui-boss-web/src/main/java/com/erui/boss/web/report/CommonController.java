@@ -23,7 +23,7 @@ import java.util.Map;
  * 公共信息控制器
  */
 @Controller
-@RequestMapping("/report/CommonController")
+@RequestMapping("/report/common")
 public class CommonController {
     @Autowired
     private CommonService commonService;

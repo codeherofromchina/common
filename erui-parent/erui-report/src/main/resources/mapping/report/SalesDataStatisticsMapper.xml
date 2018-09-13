@@ -11,7 +11,7 @@
                 LEFT JOIN
             erui_sys.org t2 ON t1.org_id = t2.id
         WHERE
-            t1.`status` = 'APPROVING'
+            t1.`status` = 'APPROVED'
                 AND t1.supplier_type = 'AGENCY'
                 AND t1.created_at BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name` ORDER BY 2
@@ -29,10 +29,32 @@
         LEFT JOIN
         erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
         WHERE
-        t1.`status` = 'APPROVING'
+        t1.`status` = 'APPROVED'
         AND t1.supplier_type = 'AGENCY'
         AND t1.created_at BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+    <!--查询代理供应商按照地区纬度、时间条件统计总数-->
+    <select id="agencySupplierAreaStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name`, COUNT(1) AS total
+        FROM
+        erui_supplier.supplier t1
+        LEFT JOIN
+        erui_operation.market_area_country t2 ON t1.country_bn = t2.country_bn
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh'
+        AND t3.bn = t2.market_area_bn
+        WHERE
+        t1.`status` = 'APPROVED'
+        AND t1.supplier_type = 'AGENCY'
+        AND t1.created_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
         ORDER BY 2
         <if test="sort != 1" >
             DESC
@@ -649,6 +671,46 @@
                 'DELAYED_UNSHIPPED',
                 'PAUSE')
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY t3.`name`;
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 订单数据统计 - 订单的事业部分组完成金额 -->
+    <select id="orderInfoDonePriceGroupbyOrg" parameterType="java.util.Map" resultType="java.util.Map">
+          SELECT
+                business_unit_id AS orgId,
+                SUM(IFNULL(total_price_usd, 0)) AS totalPrice
+            FROM
+                erui_new_order.`order`
+            WHERE
+                `status` > 2
+                    AND business_unit_id IS NOT NULL
+                    AND create_time BETWEEN #{startTime} AND #{endTime}
+            GROUP BY business_unit_id
+    </select>
+
+    <!-- 订单数据统计 - 订单的地区分组完成金额 -->
+    <select id="orderInfoDonePriceGroupbyArea" parameterType="java.util.Map" resultType="java.util.Map">
+          SELECT
+            region AS area_bn,
+            SUM(IFNULL(total_price_usd, 0)) AS totalPrice
+        FROM
+            erui_new_order.`order`
+        WHERE
+            `status` > 2 AND region IS NOT NULL
+                AND create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY region
+    </select>
+
+    <!-- 订单数据统计 - 订单的国家分组完成金额 -->
+    <select id="orderInfoDonePriceGroupbyCountry" parameterType="java.util.Map" resultType="java.util.Map">
+           SELECT
+                country AS country_bn,
+                SUM(IFNULL(total_price_usd, 0)) AS totalPrice
+            FROM
+                erui_new_order.`order`
+            WHERE
+                `status` > 2 AND country IS NOT NULL
+                    AND create_time BETWEEN #{startTime} AND #{endTime}
+            GROUP BY country
     </select>
 </mapper>
