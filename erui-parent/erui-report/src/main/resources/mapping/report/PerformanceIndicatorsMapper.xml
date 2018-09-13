@@ -8,6 +8,8 @@
     <result column="price_unit" property="priceUnit" jdbcType="VARCHAR" />
     <result column="org_id" property="orgId" jdbcType="INTEGER" />
     <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+    <result column="area_bn" property="areaBn" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
     <result column="country_bn" property="countryBn" jdbcType="VARCHAR" />
     <result column="country_name" property="countryName" jdbcType="VARCHAR" />
     <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
@@ -73,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, prescription, quota, price_unit, org_id, org_name, country_bn, country_name, 
-    create_user_id, create_user_name, create_time
+    id, prescription, quota, price_unit, org_id, org_name, area_bn, area_name, country_bn, 
+    country_name, create_user_id, create_user_name, create_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.PerformanceIndicatorsExample" >
     select
@@ -109,12 +111,14 @@
   <insert id="insert" parameterType="com.erui.report.model.PerformanceIndicators" >
     insert into performance_indicators (id, prescription, quota, 
       price_unit, org_id, org_name, 
-      country_bn, country_name, create_user_id, 
-      create_user_name, create_time)
+      area_bn, area_name, country_bn, 
+      country_name, create_user_id, create_user_name, 
+      create_time)
     values (#{id,jdbcType=INTEGER}, #{prescription,jdbcType=VARCHAR}, #{quota,jdbcType=DECIMAL}, 
       #{priceUnit,jdbcType=VARCHAR}, #{orgId,jdbcType=INTEGER}, #{orgName,jdbcType=VARCHAR}, 
-      #{countryBn,jdbcType=VARCHAR}, #{countryName,jdbcType=VARCHAR}, #{createUserId,jdbcType=INTEGER}, 
-      #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+      #{areaBn,jdbcType=VARCHAR}, #{areaName,jdbcType=VARCHAR}, #{countryBn,jdbcType=VARCHAR}, 
+      #{countryName,jdbcType=VARCHAR}, #{createUserId,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.PerformanceIndicators" >
     insert into performance_indicators
@@ -136,6 +140,12 @@
       </if>
       <if test="orgName != null" >
         org_name,
+      </if>
+      <if test="areaBn != null" >
+        area_bn,
+      </if>
+      <if test="areaName != null" >
+        area_name,
       </if>
       <if test="countryBn != null" >
         country_bn,
@@ -171,6 +181,12 @@
       </if>
       <if test="orgName != null" >
         #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaBn != null" >
+        #{areaBn,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
       </if>
       <if test="countryBn != null" >
         #{countryBn,jdbcType=VARCHAR},
@@ -216,6 +232,12 @@
       <if test="record.orgName != null" >
         org_name = #{record.orgName,jdbcType=VARCHAR},
       </if>
+      <if test="record.areaBn != null" >
+        area_bn = #{record.areaBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.areaName != null" >
+        area_name = #{record.areaName,jdbcType=VARCHAR},
+      </if>
       <if test="record.countryBn != null" >
         country_bn = #{record.countryBn,jdbcType=VARCHAR},
       </if>
@@ -244,6 +266,8 @@
       price_unit = #{record.priceUnit,jdbcType=VARCHAR},
       org_id = #{record.orgId,jdbcType=INTEGER},
       org_name = #{record.orgName,jdbcType=VARCHAR},
+      area_bn = #{record.areaBn,jdbcType=VARCHAR},
+      area_name = #{record.areaName,jdbcType=VARCHAR},
       country_bn = #{record.countryBn,jdbcType=VARCHAR},
       country_name = #{record.countryName,jdbcType=VARCHAR},
       create_user_id = #{record.createUserId,jdbcType=INTEGER},
@@ -271,6 +295,12 @@
       <if test="orgName != null" >
         org_name = #{orgName,jdbcType=VARCHAR},
       </if>
+      <if test="areaBn != null" >
+        area_bn = #{areaBn,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
       <if test="countryBn != null" >
         country_bn = #{countryBn,jdbcType=VARCHAR},
       </if>
@@ -296,6 +326,8 @@
       price_unit = #{priceUnit,jdbcType=VARCHAR},
       org_id = #{orgId,jdbcType=INTEGER},
       org_name = #{orgName,jdbcType=VARCHAR},
+      area_bn = #{areaBn,jdbcType=VARCHAR},
+      area_name = #{areaName,jdbcType=VARCHAR},
       country_bn = #{countryBn,jdbcType=VARCHAR},
       country_name = #{countryName,jdbcType=VARCHAR},
       create_user_id = #{createUserId,jdbcType=INTEGER},

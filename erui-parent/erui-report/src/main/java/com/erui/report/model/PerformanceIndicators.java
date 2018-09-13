@@ -16,6 +16,10 @@ public class PerformanceIndicators {
 
     private String orgName;
 
+    private String areaBn;
+
+    private String areaName;
+
     private String countryBn;
 
     private String countryName;
@@ -72,6 +76,22 @@ public class PerformanceIndicators {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
+    }
+
+    public String getAreaBn() {
+        return areaBn;
+    }
+
+    public void setAreaBn(String areaBn) {
+        this.areaBn = areaBn;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
     }
 
     public String getCountryBn() {

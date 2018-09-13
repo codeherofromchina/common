@@ -69,6 +69,9 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
 
     @Override
     public List<PerformanceIndicators> findByPrescription(List<String> prescriptionList) {
-        return null;
+        PerformanceIndicatorsExample example = new PerformanceIndicatorsExample();
+        example.createCriteria().andPrescriptionIn(prescriptionList);
+        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsMapper.selectByExample(example);
+        return performanceIndicatorsList;
     }
 }
