@@ -447,6 +447,6 @@ public class SalesDataStatisticsController {
         } else {
             result.setData(data);
         }
-        return result;
+        return null;
     }
 }

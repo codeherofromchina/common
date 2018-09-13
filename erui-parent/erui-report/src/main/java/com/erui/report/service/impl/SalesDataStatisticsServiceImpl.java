@@ -630,19 +630,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     private List<Map<String, Object>> orderInfoPlanPrice(Map<String, Object> params) {
-        List<Map<String, Object>> planPrice = null;
-        Integer type = (Integer) params.get("type");
-        List<String> prescriptionList = NewDateUtil.allSpanYearList(DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.FULL_FORMAT_STR), DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.FULL_FORMAT_STR));
-        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsService.findByPrescription(prescriptionList);
-        if (type == 1) {
-
-
-        } else if (type == 2) {
-
-        } else if (type == 3) {
-
-        }
-        return planPrice;
+        return null;
     }
 
 

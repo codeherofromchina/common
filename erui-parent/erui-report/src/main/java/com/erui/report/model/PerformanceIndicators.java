@@ -6,11 +6,15 @@ import java.util.Date;
 public class PerformanceIndicators {
     private Integer id;
 
-    private String prescription;
+    private Date startPrescription;
+
+    private Date endPrescription;
 
     private BigDecimal quota;
 
     private String priceUnit;
+
+    private Integer ptype;
 
     private Integer orgId;
 
@@ -38,12 +42,20 @@ public class PerformanceIndicators {
         this.id = id;
     }
 
-    public String getPrescription() {
-        return prescription;
+    public Date getStartPrescription() {
+        return startPrescription;
     }
 
-    public void setPrescription(String prescription) {
-        this.prescription = prescription;
+    public void setStartPrescription(Date startPrescription) {
+        this.startPrescription = startPrescription;
+    }
+
+    public Date getEndPrescription() {
+        return endPrescription;
+    }
+
+    public void setEndPrescription(Date endPrescription) {
+        this.endPrescription = endPrescription;
     }
 
     public BigDecimal getQuota() {
@@ -60,6 +72,14 @@ public class PerformanceIndicators {
 
     public void setPriceUnit(String priceUnit) {
         this.priceUnit = priceUnit;
+    }
+
+    public Integer getPtype() {
+        return ptype;
+    }
+
+    public void setPtype(Integer ptype) {
+        this.ptype = ptype;
     }
 
     public Integer getOrgId() {

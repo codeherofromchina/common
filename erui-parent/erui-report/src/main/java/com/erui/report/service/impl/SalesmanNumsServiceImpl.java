@@ -1,5 +1,6 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.SalesmanNumsMapper;
 import com.erui.report.model.SalesmanNums;
 import com.erui.report.model.SalesmanNumsExample;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,15 +51,24 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
         PageHelper.startPage(params);
         SalesmanNumsExample example = new SalesmanNumsExample();
         SalesmanNumsExample.Criteria criteria = example.createCriteria();
-        String prescription = (String)params.get("prescription"); // 指标时效
-        String countryName = (String)params.get("countryName"); // 国家名称
-        if (StringUtils.isNotBlank(prescription) ) {
-            criteria.andPrescriptionEqualTo(prescription);
+        String startPrescription = (String) params.get("startPrescription");
+        String endPrescription = (String) params.get("endPrescription");
+        Date startDate = DateUtil.parseString2DateNoException(startPrescription,DateUtil.SHORT_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(endPrescription,DateUtil.SHORT_FORMAT_STR);
+        if (startDate != null) {
+            criteria.andStartPrescriptionGreaterThanOrEqualTo(startDate);
         }
-        if(StringUtils.isNotBlank(countryName)){
-            criteria.andCountryNameLike("%" + prescription + "%");
+        if (endDate != null) {
+            criteria.andEndPrescriptionLessThanOrEqualTo(endDate);
         }
-
+        String countryBn = (String)params.get("countryBn"); // 国家编码
+        if (StringUtils.isNotBlank(countryBn)) {
+            criteria.andCountryBnEqualTo(countryBn);
+        }
+        String createUserName = (String)params.get("createUserName"); // 创建
+        if (StringUtils.isNotBlank(createUserName) ) {
+            criteria.andCreateUserNameEqualTo("%" + createUserName + "%");
+        }
         List<SalesmanNums> purchasingPowerList = salesmanNumsMapper.selectByExample(example);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;

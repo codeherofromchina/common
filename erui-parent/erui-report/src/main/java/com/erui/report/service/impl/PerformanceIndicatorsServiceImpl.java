@@ -1,5 +1,6 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.PerformanceIndicatorsMapper;
 import com.erui.report.model.PerformanceIndicators;
 import com.erui.report.model.PerformanceIndicatorsExample;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,19 +51,28 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         PageHelper.startPage(params);
         PerformanceIndicatorsExample example = new PerformanceIndicatorsExample();
         PerformanceIndicatorsExample.Criteria criteria = example.createCriteria();
-        String prescription = (String)params.get("prescription"); // 指标时效
-        String countryName = (String)params.get("countryName"); // 国家名称
-        String orgName = (String)params.get("orgName"); // 事业部名称
-        if (StringUtils.isNotBlank(prescription) ) {
-            criteria.andPrescriptionEqualTo(prescription);
+        String startPrescription = (String) params.get("startPrescription");
+        String endPrescription = (String) params.get("endPrescription");
+        Date startDate = DateUtil.parseString2DateNoException(startPrescription,DateUtil.SHORT_FORMAT_STR);
+        Date endDate = DateUtil.parseString2DateNoException(endPrescription,DateUtil.SHORT_FORMAT_STR);
+        if (startDate != null) {
+            criteria.andStartPrescriptionGreaterThanOrEqualTo(startDate);
         }
-        if(StringUtils.isNotBlank(countryName)){
-            criteria.andCountryNameLike("%" + prescription + "%");
+        if (endDate != null) {
+            criteria.andEndPrescriptionLessThanOrEqualTo(endDate);
         }
-        if(StringUtils.isNotBlank(orgName)){
-            criteria.andOrgNameLike("%" + orgName + "%");
+        Integer ptype = (Integer)params.get("ptype"); // 指标类型
+        if (ptype != null) {
+            criteria.andPtypeEqualTo(ptype);
         }
-
+        String countryBn = (String)params.get("countryBn"); // 国家名称
+        if (StringUtils.isNotBlank(countryBn)) {
+            criteria.andCountryBnEqualTo(countryBn);
+        }
+        Integer orgId = (Integer)params.get("orgId"); // 事业部ID
+        if(orgId != null) {
+            criteria.andOrgIdEqualTo(orgId);
+        }
         List<PerformanceIndicators> purchasingPowerList = performanceIndicatorsMapper.selectByExample(example);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
@@ -70,7 +81,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
     @Override
     public List<PerformanceIndicators> findByPrescription(List<String> prescriptionList) {
         PerformanceIndicatorsExample example = new PerformanceIndicatorsExample();
-        example.createCriteria().andPrescriptionIn(prescriptionList);
+        //example.createCriteria().andPrescriptionIn(prescriptionList);
         List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsMapper.selectByExample(example);
         return performanceIndicatorsList;
     }
