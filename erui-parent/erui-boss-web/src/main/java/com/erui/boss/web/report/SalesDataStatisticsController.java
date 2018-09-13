@@ -416,4 +416,5 @@ public class SalesDataStatisticsController {
         }
         return result;
     }
+
 }

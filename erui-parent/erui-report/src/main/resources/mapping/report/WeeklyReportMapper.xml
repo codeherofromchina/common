@@ -84,7 +84,7 @@
     <!--根据时间查询各个地区询单总数量-->
     <select id="selectInquiryCountWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
             SELECT
-            COUNT(DISTINCT t1.serial_no) AS total, t3.`name` AS area
+            COUNT(DISTINCT t1.serial_no) AS total, t3.`name` as area
             FROM
             erui_rfq.inquiry AS t1
             LEFT JOIN
@@ -102,10 +102,10 @@
             erui_rfq.inquiry_check_log
             WHERE
             inquiry_id = t1.id AND action = 'CREATE'
-            AND out_node = 'BIZ_QUOTING'
+            AND out_node = 'BIZ_DISPATCHING'
             GROUP BY inquiry_id
             HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-            AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                                AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
             AND t3.bn IS NOT NULL
             GROUP BY t3.bn
     </select>

@@ -34,7 +34,8 @@ public enum ResultStatusEnum {
     DUPLICATE_ERROR(22,"值不唯一","Not unique"),
     COMPANY_NOT_EXIST(23,"公司不存在","The company does not exist"),
     LACK_OF_AUTHORITY(24,"权限不足","Lack of authority"),
-    SQLDATA_ERROR(25,"数据错误,请检查数据是否规范","Data error, please check if the data is normal");
+    SQLDATA_ERROR(25,"数据错误,请检查数据是否规范","Data error, please check if the data is normal"),
+    DATA_REPEAT_ERROR(26,"数据重复错误","Data duplication error");
     private int code;
     private String msg;
     private String enMsg;

@@ -68,8 +68,8 @@
         ORDER BY t5.created_at ASC
     </select>
 
-
-    <select id="buyerTotalCountGoupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+    <!-- 会员总数 -->
+    <select id="buyerTotalCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` as countryName,COUNT(t1.id) as total
         FROM
@@ -86,8 +86,8 @@
             DESC
         </if>
     </select>
-
-    <select id="buyerLossCountGoupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+    <!-- 会员流失数-->
+    <select id="buyerLossCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` AS countryName, COUNT(t1.id) AS total
         FROM
@@ -109,8 +109,8 @@
         GROUP BY t2.`name`
     </select>
 
-
-    <select id="buyerActiveCountGoupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+    <!-- 会员活跃数-->
+    <select id="buyerActiveCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` AS countryName, COUNT(t1.id) AS total
         FROM

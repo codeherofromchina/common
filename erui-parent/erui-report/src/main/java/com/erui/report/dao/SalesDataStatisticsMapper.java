@@ -36,7 +36,7 @@ public interface SalesDataStatisticsMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> buyerTotalCountGoupByCountry(Map<String, Object> params);
+    List<Map<String,Object>> buyerTotalCountGoupByArea(Map<String, Object> params);
 
 
     /**
@@ -44,7 +44,7 @@ public interface SalesDataStatisticsMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> buyerLossCountGoupByCountry(Map<String, Object> params);
+    List<Map<String,Object>> buyerLossCountGoupByArea(Map<String, Object> params);
 
 
     /**
@@ -52,7 +52,7 @@ public interface SalesDataStatisticsMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> buyerActiveCountGoupByCountry(Map<String, Object> params);
+    List<Map<String,Object>> buyerActiveCountGoupByArea(Map<String, Object> params);
 
     /**
      * 事业部报价用时

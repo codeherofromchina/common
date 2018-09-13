@@ -6,7 +6,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.rmi.runtime.Log;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -88,9 +87,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public Map<String, List<Object>> activeMemberStatistics(Map<String, Object> params) {
         // 查找会员总数
-        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByCountry(params);
+        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByArea(params);
         // 查找活跃会员数
-        List<Map<String, Object>> activeBuyer = salesDataStatisticsMapper.buyerActiveCountGoupByCountry(params);
+        List<Map<String, Object>> activeBuyer = salesDataStatisticsMapper.buyerActiveCountGoupByArea(params);
         if (totalBuyer == null || totalBuyer.size() == 0 || activeBuyer == null || activeBuyer.size() == 0) {
             return null;
         }
@@ -108,9 +107,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public Map<String, List<Object>> lossMemberStatistics(Map<String, Object> params) {
         // 查找会员总数
-        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByCountry(params);
+        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByArea(params);
         // 查找流失会员数
-        List<Map<String, Object>> lossBuyer = salesDataStatisticsMapper.buyerLossCountGoupByCountry(params);
+        List<Map<String, Object>> lossBuyer = salesDataStatisticsMapper.buyerLossCountGoupByArea(params);
         if (totalBuyer == null || totalBuyer.size() == 0 || lossBuyer == null || lossBuyer.size() == 0) {
             return null;
         }
