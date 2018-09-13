@@ -6,7 +6,7 @@
     <result column="prescription" property="prescription" jdbcType="VARCHAR" />
     <result column="quota" property="quota" jdbcType="DECIMAL" />
     <result column="price_unit" property="priceUnit" jdbcType="VARCHAR" />
-    <result column="org_bn" property="orgBn" jdbcType="VARCHAR" />
+    <result column="org_id" property="orgId" jdbcType="INTEGER" />
     <result column="org_name" property="orgName" jdbcType="VARCHAR" />
     <result column="country_bn" property="countryBn" jdbcType="VARCHAR" />
     <result column="country_name" property="countryName" jdbcType="VARCHAR" />
@@ -73,7 +73,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, prescription, quota, price_unit, org_bn, org_name, country_bn, country_name, 
+    id, prescription, quota, price_unit, org_id, org_name, country_bn, country_name, 
     create_user_id, create_user_name, create_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.PerformanceIndicatorsExample" >
@@ -108,11 +108,11 @@
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.PerformanceIndicators" >
     insert into performance_indicators (id, prescription, quota, 
-      price_unit, org_bn, org_name, 
+      price_unit, org_id, org_name, 
       country_bn, country_name, create_user_id, 
       create_user_name, create_time)
     values (#{id,jdbcType=INTEGER}, #{prescription,jdbcType=VARCHAR}, #{quota,jdbcType=DECIMAL}, 
-      #{priceUnit,jdbcType=VARCHAR}, #{orgBn,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, 
+      #{priceUnit,jdbcType=VARCHAR}, #{orgId,jdbcType=INTEGER}, #{orgName,jdbcType=VARCHAR}, 
       #{countryBn,jdbcType=VARCHAR}, #{countryName,jdbcType=VARCHAR}, #{createUserId,jdbcType=INTEGER}, 
       #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
@@ -131,8 +131,8 @@
       <if test="priceUnit != null" >
         price_unit,
       </if>
-      <if test="orgBn != null" >
-        org_bn,
+      <if test="orgId != null" >
+        org_id,
       </if>
       <if test="orgName != null" >
         org_name,
@@ -166,8 +166,8 @@
       <if test="priceUnit != null" >
         #{priceUnit,jdbcType=VARCHAR},
       </if>
-      <if test="orgBn != null" >
-        #{orgBn,jdbcType=VARCHAR},
+      <if test="orgId != null" >
+        #{orgId,jdbcType=INTEGER},
       </if>
       <if test="orgName != null" >
         #{orgName,jdbcType=VARCHAR},
@@ -210,8 +210,8 @@
       <if test="record.priceUnit != null" >
         price_unit = #{record.priceUnit,jdbcType=VARCHAR},
       </if>
-      <if test="record.orgBn != null" >
-        org_bn = #{record.orgBn,jdbcType=VARCHAR},
+      <if test="record.orgId != null" >
+        org_id = #{record.orgId,jdbcType=INTEGER},
       </if>
       <if test="record.orgName != null" >
         org_name = #{record.orgName,jdbcType=VARCHAR},
@@ -242,7 +242,7 @@
       prescription = #{record.prescription,jdbcType=VARCHAR},
       quota = #{record.quota,jdbcType=DECIMAL},
       price_unit = #{record.priceUnit,jdbcType=VARCHAR},
-      org_bn = #{record.orgBn,jdbcType=VARCHAR},
+      org_id = #{record.orgId,jdbcType=INTEGER},
       org_name = #{record.orgName,jdbcType=VARCHAR},
       country_bn = #{record.countryBn,jdbcType=VARCHAR},
       country_name = #{record.countryName,jdbcType=VARCHAR},
@@ -265,8 +265,8 @@
       <if test="priceUnit != null" >
         price_unit = #{priceUnit,jdbcType=VARCHAR},
       </if>
-      <if test="orgBn != null" >
-        org_bn = #{orgBn,jdbcType=VARCHAR},
+      <if test="orgId != null" >
+        org_id = #{orgId,jdbcType=INTEGER},
       </if>
       <if test="orgName != null" >
         org_name = #{orgName,jdbcType=VARCHAR},
@@ -294,7 +294,7 @@
     set prescription = #{prescription,jdbcType=VARCHAR},
       quota = #{quota,jdbcType=DECIMAL},
       price_unit = #{priceUnit,jdbcType=VARCHAR},
-      org_bn = #{orgBn,jdbcType=VARCHAR},
+      org_id = #{orgId,jdbcType=INTEGER},
       org_name = #{orgName,jdbcType=VARCHAR},
       country_bn = #{countryBn,jdbcType=VARCHAR},
       country_name = #{countryName,jdbcType=VARCHAR},

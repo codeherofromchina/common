@@ -17,7 +17,7 @@ import java.util.Map;
  * Created by wangxiaodan on 2018/9/12.
  */
 @Service
-public class SalesmanNumsServiceImpl extends BaseService<SalesmanNums> implements SalesmanNumsService {
+public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> implements SalesmanNumsService {
     @Autowired
     private SalesmanNumsMapper salesmanNumsMapper;
 

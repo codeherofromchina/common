@@ -1,6 +1,5 @@
 package com.erui.report.service.impl;
 
-import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.dao.PerformanceIndicatorsMapper;
 import com.erui.report.model.PerformanceIndicators;
 import com.erui.report.model.PerformanceIndicatorsExample;
@@ -18,7 +17,7 @@ import java.util.Map;
  * Created by wangxiaodan on 2018/9/12.
  */
 @Service
-public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceIndicators> implements PerformanceIndicatorsService {
+public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceIndicatorsMapper> implements PerformanceIndicatorsService {
     @Autowired
     private PerformanceIndicatorsMapper performanceIndicatorsMapper;
 

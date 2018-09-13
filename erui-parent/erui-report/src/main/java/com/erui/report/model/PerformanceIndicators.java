@@ -12,7 +12,7 @@ public class PerformanceIndicators {
 
     private String priceUnit;
 
-    private String orgBn;
+    private Integer orgId;
 
     private String orgName;
 
@@ -58,12 +58,12 @@ public class PerformanceIndicators {
         this.priceUnit = priceUnit;
     }
 
-    public String getOrgBn() {
-        return orgBn;
+    public Integer getOrgId() {
+        return orgId;
     }
 
-    public void setOrgBn(String orgBn) {
-        this.orgBn = orgBn;
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 
     public String getOrgName() {

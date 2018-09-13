@@ -366,73 +366,63 @@ public class PerformanceIndicatorsExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnIsNull() {
-            addCriterion("org_bn is null");
+        public Criteria andOrgIdIsNull() {
+            addCriterion("org_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnIsNotNull() {
-            addCriterion("org_bn is not null");
+        public Criteria andOrgIdIsNotNull() {
+            addCriterion("org_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnEqualTo(String value) {
-            addCriterion("org_bn =", value, "orgBn");
+        public Criteria andOrgIdEqualTo(Integer value) {
+            addCriterion("org_id =", value, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnNotEqualTo(String value) {
-            addCriterion("org_bn <>", value, "orgBn");
+        public Criteria andOrgIdNotEqualTo(Integer value) {
+            addCriterion("org_id <>", value, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnGreaterThan(String value) {
-            addCriterion("org_bn >", value, "orgBn");
+        public Criteria andOrgIdGreaterThan(Integer value) {
+            addCriterion("org_id >", value, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnGreaterThanOrEqualTo(String value) {
-            addCriterion("org_bn >=", value, "orgBn");
+        public Criteria andOrgIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("org_id >=", value, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnLessThan(String value) {
-            addCriterion("org_bn <", value, "orgBn");
+        public Criteria andOrgIdLessThan(Integer value) {
+            addCriterion("org_id <", value, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnLessThanOrEqualTo(String value) {
-            addCriterion("org_bn <=", value, "orgBn");
+        public Criteria andOrgIdLessThanOrEqualTo(Integer value) {
+            addCriterion("org_id <=", value, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnLike(String value) {
-            addCriterion("org_bn like", value, "orgBn");
+        public Criteria andOrgIdIn(List<Integer> values) {
+            addCriterion("org_id in", values, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnNotLike(String value) {
-            addCriterion("org_bn not like", value, "orgBn");
+        public Criteria andOrgIdNotIn(List<Integer> values) {
+            addCriterion("org_id not in", values, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnIn(List<String> values) {
-            addCriterion("org_bn in", values, "orgBn");
+        public Criteria andOrgIdBetween(Integer value1, Integer value2) {
+            addCriterion("org_id between", value1, value2, "orgId");
             return (Criteria) this;
         }
 
-        public Criteria andOrgBnNotIn(List<String> values) {
-            addCriterion("org_bn not in", values, "orgBn");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrgBnBetween(String value1, String value2) {
-            addCriterion("org_bn between", value1, value2, "orgBn");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrgBnNotBetween(String value1, String value2) {
-            addCriterion("org_bn not between", value1, value2, "orgBn");
+        public Criteria andOrgIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("org_id not between", value1, value2, "orgId");
             return (Criteria) this;
         }
 
