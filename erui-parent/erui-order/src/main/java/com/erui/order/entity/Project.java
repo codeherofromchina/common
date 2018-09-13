@@ -159,6 +159,12 @@ public class Project {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
 
+    /**
+     * 审核人列表信息
+     */
+    @Column(name = "audi_remark")
+    private String audiRemark;
+
     @Column(name = "logistics_audit")
     private Integer logisticsAudit; //'是否需要物流审核  1/其他:不需要  2：需要',
 
@@ -775,6 +781,10 @@ public class Project {
     // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
     @Transient
     private String auditingType;
+    // 审核日志，驳回操作使用
+    @Transient
+    private Integer checkLogId;
+
     public String getAuditingReason() {
         return auditingReason;
     }
@@ -789,6 +799,22 @@ public class Project {
 
     public void setAuditingType(String auditingType) {
         this.auditingType = auditingType;
+    }
+
+    public Integer getCheckLogId() {
+        return checkLogId;
+    }
+
+    public void setCheckLogId(Integer checkLogId) {
+        this.checkLogId = checkLogId;
+    }
+
+    public void setAudiRemark(String audiRemark) {
+        this.audiRemark = audiRemark;
+    }
+
+    public String getAudiRemark() {
+        return audiRemark;
     }
 
     /**

@@ -9,6 +9,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.BackLogDao;
+import com.erui.order.dao.CheckLogDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
 import com.erui.order.entity.*;
@@ -61,6 +62,8 @@ public class ProjectServiceImpl implements ProjectService {
     private StatisticsService statisticsService;
     @Autowired
     private CheckLogService checkLogService;
+    @Autowired
+    private CheckLogDao checkLogDao;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -216,7 +219,7 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
 
-                    } else {
+                    } else if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
@@ -274,8 +277,11 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setRemarks(project.getRemarks());
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
-                        // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
-                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+
+                        if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING) {
+                            // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
+                            submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+                        }
 
 
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
@@ -402,7 +408,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("30979,31274");
+        projectUpdate.setAuditingUserId("010022,31274");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -989,6 +995,12 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean audit(Project project, String auditorId, String auditorName, Project paramProject) {
         //@param rejectFlag true:驳回项目   false:审核项目
         //@param reason
+        StringBuilder auditorIds = null;
+        if (project.getAudiRemark() != null) {
+            auditorIds = new StringBuilder(project.getAudiRemark());
+        } else {
+            auditorIds = new StringBuilder("");
+        }
         boolean rejectFlag = "-1".equals(paramProject.getAuditingType());
         String reason = paramProject.getAuditingReason();
 
@@ -1009,18 +1021,35 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
         }
+        if (curAuditProcess == null) {
+            return false;
+        }
+        auditorIds.append("," + auditorId + ",");
+
         // 定义最后处理结果变量，最后统一操作
         Integer auditingStatus_i = 2; // 默认状态为审核中
         String auditingProcess_i = null; // 项目审核当前进度
         String auditingUserId_i = null; // 项目审核当前人
         CheckLog checkLog_i = null; // 审核日志
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
+            CheckLog checkLog = checkLogDao.findOne(project.getCheckLogId());
             auditingStatus_i = 3;
-            auditingProcess_i = "1"; // 事业部利润核算 处理
-            //auditingUserId_i = String.valueOf(order.getBusinessUnitId());
-            auditingUserId_i = String.valueOf(project.getBusinessUid());
-            // 设置项目为SUBMIT:未执行
-            project.setProjectStatus("SUBMIT");
+            if (checkLog.getType() == 1) { // 驳回到订单
+                String auditingProcess_order = checkLog.getAuditingProcess().toString(); //驳回给哪一步骤
+                Integer auditingUserId_order = checkLog.getAuditingUserId();//要驳回给谁
+                if (auditingProcess_order.equals("0")) {
+                    order.setStatus(1);
+                }
+                order.setAuditingUserId(auditingProcess_order);
+                order.setAuditingStatus(auditingUserId_order);
+                order.setAuditingProcess(auditingStatus_i);
+                //orderDao.save(order);
+            } else { // 驳回到项目
+                auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
+                auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
+                // 设置项目为SUBMIT:未执行
+                project.setProjectStatus("SUBMIT");
+            }
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
         } else {
@@ -1046,7 +1075,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     break;
                 case 2: // 法务审核
-                    String replace = auditingUserId.replace("30979", "");
+                    String replace = auditingUserId.replace("010022", "");
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                         if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                             auditingProcess_i = "5"; //
@@ -1117,6 +1146,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
         project.setAuditingStatus(auditingStatus_i);
+        project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
         return true;
     }

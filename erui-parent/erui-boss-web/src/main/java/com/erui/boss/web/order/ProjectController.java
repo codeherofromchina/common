@@ -118,6 +118,7 @@ public class ProjectController {
         Integer projectId = pProject.getId(); // 项目ID
         String reason = pProject.getAuditingReason(); // 驳回原因
         String type = pProject.getAuditingType(); // 驳回or审核
+        Integer checkLogId = pProject.getCheckLogId();
 
         // 判断项目是否存在，
         Project project = projectService.findById(projectId);
@@ -134,9 +135,10 @@ public class ProjectController {
 
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
-        if (rejectFlag && StringUtils.isBlank(reason)) {
-            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因为必填信息");
+        if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
         }
+        project.setCheckLogId(checkLogId);
 
         // 判断通过，审核项目并返回是否审核成功
         boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);

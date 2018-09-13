@@ -576,10 +576,22 @@ public class OrderServiceImpl implements OrderService {
             switch (curAuditProcess) {
                 case 0:
                     if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
-                        auditingProcess_i = checkLog.getNextAuditingProcess();
-                        auditingUserId_i = checkLog.getNextAuditingUserId();
-                        auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        // 添加从项目驳回过来的信息
+                        if (checkLog.getType() == 2) {
+                            Project project = order.getProject();
+                            project.setAuditingStatus(2); // 设置项目为审核中
+                            project.setAuditingUserId(checkLog.getNextAuditingUserId());
+                            project.setAuditingProcess(checkLog.getNextAuditingProcess());
+
+                            auditingStatus_i = 4; // 完成
+                            auditingProcess_i = null; // 无下一审核进度和审核人
+                            auditingUserId_i = null;
+                        } else {
+                            auditingProcess_i = checkLog.getNextAuditingProcess();
+                            auditingUserId_i = checkLog.getNextAuditingUserId();
+                            auditorIds.append("," + auditingUserId_i + ",");
+                            addOrderVo.copyBaseInfoTo(order);
+                        }
                     } else {
                         auditingProcess_i = "1";
                         auditingUserId_i = order.getCountryLeaderId().toString();
