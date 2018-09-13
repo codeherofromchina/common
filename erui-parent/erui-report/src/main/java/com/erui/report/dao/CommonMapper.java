@@ -17,15 +17,13 @@ public interface CommonMapper {
 
     /**
      * 地区列表
-     * @param params
      * @return
      */
-    List<Map<String,Object>> areaList(Map<String, Object> params);
+    List<Map<String,Object>> areaList();
 
     /**
      * 事业部列表
-     * @param params
      * @return
      */
-    List<Map<String,Object>> orgList(Map<String, Object> params);
+    List<Map<String,Object>> orgList();
 }
