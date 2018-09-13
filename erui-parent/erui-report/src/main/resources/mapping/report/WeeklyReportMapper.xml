@@ -105,7 +105,7 @@
             AND out_node = 'BIZ_DISPATCHING'
             GROUP BY inquiry_id
             HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                                AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                                AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s"))
             AND t3.bn IS NOT NULL
             GROUP BY t3.bn
     </select>
