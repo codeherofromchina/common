@@ -621,10 +621,10 @@ public class OrderServiceImpl implements OrderService {
                         //根据订单金额判断 填写审批人级别
                         if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                             if (order.getFinancing() == null || order.getFinancing() == 0) {
-                                //若不是融资项目 且订单金额小于10万美元 审核完成
-                                auditingStatus_i = 4; // 完成
-                                auditingProcess_i = null; // 无下一审核进度和审核人
-                                auditingUserId_i = null;
+                                //若不是融资项目 且订单金额小于10万美元 提交至商品添加
+                                auditingProcess_i = "6";
+                                auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                                auditorIds.append("," + auditingUserId_i + ",");
                             } else if (order.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
@@ -650,10 +650,10 @@ public class OrderServiceImpl implements OrderService {
                     } else {
                         if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
                             if (order.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                                //若不是融资项目 且订单金额小于10万美元 审核完成
-                                auditingStatus_i = 4; // 完成
-                                auditingProcess_i = null; // 无下一审核进度和审核人
-                                auditingUserId_i = null;
+                                //若不是融资项目 且订单金额小于10万-300万美元 提交至商品添加
+                                auditingProcess_i = "6";
+                                auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                                auditorIds.append("," + auditingUserId_i + ",");
                             } else if (addOrderVo.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
@@ -677,10 +677,10 @@ public class OrderServiceImpl implements OrderService {
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
-                            //若不是融资项目 且订单金额小于10万美元 审核完成
-                            auditingStatus_i = 4; // 完成
-                            auditingProcess_i = null; // 无下一审核进度和审核人
-                            auditingUserId_i = null;
+                            //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
+                            auditingProcess_i = "6";
+                            auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                            auditorIds.append("," + auditingUserId_i + ",");
                         } else if (order.getFinancing() == 1) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "5"; // 融资审核
@@ -691,7 +691,22 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 //是否融资项目 是 融资审核
                 case 5:
-                    //若是融资项目
+                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                        auditingProcess_i = checkLog.getNextAuditingProcess();
+                        auditingUserId_i = checkLog.getNextAuditingUserId();
+                        auditorIds.append("," + auditingUserId_i + ",");
+                        addOrderVo.copyBaseInfoTo(order);
+                    } else {
+                        //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
+                        auditingProcess_i = "6";
+                        auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                        auditorIds.append("," + auditingUserId_i + ",");
+                    }
+                    break;
+                //提交商品
+                case 6:
+                    order.setGoodsList(updateOrderGoods(addOrderVo));
+                    order.setLogiQuoteNo(addOrderVo.getLogiQuoteNo());
                     auditingStatus_i = 4; // 完成
                     auditingProcess_i = null; // 无下一审核进度和审核人
                     auditingUserId_i = null;
@@ -951,18 +966,27 @@ public class OrderServiceImpl implements OrderService {
             order.setAreaVpId(addOrderVo.getAreaVpId());
             order.setAreaVp(addOrderVo.getAreaVp());
         }
-        order.setAuditingProcess(1);
         order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             order.setAuditingStatus(2);
-            order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+            if (StringUtils.isNotBlank(addOrderVo.getPerLiableRepay())) {
+                order.setAuditingProcess(1);
+                order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+            } else {
+                order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
+                order.setAuditingProcess(2);
+            }
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), null, "1", 1);
+            if (orderUpdate.getPerLiableRepayId() == null) {
+                checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), null, "1", 1);
+            } else {
+                checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
+            }
             checkLogService.insert(checkLog_i);
         }
         Date signingDate = null;
@@ -1041,15 +1065,13 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
-    @Override
-    public boolean updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
+    private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
         Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         Set<String> skuRepeatSet = new HashSet<>();
-
         for (PGoods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
@@ -1075,7 +1097,6 @@ public class OrderServiceImpl implements OrderService {
             goods.setModel(pGoods.getModel());
             goods.setClientDesc(pGoods.getClientDesc());
             goods.setBrand(pGoods.getBrand());
-            goods.setContractNo(order.getContractNo());
             goods.setPurchasedNum(0);
             goods.setPrePurchsedNum(0);
             goods.setInspectNum(0);
@@ -1094,8 +1115,7 @@ public class OrderServiceImpl implements OrderService {
         goodsList1.parallelStream().forEach(goods1 -> {
             goods1.setProject(order.getProject());
         });
-        goodsDao.save(goodsList1);
-        return true;
+        return goodsList1;
     }
 
     /*  // 检查和贸易术语相关字段的完整性
@@ -1361,18 +1381,28 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        order.setAuditingProcess(1);
         order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             order.setAuditingStatus(2);
-            order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+            if (StringUtils.isNotBlank(addOrderVo.getPerLiableRepay())) {
+                order.setAuditingProcess(1);
+                order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+            } else {
+                order.setAuditingProcess(2);
+                order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
+            }
         }
         CheckLog checkLog_i = null;//审批流日志
         Order order1 = orderDao.save(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), null, "1", 1);
+            if (order1.getPerLiableRepayId() == null) {
+                checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), null, "1", 1);
+            } else {
+                checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getCountryLeaderId().toString(), null, "1", 1);
+
+            }
             checkLogService.insert(checkLog_i);
         }
         Date signingDate = null;
@@ -1454,11 +1484,10 @@ public class OrderServiceImpl implements OrderService {
         return order1.getId();
     }
 
-    @Override
-    public boolean addOrderGoods(AddOrderVo addOrderVo) throws Exception {
+    private List<Goods> addOrderGoods(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if (order == null) {
-            return false;
+            return null;
         }
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
@@ -1483,7 +1512,6 @@ public class OrderServiceImpl implements OrderService {
             goods.setModel(pGoods.getModel());
             goods.setClientDesc(pGoods.getClientDesc());
             goods.setBrand(pGoods.getBrand());
-            goods.setContractNo(order.getContractNo());
             goods.setPurchasedNum(0);
             goods.setPrePurchsedNum(0);
             goods.setInstockNum(0);
@@ -1503,8 +1531,7 @@ public class OrderServiceImpl implements OrderService {
         goodsList1.parallelStream().forEach(goods1 -> {
             goods1.setProject(order.getProject());
         });
-        goodsDao.save(goodsList1);
-        return true;
+        return goodsList;
     }
 
     /**

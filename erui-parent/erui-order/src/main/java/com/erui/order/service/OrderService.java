@@ -63,7 +63,7 @@ public interface OrderService {
      * @Date:11:42 2018/9/11
      * @modified By
      */
-    boolean updateOrderGoods(AddOrderVo addOrderVo) throws Exception;
+    //boolean updateOrderGoods(AddOrderVo addOrderVo) throws Exception;
     /**
      * 添加订单
      * @param addOrderVo
@@ -76,7 +76,7 @@ public interface OrderService {
       * @Date:11:42 2018/9/11
       * @modified By
       */
-    boolean addOrderGoods(AddOrderVo addOrderVo) throws Exception;
+    //boolean addOrderGoods(AddOrderVo addOrderVo) throws Exception;
     /**
      * 订单详情
      * @param orderId

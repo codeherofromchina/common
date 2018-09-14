@@ -277,26 +277,6 @@ public class OrderController {
 
     }
 
-    @RequestMapping(value = "addOrderGoods", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addOrderGoods(@RequestBody @Valid AddOrderVo addOrderVo, HttpServletRequest request) throws Exception {
-        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        logger.info("OrderController.addOrder()");
-        boolean continueFlag = false;
-        if (!continueFlag) {
-            return result;
-        }
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
-        if (addOrderVo.getId() != null) {
-            continueFlag = orderService.updateOrderGoods(addOrderVo);
-        } else {
-            continueFlag = orderService.addOrderGoods(addOrderVo);
-        }
-
-        return result;
-
-    }
-
     /**
      * 审核项目
      *
