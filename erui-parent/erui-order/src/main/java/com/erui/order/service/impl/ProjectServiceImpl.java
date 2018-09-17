@@ -395,11 +395,6 @@ public class ProjectServiceImpl implements ProjectService {
             // 既不是预投。又不是试用，则需要检查参数
             throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
         }
-        projectUpdate.setLogisticsAudit(logisticsAudit);
-        projectUpdate.setLogisticsAuditer(logisticsAuditer);
-        projectUpdate.setLogisticsAuditerId(logisticsAuditerId);
-        projectUpdate.setBuAuditer(buAuditer);
-        projectUpdate.setBuAuditerId(buAuditerId);
         projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
         projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
         projectUpdate.setCeo(project.getCeo());

@@ -773,6 +773,11 @@ public class Project {
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
         project.setProjectStatus(this.projectStatus);
+        project.setLogisticsAudit(this.logisticsAudit);
+        project.setLogisticsAuditerId(this.getLogisticsAuditerId());
+        project.setLogisticsAuditer(this.logisticsAuditer);
+        project.setBuAuditerId(this.getBuAuditerId());
+        project.setBuAuditer(this.getBuAuditer());
         return true;
     }
     // 项目审核接口中使用，审核的原因字段
