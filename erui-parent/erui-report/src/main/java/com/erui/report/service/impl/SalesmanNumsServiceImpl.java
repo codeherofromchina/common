@@ -4,6 +4,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.SalesmanNumsMapper;
 import com.erui.report.model.SalesmanNums;
 import com.erui.report.model.SalesmanNumsExample;
+import com.erui.report.service.CommonService;
 import com.erui.report.service.SalesmanNumsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -22,11 +23,24 @@ import java.util.Map;
 public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> implements SalesmanNumsService {
     @Autowired
     private SalesmanNumsMapper salesmanNumsMapper;
+    @Autowired
+    private CommonService commonService;
 
     @Override
-    public int add(SalesmanNums SalesmanNums) {
-        int insert = salesmanNumsMapper.insert(SalesmanNums);
-        return insert > 0 ? 0 : 1;
+    public int add(List<SalesmanNums> salesmanNumsList) throws Exception {
+        Date now = new Date();
+        for (SalesmanNums vo  : salesmanNumsList){
+            vo.setId(null);
+            vo.setCreateTime(now);
+            String countryBn = vo.getCountryBn();
+            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(countryBn);
+            vo.setCountryName((String)countryInfoMap.get("countryName"));
+            int insert = salesmanNumsMapper.insert(vo);
+            if (insert < 1) {
+                throw new Exception("数据新增数据库错误");
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -41,14 +55,18 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
     }
 
     @Override
-    public int update(SalesmanNums SalesmanNums) {
-        int insert = salesmanNumsMapper.updateByPrimaryKey(SalesmanNums);
+    public int update(SalesmanNums salesmanNums) {
+        String countryBn = salesmanNums.getCountryBn();
+        Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(countryBn);
+        salesmanNums.setCountryName((String)countryInfoMap.get("countryName"));
+        salesmanNums.setCreateTime(new Date());
+        int insert = salesmanNumsMapper.updateByPrimaryKey(salesmanNums);
         return insert > 0 ? 0 : 1;
     }
 
     @Override
     public PageInfo<SalesmanNums> list(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"),(Integer) params.get("pageSize"));
         SalesmanNumsExample example = new SalesmanNumsExample();
         SalesmanNumsExample.Criteria criteria = example.createCriteria();
         String startPrescription = (String) params.get("startPrescription");

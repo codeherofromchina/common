@@ -111,48 +111,47 @@
     </select>
 
     <select id="selectQuoteInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
-
- SELECT
+            SELECT
             count(id) AS total_num,
             sum(
-                ifnull(total_quote_price, 0)
+            ifnull(total_quote_price, 0)
             ) AS total_price,
             countryCn AS area
-        FROM
+            FROM
             (
-                SELECT
-                    t1.id,
-                    t2.total_quote_price,
-                    (
-                        CASE t1.country_bn
-                        WHEN 'China' THEN
-                            '中国'
-                        ELSE
-                            t4. NAME
-                        END
-                    ) AS countryCn,
-                 t5.createAt
-                FROM
-                    erui_rfq.inquiry t1
-                LEFT OUTER JOIN erui_rfq.quote t2 ON t1.id = t2.inquiry_id,
-                erui_operation.market_area_country t3,
-                erui_operation.market_area t4,
-								(
-									SELECT inquiry_id ,  MIN(out_at)  AS createAt
-									FROM erui_rfq.inquiry_check_log
-									<!-- WHERE  in_node='MARKET_APPROVING' OR out_node ='MARKET_CONFIRMING' and -->
-                                    WHERE out_node ='MARKET_CONFIRMING' and
-									out_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-									GROUP BY inquiry_id)AS t5
+            SELECT
+            t1.id,
+            t2.total_quote_price,
+            (
+            CASE t1.country_bn
+            WHEN 'China' THEN
+            '中国'
+            ELSE
+            t4. NAME
+            END
+            ) AS countryCn,
+            t5.createAt
+            FROM
+            erui_rfq.inquiry t1
+            LEFT OUTER JOIN erui_rfq.quote t2 ON t1.id = t2.inquiry_id,
+            erui_operation.market_area_country t3,
+            erui_operation.market_area t4,
+            (
+            SELECT inquiry_id ,  MIN(out_at)  AS createAt
+            FROM erui_rfq.inquiry_check_log
+            <!-- WHERE  in_node='MARKET_APPROVING' OR out_node ='MARKET_CONFIRMING' and -->
+            WHERE out_node ='MARKET_CONFIRMING' and
+            out_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+            GROUP BY inquiry_id)AS t5
             WHERE
-                t1.country_bn = t3.country_bn
+            t1.country_bn = t3.country_bn
             AND t1.deleted_flag = 'N'
             AND t3.market_area_bn = t4.bn
             AND t4.lang = 'zh'
             AND t5.inquiry_id=t1.id
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
             ) AS tb
-        GROUP BY
+            GROUP BY
             countryCn
     </select>
 

@@ -4,6 +4,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.dao.PerformanceIndicatorsMapper;
 import com.erui.report.model.PerformanceIndicators;
 import com.erui.report.model.PerformanceIndicatorsExample;
+import com.erui.report.service.CommonService;
 import com.erui.report.service.PerformanceIndicatorsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -22,9 +23,25 @@ import java.util.Map;
 public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceIndicatorsMapper> implements PerformanceIndicatorsService {
     @Autowired
     private PerformanceIndicatorsMapper performanceIndicatorsMapper;
+    @Autowired
+    private CommonService commonService;
 
     @Override
     public int add(PerformanceIndicators performanceIndicators) {
+        // 完善指标类型的其余信息
+        Integer ptype = performanceIndicators.getPtype();
+        if (1== ptype) {
+            // 完善事业部名称信息
+            Map<String,Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
+            performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
+        } else if(2 == ptype){
+            // 完善国家信息
+            Map<String,Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
+            performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
+            performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
+            performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
+        }
+        performanceIndicators.setCreateTime(new Date());
         int insert = performanceIndicatorsMapper.insert(performanceIndicators);
         return insert > 0 ? 0 : 1;
     }
@@ -42,13 +59,27 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
 
     @Override
     public int update(PerformanceIndicators performanceIndicators) {
+        Integer ptype = performanceIndicators.getPtype();
+        // 更新指标类型的其余信息
+        if (1== ptype) {
+            // 完善事业部名称信息
+            Map<String,Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
+            performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
+        } else if(2 == ptype){
+            // 完善国家信息
+            Map<String,Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
+            performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
+            performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
+            performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
+        }
+        performanceIndicators.setCreateTime(new Date());
         int insert = performanceIndicatorsMapper.updateByPrimaryKey(performanceIndicators);
         return insert > 0 ? 0 : 1;
     }
 
     @Override
     public PageInfo<PerformanceIndicators> list(Map<String, Object> params) {
-        PageHelper.startPage(params);
+        PageHelper.startPage((Integer) params.get("pageNum"),(Integer) params.get("pageSize"));
         PerformanceIndicatorsExample example = new PerformanceIndicatorsExample();
         PerformanceIndicatorsExample.Criteria criteria = example.createCriteria();
         String startPrescription = (String) params.get("startPrescription");
@@ -78,11 +109,4 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         return pageInfo;
     }
 
-    @Override
-    public List<PerformanceIndicators> findByPrescription(List<String> prescriptionList) {
-        PerformanceIndicatorsExample example = new PerformanceIndicatorsExample();
-        //example.createCriteria().andPrescriptionIn(prescriptionList);
-        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsMapper.selectByExample(example);
-        return performanceIndicatorsList;
-    }
 }
