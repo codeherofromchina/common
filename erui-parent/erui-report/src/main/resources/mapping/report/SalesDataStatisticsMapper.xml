@@ -351,7 +351,10 @@
             t1.`status` >= 3
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
-        ORDER BY 3 DESC
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 订单数据统计 - 整体 - 按事业部纬度查询订单的金额和数量 -->
     <select id="orderStatisticsWholeInfoGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
@@ -366,7 +369,10 @@
             `status` >= 3
                 AND create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY business_unit_id , business_unit_name
-        ORDER BY 3 DESC
+        ORDER BY 3
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 订单数据统计 - 整体 - 按国家纬度查询订单的金额和数量 -->
     <select id="orderStatisticsWholeInfoGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
@@ -381,7 +387,11 @@
         WHERE
             t1.`status` >= 3
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY t2.`name`;
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
     <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的国家利润率 -->
@@ -399,6 +409,10 @@
                 AND t3.`project_status` = 'DONE'
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的地区利润率 -->
     <select id="orderStatisticsProfitPercentGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
@@ -415,6 +429,10 @@
                 AND t3.`project_status` = 'DONE'
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的事业部利润率 -->
     <select id="orderStatisticsProfitPercentGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
@@ -430,6 +448,10 @@
                 AND t3.`project_status` = 'DONE'
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t1.`business_unit_id` , t1.business_unit_name
+        ORDER BY 3
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
 
@@ -463,6 +485,10 @@
                 LEFT JOIN
             erui_sys.org t2 ON t1.org_id = t2.id
         GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的地区成单率 -->
     <select id="orderStatisticsMonoRateGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
@@ -491,7 +517,11 @@
             GROUP BY area_bn) AS t1
                 LEFT JOIN
             erui_operation.market_area t2 ON t2.bn = t1.area_bn AND t2.lang = 'zh'
-        GROUP BY t2.`name`;
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的国家成单率 -->
     <select id="orderStatisticsMonoRateGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
@@ -521,6 +551,10 @@
                     LEFT JOIN
                 erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
             GROUP BY t2.`name`
+            ORDER BY 2
+            <if test="sort != 1" >
+                DESC
+            </if>
     </select>
 
     <!-- 销售数据统计 - 订单数据统计 - 购买力 -->

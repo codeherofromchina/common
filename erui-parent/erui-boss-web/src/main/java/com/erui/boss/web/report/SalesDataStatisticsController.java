@@ -170,18 +170,16 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        if ("1".equals(type)) {
             // 报价金额按事业部统计
             data = supplierchainService.quoteAmountGroupOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 询单数量按事业部统计
             data = supplierchainService.inquiryNumbersGroupOrg(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 报价数量按事业部统计
             data = supplierchainService.quoteNumbersGroupOrg(params);
         } else {
@@ -198,6 +196,7 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 整体
+     *
      * @param params
      * @return
      */
@@ -208,18 +207,16 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        if ("1".equals(type)) {
             // 按事业部分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 按地区分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByArea(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 按国家分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByCountry(params);
         } else {
@@ -236,6 +233,7 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 利润
+     *
      * @param params
      * @return
      */
@@ -246,18 +244,16 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        if ("1".equals(type)) {
             // 事业部利润率
             data = supplierchainService.orderStatisticsProfitPercentGroupByOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 地区利润率
             data = supplierchainService.orderStatisticsProfitPercentGroupByArea(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 国家利润率
             data = supplierchainService.orderStatisticsProfitPercentGroupByCountry(params);
         } else {
@@ -272,9 +268,9 @@ public class SalesDataStatisticsController {
     }
 
 
-
     /**
      * 订单数据统计 - 成单率
+     *
      * @param params
      * @return
      */
@@ -285,18 +281,18 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
         if (type == null) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        } else if ("1".equals(type)) {
             // 事业部成单率
             data = supplierchainService.orderStatisticsMonoRateGroupByOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 地区成单率
             data = supplierchainService.orderStatisticsMonoRateGroupByArea(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 国家成单率
             data = supplierchainService.orderStatisticsMonoRateGroupByCountry(params);
         } else {
@@ -313,6 +309,7 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 购买力
+     *
      * @param params
      * @return
      */
@@ -352,9 +349,9 @@ public class SalesDataStatisticsController {
     }
 
 
-
     /**
      * 订单数据统计 - 复购周期
+     *
      * @param params
      * @return
      */
@@ -396,18 +393,19 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 新老会员贡献度
+     *
      * @param params
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "orderInfoMembersContribution", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderInfoMembersContribution(@RequestBody Map<String, Object> params){
+    public Result<Object> orderInfoMembersContribution(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         Map<String, List<Object>> data = null;
-        data =  supplierchainService.orderInfoMembersContribution(params);
+        data = supplierchainService.orderInfoMembersContribution(params);
         Result<Object> result = new Result<>();
         if (data == null) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
@@ -420,27 +418,26 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 完成率
-     * @param params
-     * {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
-     *  type  1：事业部完成率   2：地区完成率   3：国家完成率
+     *
+     * @param params {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
+     *               type  1：事业部完成率   2：地区完成率   3：国家完成率
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "orderInfoDoneRate", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderInfoDoneRate(@RequestBody Map<String, Object> params){
+    public Result<Object> orderInfoDoneRate(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         Result<Object> result = new Result<>();
         Map<String, List<Object>> data = null;
-        Integer type = (Integer)params.get("type");
-        if (type == null) {
-        } else if (1== type) {
-            data =  supplierchainService.orderInfoDoneRateGroupbyOrg(params);
-        } else if (2 == type) {
-           // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
-        } else if (3 == type) {
+        String type = String.valueOf(params.get("type"));
+        if ("1".equals(type)) {
+            data = supplierchainService.orderInfoDoneRateGroupbyOrg(params);
+        } else if ("2".equals(type)) {
+            // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
+        } else if ("3".equals(type)) {
             //data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
         }
         if (data == null) {
