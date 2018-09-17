@@ -92,17 +92,17 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         if (endDate != null) {
             criteria.andEndPrescriptionLessThanOrEqualTo(endDate);
         }
-        Integer ptype = (Integer)params.get("ptype"); // 指标类型
-        if (ptype != null) {
-            criteria.andPtypeEqualTo(ptype);
+        String ptype = String.valueOf(params.get("ptype")); // 指标类型
+        if (StringUtils.isNotBlank(ptype) && StringUtils.isNumeric(ptype)) {
+            criteria.andPtypeEqualTo(Integer.parseInt(ptype));
         }
         String countryBn = (String)params.get("countryBn"); // 国家名称
         if (StringUtils.isNotBlank(countryBn)) {
             criteria.andCountryBnEqualTo(countryBn);
         }
-        Integer orgId = (Integer)params.get("orgId"); // 事业部ID
-        if(orgId != null) {
-            criteria.andOrgIdEqualTo(orgId);
+        String orgId = String.valueOf(params.get("orgId")); // 事业部ID
+        if(StringUtils.isNotBlank(orgId) && StringUtils.isNumeric(orgId)) {
+            criteria.andOrgIdEqualTo(Integer.parseInt(orgId));
         }
         List<PerformanceIndicators> purchasingPowerList = performanceIndicatorsMapper.selectByExample(example);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);

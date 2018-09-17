@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -32,8 +33,8 @@ public class SalesDataStatisticsController {
      *
      * @return
      */
-    @RequestMapping("agencySupplierStatistics")
     @ResponseBody
+    @RequestMapping(value = "agencySupplierStatistics", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> agencySupplierStatistics(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -66,16 +67,16 @@ public class SalesDataStatisticsController {
      *
      * @return
      */
-    @RequestMapping("inquiryMemberStatistics")
     @ResponseBody
+    @RequestMapping(value = "inquiryMemberStatistics", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> inquiryMemberStatistics(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer)params.get("type");
-        if (type != null && 1 == type.intValue()) {
+        String type = String.valueOf(params.get("type"));
+        if ("1" == type) {
             /// 活跃会员信息
             data = supplierchainService.activeMemberStatistics(params);
         } else {
@@ -97,7 +98,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("inquiryFailList")
+    @RequestMapping(value = "inquiryFailList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> inquiryFailList(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -137,7 +138,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orgQuoteTotalCostTime")
+    @RequestMapping(value = "orgQuoteTotalCostTime", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orgQuoteTotalCostTime(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -163,7 +164,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("memberInquiryAmount")
+    @RequestMapping(value = "memberInquiryAmount", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> memberInquiryAmount(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -201,7 +202,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoWhole")
+    @RequestMapping(value = "orderInfoWhole", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderStatisticsWholeInfo(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -239,7 +240,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoProfitPercent")
+    @RequestMapping(value = "orderInfoProfitPercent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoProfitPercent(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -278,7 +279,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoMonoRate")
+    @RequestMapping(value = "orderInfoMonoRate", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoMonoRate(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -316,7 +317,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoPurchasingPower")
+    @RequestMapping(value = "orderInfoPurchasingPower", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoPurchasingPower(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -358,7 +359,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoBuyCycle")
+    @RequestMapping(value = "orderInfoBuyCycle", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoBuyCycle(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -399,7 +400,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoMembersContribution")
+    @RequestMapping(value = "orderInfoMembersContribution", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoMembersContribution(@RequestBody Map<String, Object> params){
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -425,7 +426,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoDoneRate")
+    @RequestMapping(value = "orderInfoDoneRate", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoDoneRate(@RequestBody Map<String, Object> params){
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
