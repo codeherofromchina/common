@@ -950,21 +950,23 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
-        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-            order.setCountryLeader(addOrderVo.getCountryLeader());
-        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-            order.setCountryLeader(addOrderVo.getCountryLeader());
-            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-            order.setAreaLeader(addOrderVo.getAreaLeader());
-        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-            order.setCountryLeader(addOrderVo.getCountryLeader());
-            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-            order.setAreaLeader(addOrderVo.getAreaLeader());
-            order.setAreaVpId(addOrderVo.getAreaVpId());
-            order.setAreaVp(addOrderVo.getAreaVp());
+        if (addOrderVo.getTotalPriceUsd() != null) {
+            if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                order.setCountryLeader(addOrderVo.getCountryLeader());
+            } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                order.setCountryLeader(addOrderVo.getCountryLeader());
+                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                order.setAreaLeader(addOrderVo.getAreaLeader());
+            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                order.setCountryLeader(addOrderVo.getCountryLeader());
+                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                order.setAreaLeader(addOrderVo.getAreaLeader());
+                order.setAreaVpId(addOrderVo.getAreaVpId());
+                order.setAreaVp(addOrderVo.getAreaVp());
+            }
         }
         order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
