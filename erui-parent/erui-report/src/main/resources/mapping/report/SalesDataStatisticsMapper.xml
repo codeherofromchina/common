@@ -681,7 +681,7 @@
         GROUP BY t3.`name`;
     </select>
 
-    <!-- 销售数据统计 - 订单数据统计 - 新老会员贡献度 - 全部成单额 -->
+    <!-- 销售数据统计 - 订单数据统计 - 新老会员贡献度 - 新会员成单额 -->
     <select id="newMembersContribution" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             t3.`name` AS areaName,

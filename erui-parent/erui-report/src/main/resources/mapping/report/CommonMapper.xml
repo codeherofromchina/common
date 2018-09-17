@@ -19,7 +19,7 @@
     <!--事业部列表-->
     <select id="orgList" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        id, `name` AS orgName
+        id as orgId, `name` AS orgName
         FROM
         erui_sys.org
         WHERE
