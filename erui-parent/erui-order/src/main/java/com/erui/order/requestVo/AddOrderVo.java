@@ -840,9 +840,9 @@ public class AddOrderVo {
         }
         order.setFrameworkNo(this.frameworkNo);
         order.setPoNo(this.poNo);
-        order.setContractNoOs(this.contractNoOs);
+        //order.setContractNoOs(this.contractNoOs);
         order.setInquiryNo(this.inquiryNo);
-        order.setLogiQuoteNo(this.logiQuoteNo);
+        //order.setLogiQuoteNo(this.logiQuoteNo);
         order.setOrderType(this.orderType);
         order.setOrderSource(this.orderSource);
         order.setSigningDate(this.signingDate);

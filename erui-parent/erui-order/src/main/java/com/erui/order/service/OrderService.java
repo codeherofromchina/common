@@ -58,11 +58,25 @@ public interface OrderService {
      */
     Integer updateOrder(AddOrderVo addOrderVo) throws Exception;
     /**
+     * @Author:SHIGS
+     * @Description 修改订单商品
+     * @Date:11:42 2018/9/11
+     * @modified By
+     */
+    //boolean updateOrderGoods(AddOrderVo addOrderVo) throws Exception;
+    /**
      * 添加订单
      * @param addOrderVo
      * @return
      */
     Integer addOrder(AddOrderVo addOrderVo) throws Exception;
+     /**
+      * @Author:SHIGS
+      * @Description 添加订单商品
+      * @Date:11:42 2018/9/11
+      * @modified By
+      */
+    //boolean addOrderGoods(AddOrderVo addOrderVo) throws Exception;
     /**
      * 订单详情
      * @param orderId
