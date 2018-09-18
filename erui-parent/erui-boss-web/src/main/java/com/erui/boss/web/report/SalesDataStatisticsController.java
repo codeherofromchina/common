@@ -51,7 +51,7 @@ public class SalesDataStatisticsController {
         }
 
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -84,7 +84,7 @@ public class SalesDataStatisticsController {
             data = supplierchainService.lossMemberStatistics(params);
         }
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -147,7 +147,7 @@ public class SalesDataStatisticsController {
         }
         data = supplierchainService.orgQuoteTotalCostTime(params);
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -203,9 +203,12 @@ public class SalesDataStatisticsController {
     @ResponseBody
     @RequestMapping(value = "orderInfoWhole", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderStatisticsWholeInfo(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> temParam = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (temParam == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = temParam;
         }
         String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
@@ -407,7 +410,7 @@ public class SalesDataStatisticsController {
         Map<String, List<Object>> data = null;
         data = supplierchainService.orderInfoMembersContribution(params);
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -440,7 +443,7 @@ public class SalesDataStatisticsController {
         } else if ("3".equals(type)) {
             //data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
         }
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);

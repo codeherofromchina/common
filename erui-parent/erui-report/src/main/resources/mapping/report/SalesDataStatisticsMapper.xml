@@ -368,7 +368,9 @@
             erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn
         WHERE
             t1.`status` >= 3
+            <if test="startTime!=null and startTime!=''">
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -386,7 +388,9 @@
             erui_new_order.`order`
         WHERE
             `status` >= 3
+            <if test="startTime!=null and startTime!=''">
                 AND create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
         GROUP BY business_unit_id , business_unit_name
         ORDER BY 3
         <if test="sort != 1" >
@@ -405,7 +409,9 @@
             erui2_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn
         WHERE
             t1.`status` >= 3
+            <if test="startTime!=null and startTime!=''">
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
