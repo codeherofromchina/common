@@ -406,7 +406,12 @@
             erui_new_order.`project` t3
         WHERE
             t1.id = t3.order_id
-                AND t3.`project_status` = 'DONE'
+                AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+                    'DELAYED_EXECUTION',
+                    'DELAYED_COMPLETE',
+                    'UNSHIPPED',
+                    'DELAYED_UNSHIPPED',
+                    'PAUSE')
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
         ORDER BY 2
@@ -426,7 +431,12 @@
             erui_new_order.`project` t3
         WHERE
             t1.id = t3.order_id
-                AND t3.`project_status` = 'DONE'
+                AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+                        'DELAYED_EXECUTION',
+                        'DELAYED_COMPLETE',
+                        'UNSHIPPED',
+                        'DELAYED_UNSHIPPED',
+                        'PAUSE')
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
         ORDER BY 2
@@ -445,7 +455,12 @@
             erui_new_order.`project` t3
         WHERE
             t1.id = t3.order_id
-                AND t3.`project_status` = 'DONE'
+                AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+                        'DELAYED_EXECUTION',
+                        'DELAYED_COMPLETE',
+                        'UNSHIPPED',
+                        'DELAYED_UNSHIPPED',
+                        'PAUSE')
                 AND t1.create_time BETWEEN #{startTime} AND #{endTime}
         GROUP BY t1.`business_unit_id` , t1.business_unit_name
         ORDER BY 3
@@ -458,32 +473,32 @@
     <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的事业部成单率 -->
     <select id="orderStatisticsMonoRateGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t2.`name` as `name`,
-            COUNT(quoteNum) AS quoteNum,
-            COUNT(doneNum) AS doneNum,
-            COUNT(doneNum) / COUNT(quoteNum) AS rate
+        t2.`name` AS `name`,
+        COUNT(quoteNum) AS quoteNum,
+        COUNT(doneNum) AS doneNum,
+        COUNT(doneNum) / COUNT(quoteNum) AS rate
         FROM
-            (SELECT
-                business_unit_id AS org_id,
-                    0 AS quoteNum,
-                    COUNT(1) AS doneNum
-            FROM
-                erui_new_order.`order`
-            WHERE
-                `status` > 3
-                    AND create_time BETWEEN #{startTime} AND #{endTime}
-            GROUP BY business_unit_id
-            UNION ALL
-            SELECT
-                org_id, COUNT(1) AS quoteNum, 0 AS doneNum
-            FROM
-                erui_rfq.inquiry
-            WHERE
-                quote_status IN ('QUOTED' , 'COMPLETED')
-                    AND created_at BETWEEN #{startTime} AND #{endTime}
-            GROUP BY org_id) AS t1
-                LEFT JOIN
-            erui_sys.org t2 ON t1.org_id = t2.id
+        (SELECT
+        t1.business_unit_id AS org_id,
+        0 AS quoteNum,
+        COUNT(1) AS doneNum
+        FROM
+        erui_new_order.`order` t1, erui_new_order.`project` t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t1.business_unit_id
+        UNION ALL
+        SELECT
+        org_id, COUNT(1) AS quoteNum, 0 AS doneNum
+        FROM
+        erui_rfq.inquiry
+        WHERE
+        `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSE')
+        AND inflow_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY org_id) AS t1
+        LEFT JOIN
+        erui_sys.org t2 ON t1.org_id = t2.id
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -493,30 +508,30 @@
     <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的地区成单率 -->
     <select id="orderStatisticsMonoRateGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t2.`name` AS `name`,
-            COUNT(quoteNum) AS quoteNum,
-            COUNT(doneNum) AS doneNum,
-            COUNT(doneNum) / COUNT(quoteNum) AS rate
+        t2.`name` AS `name`,
+        COUNT(quoteNum) AS quoteNum,
+        COUNT(doneNum) AS doneNum,
+        COUNT(doneNum) / COUNT(quoteNum) AS rate
         FROM
-            (SELECT
-                region AS area_bn, 0 AS quoteNum, COUNT(1) AS doneNum
-            FROM
-                erui_new_order.`order`
-            WHERE
-                `status` > 3
-                    AND create_time BETWEEN #{startTime} AND #{endTime}
-            GROUP BY region
-            UNION ALL
-            SELECT
-                area_bn, COUNT(1) AS quoteNum, 0 AS doneNum
-            FROM
-                erui_rfq.inquiry
-            WHERE
-                quote_status IN ('QUOTED' , 'COMPLETED')
-                    AND created_at BETWEEN #{startTime} AND #{endTime}
-            GROUP BY area_bn) AS t1
-                LEFT JOIN
-            erui_operation.market_area t2 ON t2.bn = t1.area_bn AND t2.lang = 'zh'
+        (SELECT
+        t1.region AS area_bn, 0 AS quoteNum, COUNT(1) AS doneNum
+        FROM
+        erui_new_order.`order` t1, erui_new_order.`project` t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t1.region
+        UNION ALL
+        SELECT
+        area_bn, COUNT(1) AS quoteNum, 0 AS doneNum
+        FROM
+        erui_rfq.inquiry
+        WHERE
+        `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSE')
+        AND inflow_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY area_bn) AS t1
+        LEFT JOIN
+        erui_operation.market_area t2 ON t2.bn = t1.area_bn AND t2.lang = 'zh'
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -525,31 +540,31 @@
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的国家成单率 -->
     <select id="orderStatisticsMonoRateGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
-          SELECT
-                t2.`name` AS `name`,
-                COUNT(quoteNum) AS quoteNum,
-                COUNT(doneNum) AS doneNum,
-                COUNT(doneNum) / COUNT(quoteNum) AS rate
+            SELECT
+            t2.`name` AS `name`,
+            COUNT(quoteNum) AS quoteNum,
+            COUNT(doneNum) AS doneNum,
+            COUNT(doneNum) / COUNT(quoteNum) AS rate
             FROM
-                (SELECT
-                    country AS country_bn, 0 AS quoteNum, COUNT(1) AS doneNum
-                FROM
-                    erui_new_order.`order`
-                WHERE
-                    `status` > 3
-                        AND create_time BETWEEN #{startTime} AND #{endTime}
-                GROUP BY country
-                UNION ALL
-                SELECT
-                    country_bn, COUNT(1) AS quoteNum, 0 AS doneNum
-                FROM
-                    erui_rfq.inquiry
-                WHERE
-                    quote_status IN ('QUOTED' , 'COMPLETED')
-                        AND created_at BETWEEN #{startTime} AND #{endTime}
-                GROUP BY country_bn) AS t1
-                    LEFT JOIN
-                erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
+            (SELECT
+            t1.country AS country_bn, 0 AS quoteNum, COUNT(1) AS doneNum
+            FROM
+            erui_new_order.`order` t1, erui_new_order.`project` t2
+            WHERE
+            t1.id = t2.order_id AND t1.`status` >= 3
+            AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+            GROUP BY t1.country
+              UNION ALL
+            SELECT
+            country_bn, COUNT(1) AS quoteNum, 0 AS doneNum
+            FROM
+            erui_rfq.inquiry
+            WHERE
+            `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSE')
+            AND inflow_time BETWEEN #{startTime} AND #{endTime}
+            GROUP BY country_bn) AS t1
+            LEFT JOIN
+            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
             GROUP BY t2.`name`
             ORDER BY 2
             <if test="sort != 1" >

@@ -37,7 +37,8 @@ public class SalesmanNumsController {
      */
     @ResponseBody
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> add(HttpServletRequest request,@RequestBody List<SalesmanNums> salesmanNumsList) {
+    public Result<Object> add(HttpServletRequest request,@RequestBody Map<String,List<SalesmanNums>> params) {
+        List<SalesmanNums> salesmanNumsList = params.get("data");
         HttpSession session = request.getSession();
         Integer userid = (Integer) session.getAttribute("userid");
         String realname = (String)session.getAttribute("realname");
