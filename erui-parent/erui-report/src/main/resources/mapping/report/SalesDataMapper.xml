@@ -111,7 +111,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
              <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN BETWEEN #{startTime} and #{endTime}
+            and `z`.`log_create_at` BETWEEN  #{startTime} and #{endTime}
         </if>
 		and quotation_num in (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE quoted_status in("已报价","已完成"))
         GROUP BY pro_category HAVING category IS NOT NULL
