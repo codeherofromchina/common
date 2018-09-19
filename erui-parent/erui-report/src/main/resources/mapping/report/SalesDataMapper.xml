@@ -21,7 +21,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
             <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and z.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            and z.log_create_at BETWEEN #{startTime} and #{endTime}
         </if>
         <!-- GROUP BY TO_DAYS(rollin_time) HAVING datetime IS NOT NULL -->
         GROUP BY TO_DAYS(z.log_create_at) HAVING datetime IS NOT NULL
@@ -45,7 +45,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
             <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            and `z`.`log_create_at` BETWEEN #{startTime} and #{endTime}
         </if>
         GROUP BY inquiry_area ,inquiry_unit HAVING area IS NOT NULL AND country IS NOT NULL
     </select>
@@ -67,7 +67,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
             <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            and `z`.`log_create_at` BETWEEN #{startTime} and #{endTime}
         </if>
         GROUP BY organization HAVING org IS NOT NULL
     </select>
@@ -92,7 +92,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
             <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            and `z`.`log_create_at` BETWEEN #{startTime} and #{endTime}
         </if>
         GROUP BY pro_category HAVING category IS NOT NULL
       ) a
@@ -111,7 +111,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
              <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            and `z`.`log_create_at` BETWEEN BETWEEN #{startTime} and #{endTime}
         </if>
 		and quotation_num in (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE quoted_status in("已报价","已完成"))
         GROUP BY pro_category HAVING category IS NOT NULL

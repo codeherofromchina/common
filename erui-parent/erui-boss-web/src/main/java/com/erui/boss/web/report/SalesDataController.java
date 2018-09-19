@@ -5,6 +5,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
+import com.erui.report.util.ParamsUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,28 +35,13 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/inquiryQuoteGeneral", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object inquiryQuoteGeneral(@RequestBody(required = true) Map<String, String> params) throws Exception {
+    public Object inquiryQuoteGeneral(@RequestBody(required = true) Map<String, Object> params) throws Exception {
         //处理参数
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || StringUtils.isEmpty(params.get("type")) || StringUtils.isEmpty(params.get("analyzeType"))) {
-            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        if (params.get("type").equals("month")) {//如果按月查询
-            if (end == null || startTime.after(end)) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("week")) {//如果按周查询
-            Date end2 = DateUtil.getDateAfter(startTime, 6);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("year")) {//如果按年查询
-            Date end2 = DateUtil.getYearLastDay(startTime);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else {
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
 
@@ -70,28 +56,13 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/inquiryQuoteArea", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object inquiryQuoteArea(@RequestBody(required = true) Map<String, String> params) {
+    public Object inquiryQuoteArea(@RequestBody(required = true) Map<String, Object> params) {
         //处理参数
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || StringUtils.isEmpty(params.get("type")) || StringUtils.isEmpty(params.get("analyzeType"))) {
-            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        if (params.get("type").equals("month")) {//如果按月查询
-            if (end == null || startTime.after(end)) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("week")) {//如果按周查询
-            Date end2 = DateUtil.getDateAfter(startTime, 6);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("year")) {//如果按年查询
-            Date end2 = DateUtil.getYearLastDay(startTime);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else {
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectAreaDetailByType(params);
@@ -112,9 +83,9 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         endTime = DateUtil.getOperationTime(endTime, 23, 59, 59);
-        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
-        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        Map<String, String> params = new HashMap<>();
+        String fullStartTime = DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR);
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR);
+        Map<String, Object> params = new HashMap<>();
         params.put("startTime", fullStartTime);
         params.put("endTime", fullEndTime);
         params.put("analyzeType", analyzeType);
@@ -135,28 +106,13 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/inquiryQuoteOrg", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object inquiryQuoteOrg(@RequestBody(required = true) Map<String, String> params) {
+    public Object inquiryQuoteOrg(@RequestBody(required = true) Map<String, Object> params) {
         //处理参数
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || StringUtils.isEmpty(params.get("type")) || StringUtils.isEmpty(params.get("analyzeType"))) {
-            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        if (params.get("type").equals("month")) {//如果按月查询
-            if (end == null || startTime.after(end)) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("week")) {//如果按周查询
-            Date end2 = DateUtil.getDateAfter(startTime, 6);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("year")) {//如果按年查询
-            Date end2 = DateUtil.getYearLastDay(startTime);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else {
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectOrgDetailByType(params);
@@ -177,9 +133,9 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         endTime = DateUtil.getOperationTime(endTime, 23, 59, 59);
-        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
-        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        Map<String, String> params = new HashMap<>();
+        String fullStartTime = DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR);
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR);
+        Map<String, Object> params = new HashMap<>();
         params.put("startTime", fullStartTime);
         params.put("endTime", fullEndTime);
         params.put("analyzeType", analyzeType);
@@ -198,30 +154,16 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/inquiryQuoteCategory", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object inquiryQuoteCategory(@RequestBody(required = true) Map<String, String> params) {
+    public Result<Object> inquiryQuoteCategory(@RequestBody(required = true) Map<String, Object> params) {
         //处理参数
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null || StringUtils.isEmpty(params.get("type")) || StringUtils.isEmpty(params.get("analyzeType"))) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        if (params.get("type").equals("month")) {//如果按月查询
-            if (end == null || startTime.after(end)) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("week")) {//如果按周查询
-            Date end2 = DateUtil.getDateAfter(startTime, 6);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("year")) {//如果按年查询
-            Date end2 = DateUtil.getYearLastDay(startTime);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else {
-            return new Result<>(ResultStatusEnum.PARAM_ERROR);
-        }
+
         Map<String, Object> data = salesDataService.selectCategoryDetailByType(params);
         return new Result<>(data);
     }
@@ -235,14 +177,14 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/exportCategoryDetail")
-    public Object exportCategoryDetail(Date startTime, Date endTime, String analyzeType, HttpServletResponse response) throws Exception {
+    public Result<Object> exportCategoryDetail(Date startTime, Date endTime, String analyzeType, HttpServletResponse response) throws Exception {
         if (startTime == null || endTime == null || startTime.after(endTime) || StringUtils.isEmpty(analyzeType)) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         endTime = DateUtil.getOperationTime(endTime, 23, 59, 59);
-        String fullStartTime = DateUtil.formatDateToString(startTime, "yyyy/MM/dd HH:mm:ss");
-        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        Map<String, String> params = new HashMap<>();
+        String fullStartTime = DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR);
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR);
+        Map<String, Object> params = new HashMap<>();
         params.put("startTime", fullStartTime);
         params.put("endTime", fullEndTime);
         params.put("analyzeType", analyzeType);

@@ -46,7 +46,7 @@ public class SalesDataStatisticsController {
             data = supplierchainService.agencyOrgStatisticsData(params);
         } else if ("country".equals(typeDimension)) {
             data = supplierchainService.agencySupplierCountryStatisticsData(params);
-        } else if ("saleCountry".equals(typeDimension)) {
+        } else if ("area".equals(typeDimension)) {
             data = supplierchainService.agencyAreaStatisticsData(params);
         }
 
