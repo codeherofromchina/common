@@ -104,6 +104,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         if(StringUtils.isNotBlank(orgId) && StringUtils.isNumeric(orgId)) {
             criteria.andOrgIdEqualTo(Integer.parseInt(orgId));
         }
+        example.setOrderByClause("create_time desc");
         List<PerformanceIndicators> purchasingPowerList = performanceIndicatorsMapper.selectByExample(example);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;

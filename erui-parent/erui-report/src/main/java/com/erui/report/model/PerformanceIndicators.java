@@ -1,5 +1,7 @@
 package com.erui.report.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -31,7 +33,7 @@ public class PerformanceIndicators {
     private Integer createUserId;
 
     private String createUserName;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
     public Integer getId() {
