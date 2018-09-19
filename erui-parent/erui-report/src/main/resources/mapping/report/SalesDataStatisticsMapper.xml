@@ -86,7 +86,9 @@
         WHERE
         t1.id = t5.inquiry_id
         AND t5.action = 'FAIL'
-        AND t5.created_at BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime!=null and startTime!=''">
+          AND t5.created_at BETWEEN #{startTime} AND #{endTime}
+        </if>
         ORDER BY t5.created_at ASC
     </select>
 
@@ -398,7 +400,7 @@
         FROM
             erui_new_order.`order` t1
                 LEFT JOIN
-            erui2_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn
+            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn
         WHERE
             t1.`status` >= 3
             <if test="startTime!=null and startTime!=''">
@@ -591,7 +593,7 @@
 
     <!-- 销售数据统计 - 订单数据统计 - 购买力 -->
     <select id="orderInfoPurchasingPower" parameterType="java.util.Map" resultType="java.util.Map">
-          SELECT
+            SELECT
                 tb1.id,
                 tb1.crm_code AS buyer_code,
                 tb1.region AS area_bn,
@@ -603,42 +605,44 @@
                 tb1.create_time AS created_at
             FROM
                 erui_new_order.`order` AS tb1,
+                erui_new_order.`project` tb5,
                 (SELECT
-                    crm_code,
-                        region,
-                        country,
-                        MAX(total_price) AS maxQuotePrice,
-                        SUM(total_price) AS totalQuotePrice
+                    t1.crm_code,
+                    t1.region,
+                    t1.country,
+                    MAX(t1.total_price_usd) AS maxQuotePrice,
+                    SUM(t1.total_price_usd) AS totalQuotePrice
                 FROM
-                    erui_new_order.`order`
+                  erui_new_order.`order` t1, erui_new_order.`project` t2
                 WHERE
-                    `status` >= 3
+                    t1.id = t2.order_id AND `status` >= 3
                     <if test="startTime!=null and startTime!=''">
-                        AND create_time BETWEEN #{startTime} AND #{endTime}
+                        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
                     </if>
-                GROUP BY crm_code , region , country
-                HAVING maxQuotePrice IS NOT NULL) AS tb2
-                    LEFT JOIN
-                erui2_operation.market_area tb3 ON tb2.region = tb3.bn AND tb3.lang = 'zh'
-                    LEFT JOIN
-                erui_dict.country tb4 ON tb2.country = tb4.bn AND tb4.lang = 'zh'
+                    GROUP BY crm_code , region , country
+                  HAVING maxQuotePrice IS NOT NULL) AS tb2
+            LEFT JOIN
+              erui_operation.market_area tb3 ON tb2.region = tb3.bn AND tb3.lang = 'zh'
+            LEFT JOIN
+              erui_dict.country tb4 ON tb2.country = tb4.bn AND tb4.lang = 'zh'
             WHERE
                 tb1.crm_code = tb2.crm_code
-                    AND tb1.country = tb2.country
-                    AND tb1.region = tb2.region
-                    AND tb1.total_price = tb2.maxQuotePrice
-                    <if test="startTime!=null and startTime!=''">
-                        AND tb1.create_time BETWEEN #{startTime} AND #{endTime}
-                    </if>
-                    <if test="countryBn!=null and countryBn!=''">
-                        AND tb1.country = #{countryBn}
-                    </if>
-                    <if test="areaBn!=null and areaBn!=''">
-                        AND tb1.region = #{areaBn}
-                    </if>
-                    <if test="buyerCode!=null and buyerCode!=''">
-                        AND tb1.crm_code LIKE '%${buyerCode}%'
-                    </if>
+                AND tb1.country = tb2.country
+                AND tb1.region = tb2.region
+                AND tb1.total_price = tb2.maxQuotePrice
+                AND tb1.id = tb5.order_id
+                <if test="startTime!=null and startTime!=''">
+                    AND tb5.start_date BETWEEN #{startTime} AND #{endTime}
+                </if>
+                <if test="countryBn!=null and countryBn!=''">
+                    AND tb1.country = #{countryBn}
+                </if>
+                <if test="areaBn!=null and areaBn!=''">
+                    AND tb1.region = #{areaBn}
+                </if>
+                <if test="buyerCode!=null and buyerCode!=''">
+                    AND tb1.crm_code LIKE '%${buyerCode}%'
+                </if>
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 复购周期 -->
     <select id="orderInfoBuyCycle" parameterType="java.util.Map" resultType="java.util.Map">
@@ -664,7 +668,7 @@
                 t1.`status` >= 3
                 AND t1.crm_code IS NOT NULL
                 AND t1.crm_code != ''
-                AND t1.create_time BETWEEN '2018-01-01' AND '2019-01-01'
+                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
                 GROUP BY buyer_code , country_bn , area_bn) AS tb1
                 LEFT JOIN
                 erui_operation.market_area tb2 ON tb1.area_bn = tb2.bn AND tb2.lang = 'zh'

@@ -101,9 +101,6 @@ public class SalesDataStatisticsController {
     @RequestMapping(value = "inquiryFailList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> inquiryFailList(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
-        }
         String pageNumStr = String.valueOf(params.get("pageNum"));
         String pageSizeStr = String.valueOf(params.get("pageSize"));
         Integer pageNum = null;
