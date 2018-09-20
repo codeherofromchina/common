@@ -103,7 +103,7 @@
         t1.created_at <![CDATA[ <= ]]> #{endTime}
         AND (t1.expiry_at <![CDATA[ > ]]> #{endTime}
         OR t1.expiry_at IS NULL)
-        AND t1.`status` ('PASS','ARROVED')
+        AND t1.`status` in ('PASS','ARROVED')
         group by t2.`name`
         order by 2
         <if test="sort != 1" >
@@ -603,7 +603,7 @@
                 tb1.country AS country_bn,
                 tb4.`name` AS countryName,
                 tb1.total_price/10000 AS maxQuotePrice,
-                tb2.totalQuotePrice/10000,
+                tb2.totalQuotePrice/10000 as totalQuotePrice,
                 tb5.start_date AS created_at
             FROM
                 erui_new_order.`order` AS tb1,
