@@ -561,6 +561,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> newMembersContributionList = salesDataStatisticsMapper.newMembersContribution(params);
         if (allContributionList != null && allContributionList.size() > 0) {
             Map<String, BigDecimal> newMembersContributionMap = newMembersContributionList.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (BigDecimal) vo.get("totalAmount")));
+            BigDecimal oneThousand = new BigDecimal(10000);
 
             Map<String, List<Object>> result = new HashMap<>();
             List<Object> names = new ArrayList<>();
@@ -570,9 +571,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             for (Map<String, Object> data : allContributionList) {
                 String areaName = (String) data.get("areaName");
                 BigDecimal allMemberDecimal = (BigDecimal) data.get("totalAmount");
-                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal;
+                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal.divide(oneThousand).setScale(2,BigDecimal.ROUND_DOWN);
                 BigDecimal newMemberDecimal = newMembersContributionMap.get(areaName);
-                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal;
+                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal.divide(oneThousand).setScale(2,BigDecimal.ROUND_DOWN);
                 BigDecimal oldMemberDecimal = allMemberDecimal.subtract(newMemberDecimal);
                 names.add(areaName == null ? UNKNOW : areaName);
                 allMember.add(allMemberDecimal);

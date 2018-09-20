@@ -35,13 +35,28 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/inquiryQuoteGeneral", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object inquiryQuoteGeneral(@RequestBody(required = true) Map<String, Object> params) throws Exception {
+    public Object inquiryQuoteGeneral(@RequestBody(required = true) Map<String, String> params) throws Exception {
         //处理参数
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
+        if (startTime == null||StringUtils.isEmpty(params.get("type"))||StringUtils.isEmpty(params.get("analyzeType"))) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
+        if(params.get("type").equals("month")){//如果按月查询
+            if(end==null|| startTime.after(end)){
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
+            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
+        }else  if(params.get("type").equals("week")){//如果按周查询
+            Date end2 = DateUtil.getDateAfter(startTime, 6);
+            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
+            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
+        }else if(params.get("type").equals("year")){//如果按年查询
+            Date end2 = DateUtil.getYearLastDay(startTime);
+            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
+            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
+        }else {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
 

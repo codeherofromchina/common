@@ -24,7 +24,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
 
     @Override
-    public Map<String, Object> selectInqQuoteTrendData(Map<String, Object> params) throws  Exception{
+    public Map<String, Object> selectInqQuoteTrendData(Map<String, String> params) throws  Exception{
 
         String analyzeType = params.get("analyzeType").toString();
         Map<String, Object> result = new HashMap<>();

@@ -21,7 +21,7 @@
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
             <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and z.log_create_at BETWEEN #{startTime} and #{endTime}
+            and z.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         </if>
         <!-- GROUP BY TO_DAYS(rollin_time) HAVING datetime IS NOT NULL -->
         GROUP BY TO_DAYS(z.log_create_at) HAVING datetime IS NOT NULL

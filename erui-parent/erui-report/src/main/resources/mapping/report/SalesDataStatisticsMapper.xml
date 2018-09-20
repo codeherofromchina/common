@@ -354,16 +354,17 @@
     <select id="orderStatisticsWholeInfoGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             t2.`name` AS areaName,
-            SUM(IFNULL(t1.total_price_usd, 0)) AS totalAmount,
+            SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
             erui_new_order.`order` t1
                 LEFT JOIN
-            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn
+            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn,
+            erui_new_order.`project` t3
         WHERE
-            t1.`status` >= 3
+            t1.`status` >= 3 and t1.id = t3.order_id
             <if test="startTime!=null and startTime!=''">
-                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
         GROUP BY t2.`name`
         ORDER BY 2
@@ -374,18 +375,18 @@
     <!-- 订单数据统计 - 整体 - 按事业部纬度查询订单的金额和数量 -->
     <select id="orderStatisticsWholeInfoGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            business_unit_id AS orgId,
-            business_unit_name AS orgName,
-            SUM(IFNULL(total_price_usd, 0)) AS totalAmount,
+            t1.business_unit_id AS orgId,
+            t1.business_unit_name AS orgName,
+            SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
-            erui_new_order.`order`
+            erui_new_order.`order` as t1,erui_new_order.`project` t2
         WHERE
-            `status` >= 3
+            t1.`status` >= 3 and t1.id = t2.order_id
             <if test="startTime!=null and startTime!=''">
-                AND create_time BETWEEN #{startTime} AND #{endTime}
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
-        GROUP BY business_unit_id , business_unit_name
+        GROUP BY t1.business_unit_id , t1.business_unit_name
         ORDER BY 3
         <if test="sort != 1" >
             DESC
@@ -395,16 +396,17 @@
     <select id="orderStatisticsWholeInfoGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             t2.`name` AS countryName,
-            SUM(IFNULL(total_price_usd, 0)) AS totalAmount,
+            SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
             erui_new_order.`order` t1
                 LEFT JOIN
-            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn
+            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn,
+            erui_new_order.`project` t3
         WHERE
-            t1.`status` >= 3
+            t1.`status` >= 3 and t1.id = t3.order_id
             <if test="startTime!=null and startTime!=''">
-                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
         GROUP BY t2.`name`
         ORDER BY 2
@@ -600,9 +602,9 @@
                 tb3.`name` AS areaName,
                 tb1.country AS country_bn,
                 tb4.`name` AS countryName,
-                tb1.total_price AS maxQuotePrice,
-                tb2.totalQuotePrice,
-                tb1.create_time AS created_at
+                tb1.total_price/10000 AS maxQuotePrice,
+                tb2.totalQuotePrice/10000,
+                tb5.start_date AS created_at
             FROM
                 erui_new_order.`order` AS tb1,
                 erui_new_order.`project` tb5,
@@ -663,12 +665,14 @@
                 ELSE 0
                 END AS cycle
                 FROM
-                erui_new_order.`order` t1
+                erui_new_order.`order` t1, erui_new_order.`project` t4
                 WHERE
-                t1.`status` >= 3
+                t1.`status` >= 3 and t1.id = t4.order_id
                 AND t1.crm_code IS NOT NULL
                 AND t1.crm_code != ''
-                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+                <if test="startTime!=null and startTime!=''">
+                    AND t4.start_date BETWEEN #{startTime} AND #{endTime}
+                </if>
                 GROUP BY buyer_code , country_bn , area_bn) AS tb1
                 LEFT JOIN
                 erui_operation.market_area tb2 ON tb1.area_bn = tb2.bn AND tb2.lang = 'zh'

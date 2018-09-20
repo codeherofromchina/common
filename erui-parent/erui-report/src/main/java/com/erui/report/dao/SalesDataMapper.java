@@ -11,7 +11,7 @@ public interface SalesDataMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> selectInqQuoteTrendData(Map<String,Object> params);
+    List<Map<String,Object>> selectInqQuoteTrendData(Map<String,String> params);
     /**
      * 查询各大区和国家的数据明细
      * @param params

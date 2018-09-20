@@ -15,7 +15,7 @@ public interface SalesDataService {
      * @param params
      * @return
      */
-    Map<String,Object>  selectInqQuoteTrendData(Map<String,Object> params)throws  Exception;
+    Map<String,Object>  selectInqQuoteTrendData(Map<String,String> params)throws  Exception;
     /**
      * 查询指定分析类型的各大区数据
      * type ：询单金额 、询单数量、报价数量
