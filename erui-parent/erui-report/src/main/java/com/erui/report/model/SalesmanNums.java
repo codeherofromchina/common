@@ -5,7 +5,9 @@ import java.util.Date;
 public class SalesmanNums {
     private Integer id;
 
-    private String prescription;
+    private Date startPrescription;
+
+    private Date endPrescription;
 
     private String countryBn;
 
@@ -27,12 +29,20 @@ public class SalesmanNums {
         this.id = id;
     }
 
-    public String getPrescription() {
-        return prescription;
+    public Date getStartPrescription() {
+        return startPrescription;
     }
 
-    public void setPrescription(String prescription) {
-        this.prescription = prescription;
+    public void setStartPrescription(Date startPrescription) {
+        this.startPrescription = startPrescription;
+    }
+
+    public Date getEndPrescription() {
+        return endPrescription;
+    }
+
+    public void setEndPrescription(Date endPrescription) {
+        this.endPrescription = endPrescription;
     }
 
     public String getCountryBn() {

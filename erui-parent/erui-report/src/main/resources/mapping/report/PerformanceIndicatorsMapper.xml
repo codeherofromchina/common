@@ -3,9 +3,11 @@
 <mapper namespace="com.erui.report.dao.PerformanceIndicatorsMapper" >
   <resultMap id="BaseResultMap" type="com.erui.report.model.PerformanceIndicators" >
     <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="prescription" property="prescription" jdbcType="VARCHAR" />
+    <result column="start_prescription" property="startPrescription" jdbcType="DATE" />
+    <result column="end_prescription" property="endPrescription" jdbcType="DATE" />
     <result column="quota" property="quota" jdbcType="DECIMAL" />
     <result column="price_unit" property="priceUnit" jdbcType="VARCHAR" />
+    <result column="ptype" property="ptype" jdbcType="INTEGER" />
     <result column="org_id" property="orgId" jdbcType="INTEGER" />
     <result column="org_name" property="orgName" jdbcType="VARCHAR" />
     <result column="area_bn" property="areaBn" jdbcType="VARCHAR" />
@@ -75,8 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, prescription, quota, price_unit, org_id, org_name, area_bn, area_name, country_bn, 
-    country_name, create_user_id, create_user_name, create_time
+    id, start_prescription, end_prescription, quota, price_unit, ptype, org_id, org_name, 
+    area_bn, area_name, country_bn, country_name, create_user_id, create_user_name, create_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.PerformanceIndicatorsExample" >
     select
@@ -109,16 +111,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.PerformanceIndicators" >
-    insert into performance_indicators (id, prescription, quota, 
-      price_unit, org_id, org_name, 
-      area_bn, area_name, country_bn, 
-      country_name, create_user_id, create_user_name, 
-      create_time)
-    values (#{id,jdbcType=INTEGER}, #{prescription,jdbcType=VARCHAR}, #{quota,jdbcType=DECIMAL}, 
-      #{priceUnit,jdbcType=VARCHAR}, #{orgId,jdbcType=INTEGER}, #{orgName,jdbcType=VARCHAR}, 
-      #{areaBn,jdbcType=VARCHAR}, #{areaName,jdbcType=VARCHAR}, #{countryBn,jdbcType=VARCHAR}, 
-      #{countryName,jdbcType=VARCHAR}, #{createUserId,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP})
+    insert into performance_indicators (id, start_prescription, end_prescription, 
+      quota, price_unit, ptype, 
+      org_id, org_name, area_bn, 
+      area_name, country_bn, country_name, 
+      create_user_id, create_user_name, create_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{startPrescription,jdbcType=DATE}, #{endPrescription,jdbcType=DATE}, 
+      #{quota,jdbcType=DECIMAL}, #{priceUnit,jdbcType=VARCHAR}, #{ptype,jdbcType=INTEGER}, 
+      #{orgId,jdbcType=INTEGER}, #{orgName,jdbcType=VARCHAR}, #{areaBn,jdbcType=VARCHAR}, 
+      #{areaName,jdbcType=VARCHAR}, #{countryBn,jdbcType=VARCHAR}, #{countryName,jdbcType=VARCHAR}, 
+      #{createUserId,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.PerformanceIndicators" >
     insert into performance_indicators
@@ -126,14 +130,20 @@
       <if test="id != null" >
         id,
       </if>
-      <if test="prescription != null" >
-        prescription,
+      <if test="startPrescription != null" >
+        start_prescription,
+      </if>
+      <if test="endPrescription != null" >
+        end_prescription,
       </if>
       <if test="quota != null" >
         quota,
       </if>
       <if test="priceUnit != null" >
         price_unit,
+      </if>
+      <if test="ptype != null" >
+        ptype,
       </if>
       <if test="orgId != null" >
         org_id,
@@ -167,14 +177,20 @@
       <if test="id != null" >
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="prescription != null" >
-        #{prescription,jdbcType=VARCHAR},
+      <if test="startPrescription != null" >
+        #{startPrescription,jdbcType=DATE},
+      </if>
+      <if test="endPrescription != null" >
+        #{endPrescription,jdbcType=DATE},
       </if>
       <if test="quota != null" >
         #{quota,jdbcType=DECIMAL},
       </if>
       <if test="priceUnit != null" >
         #{priceUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="ptype != null" >
+        #{ptype,jdbcType=INTEGER},
       </if>
       <if test="orgId != null" >
         #{orgId,jdbcType=INTEGER},
@@ -217,14 +233,20 @@
       <if test="record.id != null" >
         id = #{record.id,jdbcType=INTEGER},
       </if>
-      <if test="record.prescription != null" >
-        prescription = #{record.prescription,jdbcType=VARCHAR},
+      <if test="record.startPrescription != null" >
+        start_prescription = #{record.startPrescription,jdbcType=DATE},
+      </if>
+      <if test="record.endPrescription != null" >
+        end_prescription = #{record.endPrescription,jdbcType=DATE},
       </if>
       <if test="record.quota != null" >
         quota = #{record.quota,jdbcType=DECIMAL},
       </if>
       <if test="record.priceUnit != null" >
         price_unit = #{record.priceUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ptype != null" >
+        ptype = #{record.ptype,jdbcType=INTEGER},
       </if>
       <if test="record.orgId != null" >
         org_id = #{record.orgId,jdbcType=INTEGER},
@@ -261,9 +283,11 @@
   <update id="updateByExample" parameterType="map" >
     update performance_indicators
     set id = #{record.id,jdbcType=INTEGER},
-      prescription = #{record.prescription,jdbcType=VARCHAR},
+      start_prescription = #{record.startPrescription,jdbcType=DATE},
+      end_prescription = #{record.endPrescription,jdbcType=DATE},
       quota = #{record.quota,jdbcType=DECIMAL},
       price_unit = #{record.priceUnit,jdbcType=VARCHAR},
+      ptype = #{record.ptype,jdbcType=INTEGER},
       org_id = #{record.orgId,jdbcType=INTEGER},
       org_name = #{record.orgName,jdbcType=VARCHAR},
       area_bn = #{record.areaBn,jdbcType=VARCHAR},
@@ -280,14 +304,20 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.PerformanceIndicators" >
     update performance_indicators
     <set >
-      <if test="prescription != null" >
-        prescription = #{prescription,jdbcType=VARCHAR},
+      <if test="startPrescription != null" >
+        start_prescription = #{startPrescription,jdbcType=DATE},
+      </if>
+      <if test="endPrescription != null" >
+        end_prescription = #{endPrescription,jdbcType=DATE},
       </if>
       <if test="quota != null" >
         quota = #{quota,jdbcType=DECIMAL},
       </if>
       <if test="priceUnit != null" >
         price_unit = #{priceUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="ptype != null" >
+        ptype = #{ptype,jdbcType=INTEGER},
       </if>
       <if test="orgId != null" >
         org_id = #{orgId,jdbcType=INTEGER},
@@ -321,9 +351,11 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.PerformanceIndicators" >
     update performance_indicators
-    set prescription = #{prescription,jdbcType=VARCHAR},
+    set start_prescription = #{startPrescription,jdbcType=DATE},
+      end_prescription = #{endPrescription,jdbcType=DATE},
       quota = #{quota,jdbcType=DECIMAL},
       price_unit = #{priceUnit,jdbcType=VARCHAR},
+      ptype = #{ptype,jdbcType=INTEGER},
       org_id = #{orgId,jdbcType=INTEGER},
       org_name = #{orgName,jdbcType=VARCHAR},
       area_bn = #{areaBn,jdbcType=VARCHAR},

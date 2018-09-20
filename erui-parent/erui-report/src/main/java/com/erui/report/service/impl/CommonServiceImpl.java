@@ -5,6 +5,7 @@ import com.erui.report.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +32,28 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    public List<Map<String, Object>> countryList(Map<String,Object> params) {
+    public List<Map<String, Object>> countryList(Map<String, Object> params) {
         List<Map<String, Object>> countryList = commonMapper.countryList(params);
         return countryList;
+    }
+
+
+    @Override
+    public Map<String, Object> findOrgInfoById(Integer orgId) {
+        Map<String, Object> orgInfo = commonMapper.findOrgInfoById(orgId);
+        if (orgInfo == null) {
+            orgInfo = new HashMap<>();
+        }
+        return orgInfo;
+    }
+
+
+    @Override
+    public Map<String, Object> findCountryInfoByBn(String countryBn) {
+        Map<String, Object> countryInfo = commonMapper.findCountryInfoByBn(countryBn);
+        if (countryInfo == null) {
+            countryInfo = new HashMap<>();
+        }
+        return countryInfo;
     }
 }

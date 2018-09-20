@@ -3,6 +3,7 @@ package com.erui.report.model;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class PerformanceIndicatorsExample {
@@ -106,6 +107,32 @@ public class PerformanceIndicatorsExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
+        protected void addCriterionForJDBCDate(String condition, Date value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            addCriterion(condition, new java.sql.Date(value.getTime()), property);
+        }
+
+        protected void addCriterionForJDBCDate(String condition, List<Date> values, String property) {
+            if (values == null || values.size() == 0) {
+                throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+            }
+            List<java.sql.Date> dateList = new ArrayList<java.sql.Date>();
+            Iterator<Date> iter = values.iterator();
+            while (iter.hasNext()) {
+                dateList.add(new java.sql.Date(iter.next().getTime()));
+            }
+            addCriterion(condition, dateList, property);
+        }
+
+        protected void addCriterionForJDBCDate(String condition, Date value1, Date value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+        }
+
         public Criteria andIdIsNull() {
             addCriterion("id is null");
             return (Criteria) this;
@@ -166,73 +193,123 @@ public class PerformanceIndicatorsExample {
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionIsNull() {
-            addCriterion("prescription is null");
+        public Criteria andStartPrescriptionIsNull() {
+            addCriterion("start_prescription is null");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionIsNotNull() {
-            addCriterion("prescription is not null");
+        public Criteria andStartPrescriptionIsNotNull() {
+            addCriterion("start_prescription is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionEqualTo(String value) {
-            addCriterion("prescription =", value, "prescription");
+        public Criteria andStartPrescriptionEqualTo(Date value) {
+            addCriterionForJDBCDate("start_prescription =", value, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionNotEqualTo(String value) {
-            addCriterion("prescription <>", value, "prescription");
+        public Criteria andStartPrescriptionNotEqualTo(Date value) {
+            addCriterionForJDBCDate("start_prescription <>", value, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionGreaterThan(String value) {
-            addCriterion("prescription >", value, "prescription");
+        public Criteria andStartPrescriptionGreaterThan(Date value) {
+            addCriterionForJDBCDate("start_prescription >", value, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionGreaterThanOrEqualTo(String value) {
-            addCriterion("prescription >=", value, "prescription");
+        public Criteria andStartPrescriptionGreaterThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("start_prescription >=", value, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionLessThan(String value) {
-            addCriterion("prescription <", value, "prescription");
+        public Criteria andStartPrescriptionLessThan(Date value) {
+            addCriterionForJDBCDate("start_prescription <", value, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionLessThanOrEqualTo(String value) {
-            addCriterion("prescription <=", value, "prescription");
+        public Criteria andStartPrescriptionLessThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("start_prescription <=", value, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionLike(String value) {
-            addCriterion("prescription like", value, "prescription");
+        public Criteria andStartPrescriptionIn(List<Date> values) {
+            addCriterionForJDBCDate("start_prescription in", values, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionNotLike(String value) {
-            addCriterion("prescription not like", value, "prescription");
+        public Criteria andStartPrescriptionNotIn(List<Date> values) {
+            addCriterionForJDBCDate("start_prescription not in", values, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionIn(List<String> values) {
-            addCriterion("prescription in", values, "prescription");
+        public Criteria andStartPrescriptionBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("start_prescription between", value1, value2, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionNotIn(List<String> values) {
-            addCriterion("prescription not in", values, "prescription");
+        public Criteria andStartPrescriptionNotBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("start_prescription not between", value1, value2, "startPrescription");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionBetween(String value1, String value2) {
-            addCriterion("prescription between", value1, value2, "prescription");
+        public Criteria andEndPrescriptionIsNull() {
+            addCriterion("end_prescription is null");
             return (Criteria) this;
         }
 
-        public Criteria andPrescriptionNotBetween(String value1, String value2) {
-            addCriterion("prescription not between", value1, value2, "prescription");
+        public Criteria andEndPrescriptionIsNotNull() {
+            addCriterion("end_prescription is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionEqualTo(Date value) {
+            addCriterionForJDBCDate("end_prescription =", value, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionNotEqualTo(Date value) {
+            addCriterionForJDBCDate("end_prescription <>", value, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionGreaterThan(Date value) {
+            addCriterionForJDBCDate("end_prescription >", value, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionGreaterThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("end_prescription >=", value, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionLessThan(Date value) {
+            addCriterionForJDBCDate("end_prescription <", value, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionLessThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("end_prescription <=", value, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionIn(List<Date> values) {
+            addCriterionForJDBCDate("end_prescription in", values, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionNotIn(List<Date> values) {
+            addCriterionForJDBCDate("end_prescription not in", values, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("end_prescription between", value1, value2, "endPrescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndPrescriptionNotBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("end_prescription not between", value1, value2, "endPrescription");
             return (Criteria) this;
         }
 
@@ -363,6 +440,66 @@ public class PerformanceIndicatorsExample {
 
         public Criteria andPriceUnitNotBetween(String value1, String value2) {
             addCriterion("price_unit not between", value1, value2, "priceUnit");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeIsNull() {
+            addCriterion("ptype is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeIsNotNull() {
+            addCriterion("ptype is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeEqualTo(Integer value) {
+            addCriterion("ptype =", value, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeNotEqualTo(Integer value) {
+            addCriterion("ptype <>", value, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeGreaterThan(Integer value) {
+            addCriterion("ptype >", value, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeGreaterThanOrEqualTo(Integer value) {
+            addCriterion("ptype >=", value, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeLessThan(Integer value) {
+            addCriterion("ptype <", value, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeLessThanOrEqualTo(Integer value) {
+            addCriterion("ptype <=", value, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeIn(List<Integer> values) {
+            addCriterion("ptype in", values, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeNotIn(List<Integer> values) {
+            addCriterion("ptype not in", values, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeBetween(Integer value1, Integer value2) {
+            addCriterion("ptype between", value1, value2, "ptype");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtypeNotBetween(Integer value1, Integer value2) {
+            addCriterion("ptype not between", value1, value2, "ptype");
             return (Criteria) this;
         }
 

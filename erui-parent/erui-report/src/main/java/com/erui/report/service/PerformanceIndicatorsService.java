@@ -38,10 +38,4 @@ public interface PerformanceIndicatorsService {
      */
     PageInfo<PerformanceIndicators> list(Map<String, Object> params);
 
-    /**
-     * 查询给定指标时效的指标列表信息
-     * @param prescriptionList
-     * @return
-     */
-    List<PerformanceIndicators> findByPrescription(List<String> prescriptionList);
 }
