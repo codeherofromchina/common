@@ -1100,6 +1100,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                     }
                     order.setContractNoOs(contractNoOs);
+                    order.setContractNo(contractNo);
+                    project.setContractNo(contractNo);
                     break;
                 case 3:
                     auditingProcess_i = auditingProcess.replace("3", "4");
