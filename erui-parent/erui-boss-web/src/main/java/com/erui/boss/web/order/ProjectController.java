@@ -108,8 +108,9 @@ public class ProjectController {
     /**
      * 审核项目
      * param  params type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
-     * param  params reason 驳回原因参数
+     * param  params auditingReason 审核或驳回原因参数
      * param  params id 要审核或驳回的项目ID
+     * param  params checkLogId 驳回到的流程ID
      *
      * @return
      */

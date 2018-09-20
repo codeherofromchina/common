@@ -789,6 +789,9 @@ public class Project {
     // 审核日志，驳回操作使用
     @Transient
     private Integer checkLogId;
+    // 海外销售合同号
+    @Transient
+    private String contractNoOs;
 
     public String getAuditingReason() {
         return auditingReason;
@@ -808,6 +811,14 @@ public class Project {
 
     public Integer getCheckLogId() {
         return checkLogId;
+    }
+
+    public String getContractNoOs() {
+        return contractNoOs;
+    }
+
+    public void setContractNoOs(String contractNoOs) {
+        this.contractNoOs = contractNoOs;
     }
 
     public void setCheckLogId(Integer checkLogId) {

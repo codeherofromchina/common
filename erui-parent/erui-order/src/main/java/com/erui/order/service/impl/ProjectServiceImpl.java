@@ -27,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return project;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -1030,18 +1028,18 @@ public class ProjectServiceImpl implements ProjectService {
             CheckLog checkLog = checkLogDao.findOne(project.getCheckLogId());
             auditingStatus_i = 3;
             if (checkLog.getType() == 1) { // 驳回到订单
-                String auditingProcess_order = checkLog.getAuditingProcess().toString(); //驳回给哪一步骤
-                Integer auditingUserId_order = checkLog.getAuditingUserId();//要驳回给谁
+                Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
+                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
                 if (auditingProcess_order.equals("0")) {
                     order.setStatus(1);
                 }
-                order.setAuditingUserId(auditingProcess_order);
-                order.setAuditingStatus(auditingUserId_order);
-                order.setAuditingProcess(auditingStatus_i);
+                order.setAuditingUserId(auditingUserId_order);
+                order.setAuditingStatus(auditingStatus_i);
+                order.setAuditingProcess(auditingProcess_order);
                 //orderDao.save(order);
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
-                auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
+                auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
                 // 设置项目为SUBMIT:未执行
                 project.setProjectStatus("SUBMIT");
             }
@@ -1084,6 +1082,24 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingProcess_i = StringUtils.strip(auditingProcess.replace("2", ""), ",");
                         auditingUserId_i = StringUtils.strip(replace, ",");
                     }
+                    // 添加销售合同号和海外销售合同号
+                    String contractNo = project.getContractNo();
+                    String contractNoOs = project.getContractNoOs();
+                    if(StringUtils.isBlank(contractNo)) {
+                        // 销售合同号不能为空
+                        return false;
+                    }
+                    // 判断销售合同号不能重复
+                    List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
+                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                        Integer projectId = project.getId();
+                        for(Integer proId:contractNoProjectIds){
+                            if (proId.intValue() != projectId.intValue()) {
+                                return false;
+                            }
+                        }
+                    }
+                    order.setContractNoOs(contractNoOs);
                     break;
                 case 3:
                     auditingProcess_i = auditingProcess.replace("3", "4");
