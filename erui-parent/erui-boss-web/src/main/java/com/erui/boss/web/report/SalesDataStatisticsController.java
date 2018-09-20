@@ -322,9 +322,12 @@ public class SalesDataStatisticsController {
     @ResponseBody
     @RequestMapping(value = "orderInfoPurchasingPower", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoPurchasingPower(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params02 == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = params02;
         }
         String pageNumStr = String.valueOf(params.get("pageNum"));
         String pageSizeStr = String.valueOf(params.get("pageSize"));
@@ -364,9 +367,12 @@ public class SalesDataStatisticsController {
     @ResponseBody
     @RequestMapping(value = "orderInfoBuyCycle", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoBuyCycle(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params02 == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = params02;
         }
         String pageNumStr = String.valueOf(params.get("pageNum"));
         String pageSizeStr = String.valueOf(params.get("pageSize"));
