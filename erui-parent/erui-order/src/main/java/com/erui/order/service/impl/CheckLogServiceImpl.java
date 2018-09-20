@@ -102,7 +102,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         if (orderId != null) {
             List<CheckLog> checkLogList = findListByOrderIdOrderByCreateTimeDesc(orderId);
             Order order = orderService.findById(orderId);
-            Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态
+            Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态，如果为空说明没有任何审核进度
             if (orderAuditingStatus == null) {
                 return resultCheckLogs;
             }
@@ -143,9 +143,9 @@ public class CheckLogServiceImpl implements CheckLogService {
                 }
             }
         }
-        Map<Integer, CheckLog> map = new LinkedMap<>();
+        Map<String, CheckLog> map = new LinkedMap<>();
         for (CheckLog cLog : resultCheckLogs) {
-            map.put(cLog.getAuditingProcess(), cLog);
+            map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
         return cList;
