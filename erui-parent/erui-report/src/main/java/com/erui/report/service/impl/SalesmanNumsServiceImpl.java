@@ -87,6 +87,7 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
         if (StringUtils.isNotBlank(createUserName) ) {
             criteria.andCreateUserNameEqualTo("%" + createUserName + "%");
         }
+        example.setOrderByClause("create_time desc");
         List<SalesmanNums> purchasingPowerList = salesmanNumsMapper.selectByExample(example);
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
