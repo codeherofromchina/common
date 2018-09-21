@@ -1,11 +1,15 @@
 package com.erui.report.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class SalesmanNums {
     private Integer id;
 
-    private String prescription;
+    private Date startPrescription;
+
+    private Date endPrescription;
 
     private String countryBn;
 
@@ -16,7 +20,7 @@ public class SalesmanNums {
     private Integer createUserId;
 
     private String createUserName;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
     public Integer getId() {
@@ -27,12 +31,20 @@ public class SalesmanNums {
         this.id = id;
     }
 
-    public String getPrescription() {
-        return prescription;
+    public Date getStartPrescription() {
+        return startPrescription;
     }
 
-    public void setPrescription(String prescription) {
-        this.prescription = prescription;
+    public void setStartPrescription(Date startPrescription) {
+        this.startPrescription = startPrescription;
+    }
+
+    public Date getEndPrescription() {
+        return endPrescription;
+    }
+
+    public void setEndPrescription(Date endPrescription) {
+        this.endPrescription = endPrescription;
     }
 
     public String getCountryBn() {

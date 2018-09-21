@@ -111,14 +111,13 @@
     </select>
 
     <select id="selectQuoteInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
-
- SELECT
+            SELECT
             count(id) AS total_num,
             sum(
-                ifnull(total_quote_price, 0)
+            ifnull(total_quote_price, 0)
             ) AS total_price,
             countryCn AS area
-        FROM
+            FROM
             (
                 SELECT
                     t1.id,
@@ -145,14 +144,14 @@
 									out_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
 									GROUP BY inquiry_id)AS t5
             WHERE
-                t1.country_bn = t3.country_bn
+            t1.country_bn = t3.country_bn
             AND t1.deleted_flag = 'N'
             AND t3.market_area_bn = t4.bn
             AND t4.lang = 'zh'
             AND t5.inquiry_id=t1.id
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
             ) AS tb
-        GROUP BY
+            GROUP BY
             countryCn
     </select>
 
@@ -254,50 +253,53 @@
     <!-- 根据时间查询各个事业部的报价用时 -->
     <select id="selectQuoteTimeWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        SUM(IFNULL(t4.diff, 0)) AS diff,
-        t4.name
+            t5.name, SUM(IFNULL(t5.diff2, 0)) AS diff
         FROM
-        (
-        SELECT
-        t1.id as inqId,
-        t1.bid_flag as bid,
-        t3.diff AS diff,
-        ( CASE
-        WHEN t2.name ='易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
-        WHEN t2.name ='油田设备事业部' OR t2.name = '油田设备事业部-石油钢管公司'
-        OR t2.name = '油田设备事业部-通用设备公司'  THEN '油田设备'
-        WHEN  t2.name ='康博瑞-商务技术' OR t2.name = '康博瑞-配件中心' THEN '康博瑞'
-        ELSE t2.name
-        END)  AS name
-        FROM
-        erui_rfq.inquiry t1
-        LEFT OUTER JOIN
-        erui_sys.org t2 ON t1.org_id = t2.id
-        AND t2.`deleted_flag` = 'N',
-        (SELECT
-        inquiry_id,
-        TIMESTAMPDIFF(HOUR, MIN(CASE in_node
-        WHEN 'DRAFT' THEN into_at
-        ELSE NULL
-        END), MAX(CASE out_node
-        WHEN 'MARKET_CONFIRMING' THEN out_at
-        ELSE NULL
-        END)) AS diff
-        FROM
-        erui_rfq.inquiry_check_log
+            (SELECT
+                t1.id AS inqId,
+                    t4.diff AS createTime,
+                    t4.diff2,
+                    (CASE
+                        WHEN t2.name = '易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
+                        WHEN
+                            t2.name = '油田设备事业部'
+                                OR t2.name = '油田设备事业部-石油钢管公司'
+                                OR t2.name = '油田设备事业部-通用设备公司'
+                        THEN
+                            '油田设备'
+                        WHEN
+                            t2.name = '康博瑞-商务技术'
+                                OR t2.name = '康博瑞-配件中心'
+                        THEN
+                            '康博瑞'
+                        ELSE t2.name
+                    END) AS name
+            FROM
+                erui_rfq.inquiry t1
+            LEFT OUTER JOIN erui_sys.org t2 ON t1.org_id = t2.id
+                AND t2.`deleted_flag` = 'N'
+            LEFT OUTER JOIN (SELECT
+                inquiry_id,
+                    MAX(out_at) AS diff,
+                    TIMESTAMPDIFF(HOUR, MIN(CASE in_node
+                        WHEN 'DRAFT' THEN into_at
+                        ELSE NULL
+                    END), MAX(CASE out_node
+                        WHEN 'MARKET_CONFIRMING' THEN out_at
+                        ELSE NULL
+                    END)) AS diff2
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                in_node = 'BIZ_APPROVING'
+                    OR out_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) AS t4 ON t1.id = t4.inquiry_id
+            WHERE
+                t1.deleted_flag = 'N'
+                    AND t1.quote_status IN ('QUOTED' , 'COMPLETED')) AS t5
         WHERE
-        in_node = 'DRAFT'
-        OR out_node = 'MARKET_CONFIRMING'
-        GROUP BY inquiry_id) t3
-        WHERE
-
-        t1.id = t3.inquiry_id
-        AND t1.deleted_flag = 'N'
-        AND t1.bid_flag &lt;&gt; 'Y'
-        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
-        AND t1.updated_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-        ) AS t4
-        GROUP BY t4.name
+            t5.createTime BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+        GROUP BY t5.`name`;
     </select>
     <select id="selectOrderInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
        SELECT t4.name  , COUNT(t4.oid) AS total_num ,SUM(IFNULL(t4.total_price, 0)) AS total_price

@@ -12,10 +12,10 @@ import java.util.Map;
 public interface SalesmanNumsService {
     /**
      * 添加销售人员数据
-     * @param salesmanNums
+     * @param salesmanNumsList
      * @return 0：成功  1：失败  2：数据重复
      */
-    int add(SalesmanNums salesmanNums);
+    int add(List<SalesmanNums> salesmanNumsList) throws Exception;
 
     /**
      * 删除销售人员数据

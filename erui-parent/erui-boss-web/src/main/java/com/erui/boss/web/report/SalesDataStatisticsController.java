@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -32,8 +33,8 @@ public class SalesDataStatisticsController {
      *
      * @return
      */
-    @RequestMapping("agencySupplierStatistics")
     @ResponseBody
+    @RequestMapping(value = "agencySupplierStatistics", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> agencySupplierStatistics(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -45,12 +46,12 @@ public class SalesDataStatisticsController {
             data = supplierchainService.agencyOrgStatisticsData(params);
         } else if ("country".equals(typeDimension)) {
             data = supplierchainService.agencySupplierCountryStatisticsData(params);
-        } else if ("saleCountry".equals(typeDimension)) {
+        } else if ("area".equals(typeDimension)) {
             data = supplierchainService.agencyAreaStatisticsData(params);
         }
 
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -66,16 +67,16 @@ public class SalesDataStatisticsController {
      *
      * @return
      */
-    @RequestMapping("inquiryMemberStatistics")
     @ResponseBody
+    @RequestMapping(value = "inquiryMemberStatistics", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> inquiryMemberStatistics(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer)params.get("type");
-        if (type != null && 1 == type.intValue()) {
+        String type = String.valueOf(params.get("type"));
+        if ("1" == type) {
             /// 活跃会员信息
             data = supplierchainService.activeMemberStatistics(params);
         } else {
@@ -83,7 +84,7 @@ public class SalesDataStatisticsController {
             data = supplierchainService.lossMemberStatistics(params);
         }
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -97,11 +98,14 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("inquiryFailList")
+    @RequestMapping(value = "inquiryFailList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> inquiryFailList(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params02 == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = params02;
         }
         String pageNumStr = String.valueOf(params.get("pageNum"));
         String pageSizeStr = String.valueOf(params.get("pageSize"));
@@ -137,7 +141,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("orgQuoteTotalCostTime")
+    @RequestMapping(value = "orgQuoteTotalCostTime", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orgQuoteTotalCostTime(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -146,7 +150,7 @@ public class SalesDataStatisticsController {
         }
         data = supplierchainService.orgQuoteTotalCostTime(params);
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -163,24 +167,22 @@ public class SalesDataStatisticsController {
      * @return
      */
     @ResponseBody
-    @RequestMapping("memberInquiryAmount")
+    @RequestMapping(value = "memberInquiryAmount", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> memberInquiryAmount(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        if ("1".equals(type)) {
             // 报价金额按事业部统计
             data = supplierchainService.quoteAmountGroupOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 询单数量按事业部统计
             data = supplierchainService.inquiryNumbersGroupOrg(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 报价数量按事业部统计
             data = supplierchainService.quoteNumbersGroupOrg(params);
         } else {
@@ -197,28 +199,30 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 整体
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoWhole")
+    @RequestMapping(value = "orderInfoWhole", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderStatisticsWholeInfo(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> temParam = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (temParam == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = temParam;
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        if ("1".equals(type)) {
             // 按事业部分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 按地区分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByArea(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 按国家分析
             data = supplierchainService.orderStatisticsWholeInfoGroupByCountry(params);
         } else {
@@ -235,28 +239,27 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 利润
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoProfitPercent")
+    @RequestMapping(value = "orderInfoProfitPercent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoProfitPercent(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        if ("1".equals(type)) {
             // 事业部利润率
             data = supplierchainService.orderStatisticsProfitPercentGroupByOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 地区利润率
             data = supplierchainService.orderStatisticsProfitPercentGroupByArea(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 国家利润率
             data = supplierchainService.orderStatisticsProfitPercentGroupByCountry(params);
         } else {
@@ -271,31 +274,31 @@ public class SalesDataStatisticsController {
     }
 
 
-
     /**
      * 订单数据统计 - 成单率
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoMonoRate")
+    @RequestMapping(value = "orderInfoMonoRate", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoMonoRate(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Integer type = (Integer) params.get("type");
+        String type = String.valueOf(params.get("type"));
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
         if (type == null) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
-        }else if (1 == type.intValue()) {
+        } else if ("1".equals(type)) {
             // 事业部成单率
             data = supplierchainService.orderStatisticsMonoRateGroupByOrg(params);
-        } else if (2 == type.intValue()) {
+        } else if ("2".equals(type)) {
             // 地区成单率
             data = supplierchainService.orderStatisticsMonoRateGroupByArea(params);
-        } else if (3 == type.intValue()) {
+        } else if ("3".equals(type)) {
             // 国家成单率
             data = supplierchainService.orderStatisticsMonoRateGroupByCountry(params);
         } else {
@@ -312,15 +315,19 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 购买力
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoPurchasingPower")
+    @RequestMapping(value = "orderInfoPurchasingPower", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoPurchasingPower(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params02 == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = params02;
         }
         String pageNumStr = String.valueOf(params.get("pageNum"));
         String pageSizeStr = String.valueOf(params.get("pageSize"));
@@ -351,18 +358,21 @@ public class SalesDataStatisticsController {
     }
 
 
-
     /**
      * 订单数据统计 - 复购周期
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoBuyCycle")
+    @RequestMapping(value = "orderInfoBuyCycle", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderInfoBuyCycle(@RequestBody Map<String, Object> params) {
-        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params02 == null) {
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = params02;
         }
         String pageNumStr = String.valueOf(params.get("pageNum"));
         String pageSizeStr = String.valueOf(params.get("pageSize"));
@@ -395,20 +405,21 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 新老会员贡献度
+     *
      * @param params
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoMembersContribution")
-    public Result<Object> orderInfoMembersContribution(@RequestBody Map<String, Object> params){
+    @RequestMapping(value = "orderInfoMembersContribution", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderInfoMembersContribution(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         Map<String, List<Object>> data = null;
-        data =  supplierchainService.orderInfoMembersContribution(params);
+        data = supplierchainService.orderInfoMembersContribution(params);
         Result<Object> result = new Result<>();
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
@@ -419,34 +430,33 @@ public class SalesDataStatisticsController {
 
     /**
      * 订单数据统计 - 完成率
-     * @param params
-     * {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
-     *  type  1：事业部完成率   2：地区完成率   3：国家完成率
+     *
+     * @param params {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
+     *               type  1：事业部完成率   2：地区完成率   3：国家完成率
      * @return
      */
     @ResponseBody
-    @RequestMapping("orderInfoDoneRate")
-    public Result<Object> orderInfoDoneRate(@RequestBody Map<String, Object> params){
+    @RequestMapping(value = "orderInfoDoneRate", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderInfoDoneRate(@RequestBody Map<String, Object> params) {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         Result<Object> result = new Result<>();
         Map<String, List<Object>> data = null;
-        Integer type = (Integer)params.get("type");
-        if (type == null) {
-        } else if (1== type) {
-            data =  supplierchainService.orderInfoDoneRateGroupbyOrg(params);
-        } else if (2 == type) {
-           // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
-        } else if (3 == type) {
+        String type = String.valueOf(params.get("type"));
+        if ("1".equals(type)) {
+            data = supplierchainService.orderInfoDoneRateGroupbyOrg(params);
+        } else if ("2".equals(type)) {
+            // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
+        } else if ("3".equals(type)) {
             //data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
         }
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
         }
-        return result;
+        return null;
     }
 }

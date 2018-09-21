@@ -63,6 +63,16 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public PageInfo<Map<String, Object>> inquiryFailListByPage(Map<String, Object> params) {
         PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> failList = salesDataStatisticsMapper.inquiryFailListByPage(params);
+        for (Map<String, Object> failMap : failList) {
+            Date createdDate = (Date) failMap.get("created_at");
+            if (createdDate != null) {
+
+
+                failMap.put("created_at", DateUtil.format(DateUtil.FULL_FORMAT_STR, createdDate));
+
+
+            }
+        }
         PageInfo pageInfo = new PageInfo(failList);
         return pageInfo;
     }
@@ -150,7 +160,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             if (num == null) {
                 num = 0L;
             }
-            double rate = num / (double) total;
+            double rate = num / (double) total * 100;
             BigDecimal bigDecimalRate = new BigDecimal(rate, new MathContext(4, RoundingMode.DOWN));
             countries.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(total);
@@ -209,14 +219,15 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> names = new ArrayList<>();
         List<Object> totalAmounts = new ArrayList<>();
         List<Object> memTotalAmounts = new ArrayList<>();
+        BigDecimal tenThousand = new BigDecimal(10000);
         for (Map<String, Object> map : quoteTotalAmount) {
             String areaName = (String) map.get("areaName");
             BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
             names.add(areaName == null ? UNKNOW : areaName);
-            totalAmounts.add(totalAmount);
+            totalAmounts.add(totalAmount.divide(tenThousand,2,BigDecimal.ROUND_DOWN));
             BigDecimal memTotalAmount = memberQuoteAmountMap.remove(areaName);
             if (memTotalAmount != null) {
-                memTotalAmounts.add(memTotalAmount);
+                memTotalAmounts.add(memTotalAmount.divide(tenThousand,2,BigDecimal.ROUND_DOWN));
             } else {
                 memTotalAmounts.add(BigDecimal.ZERO);
             }
@@ -508,6 +519,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> quoteNums = new ArrayList<>();
         List<Object> doneNums = new ArrayList<>();
         List<Object> rates = new ArrayList<>();
+        BigDecimal oneHundred = new BigDecimal(100);
         for (Map<String, Object> map : monoRateInfo) {
             String name = (String) map.get("name");
             Long quoteNum = (Long) map.get("quoteNum");
@@ -516,7 +528,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             names.add(name == null ? UNKNOW : name);
             quoteNums.add(quoteNum == null ? 0L : quoteNum);
             doneNums.add(doneNum == null ? 0L : doneNum);
-            rates.add(rate == null ? BigDecimal.ZERO : rate);
+            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred, new MathContext(2, RoundingMode.HALF_UP)));
         }
         result.put("names", names);
         result.put("quoteNums", quoteNums);
@@ -550,6 +562,15 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public PageInfo<Map<String, Object>> orderInfoBuyCycle(Map<String, Object> params) {
         PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
+        for(Map<String, Object> map:purchasingPowerList){
+            BigDecimal cycle = (BigDecimal) map.get("cycle");
+            if (cycle == null) {
+                cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);
+            }else {
+                cycle = BigDecimal.ZERO;
+            }
+            map.put("cycle", cycle);
+        }
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
         return pageInfo;
     }
@@ -561,6 +582,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> newMembersContributionList = salesDataStatisticsMapper.newMembersContribution(params);
         if (allContributionList != null && allContributionList.size() > 0) {
             Map<String, BigDecimal> newMembersContributionMap = newMembersContributionList.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (BigDecimal) vo.get("totalAmount")));
+            BigDecimal oneThousand = new BigDecimal(10000);
 
             Map<String, List<Object>> result = new HashMap<>();
             List<Object> names = new ArrayList<>();
@@ -570,9 +592,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             for (Map<String, Object> data : allContributionList) {
                 String areaName = (String) data.get("areaName");
                 BigDecimal allMemberDecimal = (BigDecimal) data.get("totalAmount");
-                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal;
+                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal.divide(oneThousand).setScale(2, BigDecimal.ROUND_DOWN);
                 BigDecimal newMemberDecimal = newMembersContributionMap.get(areaName);
-                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal;
+                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal.divide(oneThousand).setScale(2, BigDecimal.ROUND_DOWN);
                 BigDecimal oldMemberDecimal = allMemberDecimal.subtract(newMemberDecimal);
                 names.add(areaName == null ? UNKNOW : areaName);
                 allMember.add(allMemberDecimal);
@@ -630,20 +652,21 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     private List<Map<String, Object>> orderInfoPlanPrice(Map<String, Object> params) {
-        List<Map<String, Object>> planPrice = null;
-        Integer type = (Integer) params.get("type");
-//        List<String> prescriptionList = NewDateUtil.allSpanYearList(DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.FULL_FORMAT_STR), DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.FULL_FORMAT_STR));
-        List<String> prescriptionList = null;
-        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsService.findByPrescription(prescriptionList);
-        if (type == 1) {
-
-
-        } else if (type == 2) {
-
-        } else if (type == 3) {
-
-        }
-        return planPrice;
+//        List<Map<String, Object>> planPrice = null;
+//        Integer type = (Integer) params.get("type");
+////        List<String> prescriptionList = NewDateUtil.allSpanYearList(DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.FULL_FORMAT_STR), DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.FULL_FORMAT_STR));
+//        List<String> prescriptionList = null;
+//        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsService.findByPrescription(prescriptionList);
+//        if (type == 1) {
+//
+//
+//        } else if (type == 2) {
+//
+//        } else if (type == 3) {
+//
+//        }
+//        return planPrice;
+        return null;
     }
 
 

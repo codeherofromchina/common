@@ -26,6 +26,7 @@ public class AreaServiceImpl implements AreaService {
     @Override
     @Transactional(readOnly = true)
     public Area findByBn(String bn) {
+
         return areaDao.findOne(bn);
     }
 }

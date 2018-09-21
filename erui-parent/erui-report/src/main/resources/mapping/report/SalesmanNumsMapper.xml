@@ -3,7 +3,8 @@
 <mapper namespace="com.erui.report.dao.SalesmanNumsMapper" >
   <resultMap id="BaseResultMap" type="com.erui.report.model.SalesmanNums" >
     <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="prescription" property="prescription" jdbcType="VARCHAR" />
+    <result column="start_prescription" property="startPrescription" jdbcType="DATE" />
+    <result column="end_prescription" property="endPrescription" jdbcType="DATE" />
     <result column="country_bn" property="countryBn" jdbcType="VARCHAR" />
     <result column="country_name" property="countryName" jdbcType="VARCHAR" />
     <result column="num" property="num" jdbcType="INTEGER" />
@@ -70,8 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, prescription, country_bn, country_name, num, create_user_id, create_user_name, 
-    create_time
+    id, start_prescription, end_prescription, country_bn, country_name, num, create_user_id, 
+    create_user_name, create_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.SalesmanNumsExample" >
     select
@@ -104,12 +105,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.SalesmanNums" >
-    insert into salesman_nums (id, prescription, country_bn, 
-      country_name, num, create_user_id, 
-      create_user_name, create_time)
-    values (#{id,jdbcType=INTEGER}, #{prescription,jdbcType=VARCHAR}, #{countryBn,jdbcType=VARCHAR}, 
-      #{countryName,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{createUserId,jdbcType=INTEGER}, 
-      #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+    insert into salesman_nums (id, start_prescription, end_prescription, 
+      country_bn, country_name, num, 
+      create_user_id, create_user_name, create_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{startPrescription,jdbcType=DATE}, #{endPrescription,jdbcType=DATE}, 
+      #{countryBn,jdbcType=VARCHAR}, #{countryName,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{createUserId,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.SalesmanNums" >
     insert into salesman_nums
@@ -117,8 +120,11 @@
       <if test="id != null" >
         id,
       </if>
-      <if test="prescription != null" >
-        prescription,
+      <if test="startPrescription != null" >
+        start_prescription,
+      </if>
+      <if test="endPrescription != null" >
+        end_prescription,
       </if>
       <if test="countryBn != null" >
         country_bn,
@@ -143,8 +149,11 @@
       <if test="id != null" >
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="prescription != null" >
-        #{prescription,jdbcType=VARCHAR},
+      <if test="startPrescription != null" >
+        #{startPrescription,jdbcType=DATE},
+      </if>
+      <if test="endPrescription != null" >
+        #{endPrescription,jdbcType=DATE},
       </if>
       <if test="countryBn != null" >
         #{countryBn,jdbcType=VARCHAR},
@@ -178,8 +187,11 @@
       <if test="record.id != null" >
         id = #{record.id,jdbcType=INTEGER},
       </if>
-      <if test="record.prescription != null" >
-        prescription = #{record.prescription,jdbcType=VARCHAR},
+      <if test="record.startPrescription != null" >
+        start_prescription = #{record.startPrescription,jdbcType=DATE},
+      </if>
+      <if test="record.endPrescription != null" >
+        end_prescription = #{record.endPrescription,jdbcType=DATE},
       </if>
       <if test="record.countryBn != null" >
         country_bn = #{record.countryBn,jdbcType=VARCHAR},
@@ -207,7 +219,8 @@
   <update id="updateByExample" parameterType="map" >
     update salesman_nums
     set id = #{record.id,jdbcType=INTEGER},
-      prescription = #{record.prescription,jdbcType=VARCHAR},
+      start_prescription = #{record.startPrescription,jdbcType=DATE},
+      end_prescription = #{record.endPrescription,jdbcType=DATE},
       country_bn = #{record.countryBn,jdbcType=VARCHAR},
       country_name = #{record.countryName,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
@@ -221,8 +234,11 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.SalesmanNums" >
     update salesman_nums
     <set >
-      <if test="prescription != null" >
-        prescription = #{prescription,jdbcType=VARCHAR},
+      <if test="startPrescription != null" >
+        start_prescription = #{startPrescription,jdbcType=DATE},
+      </if>
+      <if test="endPrescription != null" >
+        end_prescription = #{endPrescription,jdbcType=DATE},
       </if>
       <if test="countryBn != null" >
         country_bn = #{countryBn,jdbcType=VARCHAR},
@@ -247,7 +263,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.report.model.SalesmanNums" >
     update salesman_nums
-    set prescription = #{prescription,jdbcType=VARCHAR},
+    set start_prescription = #{startPrescription,jdbcType=DATE},
+      end_prescription = #{endPrescription,jdbcType=DATE},
       country_bn = #{countryBn,jdbcType=VARCHAR},
       country_name = #{countryName,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},

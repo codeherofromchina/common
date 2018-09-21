@@ -181,7 +181,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
 
     @Override
-    public Map<String, Object> selectAreaDetailByType(Map<String, String> params) {
+    public Map<String, Object> selectAreaDetailByType(Map<String, Object> params) {
 
         //查询各大区和国家的数据明细
         List<Map<String, Object>> dataList = readMapper.selectAreaAndCountryDetail(params);
@@ -190,8 +190,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Set<String> keySet = new HashSet<>();
 
         if (CollectionUtils.isNotEmpty(dataList)) {
-            String area = params.get("area");
-            String country =params.get("country");
+            String area = params.get("area") == null ?"":String.valueOf(params.get("area"));
+            String country =params.get("country") == null ?"":String.valueOf(params.get("country"));
             Map<String, Map<String, Object>> dataMap = new HashMap<>();
             if (StringUtils.isEmpty(area) && StringUtils.isEmpty(country)) { //如果大区和国家都没有指定 显示各大区数据
                 for (Map<String, Object> m : dataList) {
@@ -263,7 +263,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public Map<String, Object> selectOrgDetailByType(Map<String, String> params) {
+    public Map<String, Object> selectOrgDetailByType(Map<String, Object> params) {
         //查询各事业部的相关数据
         List<Map<String, Object>> data = readMapper.selectOrgDetail(params);
         Map<String, Object> result = new HashMap<>();
@@ -311,7 +311,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public Map<String, Object> selectCategoryDetailByType(Map<String, String> params) {
+    public Map<String, Object> selectCategoryDetailByType(Map<String, Object> params) {
         //查询各分类数据的相关数据
         List<Map<String, Object>> data = readMapper.selectDataGroupByCategory(params);
         Map<String, Object> result = new HashMap<>(); //结果集
@@ -713,7 +713,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public XSSFWorkbook exportCategoryDetail(Map<String, String> params) {
+    public XSSFWorkbook exportCategoryDetail(Map<String, Object> params) {
 
         //声明工作簿
         XSSFWorkbook wb = new XSSFWorkbook();
@@ -758,7 +758,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public XSSFWorkbook exportOrgDetail(Map<String, String> params) {
+    public XSSFWorkbook exportOrgDetail(Map<String, Object> params) {
 
         String analyzeType = params.get("analyzeType").toString();
         //声明工作簿
@@ -817,7 +817,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
-    public XSSFWorkbook exportAreaDetail(Map<String, String> params) {
+    public XSSFWorkbook exportAreaDetail(Map<String, Object> params) {
 
         String analyzeType = params.get("analyzeType").toString();
         //声明工作簿
