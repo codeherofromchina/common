@@ -30,8 +30,8 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Map<String, Object> result = new HashMap<>();
         //虚拟一个标准的时间集合
         List<String> dates = new ArrayList<>();
-        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime").toString(), DateUtil.FULL_FORMAT_STR);
-        Date endTime = DateUtil.parseString2DateNoException(params.get("endTime").toString(), DateUtil.FULL_FORMAT_STR);
+        Date startTime = DateUtil.parseString2DateNoException(params.get("startTime").toString(), DateUtil.SHORT_SLASH_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(params.get("endTime").toString(), DateUtil.FULL_FORMAT_STR2);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         int days = DateUtil.getDayBetween(startTime, endTime);
         for (int i = 0; i < days; i++) {
