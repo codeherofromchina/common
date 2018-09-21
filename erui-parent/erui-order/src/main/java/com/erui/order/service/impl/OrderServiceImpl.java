@@ -388,7 +388,12 @@ public class OrderServiceImpl implements OrderService {
             pageList.getContent().forEach(vo -> {
                 //vo.setAttachmentSet(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
-                    boolean flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    boolean flag;
+                    if (vo.getGoodsList() != null || vo.getGoodsList().size() > 0) {
+                        flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    } else {
+                        flag = false;
+                    }
                     if (flag) {
                         vo.setDeliverConsignC(flag);
                     } else {
@@ -517,7 +522,7 @@ public class OrderServiceImpl implements OrderService {
         if (id != null && id != 0) {
             order = orderDao.findOne(id);
         }
-        if (order != null && order.getContractNo().equals(contractNo)) {
+        if (order != null && contractNo.equals(order.getContractNo())) {
             if (!StringUtils.isBlank(contractNo) && orderDao.countByContractNo(contractNo) <= 1) {
                 flag = 0;
             } else {
