@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -526,11 +525,18 @@ public class Order {
         return totalPriceUsd;
     }
 
-    public String getTotalPriceUsdSplit() {
+    //金额千位以逗号分割
+    /*public String getTotalPriceUsdSplit() {
         if (getTotalPriceUsd() != null) {
             DecimalFormat decimalFormat = new DecimalFormat("#,###.#");
             String format = decimalFormat.format(getTotalPriceUsd());
             return format;
+        }
+        return null;
+    }*/
+    public BigDecimal getTotalPriceUsdSplit() {
+        if (getTotalPriceUsd() != null) {
+            return getTotalPriceUsd();
         }
         return null;
     }
