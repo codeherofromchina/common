@@ -308,7 +308,13 @@ public class OrderController {
             return new Result<>(ResultStatusEnum.VALUE_NULL);
         }
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), addOrderVo);
+        boolean flag;
+        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
+            orderService.updateOrder(addOrderVo);
+            flag = true;
+        } else {
+            flag = orderService.audit(order, String.valueOf(userId), String.valueOf(userName), addOrderVo);
+        }
         if (flag) {
             return new Result<>();
         }

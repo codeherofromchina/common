@@ -395,6 +395,7 @@ public class OrderServiceImpl implements OrderService {
                         flag = false;
                     }
                     if (flag) {
+
                         vo.setDeliverConsignC(flag);
                     } else {
                         vo.setDeliverConsignC(Boolean.FALSE);
