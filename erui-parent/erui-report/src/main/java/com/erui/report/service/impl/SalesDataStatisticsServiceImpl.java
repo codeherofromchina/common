@@ -160,7 +160,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             if (num == null) {
                 num = 0L;
             }
-            double rate = num / (double) total;
+            double rate = num / (double) total * 100;
             BigDecimal bigDecimalRate = new BigDecimal(rate, new MathContext(4, RoundingMode.DOWN));
             countries.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(total);
