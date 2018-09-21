@@ -219,14 +219,15 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> names = new ArrayList<>();
         List<Object> totalAmounts = new ArrayList<>();
         List<Object> memTotalAmounts = new ArrayList<>();
+        BigDecimal tenThousand = new BigDecimal(10000);
         for (Map<String, Object> map : quoteTotalAmount) {
             String areaName = (String) map.get("areaName");
             BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
             names.add(areaName == null ? UNKNOW : areaName);
-            totalAmounts.add(totalAmount);
+            totalAmounts.add(totalAmount.divide(tenThousand,2,BigDecimal.ROUND_DOWN));
             BigDecimal memTotalAmount = memberQuoteAmountMap.remove(areaName);
             if (memTotalAmount != null) {
-                memTotalAmounts.add(memTotalAmount);
+                memTotalAmounts.add(memTotalAmount.divide(tenThousand,2,BigDecimal.ROUND_DOWN));
             } else {
                 memTotalAmounts.add(BigDecimal.ZERO);
             }
@@ -563,7 +564,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
         for (Map<String, Object> map : purchasingPowerList) {
             BigDecimal cycle = (BigDecimal) map.get("cycle");
-            cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);
+            if (cycle == null) {
+                cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);
+            }else {
+                cycle = BigDecimal.ZERO;
+            }
+
             map.put("cycle", cycle);
         }
         PageInfo pageInfo = new PageInfo(purchasingPowerList);
