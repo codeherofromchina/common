@@ -375,18 +375,21 @@
     <!-- 订单数据统计 - 整体 - 按事业部纬度查询订单的金额和数量 -->
     <select id="orderStatisticsWholeInfoGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t1.business_unit_id AS orgId,
-            t1.business_unit_name AS orgName,
+            t3.id AS orgId,
+            t3.`name` AS orgName,
             SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
-            erui_new_order.`order` as t1,erui_new_order.`project` t2
+            erui_new_order.`order` as t1
+            left join
+            erui_sys.org t3 on t3.deleted_flag='N' and t3.`status`='NORMAL' and t3.id = t1.business_unit_id
+            ,erui_new_order.`project` t2
         WHERE
             t1.`status` >= 3 and t1.id = t2.order_id
             <if test="startTime!=null and startTime!=''">
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
-        GROUP BY t1.business_unit_id , t1.business_unit_name
+        GROUP BY t3.id , t3.`name`
         ORDER BY 3
         <if test="sort != 1" >
             DESC

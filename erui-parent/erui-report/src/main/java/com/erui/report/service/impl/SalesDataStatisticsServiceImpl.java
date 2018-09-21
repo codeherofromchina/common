@@ -517,7 +517,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             names.add(name == null ? UNKNOW : name);
             quoteNums.add(quoteNum == null ? 0L : quoteNum);
             doneNums.add(doneNum == null ? 0L : doneNum);
-            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred,new MathContext(2,RoundingMode.HALF_UP)));
+            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred, new MathContext(2, RoundingMode.HALF_UP)));
         }
         result.put("names", names);
         result.put("quoteNums", quoteNums);
@@ -577,9 +577,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             for (Map<String, Object> data : allContributionList) {
                 String areaName = (String) data.get("areaName");
                 BigDecimal allMemberDecimal = (BigDecimal) data.get("totalAmount");
-                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal.divide(oneThousand).setScale(2,BigDecimal.ROUND_DOWN);
+                allMemberDecimal = allMemberDecimal == null ? BigDecimal.ZERO : allMemberDecimal.divide(oneThousand).setScale(2, BigDecimal.ROUND_DOWN);
                 BigDecimal newMemberDecimal = newMembersContributionMap.get(areaName);
-                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal.divide(oneThousand).setScale(2,BigDecimal.ROUND_DOWN);
+                newMemberDecimal = newMemberDecimal == null ? BigDecimal.ZERO : newMemberDecimal.divide(oneThousand).setScale(2, BigDecimal.ROUND_DOWN);
                 BigDecimal oldMemberDecimal = allMemberDecimal.subtract(newMemberDecimal);
                 names.add(areaName == null ? UNKNOW : areaName);
                 allMember.add(allMemberDecimal);
