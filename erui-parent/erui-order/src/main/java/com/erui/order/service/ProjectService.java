@@ -86,4 +86,13 @@ public interface ProjectService {
      * @modified By
      */
     List<Project> findProjectExport(ProjectListCondition condition);
+
+    /**
+     * 审核项目
+     * @param project
+     * @param auditorId
+     * @param paramsProject  请求的参数
+     * @return
+     */
+    boolean audit(Project project, String auditorId,String auditorName, Project paramsProject);
 }

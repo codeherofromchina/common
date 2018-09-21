@@ -2,6 +2,7 @@ package com.erui.order.requestVo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 /**
@@ -72,6 +73,10 @@ public class ProjectListCondition {
     // 分页信息参数
     private int page = 0; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+    // 审核状态
+    private Integer auditingStatus;
+    // 当前审核人ID
+    private String auditingUserId;
 
     public Integer getBusinessUid02() {
         return businessUid02;
@@ -311,5 +316,21 @@ public class ProjectListCondition {
 
     public void setRows(int rows) {
         this.rows = rows;
+    }
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
     }
 }

@@ -10,6 +10,7 @@ public enum ResultStatusEnum {
     FAIL(1, "失败","Failed"),
     SERVER_ERROR(2, "服务器端异常","Server exception"),
     MISS_PARAM_ERROR(3, "缺少必要参数","Lack of necessary parameters"),
+    VALUE_NULL(31, "驳回原因不能为空","Reason is not Null"),
     PARAM_TYPE_ERROR(4, "参数类型错误","Error in parameter type"),
     REQUEST_METHOD_NOT_SUPPORT(5, "不支持的请求方法","Request method unsupported"),
     MEDIA_TYPE_NOT_SUPPORT(6, "不支持的MediaType","Media type unsupported"),
@@ -35,7 +36,11 @@ public enum ResultStatusEnum {
     COMPANY_NOT_EXIST(23,"公司不存在","The company does not exist"),
     LACK_OF_AUTHORITY(24,"权限不足","Lack of authority"),
     SQLDATA_ERROR(25,"数据错误,请检查数据是否规范","Data error, please check if the data is normal"),
-    DATA_REPEAT_ERROR(26,"数据重复错误","Data duplication error");
+    DATA_REPEAT_ERROR(29,"数据重复错误","Data duplication error"),
+    ORDER_AUDIT_NOT_DONE_ERROR(26,"订单审核状态未完成","Order audit status is not completed"),
+    PROJECT_NOT_EXIST(27,"项目不存在","project not exist"),
+    NOT_NOW_AUDITOR(28,"非审核人，不能操作","Non auditor can not operate.");
+
     private int code;
     private String msg;
     private String enMsg;

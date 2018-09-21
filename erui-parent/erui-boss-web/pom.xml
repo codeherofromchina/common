@@ -170,7 +170,6 @@
             <artifactId>spring-data-commons</artifactId>
             <version>1.13.3.RELEASE</version>
         </dependency>
-
     </dependencies>
 
 
@@ -237,6 +236,13 @@
             <properties>
                 <package.environment>test</package.environment>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-dev</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>zhengshi</id>

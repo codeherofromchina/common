@@ -70,9 +70,37 @@ public class OrderListCondition {
     private String businessUnitId;
     //执行事业部
     private String businessUnitId02;
+    private Integer perLiableRepayId; //回款责任人
+    private String auditingUserId;   //当前审核人ID，逗号分隔多个
+    private Integer auditingProcess; //审核状态
+
+    public Integer getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
 
     public Integer getTechnicalId02() {
         return technicalId02;

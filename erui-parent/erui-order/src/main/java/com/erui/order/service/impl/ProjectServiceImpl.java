@@ -9,15 +9,15 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.BackLogDao;
+import com.erui.order.dao.CheckLogDao;
 import com.erui.order.dao.OrderDao;
 import com.erui.order.dao.ProjectDao;
-import com.erui.order.entity.BackLog;
-import com.erui.order.entity.Goods;
+import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
-import com.erui.order.entity.Project;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.BackLogService;
+import com.erui.order.service.CheckLogService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.StatisticsService;
 import com.erui.order.util.exception.MyException;
@@ -27,16 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,6 +57,10 @@ public class ProjectServiceImpl implements ProjectService {
     private BackLogDao backLogDao;
     @Autowired
     private StatisticsService statisticsService;
+    @Autowired
+    private CheckLogService checkLogService;
+    @Autowired
+    private CheckLogDao checkLogDao;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -72,8 +72,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public Project findById(Integer id) {
-        return projectDao.findOne(id);
+        Project project = projectDao.findOne(id);
+        if (project != null) {
+            project.getOrder();
+        }
+        return project;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -116,21 +121,20 @@ public class ProjectServiceImpl implements ProjectService {
             backLogService.updateBackLogByDelYn(backLog2);
 
 
-
             //订单中推送“项目驳回”待办信息
 
             //获取推送人信息
             Set<Integer> userIdS = new HashSet<>();
             Integer agentId = order.getAgentId();   //市场经办人id
-            if(agentId != null){
+            if (agentId != null) {
                 userIdS.add(agentId);
             }
             Integer createUserId = order.getCreateUserId();   //创建人id
-            if(createUserId != null){
+            if (createUserId != null) {
                 userIdS.add(createUserId);
             }
-            if(userIdS.size() > 0){
-                for (Integer userId : userIdS){
+            if (userIdS.size() > 0) {
+                for (Integer userId : userIdS) {
                     BackLog newBackLog = new BackLog();
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
@@ -140,7 +144,7 @@ public class ProjectServiceImpl implements ProjectService {
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                     String country = order.getCountry();//国家
                     Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                    newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                    newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(order.getId());    //父ID，列表页id    订单id
                     newBackLog.setUid(userId);   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);
@@ -207,12 +211,15 @@ public class ProjectServiceImpl implements ProjectService {
                         Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                         String country = projectUpdate.getCountry();  //国家
                         Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                         newBackLog.setHostId(order.getId());    //父ID，列表页id
                         Integer managerUid = projectUpdate.getManagerUid();//项目经理
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
 
+                    } else if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        // 无项目经理提交项目时检查审核信息参数 2018-08-28
+                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
@@ -242,7 +249,7 @@ public class ProjectServiceImpl implements ProjectService {
                         Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                         String country = order.getCountry();//国家
                         Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                        newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                         newBackLog.setHostId(projectUpdate.getId());    //父ID，列表页id    项目id
                         Integer technicalId = order.getTechnicalId();   //商务技术经办人id
                         newBackLog.setUid(technicalId);   ////经办人id
@@ -268,12 +275,19 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setRemarks(project.getRemarks());
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
+
+                        if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING) {
+                            // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
+                            submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+                        }
+
+
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
-                        BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(),projectUpdate.getId());
-                        if(backLogs != null){
+                        BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
+                        if (backLogs != null) {
                             backLogs.setUid(projectUpdate.getBusinessUid()); //商务技术经办人id
                             backLogDao.save(backLogs);
-                         }
+                        }
 
                     }
                 } else {
@@ -301,6 +315,7 @@ public class ProjectServiceImpl implements ProjectService {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
                     applicationContext.publishEvent(new OrderProgressEvent(order, 2));
                     orderDao.save(order);
@@ -326,7 +341,7 @@ public class ProjectServiceImpl implements ProjectService {
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                     String country = projectUpdate.getCountry();  //国家
                     Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                    newBackLog.setInformTheContent(bnMapZhRegion.get(region)+ " | "+bnMapZhCountry.get(country));  //提示内容
+                    newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(order.getId());    //父ID，列表页id
                     newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
                     Integer businessUid = projectUpdate.getBusinessUid();//商务技术经办人id
@@ -338,7 +353,7 @@ public class ProjectServiceImpl implements ProjectService {
             Project project1 = projectDao.save(projectUpdate);
 
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
-            if (project1.getProjectStatus() == Project.ProjectStatusEnum.HASMANAGER.getCode()) {
+            if (Project.ProjectStatusEnum.HASMANAGER.getCode().equals(project1.getProjectStatus())) {
                 Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
                 sendSms(project1, managerUid);
             }
@@ -346,6 +361,48 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         return true;
+    }
+
+
+    /**
+     * 提交项目过程中检查审核相关参数
+     */
+    private void submitProjectProcessCheckAuditParams(Project project, Project projectUpdate, Order order) throws MyException {
+        Integer logisticsAudit = project.getLogisticsAudit();
+        Integer logisticsAuditerId = project.getLogisticsAuditerId();
+        String logisticsAuditer = project.getLogisticsAuditer();
+        String buAuditer = project.getBuAuditer();
+        Integer buAuditerId = project.getBuAuditerId();
+        Integer auditingLevel = project.getAuditingLevel();
+        if (logisticsAudit == null) {
+            throw new MyException(String.format("%s%s%s", "参数错误，是否需要物流审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, do we need logistics audit?"));
+        }
+        logisticsAudit = logisticsAudit == 2 ? 2 : 1;
+        if (logisticsAudit == 2 && (StringUtils.isBlank(logisticsAuditer) || logisticsAuditerId == null)) {
+            throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+        }
+        if (buAuditerId == null || StringUtils.isBlank(buAuditer)) {
+            throw new MyException(String.format("%s%s%s", "参数错误，事业部审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, business auditor can not be empty."));
+        }
+        Integer orderCategory = order.getOrderCategory();
+        if (orderCategory != null && orderCategory == 1) { // 预投
+            auditingLevel = 4; // 四级审核
+        } else if (orderCategory != null && orderCategory == 3) { // 试用
+            auditingLevel = 2; // 二级审核
+        } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
+            // 既不是预投。又不是试用，则需要检查参数
+            throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+        }
+        projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+        projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
+        projectUpdate.setCeo(project.getCeo());
+        projectUpdate.setCeoId(project.getCeoId());
+        projectUpdate.setChairman(project.getChairman());
+        projectUpdate.setChairmanId(project.getChairmanId());
+        projectUpdate.setAuditingLevel(auditingLevel);
+        projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
+        projectUpdate.setAuditingUserId("31025,31274");
+        projectUpdate.setAuditingStatus(2); // 审核中
     }
 
     @Transactional(readOnly = true)
@@ -359,6 +416,10 @@ public class ProjectServiceImpl implements ProjectService {
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                // 审核状态查询
+                if (null != condition.getAuditingStatus()) {
+                    list.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
                 }
                 //根据项目名称模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
@@ -446,6 +507,8 @@ public class ProjectServiceImpl implements ProjectService {
                 Predicate businessUid = null;
                 if (condition.getBusinessUid() != null) {
                     businessUid = cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid());
+                } else {
+                    businessUid = cb.isNull(root.get("businessUid").as(Integer.class));
                 }
                 //项目经理
                 Predicate or = null;
@@ -469,6 +532,8 @@ public class ProjectServiceImpl implements ProjectService {
                         list.add(businessUid);
                     }
                 }
+
+
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
                     list.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
@@ -499,7 +564,17 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
-                return cb.and(predicates);
+                Predicate and = cb.and(predicates);
+
+                // 审核人查询,和其他关系是or，所有写在最后
+                if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
+                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
+                    Predicate or1 = cb.or(and, auditingUserIdP);
+                    Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class), "%," + condition.getAuditingUserId() + ",%");
+                    return cb.or(or1, auditingUserId02);
+                } else {
+                    return and;
+                }
             }
         }, pageRequest);
         for (Project project : pageList) {
@@ -691,8 +766,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (project != null) {
             project.setPurchs(null);
             List<Goods> goodsList = project.getGoodsList();
-            if(goodsList.size() > 0){
-                for (Goods goods : goodsList){
+            if (goodsList.size() > 0) {
+                for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
             }
@@ -701,6 +776,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return null;
     }
+
     @Override
     public List<Project> findProjectExport(ProjectListCondition condition) {
         Sort sort = new Sort(Sort.Direction.DESC, "id");
@@ -899,6 +975,214 @@ public class ProjectServiceImpl implements ProjectService {
             }
 
         }
+    }
+
+    /**
+     * 审核项目操作
+     *
+     * @param project
+     * @param auditorId
+     * @param paramProject 参数项目
+     * @return
+     */
+    @Transactional
+    @Override
+    public boolean audit(Project project, String auditorId, String auditorName, Project paramProject) {
+        //@param rejectFlag true:驳回项目   false:审核项目
+        //@param reason
+        StringBuilder auditorIds = null;
+        if (project.getAudiRemark() != null) {
+            auditorIds = new StringBuilder(project.getAudiRemark());
+        } else {
+            auditorIds = new StringBuilder("");
+        }
+        boolean rejectFlag = "-1".equals(paramProject.getAuditingType());
+        String reason = paramProject.getAuditingReason();
+
+        Order order = project.getOrder();
+        // 获取当前审核进度
+        String auditingProcess = project.getAuditingProcess();
+        String auditingUserId = project.getAuditingUserId();
+        Integer curAuditProcess = null;
+        if (auditorId.equals(auditingUserId)) {
+            curAuditProcess = Integer.parseInt(auditingProcess);
+        } else {
+            String[] split = auditingUserId.split(",");
+            String[] split1 = auditingProcess.split(",");
+            for (int n = 0; n < split.length; n++) {
+                if (auditorId.equals(split[n])) {
+                    curAuditProcess = Integer.parseInt(split1[n]);
+                    break;
+                }
+            }
+        }
+        if (curAuditProcess == null) {
+            return false;
+        }
+        auditorIds.append("," + auditorId + ",");
+
+        // 定义最后处理结果变量，最后统一操作
+        Integer auditingStatus_i = 2; // 默认状态为审核中
+        String auditingProcess_i = null; // 项目审核当前进度
+        String auditingUserId_i = null; // 项目审核当前人
+        CheckLog checkLog_i = null; // 审核日志
+        if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
+            CheckLog checkLog = checkLogDao.findOne(project.getCheckLogId());
+            auditingStatus_i = 3;
+            if (checkLog.getType() == 1) { // 驳回到订单
+                Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
+                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+                if (auditingProcess_order.equals("0")) {
+                    order.setStatus(1);
+                }
+                order.setAuditingUserId(auditingUserId_order);
+                order.setAuditingStatus(auditingStatus_i);
+                order.setAuditingProcess(auditingProcess_order);
+                //orderDao.save(order);
+            } else { // 驳回到项目
+                auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
+                auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
+                // 设置项目为SUBMIT:未执行
+                project.setProjectStatus("SUBMIT");
+            }
+            // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
+        } else {
+            Integer auditingLevel = project.getAuditingLevel();
+            Integer logistics_audit = project.getLogisticsAudit();
+            // 处理进度
+            switch (curAuditProcess) {
+                case 1: // 事业部利润核算
+                    // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
+                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
+                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                        auditingProcess_i = checkLog.getNextAuditingProcess();
+                        auditingUserId_i = checkLog.getNextAuditingUserId();
+                        // 驳回后的修改
+                        paramProject.copyProjectDescTo(project); // 只修改基本信息
+                        paramProject.setProjectStatus("EXECUTING"); // 驳回处理后设置状态为执行中
+
+                        //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
+                    } else {
+                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
+//                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
+//                        auditingUserId_i = "30979,31274"; // 姜聪聪 / 展召申
+                    }
+                    break;
+                case 2: // 法务审核
+                    String replace = auditingUserId.replace("31025", "");
+                    if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
+                        if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
+                            auditingProcess_i = "5"; //
+                            auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
+                        } else {
+                            // 直接事业部审核
+                            auditingProcess_i = "6"; //
+                            auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                        }
+                    } else {
+                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("2", ""), ",");
+                        auditingUserId_i = StringUtils.strip(replace, ",");
+                    }
+                    // 添加销售合同号和海外销售合同号
+                    String contractNo = paramProject.getContractNo();
+                    String contractNoOs = paramProject.getContractNoOs();
+                    if(StringUtils.isBlank(contractNo)) {
+                        // 销售合同号不能为空
+                        return false;
+                    }
+                    // 判断销售合同号不能重复
+                    List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
+                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                        Integer projectId = project.getId();
+                        for(Integer proId:contractNoProjectIds){
+                            if (proId.intValue() != projectId.intValue()) {
+                                return false;
+                            }
+                        }
+                    }
+                    order.setContractNoOs(contractNoOs);
+                    order.setContractNo(contractNo);
+                    project.setContractNo(contractNo);
+                    break;
+                case 3:
+                    auditingProcess_i = auditingProcess.replace("3", "4");
+                    auditingUserId_i = auditingUserId.replace("31274", "39252"); // 直接进入到下一步结算审核
+                    break;
+                case 4:
+                    String replace2 = auditingUserId.replace("39252", "");
+                    if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
+                        if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
+                            auditingProcess_i = "5"; //
+                            auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
+                        } else {
+                            // 直接事业部审核
+                            auditingProcess_i = "6"; //
+                            auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                        }
+                    } else {
+                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("4", ""), ",");
+                        auditingUserId_i = StringUtils.strip(replace2, ",");
+                    }
+                    break;
+                case 5: // 物流审核
+                    auditingProcess_i = "6"; //
+                    auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                    break;
+                case 6:
+                    if (auditingLevel > 1) {
+                        auditingProcess_i = "7"; //
+                        auditingUserId_i = "31973"; //黄永霞
+                        break;
+                    }
+                case 7:
+                    if (auditingLevel > 2) {
+                        auditingProcess_i = "8"; //
+                        auditingUserId_i = "30772"; //杨海涛
+                        break;
+                    }
+                case 8:
+                    if (auditingLevel > 3) {
+                        auditingProcess_i = "9"; //
+                        auditingUserId_i = "32046"; //冷成志
+                        break;
+                    }
+                case 9:
+                    auditingStatus_i = 4; // 完成
+                    auditingProcess_i = null; // 无下一审核进度和审核人
+                    auditingUserId_i = null;
+                    break;
+                default:
+                    return false;
+            }
+            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+        }
+        checkLogService.insert(checkLog_i);
+        project.setAuditingProcess(auditingProcess_i);
+        project.setAuditingUserId(auditingUserId_i);
+        project.setAuditingStatus(auditingStatus_i);
+        project.setAudiRemark(auditorIds.toString());
+        projectDao.save(project);
+        return true;
+    }
+
+
+    // 处理日志
+    private CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+                                      String auditingMsg, String operation, int type) {
+        CheckLog checkLog = new CheckLog();
+        checkLog.setOrderId(orderId);
+        checkLog.setCreateTime(new Date());
+        checkLog.setAuditingProcess(auditingProcess);
+        checkLog.setAuditingUserId(auditorId);
+        checkLog.setAuditingUserName(auditorName);
+        checkLog.setNextAuditingProcess(nextAuditingProcess);
+        checkLog.setNextAuditingUserId(nextAuditingUserId);
+        checkLog.setAuditingMsg(auditingMsg);
+        checkLog.setOperation(operation);
+        checkLog.setType(type);
+
+        return checkLog;
     }
 
 }
