@@ -177,21 +177,9 @@
         FROM
             erui_rfq.inquiry t1
                 LEFT JOIN
-            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-            (SELECT
-                inquiry_id
-            FROM
-              erui_rfq.inquiry_check_log
-            WHERE
-                (in_node = 'MARKET_CONFIRMING'
-                    AND created_at BETWEEN #{startTime} AND #{endTime})
-                    OR (in_node = 'QUOTE_SENT'
-                    AND created_at BETWEEN #{startTime} AND #{endTime})
-                    OR (in_node = 'INQUIRY_CLOSE'
-                    AND created_at BETWEEN #{startTime} AND #{endTime})
-            GROUP BY inquiry_id) t2
+            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn
         WHERE
-            t1.id = t2.inquiry_id
+           t1.inflow_time BETWEEN #{startTime} AND #{endTime}
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSE')
@@ -207,21 +195,9 @@
             erui_rfq.inquiry t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-            (SELECT
-                inquiry_id
-            FROM
-              erui_rfq.inquiry_check_log
-            WHERE
-                (in_node = 'MARKET_CONFIRMING'
-                    AND created_at BETWEEN #{startTime} AND #{endTime})
-                    OR (in_node = 'QUOTE_SENT'
-                    AND created_at BETWEEN #{startTime} AND #{endTime})
-                    OR (in_node = 'INQUIRY_CLOSE'
-                    AND created_at BETWEEN #{startTime} AND #{endTime})
-            GROUP BY inquiry_id) t2,
             erui_buyer.buyer t4
         WHERE
-            t1.id = t2.inquiry_id
+          t1.inflow_time BETWEEN #{startTime} AND #{endTime}
             AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
                 AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
                 AND t1.`status` IN ('MARKET_CONFIRMING',
@@ -237,22 +213,11 @@
         erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-        (SELECT
-        inquiry_id
-        FROM
-        erui_rfq.inquiry_check_log
         WHERE
-        (in_node = 'MARKET_CONFIRMING'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'QUOTE_SENT'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'INQUIRY_CLOSE'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        GROUP BY inquiry_id) t2
-        WHERE
-        t1.id = t2.inquiry_id
-        AND t1.`status` IN ('MARKET_CONFIRMING',
-                'QUOTE_SENT','INQUIRY_CLOSE')
+        t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+        AND t1.`status` IN ('BIZ_DISPATCHING',
+                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
+                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSE')
         GROUP BY t3.`name`
         ORDER BY 2 DESC
     </select>
@@ -265,24 +230,13 @@
         erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-        (SELECT
-        inquiry_id
-        FROM
-        erui_rfq.inquiry_check_log
-        WHERE
-        (in_node = 'MARKET_CONFIRMING'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'QUOTE_SENT'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'INQUIRY_CLOSE'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        GROUP BY inquiry_id) t2,
         erui_buyer.buyer t4
         WHERE
-        t1.id = t2.inquiry_id
+        t1.inflow_time BETWEEN #{startTime} AND #{endTime}
         AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
-        AND t1.`status` IN ('MARKET_CONFIRMING',
-                'QUOTE_SENT','INQUIRY_CLOSE')
+        AND t1.`status` IN ('BIZ_DISPATCHING',
+                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
+                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSE')
         GROUP BY t3.`name`
         ORDER BY 2 DESC
     </select>
@@ -296,21 +250,9 @@
         erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-        (SELECT
-        inquiry_id
-        FROM
-        erui_rfq.inquiry_check_log
-        WHERE
-        (in_node = 'MARKET_CONFIRMING'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'QUOTE_SENT'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'INQUIRY_CLOSE'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        GROUP BY inquiry_id) t2,
         erui_rfq.final_quote t4
         WHERE
-        t1.id = t2.inquiry_id and t4.inquiry_id = t1.id
+        t4.inquiry_id = t1.id and t1.inflow_time BETWEEN #{startTime} AND #{endTime}
         AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSE')
@@ -326,22 +268,10 @@
         erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-        (SELECT
-        inquiry_id
-        FROM
-        erui_rfq.inquiry_check_log
-        WHERE
-        (in_node = 'MARKET_CONFIRMING'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'QUOTE_SENT'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        OR (in_node = 'INQUIRY_CLOSE'
-        AND created_at BETWEEN #{startTime} AND #{endTime})
-        GROUP BY inquiry_id) t2,
         erui_rfq.final_quote t4,
         erui_buyer.buyer t5
         WHERE
-        t1.id = t2.inquiry_id and t4.inquiry_id = t1.id
+        t4.inquiry_id = t1.id and t1.inflow_time BETWEEN #{startTime} AND #{endTime}
         AND t5.id = t1.buyer_id and t5.buyer_level in (52,53)
         AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         AND t1.`status` IN ('MARKET_CONFIRMING',
@@ -364,7 +294,7 @@
         WHERE
             t1.`status` >= 3 and t1.id = t3.order_id
             <if test="startTime!=null and startTime!=''">
-                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
         GROUP BY t2.`name`
         ORDER BY 2
