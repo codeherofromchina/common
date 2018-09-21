@@ -1083,8 +1083,8 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = StringUtils.strip(replace, ",");
                     }
                     // 添加销售合同号和海外销售合同号
-                    String contractNo = project.getContractNo();
-                    String contractNoOs = project.getContractNoOs();
+                    String contractNo = paramProject.getContractNo();
+                    String contractNoOs = paramProject.getContractNoOs();
                     if(StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         return false;
@@ -1100,6 +1100,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                     }
                     order.setContractNoOs(contractNoOs);
+                    order.setContractNo(contractNo);
+                    project.setContractNo(contractNo);
                     break;
                 case 3:
                     auditingProcess_i = auditingProcess.replace("3", "4");
