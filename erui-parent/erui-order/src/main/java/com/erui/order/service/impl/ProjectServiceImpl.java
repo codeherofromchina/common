@@ -569,7 +569,9 @@ public class ProjectServiceImpl implements ProjectService {
                 // 审核人查询,和其他关系是or，所有写在最后
                 if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
                     Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
-                    return cb.or(and, auditingUserIdP);
+                    Predicate or1 = cb.or(and, auditingUserIdP);
+                    Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class), "%," + condition.getAuditingUserId() + ",%");
+                    return cb.or(or1, auditingUserId02);
                 } else {
                     return and;
                 }
