@@ -35,7 +35,7 @@ public class Project {
     private String projectNo;
 
     @Column(name = "project_name")
-    @Size(max = 255,message = "项目名称填写不规范，请重新输入")
+    @Size(max = 255, message = "项目名称填写不规范，请重新输入")
     private String projectName;
 
     @Column(name = "start_date")
@@ -152,12 +152,192 @@ public class Project {
     @Column(name = "purch_time")
     private Date purchTime;
     //采购
-    @ManyToMany(targetEntity = Purch.class,cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Purch.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_project",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "purch_id"))
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
+
+    /**
+     * 审核人列表信息
+     */
+    @Column(name = "audi_remark")
+    private String audiRemark;
+
+    @Column(name = "logistics_audit")
+    private Integer logisticsAudit; //'是否需要物流审核  1/其他:不需要  2：需要',
+
+    @Column(name = "auditing_level")
+    private Integer auditingLevel;  //'审批分级    2、3、4级'
+
+    @Column(name = "auditing_status")
+    private Integer auditingStatus; //'审核状态 --   添加一个驳回到订单中的状态（驳回1、驳回2）',
+
+    @Column(name = "auditing_process")
+    private String auditingProcess;//'-- 审核进度',
+
+    @Column(name = "auditing_user_id")
+    private String auditingUserId;//'当前审核人ID',
+
+    @Column(name = "auditing_user")
+    private String auditingUser;//'当前审核人',
+
+    @Column(name = "logistics_auditer_id")
+    private Integer logisticsAuditerId;//'物流审核人id',
+
+    @Column(name = "logistics_auditer")
+    private String logisticsAuditer; //'物流审核人',
+
+    @Column(name = "bu_auditer_id")
+    private Integer buAuditerId;      //'事业部审核人id',
+
+    @Column(name = "bu_auditer")
+    private String buAuditer;         //'事业部审核人',
+
+    @Column(name = "bu_vp_auditer")
+    private String buVpAuditer;      //'事业部vp审核人',
+
+    @Column(name = "bu_vp_auditer_id")
+    private Integer buvVpAuditerId;   //'事业部vp审核人',
+
+    @Column(name = "ceo_id")
+    private Integer ceoId;             //'eo审核人id',
+
+    private String ceo;                 //  'eo审核人',
+
+    @Column(name = "chairman_id")
+    private Integer chairmanId;        //董事长审核人id
+
+    private String chairman;           //董事长审核人
+
+    public Integer getLogisticsAudit() {
+        return logisticsAudit;
+    }
+
+    public void setLogisticsAudit(Integer logisticsAudit) {
+        this.logisticsAudit = logisticsAudit;
+    }
+
+    public Integer getAuditingLevel() {
+        return auditingLevel;
+    }
+
+    public void setAuditingLevel(Integer auditingLevel) {
+        this.auditingLevel = auditingLevel;
+    }
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
+
+    public String getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(String auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
+    public String getAuditingUser() {
+        return auditingUser;
+    }
+
+    public void setAuditingUser(String auditingUser) {
+        this.auditingUser = auditingUser;
+    }
+
+    public Integer getLogisticsAuditerId() {
+        return logisticsAuditerId;
+    }
+
+    public void setLogisticsAuditerId(Integer logisticsAuditerId) {
+        this.logisticsAuditerId = logisticsAuditerId;
+    }
+
+    public String getLogisticsAuditer() {
+        return logisticsAuditer;
+    }
+
+    public void setLogisticsAuditer(String logisticsAuditer) {
+        this.logisticsAuditer = logisticsAuditer;
+    }
+
+    public Integer getBuAuditerId() {
+        return buAuditerId;
+    }
+
+    public void setBuAuditerId(Integer buAuditerId) {
+        this.buAuditerId = buAuditerId;
+    }
+
+    public String getBuAuditer() {
+        return buAuditer;
+    }
+
+    public void setBuAuditer(String buAuditer) {
+        this.buAuditer = buAuditer;
+    }
+
+    public String getBuVpAuditer() {
+        return buVpAuditer;
+    }
+
+    public void setBuVpAuditer(String buVpAuditer) {
+        this.buVpAuditer = buVpAuditer;
+    }
+
+    public Integer getBuvVpAuditerId() {
+        return buvVpAuditerId;
+    }
+
+    public void setBuvVpAuditerId(Integer buvVpAuditerId) {
+        this.buvVpAuditerId = buvVpAuditerId;
+    }
+
+    public Integer getCeoId() {
+        return ceoId;
+    }
+
+    public void setCeoId(Integer ceoId) {
+        this.ceoId = ceoId;
+    }
+
+    public String getCeo() {
+        return ceo;
+    }
+
+    public void setCeo(String ceo) {
+        this.ceo = ceo;
+    }
+
+    public Integer getChairmanId() {
+        return chairmanId;
+    }
+
+    public void setChairmanId(Integer chairmanId) {
+        this.chairmanId = chairmanId;
+    }
+
+    public String getChairman() {
+        return chairman;
+    }
+
+    public void setChairman(String chairman) {
+        this.chairman = chairman;
+    }
 
     public Date getPurchTime() {
         return purchTime;
@@ -202,14 +382,15 @@ public class Project {
         }
         return null;
     }
-  /*  public String getEnProcessProgressName() {
-        Project.enProjectProgressEnum enProjectProgressEnum = Project.enProjectProgressEnum.enProjectProgressFromCode(getProcessProgress());
-        if (enProjectProgressEnum != null) {
-            return enProjectProgressEnum.getMsg();
-        }
-        return null;
-    }
-*/
+
+    /*  public String getEnProcessProgressName() {
+          Project.enProjectProgressEnum enProjectProgressEnum = Project.enProjectProgressEnum.enProjectProgressFromCode(getProcessProgress());
+          if (enProjectProgressEnum != null) {
+              return enProjectProgressEnum.getMsg();
+          }
+          return null;
+      }
+  */
     public void setProcessProgress(String processProgress) {
         this.processProgress = processProgress;
     }
@@ -592,7 +773,64 @@ public class Project {
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
         project.setProjectStatus(this.projectStatus);
+        project.setLogisticsAudit(this.logisticsAudit);
+        project.setLogisticsAuditerId(this.getLogisticsAuditerId());
+        project.setLogisticsAuditer(this.logisticsAuditer);
+        project.setBuAuditerId(this.getBuAuditerId());
+        project.setBuAuditer(this.getBuAuditer());
         return true;
+    }
+    // 项目审核接口中使用，审核的原因字段
+    @Transient
+    private String auditingReason;
+    // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+    @Transient
+    private String auditingType;
+    // 审核日志，驳回操作使用
+    @Transient
+    private Integer checkLogId;
+    // 海外销售合同号
+    @Transient
+    private String contractNoOs;
+
+    public String getAuditingReason() {
+        return auditingReason;
+    }
+
+    public void setAuditingReason(String auditingReason) {
+        this.auditingReason = auditingReason;
+    }
+
+    public String getAuditingType() {
+        return auditingType;
+    }
+
+    public void setAuditingType(String auditingType) {
+        this.auditingType = auditingType;
+    }
+
+    public Integer getCheckLogId() {
+        return checkLogId;
+    }
+
+    public String getContractNoOs() {
+        return contractNoOs;
+    }
+
+    public void setContractNoOs(String contractNoOs) {
+        this.contractNoOs = contractNoOs;
+    }
+
+    public void setCheckLogId(Integer checkLogId) {
+        this.checkLogId = checkLogId;
+    }
+
+    public void setAudiRemark(String audiRemark) {
+        this.audiRemark = audiRemark;
+    }
+
+    public String getAudiRemark() {
+        return audiRemark;
     }
 
     /**

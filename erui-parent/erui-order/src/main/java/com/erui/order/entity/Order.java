@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,22 +23,22 @@ public class Order {
     private Integer id;
 
     @Column(name = "contract_no")
-    @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
+    @Size(max = 255, message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
 
     @Column(name = "framework_no")
-    @Size(max = 255,message = "框架协议号填写不规范，请重新输入")
+    @Size(max = 255, message = "框架协议号填写不规范，请重新输入")
     private String frameworkNo;
 
     @Column(name = "contract_no_os")
-    @Size(max = 255,message = "海外销售合同号填写不规范，请重新输入")
+    @Size(max = 255, message = "海外销售合同号填写不规范，请重新输入")
     private String contractNoOs;
 
     @Column(name = "po_no")
     private String poNo;
 
     @Column(name = "logi_quote_no")
-    @Size(max = 255,message = "物流报价单号填写不规范，请重新输入")
+    @Size(max = 255, message = "物流报价单号填写不规范，请重新输入")
     private String logiQuoteNo;
 
     @Column(name = "inquiry_no")
@@ -59,7 +58,7 @@ public class Order {
     private String deliveryDate;
 
     @Column(name = "signing_co")
-    @Size(max = 255,message = "合同交货日期填写不规范，请重新输入")
+    @Size(max = 255, message = "合同交货日期填写不规范，请重新输入")
     private String signingCo;
 
     @Column(name = "agent_id")
@@ -235,8 +234,8 @@ public class Order {
     //订单列表增加确认收货按钮标识
     @Transient
     private Boolean orderFinish = false;//true时可以确认收货
-   /*@Column(name = "delivery_date_no")
-    private Date deliveryDateNo;    //执行单约定交付日期*/
+    /*@Column(name = "delivery_date_no")
+     private Date deliveryDateNo;    //执行单约定交付日期*/
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
@@ -297,6 +296,137 @@ public class Order {
     //是否已经提交出库质检 1 未提交 2 已提交
     @Column(name = "inspect_n")
     private Integer inspectN;
+    //审批流所需字段
+    @Column(name = "auditing_status")
+    private Integer auditingStatus;   //审核状态
+
+    @Column(name = "auditing_process")
+    private Integer auditingProcess; //审核进度
+
+    @Column(name = "auditing_user_id")
+    private String auditingUserId;   //当前审核人ID，逗号分隔多个
+
+    @Column(name = "country_leader_id")
+    private Integer countryLeaderId; //国家负责人ID
+
+    @Column(name = "country_leader")
+    private String countryLeader;   //国家负责人
+
+    @Column(name = "area_leader_id")
+    private Integer areaLeaderId;   //区域负责Id
+
+    @Column(name = "area_leader")
+    private String areaLeader;      //区域负责人
+
+    @Column(name = "area_vp_id")
+    private Integer areaVpId;       //区域VP ID
+
+    @Column(name = "area_vp")
+    private String areaVp;          //区域VP
+
+    @Column(name = "per_liable_repay_id")
+    private Integer perLiableRepayId; //回款责任人
+    @Column(name = "audi_remark")
+    private String audiRemark;//所经过审核人
+    @Column(name = "financing_commissioner_id")
+    private Integer financingCommissionerId;//融资专员Id
+
+    public Integer getFinancingCommissionerId() {
+        return financingCommissionerId;
+    }
+
+    public void setFinancingCommissionerId(Integer financingCommissionerId) {
+        this.financingCommissionerId = financingCommissionerId;
+    }
+
+    public String getAudiRemark() {
+        return audiRemark;
+    }
+
+    public void setAudiRemark(String audiRemark) {
+        this.audiRemark = audiRemark;
+    }
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
+
+    public Integer getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
+    public Integer getCountryLeaderId() {
+        return countryLeaderId;
+    }
+
+    public void setCountryLeaderId(Integer countryLeaderId) {
+        this.countryLeaderId = countryLeaderId;
+    }
+
+    public String getCountryLeader() {
+        return countryLeader;
+    }
+
+    public void setCountryLeader(String countryLeader) {
+        this.countryLeader = countryLeader;
+    }
+
+    public Integer getAreaLeaderId() {
+        return areaLeaderId;
+    }
+
+    public void setAreaLeaderId(Integer areaLeaderId) {
+        this.areaLeaderId = areaLeaderId;
+    }
+
+    public String getAreaLeader() {
+        return areaLeader;
+    }
+
+    public void setAreaLeader(String areaLeader) {
+        this.areaLeader = areaLeader;
+    }
+
+    public Integer getAreaVpId() {
+        return areaVpId;
+    }
+
+    public void setAreaVpId(Integer areaVpId) {
+        this.areaVpId = areaVpId;
+    }
+
+    public String getAreaVp() {
+        return areaVp;
+    }
+
+    public void setAreaVp(String areaVp) {
+        this.areaVp = areaVp;
+    }
+
     public Integer getInspectN() {
         return inspectN;
     }
@@ -313,7 +443,6 @@ public class Order {
 
     @Transient
     private BigDecimal thisShipmentsMoney;    //本批次发货金额   未用到返回字段使用
-
 
 
     public void setInspectN(Integer inspectN) {
@@ -343,6 +472,7 @@ public class Order {
     public void setOverseasSales(Integer overseasSales) {
         this.overseasSales = overseasSales;
     }
+
     public Integer getOrderBelongs() {
         return orderBelongs;
     }
@@ -366,6 +496,7 @@ public class Order {
         }
         return null;
     }
+
     public String getEnProcessProgressName() {
         Project.enProjectProgressEnum enProjectProgressEnum = Project.enProjectProgressEnum.enProjectProgressFromCode(getProcessProgress());
         if (enProjectProgressEnum != null) {
@@ -394,11 +525,18 @@ public class Order {
         return totalPriceUsd;
     }
 
-    public String getTotalPriceUsdSplit() {
+    //金额千位以逗号分割
+    /*public String getTotalPriceUsdSplit() {
         if (getTotalPriceUsd() != null) {
             DecimalFormat decimalFormat = new DecimalFormat("#,###.#");
             String format = decimalFormat.format(getTotalPriceUsd());
             return format;
+        }
+        return null;
+    }*/
+    public BigDecimal getTotalPriceUsdSplit() {
+        if (getTotalPriceUsd() != null) {
+            return getTotalPriceUsd();
         }
         return null;
     }
@@ -531,29 +669,36 @@ public class Order {
             return null;
         }
         // 1 门户订单 2 门户询单 3 线下订单',
-        if (getOrderSource() == 1) {
-            return "门户订单";
-        } else if (getOrderSource() == 2) {
-            return "市场询单";
-        } else if (getOrderSource() == 3) {
-            return "线下订单";
+        if (getOrderSource() != null) {
+            if (getOrderSource() == 1) {
+                return "门户订单";
+            } else if (getOrderSource() == 2) {
+                return "市场询单";
+            } else if (getOrderSource() == 3) {
+                return "线下订单";
+            }
         }
         return null;
     }
+
+
     public String getEnOrderSourceName() {
         if (getOrderSource() == null) {
             return null;
         }
         // 1 门户订单 2 门户询单 3 线下订单',
-        if (getOrderSource() == 1) {
-            return "Online orders";
-        } else if (getOrderSource() == 2) {
-            return "BOSS inquiry";
-        } else if (getOrderSource() == 3) {
-            return "Offline orders";
+        if (getOrderSource() != null) {
+            if (getOrderSource() == 1) {
+                return "Online orders";
+            } else if (getOrderSource() == 2) {
+                return "BOSS inquiry";
+            } else if (getOrderSource() == 3) {
+                return "Offline orders";
+            }
         }
         return null;
     }
+
     public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
     }
@@ -620,13 +765,15 @@ public class Order {
             return "非油气";
         }
     }
+
     public String getEnOrderTypeName() {
-        if (getOrderType()!=null && getOrderType() == 1) {
+        if (getOrderType() != null && getOrderType() == 1) {
             return "Oil & gas";
         } else {
             return "Non-oil or gas";
         }
     }
+
     public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
@@ -875,6 +1022,7 @@ public class Order {
         }
         return null;
     }
+
     public String getEnPayStatusName() {
         // 1:未付款 2:部分付款 3:收款完成
         if (getPayStatus() == 1) {
@@ -886,6 +1034,7 @@ public class Order {
         }
         return null;
     }
+
     public void setPayStatus(Integer payStatus) {
         this.payStatus = payStatus;
     }
@@ -901,6 +1050,7 @@ public class Order {
         }
         return null;
     }
+
     public String getEnOrderStatusName() {
         Order.enStatusEnum enStatusEnum = Order.enFromCode(getStatus());
         if (enStatusEnum != null) {
@@ -908,6 +1058,7 @@ public class Order {
         }
         return null;
     }
+
     public void setStatus(Integer status) {
         this.status = status;
     }
@@ -1123,6 +1274,7 @@ public class Order {
         }
         return null;
     }
+
     public static enum enStatusEnum {
         INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished");
 
@@ -1142,6 +1294,7 @@ public class Order {
             return msg;
         }
     }
+
     public static enStatusEnum enFromCode(Integer code) {
         if (code != null) {
             for (enStatusEnum enStatusEnum : enStatusEnum.values()) {
@@ -1151,6 +1304,25 @@ public class Order {
             }
         }
         return null;
+    }
+
+
+    /**
+     * 审核状态
+     * //1：待审核、2：审核中、3：驳回、4：通过
+     */
+    public static enum AuditingStatusEnum {
+        WAIT(1), PROCESSING(2), REJECT(3), THROUGH(4);
+
+        private int status;
+
+        private AuditingStatusEnum(int status) {
+            this.status = status;
+        }
+
+        public int getStatus() {
+            return status;
+        }
     }
 
     public BigDecimal getLineOfCredit() {

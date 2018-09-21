@@ -4,6 +4,7 @@ import com.erui.order.entity.Attachment;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderPayment;
 
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,21 +17,21 @@ import java.util.List;
 public class AddOrderVo {
     private Integer id;
     //销售合同号
-    @Size(max = 255,message = "销售合同号填写不规范，请重新输入")
+    @Size(max = 255, message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
 
     //框架协议号
-    @Size(max = 255,message = "框架协议号填写不规范，请重新输入")
+    @Size(max = 255, message = "框架协议号填写不规范，请重新输入")
     private String frameworkNo;
     //海外销售合同号
-    @Size(max = 255,message = "海外销售合同号填写不规范，请重新输入")
+    @Size(max = 255, message = "海外销售合同号填写不规范，请重新输入")
     private String contractNoOs;
 
     //PO号
     private String poNo;
 
     //物流协议号
-    @Size(max = 255,message = "物流报价单号填写不规范，请重新输入")
+    @Size(max = 255, message = "物流报价单号填写不规范，请重新输入")
     private String logiQuoteNo;
     //询报价
     private String inquiryNo;
@@ -45,7 +46,7 @@ public class AddOrderVo {
     private Date signingDate;
 
     //合同签订日期
-    @Size(max = 255,message = "合同交货日期填写不规范，请重新输入")
+    @Size(max = 255, message = "合同交货日期填写不规范，请重新输入")
     private String deliveryDate;
 
     //签约主体公司
@@ -180,6 +181,40 @@ public class AddOrderVo {
 
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
     private Integer overseasSales;
+    //审批流所需
+    private Integer auditingStatus;   //审核状态
+
+    private Integer auditingProcess; //审核进度
+
+    private String auditingUserId;   //当前审核人ID，逗号分隔多个
+    private Integer countryLeaderId; //国家负责人ID
+
+    private String countryLeader;   //国家负责人
+
+    private Integer areaLeaderId;   //区域负责Id
+
+    private String areaLeader;      //区域负责人
+
+    private Integer areaVpId;       //区域VP ID
+
+    private String areaVp;          //区域VP
+
+    private Integer perLiableRepayId; //回款责任人
+    // 项目审核接口中使用，审核的原因字段
+    @Transient
+    private String auditingReason;
+    // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+    @Transient
+    private String auditingType;
+    //要驳回给哪个人
+    @Transient
+    private Integer returnToUser;
+    //要驳回的流程进度
+    @Transient
+    private Integer returnToProcess;
+    @Transient
+    private Integer checkLogId;//要驳回日志Id
+
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
@@ -187,6 +222,126 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getCheckLogId() {
+        return checkLogId;
+    }
+
+    public void setCheckLogId(Integer checkLogId) {
+        this.checkLogId = checkLogId;
+    }
+
+    public void setReturnToUser(Integer returnToUser) {
+        this.returnToUser = returnToUser;
+    }
+
+    public void setReturnToProcess(Integer returnToProcess) {
+        this.returnToProcess = returnToProcess;
+    }
+
+    public Integer getReturnToProcess() {
+        return returnToProcess;
+    }
+
+    public Integer getReturnToUser() {
+        return returnToUser;
+    }
+
+    public String getAuditingReason() {
+        return auditingReason;
+    }
+
+    public String getAuditingType() {
+        return auditingType;
+    }
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
+
+    public Integer getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
+    public void setAuditingReason(String auditingReason) {
+        this.auditingReason = auditingReason;
+    }
+
+    public void setAuditingType(String auditingType) {
+        this.auditingType = auditingType;
+    }
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
+
+    public Integer getCountryLeaderId() {
+        return countryLeaderId;
+    }
+
+    public void setCountryLeaderId(Integer countryLeaderId) {
+        this.countryLeaderId = countryLeaderId;
+    }
+
+    public String getCountryLeader() {
+        return countryLeader;
+    }
+
+    public void setCountryLeader(String countryLeader) {
+        this.countryLeader = countryLeader;
+    }
+
+    public Integer getAreaLeaderId() {
+        return areaLeaderId;
+    }
+
+    public void setAreaLeaderId(Integer areaLeaderId) {
+        this.areaLeaderId = areaLeaderId;
+    }
+
+    public String getAreaLeader() {
+        return areaLeader;
+    }
+
+    public void setAreaLeader(String areaLeader) {
+        this.areaLeader = areaLeader;
+    }
+
+    public Integer getAreaVpId() {
+        return areaVpId;
+    }
+
+    public void setAreaVpId(Integer areaVpId) {
+        this.areaVpId = areaVpId;
+    }
+
+    public String getAreaVp() {
+        return areaVp;
+    }
+
+    public void setAreaVp(String areaVp) {
+        this.areaVp = areaVp;
+    }
 
     public Integer getOrderCategory() {
         return orderCategory;
@@ -685,9 +840,9 @@ public class AddOrderVo {
         }
         order.setFrameworkNo(this.frameworkNo);
         order.setPoNo(this.poNo);
-        order.setContractNoOs(this.contractNoOs);
+        //order.setContractNoOs(this.contractNoOs);
         order.setInquiryNo(this.inquiryNo);
-        order.setLogiQuoteNo(this.logiQuoteNo);
+        //order.setLogiQuoteNo(this.logiQuoteNo);
         order.setOrderType(this.orderType);
         order.setOrderSource(this.orderSource);
         order.setSigningDate(this.signingDate);
@@ -701,6 +856,7 @@ public class AddOrderVo {
         order.setCountry(this.country);
         order.setCrmCode(this.crmCode);
         order.setCustomerType(this.customerType);
+        order.setPerLiableRepayId(this.perLiableRepayId);
         order.setPerLiableRepay(this.perLiableRepay);
         order.setBusinessUnitId(this.businessUnitId);
         order.setTechnicalId(this.technicalId);
