@@ -63,6 +63,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public PageInfo<Map<String, Object>> inquiryFailListByPage(Map<String, Object> params) {
         PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> failList = salesDataStatisticsMapper.inquiryFailListByPage(params);
+        for (Map<String,Object> failMap:failList) {
+            Date createdDate = (Date)failMap.get("created_at");
+            if (createdDate != null) {
+                failMap.put("created_at",DateUtil.format(DateUtil.FULL_FORMAT_STR,createdDate));
+            }
+        }
         PageInfo pageInfo = new PageInfo(failList);
         return pageInfo;
     }
