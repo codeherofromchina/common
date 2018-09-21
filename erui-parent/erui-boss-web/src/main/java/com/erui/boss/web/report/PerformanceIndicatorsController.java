@@ -38,9 +38,11 @@ public class PerformanceIndicatorsController {
     public Result<Object> add(HttpServletRequest request,@RequestBody PerformanceIndicators performanceIndicators) {
         Result<Object> result = new Result<>();
         HttpSession session = request.getSession();
-        Integer userid = (Integer)session.getAttribute("userid");
+        String userid = String.valueOf(session.getAttribute("userid"));
         String realname = (String)session.getAttribute("realname");
-        performanceIndicators.setCreateUserId(userid);
+        if (StringUtils.isNumeric(userid)) {
+            performanceIndicators.setCreateUserId(Integer.parseInt(userid));
+        }
         performanceIndicators.setCreateUserName(realname);
         Integer ptype = performanceIndicators.getPtype();
         // 检查指标类型错误
@@ -100,9 +102,11 @@ public class PerformanceIndicatorsController {
             return result;
         }
         HttpSession session = request.getSession();
-        Integer userid = (Integer)session.getAttribute("userid");
+        String userid = String.valueOf(session.getAttribute("userid"));
         String realname = (String)session.getAttribute("realname");
-        performanceIndicators.setCreateUserId(userid);
+        if (StringUtils.isNumeric(userid)) {
+            performanceIndicators.setCreateUserId(Integer.parseInt(userid));
+        }
         performanceIndicators.setCreateUserName(realname);
         Integer ptype = performanceIndicators.getPtype();
         // 检查指标类型错误

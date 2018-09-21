@@ -40,12 +40,17 @@ public class SalesmanNumsController {
     public Result<Object> add(HttpServletRequest request,@RequestBody Map<String,List<SalesmanNums>> params) {
         List<SalesmanNums> salesmanNumsList = params.get("data");
         HttpSession session = request.getSession();
-        Integer userid = (Integer) session.getAttribute("userid");
+        String userid2 = String.valueOf(session.getAttribute("userid"));
+        Integer userid = null;
+        if (StringUtils.isNumeric(userid2)) {
+            userid = Integer.parseInt(userid2);
+        }
+        Integer userid3= userid;
         String realname = (String)session.getAttribute("realname");
         Result<Object> result = new Result<>();
         if (salesmanNumsList != null && salesmanNumsList.size() > 0) {
             salesmanNumsList.parallelStream().forEach(vo -> {
-                vo.setCreateUserId(userid);
+                vo.setCreateUserId(userid3);
                 vo.setCreateUserName(realname);
             });
             try {
@@ -99,9 +104,11 @@ public class SalesmanNumsController {
             return result;
         }
         HttpSession session = request.getSession();
-        Integer userid = (Integer) session.getAttribute("userid");
+        String userid = String.valueOf(session.getAttribute("userid"));
         String realname = (String)session.getAttribute("realname");
-        salesmanNums.setCreateUserId(userid);
+        if (StringUtils.isNumeric(userid)) {
+            salesmanNums.setCreateUserId(Integer.parseInt(userid));
+        }
         salesmanNums.setCreateUserName(realname);
         int flag = salesmanNumsService.update(salesmanNums);
         if (1 == flag) {
