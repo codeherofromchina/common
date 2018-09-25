@@ -309,7 +309,7 @@ public class OrderController {
         }
         // 判断通过，审核项目并返回是否审核成功
         boolean flag;
-        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
+        if (addOrderVo.getStatus() != null && addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             orderService.updateOrder(addOrderVo);
             flag = true;
         } else {
