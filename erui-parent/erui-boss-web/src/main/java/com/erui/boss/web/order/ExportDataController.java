@@ -107,6 +107,14 @@ public class ExportDataController {
         HSSFWorkbook data = statisticsService.generateProjectStatisticsExcel(condition);
         downExcel(data, response, "项目执行统计");
     }
+    // 项目详情统计信息导出
+    @RequestMapping("/projectDescStatistics")
+    public void projectDescStatistics(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> condition = getParameters(request);
+        // 获取统计数据
+        HSSFWorkbook data = statisticsService.generateProjectStatisticsExcel(condition);
+        downExcel(data, response, "项目详情执行统计");
+    }
 
 
     // 商品台账详情excel
@@ -185,12 +193,12 @@ public class ExportDataController {
            /* String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
                     "crmCode", "orderTypeName", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};*/
             String[] keys = new String[]{"contractNo", "projectNo", "inquiryNo", "businessName", "businessUnitName", "deliveryDate",
-                    "crmCode", "totalPriceUsdSplit", "payStatusName", "orderStatusName", "processProgressName"};
+                    "crmCode", "getTotalPriceUsd", "payStatusName", "orderStatusName", "processProgressName"};
             //"currencyBn"
            /* String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
                     "crmCode", "enOrderTypeName", "totalPriceUsdSplit", "enPayStatusName", "enOrderSourceName", "enOrderStatusName", "enProcessProgressName"};*/
             String[] enKeys = new String[]{"contractNo", "projectNo", "inquiryNo", "businessName", "businessUnitName", "deliveryDate",
-                    "crmCode", "totalPriceUsdSplit", "enPayStatusName", "enOrderStatusName", "enProcessProgressName"};
+                    "crmCode", "getTotalPriceUsd", "enPayStatusName", "enOrderStatusName", "enProcessProgressName"};
             BuildExcel buildExcel = new BuildExcelImpl();
             Object objArr = JSON.toJSON(orderList);
             HSSFWorkbook workbook;
