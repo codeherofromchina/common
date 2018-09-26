@@ -1031,6 +1031,14 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
             projectAdd.setAuditingStatus(1);
+            //添加项目利润核算单信息
+            ProjectProfit projectProfit = new ProjectProfit();
+            projectProfit.setCountry(orderUpdate.getCountry());
+            projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
+            projectProfit.setContractAmountUsd(orderUpdate.getTotalPriceUsd());
+            projectProfit.setExchangeRate(orderUpdate.getExchangeRate());
+            projectAdd.setProjectProfit(projectProfit);
+
             //商务技术经办人名称
             projectDao.save(projectAdd);
             // 调用CRM系统，触发CRM用户升级任务

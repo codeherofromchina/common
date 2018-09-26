@@ -159,6 +159,9 @@ public class Project {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "project")
+    @JsonIgnore
+    private ProjectProfit projectProfit;
     /**
      * 审核人列表信息
      */
@@ -210,6 +213,14 @@ public class Project {
     private Integer chairmanId;        //董事长审核人id
 
     private String chairman;           //董事长审核人
+
+    public ProjectProfit getProjectProfit() {
+        return projectProfit;
+    }
+
+    public void setProjectProfit(ProjectProfit projectProfit) {
+        this.projectProfit = projectProfit;
+    }
 
     public Integer getLogisticsAudit() {
         return logisticsAudit;
@@ -778,6 +789,7 @@ public class Project {
         project.setLogisticsAuditer(this.logisticsAuditer);
         project.setBuAuditerId(this.getBuAuditerId());
         project.setBuAuditer(this.getBuAuditer());
+        project.setProjectProfit(this.projectProfit);
         return true;
     }
     // 项目审核接口中使用，审核的原因字段

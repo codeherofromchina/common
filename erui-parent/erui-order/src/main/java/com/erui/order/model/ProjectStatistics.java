@@ -1,5 +1,6 @@
 package com.erui.order.model;
 
+import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -7,7 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 项目执行统计
@@ -53,6 +56,7 @@ public class ProjectStatistics {
         this.currencyBn = order.getCurrencyBn();
         this.createTime = project.getCreateTime();
         this.orderCategory = order.getOrderCategory();
+        this.goodsList = order.getGoodsList();
     }
     //订单ID
     private Integer orderId;
@@ -141,6 +145,16 @@ public class ProjectStatistics {
     private Date createTime;
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     private Integer orderCategory;
+    //订单商品
+    private List<Goods> goodsList = new ArrayList<>();
+
+    public List<Goods> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<Goods> goodsList) {
+        this.goodsList = goodsList;
+    }
 
     public Date getCreateTime() {
         return createTime;
