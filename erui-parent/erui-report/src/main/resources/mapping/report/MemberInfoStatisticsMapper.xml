@@ -157,4 +157,48 @@
             DESC
         </if>
     </select>
+
+
+    <!-- 成单客户信息 -->
+    <select id="singleCustomer" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name`,
+        SUM(t1.inquiryNum) AS inquiryNum,
+        SUM(t1.orderNum) AS orderNum,
+        CASE SUM(t1.inquiryNum)
+        WHEN 0 THEN 0
+        ELSE SUM(t1.orderNum) / SUM(t1.inquiryNum)
+        END AS rate
+        FROM
+        (SELECT
+        business_unit_id AS org_id,
+        0 AS inquiryNum,
+        COUNT(1) AS orderNum
+        FROM
+        erui_new_order.`order`, erui_new_order.`project`
+        WHERE
+        `order`.id = `project`.order_id
+        AND `status` >= 3
+        <if test="startTime!=null and startTime!=''">
+            AND `project`.start_date BETWEEN #{startTime} AND #{endTime}
+        </if>
+        GROUP BY business_unit_id
+            UNION ALL
+        SELECT org_id, COUNT(1) AS inquiryNum, 0 AS orderNum
+        FROM
+        erui_rfq.inquiry
+        WHERE
+        deleted_flag = 'N'
+        AND `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSE')
+        AND quote_status IN ('QUOTED' , 'COMPLETED')
+        <if test="startTime!=null and startTime!=''">
+            AND inflow_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        GROUP BY org_id) AS t1
+        LEFT JOIN
+        erui_sys.org t2 ON t1.org_id = t2.id
+        AND t2.deleted_flag = 'N'
+        GROUP BY t2.`name`
+        ORDER BY 4 DESC
+    </select>
 </mapper>

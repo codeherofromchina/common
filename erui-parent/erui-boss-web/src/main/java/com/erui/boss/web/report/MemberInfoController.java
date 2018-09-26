@@ -148,10 +148,20 @@ public class MemberInfoController {
      */
     @ResponseBody
     @RequestMapping(value = "singleCustomer", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> singleCustomer() {
-
-
-        return null;
+    public Result<Object> singleCustomer(@RequestBody Map<String, Object> params) {
+        List<Map<String,Object>> data = null;
+        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params02 == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        data = memberInfoService.singleCustomer(params);
+        Result<Object> result = new Result<>();
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
     }
 
 }

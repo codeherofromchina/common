@@ -49,4 +49,11 @@ public interface MemberInfoStatisticsMapper {
      * @return
      */
     List<Map<String,Object>> membershipByCountry(Map<String, Object> params);
+
+    /**
+     * 成单客户信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> singleCustomer(Map<String, Object> params);
 }

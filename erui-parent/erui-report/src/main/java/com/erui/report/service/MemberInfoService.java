@@ -48,4 +48,11 @@ public interface MemberInfoService {
      * @return
      */
     Map<String,List<Object>> membershipByCountry(Map<String, Object> params);
+
+    /**
+     * 成单客户信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> singleCustomer(Map<String, Object> params);
 }
