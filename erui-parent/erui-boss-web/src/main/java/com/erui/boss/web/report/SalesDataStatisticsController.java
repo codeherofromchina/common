@@ -76,7 +76,7 @@ public class SalesDataStatisticsController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         String type = String.valueOf(params.get("type"));
-        if ("1" == type) {
+        if ("1".equals(type)) {
             /// 活跃会员信息
             data = supplierchainService.activeMemberStatistics(params);
         } else {
