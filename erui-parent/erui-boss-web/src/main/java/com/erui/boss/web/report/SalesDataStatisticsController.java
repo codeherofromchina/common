@@ -76,7 +76,7 @@ public class SalesDataStatisticsController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         String type = String.valueOf(params.get("type"));
-        if ("1" == type) {
+        if ("1".equals(type)) {
             /// 活跃会员信息
             data = supplierchainService.activeMemberStatistics(params);
         } else {
@@ -177,14 +177,14 @@ public class SalesDataStatisticsController {
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
         if ("1".equals(type)) {
-            // 报价金额按事业部统计
-            data = supplierchainService.quoteAmountGroupOrg(params);
+            // 报价金额按地区统计
+            data = supplierchainService.quoteAmountGroupArea(params);
         } else if ("2".equals(type)) {
-            // 询单数量按事业部统计
-            data = supplierchainService.inquiryNumbersGroupOrg(params);
+            // 询单数量按地区统计
+            data = supplierchainService.inquiryNumbersGroupArea(params);
         } else if ("3".equals(type)) {
-            // 报价数量按事业部统计
-            data = supplierchainService.quoteNumbersGroupOrg(params);
+            // 报价数量按地区统计
+            data = supplierchainService.quoteNumbersGroupArea(params);
         } else {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }
@@ -448,15 +448,15 @@ public class SalesDataStatisticsController {
         if ("1".equals(type)) {
             data = supplierchainService.orderInfoDoneRateGroupbyOrg(params);
         } else if ("2".equals(type)) {
-            // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
+            data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
         } else if ("3".equals(type)) {
-            //data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
+            data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
         }
         if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
         }
-        return null;
+        return result;
     }
 }

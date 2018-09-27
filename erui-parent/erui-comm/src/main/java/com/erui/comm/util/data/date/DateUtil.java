@@ -450,38 +450,6 @@ public class DateUtil {
         return 0;
     }
 
-    public static void main(String[] args) {
-        //System.out.println(str2Date("1992-12-12"));
-//        int daysBetween = getDayBetween(str2Date("2017-11-16"), new Date());
-//        Date monthFirstDay = getMonthFirstDay(new Date());
-//        Date nextMonthFirstDay = getNextMonthFirstDay(str2Date("1992-12-12"));
-//        Date nextMonthLastDay = getNextMonthLastDay(str2Date("1992-12-12"));
-//        Date week = getWeek(new Date(), 5);
-//        Date beforeWeek = getBeforeWeek(new Date(), 7);
-//        System.out.println(beforeWeek);
-//        System.out.println("周"+week);
-//        System.out.println(monthFirstDay);
-//        System.out.println(nextMonthFirstDay);
-//        System.out.println(nextMonthLastDay);
-//        System.out.println(daysBetween);
-//        String week = getWeekOfDate(new Date());
-//        Date weekSix =getWeekSix(6);
-//        Date dateAfter = getDateAfter(new Date(), 8);
-//        String s = formatDateToString(dateAfter,FULL_FORMAT_STR);
-//        Date beforTime = getBeforTime(new Date(), 3600000);
-//        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-//        System.out.println(formatter.format(beforTime));
-        String today = "2017-11-11";
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = null;
-        try {
-            date = format.parse(today);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        int weekNumber = getYearNumber(date);
-        System.out.println(weekNumber);
-    }
 
     /**
      * 对当前时间做加减计算
@@ -649,8 +617,8 @@ public class DateUtil {
 
 
     /**
+     * @param timeUnit Calendar的常量数值，例如Calendar.SECOND
      * @Description 求某日期的前多少时间
-     * @param  timeUnit Calendar的常量数值，例如Calendar.SECOND
      * @Date:14:09 2017/11/13
      * @modified By
      */
@@ -728,4 +696,64 @@ public class DateUtil {
         return null;
     }
 
+    /**
+     * 计算在给定范围的日期内总共占有多少天
+     *
+     * @param startDate
+     * @param endDate
+     * @param rangeStartDate
+     * @param rangeEndDate
+     * @return
+     */
+    public static int inRangeDateDayNum(Date startDate, Date endDate, Date rangeStartDate, Date rangeEndDate) {
+        if (startDate.compareTo(endDate) > 0 || startDate.compareTo(rangeEndDate) > 0 || endDate.compareTo(rangeStartDate) < 0) {
+            return 0;
+        }
+        int result = 0;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startDate);
+        while (startDate.compareTo(endDate) <= 0) {
+            if (startDate.compareTo(rangeEndDate) > 0) { // 超过范围则直接退出
+                break;
+            }
+            if (startDate.compareTo(rangeStartDate) >= 0) { // 在范围内则增加天数
+                result++;
+            }
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+            startDate = cal.getTime();
+        }
+
+
+        return result;
+    }
+
+    /**
+     * 计算两个日期之间的时间差
+     *
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static int diffDayNum(Date startDate, Date endDate) {
+        int result = 0;
+        if (startDate.compareTo(endDate) <= 0) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(startDate);
+            do {
+                result++;
+                cal.add(Calendar.DAY_OF_YEAR, 1);
+            } while (cal.getTime().compareTo(endDate) <= 0);
+        }
+        return result;
+    }
+
+
+    public static void main(String[] args) throws ParseException {
+        Date startDate = parseStringToDate("2018-01-01 00:00:00", FULL_FORMAT_STR);
+        Date endDate = parseStringToDate("2018-01-08 00:00:00", FULL_FORMAT_STR);
+        Date rangeStartDate = parseStringToDate("2018-01-02 00:00:00", FULL_FORMAT_STR);
+        Date rangeEndDate = parseStringToDate("2018-01-03 23:59:59", FULL_FORMAT_STR);
+        int i = inRangeDateDayNum(startDate, endDate, rangeStartDate, rangeEndDate);
+        System.out.println(i);
+    }
 }

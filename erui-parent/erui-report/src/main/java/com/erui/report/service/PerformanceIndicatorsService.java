@@ -38,4 +38,25 @@ public interface PerformanceIndicatorsService {
      */
     PageInfo<PerformanceIndicators> list(Map<String, Object> params);
 
+    /**
+     * 查找时间段内的事业部业绩指标信息
+     * @param params
+     * @return
+     */
+    Map<Integer,Map<String,Object>> performanceIndicatorsWhereTimeByOrg(Map<String, Object> params);
+
+    /**
+     * 查找时间段内的地区业绩指标信息
+     * @param params
+     * @return
+     */
+    Map<String,Map<String,Object>> performanceIndicatorsWhereTimeByArea(Map<String, Object> params);
+
+
+    /**
+     * 查找时间段内的国家业绩指标信息
+     * @param params
+     * @return
+     */
+    Map<String,Map<String,Object>> performanceIndicatorsWhereTimeByCountry(Map<String, Object> params);
 }
