@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsService {
-    private static final String UNKNOW = "未知";
+    private static final String UNKNOW = "其他";
     @Autowired
     private SalesDataStatisticsMapper salesDataStatisticsMapper;
     // 业绩指标业务类

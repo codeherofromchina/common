@@ -581,47 +581,48 @@
     </select>
     <!-- 销售数据统计 - 订单数据统计 - 复购周期 -->
     <select id="orderInfoBuyCycle" parameterType="java.util.Map" resultType="java.util.Map">
-                SELECT
-                tb1.buyer_code,
-                tb2.`name` AS countryName,
-                tb1.country_bn,
-                tb1.area_bn,
-                tb3.`name` AS areaName,
-                tb1.cycle
-                FROM
-                (SELECT
-                t1.crm_code AS buyer_code,
-                t1.country AS country_bn,
-                t1.region AS area_bn,
-                CASE
-                WHEN COUNT(1) > 1 THEN DATEDIFF(MAX(t1.create_time), MIN(t1.create_time)) / COUNT(1)
-                ELSE 0
-                END AS cycle
-                FROM
-                erui_new_order.`order` t1, erui_new_order.`project` t4
-                WHERE
-                t1.`status` >= 3 and t1.id = t4.order_id
-                AND t1.crm_code IS NOT NULL
-                AND t1.crm_code != ''
-                <if test="startTime!=null and startTime!=''">
-                    AND t4.start_date BETWEEN #{startTime} AND #{endTime}
-                </if>
-                GROUP BY buyer_code , country_bn , area_bn) AS tb1
-                LEFT JOIN
-                erui_operation.market_area tb2 ON tb1.area_bn = tb2.bn AND tb2.lang = 'zh'
-                LEFT JOIN
-                erui_dict.country tb3 ON tb1.country_bn = tb3.bn
-                AND tb3.lang = 'zh'
-                    where 1=1
-                <if test="countryBn!=null and countryBn!=''">
-                    AND tb1.country_bn = #{countryBn}
-                </if>
-                <if test="areaBn!=null and areaBn!=''">
-                    AND tb1.area_bn = #{areaBn}
-                </if>
-                <if test="buyerCode!=null and buyerCode!=''">
-                    AND tb1.buyer_code LIKE '%${buyerCode}%'
-                </if>
+            SELECT
+            tb1.buyer_code,
+            tb2.`name` AS areaName,
+            tb1.country_bn,
+            tb1.area_bn,
+            tb3.`name` AS countryName,
+            tb1.cycle
+            FROM
+            (SELECT
+            t5.buyer_no AS buyer_code,
+            t5.country_bn AS country_bn,
+            t5.area_bn AS area_bn,
+            CASE
+            WHEN COUNT(1) > 1 THEN DATEDIFF(MAX(t1.create_time), MIN(t1.create_time)) / COUNT(1)
+            ELSE 0
+            END AS cycle
+            FROM
+            erui_new_order.`order` t1, erui_new_order.`project` t4, erui_buyer.`buyer` t5
+            WHERE
+            t1.`status` >= 3 AND t1.id = t4.order_id
+            AND t1.buyer_id IS NOT NULL
+            AND t1.buyer_id = t5.id
+            <if test="startTime!=null and startTime!=''">
+                AND t4.start_date BETWEEN #{startTime} AND #{endTime}
+            </if>
+            GROUP BY t5.buyer_no , t5.country_bn , t5.area_bn) AS tb1
+            LEFT JOIN
+            erui_operation.market_area tb2 ON tb1.area_bn = tb2.bn AND tb2.lang = 'zh'
+            LEFT JOIN
+            erui_dict.country tb3 ON tb1.country_bn = tb3.bn
+            AND tb3.lang = 'zh'
+            WHERE
+            1 = 1
+            <if test="countryBn!=null and countryBn!=''">
+                AND tb1.country_bn = #{countryBn}
+            </if>
+            <if test="areaBn!=null and areaBn!=''">
+                AND tb1.area_bn = #{areaBn}
+            </if>
+            <if test="buyerCode!=null and buyerCode!=''">
+                AND tb1.buyer_code LIKE '%${buyerCode}%'
+            </if>
     </select>
 
 
