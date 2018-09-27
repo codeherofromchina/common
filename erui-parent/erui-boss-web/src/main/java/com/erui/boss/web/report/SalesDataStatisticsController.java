@@ -448,15 +448,15 @@ public class SalesDataStatisticsController {
         if ("1".equals(type)) {
             data = supplierchainService.orderInfoDoneRateGroupbyOrg(params);
         } else if ("2".equals(type)) {
-            // data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
+            data =  supplierchainService.orderInfoDoneRateGroupbyArea(params);
         } else if ("3".equals(type)) {
-            //data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
+            data =  supplierchainService.orderInfoDoneRateGroupbyCountry(params);
         }
         if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         } else {
             result.setData(data);
         }
-        return null;
+        return result;
     }
 }

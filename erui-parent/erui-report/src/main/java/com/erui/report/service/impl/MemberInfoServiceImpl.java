@@ -1,9 +1,8 @@
 package com.erui.report.service.impl;
 
-import com.erui.report.dao.CommonMapper;
 import com.erui.report.dao.MemberInfoStatisticsMapper;
-import com.erui.report.service.CommonService;
 import com.erui.report.service.MemberInfoService;
+import com.erui.report.service.SalesmanNumsService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,10 +10,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wangxiaodan on 2018/9/12.
@@ -24,6 +21,8 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
     @Autowired
     private MemberInfoStatisticsMapper memberInfoStatisticsMapper;
+    @Autowired
+    private SalesmanNumsService salesmanNumsService;
 
     /**
      * 按照地区统计会员等级
@@ -110,6 +109,49 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return resultData;
     }
 
+    @Override
+    public Map<String, List<Object>> signingBodyByArea(Map<String, Object> params) {
+        List<Map<String, Object>> signingBodyList = memberInfoStatisticsMapper.signingBodyByArea(params);
+        Map<String, List<Object>> result = _handleSigningBodyData(signingBodyList);
+        return result;
+    }
+
+    @Override
+    public Map<String, List<Object>> signingBodyByCountry(Map<String, Object> params) {
+        List<Map<String, Object>> signingBodyList = memberInfoStatisticsMapper.signingBodyByCountry(params);
+        Map<String, List<Object>> result = _handleSigningBodyData(signingBodyList);
+        return result;
+    }
+
+    @Override
+    public Map<String, List<Object>> signingBodyByOrg(Map<String, Object> params) {
+        List<Map<String, Object>> signingBodyList = memberInfoStatisticsMapper.signingBodyByOrg(params);
+        Map<String, List<Object>> result = _handleSigningBodyData(signingBodyList);
+        return result;
+    }
+
+    @Override
+    public Map<String, List<Object>> efficiencyByArea(Map<String, Object> params) {
+        // 获取数据
+        List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByArea(params);
+        Map<String, Integer> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 处理数据
+        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, List<Object>> efficiencyByCountry(Map<String, Object> params) {
+        // 获取数据
+        List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByCountry(params);
+        Map<String, Integer> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 处理数据
+        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
+        return resultMap;
+    }
+
     /**
      * 处理会员等级数据
      *
@@ -156,4 +198,103 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         result.put("numList", numList);
         return result;
     }
+
+    /**
+     * 处理签约主体数据
+     *
+     * @param signingBodyList
+     * @return
+     */
+    private Map<String, List<Object>> _handleSigningBodyData(List<Map<String, Object>> signingBodyList) {
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> nameList = new ArrayList<>();
+        List<Object> eruiNumList = new ArrayList<>();
+        List<Object> otherNumList = new ArrayList<>();
+        for (Map<String, Object> map : signingBodyList) {
+            Object name = map.get("name");
+            Object eruiNum = map.get("eruiNum");
+            Object otherNum = map.get("otherNum");
+            nameList.add(name == null ? "未知" : name);
+            eruiNumList.add(eruiNum);
+            otherNumList.add(otherNum);
+        }
+        result.put("nameList", nameList);
+        result.put("eruiNumList", eruiNumList);
+        result.put("otherNumList", otherNumList);
+        return result;
+    }
+
+    /**
+     * 处理人均效能统计数据
+     *
+     * @param orderTotalPriceList
+     * @param totalNumMap
+     * @param ascFlag             true:升序  false:降序
+     * @return
+     */
+    private Map<String, List<Object>> _handleEfficiencyData(List<Map<String, Object>> orderTotalPriceList, Map<String, Integer> totalNumMap, boolean ascFlag) {
+        Set<String> areaNameList = new HashSet<>();
+        areaNameList.addAll(totalNumMap.keySet());
+        Map<String, BigDecimal> orderTotalPriceMap = orderTotalPriceList.stream().collect(Collectors.toMap(vo -> {
+            String name = (String) vo.get("name");
+            areaNameList.add(name);
+            return name;
+        }, vo -> (BigDecimal) vo.get("totalPriceUsd")));
+
+        int totalNum = 0;
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        BigDecimal tenThousand = new BigDecimal(10000);
+        List<Object[]> list = new ArrayList<>();
+        for (String areaName : areaNameList) {
+            Integer num = totalNumMap.get(areaName);
+            BigDecimal price = orderTotalPriceMap.get(areaName);
+            if (num == null) {
+                num = 0;
+            }
+            if (price == null) {
+                price = BigDecimal.ZERO;
+            }
+
+            Object[] objArr = new Object[2];
+            objArr[0] = areaName;
+            if (num == 0) {
+                objArr[1] = BigDecimal.ZERO;
+            } else {
+                objArr[1] = price.divide(new BigDecimal(num),0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
+            }
+            list.add(objArr);
+
+            totalNum += num;
+            totalPrice = totalPrice.add(price);
+        }
+
+        list.sort(new Comparator<Object[]>() {
+            @Override
+            public int compare(Object[] o1, Object[] o2) {
+                BigDecimal bd01 = (BigDecimal) o1[1];
+                BigDecimal bd02 = (BigDecimal) o2[1];
+                if (ascFlag) {
+                    return bd01.compareTo(bd02);
+                } else {
+                    return -bd01.compareTo(bd02);
+                }
+            }
+        });
+
+        List<Object> nameList = new ArrayList<>();
+        List<Object> dataList = new ArrayList<>();
+        list.stream().forEach(vo -> {
+            nameList.add((String) vo[0]);
+            dataList.add((BigDecimal) vo[1]);
+        });
+        nameList.add("合计");
+        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalPrice.divide(new BigDecimal(totalNum),0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN));
+        Map<String, List<Object>> result = new HashMap<>();
+        result.put("nameList", nameList);
+        result.put("dataList", dataList);
+
+        return result;
+    }
+
+
 }

@@ -201,4 +201,111 @@
         GROUP BY t2.`name`
         ORDER BY 4 DESC
     </select>
+
+    <!-- 按照地区统计会员签约主体 -->
+    <select id="signingBodyByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS `name`,
+        SUM(CASE t1.signing_co
+        WHEN '易瑞国际电子商务有限公司' THEN 1
+        ELSE 0
+        END) AS eruiNum,
+        SUM(CASE
+        WHEN t1.signing_co <![CDATA[ <> ]]> '易瑞国际电子商务有限公司' THEN 1
+        ELSE 0
+        END) AS otherNum
+        FROM
+        erui_new_order.`order` AS t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
+        AND t3.deleted_flag = 'N',
+        erui_new_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+        ORDER BY COUNT(1) DESC
+    </select>
+    <!-- 按照国家统计会员签约主体 -->
+    <select id="signingBodyByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS `name`,
+        SUM(CASE t1.signing_co
+        WHEN '易瑞国际电子商务有限公司' THEN 1
+        ELSE 0
+        END) AS eruiNum,
+        SUM(CASE
+        WHEN t1.signing_co <![CDATA[ <> ]]> '易瑞国际电子商务有限公司' THEN 1
+        ELSE 0
+        END) AS otherNum
+        FROM
+        erui_new_order.`order` AS t1
+        LEFT JOIN
+        erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
+        AND t3.deleted_flag = 'N',
+        erui_new_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+        ORDER BY COUNT(1) DESC
+    </select>
+    <!-- 按照事业部统计会员签约主体 -->
+    <select id="signingBodyByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS `name`,
+        SUM(CASE t1.signing_co
+        WHEN '易瑞国际电子商务有限公司' THEN 1
+        ELSE 0
+        END) AS eruiNum,
+        SUM(CASE
+        WHEN t1.signing_co <![CDATA[ <> ]]> '易瑞国际电子商务有限公司' THEN 1
+        ELSE 0
+        END) AS otherNum
+        FROM
+        erui_new_order.`order` AS t1
+        LEFT JOIN
+        erui_sys.org t3 ON t1.business_unit_id = t3.id
+        AND t3.deleted_flag = 'N',
+        erui_new_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+        ORDER BY COUNT(1) DESC
+    </select>
+
+    <!-- 按地区获取订单的总金额 -->
+    <select id="orderTotalPriceByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            IFNULL(t3.`name`, '未知') AS `name`,
+            SUM(t1.total_price_usd) AS totalPriceUsd
+        FROM
+            erui_new_order.`order` AS t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
+                AND t3.deleted_flag = 'N',
+            erui_new_order.`project` AS t2
+        WHERE
+            t1.id = t2.order_id AND t1.`status` >= 3
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 按国家获取订单的总金额 -->
+    <select id="orderTotalPriceByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        IFNULL(t3.`name`, '未知') AS `name`,
+        SUM(t1.total_price_usd) AS totalPriceUsd
+        FROM
+        erui_new_order.`order` AS t1
+        LEFT JOIN
+        erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
+        AND t3.deleted_flag = 'N',
+        erui_new_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+    </select>
 </mapper>

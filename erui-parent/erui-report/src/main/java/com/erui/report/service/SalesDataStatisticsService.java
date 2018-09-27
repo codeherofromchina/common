@@ -181,4 +181,18 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orderInfoDoneRateGroupbyOrg(Map<String, Object> params);
+
+    /**
+     * 地区完成率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderInfoDoneRateGroupbyArea(Map<String, Object> params);
+
+    /**
+     * 国家完成率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderInfoDoneRateGroupbyCountry(Map<String, Object> params);
 }

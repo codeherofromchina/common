@@ -55,4 +55,39 @@ public interface MemberInfoService {
      * @return
      */
     List<Map<String,Object>> singleCustomer(Map<String, Object> params);
+
+    /**
+     * 按照地区统计会员签约主体
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> signingBodyByArea(Map<String, Object> params);
+
+    /**
+     * 按照国家统计会员签约主体
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> signingBodyByCountry(Map<String, Object> params);
+
+    /**
+     * 按照事业部统计会员签约主体
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> signingBodyByOrg(Map<String, Object> params);
+
+    /**
+     * 人均效能统计 - 地区统计
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> efficiencyByArea(Map<String, Object> params);
+
+    /**
+     * 人均效能统计 - 国家统计
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> efficiencyByCountry(Map<String, Object> params);
 }

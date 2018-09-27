@@ -27,19 +27,36 @@ public class MemberInfoController {
 
     /**
      * 人均效能统计
+     *
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "efficiency", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> efficiency() {
-
-
-        return null;
+    public Result<Object> efficiency(@RequestBody Map<String, Object> params) {
+        Map<String, List<Object>> data = null;
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = String.valueOf(params.get("type"));
+        if ("1".equals(type)) { // 人均效能统计 - 地区统计
+            data = memberInfoService.efficiencyByArea(params);
+        } else if ("2".equals(type)) { // 人均效能统计 - 国家统计
+            data = memberInfoService.efficiencyByCountry(params);
+        }
+        Result<Object> result = new Result<>();
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
     }
 
 
     /**
      * 客户拜访统计
+     *
      * @return
      */
     @ResponseBody
@@ -70,6 +87,7 @@ public class MemberInfoController {
 
     /**
      * 会员统计
+     *
      * @return
      */
     @ResponseBody
@@ -98,9 +116,9 @@ public class MemberInfoController {
     }
 
 
-
     /**
      * 会员等级
+     *
      * @return
      */
     @ResponseBody
@@ -131,26 +149,49 @@ public class MemberInfoController {
 
     /**
      * 会员签约主体
+     *
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "signingBody", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> signingBody() {
+    public Result<Object> signingBody(@RequestBody Map<String, Object> params) {
+        Map<String, List<Object>> data = null;
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = String.valueOf(params.get("type"));
+        if ("1".equals(type)) { // 地区
+            /// 按照地区统计会员签约主体
+            data = memberInfoService.signingBodyByArea(params);
+        } else if ("2".equals(type)) { // 国家
+            /// 按照国家统计会员签约主体
+            data = memberInfoService.signingBodyByCountry(params);
+        } else if ("3".equals(type)) { // 事业部
+            /// 按照事业部统计会员签约主体
+            data = memberInfoService.signingBodyByOrg(params);
+        }
 
-
-        return null;
+        Result<Object> result = new Result<>();
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
     }
 
 
     /**
      * 成单客户
+     *
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "singleCustomer", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> singleCustomer(@RequestBody Map<String, Object> params) {
-        List<Map<String,Object>> data = null;
-        Map<String,Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        List<Map<String, Object>> data = null;
+        Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }

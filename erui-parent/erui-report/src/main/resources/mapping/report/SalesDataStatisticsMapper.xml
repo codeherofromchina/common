@@ -677,45 +677,57 @@
     <!-- 订单数据统计 - 订单的事业部分组完成金额 -->
     <select id="orderInfoDonePriceGroupbyOrg" parameterType="java.util.Map" resultType="java.util.Map">
             SELECT
-                t1.business_unit_id AS orgId,
+                t1.business_unit_id AS `key`,
+                t3.`name` AS `name`,
                 SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice
             FROM
-                erui_new_order.`order` AS t1,
+                erui_new_order.`order` AS t1
+                    LEFT JOIN
+                erui_sys.org t3 ON t1.business_unit_id = t3.id,
                 erui_new_order.`project` AS t2
             WHERE
                 t1.id = t2.order_id AND t1.`status` > 2
                     AND t1.business_unit_id IS NOT NULL
+                    AND t3.`name` IS NOT NULL
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
-            GROUP BY t1.business_unit_id
+            GROUP BY t1.business_unit_id , t3.`name`
     </select>
 
     <!-- 订单数据统计 - 订单的地区分组完成金额 -->
     <select id="orderInfoDonePriceGroupbyArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t1.region AS area_bn,
+            t1.region AS `key`,
+            t3.`name` AS `name`,
             SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice
         FROM
-            erui_new_order.`order` AS t1,
+            erui_new_order.`order` AS t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
             erui_new_order.`project` AS t2
         WHERE
             t1.id = t2.order_id AND t1.`status` > 2
                 AND t1.region IS NOT NULL
+                AND t3.`name` IS NOT NULL
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
-        GROUP BY t1.region
+        GROUP BY t1.region , t3.`name`
     </select>
 
     <!-- 订单数据统计 - 订单的国家分组完成金额 -->
     <select id="orderInfoDonePriceGroupbyCountry" parameterType="java.util.Map" resultType="java.util.Map">
             SELECT
-                t1.country AS country_bn,
+                t1.country AS `key`,
+                t3.`name` AS `name`,
                 SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice
             FROM
-                erui_new_order.`order` AS t1,
+                erui_new_order.`order` AS t1
+                    LEFT JOIN
+                erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh',
                 erui_new_order.`project` AS t2
             WHERE
                 t1.id = t2.order_id AND t1.`status` > 2
                     AND t1.country IS NOT NULL
+                    AND t3.`name` IS NOT NULL
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
-            GROUP BY t1.country;
+            GROUP BY t1.country , t3.`name`
     </select>
 </mapper>
