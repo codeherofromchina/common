@@ -359,14 +359,14 @@
             erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn,
             erui_new_order.`project` t3
         WHERE
-            t1.id = t3.order_id
+            t1.id = t3.order_id AND t1.`status` >= 3
                 AND t3.`project_status` IN ('EXECUTING' , 'DONE',
                     'DELAYED_EXECUTION',
                     'DELAYED_COMPLETE',
                     'UNSHIPPED',
                     'DELAYED_UNSHIPPED',
                     'PAUSE')
-                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -384,14 +384,14 @@
             erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn,
             erui_new_order.`project` t3
         WHERE
-            t1.id = t3.order_id
+            t1.id = t3.order_id AND t1.`status` >= 3
                 AND t3.`project_status` IN ('EXECUTING' , 'DONE',
                         'DELAYED_EXECUTION',
                         'DELAYED_COMPLETE',
                         'UNSHIPPED',
                         'DELAYED_UNSHIPPED',
                         'PAUSE')
-                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -401,22 +401,24 @@
     <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的事业部利润率 -->
     <select id="orderStatisticsProfitPercentGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t1.business_unit_id AS orgId,
-            t1.business_unit_name AS `name`,
-            SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
+        t2.id AS orgId,
+        t2.`name` AS `name`,
+        SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
         FROM
-            erui_new_order.`order` t1,
-            erui_new_order.`project` t3
+        erui_new_order.`order` t1
+        LEFT JOIN
+        erui_sys.org t2 ON t2.id = t1.`business_unit_id`,
+        erui_new_order.`project` t3
         WHERE
-            t1.id = t3.order_id
-                AND t3.`project_status` IN ('EXECUTING' , 'DONE',
-                        'DELAYED_EXECUTION',
-                        'DELAYED_COMPLETE',
-                        'UNSHIPPED',
-                        'DELAYED_UNSHIPPED',
-                        'PAUSE')
-                AND t1.create_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY t1.`business_unit_id` , t1.business_unit_name
+        t1.id = t3.order_id AND t1.`status` >= 3
+        AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+        'DELAYED_EXECUTION',
+        'DELAYED_COMPLETE',
+        'UNSHIPPED',
+        'DELAYED_UNSHIPPED',
+        'PAUSE')
+        AND t3.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t2.id , t2.`name`
         ORDER BY 3
         <if test="sort != 1" >
             DESC

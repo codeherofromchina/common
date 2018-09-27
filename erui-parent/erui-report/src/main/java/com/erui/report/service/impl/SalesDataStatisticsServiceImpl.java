@@ -448,7 +448,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             String name = (String) map.get("name");
             BigDecimal profitPercent = (BigDecimal) map.get("profitPercent");
             names.add(name == null ? UNKNOW : name);
-            profitPercentList.add(profitPercent == null ? BigDecimal.ZERO : profitPercent);
+            profitPercentList.add(profitPercent == null ? BigDecimal.ZERO : profitPercent.setScale(2, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("profitPercents", profitPercentList);
