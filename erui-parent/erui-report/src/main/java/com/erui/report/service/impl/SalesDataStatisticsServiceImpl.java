@@ -205,7 +205,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     @Override
-    public Map<String, List<Object>> quoteAmountGroupOrg(Map<String, Object> params) {
+    public Map<String, List<Object>> quoteAmountGroupArea(Map<String, Object> params) {
         // 总报价金额
         List<Map<String, Object>> quoteTotalAmount = salesDataStatisticsMapper.quoteTotalAmountGroupByArea(params);
         // 会员报价总金额
@@ -241,7 +241,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
 
     @Override
-    public Map<String, List<Object>> inquiryNumbersGroupOrg(Map<String, Object> params) {
+    public Map<String, List<Object>> inquiryNumbersGroupArea(Map<String, Object> params) {
         // 总询单数量
         List<Map<String, Object>> inquiryTotalNum = salesDataStatisticsMapper.inquiryTotalNumGroupByArea(params);
         // 会员询单总数量
@@ -281,7 +281,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     @Override
-    public Map<String, List<Object>> quoteNumbersGroupOrg(Map<String, Object> params) {
+    public Map<String, List<Object>> quoteNumbersGroupArea(Map<String, Object> params) {
         // 总报价数量
         List<Map<String, Object>> quoteTotalNum = salesDataStatisticsMapper.quoteTotalNumGroupByArea(params);
         // 会员报价总数量

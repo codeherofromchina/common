@@ -180,7 +180,6 @@
             erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn
         WHERE
            t1.inflow_time BETWEEN #{startTime} AND #{endTime}
-                AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSE')
         GROUP BY t3.`name`
@@ -199,7 +198,6 @@
         WHERE
           t1.inflow_time BETWEEN #{startTime} AND #{endTime}
             AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
-                AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSE')
         GROUP BY t3.`name`
@@ -212,7 +210,7 @@
         FROM
         erui_rfq.inquiry t1
         LEFT JOIN
-        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn
         WHERE
         t1.inflow_time BETWEEN #{startTime} AND #{endTime}
         AND t1.`status` IN ('BIZ_DISPATCHING',
@@ -253,7 +251,6 @@
         erui_rfq.final_quote t4
         WHERE
         t4.inquiry_id = t1.id and t1.inflow_time BETWEEN #{startTime} AND #{endTime}
-        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSE')
         GROUP BY t3.`name`
@@ -273,7 +270,6 @@
         WHERE
         t4.inquiry_id = t1.id and t1.inflow_time BETWEEN #{startTime} AND #{endTime}
         AND t5.id = t1.buyer_id and t5.buyer_level in (52,53)
-        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         AND t1.`status` IN ('MARKET_CONFIRMING',
         'QUOTE_SENT','INQUIRY_CLOSE')
         GROUP BY t3.`name`

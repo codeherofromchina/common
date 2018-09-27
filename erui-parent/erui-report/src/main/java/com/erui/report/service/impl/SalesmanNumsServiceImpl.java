@@ -76,10 +76,10 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
         Date startDate = DateUtil.parseString2DateNoException(startPrescription, DateUtil.SHORT_FORMAT_STR);
         Date endDate = DateUtil.parseString2DateNoException(endPrescription, DateUtil.SHORT_FORMAT_STR);
         if (startDate != null) {
-            criteria.andStartPrescriptionGreaterThanOrEqualTo(startDate);
+            criteria.andEndPrescriptionGreaterThanOrEqualTo(startDate);
         }
         if (endDate != null) {
-            criteria.andEndPrescriptionLessThanOrEqualTo(endDate);
+            criteria.andStartPrescriptionLessThanOrEqualTo(endDate);
         }
         String countryBn = (String) params.get("countryBn"); // 国家编码
         if (StringUtils.isNotBlank(countryBn)) {

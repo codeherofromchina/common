@@ -193,7 +193,10 @@ public class MemberInfoController {
         List<Map<String, Object>> data = null;
         Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            params.remove("startTime");
+            params.remove("endTime");
+        } else {
+            params = params02;
         }
         data = memberInfoService.singleCustomer(params);
         Result<Object> result = new Result<>();

@@ -83,7 +83,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         for (Map<String, Object> map : singleCustomerData) {
             String name = (String) map.get("name");
             if (StringUtils.isBlank(name)) {
-                map.put("name", "未知");
+                map.put("name", "其他");
             }
             BigDecimal inquiryNum = (BigDecimal) map.get("inquiryNum");
             totalInquiryNum += inquiryNum.intValue();

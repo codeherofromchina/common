@@ -177,14 +177,14 @@ public class SalesDataStatisticsController {
         Map<String, List<Object>> data = null;
         Result<Object> result = new Result<>();
         if ("1".equals(type)) {
-            // 报价金额按事业部统计
-            data = supplierchainService.quoteAmountGroupOrg(params);
+            // 报价金额按地区统计
+            data = supplierchainService.quoteAmountGroupArea(params);
         } else if ("2".equals(type)) {
-            // 询单数量按事业部统计
-            data = supplierchainService.inquiryNumbersGroupOrg(params);
+            // 询单数量按地区统计
+            data = supplierchainService.inquiryNumbersGroupArea(params);
         } else if ("3".equals(type)) {
-            // 报价数量按事业部统计
-            data = supplierchainService.quoteNumbersGroupOrg(params);
+            // 报价数量按地区统计
+            data = supplierchainService.quoteNumbersGroupArea(params);
         } else {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }
