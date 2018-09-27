@@ -8,10 +8,7 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
-import com.erui.order.dao.BackLogDao;
-import com.erui.order.dao.CheckLogDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.ProjectDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
@@ -61,8 +58,8 @@ public class ProjectServiceImpl implements ProjectService {
     private CheckLogService checkLogService;
     @Autowired
     private CheckLogDao checkLogDao;
-
-
+    @Autowired
+    private ProjectProfitDao projectProfitDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -156,6 +153,9 @@ public class ProjectServiceImpl implements ProjectService {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 //Order order = projectUpdate.getOrder();
                 projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                ProjectProfit projectProfit = project.getProjectProfit();
+                projectProfit.setProject(project);
+                projectProfitDao.save(projectProfit);
                 project.copyProjectDescTo(projectUpdate);
                 order.setStatus(Order.StatusEnum.DONE.getCode());
                 applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -177,6 +177,9 @@ public class ProjectServiceImpl implements ProjectService {
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
                     }
+                    ProjectProfit projectProfit = project.getProjectProfit();
+                    projectProfit.setProject(project);
+                    projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                         // 提交到项目经理，则项目成员不能设置
@@ -1087,7 +1090,7 @@ public class ProjectServiceImpl implements ProjectService {
                     // 添加销售合同号和海外销售合同号
                     String contractNo = paramProject.getContractNo();
                     String contractNoOs = paramProject.getContractNoOs();
-                    if(StringUtils.isBlank(contractNo)) {
+                    if (StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         return false;
                     }
@@ -1095,7 +1098,7 @@ public class ProjectServiceImpl implements ProjectService {
                     List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
                     if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
                         Integer projectId = project.getId();
-                        for(Integer proId:contractNoProjectIds){
+                        for (Integer proId : contractNoProjectIds) {
                             if (proId.intValue() != projectId.intValue()) {
                                 return false;
                             }

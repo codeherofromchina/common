@@ -159,8 +159,7 @@ public class Project {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "project")
-    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "project")
     private ProjectProfit projectProfit;
     /**
      * 审核人列表信息
@@ -788,10 +787,10 @@ public class Project {
         project.setLogisticsAuditerId(this.getLogisticsAuditerId());
         project.setLogisticsAuditer(this.logisticsAuditer);
         project.setBuAuditerId(this.getBuAuditerId());
-        project.setBuAuditer(this.getBuAuditer());
-        project.setProjectProfit(this.projectProfit);
+//        project.setBuAuditer(this.getBuAuditer());
         return true;
     }
+
     // 项目审核接口中使用，审核的原因字段
     @Transient
     private String auditingReason;

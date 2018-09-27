@@ -14,11 +14,10 @@ public class ProjectProfit {
     /**
      * 项目ID
      */
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "poject_id")
     @JsonIgnore
     private Project project;
-
     /**
      * 国家
      */

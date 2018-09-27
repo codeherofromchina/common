@@ -60,6 +60,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProjectDao projectDao;
     @Autowired
+    private ProjectProfitDao projectProfitDao;
+    @Autowired
     private CompanyService companyService;
     @Autowired
     private StatisticsService statisticsService;
@@ -1037,8 +1039,8 @@ public class OrderServiceImpl implements OrderService {
             projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
             projectProfit.setContractAmountUsd(orderUpdate.getTotalPriceUsd());
             projectProfit.setExchangeRate(orderUpdate.getExchangeRate());
-            projectAdd.setProjectProfit(projectProfit);
-
+            //projectAdd.setProjectProfit(projectProfit);
+            projectProfitDao.save(projectProfit);
             //商务技术经办人名称
             projectDao.save(projectAdd);
             // 调用CRM系统，触发CRM用户升级任务
