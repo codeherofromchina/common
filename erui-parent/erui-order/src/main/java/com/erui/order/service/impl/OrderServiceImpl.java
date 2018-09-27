@@ -1461,6 +1461,14 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             //新建项目审批状态为未审核
             project.setAuditingStatus(1);
+            //添加项目利润核算单信息
+            ProjectProfit projectProfit = new ProjectProfit();
+            projectProfit.setCountry(order1.getCountry());
+            projectProfit.setTradeTerm(order1.getTradeTerms());
+            projectProfit.setContractAmountUsd(order1.getTotalPriceUsd());
+            projectProfit.setExchangeRate(order1.getExchangeRate());
+            //projectAdd.setProjectProfit(projectProfit);
+            projectProfitDao.save(projectProfit);
             projectDao.save(project);
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
