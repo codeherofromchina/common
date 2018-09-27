@@ -426,9 +426,9 @@
     <select id="orderStatisticsMonoRateGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` AS `name`,
-        COUNT(quoteNum) AS quoteNum,
-        COUNT(doneNum) AS doneNum,
-        COUNT(doneNum) / COUNT(quoteNum) AS rate
+        SUM(quoteNum) AS quoteNum,
+        SUM(doneNum) AS doneNum,
+        SUM(doneNum) / SUM(quoteNum) AS rate
         FROM
         (SELECT
         t1.business_unit_id AS org_id,
@@ -461,9 +461,9 @@
     <select id="orderStatisticsMonoRateGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` AS `name`,
-        COUNT(quoteNum) AS quoteNum,
-        COUNT(doneNum) AS doneNum,
-        COUNT(doneNum) / COUNT(quoteNum) AS rate
+        SUM(quoteNum) AS quoteNum,
+        SUM(doneNum) AS doneNum,
+        SUM(doneNum) / SUM(quoteNum) AS rate
         FROM
         (SELECT
         t1.region AS area_bn, 0 AS quoteNum, COUNT(1) AS doneNum
@@ -494,9 +494,9 @@
     <select id="orderStatisticsMonoRateGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
             SELECT
             t2.`name` AS `name`,
-            COUNT(quoteNum) AS quoteNum,
-            COUNT(doneNum) AS doneNum,
-            COUNT(doneNum) / COUNT(quoteNum) AS rate
+            SUM(quoteNum) AS quoteNum,
+            SUM(doneNum) AS doneNum,
+            SUM(doneNum) / SUM(quoteNum) AS rate
             FROM
             (SELECT
             t1.country AS country_bn, 0 AS quoteNum, COUNT(1) AS doneNum

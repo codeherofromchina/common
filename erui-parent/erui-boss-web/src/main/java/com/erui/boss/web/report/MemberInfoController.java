@@ -161,15 +161,16 @@ public class MemberInfoController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         String type = String.valueOf(params.get("type"));
-        if ("1".equals(type)) { // 地区
-            /// 按照地区统计会员签约主体
-            data = memberInfoService.signingBodyByArea(params);
-        } else if ("2".equals(type)) { // 国家
-            /// 按照国家统计会员签约主体
-            data = memberInfoService.signingBodyByCountry(params);
-        } else if ("3".equals(type)) { // 事业部
+
+        if ("1".equals(type)) { // 事业部
             /// 按照事业部统计会员签约主体
             data = memberInfoService.signingBodyByOrg(params);
+        } else if ("2".equals(type)) { // 地区
+            /// 按照地区统计会员签约主体
+            data = memberInfoService.signingBodyByArea(params);
+        } else if ("3".equals(type)) { // 国家
+            /// 按照国家统计会员签约主体
+            data = memberInfoService.signingBodyByCountry(params);
         }
 
         Result<Object> result = new Result<>();

@@ -464,7 +464,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderStatisticsMonoRateGroupByOrg(Map<String, Object> params) {
-        // 订单信息的国家利润率
+        // 订单信息的事业部成单率
         List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByOrg(params);
         if (countryMonoRate == null || countryMonoRate.size() == 0) {
             return null;
@@ -481,7 +481,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderStatisticsMonoRateGroupByArea(Map<String, Object> params) {
-        // 订单信息的国家利润率
+        // 订单信息的地区成单率
         List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByArea(params);
         if (countryMonoRate == null || countryMonoRate.size() == 0) {
             return null;
@@ -523,12 +523,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         BigDecimal oneHundred = new BigDecimal(100);
         for (Map<String, Object> map : monoRateInfo) {
             String name = (String) map.get("name");
-            Long quoteNum = (Long) map.get("quoteNum");
-            Long doneNum = (Long) map.get("doneNum");
+            BigDecimal quoteNum = (BigDecimal) map.get("quoteNum");
+            BigDecimal doneNum = (BigDecimal) map.get("doneNum");
             BigDecimal rate = (BigDecimal) map.get("rate");
             names.add(name == null ? UNKNOW : name);
-            quoteNums.add(quoteNum == null ? 0L : quoteNum);
-            doneNums.add(doneNum == null ? 0L : doneNum);
+            quoteNums.add(quoteNum == null ? 0L : quoteNum.longValue());
+            doneNums.add(doneNum == null ? 0L : doneNum.longValue());
             rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred, new MathContext(2, RoundingMode.HALF_UP)));
         }
         result.put("names", names);
