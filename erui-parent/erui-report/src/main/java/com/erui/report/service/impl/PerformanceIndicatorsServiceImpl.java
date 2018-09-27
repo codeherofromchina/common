@@ -92,10 +92,10 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         Date startDate = DateUtil.parseString2DateNoException(startPrescription, DateUtil.SHORT_FORMAT_STR);
         Date endDate = DateUtil.parseString2DateNoException(endPrescription, DateUtil.SHORT_FORMAT_STR);
         if (startDate != null) {
-            criteria.andStartPrescriptionGreaterThanOrEqualTo(startDate);
+            criteria.andEndPrescriptionGreaterThanOrEqualTo(startDate);
         }
         if (endDate != null) {
-            criteria.andEndPrescriptionLessThanOrEqualTo(endDate);
+            criteria.andStartPrescriptionLessThanOrEqualTo(endDate);
         }
         String ptype = String.valueOf(params.get("ptype")); // 指标类型
         if (StringUtils.isNotBlank(ptype) && StringUtils.isNumeric(ptype)) {
