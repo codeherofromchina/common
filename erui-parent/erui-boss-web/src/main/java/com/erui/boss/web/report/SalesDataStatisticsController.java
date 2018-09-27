@@ -198,7 +198,7 @@ public class SalesDataStatisticsController {
     }
 
     /**
-     * 订单数据统计 - 整体
+     * 订单数据统计 - 整体/订单量与金额
      *
      * @param params
      * @return

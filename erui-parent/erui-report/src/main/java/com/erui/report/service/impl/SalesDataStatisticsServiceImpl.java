@@ -333,7 +333,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             areaNames.add(orgName == null ? UNKNOW : orgName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4,BigDecimal.ROUND_DOWN));
         }
         result.put("names", areaNames);
         result.put("totalNums", totalNums);
@@ -358,7 +358,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             names.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4,BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("totalNums", totalNums);
@@ -384,7 +384,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             orgNames.add(orgName == null ? UNKNOW : orgName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4,BigDecimal.ROUND_DOWN));
         }
         result.put("names", orgNames);
         result.put("totalNums", totalNums);
