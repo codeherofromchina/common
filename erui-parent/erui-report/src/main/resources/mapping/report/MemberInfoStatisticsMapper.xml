@@ -136,6 +136,7 @@
         AND ma.deleted_flag = 'N'
         AND b.created_at BETWEEN #{startTime} AND #{endTime}
         AND ma.lang = 'zh'
+        AND b.`status` in ('arroved','pass')
         GROUP BY ma.`name`
         ORDER BY COUNT(DISTINCT b.id)
         <if test="sort != 1" >
@@ -158,6 +159,7 @@
         b.deleted_flag = 'N'
         AND ma.deleted_flag = 'N'
         AND b.created_at BETWEEN #{startTime} AND #{endTime}
+        AND b.`status` in ('arroved','pass')
         AND ma.lang = 'zh'
         GROUP BY ma.`name`
         ORDER BY COUNT(DISTINCT b.id)
