@@ -214,7 +214,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             Object name = map.get("name");
             Object eruiNum = map.get("eruiNum");
             Object otherNum = map.get("otherNum");
-            nameList.add(name == null ? "未知" : name);
+            nameList.add(name == null ? "其他" : name);
             eruiNumList.add(eruiNum);
             otherNumList.add(otherNum);
         }

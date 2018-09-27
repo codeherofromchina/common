@@ -116,7 +116,7 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
             Date endPrescription = (Date) nums.get("end_prescription");
             Integer num = (Integer) nums.get("num");
             String countryName = (String) nums.get("country_name");
-            countryName = StringUtils.isBlank(countryName) ? "未知" : countryName;
+            countryName = StringUtils.isBlank(countryName) ? "其他" : countryName;
 
             int dayNum = DateUtil.inRangeDateDayNum(startPrescription, endPrescription, startDate, endDate);
             if (num != null && num > 0 && dayNum > 0) {
@@ -158,7 +158,7 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
             Date endPrescription = (Date) nums.get("end_prescription");
             Integer num = (Integer) nums.get("num");
             String areaName = (String) nums.get("area_name");
-            areaName = StringUtils.isBlank(areaName) ? "未知" : areaName;
+            areaName = StringUtils.isBlank(areaName) ? "其他" : areaName;
 
             int dayNum = DateUtil.inRangeDateDayNum(startPrescription, endPrescription, startDate, endDate);
             if (num != null && num > 0 && dayNum > 0) {

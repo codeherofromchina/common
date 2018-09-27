@@ -24,7 +24,11 @@
         AND b.`source` = 1
         AND b.`buyer_code` IS NOT NULL
         AND b.`buyer_code` <![CDATA[ <> ]]> ''))
-        GROUP BY ma.`name`
+        GROUP BY ma.`name` HAVING SUM(CASE b.`buyer_level`
+        WHEN 52 THEN 1
+        WHEN 53 THEN 1
+        ELSE 0
+        END) > 0
         ORDER BY SUM(IF(b.`buyer_level` = 52
         OR b.`buyer_level` = 53,
         1,
@@ -54,7 +58,11 @@
         AND b.`source` = 1
         AND b.`buyer_code` IS NOT NULL
         AND b.`buyer_code` <![CDATA[ <> ]]> ''))
-        GROUP BY ma.`name`
+        GROUP BY ma.`name` HAVING SUM(CASE b.`buyer_level`
+                WHEN 52 THEN 1
+                WHEN 53 THEN 1
+                ELSE 0
+                END) > 0
         ORDER BY SUM(IF(b.`buyer_level` = 52
         OR b.`buyer_level` = 53,
         1,
