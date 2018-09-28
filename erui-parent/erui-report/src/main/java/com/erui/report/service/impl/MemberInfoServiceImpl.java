@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,7 +88,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             BigDecimal orderNum = (BigDecimal) map.get("orderNum");
             totalOrderNum += orderNum.intValue();
             BigDecimal bigDecimal = (BigDecimal) map.get("rate");
-            bigDecimal = bigDecimal.multiply(oneHundred, new MathContext(2, RoundingMode.DOWN));
+            bigDecimal = bigDecimal.multiply(oneHundred).setScale(2,BigDecimal.ROUND_DOWN);
             map.put("rate", bigDecimal);
             resultData.add(map);
         }
@@ -102,7 +100,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         if (totalInquiryNum == 0) {
             totalBigDecimal = BigDecimal.ZERO;
         } else {
-            totalBigDecimal = new BigDecimal((double) totalOrderNum / totalInquiryNum * 100, new MathContext(2, RoundingMode.DOWN));
+            totalBigDecimal = new BigDecimal((double) totalOrderNum / totalInquiryNum * 100).setScale(2,BigDecimal.ROUND_DOWN);
         }
         total.put("rate", totalBigDecimal);
         resultData.add(total);

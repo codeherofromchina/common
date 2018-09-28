@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -162,7 +159,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
                 num = 0L;
             }
             double rate = num / (double) total * 100;
-            BigDecimal bigDecimalRate = new BigDecimal(rate, new MathContext(4, RoundingMode.DOWN));
+            BigDecimal bigDecimalRate = new BigDecimal(rate).setScale(2,BigDecimal.ROUND_DOWN);
             countries.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(total);
             nums.add(num);
@@ -529,7 +526,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             names.add(name == null ? UNKNOW : name);
             quoteNums.add(quoteNum == null ? 0L : quoteNum.longValue());
             doneNums.add(doneNum == null ? 0L : doneNum.longValue());
-            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred, new MathContext(2, RoundingMode.HALF_UP)));
+            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred).setScale(2,BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("quoteNums", quoteNums);
