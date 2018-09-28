@@ -159,7 +159,7 @@ public class Project {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "project")
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, mappedBy = "project")
     private ProjectProfit projectProfit;
     /**
      * 审核人列表信息

@@ -16,7 +16,7 @@ public class ProjectProfit {
      * 项目ID
      */
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "poject_id")
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @JsonIgnore
     private Project project;
     /**
@@ -232,6 +232,22 @@ public class ProjectProfit {
     private BigDecimal manufacturingCosts;
 
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
     public BigDecimal getGrossProfitMargin() {
         return grossProfitMargin;
     }
@@ -270,28 +286,6 @@ public class ProjectProfit {
 
     public void setManufacturingCosts(BigDecimal manufacturingCosts) {
         this.manufacturingCosts = manufacturingCosts;
-    }
-
-    /**
-     * @return id
-     */
-    public Integer getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     /**
