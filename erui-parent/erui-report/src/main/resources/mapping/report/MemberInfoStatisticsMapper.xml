@@ -229,7 +229,10 @@
         </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
-        ORDER BY 5 DESC
+        ORDER BY 5
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
     <!-- 按照地区统计会员签约主体 -->
@@ -255,7 +258,10 @@
         t1.id = t2.order_id AND t1.`status` >= 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
-        ORDER BY COUNT(1) DESC
+        ORDER BY COUNT(1)
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 按照国家统计会员签约主体 -->
     <select id="signingBodyByCountry" parameterType="java.util.Map" resultType="java.util.Map">
@@ -280,7 +286,10 @@
         t1.id = t2.order_id AND t1.`status` >= 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
-        ORDER BY COUNT(1) DESC
+        ORDER BY COUNT(1)
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 按照事业部统计会员签约主体 -->
     <select id="signingBodyByOrg" parameterType="java.util.Map" resultType="java.util.Map">
@@ -305,7 +314,10 @@
         t1.id = t2.order_id AND t1.`status` >= 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
-        ORDER BY COUNT(1) DESC
+        ORDER BY COUNT(1)
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
     <!-- 按地区获取订单的总金额 -->
