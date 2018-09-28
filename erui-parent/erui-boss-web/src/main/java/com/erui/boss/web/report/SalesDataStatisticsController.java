@@ -459,4 +459,36 @@ public class SalesDataStatisticsController {
         }
         return result;
     }
+
+    /**
+     * 订单数据统计 - 完成率02
+     *
+     * @param params {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
+     *               type  1：事业部完成率   2：地区完成率   3：国家完成率
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "orderInfoDoneRate02", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderInfoDoneRate02(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        Result<Object> result = new Result<>();
+        Map<String, List<Object>> data = null;
+        String type = String.valueOf(params.get("type"));
+        if ("1".equals(type)) {
+            data = supplierchainService.dayOrderInfoDoneRateGroupbyOrg(params);
+        } else if ("2".equals(type)) {
+            data =  supplierchainService.dayOrderInfoDoneRateGroupbyArea(params);
+        } else if ("3".equals(type)) {
+            data =  supplierchainService.dayOrderInfoDoneRateGroupbyCountry(params);
+        }
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
+    }
 }

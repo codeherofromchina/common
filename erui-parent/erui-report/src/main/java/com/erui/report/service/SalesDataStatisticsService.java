@@ -195,4 +195,26 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orderInfoDoneRateGroupbyCountry(Map<String, Object> params);
+
+
+    /**
+     * 事业部完成率/按照天计算公式计算
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> dayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params);
+
+    /**
+     * 地区完成率/按照天计算公式计算
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> dayOrderInfoDoneRateGroupbyArea(Map<String, Object> params);
+
+    /**
+     * 国家完成率/按照天计算公式计算
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> dayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params);
 }
