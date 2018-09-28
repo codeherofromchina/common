@@ -101,8 +101,6 @@
         left join erui_operation.market_area t2 on t2.lang='zh' and t1.area_bn = t2.bn
         WHERE
         t1.created_at <![CDATA[ <= ]]> #{endTime}
-        AND (t1.expiry_at <![CDATA[ > ]]> #{endTime}
-        OR t1.expiry_at IS NULL)
         AND t1.`status` in ('PASS','ARROVED')
         group by t2.`name`
         order by 2
@@ -126,7 +124,9 @@
         FROM
         erui_rfq.inquiry t3
         WHERE
-        t3.buyer_id = t1.id
+        t3.buyer_id = t1.id and t3.`status` IN ('BIZ_DISPATCHING',
+                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
+                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSE')
         AND t3.inflow_time <![CDATA[ >= ]]> t1.created_at
         AND t3.inflow_time <![CDATA[ < ]]> DATE_ADD(t1.created_at,
         INTERVAL 6 MONTH))
@@ -148,7 +148,10 @@
         FROM
         erui_rfq.inquiry t3
         WHERE
-        t3.created_at <![CDATA[ <= ]]> #{endTime}
+        t3.`status` IN ('BIZ_DISPATCHING',
+                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
+                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSE')
+        AND t3.created_at <![CDATA[ <= ]]> #{endTime}
         AND t3.created_at <![CDATA[ >= ]]> DATE_ADD(#{startTime},
         INTERVAL - 3 MONTH))
         GROUP BY t2.`name`
@@ -426,9 +429,9 @@
     <select id="orderStatisticsMonoRateGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` AS `name`,
-        COUNT(quoteNum) AS quoteNum,
-        COUNT(doneNum) AS doneNum,
-        COUNT(doneNum) / COUNT(quoteNum) AS rate
+        SUM(quoteNum) AS quoteNum,
+        SUM(doneNum) AS doneNum,
+        SUM(doneNum) / SUM(quoteNum) AS rate
         FROM
         (SELECT
         t1.business_unit_id AS org_id,
@@ -461,9 +464,9 @@
     <select id="orderStatisticsMonoRateGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
         t2.`name` AS `name`,
-        COUNT(quoteNum) AS quoteNum,
-        COUNT(doneNum) AS doneNum,
-        COUNT(doneNum) / COUNT(quoteNum) AS rate
+        SUM(quoteNum) AS quoteNum,
+        SUM(doneNum) AS doneNum,
+        SUM(doneNum) / SUM(quoteNum) AS rate
         FROM
         (SELECT
         t1.region AS area_bn, 0 AS quoteNum, COUNT(1) AS doneNum
@@ -494,9 +497,9 @@
     <select id="orderStatisticsMonoRateGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
             SELECT
             t2.`name` AS `name`,
-            COUNT(quoteNum) AS quoteNum,
-            COUNT(doneNum) AS doneNum,
-            COUNT(doneNum) / COUNT(quoteNum) AS rate
+            SUM(quoteNum) AS quoteNum,
+            SUM(doneNum) AS doneNum,
+            SUM(doneNum) / SUM(quoteNum) AS rate
             FROM
             (SELECT
             t1.country AS country_bn, 0 AS quoteNum, COUNT(1) AS doneNum
