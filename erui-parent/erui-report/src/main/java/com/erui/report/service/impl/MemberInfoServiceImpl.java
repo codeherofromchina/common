@@ -240,7 +240,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         }, vo -> (BigDecimal) vo.get("totalPriceUsd")));
 
         int totalNum = 0;
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        BigDecimal totalData = BigDecimal.ZERO;
         BigDecimal tenThousand = new BigDecimal(10000);
         List<Object[]> list = new ArrayList<>();
         for (String areaName : areaNameList) {
@@ -258,12 +258,16 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             if (num == 0) {
                 objArr[1] = BigDecimal.ZERO;
             } else {
-                objArr[1] = price.divide(new BigDecimal(num),0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
+                BigDecimal data = price.divide(new BigDecimal(num),0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
+                objArr[1] = data;
+                if (!data.equals(BigDecimal.ZERO)) {
+                    // 求平均能效的中介值，0的不算其中
+                    totalNum++;
+                    totalData = totalData.add(data);
+                }
+
             }
             list.add(objArr);
-
-            totalNum += num;
-            totalPrice = totalPrice.add(price);
         }
 
         list.sort(new Comparator<Object[]>() {
@@ -285,14 +289,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             nameList.add((String) vo[0]);
             dataList.add((BigDecimal) vo[1]);
         });
-        nameList.add("合计");
-        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalPrice.divide(new BigDecimal(totalNum),0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN));
+        nameList.add("平均");
+        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalData.divide(new BigDecimal(totalNum),2, BigDecimal.ROUND_DOWN));
         Map<String, List<Object>> result = new HashMap<>();
         result.put("nameList", nameList);
         result.put("dataList", dataList);
 
         return result;
     }
-
 
 }
