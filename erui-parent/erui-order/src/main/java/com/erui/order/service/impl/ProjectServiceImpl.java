@@ -404,7 +404,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("31025,31274");
+        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1068,8 +1068,6 @@ public class ProjectServiceImpl implements ProjectService {
                         //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
                     } else {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
-//                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
-//                        auditingUserId_i = "30979,31274"; // 姜聪聪 / 展召申
                     }
                     break;
                 case 2: // 法务审核
@@ -1110,7 +1108,7 @@ public class ProjectServiceImpl implements ProjectService {
                     break;
                 case 3:
                     auditingProcess_i = auditingProcess.replace("3", "4");
-                    auditingUserId_i = auditingUserId.replace("31274", "39252"); // 直接进入到下一步结算审核
+                    auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
                     break;
                 case 4:
                     String replace2 = auditingUserId.replace("39252", "");
