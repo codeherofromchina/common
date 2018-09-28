@@ -1,6 +1,5 @@
 package com.erui.order.model;
 
-import com.erui.order.entity.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 
@@ -300,13 +299,6 @@ public class ProjectGoodsStatistics {
         this.projectStatus = projectStatus;
     }
 
-    public String getProjectStatusName() {
-        Project.ProjectStatusEnum projectStatusEnum = Project.ProjectStatusEnum.fromCode(projectStatus);
-        if (projectStatusEnum != null) {
-            return projectStatusEnum.getMsg();
-        }
-        return null;
-    }
 
     public String getProcessProgress() {
         return processProgress;
@@ -314,14 +306,6 @@ public class ProjectGoodsStatistics {
 
     public void setProcessProgress(String processProgress) {
         this.processProgress = processProgress;
-    }
-
-    public String getProcessProgressName() {
-        Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(processProgress);
-        if (projectProgressEnum != null) {
-            return projectProgressEnum.getMsg();
-        }
-        return null;
     }
 
     public String getBusinessUnitName() {

@@ -224,6 +224,7 @@ public class Goods {
     // 务必没有修改PurchGoods权限的能力
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "goods_id")
+    @JsonIgnore
     private List<PurchGoods> purchGoods;
 
     public String getMeteName() {

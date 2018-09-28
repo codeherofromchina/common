@@ -107,12 +107,13 @@ public class ExportDataController {
         HSSFWorkbook data = statisticsService.generateProjectStatisticsExcel(condition);
         downExcel(data, response, "项目执行统计");
     }
+
     // 项目详情统计信息导出
     @RequestMapping("/projectDescStatistics")
     public void projectDescStatistics(HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> condition = getParameters(request);
         // 获取统计数据
-        HSSFWorkbook data = statisticsService.generateProjectStatisticsExcel(condition);
+        HSSFWorkbook data = statisticsService.generateProjectDescStatisticsExcel(condition);
         downExcel(data, response, "项目商品统计");
     }
 
