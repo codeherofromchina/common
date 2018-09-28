@@ -195,7 +195,7 @@
         WHEN business_unit_id IN (9902 , 9917) THEN 3
         WHEN business_unit_id IN (9903 , 9901) THEN 4
         WHEN business_unit_id IN (9899 , 9916) THEN 5
-        ELSE - 1
+        ELSE -1
         END AS org_id,
         0 AS inquiryNum,
         COUNT(1) AS orderNum
@@ -228,8 +228,6 @@
             AND inflow_time BETWEEN #{startTime} AND #{endTime}
         </if>
         GROUP BY org_id) AS t1
-        WHERE
-        t1.org_id <![CDATA[ <> ]]>  - 1
         GROUP BY t1.org_id
         ORDER BY 5 DESC
     </select>
