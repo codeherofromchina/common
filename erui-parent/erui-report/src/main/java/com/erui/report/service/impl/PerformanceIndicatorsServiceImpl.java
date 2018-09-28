@@ -118,7 +118,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
      * 查找时间段内的事业部业绩指标信息
      *
      * @param params
-     * @return {orgId:{name:'',totalPrice:10000}}
+     * @return {orgId:{name:'',totalPrice:10000,dayNum:n}}
      */
     @Override
     public Map<Integer, Map<String, Object>> performanceIndicatorsWhereTimeByOrg(Map<String, Object> params) {
@@ -155,10 +155,13 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (map == null) {
                     map = new HashMap<>();
                     map.put("name", name);
+                    map.put("dayNum", dayNum);
                     map.put("totalPrice", totalPrice);
                 } else {
                     BigDecimal totalPrice02 = (BigDecimal) map.get("totalPrice");
                     map.put("totalPrice", totalPrice02.add(totalPrice));
+                    Integer day = (Integer)map.get("dayNum");
+                    map.put("dayNum", day + dayNum);
                 }
                 result.put(orgId, map);
             }
@@ -166,11 +169,12 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         return result;
     }
 
+
     /**
      * 查找时间段内的地区业绩指标信息
      *
      * @param params
-     * @return {area_bn:{name:'',totalPrice:10000}}
+     * @return {area_bn:{name:'',totalPrice:10000,dayNum:n}}
      */
     @Override
     public Map<String, Map<String, Object>> performanceIndicatorsWhereTimeByArea(Map<String, Object> params) {
@@ -207,10 +211,13 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (map == null) {
                     map = new HashMap<>();
                     map.put("name", name);
+                    map.put("dayNum", dayNum);
                     map.put("totalPrice", totalPrice);
                 } else {
                     BigDecimal totalPrice02 = (BigDecimal) map.get("totalPrice");
                     map.put("totalPrice", totalPrice02.add(totalPrice));
+                    Integer day = (Integer)map.get("dayNum");
+                    map.put("dayNum", day + dayNum);
                 }
                 result.put(country_bn, map);
             }
@@ -223,7 +230,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
      * 查找时间段内的国家业绩指标信息
      *
      * @param params
-     * @return {country_bn:{name:'',totalPrice:10000}}
+     * @return {country_bn:{name:'',totalPrice:10000,dayNum:n}}
      */
     @Override
     public Map<String, Map<String, Object>> performanceIndicatorsWhereTimeByCountry(Map<String, Object> params) {
@@ -259,10 +266,13 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (map == null) {
                     map = new HashMap<>();
                     map.put("name", name);
+                    map.put("dayNum", dayNum);
                     map.put("totalPrice", totalPrice);
                 } else {
                     BigDecimal totalPrice02 = (BigDecimal) map.get("totalPrice");
                     map.put("totalPrice", totalPrice02.add(totalPrice));
+                    Integer day = (Integer)map.get("dayNum");
+                    map.put("dayNum", day + dayNum);
                 }
                 result.put(area_bn, map);
             }

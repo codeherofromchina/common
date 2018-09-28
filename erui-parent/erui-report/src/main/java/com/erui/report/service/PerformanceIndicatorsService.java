@@ -39,7 +39,7 @@ public interface PerformanceIndicatorsService {
     PageInfo<PerformanceIndicators> list(Map<String, Object> params);
 
     /**
-     * 查找时间段内的事业部业绩指标信息
+     * 查找时间段内的事业部总业绩指标信息
      * @param params
      * @return
      */

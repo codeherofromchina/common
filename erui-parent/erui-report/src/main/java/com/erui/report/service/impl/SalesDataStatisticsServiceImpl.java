@@ -562,7 +562,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
         for (Map<String, Object> map : purchasingPowerList) {
             BigDecimal cycle = (BigDecimal) map.get("cycle");
-            if (cycle == null) {
+            if (cycle != null) {
                 cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);
             } else {
                 cycle = BigDecimal.ZERO;
@@ -612,7 +612,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     /**
      * 订单数据统计 - 事业部完成率
-     *
+     * 实际金额/计划金额
      * @param params
      * @return
      */
@@ -632,8 +632,30 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
 
     /**
-     * 订单数据统计 - 地区完成率
+     * 订单数据统计 - 事业部完成率
+     * （实际金额/实际天数）/(计划金额/计划天数)
      *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找事业部指标
+        Map<Integer, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByOrg(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
+
+    /**
+     * 订单数据统计 - 地区完成率
+     * 实际金额/计划金额
      * @param params
      * @return
      */
@@ -651,10 +673,30 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         return result;
     }
 
+    /**
+     * 订单数据统计 - 地区完成率
+     * （实际金额/实际天数）/(计划金额/计划天数)
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyArea(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找地区指标
+        Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByArea(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyArea(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
 
     /**
      * 订单数据统计 - 国家完成率
-     *
+     * 实际金额/计划金额
      * @param params
      * @return
      */
@@ -669,6 +711,26 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyCountry(params);
         Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
         Map<String, List<Object>> result = _handleOrderInfoDoneRateData(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
+    /**
+     * 订单数据统计 - 国家完成率
+     * 实际金额/实际天数）/(计划金额/计划天数)
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找国家指标
+        Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByCountry(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyCountry(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
         return result;
     }
 
@@ -704,6 +766,73 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
                 } else {
                     // 实际金额/计划金额/10000*100  --- 转换单位和百分比
                     objArr[1] = doneTotalPrice.divide(planTotalPrice, 0, BigDecimal.ROUND_DOWN).divide(oneHundred, 2, BigDecimal.ROUND_DOWN);
+                }
+            } else {
+                // 没有实际完成信息或没有计划信息，则完成率设置为0
+                objArr[1] = BigDecimal.ZERO;
+            }
+            list.add(objArr);
+        }
+
+        // 排序
+        list.sort(new Comparator<Object[]>() {
+            @Override
+            public int compare(Object[] o1, Object[] o2) {
+                BigDecimal bd01 = (BigDecimal) o1[1];
+                BigDecimal bd02 = (BigDecimal) o2[1];
+                if (ascFlag) {
+                    return bd01.compareTo(bd02);
+                } else {
+                    return -bd01.compareTo(bd02);
+                }
+            }
+        });
+
+        List<Object> nameList = new ArrayList<>();
+        List<Object> rateList = new ArrayList<>();
+        list.stream().forEach(vo -> {
+            nameList.add((String) vo[0]);
+            rateList.add((BigDecimal) vo[1]);
+        });
+        result.put("nameList", nameList);
+        result.put("rateList", rateList);
+        return result;
+    }
+
+
+    /**
+     * 处理完成率按天平均数据信息
+     */
+    private Map<String, List<Object>> _handleOrderInfoDoneRateDataByDay(List<Map<String, Object>> donePriceList, Map<Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
+        Map<String, List<Object>> result = new HashMap<>();
+        Set<Object> keyList = new HashSet<>();
+        keyList.addAll(planPriceMap.keySet());
+        Map<Object, Map<String, Object>> donePriceMap = donePriceList.parallelStream().collect(Collectors.toMap(vo -> {
+            Object key = vo.get("key");
+            keyList.add(key);
+            return key;
+        }, vo -> vo));
+        List<Object[]> list = new ArrayList<>();
+        BigDecimal oneHundred = new BigDecimal(100);
+        for (Object key : keyList) {
+            Map<String, Object> planPrice = planPriceMap.get(key);
+            Map<String, Object> donePrice = donePriceMap.get(key);
+            Object[] objArr = new Object[2];
+            String name = donePrice == null ? (String) planPrice.get("name") : (String) donePrice.get("name");
+            objArr[0] = name;
+            if (donePrice != null && planPrice != null) {
+                BigDecimal doneTotalPrice = (BigDecimal) donePrice.get("totalPrice"); // 单位是美元
+                Integer doneDayNum = (Integer) donePrice.get("dayNum"); // 实际金额的天数
+                BigDecimal planTotalPrice = (BigDecimal) planPrice.get("totalPrice");// 单位是万美元
+                Integer planDayNum = (Integer) planPrice.get("dayNum");// 计划金额的天数
+
+                if (planTotalPrice.equals(BigDecimal.ZERO)) {
+                    objArr[1] = BigDecimal.ZERO;
+                } else {
+                    // 实际金额/计划金额/10000*100  --- 转换单位和百分比
+                    BigDecimal donePerPrice = doneTotalPrice.divide(new BigDecimal(doneDayNum),4,BigDecimal.ROUND_DOWN);
+                    BigDecimal planPerPrice = planTotalPrice.divide(new BigDecimal(planDayNum),4,BigDecimal.ROUND_DOWN);
+                    objArr[1] = donePerPrice.divide(planPerPrice, 0, BigDecimal.ROUND_DOWN).divide(oneHundred, 2, BigDecimal.ROUND_DOWN);
                 }
             } else {
                 // 没有实际完成信息或没有计划信息，则完成率设置为0
