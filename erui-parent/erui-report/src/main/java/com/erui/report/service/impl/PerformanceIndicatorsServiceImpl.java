@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -151,7 +149,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum), new MathContext(2, RoundingMode.DOWN));
+                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum)).setScale(2,BigDecimal.ROUND_DOWN);
 
                 Map<String, Object> map = result.get(orgId);
                 if (map == null) {
@@ -203,7 +201,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum), new MathContext(2, RoundingMode.DOWN));
+                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum)).setScale(2,BigDecimal.ROUND_DOWN);
 
                 Map<String, Object> map = result.get(country_bn);
                 if (map == null) {
@@ -256,7 +254,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum), new MathContext(2, RoundingMode.DOWN));
+                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum)).setScale(2,BigDecimal.ROUND_DOWN);
 
                 Map<String, Object> map = result.get(area_bn);
                 if (map == null) {

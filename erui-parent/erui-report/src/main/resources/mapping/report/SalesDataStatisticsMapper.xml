@@ -556,7 +556,9 @@
                 t1.id = t2.order_id
                 AND t1.buyer_id = t3.id
                 AND t1.`status` >= 3
-                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                <if test="startTime!=null and startTime!=''">
+                        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                </if>
                 GROUP BY t3.id , t3.buyer_no , t3.area_bn , t3.country_bn
                 HAVING maxQuotePrice IS NOT NULL) AS tb2
                 LEFT JOIN
