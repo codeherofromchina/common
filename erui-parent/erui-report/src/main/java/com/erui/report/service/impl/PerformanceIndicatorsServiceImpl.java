@@ -149,7 +149,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum)).setScale(2,BigDecimal.ROUND_DOWN);
+                BigDecimal totalPrice = quota.multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2,BigDecimal.ROUND_DOWN);
 
                 Map<String, Object> map = result.get(orgId);
                 if (map == null) {
@@ -201,7 +201,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum)).setScale(2,BigDecimal.ROUND_DOWN);
+                BigDecimal totalPrice = quota.multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2,BigDecimal.ROUND_DOWN);
 
                 Map<String, Object> map = result.get(country_bn);
                 if (map == null) {
@@ -254,8 +254,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal totalPrice = quota.multiply(new BigDecimal((double) dayNum / diffNum)).setScale(2,BigDecimal.ROUND_DOWN);
-
+                BigDecimal totalPrice = quota.multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2,BigDecimal.ROUND_DOWN);
                 Map<String, Object> map = result.get(area_bn);
                 if (map == null) {
                     map = new HashMap<>();
