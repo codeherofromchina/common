@@ -113,7 +113,7 @@ public class ExportDataController {
         Map<String, String> condition = getParameters(request);
         // 获取统计数据
         HSSFWorkbook data = statisticsService.generateProjectStatisticsExcel(condition);
-        downExcel(data, response, "项目详情执行统计");
+        downExcel(data, response, "项目商品统计");
     }
 
 
