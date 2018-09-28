@@ -95,12 +95,35 @@ public class CheckLogServiceImpl implements CheckLogService {
         return checkLogList;
     }
 
+
+    /**
+     *  根据类型和审核状态从前到后排序订单的所有审核
+     * @param orderId
+     * @return
+     */
+    private List<CheckLog> findListByOrderIdOrderByTypeAndAuditingProcess(Integer orderId) {
+        List<CheckLog> checkLogList = null;
+        if (orderId != null ) {
+            checkLogList =  checkLogDao.findAll(new Specification<CheckLog>() {
+                @Override
+                public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    return cb.equal(root.get("orderId").as(Integer.class), orderId);
+                }
+            },new Sort(Sort.Direction.DESC,"type","auditingProcess"));
+        }
+        if (checkLogList == null) {
+            checkLogList = new ArrayList<>();
+        }
+        return checkLogList;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
         List<CheckLog> resultCheckLogs = new ArrayList<>();
         if (orderId != null) {
-            List<CheckLog> checkLogList = findListByOrderIdOrderByCreateTimeDesc(orderId);
+            List<CheckLog> checkLogList = findListByOrderIdOrderByTypeAndAuditingProcess(orderId);
+//            List<CheckLog> checkLogList = findListByOrderIdOrderByCreateTimeDesc(orderId);
             Order order = orderService.findById(orderId);
             Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态，如果为空说明没有任何审核进度
             if (orderAuditingStatus == null) {
