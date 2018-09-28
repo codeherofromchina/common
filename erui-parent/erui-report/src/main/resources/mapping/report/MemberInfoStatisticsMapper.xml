@@ -5,26 +5,27 @@
     <!--按地区统计会员等级（普通会员、高级会员）-->
     <select id="membershipGradeByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        ma.`name` as `name`,
+        IFNULL(ma.`name`, '其他') AS `name`,
         SUM(IF(b.`buyer_level` = 52, 1, 0)) AS normalGrade,
         SUM(IF(b.`buyer_level` = 53, 1, 0)) AS topGrade
         FROM
         `erui_buyer`.`buyer` b
-        INNER JOIN
+        LEFT JOIN
         erui_operation.market_area_country mac ON mac.country_bn = b.country_bn
-        INNER JOIN
+        LEFT JOIN
         erui_operation.market_area ma ON mac.market_area_bn = ma.bn
+        AND ma.lang = 'zh'
+        AND ma.deleted_flag = 'N'
         WHERE
         b.deleted_flag = 'N'
-        AND ma.deleted_flag = 'N'
         AND b.created_at BETWEEN #{startTime} AND #{endTime}
-        AND ma.lang = 'zh'
         AND ((b.`deleted_flag` = 'N')
         OR (b.`deleted_flag` = 'N'
         AND b.`source` = 1
         AND b.`buyer_code` IS NOT NULL
         AND b.`buyer_code` <![CDATA[ <> ]]> ''))
-        GROUP BY ma.`name` HAVING SUM(CASE b.`buyer_level`
+        GROUP BY ma.`name`
+        HAVING SUM(CASE b.`buyer_level`
         WHEN 52 THEN 1
         WHEN 53 THEN 1
         ELSE 0
@@ -41,28 +42,29 @@
     <!--按国家统计会员等级（普通会员、高级会员）-->
     <select id="membershipGradeByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        ma.`name` AS `name`,
+        IFNULL(ma.`name`, '其他') AS `name`,
         SUM(IF(b.`buyer_level` = 52, 1, 0)) AS normalGrade,
         SUM(IF(b.`buyer_level` = 53, 1, 0)) AS topGrade
         FROM
         `erui_buyer`.`buyer` b
-        INNER JOIN
+        LEFT JOIN
         erui_dict.country ma ON b.country_bn = ma.bn
+        AND ma.deleted_flag = 'N'
+        AND ma.lang = 'zh'
         WHERE
         b.deleted_flag = 'N'
-        AND ma.deleted_flag = 'N'
         AND b.created_at BETWEEN #{startTime} AND #{endTime}
-        AND ma.lang = 'zh'
         AND ((b.`deleted_flag` = 'N')
         OR (b.`deleted_flag` = 'N'
         AND b.`source` = 1
         AND b.`buyer_code` IS NOT NULL
         AND b.`buyer_code` <![CDATA[ <> ]]> ''))
-        GROUP BY ma.`name` HAVING SUM(CASE b.`buyer_level`
-                WHEN 52 THEN 1
-                WHEN 53 THEN 1
-                ELSE 0
-                END) > 0
+        GROUP BY ma.`name`
+        HAVING SUM(CASE b.`buyer_level`
+        WHEN 52 THEN 1
+        WHEN 53 THEN 1
+        ELSE 0
+        END) > 0
         ORDER BY SUM(IF(b.`buyer_level` = 52
         OR b.`buyer_level` = 53,
         1,
@@ -203,11 +205,15 @@
         erui_new_order.`order`, erui_new_order.`project`
         WHERE
         `order`.id = `project`.order_id
-        AND `status` >= 3
+        AND `status` >= 3 AND `order`.delete_flag = 0
         <if test="startTime!=null and startTime!=''">
             AND `project`.start_date BETWEEN #{startTime} AND #{endTime}
         </if>
-        GROUP BY business_unit_id UNION ALL SELECT
+        GROUP BY business_unit_id
+
+        UNION ALL
+
+        SELECT
         CASE
         WHEN org_id IN (9928 , 9929, 9931, 9930, 9907) THEN 1
         WHEN org_id IN (9904 , 9905) THEN 2
@@ -229,7 +235,10 @@
         </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
-        ORDER BY 5 DESC
+        ORDER BY 5
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
     <!-- 按照地区统计会员签约主体 -->
@@ -252,10 +261,13 @@
         AND t3.deleted_flag = 'N',
         erui_new_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
-        ORDER BY COUNT(1) DESC
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 按照国家统计会员签约主体 -->
     <select id="signingBodyByCountry" parameterType="java.util.Map" resultType="java.util.Map">
@@ -277,10 +289,13 @@
         AND t3.deleted_flag = 'N',
         erui_new_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
-        ORDER BY COUNT(1) DESC
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
     <!-- 按照事业部统计会员签约主体 -->
     <select id="signingBodyByOrg" parameterType="java.util.Map" resultType="java.util.Map">
@@ -302,10 +317,13 @@
         AND t3.deleted_flag = 'N',
         erui_new_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
-        ORDER BY COUNT(1) DESC
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
     <!-- 按地区获取订单的总金额 -->
@@ -320,7 +338,7 @@
                 AND t3.deleted_flag = 'N',
             erui_new_order.`project` AS t2
         WHERE
-            t1.id = t2.order_id AND t1.`status` >= 3
+            t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
     </select>
@@ -337,7 +355,7 @@
         AND t3.deleted_flag = 'N',
         erui_new_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
     </select>

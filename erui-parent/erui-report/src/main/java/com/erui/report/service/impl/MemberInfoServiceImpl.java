@@ -102,7 +102,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         if (totalInquiryNum == 0) {
             totalBigDecimal = BigDecimal.ZERO;
         } else {
-            totalBigDecimal = new BigDecimal(totalOrderNum / totalInquiryNum * 100, new MathContext(2, RoundingMode.DOWN));
+            totalBigDecimal = new BigDecimal((double) totalOrderNum / totalInquiryNum * 100, new MathContext(2, RoundingMode.DOWN));
         }
         total.put("rate", totalBigDecimal);
         resultData.add(total);
