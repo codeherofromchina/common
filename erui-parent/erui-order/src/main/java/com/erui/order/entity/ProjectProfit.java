@@ -1,5 +1,7 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 
@@ -14,7 +16,8 @@ public class ProjectProfit {
      * 项目ID
      */
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", insertable = false, updatable = false)
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
     private Project project;
     /**
      * 国家
