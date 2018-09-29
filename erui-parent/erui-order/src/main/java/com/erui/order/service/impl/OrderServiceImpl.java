@@ -1037,7 +1037,7 @@ public class OrderServiceImpl implements OrderService {
             Project project = projectDao.save(projectAdd);
             //添加项目利润核算单信息
             ProjectProfit projectProfit = new ProjectProfit();
-            projectProfit.setId(project.getId());
+            projectProfit.setProject(project);
             projectProfit.setCountry(orderUpdate.getCountry());
             projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
             projectProfit.setContractAmountUsd(orderUpdate.getTotalPriceUsd());
@@ -1466,7 +1466,7 @@ public class OrderServiceImpl implements OrderService {
             Project project1 = projectDao.save(project);
             //添加项目利润核算单信息
             ProjectProfit projectProfit = new ProjectProfit();
-            projectProfit.setId(project1.getId());
+            projectProfit.setProject(project1);
             projectProfit.setCountry(order1.getCountry());
             projectProfit.setTradeTerm(order1.getTradeTerms());
             projectProfit.setContractAmountUsd(order1.getTotalPriceUsd());
