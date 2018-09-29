@@ -554,8 +554,8 @@
         erui_new_order.`order` t1, erui_new_order.`project` t2, erui_buyer.buyer t3
         WHERE
         t1.id = t2.order_id
-        AND t1.buyer_id = t3.id
-        AND t3.id IS NOT NULL
+        AND t1.cmd_code = t3.buyer_code
+        AND t3.cmd_code IS NOT NULL
         AND t1.`status` >= 3
         <if test="startTime!=null and startTime!=''">
             AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -606,8 +606,8 @@
             erui_new_order.`order` t1, erui_new_order.`project` t4, erui_buyer.`buyer` t5
             WHERE
             t1.`status` >= 3 AND t1.id = t4.order_id
-            AND t1.buyer_id IS NOT NULL
-            AND t1.buyer_id = t5.id
+            AND t1.crm_code IS NOT NULL
+            AND t1.crm_code = t5.buyer_code
             <if test="startTime!=null and startTime!=''">
                 AND t4.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
@@ -666,7 +666,7 @@
             erui_buyer.buyer t4
         WHERE
             t1.id = t2.order_id
-                AND t1.buyer_id = t4.id
+                AND t1.crm_code = t4.buyer_code
                 AND t4.`status` in  ('APPROVED','PASS')
                 AND t4.created_at BETWEEN DATE_ADD(#{startTime},
                 INTERVAL -3 MONTH) AND #{endTime}
