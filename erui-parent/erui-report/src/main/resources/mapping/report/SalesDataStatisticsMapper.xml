@@ -546,6 +546,7 @@
         (SELECT
         t3.id AS buyer_id,
         t3.buyer_no AS buyer_no,
+        t3.buyer_code as buyer_code,
         t3.area_bn AS area_bn,
         t3.country_bn AS country_bn,
         MAX(IFNULL(t1.total_price_usd, 0)) AS maxQuotePrice,
@@ -567,7 +568,7 @@
         erui_dict.country tb4 ON tb2.country_bn = tb4.bn
         AND tb4.lang = 'zh'
         WHERE
-        tb1.buyer_id = tb2.buyer_id
+        tb1.crm_code = tb2.buyer_code
         AND IFNULL(tb1.total_price_usd, 0) = tb2.maxQuotePrice
         AND tb1.id = tb5.order_id
         <if test="startTime!=null and startTime!=''">
