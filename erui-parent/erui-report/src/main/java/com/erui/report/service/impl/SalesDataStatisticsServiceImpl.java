@@ -152,15 +152,14 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> nums = new ArrayList<>();
         List<Object> rateList = new ArrayList<>();
         for (Map<String, Object> map : totalBuyer) {
-            String countryName = (String) map.get("countryName");
+            String areaName = (String) map.get("areaName");
             Long total = (Long) map.get("total");
-            Long num = numMap.get(countryName);
+            Long num = numMap.get(areaName);
             if (num == null) {
                 num = 0L;
             }
-            double rate = num / (double) total * 100;
-            BigDecimal bigDecimalRate = new BigDecimal(rate).setScale(2,BigDecimal.ROUND_DOWN);
-            countries.add(countryName == null ? UNKNOW : countryName);
+            BigDecimal bigDecimalRate = new BigDecimal(num).divide(new BigDecimal(total * 100), 2, BigDecimal.ROUND_DOWN);
+            countries.add(areaName == null ? UNKNOW : areaName);
             totalNums.add(total);
             nums.add(num);
             rateList.add(bigDecimalRate);
@@ -330,7 +329,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             areaNames.add(orgName == null ? UNKNOW : orgName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4,BigDecimal.ROUND_DOWN));
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
         }
         result.put("names", areaNames);
         result.put("totalNums", totalNums);
@@ -355,7 +354,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             names.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4,BigDecimal.ROUND_DOWN));
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("totalNums", totalNums);
@@ -381,7 +380,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             orgNames.add(orgName == null ? UNKNOW : orgName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4,BigDecimal.ROUND_DOWN));
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
         }
         result.put("names", orgNames);
         result.put("totalNums", totalNums);
@@ -526,7 +525,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             names.add(name == null ? UNKNOW : name);
             quoteNums.add(quoteNum == null ? 0L : quoteNum.longValue());
             doneNums.add(doneNum == null ? 0L : doneNum.longValue());
-            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred).setScale(2,BigDecimal.ROUND_DOWN));
+            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("quoteNums", quoteNums);
@@ -612,6 +611,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 订单数据统计 - 事业部完成率
      * 实际金额/计划金额
+     *
      * @param params
      * @return
      */
@@ -655,6 +655,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 订单数据统计 - 地区完成率
      * 实际金额/计划金额
+     *
      * @param params
      * @return
      */
@@ -675,6 +676,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 订单数据统计 - 地区完成率
      * （实际金额/实际天数）/(计划金额/计划天数)
+     *
      * @param params
      * @return
      */
@@ -696,6 +698,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 订单数据统计 - 国家完成率
      * 实际金额/计划金额
+     *
      * @param params
      * @return
      */
@@ -716,6 +719,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 订单数据统计 - 国家完成率
      * 实际金额/实际天数）/(计划金额/计划天数)
+     *
      * @param params
      * @return
      */
@@ -829,8 +833,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
                     objArr[1] = BigDecimal.ZERO;
                 } else {
                     // 实际金额/计划金额/10000*100  --- 转换单位和百分比
-                    BigDecimal donePerPrice = doneTotalPrice.divide(new BigDecimal(doneDayNum),4,BigDecimal.ROUND_DOWN);
-                    BigDecimal planPerPrice = planTotalPrice.divide(new BigDecimal(planDayNum),4,BigDecimal.ROUND_DOWN);
+                    BigDecimal donePerPrice = doneTotalPrice.divide(new BigDecimal(doneDayNum), 4, BigDecimal.ROUND_DOWN);
+                    BigDecimal planPerPrice = planTotalPrice.divide(new BigDecimal(planDayNum), 4, BigDecimal.ROUND_DOWN);
                     objArr[1] = donePerPrice.divide(planPerPrice, 0, BigDecimal.ROUND_DOWN).divide(oneHundred, 2, BigDecimal.ROUND_DOWN);
                 }
             } else {

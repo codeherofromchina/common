@@ -132,7 +132,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public Map<String, List<Object>> efficiencyByArea(Map<String, Object> params) {
         // 获取数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByArea(params);
-        Map<String, Integer> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
+        Map<String, Map<String,Object>> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
         boolean ascFlag = "1".equals(params.get("sort"));
         // 处理数据
         Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
@@ -143,7 +143,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public Map<String, List<Object>> efficiencyByCountry(Map<String, Object> params) {
         // 获取数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByCountry(params);
-        Map<String, Integer> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
+        Map<String, Map<String,Object>> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
         boolean ascFlag = "1".equals(params.get("sort"));
         // 处理数据
         Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
@@ -230,42 +230,46 @@ public class MemberInfoServiceImpl implements MemberInfoService {
      * @param ascFlag             true:升序  false:降序
      * @return
      */
-    private Map<String, List<Object>> _handleEfficiencyData(List<Map<String, Object>> orderTotalPriceList, Map<String, Integer> totalNumMap, boolean ascFlag) {
+    private Map<String, List<Object>> _handleEfficiencyData(List<Map<String, Object>> orderTotalPriceList, Map<String, Map<String, Object>> totalNumMap, boolean ascFlag) {
         Set<String> areaNameList = new HashSet<>();
         areaNameList.addAll(totalNumMap.keySet());
-        Map<String, BigDecimal> orderTotalPriceMap = orderTotalPriceList.stream().collect(Collectors.toMap(vo -> {
+
+        Map<String, Map<String, Object>> orderTotalPriceMap = orderTotalPriceList.stream().collect(Collectors.toMap(vo -> {
             String name = (String) vo.get("name");
             areaNameList.add(name);
             return name;
-        }, vo -> (BigDecimal) vo.get("totalPriceUsd")));
+        }, vo -> vo));
 
         int totalNum = 0;
         BigDecimal totalData = BigDecimal.ZERO;
-        BigDecimal tenThousand = new BigDecimal(10000);
+        BigDecimal tenThousand = new BigDecimal(10000); // 单位是美元，通过除以10000转换为万美元
         List<Object[]> list = new ArrayList<>();
         for (String areaName : areaNameList) {
-            Integer num = totalNumMap.get(areaName);
-            BigDecimal price = orderTotalPriceMap.get(areaName);
-            if (num == null) {
-                num = 0;
-            }
-            if (price == null) {
-                price = BigDecimal.ZERO;
-            }
-
+            Map<String, Object> numMap = totalNumMap.get(areaName);
+            Map<String, Object> priceMap = orderTotalPriceMap.get(areaName);
+            int n = 0;
             Object[] objArr = new Object[2];
             objArr[0] = areaName;
-            if (num == 0) {
-                objArr[1] = BigDecimal.ZERO;
-            } else {
-                BigDecimal data = price.divide(new BigDecimal(num),0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
-                objArr[1] = data;
-                if (!data.equals(BigDecimal.ZERO)) {
-                    // 求平均能效的中介值，0的不算其中
-                    totalNum++;
-                    totalData = totalData.add(data);
+            if (numMap != null && priceMap != null) {
+                Integer numDayNum = (Integer) numMap.get("dayNum");
+                BigDecimal salesManNum = (BigDecimal) numMap.get("salesManNum");
+                Long priceDayNum = (Long) priceMap.get("dayNum");
+                BigDecimal totalPriceUsd = (BigDecimal) priceMap.get("totalPriceUsd");
+                if (salesManNum !=null && salesManNum.compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal perTotalPrice = totalPriceUsd.divide(new BigDecimal(priceDayNum),2,BigDecimal.ROUND_DOWN);
+                    BigDecimal perNum = salesManNum.divide(new BigDecimal(numDayNum),2,BigDecimal.ROUND_DOWN);
+                    BigDecimal nengXiao = perTotalPrice.divide(perNum,0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
+                    objArr[1] = nengXiao;
+                    if (!nengXiao.equals(BigDecimal.ZERO)) {
+                        // 求平均能效的中介值，0的不算其中
+                        totalNum++;
+                        totalData = totalData.add(nengXiao);
+                    }
+                } else {
+                    objArr[1] = BigDecimal.ZERO; // 销售人员为0，能效为0%
                 }
-
+            } else {
+                objArr[1] = BigDecimal.ZERO; // 如果计划销售人员数量为空或完成金额为空，则效能为0%
             }
             list.add(objArr);
         }
