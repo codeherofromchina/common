@@ -1088,7 +1088,7 @@ public class ProjectServiceImpl implements ProjectService {
                     // 添加销售合同号和海外销售合同号
                     String contractNo = paramProject.getContractNo();
                     String contractNoOs = paramProject.getContractNoOs();
-                    if (StringUtils.isBlank(contractNo)) {
+                    if (project.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         return false;
                     }
