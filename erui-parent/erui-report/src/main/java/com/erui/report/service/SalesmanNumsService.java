@@ -44,15 +44,16 @@ public interface SalesmanNumsService {
      * @param params
      *        {startTime:'',endTime:''}
      * @return
-     *  {countryName:''}
+     *  {countryName:{salesManNum:n,dayNum:x}}
      */
-    Map<String,Integer> manTotalNumByCountry(Map<String,Object> params);
+    Map<String, Map<String,Object>> manTotalNumByCountry(Map<String,Object> params);
 
     /**
      * 按地区查找给定时间段内的销售人员总数量
      * @param params
      *        {startTime:'',endTime:''}
      * @return
+     *  {areaName:{salesManNum:n,dayNum:x}}
      */
-    Map<String,Integer> manTotalNumByArea(Map<String, Object> params);
+    Map<String, Map<String,Object>> manTotalNumByArea(Map<String, Object> params);
 }
