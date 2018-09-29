@@ -146,7 +146,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     private Map<String, List<Object>> _handleMemberNum(List<Map<String, Object>> totalBuyer, List<Map<String, Object>> otherBuyer) {
-        Map<String, Long> numMap = otherBuyer.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("countryName"), vo -> (Long) vo.get("total")));
+        Map<String, Long> numMap = otherBuyer.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (Long) vo.get("total")));
         List<Object> countries = new ArrayList<>();
         List<Object> totalNums = new ArrayList<>();
         List<Object> nums = new ArrayList<>();
