@@ -228,7 +228,7 @@
         erui_rfq.inquiry
         WHERE
         deleted_flag = 'N'
-        AND `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSE')
+        AND `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
         AND quote_status IN ('QUOTED' , 'COMPLETED')
         <if test="startTime!=null and startTime!=''">
             AND inflow_time BETWEEN #{startTime} AND #{endTime}
