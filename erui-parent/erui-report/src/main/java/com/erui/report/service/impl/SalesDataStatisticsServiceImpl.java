@@ -127,10 +127,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> lossMemberStatistics(Map<String, Object> params) {
+        long start01 = System.currentTimeMillis();
         // 查找会员总数
         List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByArea(params);
+        long start02 = System.currentTimeMillis();
         // 查找流失会员数
         List<Map<String, Object>> lossBuyer = salesDataStatisticsMapper.buyerLossCountGoupByArea(params);
+        long start03 = System.currentTimeMillis();
         if (totalBuyer == null || totalBuyer.size() == 0 || lossBuyer == null || lossBuyer.size() == 0) {
             return null;
         }
