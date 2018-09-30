@@ -111,25 +111,33 @@
     <!-- 会员流失数-->
     <select id="buyerLossCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t2.`name` AS areaName, COUNT(t1.id) AS total
+            t2.`name` AS areaName, COUNT(t1.id) AS total
         FROM
-        erui_buyer.buyer t1
-        LEFT JOIN
-        erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.area_bn = t2.bn
+            erui_buyer.buyer t1
+                LEFT JOIN
+            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.area_bn = t2.bn
         WHERE
-        t1.created_at BETWEEN DATE_ADD(t1.created_at,INTERVAL -6 MONTH) AND #{endTime}
-        AND t1.`status` in ('PASS','ARROVED')
-        AND NOT EXISTS( SELECT
-        id
-        FROM
-        erui_rfq.inquiry t3
-        WHERE
-        t3.buyer_id = t1.id and t3.`status` IN ('BIZ_DISPATCHING',
-                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
-                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
-        AND t3.inflow_time BETWEEN DATE_ADD(t1.created_at,INTERVAL -6 MONTH) AND #{endTime}
-        AND t3.inflow_time <![CDATA[ < ]]> DATE_ADD(t1.created_at,
-        INTERVAL 6 MONTH))
+            t1.`status` IN ('PASS' , 'ARROVED')
+                AND t1.deleted_flag = 'N'
+                AND t1.created_at BETWEEN DATE_ADD(#{startTime},
+                INTERVAL - 6 MONTH) AND #{endTime}
+                AND t1.id NOT IN (SELECT
+                    id
+                FROM
+                    erui_rfq.inquiry t3
+                WHERE
+                    t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                        'BIZ_QUOTING',
+                        'LOGI_DISPATCHING',
+                        'LOGI_QUOTING',
+                        'LOGI_APPROVING',
+                        'BIZ_APPROVING',
+                        'MARKET_APPROVING',
+                        'MARKET_CONFIRMING',
+                        'QUOTE_SENT',
+                        'INQUIRY_CLOSED')
+                        AND t3.inflow_time BETWEEN DATE_ADD(#{startTime},
+                        INTERVAL - 6 MONTH) AND #{endTime})
         GROUP BY t2.`name`
     </select>
 
@@ -142,18 +150,27 @@
         LEFT JOIN
         erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
         WHERE
-        t1.`status` in ('PASS','ARROVED')
+        t1.`status` IN ('PASS' , 'ARROVED')
+        AND t1.deleted_flag = 'N'
         AND t1.id IN (SELECT
         buyer_id
         FROM
         erui_rfq.inquiry t3
         WHERE
-        t3.`status` IN ('BIZ_DISPATCHING',
-                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
-                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
-        AND t3.inflow_time <![CDATA[ <= ]]> #{endTime}
+        t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+        'BIZ_QUOTING',
+        'LOGI_DISPATCHING',
+        'LOGI_QUOTING',
+        'LOGI_APPROVING',
+        'BIZ_APPROVING',
+        'MARKET_APPROVING',
+        'MARKET_CONFIRMING',
+        'QUOTE_SENT',
+        'INQUIRY_CLOSED')
+        AND t3.inflow_time <![CDATA[ <= ]]>  #{endTime}
         AND t3.inflow_time <![CDATA[ >= ]]> DATE_ADD(#{startTime},
-        INTERVAL -3 MONTH) group by buyer_id)
+        INTERVAL - 3 MONTH)
+        GROUP BY buyer_id)
         GROUP BY t2.`name`
     </select>
 
@@ -600,7 +617,7 @@
             t5.country_bn AS country_bn,
             t5.area_bn AS area_bn,
             CASE
-            WHEN COUNT(1) > 1 THEN DATEDIFF(MAX(t1.create_time), MIN(t1.create_time)) / COUNT(1)
+            WHEN COUNT(1) > 1 THEN DATEDIFF(MAX(t4.start_date), MIN(t4.start_date)) / COUNT(1)
             ELSE 0
             END AS cycle
             FROM
