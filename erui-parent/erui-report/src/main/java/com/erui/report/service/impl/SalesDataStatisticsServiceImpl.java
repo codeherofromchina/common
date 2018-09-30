@@ -158,7 +158,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             if (num == null) {
                 num = 0L;
             }
-            BigDecimal bigDecimalRate = new BigDecimal(num).divide(new BigDecimal(total * 100), 2, BigDecimal.ROUND_DOWN);
+            BigDecimal bigDecimalRate = new BigDecimal(num * 100).divide(new BigDecimal(total), 2, BigDecimal.ROUND_DOWN); // 乘100是为了前端不用转换成百分数直接显示
             countries.add(areaName == null ? UNKNOW : areaName);
             totalNums.add(total);
             nums.add(num);
@@ -825,7 +825,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             objArr[0] = name;
             if (donePrice != null && planPrice != null) {
                 BigDecimal doneTotalPrice = (BigDecimal) donePrice.get("totalPrice"); // 单位是美元
-                Integer doneDayNum = (Integer) donePrice.get("dayNum"); // 实际金额的天数
+                Long doneDayNum = (Long) donePrice.get("dayNum"); // 实际金额的天数
                 BigDecimal planTotalPrice = (BigDecimal) planPrice.get("totalPrice");// 单位是万美元
                 Integer planDayNum = (Integer) planPrice.get("dayNum");// 计划金额的天数
 
