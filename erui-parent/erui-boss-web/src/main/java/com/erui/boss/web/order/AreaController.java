@@ -52,8 +52,7 @@ public class AreaController {
         Map<String,Object> map1 = new HashedMap();
         map1.put("abc",str);
 
-        map1.put("abc2","xiaodan");
-
+        map1.put("abc2","shuaiguo222222222");
         return new Result<>(map1);
 
     }

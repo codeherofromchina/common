@@ -8,10 +8,7 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
-import com.erui.order.dao.BackLogDao;
-import com.erui.order.dao.CheckLogDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.ProjectDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
@@ -61,8 +58,8 @@ public class ProjectServiceImpl implements ProjectService {
     private CheckLogService checkLogService;
     @Autowired
     private CheckLogDao checkLogDao;
-
-
+    @Autowired
+    private ProjectProfitDao projectProfitDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -156,6 +153,9 @@ public class ProjectServiceImpl implements ProjectService {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 //Order order = projectUpdate.getOrder();
                 projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                ProjectProfit projectProfit = project.getProjectProfit();
+                projectProfit.setProject(project);
+                projectProfitDao.save(projectProfit);
                 project.copyProjectDescTo(projectUpdate);
                 order.setStatus(Order.StatusEnum.DONE.getCode());
                 applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -177,6 +177,9 @@ public class ProjectServiceImpl implements ProjectService {
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
                     }
+                    ProjectProfit projectProfit = project.getProjectProfit();
+                    projectProfit.setProject(project);
+                    projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                         // 提交到项目经理，则项目成员不能设置
@@ -401,7 +404,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("31025,31274");
+        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1065,8 +1068,6 @@ public class ProjectServiceImpl implements ProjectService {
                         //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
                     } else {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
-//                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
-//                        auditingUserId_i = "30979,31274"; // 姜聪聪 / 展召申
                     }
                     break;
                 case 2: // 法务审核
@@ -1087,7 +1088,7 @@ public class ProjectServiceImpl implements ProjectService {
                     // 添加销售合同号和海外销售合同号
                     String contractNo = paramProject.getContractNo();
                     String contractNoOs = paramProject.getContractNoOs();
-                    if(StringUtils.isBlank(contractNo)) {
+                    if (project.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         return false;
                     }
@@ -1095,7 +1096,7 @@ public class ProjectServiceImpl implements ProjectService {
                     List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
                     if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
                         Integer projectId = project.getId();
-                        for(Integer proId:contractNoProjectIds){
+                        for (Integer proId : contractNoProjectIds) {
                             if (proId.intValue() != projectId.intValue()) {
                                 return false;
                             }
@@ -1107,7 +1108,7 @@ public class ProjectServiceImpl implements ProjectService {
                     break;
                 case 3:
                     auditingProcess_i = auditingProcess.replace("3", "4");
-                    auditingUserId_i = auditingUserId.replace("31274", "39252"); // 直接进入到下一步结算审核
+                    auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
                     break;
                 case 4:
                     String replace2 = auditingUserId.replace("39252", "");

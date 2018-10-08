@@ -38,6 +38,8 @@ public interface StatisticsService {
     Page<ProjectStatistics> findProjectStatisticsByPage(Map<String,String> condition);
     HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition);
 
+    HSSFWorkbook generateProjectDescStatisticsExcel(Map<String, String> condition);
+
     /**
      * 查询订单下商品的台账
      * @param orderId

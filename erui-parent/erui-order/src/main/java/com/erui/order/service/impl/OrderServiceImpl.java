@@ -60,6 +60,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProjectDao projectDao;
     @Autowired
+    private ProjectProfitDao projectProfitDao;
+    @Autowired
     private CompanyService companyService;
     @Autowired
     private StatisticsService statisticsService;
@@ -1032,7 +1034,16 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
             projectAdd.setAuditingStatus(1);
             //商务技术经办人名称
-            projectDao.save(projectAdd);
+            Project project = projectDao.save(projectAdd);
+            //添加项目利润核算单信息
+            ProjectProfit projectProfit = new ProjectProfit();
+            projectProfit.setProject(project);
+            projectProfit.setCountry(orderUpdate.getCountry());
+            projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
+            projectProfit.setContractAmountUsd(orderUpdate.getTotalPriceUsd());
+            projectProfit.setExchangeRate(orderUpdate.getExchangeRate());
+            //projectAdd.setProjectProfit(projectProfit);
+            projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
             if (StringUtils.isNotBlank(eruiToken)) {
@@ -1451,7 +1462,16 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             //新建项目审批状态为未审核
             project.setAuditingStatus(1);
-            projectDao.save(project);
+            //projectAdd.setProjectProfit(projectProfit);
+            Project project1 = projectDao.save(project);
+            //添加项目利润核算单信息
+            ProjectProfit projectProfit = new ProjectProfit();
+            projectProfit.setProject(project1);
+            projectProfit.setCountry(order1.getCountry());
+            projectProfit.setTradeTerm(order1.getTradeTerms());
+            projectProfit.setContractAmountUsd(order1.getTotalPriceUsd());
+            projectProfit.setExchangeRate(order1.getExchangeRate());
+            projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
             if (StringUtils.isNotBlank(eruiToken)) {

@@ -534,6 +534,7 @@ public class Order {
         }
         return null;
     }*/
+    //去掉千位分隔符
     public BigDecimal getTotalPriceUsdSplit() {
         if (getTotalPriceUsd() != null) {
             return getTotalPriceUsd();

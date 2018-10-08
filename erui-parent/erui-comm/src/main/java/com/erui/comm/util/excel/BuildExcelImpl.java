@@ -1,26 +1,19 @@
 package com.erui.comm.util.excel;
 
+import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.excel.graphbuilder.math.Expression;
+import com.erui.comm.util.excel.graphbuilder.math.ExpressionTree;
+import com.erui.comm.util.excel.graphbuilder.math.VarMap;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.FillPatternType;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.excel.graphbuilder.math.Expression;
-import com.erui.comm.util.excel.graphbuilder.math.ExpressionTree;
-import com.erui.comm.util.excel.graphbuilder.math.VarMap;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.FillPatternType;
 
 
 public class BuildExcelImpl implements BuildExcel {
@@ -70,13 +63,13 @@ public class BuildExcelImpl implements BuildExcel {
 					if(objs[j] instanceof BigDecimal){
 						HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
 						HSSFDataFormat format= hssfWorkBook.createDataFormat();
-						cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+						//cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 						cell.setCellStyle(cellStyle);
 						cell.setCellValue(((BigDecimal)objs[j]).doubleValue());
 					} else if (objs[j] instanceof Double){
 						HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();  
 			            HSSFDataFormat format= hssfWorkBook.createDataFormat();  
-			            cellStyle.setDataFormat(format.getFormat("#,##0.00")); 
+			            //cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 						cell.setCellStyle(cellStyle);
 						cell.setCellValue(((Double)objs[j]));
 					}else if (objs[j] instanceof Date){
@@ -135,13 +128,13 @@ public class BuildExcelImpl implements BuildExcel {
 							if(obj instanceof BigDecimal){
 								HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
 								HSSFDataFormat format= hssfWorkBook.createDataFormat();
-								cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+								//cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 								cell.setCellStyle(cellStyle);
 								cell.setCellValue(((BigDecimal)obj).doubleValue());
 							} else if (obj instanceof Double){
 								HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();  
 					            HSSFDataFormat format= hssfWorkBook.createDataFormat();  
-					            cellStyle.setDataFormat(format.getFormat("#,##0.00")); 
+					            //cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 								cell.setCellStyle(cellStyle);
 								cell.setCellValue(((Double)obj));
 							}else if (obj instanceof Date){
