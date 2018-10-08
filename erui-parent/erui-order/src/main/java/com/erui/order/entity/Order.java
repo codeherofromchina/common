@@ -666,6 +666,9 @@ public class Order {
     }
 
     public String getOrderSourceName() {
+        if (getOrderSource() == null) {
+            return null;
+        }
         // 1 门户订单 2 门户询单 3 线下订单',
         if (getOrderSource() != null) {
             if (getOrderSource() == 1) {
@@ -681,6 +684,9 @@ public class Order {
 
 
     public String getEnOrderSourceName() {
+        if (getOrderSource() == null) {
+            return null;
+        }
         // 1 门户订单 2 门户询单 3 线下订单',
         if (getOrderSource() != null) {
             if (getOrderSource() == 1) {

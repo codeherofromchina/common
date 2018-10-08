@@ -1176,7 +1176,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         // 查询合格供应商数量信息
         Map<String, Object> supplierNumInfoData = selectSupplierNumInfoGroupByOrg(params);
         // 标题
-        String[] header = new String[]{"", "易瑞-钻完井设备", "易瑞-钻完井设备", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞","其他"};
+        String[] header = new String[]{"", "易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞","其他"};
         // 处理数据
         List<Object> row01 = new ArrayList<>();
         row01.add("询单数量");

@@ -3,6 +3,8 @@ package com.erui.report.dao;
 import com.erui.report.model.SalesmanNums;
 import com.erui.report.model.SalesmanNumsExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface SalesmanNumsMapper {
@@ -27,4 +29,11 @@ public interface SalesmanNumsMapper {
     int updateByPrimaryKeySelective(SalesmanNums record);
 
     int updateByPrimaryKey(SalesmanNums record);
+
+    /**
+     * 根据给定参数的开始时间和结束时间查询销售人员数量、国家、地区等信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> selectNumsWhereTime(Map<String, Object> params);
 }

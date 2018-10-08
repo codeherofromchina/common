@@ -37,4 +37,23 @@ public interface SalesmanNumsService {
      * @return
      */
     PageInfo<SalesmanNums> list(Map<String, Object> params);
+
+
+    /**
+     * 按国家查找给定时间段内的销售人员总数量
+     * @param params
+     *        {startTime:'',endTime:''}
+     * @return
+     *  {countryName:{salesManNum:n,dayNum:x}}
+     */
+    Map<String, Map<String,Object>> manTotalNumByCountry(Map<String,Object> params);
+
+    /**
+     * 按地区查找给定时间段内的销售人员总数量
+     * @param params
+     *        {startTime:'',endTime:''}
+     * @return
+     *  {areaName:{salesManNum:n,dayNum:x}}
+     */
+    Map<String, Map<String,Object>> manTotalNumByArea(Map<String, Object> params);
 }
