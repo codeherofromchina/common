@@ -642,7 +642,8 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             //订单金额大于10万小于300万 交给区域负责人审核
                             auditingProcess_i = "3";
-                            auditingUserId_i = order.getAreaLeaderId().toString();
+                            if (order.getAreaLeaderId() != null)
+                                auditingUserId_i = order.getAreaLeaderId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     }
@@ -657,7 +658,7 @@ public class OrderServiceImpl implements OrderService {
                         addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            if (order.getFinancing() == null || addOrderVo.getFinancing() == 0) {
+                            if (order.getFinancing() == null || order.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万-300万美元 提交至商品添加
                                 auditingProcess_i = "6";
                                 auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
@@ -671,7 +672,9 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             //订单金额大于300万 交给区域VP审核
                             auditingProcess_i = "4";
-                            auditingUserId_i = order.getAreaVpId().toString();
+                            if (order.getAreaVpId() != null)
+                            if (order.getAreaVpId() != null)
+                                auditingUserId_i = order.getAreaVpId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     }
