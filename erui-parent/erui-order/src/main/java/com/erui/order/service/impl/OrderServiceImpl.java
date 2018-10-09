@@ -663,7 +663,7 @@ public class OrderServiceImpl implements OrderService {
                                 auditingProcess_i = "6";
                                 auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                                 auditorIds.append("," + auditingUserId_i + ",");
-                            } else if (addOrderVo.getFinancing() == 1) {
+                            } else if (order.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
                                 auditingUserId_i = order.getFinancingCommissionerId().toString();
