@@ -283,25 +283,12 @@ public class ProjectServiceImpl implements ProjectService {
                             // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
                             submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                         } else {
-                            Integer auditingLevel = project.getAuditingLevel();
-                            Integer orderCategory = order.getOrderCategory();
-                            if (orderCategory != null && orderCategory == 1) { // 预投
-                                auditingLevel = 4; // 四级审核
-                            } else if (orderCategory != null && orderCategory == 3) { // 试用
-                                auditingLevel = 2; // 二级审核
-                            } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
-                                // 既不是预投。又不是试用，则需要检查参数
-                                throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
-                            }
                             projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
                             projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
                             projectUpdate.setCeo(project.getCeo());
                             projectUpdate.setCeoId(project.getCeoId());
                             projectUpdate.setChairman(project.getChairman());
                             projectUpdate.setChairmanId(project.getChairmanId());
-                            projectUpdate.setAuditingLevel(auditingLevel);
-                            projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-                            projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
                         }
 
 
