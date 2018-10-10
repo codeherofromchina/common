@@ -624,7 +624,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         auditingProcess_i = "2";
                         auditingUserId_i = order.getCountryLeaderId().toString();
@@ -637,7 +637,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         //根据订单金额判断 填写审批人级别
                         if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
@@ -668,7 +668,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
                             if (order.getFinancing() == null || order.getFinancing() == 0) {
@@ -698,7 +698,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
@@ -719,7 +719,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
                         auditingProcess_i = "6";
