@@ -599,6 +599,19 @@ public class OrderServiceImpl implements OrderService {
                             auditingUserId_i = checkLog.getNextAuditingUserId();
                             auditorIds.append("," + auditingUserId_i + ",");
                             addOrderVo.copyBaseInfoTo(order);
+                            if (order.getId() != null) {
+                                order.getProject().setExecCoName(order.getExecCoName());
+                                order.getProject().setBusinessUid(order.getTechnicalId());
+                                order.getProject().setExecCoName(order.getExecCoName());
+                                order.getProject().setBusinessUnitName(order.getBusinessUnitName());
+                                order.getProject().setSendDeptId(order.getBusinessUnitId());
+                                order.getProject().setRegion(order.getRegion());
+                                order.getProject().setCountry(order.getCountry());
+                                order.getProject().setTotalPriceUsd(order.getTotalPriceUsd());
+                                order.getProject().setDistributionDeptName(order.getDistributionDeptName());
+                                order.getProject().setBusinessName(order.getBusinessName());
+                                order.getProject().setCreateTime(new Date());
+                            }
                         }
                     } else {
                         auditingProcess_i = "1";
@@ -611,7 +624,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         auditingProcess_i = "2";
                         auditingUserId_i = order.getCountryLeaderId().toString();
@@ -624,7 +637,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         //根据订单金额判断 填写审批人级别
                         if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
@@ -642,7 +655,8 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             //订单金额大于10万小于300万 交给区域负责人审核
                             auditingProcess_i = "3";
-                            auditingUserId_i = order.getAreaLeaderId().toString();
+                            if (order.getAreaLeaderId() != null)
+                                auditingUserId_i = order.getAreaLeaderId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     }
@@ -654,15 +668,15 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            if (order.getFinancing() == null || addOrderVo.getFinancing() == 0) {
+                            if (order.getFinancing() == null || order.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万-300万美元 提交至商品添加
                                 auditingProcess_i = "6";
                                 auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                                 auditorIds.append("," + auditingUserId_i + ",");
-                            } else if (addOrderVo.getFinancing() == 1) {
+                            } else if (order.getFinancing() == 1) {
                                 //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                                 auditingProcess_i = "5"; // 融资审核
                                 auditingUserId_i = order.getFinancingCommissionerId().toString();
@@ -671,7 +685,9 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             //订单金额大于300万 交给区域VP审核
                             auditingProcess_i = "4";
-                            auditingUserId_i = order.getAreaVpId().toString();
+                            if (order.getAreaVpId() != null)
+                                if (order.getAreaVpId() != null)
+                                    auditingUserId_i = order.getAreaVpId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     }
@@ -682,7 +698,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
@@ -703,7 +719,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = checkLog.getNextAuditingProcess();
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
-                        addOrderVo.copyBaseInfoTo(order);
+                        //addOrderVo.copyBaseInfoTo(order);
                     } else {
                         //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
                         auditingProcess_i = "6";
@@ -754,200 +770,6 @@ public class OrderServiceImpl implements OrderService {
         return checkLog;
     }
 
-    /*    @Override
-        @Transactional(rollbackFor = Exception.class)
-        public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
-            Order order = orderDao.findOne(addOrderVo.getId());
-            if (order == null) {
-                return null;
-            }
-            if (!order.getContractNo().equals(addOrderVo.getContractNo())) {
-                if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
-                    throw new MyException("销售合同号已存在&&The order No. already exists");
-                }
-            } else {
-                if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 1) {
-                    throw new MyException("销售合同号已存在&&The order No. already exists");
-                }
-            }
-         *//*   if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            // 检查和贸易术语相关字段的完整性
-            checkOrderTradeTermsRelationField(addOrderVo);
-        }*//*
-        addOrderVo.copyBaseInfoTo(order);
-        if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
-            order.setContractNo(addOrderVo.getContractNoOs());
-        } else {
-            order.setContractNo(addOrderVo.getContractNo());
-        }
-        // 处理附件信息
-        //  List<Attachment> attachments = attachmentService.handleParamAttachment(null, addOrderVo.getAttachDesc(), null, null);
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
-        List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
-        Goods goods = null;
-        List<Goods> goodsList = new ArrayList<>();
-        Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        Set<String> skuRepeatSet = new HashSet<>();
-
-        for (PGoods pGoods : pGoodsList) {
-            if (pGoods.getId() == null) {
-                goods = new Goods();
-                goods.setOrder(order);
-            } else {
-                goods = dbGoodsMap.remove(pGoods.getId());
-                if (goods == null) {
-                    throw new MyException("不存在的商品标识&&Non-existent product identifier");
-                }
-            }
-            String sku = pGoods.getSku();
-            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
-                // 已经存在的sku，返回错误
-                throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
-            }
-            goods.setSku(sku);
-            goods.setMeteType(pGoods.getMeteType());
-            goods.setMeteName(pGoods.getMeteName());
-            goods.setNameEn(pGoods.getNameEn());
-            goods.setNameZh(pGoods.getNameZh());
-            goods.setContractGoodsNum(pGoods.getContractGoodsNum());
-            goods.setUnit(pGoods.getUnit());
-            goods.setModel(pGoods.getModel());
-            goods.setClientDesc(pGoods.getClientDesc());
-            goods.setBrand(pGoods.getBrand());
-            goods.setContractNo(order.getContractNo());
-            goods.setPurchasedNum(0);
-            goods.setPrePurchsedNum(0);
-            goods.setInspectNum(0);
-            goods.setInstockNum(0);
-            goods.setOutstockApplyNum(0);
-            goods.setExchanged(false);
-            goods.setOutstockNum(0);
-            goods.setDepartment(pGoods.getDepartment());
-            goods.setPrice(pGoods.getPrice());
-            goodsList.add(goods);
-        }
-        order.setGoodsList(goodsList);
-        goodsDao.delete(dbGoodsMap.values());
-        order.setOrderPayments(addOrderVo.getContractDesc());
-        order.setDeleteFlag(false);
-        //根据订单金额判断 填写审批人级别
-        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-            order.setCountryLeader(addOrderVo.getCountryLeader());
-        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-            order.setCountryLeader(addOrderVo.getCountryLeader());
-            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-            order.setAreaLeader(addOrderVo.getAreaLeader());
-        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-            order.setCountryLeader(addOrderVo.getCountryLeader());
-            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-            order.setAreaLeader(addOrderVo.getAreaLeader());
-            order.setAreaVpId(addOrderVo.getAreaVpId());
-            order.setAreaVp(addOrderVo.getAreaVp());
-        }
-        order.setAuditingProcess(1);
-        order.setFinancingCommissionerId(39535);
-        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
-            order.setAuditingStatus(1);
-        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            order.setAuditingStatus(2);
-            order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
-        }
-        CheckLog checkLog_i = null; // 审核日志
-        Order orderUpdate = orderDao.saveAndFlush(order);
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), null, "1", 1);
-            checkLogService.insert(checkLog_i);
-        }
-        Date signingDate = null;
-        if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            signingDate = orderUpdate.getSigningDate();
-        }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
-            if (orderLog.size() > 0) {
-                Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
-                if (collect.containsKey("1")) {
-                    orderLogDao.delete(collect.get("1").getId());
-                }
-            }
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
-            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
-            Project projectAdd = new Project();
-            projectAdd.setOrder(orderUpdate);
-            projectAdd.setExecCoName(orderUpdate.getExecCoName());
-            projectAdd.setContractNo(orderUpdate.getContractNo());
-            projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
-            projectAdd.setExecCoName(orderUpdate.getExecCoName());
-            projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
-            projectAdd.setSendDeptId(orderUpdate.getBusinessUnitId());
-            projectAdd.setRegion(orderUpdate.getRegion());
-            projectAdd.setCountry(orderUpdate.getCountry());
-            projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
-            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
-            projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
-            projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
-            projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
-            projectAdd.setOverseasSales(orderUpdate.getOverseasSales());
-            projectAdd.setPurchDone(Boolean.FALSE);
-            projectAdd.setCreateTime(new Date());
-            projectAdd.setUpdateTime(new Date());
-            projectAdd.setBusinessName(orderUpdate.getBusinessName());
-            projectAdd.setAuditingStatus(1);
-            //商务技术经办人名称
-            Project project2 = projectDao.save(projectAdd);
-            // 设置商品的项目信息
-            List<Goods> goodsList1 = orderUpdate.getGoodsList();
-            goodsList1.parallelStream().forEach(goods1 -> {
-                goods1.setProject(project2);
-                goods1.setProjectNo(project2.getProjectNo());
-            });
-            goodsDao.save(goodsList1);
-
-            // 调用CRM系统，触发CRM用户升级任务
-            String eruiToken = (String) ThreadLocalUtil.getObject();
-            if (StringUtils.isNotBlank(eruiToken)) {
-                String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");*/
-    //             header.put("accept", "*/*");
-              /*  String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
-                logger.info("CRM返回信息：" + s);
-            }
-
-            //销售订单通知：销售订单下达后通知商务技术经办人
-            sendSms(order);
-
-
-            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
-            BackLog backLog = new BackLog();
-            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
-            backLog.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog);
-
-
-            //订单提交 推送“待办”到项目
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            String contractNo = orderUpdate.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = orderUpdate.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = orderUpdate.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
-            Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
-            newBackLog.setUid(technicalId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
-
-        }
-        return order.getId();
-    }*/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
@@ -1041,7 +863,7 @@ public class OrderServiceImpl implements OrderService {
             projectProfit.setCountry(orderUpdate.getCountry());
             projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
             projectProfit.setContractAmountUsd(orderUpdate.getTotalPriceUsd());
-            projectProfit.setExchangeRate(orderUpdate.getExchangeRate());
+            //projectProfit.setExchangeRate(orderUpdate.getExchangeRate());
             //projectAdd.setProjectProfit(projectProfit);
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
@@ -1137,239 +959,6 @@ public class OrderServiceImpl implements OrderService {
         return goodsList1;
     }
 
-    /*  // 检查和贸易术语相关字段的完整性
-      private void checkOrderTradeTermsRelationField(AddOrderVo addOrderVo) throws Exception {
-          String tradeTerms = addOrderVo.getTradeTerms(); // 贸易术语
-          String toCountry = addOrderVo.getToCountry(); // 目的国
-          String transportType = addOrderVo.getTransportType(); // 运输方式
-          String toPort = addOrderVo.getToPort(); // 目的港
-          String toPlace = addOrderVo.getToPlace(); // 目的地
-          if (StringUtils.isBlank(tradeTerms)) {
-              throw new MyException("贸易术语不能为空");
-          }
-          if (StringUtils.isBlank(toCountry)) {
-              throw new MyException("目的国不能为空");
-          }
-          switch (tradeTerms) {
-              case "EXW":
-              case "FCA":
-                  if (StringUtils.isBlank(transportType)) {
-                      throw new MyException("运输方式不能为空");
-                  }
-                  break;
-              case "CNF":
-              case "CFR":
-              case "CIF":
-                  if (StringUtils.isBlank(toPort)) {
-                      throw new MyException("目的港不能为空");
-                  }
-                  break;
-              case "CPT":
-              case "CIP":
-                  if (StringUtils.isBlank(toPort)) {
-                      throw new MyException("目的港不能为空");
-                  }
-                  if (StringUtils.isBlank(toPlace)) {
-                      throw new MyException("目的地不能为空");
-                  }
-                  break;
-              case "DAT":
-              case "DAP":
-              case "DDP":
-                  if (StringUtils.isBlank(toPlace)) {
-                      throw new MyException("目的地不能为空");
-                  }
-                  break;
-              *//*
-                case "FOB":
-                case "FAS":
-                    break;
-                default:
-                    throw new MyException("不存在的贸易术语");
-            *//*
-        }
-    }*/
-   /* @Override
-    @Transactional(rollbackFor = Exception.class)*/
-    /*public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
-
-        if (!StringUtils.equals("", addOrderVo.getContractNo()) && orderDao.countByContractNo(addOrderVo.getContractNo()) > 0) {
-            throw new MyException("销售合同号已存在&&The order No. already exists");
-        }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            // 检查和贸易术语相关字段的完整性
-            checkOrderTradeTermsRelationField(addOrderVo);
-        }
-        Order order = new Order();
-        addOrderVo.copyBaseInfoTo(order);
-        if (new Integer(3).equals(addOrderVo.getOverseasSales())) {
-            order.setContractNo(addOrderVo.getContractNoOs());
-        } else {
-            order.setContractNo(addOrderVo.getContractNo());
-        }
-        order.setCreateUserId(addOrderVo.getCreateUserId());
-        order.setCreateUserName(addOrderVo.getCreateUserName());
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
-        List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
-        Goods goods = null;
-        List<Goods> goodsList = new ArrayList<>();
-        Set<String> skuRepeatSet = new HashSet<>();
-        for (PGoods pGoods : pGoodsList) {
-            goods = new Goods();
-            //goods.setSeq(pGoods.getSeq());
-            String sku = pGoods.getSku();
-            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
-                // 已经存在的sku，返回错误
-                throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
-            }
-            goods.setSku(sku);
-            goods.setOutstockNum(0);
-            goods.setMeteType(pGoods.getMeteType());
-            goods.setMeteName(pGoods.getMeteName());
-            goods.setNameEn(pGoods.getNameEn());
-            goods.setNameZh(pGoods.getNameZh());
-            goods.setContractGoodsNum(pGoods.getContractGoodsNum());
-            goods.setUnit(pGoods.getUnit());
-            goods.setModel(pGoods.getModel());
-            goods.setClientDesc(pGoods.getClientDesc());
-            goods.setBrand(pGoods.getBrand());
-            goods.setContractNo(order.getContractNo());
-            goods.setPurchasedNum(0);
-            goods.setPrePurchsedNum(0);
-            goods.setInstockNum(0);
-            goods.setInspectNum(0);
-            goods.setOutstockApplyNum(0);
-            goods.setOutstockNum(0);
-            goods.setExchanged(false);
-            goods.setDepartment(pGoods.getDepartment());
-            goods.setPrice(pGoods.getPrice());
-            goods.setOrder(order);
-            goodsList.add(goods);
-            goods.setOrder(order);
-        }
-        order.setGoodsList(goodsList);
-        order.setOrderPayments(addOrderVo.getContractDesc());
-        order.setCreateTime(new Date());
-        order.setDeleteFlag(false);
-        //根据订单金额判断 填写审批人级别
-        if (addOrderVo.getTotalPriceUsd() != null) {
-            if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-            } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                order.setAreaLeader(addOrderVo.getAreaLeader());
-            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                order.setAreaLeader(addOrderVo.getAreaLeader());
-                order.setAreaVpId(addOrderVo.getAreaVpId());
-                order.setAreaVp(addOrderVo.getAreaVp());
-            }
-        }
-        order.setAuditingProcess(1);
-        order.setFinancingCommissionerId(39535);
-        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
-            order.setAuditingStatus(1);
-        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            order.setAuditingStatus(2);
-            order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
-        }
-        CheckLog checkLog_i = null;//审批流日志
-        Order order1 = orderDao.save(order);
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), null, "1", 1);
-            checkLogService.insert(checkLog_i);
-        }
-        Date signingDate = null;
-        if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            signingDate = order1.getSigningDate();
-        }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            //添加订单未执行事件
-            applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
-            List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
-            if (orderLog.size() > 0) {
-                Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
-                if (collect.containsKey("1")) {
-                    orderLogDao.delete(collect.get("1").getId());
-                }
-            }
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
-            // 订单提交时推送项目信息
-            Project project = new Project();
-            //project.setProjectNo(UUID.randomUUID().toString());
-            project.setOrder(order1);
-            project.setContractNo(order1.getContractNo());
-            project.setBusinessUid(order1.getTechnicalId());
-            project.setExecCoName(order1.getExecCoName());
-            project.setBusinessUnitName(order1.getBusinessUnitName());
-            project.setSendDeptId(order1.getBusinessUnitId());
-            project.setDistributionDeptName(order1.getDistributionDeptName());
-            project.setRegion(order1.getRegion());
-            project.setCountry(order1.getCountry());
-            project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
-            project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
-            project.setTotalPriceUsd(order1.getTotalPriceUsd());
-            project.setOrderCategory(order1.getOrderCategory());
-            project.setOverseasSales(order1.getOverseasSales());
-            project.setPurchDone(Boolean.FALSE);
-            project.setCreateTime(new Date());
-            project.setUpdateTime(new Date());
-            project.setProcessProgress("1");
-            project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
-            //新建项目审批状态为未审核
-            project.setAuditingStatus(1);
-            Project project2 = projectDao.save(project);
-            // 设置商品的项目信息
-            List<Goods> goodsList1 = order1.getGoodsList();
-            goodsList1.parallelStream().forEach(goods1 -> {
-                goods1.setProject(project2);
-                goods1.setProjectNo(project2.getProjectNo());
-            });
-            goodsDao.save(goodsList1);
-            // 调用CRM系统，触发CRM用户升级任务
-            String eruiToken = (String) ThreadLocalUtil.getObject();
-            if (StringUtils.isNotBlank(eruiToken)) {
-                String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");*/
-    //header.put("accept", "**/*//*");
-               /* String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
-                logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
-            }
-            // 销售订单通知：销售订单下达后通知商务技术经办人
-            sendSms(order);
-
-            //项目提交的时候判断是否有驳回的信息  如果有删除  项目驳回 待办提示
-            BackLog backLog = new BackLog();
-            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
-            backLog.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog);
-
-            //订单提交 推送“待办”到项目
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            String contractNo = order1.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = order1.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = order1.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(order.getId());    //父ID，列表页id    项目id
-            Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
-            newBackLog.setUid(technicalId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
-
-        }
-        return order1.getId();
-    }*/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
@@ -1470,7 +1059,7 @@ public class OrderServiceImpl implements OrderService {
             projectProfit.setCountry(order1.getCountry());
             projectProfit.setTradeTerm(order1.getTradeTerms());
             projectProfit.setContractAmountUsd(order1.getTotalPriceUsd());
-            projectProfit.setExchangeRate(order1.getExchangeRate());
+            //projectProfit.setExchangeRate(order1.getExchangeRate());
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
             String eruiToken = (String) ThreadLocalUtil.getObject();
