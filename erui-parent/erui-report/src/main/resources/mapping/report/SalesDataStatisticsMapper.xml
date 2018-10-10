@@ -617,7 +617,7 @@
             t5.country_bn AS country_bn,
             t5.area_bn AS area_bn,
             CASE
-            WHEN COUNT(1) > 1 THEN DATEDIFF(MAX(t4.start_date), MIN(t4.start_date)) / COUNT(1)
+            WHEN COUNT(1) > 1 THEN (DATEDIFF(MAX(t4.start_date), MIN(t4.start_date))+1) / (COUNT(1)-1)
             ELSE 0
             END AS cycle
             FROM
