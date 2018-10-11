@@ -177,16 +177,45 @@
     <!-- 事业部报价用时 -->
     <select id="orgQuoteTotalCostTime" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            organization as `name`,
-            SUM(IFNULL(quote_need_time, 0)) AS costTimes,
-            COUNT(1) AS total
+        org.`name` AS `name`,
+        SUM((UNIX_TIMESTAMP(b.out_at) - UNIX_TIMESTAMP(b.into_at))) / 3600 AS costTimes,
+        COUNT(b.inquiry_id) AS total
         FROM
-            erui_rfq.v_inquiry_count
+        erui_rfq.inquiry_check_log b,
+        erui_rfq.inquiry t,
+        erui_sys.org AS org
         WHERE
-            rollin_time BETWEEN #{startTime} AND #{endTime}
-                AND quoted_status IN ('已完成' , '已报价')
-        GROUP BY organization
-        HAVING organization IS NOT NULL
+        b.inquiry_id = t.id
+        AND t.org_id = org.id
+        AND t.inflow_time BETWEEN #{startTime} AND #{endTime}
+        AND b.in_node IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+        'BIZ_QUOTING',
+        'LOGI_DISPATCHING',
+        'LOGI_QUOTING',
+        'LOGI_APPROVING',
+        'BIZ_APPROVING',
+        'MARKET_APPROVING',
+        'REJECT_QUOTING',
+        'REJECT_MARKET')
+        AND (NOT EXISTS( SELECT
+        *
+        FROM
+        erui_rfq.inquiry_check_log a
+        WHERE
+        a.id <![CDATA[ <> ]]> b.id
+        AND a.inquiry_id = b.inquiry_id
+        AND a.out_at >= b.out_at
+        AND a.into_at <![CDATA[ <= ]]> b.into_at
+        AND a.in_node = b.in_node
+        AND a.out_node = b.out_node))
+        AND EXISTS( SELECT
+        c.id
+        FROM
+        erui_rfq.inquiry_check_log c
+        WHERE
+        b.inquiry_id = c.inquiry_id
+        AND c.in_node = 'BIZ_APPROVING')
+        GROUP BY org.`name`
         ORDER BY 2 DESC
     </select>
 
