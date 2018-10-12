@@ -150,15 +150,16 @@ public class ProjectServiceImpl implements ProjectService {
 
             return true;
         } else {
-            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
+            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
+                    && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 //Order order = projectUpdate.getOrder();
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                //projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
                 project.copyProjectDescTo(projectUpdate);
-                order.setStatus(Order.StatusEnum.DONE.getCode());
-                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                //order.setStatus(Order.StatusEnum.DONE.getCode());
+                //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
 
                 //现货的情况直接完成 ，删除 “办理项目/驳回”  待办提示
                 BackLog backLog = new BackLog();
@@ -191,6 +192,10 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setWarehouseName(null);
                         projectUpdate.setWarehouseUid(null);
                         projectUpdate.setPurchaseName(null);
+                        projectUpdate.setBuAuditerId(project.getBuAuditerId());
+                        projectUpdate.setBuAuditer(project.getBuAuditer());
+                        projectUpdate.setLogisticsAuditerId(project.getLogisticsAuditerId());
+                        projectUpdate.setLogisticsAuditer(project.getLogisticsAuditer());
 
                         //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
                         BackLog backLog = new BackLog();
@@ -1182,6 +1187,8 @@ public class ProjectServiceImpl implements ProjectService {
         project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
+        //审核通过时现货出库和海外销（当地采购）的单子流程状态改为 已发运
+        applicationContext.publishEvent(new OrderProgressEvent(order, 10));
         return true;
     }
 

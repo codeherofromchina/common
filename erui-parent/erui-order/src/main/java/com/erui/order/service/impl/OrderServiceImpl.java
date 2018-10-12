@@ -780,6 +780,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
+
         if (addOrderVo.getTotalPriceUsd() != null) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
