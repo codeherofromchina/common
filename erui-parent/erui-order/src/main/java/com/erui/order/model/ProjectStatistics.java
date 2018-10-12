@@ -23,6 +23,7 @@ public class ProjectStatistics {
 
     public ProjectStatistics(Project project, Order order) {
         this.orderId = order.getId();
+        this.poNo = order.getPoNo();
         this.startDate = project.getStartDate();
         this.contractNo = order.getContractNo();
         this.inquiryNo = order.getInquiryNo();
@@ -32,7 +33,7 @@ public class ProjectStatistics {
         this.logiQuoteNo = order.getLogiQuoteNo();
         this.execCoName = order.getExecCoName();
         this.distributionDeptName = order.getDistributionDeptName();
-        this.businessUnitName = order.getBusinessUnitName();
+        this.businessUnitName = project.getBusinessUnitName();
         this.region = order.getRegion();
         this.crmCode = order.getCrmCode();
         this.customerType = order.getCustomerType();
@@ -42,7 +43,7 @@ public class ProjectStatistics {
         this.profitPercent = project.getProfitPercent();
         this.grantType = order.getGrantType();
         if (project.getDeliveryDate() != null) {
-           // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
+            // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
             this.deliveryDate = project.getDeliveryDate();
         }
         this.requirePurchaseDate = project.getRequirePurchaseDate();
@@ -58,6 +59,7 @@ public class ProjectStatistics {
         this.orderCategory = order.getOrderCategory();
         this.goodsList = order.getGoodsList();
     }
+
     //订单ID
     private Integer orderId;
     // 项目开始日期
@@ -529,7 +531,7 @@ public class ProjectStatistics {
     }
 
     public String getOverseasSalesName() {
-        if(overseasSales != null){
+        if (overseasSales != null) {
             switch (overseasSales) {
                 case 1:
                     return "海外销（装备采购）";
@@ -563,7 +565,7 @@ public class ProjectStatistics {
     }
 
     public String getOrderCategory() {
-        if(orderCategory != null){
+        if (orderCategory != null) {
             switch (orderCategory) {
                 case 1:
                     return "预投";
