@@ -42,6 +42,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return result;
     }
 
+
     @Override
     public Map<String, List<Object>> visitStatisticsByArea(Map<String, Object> params) {
         List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByArea(params);
@@ -88,7 +89,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             BigDecimal orderNum = (BigDecimal) map.get("orderNum");
             totalOrderNum += orderNum.intValue();
             BigDecimal bigDecimal = (BigDecimal) map.get("rate");
-            bigDecimal = bigDecimal.multiply(oneHundred).setScale(2,BigDecimal.ROUND_DOWN);
+            bigDecimal = bigDecimal.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN);
             map.put("rate", bigDecimal);
             resultData.add(map);
         }
@@ -100,7 +101,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         if (totalInquiryNum == 0) {
             totalBigDecimal = BigDecimal.ZERO;
         } else {
-            totalBigDecimal = new BigDecimal((double) totalOrderNum / totalInquiryNum * 100).setScale(2,BigDecimal.ROUND_DOWN);
+            totalBigDecimal = new BigDecimal((double) totalOrderNum / totalInquiryNum * 100).setScale(2, BigDecimal.ROUND_DOWN);
         }
         total.put("rate", totalBigDecimal);
         resultData.add(total);
@@ -132,7 +133,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public Map<String, List<Object>> efficiencyByArea(Map<String, Object> params) {
         // 获取数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByArea(params);
-        Map<String, Map<String,Object>> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
+        Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
         boolean ascFlag = "1".equals(params.get("sort"));
         // 处理数据
         Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
@@ -143,7 +144,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public Map<String, List<Object>> efficiencyByCountry(Map<String, Object> params) {
         // 获取数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByCountry(params);
-        Map<String, Map<String,Object>> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
+        Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
         boolean ascFlag = "1".equals(params.get("sort"));
         // 处理数据
         Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
@@ -186,14 +187,22 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         Map<String, List<Object>> result = new HashMap<>();
         List<Object> nameList = new ArrayList<>();
         List<Object> numList = new ArrayList<>();
+        List<Object> avgList = new ArrayList<>();
         for (Map<String, Object> map : gradeList) {
             Object name = map.get("name");
             Object num = map.get("num");
+            BigDecimal avg = (BigDecimal) map.get("avgP");
             nameList.add(name);
             numList.add(num);
+            if (avg != null) {
+                avgList.add(avg.setScale(2, BigDecimal.ROUND_DOWN));
+            } else {
+                avgList.add(BigDecimal.ZERO);
+            }
         }
         result.put("nameList", nameList);
         result.put("numList", numList);
+        result.put("avgList", avgList);
         return result;
     }
 
@@ -255,10 +264,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
                 BigDecimal salesManNum = (BigDecimal) numMap.get("salesManNum");
                 Long priceDayNum = (Long) priceMap.get("dayNum");
                 BigDecimal totalPriceUsd = (BigDecimal) priceMap.get("totalPriceUsd");
-                if (salesManNum !=null && salesManNum.compareTo(BigDecimal.ZERO) > 0) {
-                    BigDecimal perTotalPrice = totalPriceUsd.divide(new BigDecimal(priceDayNum),2,BigDecimal.ROUND_DOWN);
-                    BigDecimal perNum = salesManNum.divide(new BigDecimal(numDayNum),2,BigDecimal.ROUND_DOWN);
-                    BigDecimal nengXiao = perTotalPrice.divide(perNum,0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
+                if (salesManNum != null && salesManNum.compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal perTotalPrice = totalPriceUsd.divide(new BigDecimal(priceDayNum), 2, BigDecimal.ROUND_DOWN);
+                    BigDecimal perNum = salesManNum.divide(new BigDecimal(numDayNum), 2, BigDecimal.ROUND_DOWN);
+                    BigDecimal nengXiao = perTotalPrice.divide(perNum, 0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
                     objArr[1] = nengXiao;
                     if (!nengXiao.equals(BigDecimal.ZERO)) {
                         // 求平均能效的中介值，0的不算其中
@@ -294,7 +303,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             dataList.add((BigDecimal) vo[1]);
         });
         nameList.add("平均");
-        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalData.divide(new BigDecimal(totalNum),2, BigDecimal.ROUND_DOWN));
+        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalData.divide(new BigDecimal(totalNum), 2, BigDecimal.ROUND_DOWN));
         Map<String, List<Object>> result = new HashMap<>();
         result.put("nameList", nameList);
         result.put("dataList", dataList);

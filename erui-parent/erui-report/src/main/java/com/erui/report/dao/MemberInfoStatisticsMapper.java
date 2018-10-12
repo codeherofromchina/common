@@ -24,6 +24,7 @@ public interface MemberInfoStatisticsMapper {
      */
     List<Map<String, Object>> membershipGradeByCountry(Map<String, Object> params);
 
+
     /**
      * 按照地区统计客户拜访统计
      *
