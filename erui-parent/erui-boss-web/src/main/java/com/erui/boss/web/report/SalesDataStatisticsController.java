@@ -433,11 +433,15 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 整体/订单量与金额
      *
-     * @param params
+     * @param type
      * @return
      */
     @RequestMapping(value = "exportOrderInfoWhole")
-    public Object exportOrderInfoWhole(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Object exportOrderInfoWhole(HttpServletResponse response, String type, String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         Map<String, Object> temParam = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (temParam == null) {
             params.remove("startTime");
@@ -445,7 +449,6 @@ public class SalesDataStatisticsController {
         } else {
             params = temParam;
         }
-        String type = String.valueOf(params.get("type"));
         StringBuilder fileName = new StringBuilder("订单数据统计-");
         HSSFWorkbook wb = null;
         Result<Object> result = new Result<>();
@@ -515,16 +518,19 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 利润
      *
-     * @param params
+     * @param type
      * @return
      */
     @RequestMapping(value = "exportOrderInfoProfitPercent")
-    public Object exportOrderInfoProfitPercent(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Object exportOrderInfoProfitPercent(HttpServletResponse response, String type, String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String type = String.valueOf(params.get("type"));
         HSSFWorkbook wb = null;
         StringBuilder fileName = new StringBuilder("订单数据统计-");
         Result<Object> result = new Result<>();
@@ -596,22 +602,23 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 成单率
      *
-     * @param params
+     * @param type
      * @return
      */
     @RequestMapping(value = "exportOrderInfoMonoRate")
-    public Result<Object> exportOrderInfoMonoRate(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Result<Object> exportOrderInfoMonoRate(HttpServletResponse response, String type, String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String type = String.valueOf(params.get("type"));
         StringBuilder fileName = new StringBuilder("订单数据统计-");
         HSSFWorkbook wb = null;
         Result<Object> result = new Result<>();
-        if (type == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-        } else if ("1".equals(type)) {
+        if ("1".equals(type)) {
             // 事业部成单率
             fileName.append("事业部成单率");
             wb = supplierchainService.exportOrderStatisticsMonoRateGroupByOrg(params);
@@ -684,11 +691,15 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 购买力
      *
-     * @param params
+     * @param startTime
      * @return
      */
     @RequestMapping(value = "exportOrderInfoPurchasingPower")
-    public Object exportOrderInfoPurchasingPower(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Object exportOrderInfoPurchasingPower(HttpServletResponse response, String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
             params.remove("startTime");
@@ -696,28 +707,6 @@ public class SalesDataStatisticsController {
         } else {
             params = params02;
         }
-        String pageNumStr = String.valueOf(params.get("pageNum"));
-        String pageSizeStr = String.valueOf(params.get("pageSize"));
-        Integer pageNum = null;
-        Integer pageSize = null;
-        if (StringUtils.isNumeric(pageNumStr)) {
-            pageNum = Integer.parseInt(pageNumStr);
-            if (pageNum < 1) {
-                pageNum = new Integer(1);
-            }
-        } else {
-            pageNum = new Integer(1);
-        }
-        if (StringUtils.isNumeric(pageSizeStr)) {
-            pageSize = Integer.parseInt(pageSizeStr);
-            if (pageSize < 1) {
-                pageSize = new Integer(20);
-            }
-        } else {
-            pageSize = new Integer(20);
-        }
-        params.put("pageNum", pageNum);
-        params.put("pageSize", pageSize);
 
         String fileName = "订单数据统计-购买力-" + java.lang.System.currentTimeMillis() + ".xls";
         HSSFWorkbook wb = supplierchainService.exportOrderInfoPurchasingPower(params);
@@ -779,11 +768,15 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 复购周期
      *
-     * @param params
+     * @param startTime
      * @return
      */
     @RequestMapping(value = "exportOrderInfoBuyCycle")
-    public Result<Object> exportOrderInfoBuyCycle(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Result<Object> exportOrderInfoBuyCycle(HttpServletResponse response, String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
             params.remove("startTime");
@@ -791,28 +784,6 @@ public class SalesDataStatisticsController {
         } else {
             params = params02;
         }
-        String pageNumStr = String.valueOf(params.get("pageNum"));
-        String pageSizeStr = String.valueOf(params.get("pageSize"));
-        Integer pageNum = null;
-        Integer pageSize = null;
-        if (StringUtils.isNumeric(pageNumStr)) {
-            pageNum = Integer.parseInt(pageNumStr);
-            if (pageNum < 1) {
-                pageNum = new Integer(1);
-            }
-        } else {
-            pageNum = new Integer(1);
-        }
-        if (StringUtils.isNumeric(pageSizeStr)) {
-            pageSize = Integer.parseInt(pageSizeStr);
-            if (pageSize < 1) {
-                pageSize = new Integer(20);
-            }
-        } else {
-            pageSize = new Integer(20);
-        }
-        params.put("pageNum", pageNum);
-        params.put("pageSize", pageSize);
 
         String fileName = "订单数据统计-复购周期-" + java.lang.System.currentTimeMillis() + ".xls";
         HSSFWorkbook wb = supplierchainService.exportOrderInfoBuyCycle(params);
@@ -854,11 +825,15 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 新老会员贡献度
      *
-     * @param params
+     * @param startTime
      * @return
      */
     @RequestMapping(value = "exportOrderInfoMembersContribution")
-    public Object exportOrderInfoMembersContribution(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Object exportOrderInfoMembersContribution(HttpServletResponse response, String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -942,19 +917,22 @@ public class SalesDataStatisticsController {
     /**
      * 导出订单数据统计 - 完成率02
      *
-     * @param params {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
+     * @param type {"startTime":"2018-01-01","endTime":"2019-01-01","type":"2","sort":1}
      *               type  1：事业部完成率   2：地区完成率   3：国家完成率
      * @return
      */
     @RequestMapping(value = "exportOrderInfoDoneRate02")
-    public Object exportOrderInfoDoneRate02(HttpServletResponse response, @RequestBody Map<String, Object> params) {
+    public Object exportOrderInfoDoneRate02(HttpServletResponse response,String type,String startTime, String endTime, Integer sort) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+        params.put("sort",sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         HSSFWorkbook wb = null;
         StringBuilder fileName = new StringBuilder("订单数据统计-");
-        String type = String.valueOf(params.get("type"));
         if ("1".equals(type)) {
             fileName.append("事业部完成率");
             wb = supplierchainService.exportDayOrderInfoDoneRateGroupbyOrg(params);
