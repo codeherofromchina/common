@@ -1,9 +1,13 @@
 package com.erui.report.service.impl;
 
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
+import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.MemberInfoStatisticsMapper;
 import com.erui.report.service.MemberInfoService;
 import com.erui.report.service.SalesmanNumsService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +40,61 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    public HSSFWorkbook exportMembershipGradeByArea(Map<String, Object> params) {
+        Map<String, List<Object>> map = membershipGradeByArea(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("normalGradeList");
+        List<Object> row02 = map.get("topGradeList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员等级-地区");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员等级-地区（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    @Override
     public Map<String, List<Object>> membershipGradeByCountry(Map<String, Object> params) {
         List<Map<String, Object>> gradeList = memberInfoStatisticsMapper.membershipGradeByCountry(params);
         Map<String, List<Object>> result = _handleMemberGradeData(gradeList);
         return result;
+    }
+
+    @Override
+    public HSSFWorkbook exportMembershipGradeByCountry(Map<String, Object> params) {
+        Map<String, List<Object>> map = membershipGradeByCountry(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("normalGradeList");
+        List<Object> row02 = map.get("topGradeList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员等级-国家");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员等级-国家（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
 
@@ -51,10 +106,62 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    public HSSFWorkbook exportVisitStatisticsByArea(Map<String, Object> params) {
+        Map<String, List<Object>> map = visitStatisticsByArea(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("numList");
+        List<Object> row02 = map.get("avgList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-客户拜访统计-地区");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-客户拜访统计-地区（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    @Override
     public Map<String, List<Object>> visitStatisticsByCountry(Map<String, Object> params) {
         List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByCountry(params);
         Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
         return result;
+    }
+
+    @Override
+    public HSSFWorkbook exportVisitStatisticsByCountry(Map<String, Object> params) {
+        Map<String, List<Object>> map = visitStatisticsByCountry(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("numList");
+        List<Object> row02 = map.get("avgList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-客户拜访统计-国家");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-客户拜访统计-国家（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
     @Override
@@ -65,10 +172,60 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
+        Map<String, List<Object>> map = membershipByArea(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("numList");
+        List<Object> row02 = map.get("avgList");
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员统计-区域");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员统计-区域（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    @Override
     public Map<String, List<Object>> membershipByCountry(Map<String, Object> params) {
         List<Map<String, Object>> membershipNumList = memberInfoStatisticsMapper.membershipByCountry(params);
         Map<String, List<Object>> result = _handleVisitStatisticsData(membershipNumList);
         return result;
+    }
+
+    @Override
+    public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {
+        Map<String, List<Object>> map = membershipByCountry(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("numList");
+        List<Object> row02 = map.get("avgList");
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员统计-国家");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员统计-国家（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
 
@@ -109,10 +266,55 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    public HSSFWorkbook exportSingleCustomer(Map<String, Object> params) {
+        List<Map<String, Object>> listData = singleCustomer(params);
+        String[] header = {"事业部","报价数量（个）","成单数量（个）","成单率（%）"};
+        String[] keys = {"name","inquiryNum","orderNum","rate"};
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(listData, header, keys,
+                "会员数据统计-成单客户");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, listData.size());
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-成单客户（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    @Override
     public Map<String, List<Object>> signingBodyByArea(Map<String, Object> params) {
         List<Map<String, Object>> signingBodyList = memberInfoStatisticsMapper.signingBodyByArea(params);
         Map<String, List<Object>> result = _handleSigningBodyData(signingBodyList);
         return result;
+    }
+
+    @Override
+    public HSSFWorkbook exportSigningBodyByArea(Map<String, Object> params) {
+        Map<String, List<Object>> map = signingBodyByArea(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("eruiNumList");
+        List<Object> row02 = map.get("otherNumList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员签约主体-地区");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员签约主体-地区（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
     @Override
@@ -123,10 +325,62 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    public HSSFWorkbook exportSigningBodyByCountry(Map<String, Object> params) {
+        Map<String, List<Object>> map = signingBodyByCountry(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("eruiNumList");
+        List<Object> row02 = map.get("otherNumList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员签约主体-国家");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员签约主体-国家（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    @Override
     public Map<String, List<Object>> signingBodyByOrg(Map<String, Object> params) {
         List<Map<String, Object>> signingBodyList = memberInfoStatisticsMapper.signingBodyByOrg(params);
         Map<String, List<Object>> result = _handleSigningBodyData(signingBodyList);
         return result;
+    }
+
+    @Override
+    public HSSFWorkbook exportSigningBodyByOrg(Map<String, Object> params) {
+        Map<String, List<Object>> map = signingBodyByOrg(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("eruiNumList");
+        List<Object> row02 = map.get("otherNumList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员签约主体-事业部");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员签约主体-事业部（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
     @Override
@@ -141,6 +395,30 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    public HSSFWorkbook exportEfficiencyByArea(Map<String, Object> params) {
+        Map<String, List<Object>> map = efficiencyByArea(params);
+        List<Object> headerList = map.get("nameList");
+
+        List<Object> row01 = map.get("dataList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员统计-区域");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员统计-区域（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    @Override
     public Map<String, List<Object>> efficiencyByCountry(Map<String, Object> params) {
         // 获取数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByCountry(params);
@@ -149,6 +427,29 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         // 处理数据
         Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
         return resultMap;
+    }
+
+    @Override
+    public HSSFWorkbook exportEfficiencyByCountry(Map<String, Object> params) {
+        Map<String, List<Object>> map = efficiencyByCountry(params);
+        List<Object> headerList = map.get("nameList");
+        List<Object> row01 = map.get("dataList");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "会员数据统计-会员统计-国家");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-会员统计-国家（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
     /**
