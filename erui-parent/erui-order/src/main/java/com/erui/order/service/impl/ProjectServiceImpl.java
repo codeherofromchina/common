@@ -294,7 +294,7 @@ public class ProjectServiceImpl implements ProjectService {
                                 auditingLevel = 4; // 四级审核
                             } else if (orderCategory != null && orderCategory == 3) { // 试用
                                 auditingLevel = 2; // 二级审核
-                            } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
+                            } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
                                 // 既不是预投。又不是试用，则需要检查参数
                                 throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
                             }
@@ -415,7 +415,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingLevel = 4; // 四级审核
         } else if (orderCategory != null && orderCategory == 3) { // 试用
             auditingLevel = 2; // 二级审核
-        } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
+        } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
             // 既不是预投。又不是试用，则需要检查参数
             throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
         }
