@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -201,10 +202,10 @@ public class Goods {
     @Column(name = "accomplish_date")
     private Date accomplishDate;
 
-    @Column(name="inspect_instock_num")
+    @Column(name = "inspect_instock_num")
     private Integer inspectInstockNum = 0;    //质检入库总数量
 
-    @Column(name="null_instock_num")
+    @Column(name = "null_instock_num")
     private Integer nullInstockNum = 0;    //厂家直发总数量
 
     @Transient
@@ -217,7 +218,7 @@ public class Goods {
     private String deliverDetailNo; //产品放行单号
     private String department;//所属事业部
     private BigDecimal price; //商品价格
-    @Column(name="mete_name")
+    @Column(name = "mete_name")
     private String meteName;//物料分类名称
 
 
@@ -237,6 +238,73 @@ public class Goods {
 
     public String getDepartment() {
         return department;
+    }
+
+    public String getDepartmentName() {
+        String result = null;
+        if (StringUtils.isNotBlank(department)) {
+            switch (department) {
+                case "9931":
+                    result = "易瑞-工业工具";
+                    break;
+                case "9929":
+                    result = "易瑞-工业品设备";
+                    break;
+                case "9928":
+                    result = "易瑞-安防和劳保设备";
+                    break;
+                case "9930":
+                    result = "易瑞-电力电工（含钢丝绳索具）";
+                    break;
+                case "9907":
+                    result = "易瑞-钻完井设备";
+                    break;
+                case "9917":
+                    result = "康博瑞-商务技术";
+                    break;
+                case "9902":
+                    result = "康博瑞-配件中心";
+                    break;
+                case "9904":
+                    result = "油田设备事业部-石油钢管公司";
+                    break;
+                case "9905":
+                    result = "油田设备事业部-通用设备公司";
+                    break;
+                case "9903":
+                    result = "油气增产装备事业部";
+                    break;
+                case "9901":
+                    result = "运维共享服务中心（钻采装备集团）";
+                    break;
+                case "9899":
+                    result = "WEFIC公司事业部-商务技术一部";
+                    break;
+                case "9916":
+                    result = "WEFIC公司事业部-商务技术二部";
+                    break;
+                case "9915":
+                    result = "美国压缩机技术服务公司";
+                    break;
+                case "9908":
+                    result = "物流";
+                    break;
+                case "9942":
+                    result = "易瑞-国内销售部";
+                    break;
+                case "9937":
+                    result = "财务金融中心";
+                    break;
+                case "9936":
+                    result = "营运中心";
+                    break;
+                case "9948":
+                    result = "测试二级部门";
+                    break;
+
+            }
+        }
+        return result;
     }
 
     public void setDepartment(String department) {
