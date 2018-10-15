@@ -247,7 +247,7 @@ public class Order {
     @Column(name = "order_belongs")
     private Integer orderBelongs;
 
-    //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
+    //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
     @Column(name = "order_category")
     private Integer orderCategory;
     //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销

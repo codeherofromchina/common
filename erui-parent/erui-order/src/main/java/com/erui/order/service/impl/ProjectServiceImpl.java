@@ -150,15 +150,16 @@ public class ProjectServiceImpl implements ProjectService {
 
             return true;
         } else {
-            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
+            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
+                    && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 //Order order = projectUpdate.getOrder();
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                //projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
                 project.copyProjectDescTo(projectUpdate);
-                order.setStatus(Order.StatusEnum.DONE.getCode());
-                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                //order.setStatus(Order.StatusEnum.DONE.getCode());
+                //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
 
                 //现货的情况直接完成 ，删除 “办理项目/驳回”  待办提示
                 BackLog backLog = new BackLog();
@@ -181,6 +182,23 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
+                    Integer auditingLevel = project.getAuditingLevel();
+                    Integer orderCategory = order.getOrderCategory();
+                    if (orderCategory != null && orderCategory == 1) { // 预投
+                        auditingLevel = 4; // 四级审核
+                    } else if (orderCategory != null && orderCategory == 3) { // 试用
+                        auditingLevel = 2; // 二级审核
+                    } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+                        // 既不是预投。又不是试用，则需要检查参数
+                        throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+                    }
+                    projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+                    projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
+                    projectUpdate.setCeo(project.getCeo());
+                    projectUpdate.setCeoId(project.getCeoId());
+                    projectUpdate.setChairman(project.getChairman());
+                    projectUpdate.setChairmanId(project.getChairmanId());
+                    projectUpdate.setAuditingLevel(auditingLevel);
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                         // 提交到项目经理，则项目成员不能设置
                         projectUpdate.setPurchaseUid(null);
@@ -191,6 +209,10 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setWarehouseName(null);
                         projectUpdate.setWarehouseUid(null);
                         projectUpdate.setPurchaseName(null);
+                        projectUpdate.setBuAuditerId(project.getBuAuditerId());
+                        projectUpdate.setBuAuditer(project.getBuAuditer());
+                        projectUpdate.setLogisticsAuditerId(project.getLogisticsAuditerId());
+                        projectUpdate.setLogisticsAuditer(project.getLogisticsAuditer());
 
                         //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
                         BackLog backLog = new BackLog();
@@ -282,27 +304,7 @@ public class ProjectServiceImpl implements ProjectService {
                         if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                             // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
                             submitProjectProcessCheckAuditParams(project, projectUpdate, order);
-                        } else {
-                            Integer auditingLevel = project.getAuditingLevel();
-                            Integer orderCategory = order.getOrderCategory();
-                            if (orderCategory != null && orderCategory == 1) { // 预投
-                                auditingLevel = 4; // 四级审核
-                            } else if (orderCategory != null && orderCategory == 3) { // 试用
-                                auditingLevel = 2; // 二级审核
-                            } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
-                                // 既不是预投。又不是试用，则需要检查参数
-                                throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
-                            }
-                            projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
-                            projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
-                            projectUpdate.setCeo(project.getCeo());
-                            projectUpdate.setCeoId(project.getCeoId());
-                            projectUpdate.setChairman(project.getChairman());
-                            projectUpdate.setChairmanId(project.getChairmanId());
-                            projectUpdate.setAuditingLevel(auditingLevel);
                         }
-
-
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
                         BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
                         if (backLogs != null) {
@@ -410,7 +412,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingLevel = 4; // 四级审核
         } else if (orderCategory != null && orderCategory == 3) { // 试用
             auditingLevel = 2; // 二级审核
-        } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
+        } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
             // 既不是预投。又不是试用，则需要检查参数
             throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
         }
@@ -1182,6 +1184,8 @@ public class ProjectServiceImpl implements ProjectService {
         project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
+        //审核通过时现货出库和海外销（当地采购）的单子流程状态改为 已发运
+        applicationContext.publishEvent(new OrderProgressEvent(order, 10));
         return true;
     }
 

@@ -15,6 +15,46 @@ public class ProjectGoodsStatistics {
 
     public ProjectGoodsStatistics() {
     }
+    //序号
+    private Integer id;
+    //未用易瑞签约原因
+    private String nonReson;
+    //是否通过代理商获取
+    private String agent;
+    //代理商代码
+    private String agentNo;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getNonReson() {
+        return nonReson;
+    }
+
+    public void setNonReson(String nonReson) {
+        this.nonReson = nonReson;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
+
+    public String getAgentNo() {
+        return agentNo;
+    }
+
+    public void setAgentNo(String agentNo) {
+        this.agentNo = agentNo;
+    }
 
     //订单ID
     private Integer orderId;
