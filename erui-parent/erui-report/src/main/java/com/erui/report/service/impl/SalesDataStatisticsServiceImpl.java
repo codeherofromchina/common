@@ -59,7 +59,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportAgencyOrgStatisticsData(Map<String, Object> params) {
         // 准备数据
-        List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierCountryStatisticsData(params);
+        List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierOrgStatisticsData(params);
         // 创建excel
         HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-事业部统计", params);
         return workbook;
@@ -77,7 +77,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportAgencyAreaStatisticsData(Map<String, Object> params) {
         // 准备数据
-        List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierCountryStatisticsData(params);
+        List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierAreaStatisticsData(params);
         // 创建excel
         HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-地区统计", params);
         return workbook;
