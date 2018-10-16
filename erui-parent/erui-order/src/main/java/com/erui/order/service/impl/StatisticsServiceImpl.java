@@ -655,7 +655,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 for (Goods g : goodsList) {
                     ProjectGoodsStatistics projectGoods = copyProjectDescTo(p);
                     projectGoods.setOrderCategory(g.getProType());
-                    projectGood01.setBusinessUnitName(g.getDepartment());
+                    projectGoods.setBusinessUnitName(g.getDepartmentName());
                     projectGoods.setNameZh(g.getNameZh());
                     projectGoods.setNameEn(g.getNameEn());
                     projectGoods.setModel(g.getModel());
@@ -677,7 +677,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         String[] keys = new String[]{"id", "createTime", "startDate", "contractNo", "orderCategory", "overseasSales", "inquiryNo", "projectNo", "nonReson",
                 "agent", "agentNo", "poNo", "projectName", "contractNoOs", "logiQuoteNo", "proCate", "execCoName", "businessUnitName",
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
-                "PaymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "grantType", "deliveryDate",
+                "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "grantType", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
                 "projectStatus", "processProgress"};
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -693,7 +693,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         ProjectGoodsStatistics projectGoods = new ProjectGoodsStatistics();
         projectGoods.setCreateTime(proStatistics.getCreateTime());
         projectGoods.setStartDate(proStatistics.getStartDate());
-        projectGoods.setContractNo(proStatistics.getContractNoOs());
+        projectGoods.setContractNo(proStatistics.getContractNo());
         projectGoods.setOrderCategory(proStatistics.getOrderCategory());
         projectGoods.setOverseasSales(proStatistics.getOverseasSalesName());
         projectGoods.setInquiryNo(proStatistics.getInquiryNo());
@@ -703,11 +703,10 @@ public class StatisticsServiceImpl implements StatisticsService {
         projectGoods.setLogiQuoteNo(proStatistics.getLogiQuoteNo());
         projectGoods.setProCate(proStatistics.getProCate());
         projectGoods.setExecCoName(proStatistics.getExecCoName());
-        projectGoods.setBusinessUnitName(proStatistics.getBusinessUnitName());
         projectGoods.setRegionZh(proStatistics.getRegionZh());
         projectGoods.setCrmCode(proStatistics.getCrmCode());
         projectGoods.setCustomerType(proStatistics.getCustomerTypeName());
-        projectGoods.setPaymentModeBn(proStatistics.getPaymentModeBnName());
+        projectGoods.setPaymentModeBn(proStatistics.getPaymentModeBn());
         projectGoods.setPaymentDate(proStatistics.getPaymentDate());
         projectGoods.setCurrencyBnMoney(proStatistics.getCurrencyBnMoney());
         projectGoods.setProfitPercent(proStatistics.getProfitPercentStr());
