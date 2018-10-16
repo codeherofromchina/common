@@ -63,8 +63,8 @@ public class MemberInfoController {
      *
      * @return
      */
-    @RequestMapping(value = "exprtEfficiency")
-    public Result<Object> exprtEfficiency(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) {
+    @RequestMapping(value = "exportEfficiency")
+    public Result<Object> exportEfficiency(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);

@@ -93,6 +93,9 @@ public class SalesDataStatisticsController {
             fileName.append("地区统计");
             wb = supplierchainService.exportAgencyAreaStatisticsData(params);
         }
+        if (wb == null ) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         try {
             fileName.append("-").append(System.currentTimeMillis()).append(".xls");
             HttpUtils.setExcelResponseHeader(response, fileName.toString());

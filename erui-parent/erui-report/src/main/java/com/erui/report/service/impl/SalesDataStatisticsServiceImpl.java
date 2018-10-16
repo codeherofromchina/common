@@ -167,7 +167,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     private HSSFWorkbook _handleExcelSimpleData(List<Map<String, Object>> datas, String workbookName, Map<String, Object> params) {
         Map<String, List<Object>> result = _handleSimpleData(null, datas);
         List<Object> headerList = result.get("name");
+        headerList.add(0, "");
         List<Object> row01 = result.get("counts");
+        row01.add(0, "代理商数量");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -295,11 +297,16 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     private HSSFWorkbook _handleExcelMemberNum(List<Map<String, Object>> totalBuyer, List<Map<String, Object>> otherBuyer, String workbookName, Map<String, Object> params) {
+        boolean activeFlag = workbookName.indexOf("活跃") != -1 ? true : false;
         Map<String, List<Object>> data = _handleMemberNum(totalBuyer, otherBuyer);
         List<Object> headerList = data.get("countries");
+        headerList.add(0, "");
         List<Object> row01 = data.get("totalNums");
+        row01.add(0, "会员总数");
         List<Object> row02 = data.get("nums");
+        row02.add(0, activeFlag ? "活跃会员数" : "流失会员数");
         List<Object> row03 = data.get("rateList");
+        row03.add(0, activeFlag ? "活跃会员率（%）" : "会员流失率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -333,9 +340,14 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> costTimeList = new ArrayList<>();
         for (Map<String, Object> map : totalBuyer) {
             String name = (String) map.get("name");
+            Long total = (Long) map.get("total");
             BigDecimal costTimes = (BigDecimal) map.get("costTimes");
             names.add(name);
-            costTimeList.add(costTimes.setScale(4, BigDecimal.ROUND_DOWN));
+            if (total != null && total > 0) {
+                costTimeList.add(costTimes.divide(new BigDecimal(total), 4, BigDecimal.ROUND_DOWN));
+            } else {
+                costTimeList.add(BigDecimal.ZERO);
+            }
         }
         result.put("orgNames", names);
         result.put("costTimes", costTimeList);
@@ -344,28 +356,19 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     @Override
     public HSSFWorkbook exportOrgQuoteTotalCostTime(Map<String, Object> params) {
-        // 事业部报价用时
-        List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.orgQuoteTotalCostTime(params);
-        if (totalBuyer == null || totalBuyer.size() == 0) {
-            return null;
-        }
-        Map<String, List<Object>> result = new HashMap<>();
-        List<String> header = new ArrayList<>();
-        List<Object> costTimeList = new ArrayList<>();
-        for (Map<String, Object> map : totalBuyer) {
-            String name = (String) map.get("name");
-            BigDecimal costTimes = (BigDecimal) map.get("costTimes");
-            header.add(name);
-            costTimeList.add(costTimes.setScale(4, BigDecimal.ROUND_DOWN));
-        }
+        Map<String, List<Object>> map = orgQuoteTotalCostTime(params);
+
+        List<Object> headerList = map.get("orgNames");headerList.add(0,"");
+        List<Object> row1 = map.get("costTimes");row1.add(0,"平均报价时间（小时）");
+
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
-        rowList.add(costTimeList.toArray());
+        rowList.add(row1.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
-        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, header.toArray(new String[header.size()]), null,
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
                 "询报价统计-报价用时");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
@@ -421,22 +424,24 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportQuoteAmountGroupArea(Map<String, Object> params) {
         Map<String, List<Object>> quoteAmountMap = quoteAmountGroupArea(params);
 
-        List<Object> header = quoteAmountMap.get("names");
+        List<Object> header = quoteAmountMap.get("names");header.add(0,"");
+        List<Object> row01 = quoteAmountMap.get("totalAmounts");row01.add(0,"报价总额（万美元）");
+        List<Object> row02 = quoteAmountMap.get("memTotalAmounts");row02.add(0,"会员报价总额（万美元）");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
-        rowList.add(quoteAmountMap.get("totalAmounts").toArray());
-        rowList.add(quoteAmountMap.get("memTotalAmounts").toArray());
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
         HSSFWorkbook workbook = buildExcel.buildExcel(rowList, header.toArray(new String[header.size()]), null,
-                "会员询单额-报价金额");
+                "会员询单-报价金额");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员询单额-报价金额（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员询单-报价金额（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         return workbook;
     }
 
@@ -478,23 +483,24 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportInquiryNumbersGroupArea(Map<String, Object> params) {
         Map<String, List<Object>> inquiryNumbersMap = inquiryNumbersGroupArea(params);
-
-        List<Object> header = inquiryNumbersMap.get("names");
+        List<Object> header = inquiryNumbersMap.get("names");header.add(0,"");
+        List<Object> row01 = inquiryNumbersMap.get("totalNums");row01.add(0,"总询单数量");
+        List<Object> row02 = inquiryNumbersMap.get("memTotalNums");row02.add(0,"会员询单数量");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
-        rowList.add(inquiryNumbersMap.get("totalNums").toArray());
-        rowList.add(inquiryNumbersMap.get("memTotalNums").toArray());
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
         HSSFWorkbook workbook = buildExcel.buildExcel(rowList, header.toArray(new String[header.size()]), null,
-                "会员询单额-询单数量");
+                "会员询单-询单数量");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员询单额-询单数量（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员询单-询单数量（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         return workbook;
     }
 
@@ -543,22 +549,24 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportQuoteNumbersGroupArea(Map<String, Object> params) {
         Map<String, List<Object>> quoteNumbersMap = quoteNumbersGroupArea(params);
 
-        List<Object> header = quoteNumbersMap.get("names");
+        List<Object> header = quoteNumbersMap.get("names");header.add(0,"");
+        List<Object> row01 = quoteNumbersMap.get("totalNums");row01.add(0,"总报价数量");
+        List<Object> row02 = quoteNumbersMap.get("memTotalNums");row02.add(0,"会员报价数量");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
-        rowList.add(quoteNumbersMap.get("totalNums").toArray());
-        rowList.add(quoteNumbersMap.get("memTotalNums").toArray());
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
         HSSFWorkbook workbook = buildExcel.buildExcel(rowList, header.toArray(new String[header.size()]), null,
-                "会员询单额-报价数量");
+                "会员询单-报价数量");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员询单额-报价数量（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员询单-报价数量（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         return workbook;
     }
 
@@ -592,15 +600,17 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportOrderStatisticsWholeInfoGroupByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsWholeInfoGroupByArea(params);
 
-        List<Object> header = map.get("names");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("totalNums");row01.add(0,"执行数量");
+        List<Object> row02 = map.get("totalAmounts");row02.add(0,"执行金额（万美元）");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
-        rowList.add(map.get("totalNums").toArray());
-        rowList.add(map.get("totalAmounts").toArray());
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
-        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, header.toArray(new String[header.size()]), null,
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
                 "订单数据统计-地区");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
@@ -640,15 +650,17 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportOrderStatisticsWholeInfoGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsWholeInfoGroupByCountry(params);
 
-        List<Object> header = map.get("names");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("totalNums");row01.add(0,"执行数量");
+        List<Object> row02 = map.get("totalAmounts");row02.add(0,"执行金额（万美元）");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
-        rowList.add(map.get("totalNums").toArray());
-        rowList.add(map.get("totalAmounts").toArray());
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
-        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, header.toArray(new String[header.size()]), null,
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
                 "订单数据统计-国家");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
@@ -688,9 +700,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsWholeInfoGroupByOrg(Map<String, Object> params) {
         Map<String, List<Object>> orderStatisticsWholeInfoMap = orderStatisticsWholeInfoGroupByOrg(params);
-        List<Object> headerList = orderStatisticsWholeInfoMap.get("names");
-        List<Object> row01 = orderStatisticsWholeInfoMap.get("totalNums");
-        List<Object> row02 = orderStatisticsWholeInfoMap.get("totalAmounts");
+        List<Object> headerList = orderStatisticsWholeInfoMap.get("names");headerList.add(0,"");
+        List<Object> row01 = orderStatisticsWholeInfoMap.get("totalNums");row01.add(0,"执行数量");
+        List<Object> row02 = orderStatisticsWholeInfoMap.get("totalAmounts");row02.add(0,"执行金额（万美元）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -730,8 +742,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsProfitPercentGroupByOrg(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByOrg(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("profitPercents");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("profitPercents");row01.add(0,"利润率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -765,8 +777,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsProfitPercentGroupByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByArea(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("profitPercents");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("profitPercents");row01.add(0,"利润率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -800,8 +812,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsProfitPercentGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByCountry(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("profitPercents");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("profitPercents");row01.add(0,"利润率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -863,10 +875,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsMonoRateGroupByOrg(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsMonoRateGroupByOrg(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("quoteNums");
-        List<Object> row02 = map.get("doneNums");
-        List<Object> row03 = map.get("rates");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("quoteNums");row01.add(0,"累计报价数量");
+        List<Object> row02 = map.get("doneNums");row02.add(0,"累计成单数量");
+        List<Object> row03 = map.get("rates");row03.add(0,"个数成单率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -907,10 +919,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsMonoRateGroupByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsMonoRateGroupByArea(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("quoteNums");
-        List<Object> row02 = map.get("doneNums");
-        List<Object> row03 = map.get("rates");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("quoteNums");row01.add(0,"累计报价数量");
+        List<Object> row02 = map.get("doneNums");row02.add(0,"累计成单数量");
+        List<Object> row03 = map.get("rates");row03.add(0,"个数成单率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -951,11 +963,11 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     @Override
     public HSSFWorkbook exportOrderStatisticsMonoRateGroupByCountry(Map<String, Object> params) {
-        Map<String, List<Object>> map = orderStatisticsMonoRateGroupByArea(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("quoteNums");
-        List<Object> row02 = map.get("doneNums");
-        List<Object> row03 = map.get("rates");
+        Map<String, List<Object>> map = orderStatisticsMonoRateGroupByCountry(params);
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("quoteNums");row01.add(0,"累计报价数量");
+        List<Object> row02 = map.get("doneNums");row02.add(0,"累计成单数量");
+        List<Object> row03 = map.get("rates");row03.add(0,"个数成单率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -1151,10 +1163,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderInfoMembersContribution(Map<String, Object> params) {
         Map<String, List<Object>> map = orderInfoMembersContribution(params);
-        List<Object> headerList = map.get("names");
-        List<Object> row01 = map.get("allMember");
-        List<Object> row02 = map.get("newMember");
-        List<Object> row03 = map.get("oldMember");
+        List<Object> headerList = map.get("names");headerList.add(0,"");
+        List<Object> row01 = map.get("allMember");row01.add(0,"会员成单交易额");
+        List<Object> row02 = map.get("newMember");row02.add(0,"新会员交易额");
+        List<Object> row03 = map.get("oldMember");row03.add(0,"老会员交易额");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -1222,8 +1234,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyOrg(params);
-        List<Object> headerList = map.get("nameList");
-        List<Object> row01 = map.get("rateList");
+        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> row01 = map.get("rateList");row01.add(0,"完成率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -1289,8 +1301,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyArea(Map<String, Object> params) {
 
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyArea(params);
-        List<Object> headerList = map.get("nameList");
-        List<Object> row01 = map.get("rateList");
+        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> row01 = map.get("rateList");row01.add(0,"完成率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -1355,8 +1367,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyCountry(params);
-        List<Object> headerList = map.get("nameList");
-        List<Object> row01 = map.get("rateList");
+        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> row01 = map.get("rateList");row01.add(0,"完成率（%）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
