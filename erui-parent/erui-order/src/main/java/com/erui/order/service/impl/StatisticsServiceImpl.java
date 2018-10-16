@@ -592,7 +592,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
                     String currencyBn = (String) objArr[5];  //货币类型
                     BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
-
+                    BigDecimal discount = (BigDecimal) objArr[7];//其他扣款金额
+                    if (discount != null) {
+                        money = money.add(discount);   //回款金额 加上 其他扣款金额
+                    }
                     if (objArr[1] != null) {    //是否有回款金额
                         if (currencyBn != "USD") {    //是否是美元
                             projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
