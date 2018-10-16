@@ -698,11 +698,13 @@ public class SalesDataStatisticsController {
      * @return
      */
     @RequestMapping(value = "exportOrderInfoPurchasingPower")
-    public Object exportOrderInfoPurchasingPower(HttpServletResponse response, String startTime, String endTime, Integer sort) {
+    public Object exportOrderInfoPurchasingPower(HttpServletResponse response, String startTime, String endTime, String countryBn,String areaBn,String buyerCode) {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
-        params.put("sort",sort);
+        params.put("countryBn",countryBn);
+        params.put("areaBn",areaBn);
+        params.put("buyerCode",buyerCode);
         Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
             params.remove("startTime");
@@ -775,11 +777,13 @@ public class SalesDataStatisticsController {
      * @return
      */
     @RequestMapping(value = "exportOrderInfoBuyCycle")
-    public Result<Object> exportOrderInfoBuyCycle(HttpServletResponse response, String startTime, String endTime, Integer sort) {
+    public Result<Object> exportOrderInfoBuyCycle(HttpServletResponse response, String startTime, String endTime, String countryBn,String areaBn,String buyerCode) {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
-        params.put("sort",sort);
+        params.put("countryBn",countryBn);
+        params.put("areaBn",areaBn);
+        params.put("buyerCode",buyerCode);
         Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
             params.remove("startTime");
