@@ -301,6 +301,8 @@ public class Goods {
                 case "9948":
                     result = "测试二级部门";
                     break;
+                default:
+                    return department;
 
             }
         }
