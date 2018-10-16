@@ -171,7 +171,7 @@ public class ProjectServiceImpl implements ProjectService {
                 // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
                 if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                        throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                        throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error" ));
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
                     // 之前只保存了项目，则流程可以是提交到项目经理和执行

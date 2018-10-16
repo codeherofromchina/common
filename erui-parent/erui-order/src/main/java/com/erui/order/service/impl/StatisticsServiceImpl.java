@@ -640,7 +640,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         for (ProjectStatistics p : projectStatistics) {
             ProjectGoodsStatistics projectGood01 = copyProjectDescTo(p);
             projectGood01.setId(count);
-            projectGood01.setBusinessUnitName(p.getBusinessUnitName());
+            projectGood01.setBusinessUnitName(p.getSendDeptId().toString());
             projectGood01.setContractGoodsNum(1);
             projectGood01.setUnit("批");
             projectGood01.setCurrencyBn("USD");

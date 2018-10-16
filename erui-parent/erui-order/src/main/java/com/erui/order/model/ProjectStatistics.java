@@ -58,6 +58,7 @@ public class ProjectStatistics {
         this.createTime = project.getCreateTime();
         this.orderCategory = order.getOrderCategory();
         this.goodsList = order.getGoodsList();
+        this.sendDeptId = project.getSendDeptId();
     }
 
     //订单ID
@@ -85,6 +86,8 @@ public class ProjectStatistics {
     private String distributionDeptName;
     //事业部
     private String businessUnitName;
+    //事业部ID
+    private Integer sendDeptId;
     //所属地区
     private String region;
     private String regionZh;
@@ -149,6 +152,14 @@ public class ProjectStatistics {
     private Integer orderCategory;
     //订单商品
     private List<Goods> goodsList = new ArrayList<>();
+
+    public Integer getSendDeptId() {
+        return sendDeptId;
+    }
+
+    public void setSendDeptId(Integer sendDeptId) {
+        this.sendDeptId = sendDeptId;
+    }
 
     public List<Goods> getGoodsList() {
         return goodsList;
