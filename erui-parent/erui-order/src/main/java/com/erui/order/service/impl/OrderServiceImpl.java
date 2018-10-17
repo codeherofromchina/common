@@ -590,7 +590,6 @@ public class OrderServiceImpl implements OrderService {
                             project.setAuditingStatus(2); // 设置项目为审核中
                             project.setAuditingUserId(checkLog.getNextAuditingUserId());
                             project.setAuditingProcess(checkLog.getNextAuditingProcess());
-
                             auditingStatus_i = 4; // 完成
                             auditingProcess_i = null; // 无下一审核进度和审核人
                             auditingUserId_i = null;
@@ -599,6 +598,8 @@ public class OrderServiceImpl implements OrderService {
                             auditingUserId_i = checkLog.getNextAuditingUserId();
                             auditorIds.append("," + auditingUserId_i + ",");
                             addOrderVo.copyBaseInfoTo(order);
+                            order.setOrderPayments(addOrderVo.getContractDesc());
+                            order.setAttachmentSet(addOrderVo.getAttachDesc());
                             if (order.getId() != null) {
                                 order.getProject().setExecCoName(order.getExecCoName());
                                 order.getProject().setBusinessUid(order.getTechnicalId());
@@ -804,7 +805,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             order.setAuditingStatus(2);
-            if (StringUtils.isNotBlank(addOrderVo.getPerLiableRepay())) {
+            if (StringUtils.isNotBlank(addOrderVo.getPerLiableRepay()) && (addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 2)) {
                 order.setAuditingProcess(1);
                 order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
             } else {
@@ -815,7 +816,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            if (orderUpdate.getPerLiableRepayId() == null) {
+            if (orderUpdate.getPerLiableRepayId() != null) {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), null, "1", 1);
             } else {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
@@ -995,7 +996,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             order.setAuditingStatus(2);
-            if (StringUtils.isNotBlank(addOrderVo.getPerLiableRepay())) {
+            if (StringUtils.isNotBlank(addOrderVo.getPerLiableRepay()) && (addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 2)) {
                 order.setAuditingProcess(1);
                 order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
             } else {
@@ -1006,7 +1007,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null;//审批流日志
         Order order1 = orderDao.save(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            if (order1.getPerLiableRepayId() == null) {
+            if (order1.getPerLiableRepayId() != null) {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), null, "1", 1);
             } else {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getCountryLeaderId().toString(), null, "1", 1);
