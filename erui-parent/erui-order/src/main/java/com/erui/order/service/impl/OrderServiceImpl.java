@@ -590,6 +590,7 @@ public class OrderServiceImpl implements OrderService {
                             project.setAuditingStatus(2); // 设置项目为审核中
                             project.setAuditingUserId(checkLog.getNextAuditingUserId());
                             project.setAuditingProcess(checkLog.getNextAuditingProcess());
+                            order.setStatus(2);
                             auditingStatus_i = 4; // 完成
                             auditingProcess_i = null; // 无下一审核进度和审核人
                             auditingUserId_i = null;
@@ -626,6 +627,18 @@ public class OrderServiceImpl implements OrderService {
                         auditingUserId_i = checkLog.getNextAuditingUserId();
                         auditorIds.append("," + auditingUserId_i + ",");
                         //addOrderVo.copyBaseInfoTo(order);
+                    } else if (order.getOrderCategory() == 5) {
+                        if (order.getFinancing() == null || order.getFinancing() == 0) {
+                            auditingProcess_i = "6";
+                            auditingUserId_i = order.getTechnicalId().toString();
+                            auditorIds.append("," + auditingUserId_i + ",");
+                        } else {
+                            //若是融资项目
+                            auditingProcess_i = "5"; // 融资审核
+                            auditingUserId_i = order.getFinancingCommissionerId().toString();
+                            auditorIds.append("," + auditingUserId_i + ",");
+                        }
+
                     } else {
                         auditingProcess_i = "2";
                         auditingUserId_i = order.getCountryLeaderId().toString();
@@ -722,7 +735,6 @@ public class OrderServiceImpl implements OrderService {
                         auditorIds.append("," + auditingUserId_i + ",");
                         //addOrderVo.copyBaseInfoTo(order);
                     } else {
-                        //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
                         auditingProcess_i = "6";
                         auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                         auditorIds.append("," + auditingUserId_i + ",");
@@ -782,7 +794,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
 
-        if (addOrderVo.getTotalPriceUsd() != null) {
+        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 5) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
@@ -973,7 +985,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
-        if (addOrderVo.getTotalPriceUsd() != null) {
+        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 5) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
