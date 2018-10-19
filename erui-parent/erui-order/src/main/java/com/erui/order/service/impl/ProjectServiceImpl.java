@@ -241,8 +241,8 @@ public class ProjectServiceImpl implements ProjectService {
                         Integer managerUid = projectUpdate.getManagerUid();//项目经理
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
-
-                    } else if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        //当参数项目状态为 AUDIT为提交审核状态 状态不入库
+                    } else if ("AUDIT".equals(paramProjectStatusEnum)) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
@@ -300,11 +300,11 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setRemarks(project.getRemarks());
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
-                        //有项目经理提交
+                        /*//有项目经理提交   10月19日流程修改为先审核再填写项目经理信息
                         if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                             // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
                             submitProjectProcessCheckAuditParams(project, projectUpdate, order);
-                        }
+                        }*/
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
                         BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
                         if (backLogs != null) {
@@ -318,7 +318,9 @@ public class ProjectServiceImpl implements ProjectService {
                     throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
                 }
                 // 修改状态
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                if (!"AUDIT".equals(paramProjectStatusEnum)){
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                }
                 //修改备注  在项目完成前商务技术可以修改项目备注
                 if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
                     projectUpdate.setRemarks(project.getRemarks());
