@@ -242,7 +242,7 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
                         //当参数项目状态为 AUDIT为提交审核状态 状态不入库
-                    } else if (nowProjectStatusEnum.equals(paramProjectStatusEnum)) {
+                    } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
@@ -318,7 +318,7 @@ public class ProjectServiceImpl implements ProjectService {
                     throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
                 }
                 // 修改状态
-                if (!nowProjectStatusEnum.equals(paramProjectStatusEnum)){
+                if (!"AUDIT".equals(paramProjectStatusEnum)){
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 }
                 //修改备注  在项目完成前商务技术可以修改项目备注

@@ -782,7 +782,9 @@ public class Project {
         project.setWarehouseUid(this.warehouseUid);
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
-        project.setProjectStatus(this.projectStatus);
+        if (!"AUDIT".equals(this.projectStatus)){
+            project.setProjectStatus(this.projectStatus);
+        }
         project.setLogisticsAudit(this.logisticsAudit);
         project.setLogisticsAuditerId(this.getLogisticsAuditerId());
         project.setLogisticsAuditer(this.logisticsAuditer);
