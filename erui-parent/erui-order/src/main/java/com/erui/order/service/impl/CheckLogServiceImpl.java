@@ -52,7 +52,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         example.setType(type);
         example.setOrderId(refId);
         Page<CheckLog> all = checkLogDao.findAll(Example.of(example), request);
-        if (all != null && all.getSize() > 0) {
+        if (all != null && all.getContent().size() > 0) {
             return all.getContent().get(0);
         }
         return null;
