@@ -318,7 +318,7 @@ public class ProjectServiceImpl implements ProjectService {
                     throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
                 }
                 // 修改状态
-                if (!"AUDIT".equals(paramProjectStatusEnum)){
+                if (!Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 }
                 //修改备注  在项目完成前商务技术可以修改项目备注
