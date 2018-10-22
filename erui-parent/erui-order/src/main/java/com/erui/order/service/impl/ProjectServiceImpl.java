@@ -1082,7 +1082,7 @@ public class ProjectServiceImpl implements ProjectService {
                 auditingUserId_i = checkLog.getNextAuditingUserId();
                 // 驳回后的修改
                 paramProject.copyProjectDescTo(project); // 只修改基本信息
-                paramProject.setProjectStatus("EXECUTING"); // 驳回处理后设置状态为执行中
+                paramProject.setProjectStatus("SUBMIT"); // 驳回处理后设置状态为执行中
 
             } else {
                 switch (curAuditProcess) {
