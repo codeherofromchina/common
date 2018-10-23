@@ -583,7 +583,7 @@ public class OrderServiceImpl implements OrderService {
             CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
-                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+                    if (checkLog != null && StringUtils.equals("-1", checkLog.getOperation())) { // 驳回后的处理
                         // 添加从项目驳回过来的信息
                         if (checkLog.getType() == 2) {
                             Project project = order.getProject();
