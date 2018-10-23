@@ -59,13 +59,25 @@ public class CheckLogServiceImpl implements CheckLogService {
     }
 
     @Override
+    public CheckLog findLogOne(Integer refId) {
+        PageRequest request = new PageRequest(0, 1, Sort.Direction.DESC, "createTime");
+        CheckLog example = new CheckLog();
+        example.setOrderId(refId);
+        Page<CheckLog> all = checkLogDao.findAll(Example.of(example), request);
+        if (all != null && all.getContent().size() > 0) {
+            return all.getContent().get(0);
+        }
+        return null;
+    }
+
+    @Override
     public void insert(CheckLog checkLog) {
         checkLogDao.save(checkLog);
     }
 
     @Override
     public List<CheckLog> findListByOrderId(Integer orderId) {
-        if (orderId != null ) {
+        if (orderId != null) {
             List<CheckLog> checkLogList = checkLogDao.findByOrderId(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
                 return checkLogList;
@@ -75,19 +87,20 @@ public class CheckLogServiceImpl implements CheckLogService {
     }
 
     /**
-     *  根据时间倒叙排序订单的所有审核
+     * 根据时间倒叙排序订单的所有审核
+     *
      * @param orderId
      * @return
      */
     private List<CheckLog> findListByOrderIdOrderByCreateTimeDesc(Integer orderId) {
         List<CheckLog> checkLogList = null;
-        if (orderId != null ) {
-            checkLogList =  checkLogDao.findAll(new Specification<CheckLog>() {
+        if (orderId != null) {
+            checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                     return cb.equal(root.get("orderId").as(Integer.class), orderId);
                 }
-            },new Sort(Sort.Direction.DESC,"createTime"));
+            }, new Sort(Sort.Direction.DESC, "createTime"));
         }
         if (checkLogList == null) {
             checkLogList = new ArrayList<>();
@@ -97,19 +110,20 @@ public class CheckLogServiceImpl implements CheckLogService {
 
 
     /**
-     *  根据类型和审核状态从前到后排序订单的所有审核
+     * 根据类型和审核状态从前到后排序订单的所有审核
+     *
      * @param orderId
      * @return
      */
     private List<CheckLog> findListByOrderIdOrderByTypeAndAuditingProcess(Integer orderId) {
         List<CheckLog> checkLogList = null;
-        if (orderId != null ) {
-            checkLogList =  checkLogDao.findAll(new Specification<CheckLog>() {
+        if (orderId != null) {
+            checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                     return cb.equal(root.get("orderId").as(Integer.class), orderId);
                 }
-            },new Sort(Sort.Direction.DESC,"type","auditingProcess"));
+            }, new Sort(Sort.Direction.DESC, "type", "auditingProcess"));
         }
         if (checkLogList == null) {
             checkLogList = new ArrayList<>();
@@ -131,7 +145,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             }
             Project project = order.getProject();
             // 通过项目和订单判断可以驳回到之前的步骤列表
-            for (CheckLog checkLog:checkLogList) {
+            for (CheckLog checkLog : checkLogList) {
                 // 只查找通过和立项的审核
                 if (checkLog.getOperation() == "-1") {
                     continue;
@@ -154,7 +168,7 @@ public class CheckLogServiceImpl implements CheckLogService {
                     }
                     String[] split = auditingProcess.split(",");
                     int maxAuditingProcess = 0;
-                    for (String s:split) {
+                    for (String s : split) {
                         int i = Integer.parseInt(s);
                         if (i > maxAuditingProcess) {
                             maxAuditingProcess = i;

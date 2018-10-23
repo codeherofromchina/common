@@ -580,7 +580,7 @@ public class OrderServiceImpl implements OrderService {
             }
         } else {
             // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
-            CheckLog checkLog = checkLogService.findLastLog(1, order.getId());
+            CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
                     if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理

@@ -1057,7 +1057,7 @@ public class ProjectServiceImpl implements ProjectService {
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
                 String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
-                if (auditingProcess_order.equals("0")) {
+                if (auditingProcess_order != null && auditingProcess_order == 0) {
                     order.setStatus(1);
                 }
                 order.setAuditingUserId(auditingUserId_order);

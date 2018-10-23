@@ -444,6 +444,9 @@ public class ProjectGoodsStatistics {
                 case "5":
                     result = "票汇";
                     break;
+                case "6":
+                    result = "现金";
+                    break;
             }
         }
         return result;
