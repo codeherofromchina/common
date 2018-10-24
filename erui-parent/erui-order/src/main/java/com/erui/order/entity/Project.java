@@ -782,7 +782,9 @@ public class Project {
         project.setWarehouseUid(this.warehouseUid);
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
-        project.setProjectStatus(this.projectStatus);
+        if (!"AUDIT".equals(this.projectStatus)){
+            project.setProjectStatus(this.projectStatus);
+        }
         project.setLogisticsAudit(this.logisticsAudit);
         project.setLogisticsAuditerId(this.getLogisticsAuditerId());
         project.setLogisticsAuditer(this.logisticsAuditer);
@@ -882,7 +884,7 @@ public class Project {
 
     public static enum ProjectStatusEnum {
 
-        SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
+        AUDIT("AUDIT", "未执行", 1),SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
         EXECUTING("EXECUTING", "正常执行", 3), DONE("DONE", "正常完成", 4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行", 5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
         DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), TURNDOWN("TURNDOWN", "驳回", 11);

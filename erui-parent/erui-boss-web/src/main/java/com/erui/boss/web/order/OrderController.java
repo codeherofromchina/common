@@ -224,7 +224,7 @@ public class OrderController {
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(3)) {
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("回款责任人不能为空");
                 result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {

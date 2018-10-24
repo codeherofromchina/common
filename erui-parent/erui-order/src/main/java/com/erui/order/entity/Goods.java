@@ -257,7 +257,7 @@ public class Goods {
                     result = "易瑞-电力电工（含钢丝绳索具）";
                     break;
                 case "9907":
-                    result = "易瑞-钻完井设备";
+                    result = "易瑞-钻完井设备事业部";
                     break;
                 case "9917":
                     result = "康博瑞-商务技术";
@@ -300,6 +300,12 @@ public class Goods {
                     break;
                 case "9948":
                     result = "测试二级部门";
+                    break;
+                case "9969":
+                    result = "易瑞-工业品事业部";
+                    break;
+                case "9970":
+                    result = "易瑞-采油工程事业部";
                     break;
                 default:
                     return department;
