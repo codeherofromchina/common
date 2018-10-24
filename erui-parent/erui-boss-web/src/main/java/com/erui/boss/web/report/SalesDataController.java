@@ -49,8 +49,10 @@ public class SalesDataController {
             Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
             params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
         }else  if(params.get("type").equals("week")){//如果按周查询
-            Date end2 = DateUtil.getDateAfter(startTime, 6);
-            Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
+            if(end==null|| startTime.after(end)){
+                return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            }
+            Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
             params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
         }else if(params.get("type").equals("year")){//如果按年查询
             Date end2 = DateUtil.getYearLastDay(startTime);

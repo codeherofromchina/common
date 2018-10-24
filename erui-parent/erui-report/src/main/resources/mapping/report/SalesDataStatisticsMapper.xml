@@ -95,14 +95,16 @@
     <!-- 会员总数 -->
     <select id="buyerTotalCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t2.`name` as areaName,COUNT(t1.id) as total
+        t3.`name` AS areaName, COUNT(t1.id) AS total
         FROM
         erui_buyer.buyer t1
-        left join erui_operation.market_area t2 on t2.lang='zh' and t1.area_bn = t2.bn
+        LEFT JOIN
+        erui_operation.market_area_country t2 ON t1.country_bn = t2.country_bn
+        LEFT JOIN
+        erui_operation.market_area t3 ON t2.market_area_bn = t3.bn AND t3.lang = 'zh' AND t3.deleted_flag = 'N'
         WHERE
-        t1.created_at <![CDATA[ <= ]]> #{endTime}
-        AND t1.`status` in ('PASS','ARROVED')
-        group by t2.`name`
+        t1.created_at <![CDATA[ <= ]]> #{endTime} AND t1.`status` IN ('PASS' , 'ARROVED') AND t1.deleted_flag = 'N'
+        GROUP BY t3.`name`
         order by 2
         <if test="sort != 1" >
             DESC
@@ -111,11 +113,11 @@
     <!-- 会员流失数-->
     <select id="buyerLossCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t2.`name` AS areaName, COUNT(t1.id) AS total
+            t3.`name` AS areaName, COUNT(t1.id) AS total
         FROM
             erui_buyer.buyer t1
-                LEFT JOIN
-            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.area_bn = t2.bn
+             left join erui_operation.market_area_country t2 on t1.country_bn = t2.country_bn
+            left join erui_operation.market_area t3 on t2.market_area_bn = t3.bn and t3.lang='zh' and t3.deleted_flag = 'N'
         WHERE
             t1.`status` IN ('PASS' , 'ARROVED')
                 AND t1.deleted_flag = 'N'
@@ -138,17 +140,17 @@
                         'INQUIRY_CLOSED')
                         AND t3.inflow_time BETWEEN DATE_ADD(#{startTime},
                         INTERVAL - 6 MONTH) AND #{endTime})
-        GROUP BY t2.`name`
+        GROUP BY t3.`name`
     </select>
 
     <!-- 会员活跃数-->
     <select id="buyerActiveCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t2.`name` AS areaName, COUNT(t1.id) AS total
+        t3.`name` AS areaName, COUNT(t1.id) AS total
         FROM
         erui_buyer.buyer t1
-        LEFT JOIN
-        erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
+         left join erui_operation.market_area_country t2 on t1.country_bn = t2.country_bn
+        left join erui_operation.market_area t3 on t2.market_area_bn = t3.bn and t3.lang='zh' and t3.deleted_flag = 'N'
         WHERE
         t1.`status` IN ('PASS' , 'ARROVED')
         AND t1.deleted_flag = 'N'
@@ -171,7 +173,7 @@
         AND t3.inflow_time <![CDATA[ >= ]]> DATE_ADD(#{startTime},
         INTERVAL - 3 MONTH)
         GROUP BY buyer_id)
-        GROUP BY t2.`name`
+        GROUP BY t3.`name`
     </select>
 
     <!-- 事业部报价用时 -->
