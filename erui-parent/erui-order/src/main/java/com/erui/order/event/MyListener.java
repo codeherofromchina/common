@@ -36,13 +36,14 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
             order.setProcessProgress(Project.ProjectProgressEnum.SUBMIT.getNum().toString());
         } else if (type == 2 && processProgress < 2) {
             // 现货出库和海外销（当地采购）的单子流程状态改为 已发运 20180726 需求修改
-            if ((order.getOverseasSales() == 3 || order.getOrderCategory() == 4) && project.getAuditingStatus() == 4) {
+            /*if ((order.getOverseasSales() == 3 || order.getOrderCategory() == 4) && project.getAuditingStatus() == 4) {
                 order.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
                 project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
             } else {
-                order.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
-                project.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
-            }
+            }*/
+            // 10需求，所有类型都正常走
+            order.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
+            project.setProcessProgress(Project.ProjectProgressEnum.EXECUTING.getNum().toString());
         } else if (type == 3 && processProgress < 3) {
             order.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.BUYING.getNum().toString());
