@@ -320,7 +320,7 @@ public class ProjectServiceImpl implements ProjectService {
                 // 修改状态
                 if (!Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
-                    if(projectUpdate.getExeChgDate() ==null) {
+                    if (projectUpdate.getExeChgDate() == null) {
                         // 只有为空才能设置，就是只可以设置一次
                         projectUpdate.setExeChgDate(project.getExeChgDate());
                     }
@@ -379,6 +379,10 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
             projectUpdate.setUpdateTime(new Date());
+            if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                //现货出库和海外销（当地采购）的单子流程状态改为 已发运
+                applicationContext.publishEvent(new OrderProgressEvent(order, 10));
+            }
             Project project1 = projectDao.save(projectUpdate);
 
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
@@ -493,7 +497,6 @@ public class ProjectServiceImpl implements ProjectService {
                     Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
                     searchList.add(endTime);
                 }
-
 
 
                 // 审核状态查询
@@ -1093,7 +1096,7 @@ public class ProjectServiceImpl implements ProjectService {
                 paramProject.copyProjectDescTo(project); // 只修改基本信息
                 //判断是否传送了海外销售合同号，如果传送，则修正相应订单中的销售合同号和海外销售合同号
                 String contractNoOs = paramProject.getContractNoOs();
-                if(StringUtils.isNotBlank(contractNoOs)) {
+                if (StringUtils.isNotBlank(contractNoOs)) {
                     //如果传送，则修正相应订单中的销售合同号和海外销售合同号
                     String contractNo = paramProject.getContractNo();
                     // 判断销售合同号不能重复
@@ -1224,8 +1227,6 @@ public class ProjectServiceImpl implements ProjectService {
         project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
-        //审核通过时现货出库和海外销（当地采购）的单子流程状态改为 已发运
-        applicationContext.publishEvent(new OrderProgressEvent(order, 10));
         return true;
     }
 
