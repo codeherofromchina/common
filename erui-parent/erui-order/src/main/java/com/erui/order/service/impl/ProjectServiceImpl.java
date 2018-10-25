@@ -18,6 +18,7 @@ import com.erui.order.service.CheckLogService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.StatisticsService;
 import com.erui.order.util.exception.MyException;
+import com.sun.tools.doclint.Entity;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.sun.tools.doclint.Entity.and;
 
 
 /**
@@ -437,84 +440,100 @@ public class ProjectServiceImpl implements ProjectService {
         Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
+                List<Predicate> searchList = new ArrayList<>(); // 前端查询条件的AND关系列表
+                List<Predicate> backList = new ArrayList<>(); // 隐藏的背后过滤条件AND关系列表
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
-                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
-                }
-                // 审核状态查询
-                if (null != condition.getAuditingStatus()) {
-                    list.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
-                }
-                //根据项目名称模糊查询
-                if (StringUtil.isNotBlank(condition.getProjectName())) {
-                    list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
-                }
-                //根据项目开始时间查询
-                if (condition.getStartDate() != null) {
-                    list.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
-                }
-                //根据执行分公司查询
-                if (StringUtil.isNotBlank(condition.getExecCoName())) {
-                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
-                }
-                //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
-                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
-                }
-                //要求采购到货日期
-                if (condition.getRequirePurchaseDate() != null) {
-                    list.add(cb.equal(root.get("requirePurchaseDate").as(Date.class), NewDateUtil.getDate(condition.getRequirePurchaseDate())));
-                }
-                //执行单变更后日期
-                if (condition.getExeChgDate() != null) {
-                    list.add(cb.equal(root.get("exeChgDate").as(Date.class), NewDateUtil.getDate(condition.getExeChgDate())));
-                }
-                //根据事业部
-                if (StringUtil.isNotBlank(condition.getBusinessUnitName())) {
-                    list.add(cb.like(root.get("businessUnitName").as(String.class), "%" + condition.getBusinessUnitName() + "%"));
-                }
-                //根据分销部
-                if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
-                    list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
-                }
-                String[] projectStatus = null;
-                //根据项目状态
-                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
-                    projectStatus = condition.getProjectStatus().split(",");
-                    list.add(root.get("projectStatus").in(projectStatus));
+                    searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                    searchList.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据项目名称模糊查询
+                if (StringUtil.isNotBlank(condition.getProjectName())) {
+                    searchList.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
+                }
+                //根据项目开始时间查询
+                if (condition.getStartDate() != null) {
+                    searchList.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
+                }
+                //根据项目状态
+                String[] projectStatus = null;
+                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
+                    projectStatus = condition.getProjectStatus().split(",");
+                    searchList.add(root.get("projectStatus").in(projectStatus));
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
                     if (StringUtils.equals("1", condition.getProcessProgress())) {
-                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                        searchList.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                     } else {
-                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                        searchList.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                     }
                 }
-                //根据是否已生成出口通知单
-                if (condition.getDeliverConsignHas() != null) {
-                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
-                }
-                //根据采购经办人   purchaseUid     qualityUid    managerUid logisticsUid warehouseUid
-                if (condition.getPurchaseUid() != null) {
-                    list.add(cb.equal(root.get("purchaseUid").as(Integer.class), condition.getPurchaseUid()));
-                }
-                //根据品控经办人
-                if (condition.getQualityUid() != null) {
-                    list.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
+                //根据事业部
+                if (StringUtil.isNotBlank(condition.getBusinessUnitName())) {
+                    searchList.add(cb.like(root.get("businessUnitName").as(String.class), "%" + condition.getBusinessUnitName() + "%"));
                 }
                 //根据商务技术经办人
                 if (condition.getBusinessUid02() != null) {
-                    list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid02()));
+                    searchList.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid02()));
+                }
+                //根据项目创建查询 开始时间
+                if (condition.getStartTime() != null) {
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                    searchList.add(startTime);
+                }
+                //根据项目创建查询 结束时间
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
+                    searchList.add(endTime);
+                }
+
+
+
+                // 审核状态查询
+                if (null != condition.getAuditingStatus()) {
+                    backList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+                }
+                //根据执行分公司查询
+                if (StringUtil.isNotBlank(condition.getExecCoName())) {
+                    backList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                }
+                //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    backList.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
+                }
+                //要求采购到货日期
+                if (condition.getRequirePurchaseDate() != null) {
+                    backList.add(cb.equal(root.get("requirePurchaseDate").as(Date.class), NewDateUtil.getDate(condition.getRequirePurchaseDate())));
+                }
+                //执行单变更后日期
+                if (condition.getExeChgDate() != null) {
+                    backList.add(cb.equal(root.get("exeChgDate").as(Date.class), NewDateUtil.getDate(condition.getExeChgDate())));
+                }
+                //根据分销部
+                if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
+                    backList.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    backList.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //根据采购经办人   purchaseUid     qualityUid    managerUid logisticsUid warehouseUid
+                if (condition.getPurchaseUid() != null) {
+                    backList.add(cb.equal(root.get("purchaseUid").as(Integer.class), condition.getPurchaseUid()));
+                }
+                //根据品控经办人
+                if (condition.getQualityUid() != null) {
+                    backList.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
                 }
                 //根据下发部门
                 if (StringUtils.isNotBlank(condition.getSendDeptId02())) {
-                    list.add(cb.equal(root.get("sendDeptId").as(String.class), condition.getSendDeptId02()));
+                    backList.add(cb.equal(root.get("sendDeptId").as(String.class), condition.getSendDeptId02()));
                 }
                 //下发部门
                 String[] bid = null;
@@ -547,37 +566,23 @@ public class ProjectServiceImpl implements ProjectService {
                     or = cb.or(businessUid, sendDeptId);
                 }
                 if (or != null) {
-                    list.add(or);
+                    backList.add(or);
                 } else {
                     if (sendDeptId != null) {
-                        list.add(sendDeptId);
+                        backList.add(sendDeptId);
                     } else if (managerUid != null) {
-                        list.add(managerUid);
+                        backList.add(managerUid);
                     } else if (businessUid != null) {
-                        list.add(businessUid);
+                        backList.add(businessUid);
                     }
                 }
-
-
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
-                    list.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
+                    backList.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
                 }
                 //根据仓库经办人
                 if (condition.getWarehouseUid() != null) {
-                    list.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
-                }
-                //根据项目创建查询 开始时间
-                if (condition.getStartTime() != null) {
-                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
-                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                    list.add(startTime);
-                }
-                //根据项目创建查询 结束时间
-                if (condition.getEndTime() != null) {
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
-                    list.add(endTime);
+                    backList.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
@@ -585,23 +590,26 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 if (country != null) {
                     Join<Project, Order> orderRoot = root.join("order");
-                    list.add(orderRoot.get("country").in(country));
+                    backList.add(orderRoot.get("country").in(country));
                 }
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                Predicate and = cb.and(predicates);
-
                 // 审核人查询,和其他关系是or，所有写在最后
+                Predicate[] backPredicates = new Predicate[backList.size()];
+                backPredicates = searchList.toArray(backPredicates);
+                Predicate and = cb.and(backPredicates);
                 if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
                     Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
                     Predicate or1 = cb.or(and, auditingUserIdP);
                     Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class), "%," + condition.getAuditingUserId() + ",%");
-                    return cb.or(or1, auditingUserId02);
+                    searchList.add(cb.or(or1, auditingUserId02));
                 } else {
-                    return and;
+                    searchList.add(and);
                 }
+                Predicate[] predicates = new Predicate[searchList.size()];
+                predicates = searchList.toArray(predicates);
+                return cb.and(predicates);
             }
         }, pageRequest);
+
         for (Project project : pageList) {
             if (project.getOrder() != null) {
                 project.setoId(project.getOrder().getId());
@@ -1082,6 +1090,24 @@ public class ProjectServiceImpl implements ProjectService {
                 auditingUserId_i = checkLog.getNextAuditingUserId();
                 // 驳回后的修改
                 paramProject.copyProjectDescTo(project); // 只修改基本信息
+                //判断是否传送了海外销售合同号，如果传送，则修正相应订单中的销售合同号和海外销售合同号
+                String contractNoOs = paramProject.getContractNoOs();
+                if(StringUtils.isNotBlank(contractNoOs)) {
+                    //如果传送，则修正相应订单中的销售合同号和海外销售合同号
+                    String contractNo = paramProject.getContractNo();
+                    // 判断销售合同号不能重复
+                    List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
+                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                        Integer projectId = project.getId();
+                        for (Integer proId : contractNoProjectIds) {
+                            if (proId.intValue() != projectId.intValue()) {
+                                return false;
+                            }
+                        }
+                    }
+                    order.setContractNoOs(contractNoOs);
+                    order.setContractNo(contractNo);
+                }
                 paramProject.setProjectStatus("SUBMIT"); // 驳回处理后设置状态为执行中
 
             } else {

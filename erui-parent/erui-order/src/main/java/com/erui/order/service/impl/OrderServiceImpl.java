@@ -781,6 +781,8 @@ public class OrderServiceImpl implements OrderService {
                 case 6:
                     order.setGoodsList(updateOrderGoods(addOrderVo));
                     order.setLogiQuoteNo(addOrderVo.getLogiQuoteNo());
+
+
                     auditingStatus_i = 4; // 完成
                     auditingProcess_i = null; // 无下一审核进度和审核人
                     auditingUserId_i = null;
