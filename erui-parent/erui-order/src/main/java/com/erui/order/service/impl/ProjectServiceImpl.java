@@ -18,7 +18,6 @@ import com.erui.order.service.CheckLogService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.StatisticsService;
 import com.erui.order.util.exception.MyException;
-import com.sun.tools.doclint.Entity;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.sun.tools.doclint.Entity.and;
 
 
 /**
