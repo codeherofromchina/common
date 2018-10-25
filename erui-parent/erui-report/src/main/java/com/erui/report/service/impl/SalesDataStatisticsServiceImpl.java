@@ -635,7 +635,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if(params.get("startTime") !=null) {
+        if (params.get("startTime") != null) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-地区（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-地区");
@@ -654,14 +654,14 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> names = new ArrayList<>();
         List<Object> totalNums = new ArrayList<>();
         List<Object> totalAmounts = new ArrayList<>();
-        for (Map<String, Object> map : orderInfoGroupCountry) {
+        orderInfoGroupCountry.stream().limit(10).forEach(map -> {
             String countryName = (String) map.get("countryName");
             BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
             Long totalNum = (Long) map.get("totalNum");
             names.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(totalNum == null ? 0L : totalNum);
             totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
-        }
+        });
         result.put("names", names);
         result.put("totalNums", totalNums);
         result.put("totalAmounts", totalAmounts);
@@ -692,7 +692,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if(params.get("startTime") !=null) {
+        if (params.get("startTime") != null) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-国家（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-国家");
@@ -750,7 +750,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if(params.get("startTime") != null) {
+        if (params.get("startTime") != null) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-事业部（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-事业部");
@@ -852,9 +852,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsProfitPercentGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByCountry(params);
-        List<Object> headerList = map.get("names");
+        List<Object> headerList = map.get("names").subList(0,10);
         headerList.add(0, "");
-        List<Object> row01 = map.get("profitPercents");
+        List<Object> row01 = map.get("profitPercents").subList(0,10);
         row01.add(0, "利润率（%）");
 
         // 填充数据
@@ -1014,13 +1014,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsMonoRateGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsMonoRateGroupByCountry(params);
-        List<Object> headerList = map.get("names");
+        List<Object> headerList = map.get("names").subList(0,10);
         headerList.add(0, "");
-        List<Object> row01 = map.get("quoteNums");
+        List<Object> row01 = map.get("quoteNums").subList(0,10);
         row01.add(0, "累计报价数量");
-        List<Object> row02 = map.get("doneNums");
+        List<Object> row02 = map.get("doneNums").subList(0,10);
         row02.add(0, "累计成单数量");
-        List<Object> row03 = map.get("rates");
+        List<Object> row03 = map.get("rates").subList(0,10);
         row03.add(0, "个数成单率（%）");
 
         // 填充数据
@@ -1116,9 +1116,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, rowList.size());
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if(params.get("startTime") != null) {
+        if (params.get("startTime") != null) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-会员购买力（" + params.get("startTime") + "-" + params.get("endTime") + "）");
-        }else {
+        } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-会员购买力");
         }
         return workbook;
@@ -1179,7 +1179,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, rowList.size());
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if(params.get("startTime") != null) {
+        if (params.get("startTime") != null) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-复购周期（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "订单数据统计-复购周期");
@@ -1437,9 +1437,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyCountry(params);
-        List<Object> headerList = map.get("nameList");
+        List<Object> headerList = map.get("nameList").subList(0, 10);
         headerList.add(0, "");
-        List<Object> row01 = map.get("rateList");
+        List<Object> row01 = map.get("rateList").subList(0, 10);
         row01.add(0, "完成率（%）");
 
         // 填充数据

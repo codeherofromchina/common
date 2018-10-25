@@ -74,10 +74,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportMembershipGradeByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = membershipGradeByCountry(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList").subList(0,10);headerList.add(0,"");
 
-        List<Object> row01 = map.get("normalGradeList");row01.add(0,"普通会员数量");
-        List<Object> row02 = map.get("topGradeList");row02.add(0,"高级会员数量");
+        List<Object> row01 = map.get("normalGradeList").subList(0,10);row01.add(0,"普通会员数量");
+        List<Object> row02 = map.get("topGradeList").subList(0,10);row02.add(0,"高级会员数量");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -144,12 +144,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportVisitStatisticsByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = visitStatisticsByCountry(params);
-        List<Object> headerList = map.get("nameList");
+        List<Object> headerList = map.get("nameList").subList(0,10);
         headerList.add(0,"");
 
-        List<Object> row01 = map.get("numList");
+        List<Object> row01 = map.get("numList").subList(0,10);
         row01.add(0,"总访问（次）");
-        List<Object> row02 = map.get("avgList");
+        List<Object> row02 = map.get("avgList").subList(0,10);
         row02.add(0,"平均访问（次）");
 
         // 填充数据
@@ -210,9 +210,9 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = membershipByCountry(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList").subList(0,10);headerList.add(0,"");
 
-        List<Object> row01 = map.get("numList");row01.add(0,"个");
+        List<Object> row01 = map.get("numList").subList(0,10);row01.add(0,"个");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
@@ -329,10 +329,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportSigningBodyByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = signingBodyByCountry(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList").subList(0,10);headerList.add(0,"");
 
-        List<Object> row01 = map.get("eruiNumList");row01.add(0,"易瑞签约主体（个）");
-        List<Object> row02 = map.get("otherNumList");row02.add(0,"其他签约主体（个）");
+        List<Object> row01 = map.get("eruiNumList").subList(0,10);row01.add(0,"易瑞签约主体（个）");
+        List<Object> row02 = map.get("otherNumList").subList(0,10);row02.add(0,"其他签约主体（个）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -435,8 +435,9 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportEfficiencyByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = efficiencyByCountry(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
-        List<Object> row01 = map.get("dataList");
+        List<Object> headerList = map.get("nameList").subList(0,10);
+        headerList.add(0,"");
+        List<Object> row01 = map.get("dataList").subList(0,10);
         row01.add(0,"万美元");
 
         // 填充数据
@@ -603,7 +604,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
         List<Object> nameList = new ArrayList<>();
         List<Object> dataList = new ArrayList<>();
-        list.stream().forEach(vo -> {
+        list.stream().limit(10).forEach(vo -> {
             nameList.add((String) vo[0]);
             dataList.add((BigDecimal) vo[1]);
         });
