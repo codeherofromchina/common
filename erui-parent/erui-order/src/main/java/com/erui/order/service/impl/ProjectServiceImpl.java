@@ -323,6 +323,10 @@ public class ProjectServiceImpl implements ProjectService {
                 // 修改状态
                 if (!Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                    if(projectUpdate.getExeChgDate() ==null) {
+                        // 只有为空才能设置，就是只可以设置一次
+                        projectUpdate.setExeChgDate(project.getExeChgDate());
+                    }
                 }
                 //修改备注  在项目完成前商务技术可以修改项目备注
                 if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
@@ -594,7 +598,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 // 审核人查询,和其他关系是or，所有写在最后
                 Predicate[] backPredicates = new Predicate[backList.size()];
-                backPredicates = searchList.toArray(backPredicates);
+                backPredicates = backList.toArray(backPredicates);
                 Predicate and = cb.and(backPredicates);
                 if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
                     Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");

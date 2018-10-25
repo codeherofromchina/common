@@ -766,7 +766,9 @@ public class Project {
         project.setProfitPercent(this.profitPercent);
         project.setTotalPriceUsd(this.totalPriceUsd);
         project.setHasManager(this.hasManager);
-        project.setExeChgDate(this.exeChgDate);
+        if(project.exeChgDate == null) {
+            project.setExeChgDate(this.exeChgDate);
+        }
         project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setPurchaseName(this.purchaseName);
