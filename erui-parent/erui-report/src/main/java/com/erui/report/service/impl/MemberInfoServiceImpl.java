@@ -190,13 +190,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
         HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
-                "客户统计-按地区统计");
+                "会员统计-按地区统计");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "客户统计-按地区统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员统计-按地区统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         return workbook;
     }
 
@@ -220,13 +220,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
         HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
-                "客户统计-按国家统计");
+                "会员统计-按国家统计");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "客户统计-按国家统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员统计-按国家统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         return workbook;
     }
 
@@ -524,8 +524,8 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> otherNumList = new ArrayList<>();
         for (Map<String, Object> map : signingBodyList) {
             Object name = map.get("name");
-            Object eruiNum = map.get("eruiNum");
-            Object otherNum = map.get("otherNum");
+            Integer eruiNum = ((BigDecimal)map.get("eruiNum")).intValue();
+            Integer otherNum = ((BigDecimal)map.get("otherNum")).intValue();
             nameList.add(name == null ? "其他" : name);
             eruiNumList.add(eruiNum);
             otherNumList.add(otherNum);

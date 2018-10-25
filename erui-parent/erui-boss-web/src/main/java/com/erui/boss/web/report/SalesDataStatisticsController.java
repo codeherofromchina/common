@@ -713,7 +713,7 @@ public class SalesDataStatisticsController {
             params = params02;
         }
 
-        String fileName = "订单数据统计-购买力-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "订单数据统计-会员购买力-" + java.lang.System.currentTimeMillis() + ".xls";
         HSSFWorkbook wb = supplierchainService.exportOrderInfoPurchasingPower(params);
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
