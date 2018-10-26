@@ -831,7 +831,12 @@ public class OrderServiceImpl implements OrderService {
             }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
-            Project projectAdd = new Project();
+            Project projectAdd = null;
+            if (order.getProject() == null) {
+                projectAdd = new Project();
+            }else {
+                projectAdd = order.getProject();
+            }
             projectAdd.setOrder(orderUpdate);
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
