@@ -1089,7 +1089,8 @@ public class ProjectServiceImpl implements ProjectService {
             Integer logistics_audit = project.getLogisticsAudit();
             // 处理进度
             CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
-            if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+            //if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+            if (false) { // 驳回后的处理
                 auditingProcess_i = checkLog.getNextAuditingProcess();
                 auditingUserId_i = checkLog.getNextAuditingUserId();
                 // 驳回后的修改
