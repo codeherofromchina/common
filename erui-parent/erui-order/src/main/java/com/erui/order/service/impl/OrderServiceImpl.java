@@ -587,6 +587,24 @@ public class OrderServiceImpl implements OrderService {
                     auditingUserId_i = addOrderVo.getPerLiableRepayId().toString();
                     auditorIds.append("," + auditingUserId_i + ",");
                     addOrderVo.copyBaseInfoTo(order);
+                    if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
+                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                            order.setCountryLeader(addOrderVo.getCountryLeader());
+                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                            order.setCountryLeader(addOrderVo.getCountryLeader());
+                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                            order.setAreaLeader(addOrderVo.getAreaLeader());
+                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                            order.setCountryLeader(addOrderVo.getCountryLeader());
+                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                            order.setAreaLeader(addOrderVo.getAreaLeader());
+                            order.setAreaVpId(addOrderVo.getAreaVpId());
+                            order.setAreaVp(addOrderVo.getAreaVp());
+                        }
+                    }
                     order.setOrderPayments(addOrderVo.getContractDesc());
                     order.setAttachmentSet(addOrderVo.getAttachDesc());
                     if (order.getId() != null) {
