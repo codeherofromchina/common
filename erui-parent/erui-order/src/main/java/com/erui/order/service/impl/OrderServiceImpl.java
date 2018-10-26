@@ -618,7 +618,7 @@ public class OrderServiceImpl implements OrderService {
 
                     } else {
                     }*/
-                    if (order.getOrderCategory() == 5) {
+                    if (order.getOrderCategory() == 6) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
                             auditingProcess_i = "6";
                             auditingUserId_i = order.getTechnicalId().toString();
