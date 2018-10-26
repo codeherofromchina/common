@@ -583,7 +583,7 @@ public class OrderServiceImpl implements OrderService {
             CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
-                    auditingProcess_i = "1";
+                   /* auditingProcess_i = "1";
                     auditingUserId_i = addOrderVo.getPerLiableRepayId().toString();
                     auditorIds.append("," + auditingUserId_i + ",");
                     addOrderVo.copyBaseInfoTo(order);
@@ -619,7 +619,7 @@ public class OrderServiceImpl implements OrderService {
                         order.getProject().setDistributionDeptName(order.getDistributionDeptName());
                         order.getProject().setBusinessName(order.getBusinessName());
                         order.getProject().setCreateTime(new Date());
-                    }
+                    }*/
                     break;
                 case 1:
                     /* if (checkLog != null && "-1".equals(checkLog.getOperation())) {
