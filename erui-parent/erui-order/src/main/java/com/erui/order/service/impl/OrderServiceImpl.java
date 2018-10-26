@@ -834,7 +834,7 @@ public class OrderServiceImpl implements OrderService {
             Project projectAdd = null;
             if (order.getProject() == null) {
                 projectAdd = new Project();
-            }else {
+            } else {
                 projectAdd = order.getProject();
             }
             projectAdd.setOrder(orderUpdate);
@@ -859,7 +859,12 @@ public class OrderServiceImpl implements OrderService {
             //商务技术经办人名称
             Project project = projectDao.save(projectAdd);
             //添加项目利润核算单信息
-            ProjectProfit projectProfit = new ProjectProfit();
+            ProjectProfit projectProfit = null;
+            if (project.getProjectProfit() == null) {
+                projectProfit = new ProjectProfit();
+            } else {
+                projectProfit = project.getProjectProfit();
+            }
             projectProfit.setProject(project);
             projectProfit.setCountry(orderUpdate.getCountry());
             projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
