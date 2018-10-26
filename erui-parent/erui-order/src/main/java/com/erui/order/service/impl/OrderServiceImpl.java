@@ -602,13 +602,6 @@ public class OrderServiceImpl implements OrderService {
                         order.getProject().setBusinessName(order.getBusinessName());
                         order.getProject().setCreateTime(new Date());
                     }
-                   /* if (checkLog != null && StringUtils.equals("-1", checkLog.getOperation())) { // 驳回后的处理
-
-                    } else {
-                        auditingProcess_i = "1";
-                        auditingUserId_i = order.getCountryLeaderId().toString();
-                        auditorIds.append("," + auditingUserId_i + ",");
-                    }*/
                     break;
                 case 1:
                     /* if (checkLog != null && "-1".equals(checkLog.getOperation())) {
