@@ -810,7 +810,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), null, "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
             } else {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
@@ -996,7 +996,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null;//审批流日志
         Order order1 = orderDao.save(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), null, "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
         }
         Date signingDate = null;
