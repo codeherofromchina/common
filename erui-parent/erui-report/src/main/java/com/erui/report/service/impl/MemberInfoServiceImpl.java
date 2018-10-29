@@ -282,10 +282,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             }
             BigDecimal inquiryNum = (BigDecimal) map.get("inquiryNum");
             totalInquiryNum += inquiryNum.intValue();
-            map.get(inquiryNum.intValue());
+            map.put("inquiryNum",inquiryNum.intValue());// 询单数量转换成整数
             BigDecimal orderNum = (BigDecimal) map.get("orderNum");
             totalOrderNum += orderNum.intValue();
-            map.get(orderNum.intValue());
+            map.put("orderNum",inquiryNum.intValue());// 订单数量转换成整数
             BigDecimal bigDecimal = (BigDecimal) map.get("rate");
             bigDecimal = bigDecimal.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN);
             map.put("rate", bigDecimal);

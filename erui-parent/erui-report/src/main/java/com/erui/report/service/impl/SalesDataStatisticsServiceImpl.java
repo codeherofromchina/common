@@ -1189,7 +1189,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             } else {
                 cycleInt = 0;
             }
-            objArr[3] = cycle;
+            objArr[3] = cycleInt;
             rowList.add(objArr);
         }
 
