@@ -130,13 +130,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
         List<Object> row01 = map.get("numList");
         row01.add(0, "总访问（次）");
-        List<Object> row02 = map.get("avgList");
-        row02.add(0, "平均访问（次）");
+//        List<Object> row02 = map.get("avgList");
+//        row02.add(0, "平均访问（次）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
-        rowList.add(row02.toArray());
+//        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -170,15 +170,15 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         int row01Size = row01.size();
         row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
         row01.add(0, "总访问（次）");
-        List<Object> row02 = map.get("avgList");
-        int row02Size = row02.size();
-        row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
-        row02.add(0, "平均访问（次）");
+//        List<Object> row02 = map.get("avgList");
+//        int row02Size = row02.size();
+//        row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+//        row02.add(0, "平均访问（次）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
-        rowList.add(row02.toArray());
+//        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
