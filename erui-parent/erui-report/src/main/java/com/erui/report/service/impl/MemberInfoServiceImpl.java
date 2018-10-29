@@ -559,10 +559,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> avgList = new ArrayList<>();
         for (Map<String, Object> map : gradeList) {
             Object name = map.get("name");
-            BigDecimal num = (BigDecimal) map.get("num");
+            Long num = (Long) map.get("num");
             BigDecimal avg = (BigDecimal) map.get("avgP");
             nameList.add(name);
-            numList.add(num.intValue());
+            numList.add(num.longValue());
             if (avg != null) {
                 avgList.add(avg.setScale(2, BigDecimal.ROUND_DOWN));
             } else {
