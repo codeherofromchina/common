@@ -43,9 +43,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public HSSFWorkbook exportMembershipGradeByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = membershipGradeByArea(params);
         List<Object> headerList = map.get("nameList");
+        headerList.add(0, "");
 
         List<Object> row01 = map.get("normalGradeList");
+        row01.add(0, "普通会员数量");
         List<Object> row02 = map.get("topGradeList");
+        row02.add(0, "高级会员数量");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -75,19 +78,23 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public HSSFWorkbook exportMembershipGradeByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = membershipGradeByCountry(params);
         List<Object> headerList = map.get("nameList");
-        int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
-        headerList.add(0,"");
-
         List<Object> row01 = map.get("normalGradeList");
-        int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
-        row01.add(0,"普通会员数量");
-
         List<Object> row02 = map.get("topGradeList");
+        int headerListSize = headerList.size();
+        int row01Size = row01.size();
         int row02Size = row02.size();
-        row02 = row02.subList(0,row02Size>=10?10:row02Size);
-        row02.add(0,"高级会员数量");
+        if (params.get("sort") != null && "1".equals(params.get("sort"))) {
+            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+            row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
+        } else {
+            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+        }
+        headerList.add(0, "");
+        row01.add(0, "普通会员数量");
+        row02.add(0, "高级会员数量");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -119,12 +126,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public HSSFWorkbook exportVisitStatisticsByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = visitStatisticsByArea(params);
         List<Object> headerList = map.get("nameList");
-        headerList.add(0,"");
+        headerList.add(0, "");
 
         List<Object> row01 = map.get("numList");
-        row01.add(0,"总访问（次）");
+        row01.add(0, "总访问（次）");
         List<Object> row02 = map.get("avgList");
-        row02.add(0,"平均访问（次）");
+        row02.add(0, "平均访问（次）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -156,17 +163,17 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         Map<String, List<Object>> map = visitStatisticsByCountry(params);
         List<Object> headerList = map.get("nameList");
         int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
-        headerList.add(0,"");
+        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+        headerList.add(0, "");
 
         List<Object> row01 = map.get("numList");
         int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
-        row01.add(0,"总访问（次）");
+        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        row01.add(0, "总访问（次）");
         List<Object> row02 = map.get("avgList");
         int row02Size = row02.size();
-        row02 = row02.subList(0,row02Size>=10?10:row02Size);
-        row02.add(0,"平均访问（次）");
+        row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+        row02.add(0, "平均访问（次）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -196,9 +203,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = membershipByArea(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList");
+        headerList.add(0, "");
 
-        List<Object> row01 = map.get("numList");row01.add(0,"个");
+        List<Object> row01 = map.get("numList");
+        row01.add(0, "个");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
@@ -227,14 +236,20 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = membershipByCountry(params);
         List<Object> headerList = map.get("nameList");
-        int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
-        headerList.add(0,"");
-
         List<Object> row01 = map.get("numList");
+
+        int headerListSize = headerList.size();
         int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
-        row01.add(0,"个");
+        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+        } else {
+            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        }
+
+        headerList.add(0, "");
+        row01.add(0, "个");
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
@@ -267,8 +282,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             }
             BigDecimal inquiryNum = (BigDecimal) map.get("inquiryNum");
             totalInquiryNum += inquiryNum.intValue();
+            map.get(inquiryNum.intValue());
             BigDecimal orderNum = (BigDecimal) map.get("orderNum");
             totalOrderNum += orderNum.intValue();
+            map.get(orderNum.intValue());
             BigDecimal bigDecimal = (BigDecimal) map.get("rate");
             bigDecimal = bigDecimal.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN);
             map.put("rate", bigDecimal);
@@ -292,8 +309,8 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportSingleCustomer(Map<String, Object> params) {
         List<Map<String, Object>> listData = singleCustomer(params);
-        String[] header = {"事业部","报价数量（个）","成单数量（个）","成单率（%）"};
-        String[] keys = {"name","inquiryNum","orderNum","rate"};
+        String[] header = {"事业部", "报价数量（个）", "成单数量（个）", "成单率（%）"};
+        String[] keys = {"name", "inquiryNum", "orderNum", "rate"};
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -306,7 +323,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         if (params.get("startTime") != null) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-成单客户（" + params.get("startTime") + "-" + params.get("endTime") + "）");
-        }else {
+        } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-成单客户");
         }
         return workbook;
@@ -322,10 +339,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportSigningBodyByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = signingBodyByArea(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList");
+        headerList.add(0, "");
 
-        List<Object> row01 = map.get("eruiNumList");row01.add(0,"易瑞签约主体（个）");
-        List<Object> row02 = map.get("otherNumList");row02.add(0,"其他签约主体（个）");
+        List<Object> row01 = map.get("eruiNumList");
+        row01.add(0, "易瑞签约主体（个）");
+        List<Object> row02 = map.get("otherNumList");
+        row02.add(0, "其他签约主体（个）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -357,17 +377,17 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         Map<String, List<Object>> map = signingBodyByCountry(params);
         List<Object> headerList = map.get("nameList");
         int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
-        headerList.add(0,"");
+        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+        headerList.add(0, "");
 
         List<Object> row01 = map.get("eruiNumList");
         int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
-        row01.add(0,"易瑞签约主体（个）");
+        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        row01.add(0, "易瑞签约主体（个）");
         List<Object> row02 = map.get("otherNumList");
         int row02Size = row02.size();
-        row02 = row02.subList(0,row02Size>=10?10:row02Size);
-        row02.add(0,"其他签约主体（个）");
+        row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+        row02.add(0, "其他签约主体（个）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -397,10 +417,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportSigningBodyByOrg(Map<String, Object> params) {
         Map<String, List<Object>> map = signingBodyByOrg(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList");
+        headerList.add(0, "");
 
-        List<Object> row01 = map.get("eruiNumList");row01.add(0,"易瑞签约主体（个）");
-        List<Object> row02 = map.get("otherNumList");row02.add(0,"其他签约主体（个）");
+        List<Object> row01 = map.get("eruiNumList");
+        row01.add(0, "易瑞签约主体（个）");
+        List<Object> row02 = map.get("otherNumList");
+        row02.add(0, "其他签约主体（个）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -434,10 +457,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportEfficiencyByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = efficiencyByArea(params);
-        List<Object> headerList = map.get("nameList");headerList.add(0,"");
+        List<Object> headerList = map.get("nameList");
+        headerList.add(0, "");
 
         List<Object> row01 = map.get("dataList");
-        row01.add(0,"万美元");
+        row01.add(0, "万美元");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -472,12 +496,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         Map<String, List<Object>> map = efficiencyByCountry(params);
         List<Object> headerList = map.get("nameList");
         int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
-        headerList.add(0,"");
+        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+        headerList.add(0, "");
         List<Object> row01 = map.get("dataList");
         int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
-        row01.add(0,"万美元");
+        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        row01.add(0, "万美元");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -509,8 +533,8 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> topGradeList = new ArrayList<>();
         for (Map<String, Object> map : gradeList) {
             Object name = map.get("name");
-            BigDecimal normalGrade = (BigDecimal)map.get("normalGrade");
-            BigDecimal topGrade = (BigDecimal)map.get("topGrade");
+            BigDecimal normalGrade = (BigDecimal) map.get("normalGrade");
+            BigDecimal topGrade = (BigDecimal) map.get("topGrade");
             nameList.add(name);
             normalGradeList.add(normalGrade.intValue());
             topGradeList.add(topGrade.intValue());
@@ -535,10 +559,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> avgList = new ArrayList<>();
         for (Map<String, Object> map : gradeList) {
             Object name = map.get("name");
-            Object num = map.get("num");
+            BigDecimal num = (BigDecimal) map.get("num");
             BigDecimal avg = (BigDecimal) map.get("avgP");
             nameList.add(name);
-            numList.add(num);
+            numList.add(num.intValue());
             if (avg != null) {
                 avgList.add(avg.setScale(2, BigDecimal.ROUND_DOWN));
             } else {
@@ -564,8 +588,8 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> otherNumList = new ArrayList<>();
         for (Map<String, Object> map : signingBodyList) {
             Object name = map.get("name");
-            Integer eruiNum = ((BigDecimal)map.get("eruiNum")).intValue();
-            Integer otherNum = ((BigDecimal)map.get("otherNum")).intValue();
+            Integer eruiNum = ((BigDecimal) map.get("eruiNum")).intValue();
+            Integer otherNum = ((BigDecimal) map.get("otherNum")).intValue();
             nameList.add(name == null ? "其他" : name);
             eruiNumList.add(eruiNum);
             otherNumList.add(otherNum);

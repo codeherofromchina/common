@@ -1034,14 +1034,14 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             row03 = row03.subList(row03Size > 10 ? (row03Size - 10) : 0, row03Size);
         } else {
             headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            headerList.add(0, "");
             row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-            row01.add(0, "累计报价数量");
             row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
-            row02.add(0, "累计成单数量");
             row03 = row03.subList(0, row03Size >= 10 ? 10 : row03Size);
-            row03.add(0, "个数成单率（%）");
         }
+        headerList.add(0, "");
+        row01.add(0, "累计报价数量");
+        row02.add(0, "累计成单数量");
+        row03.add(0, "个数成单率（%）");
 
 
         // 填充数据
