@@ -318,36 +318,36 @@ public class ProjectServiceImpl implements ProjectService {
                     // 其他分支，错误
                     throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
                 }
-                // 修改状态
-                if (!Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
-                    if (projectUpdate.getExeChgDate() == null) {
-                        // 只有为空才能设置，就是只可以设置一次
-                        projectUpdate.setExeChgDate(project.getExeChgDate());
-                    }
-                }
                 //修改备注  在项目完成前商务技术可以修改项目备注
                 if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
                     projectUpdate.setRemarks(project.getRemarks());
                 }
                 // 操作相关订单信息
-                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     //Order order = projectUpdate.getOrder();
                     try {
                         order.getGoodsList().forEach(gd -> {
-                                    gd.setStartDate(projectUpdate.getStartDate());
-                                    gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                                    gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
-                                    gd.setExeChgDate(projectUpdate.getExeChgDate());
+                                    gd.setStartDate(project.getStartDate());
+                                    gd.setDeliveryDate(project.getDeliveryDate());
+                                    gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
+                                    gd.setExeChgDate(project.getExeChgDate());
                                 }
                         );
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
+                    projectUpdate.setStartDate(project.getStartDate());
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                    projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
+                    if (projectUpdate.getExeChgDate() == null) {
+                        // 只有为空才能设置，就是只可以设置一次
+                        projectUpdate.setExeChgDate(project.getExeChgDate());
+                    }
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
                     applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                    //现货出库和海外销（当地采购）的单子流程状态改为 已发运
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 10));
                     orderDao.save(order);
 
                     //如果是直接执行项目，删除   “执行项目”  待办提示信息
@@ -380,10 +380,6 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
             projectUpdate.setUpdateTime(new Date());
-            if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
-                //现货出库和海外销（当地采购）的单子流程状态改为 已发运
-                applicationContext.publishEvent(new OrderProgressEvent(order, 10));
-            }
             Project project1 = projectDao.save(projectUpdate);
 
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知

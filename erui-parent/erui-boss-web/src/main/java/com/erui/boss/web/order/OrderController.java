@@ -55,7 +55,6 @@ public class OrderController {
                 vo.setGoodsList(null);
                 vo.setOrderAccountDelivers(null);
                 vo.setOrderAccounts(null);
-                vo.setDeliverConsignC(null);
             });
         }
         return new Result<>(orderPage);

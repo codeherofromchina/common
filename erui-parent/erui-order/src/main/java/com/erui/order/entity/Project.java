@@ -769,7 +769,7 @@ public class Project {
         if(project.exeChgDate == null) {
             project.setExeChgDate(this.exeChgDate);
         }
-        project.setRequirePurchaseDate(this.requirePurchaseDate);
+        //project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setPurchaseName(this.purchaseName);
         project.setQualityUid(this.qualityUid);
