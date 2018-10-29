@@ -83,7 +83,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         int headerListSize = headerList.size();
         int row01Size = row01.size();
         int row02Size = row02.size();
-        if (params.get("sort") != null && "1".equals(params.get("sort"))) {
+        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
             headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
             row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
             row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
@@ -448,7 +448,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         // 获取数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByArea(params);
         Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 处理数据
         Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
         return resultMap;

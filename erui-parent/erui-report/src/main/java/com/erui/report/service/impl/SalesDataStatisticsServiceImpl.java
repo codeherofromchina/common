@@ -1286,7 +1286,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 查找事业部指标
         Map<Integer, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByOrg(params);
         if (planPriceMap == null || planPriceMap.size() == 0) {
@@ -1308,7 +1308,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 查找事业部指标
         Map<Integer, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByOrg(params);
         if (planPriceMap == null || planPriceMap.size() == 0) {
@@ -1355,7 +1355,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderInfoDoneRateGroupbyArea(Map<String, Object> params) {
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 查找地区指标
         Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByArea(params);
         if (planPriceMap == null || planPriceMap.size() == 0) {
@@ -1376,7 +1376,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyArea(Map<String, Object> params) {
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 查找地区指标
         Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByArea(params);
         if (planPriceMap == null || planPriceMap.size() == 0) {
@@ -1424,7 +1424,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 查找国家指标
         Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByCountry(params);
         if (planPriceMap == null || planPriceMap.size() == 0) {
@@ -1445,7 +1445,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
-        boolean ascFlag = "1".equals(params.get("sort"));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 查找国家指标
         Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByCountry(params);
         if (planPriceMap == null || planPriceMap.size() == 0) {
