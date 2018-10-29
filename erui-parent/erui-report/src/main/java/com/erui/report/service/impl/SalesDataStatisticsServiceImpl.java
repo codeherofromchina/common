@@ -852,9 +852,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsProfitPercentGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByCountry(params);
-        List<Object> headerList = map.get("names").subList(0,10);
+        List<Object> headerList = map.get("names");
+        int headerListSize = headerList.size();
+        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
         headerList.add(0, "");
-        List<Object> row01 = map.get("profitPercents").subList(0,10);
+        List<Object> row01 = map.get("profitPercents");
+        int row01Size = row01.size();
+        row01 = row01.subList(0,row01Size>=10?10:row01Size);
         row01.add(0, "利润率（%）");
 
         // 填充数据
@@ -1014,13 +1018,21 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportOrderStatisticsMonoRateGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsMonoRateGroupByCountry(params);
-        List<Object> headerList = map.get("names").subList(0,10);
+        List<Object> headerList = map.get("names");
+        int headerListSize = headerList.size();
+        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
         headerList.add(0, "");
-        List<Object> row01 = map.get("quoteNums").subList(0,10);
+        List<Object> row01 = map.get("quoteNums");
+        int row01Size = row01.size();
+        row01 = row01.subList(0,row01Size>=10?10:row01Size);
         row01.add(0, "累计报价数量");
-        List<Object> row02 = map.get("doneNums").subList(0,10);
+        List<Object> row02 = map.get("doneNums");
+        int row02Size = row02.size();
+        row02 = row02.subList(0,row02Size>=10?10:row02Size);
         row02.add(0, "累计成单数量");
-        List<Object> row03 = map.get("rates").subList(0,10);
+        List<Object> row03 = map.get("rates");
+        int row03Size = row03.size();
+        row03 = row03.subList(0,row03Size>=10?10:row03Size);
         row03.add(0, "个数成单率（%）");
 
         // 填充数据
@@ -1437,9 +1449,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyCountry(params);
-        List<Object> headerList = map.get("nameList").subList(0, 10);
+        List<Object> headerList = map.get("nameList");
+        int headerListSize = headerList.size();
+        headerList = headerList.subList(0,headerListSize >= 10?10:headerListSize);
         headerList.add(0, "");
-        List<Object> row01 = map.get("rateList").subList(0, 10);
+        List<Object> row01 = map.get("rateList");
+        int row01Size = row01.size();
+        row01 = row01.subList(0,row01Size >= 10 ?10:row01Size);
         row01.add(0, "完成率（%）");
 
         // 填充数据
