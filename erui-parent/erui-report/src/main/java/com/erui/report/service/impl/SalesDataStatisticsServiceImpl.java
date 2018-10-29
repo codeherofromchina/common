@@ -854,11 +854,11 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByCountry(params);
         List<Object> headerList = map.get("names");
         int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
+        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
         headerList.add(0, "");
         List<Object> row01 = map.get("profitPercents");
         int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
+        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
         row01.add(0, "利润率（%）");
 
         // 填充数据
@@ -1019,21 +1019,30 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportOrderStatisticsMonoRateGroupByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = orderStatisticsMonoRateGroupByCountry(params);
         List<Object> headerList = map.get("names");
-        int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize>=10?10:headerListSize);
-        headerList.add(0, "");
         List<Object> row01 = map.get("quoteNums");
-        int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size>=10?10:row01Size);
-        row01.add(0, "累计报价数量");
         List<Object> row02 = map.get("doneNums");
-        int row02Size = row02.size();
-        row02 = row02.subList(0,row02Size>=10?10:row02Size);
-        row02.add(0, "累计成单数量");
         List<Object> row03 = map.get("rates");
+        int headerListSize = headerList.size();
+        int row01Size = row01.size();
+        int row02Size = row02.size();
         int row03Size = row03.size();
-        row03 = row03.subList(0,row03Size>=10?10:row03Size);
-        row03.add(0, "个数成单率（%）");
+        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+            // 如果是正序，取后10个国家到Excel
+            headerList = headerList.subList(headerListSize > 10 ? (headerListSize - 10) : 0, headerListSize);
+            row01 = row01.subList(row01Size > 10 ? (row01Size - 10) : 0, row01Size);
+            row02 = row02.subList(row02Size > 10 ? (row02Size - 10) : 0, row02Size);
+            row03 = row03.subList(row03Size > 10 ? (row03Size - 10) : 0, row03Size);
+        } else {
+            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+            headerList.add(0, "");
+            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+            row01.add(0, "累计报价数量");
+            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+            row02.add(0, "累计成单数量");
+            row03 = row03.subList(0, row03Size >= 10 ? 10 : row03Size);
+            row03.add(0, "个数成单率（%）");
+        }
+
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -1173,10 +1182,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             objArr[1] = map.get("areaName");
             objArr[2] = map.get("countryName");
             BigDecimal cycle = (BigDecimal) map.get("cycle");
+            Integer cycleInt;
             if (cycle != null) {
                 cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);
+                cycleInt = cycle.intValue();
             } else {
-                cycle = BigDecimal.ZERO;
+                cycleInt = 0;
             }
             objArr[3] = cycle;
             rowList.add(objArr);
@@ -1451,11 +1462,11 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyCountry(params);
         List<Object> headerList = map.get("nameList");
         int headerListSize = headerList.size();
-        headerList = headerList.subList(0,headerListSize >= 10?10:headerListSize);
+        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
         headerList.add(0, "");
         List<Object> row01 = map.get("rateList");
         int row01Size = row01.size();
-        row01 = row01.subList(0,row01Size >= 10 ?10:row01Size);
+        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
         row01.add(0, "完成率（%）");
 
         // 填充数据

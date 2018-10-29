@@ -304,7 +304,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, listData.size());
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-成单客户（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        if (params.get("startTime") != null) {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-成单客户（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        }else {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员数据统计-成单客户");
+        }
         return workbook;
     }
 
@@ -505,11 +509,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> topGradeList = new ArrayList<>();
         for (Map<String, Object> map : gradeList) {
             Object name = map.get("name");
-            Object normalGrade = map.get("normalGrade");
-            Object topGrade = map.get("topGrade");
+            BigDecimal normalGrade = (BigDecimal)map.get("normalGrade");
+            BigDecimal topGrade = (BigDecimal)map.get("topGrade");
             nameList.add(name);
-            normalGradeList.add(normalGrade);
-            topGradeList.add(topGrade);
+            normalGradeList.add(normalGrade.intValue());
+            topGradeList.add(topGrade.intValue());
         }
         result.put("nameList", nameList);
         result.put("normalGradeList", normalGradeList);
