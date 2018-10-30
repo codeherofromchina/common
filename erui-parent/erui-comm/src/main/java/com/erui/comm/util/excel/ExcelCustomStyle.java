@@ -144,6 +144,7 @@ public class ExcelCustomStyle {
 				// headfont.setFontName("宋体");
 				// headfont.setFontHeightInPoints((short) 10);// 字体大小
 				// style.setFont(headfont);
+				HSSFCellStyle style02 = workbook.createCellStyle();
 				for (int i = startRowIndex; i <= endRowIndex; ++i) {
 					HSSFRow row = sheet.getRow(i);
 					short lastCellNum = row.getLastCellNum();
@@ -151,7 +152,6 @@ public class ExcelCustomStyle {
 						HSSFCell cell = row.getCell(n);
 						HSSFCellStyle cellStyle = cell.getCellStyle();
 						short dataFormat = cellStyle.getDataFormat();
-						HSSFCellStyle style02 = workbook.createCellStyle();
 						style02.cloneStyleFrom(style);
 						style02.setDataFormat(dataFormat);
 						cell.setCellStyle(style02);

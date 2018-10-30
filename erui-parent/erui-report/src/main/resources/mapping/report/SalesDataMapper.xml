@@ -6,25 +6,62 @@
     <!-- 查询销售数据的趋势图-->
     <!-- 2018-07-31 修改，之前是按照rollin_time的时间纬度来划分的，现在修改为按照erui_rfq.inquiry_check_log中事业部审核流出的时间划分 -->
     <select id="selectInqQuoteTrendData" resultType="java.util.Map" parameterType="java.util.Map">
+        <!--
+            SELECT
+            COUNT(1) AS inqCount ,
+            IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
+            SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
+            SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
+            FROM_DAYS(TO_DAYS(z.log_create_at)) AS datetime
+            FROM erui_rfq.v_inquiry_count2
+            left join (
+                SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
+            ) as z ON erui_rfq.v_inquiry_count2.id = `z`.`log_inquiry_id`
+            WHERE 1=1
+            <if test="startTime!=null and endTime!=null">
+                and z.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            </if>
+            GROUP BY TO_DAYS(z.log_create_at) HAVING datetime IS NOT NULL
+        -->
         SELECT
-        COUNT(1) AS inqCount ,
-        IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
-        SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
-        SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
-        <!-- FROM_DAYS(TO_DAYS(rollin_time)) AS datetime -->
+        COUNT(1) AS inqCount,
+        IFNULL(SUM(IFNULL(total_quote_price, 0.00)),
+        0.00) AS inqAmount,
+        SUM((CASE
+        WHEN
+        quote_status = 'QUOTED'
+        OR quote_status = 'COMPLETED'
+        THEN
+        1
+        ELSE 0
+        END)) AS quoteCount,
+        SUM(IFNULL((CASE
+        WHEN
+        quote_status = 'QUOTED'
+        OR quote_status = 'COMPLETED'
+        THEN
+        total_quote_price
+        ELSE 0.00
+        END),
+        0.00)) AS quoteAmount,
         FROM_DAYS(TO_DAYS(z.log_create_at)) AS datetime
-        FROM erui_rfq.v_inquiry_count2
-        left join (
-            SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
-        ) as z ON erui_rfq.v_inquiry_count2.id = `z`.`log_inquiry_id`
-        WHERE 1=1
-        <if test="startTime!=null and endTime!=null">
-            <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and z.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-        </if>
-        <!-- GROUP BY TO_DAYS(rollin_time) HAVING datetime IS NOT NULL -->
-        GROUP BY TO_DAYS(z.log_create_at) HAVING datetime IS NOT NULL
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_rfq.final_quote t2 ON t1.id = t2.inquiry_id,
+        (SELECT
+        inquiry_id AS log_inquiry_id, created_at AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        AND in_node = 'MARKET_APPROVING'
+        GROUP BY inquiry_id) AS z
+        WHERE
+        t1.id = `z`.`log_inquiry_id`
+        GROUP BY TO_DAYS(z.log_create_at)
+        HAVING datetime IS NOT NULL
     </select>
 
     <!-- 查询各大区和国家的数据明细 ： 询单金额 、询单数量、报价数量-->
@@ -72,7 +109,7 @@
         GROUP BY organization HAVING org IS NOT NULL
     </select>
 
-    <!-- 查询各分类数据： 询单sku金额 、询单sku数量、报价sku数量、报价sku金额-->
+    <!-- 查询各分类数据： 询单sku金额 、询单sku数量、报价sku数量、报价sku金额 -->
     <!-- 2018-07-31 修改，之前是按照rollin_time的时间纬度来划分的，现在修改为按照erui_rfq.inquiry_check_log中事业部审核流出的时间划分 -->
     <select id="selectDataGroupByCategory" resultType="java.util.Map" parameterType="java.util.Map">
 
@@ -113,7 +150,7 @@
              <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
             and `z`.`log_create_at` BETWEEN  #{startTime} and #{endTime}
         </if>
-		and quotation_num in (SELECT quotation_num FROM erui_rfq.v_inquiry_count WHERE quoted_status in("已报价","已完成"))
+		and quotation_num in (SELECT serial_no FROM erui_rfq.inquiry WHERE quote_status in ('QUOTED' , 'COMPLETED'))
         GROUP BY pro_category HAVING category IS NOT NULL
       ) b
       ON a.category=b.category
