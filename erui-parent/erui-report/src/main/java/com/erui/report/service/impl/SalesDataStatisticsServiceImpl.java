@@ -1398,8 +1398,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyArea(params);
         List<Object> headerList = map.get("nameList");
-        headerList.add(0, "");
         List<Object> row01 = map.get("rateList");
+        if (map == null || headerList == null) {
+            return null;
+        }
+
+        headerList.add(0, "");
         row01.add(0, "完成率（%）");
 
         // 填充数据
@@ -1466,13 +1470,25 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyCountry(params);
         List<Object> headerList = map.get("nameList");
-        int headerListSize = headerList.size();
-        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-        headerList.add(0, "");
         List<Object> row01 = map.get("rateList");
+        if (map == null || headerList == null) {
+            return null;
+        }
+
+        int headerListSize = headerList.size();
         int row01Size = row01.size();
-        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+
+        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+        } else {
+            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        }
+
+        headerList.add(0, "");
         row01.add(0, "完成率（%）");
+
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
