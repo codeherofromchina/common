@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportEfficiency")
-    public Result<Object> exportEfficiency(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) {
+    public Result<Object> exportEfficiency(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -81,7 +82,9 @@ public class MemberInfoController {
             wb = memberInfoService.exportEfficiencyByCountry(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "会员数据统计-人均效能统计-" + java.lang.System.currentTimeMillis() + ".xls";
         try {
@@ -132,7 +135,7 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportVisitStatistics")
-    public Result<Object> exportVisitStatistics(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) {
+    public Result<Object> exportVisitStatistics(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -150,7 +153,9 @@ public class MemberInfoController {
             wb = memberInfoService.exportVisitStatisticsByCountry(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "会员数据统计-客户拜访统计-" + java.lang.System.currentTimeMillis() + ".xls";
         try {
@@ -200,7 +205,7 @@ public class MemberInfoController {
      */
     @ResponseBody
     @RequestMapping(value = "exportMembership")
-    public Result<Object> exportMembership(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) {
+    public Result<Object> exportMembership(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -218,7 +223,9 @@ public class MemberInfoController {
             wb = memberInfoService.exportMembershipByCountry(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "会员数据统计-会员统计-" + java.lang.System.currentTimeMillis() + ".xls";
         try {
@@ -267,7 +274,7 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportMembershipGrade")
-    public Result<Object> exportMembershipGrade(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) {
+    public Result<Object> exportMembershipGrade(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -285,7 +292,9 @@ public class MemberInfoController {
             wb = memberInfoService.exportMembershipGradeByCountry(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "会员数据统计-会员统计-" + java.lang.System.currentTimeMillis() + ".xls";
         try {
@@ -340,7 +349,7 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportSigningBody")
-    public Result<Object> exportSigningBody(HttpServletResponse response,String type,String startTime,String endTime) {
+    public Result<Object> exportSigningBody(HttpServletResponse response,String type,String startTime,String endTime) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -360,7 +369,9 @@ public class MemberInfoController {
             wb = memberInfoService.exportSigningBodyByCountry(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "会员数据统计-会员签约主体-" + java.lang.System.currentTimeMillis() + ".xls";
         try {
@@ -405,7 +416,7 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportSingleCustomer")
-    public Result<Object> exportSingleCustomer(HttpServletResponse response,String startTime,String endTime) {
+    public Result<Object> exportSingleCustomer(HttpServletResponse response,String startTime,String endTime) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -419,7 +430,9 @@ public class MemberInfoController {
         HSSFWorkbook wb = memberInfoService.exportSingleCustomer(params);
 
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "会员数据统计-成单客户-" + java.lang.System.currentTimeMillis() + ".xls";
         try {

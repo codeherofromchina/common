@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class SalesDataStatisticsController {
      * {"startTime":"2018-01-01","endTime":"2019-01-01","sort":"1","typeDimension":"country"}
      */
     @RequestMapping(value = "exportAgencySupplierStatistics")
-    public Object exportAgencySupplierStatistics(HttpServletResponse response, String typeDimension, String startTime, String endTime, Integer sort) {
+    public Object exportAgencySupplierStatistics(HttpServletResponse response, String typeDimension, String startTime, String endTime, Integer sort) throws IOException {
         Map<String, Object> params = new HashMap<>();
         params.put("startTime", startTime);
         params.put("endTime", endTime);
@@ -94,7 +95,9 @@ public class SalesDataStatisticsController {
             wb = supplierchainService.exportAgencyAreaStatisticsData(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         try {
             fileName.append("-").append(System.currentTimeMillis()).append(".xls");
@@ -149,7 +152,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @RequestMapping(value = "exportInquiryMemberStatistics")
-    public Object exportInquiryMemberStatistics(HttpServletResponse response, String type, String startTime, String endTime, Integer sort) {
+    public Object exportInquiryMemberStatistics(HttpServletResponse response, String type, String startTime, String endTime, Integer sort) throws IOException {
         Map<String, Object> params = new HashMap<>();
         params.put("sort", sort);
         params.put("startTime", startTime);
@@ -169,8 +172,10 @@ public class SalesDataStatisticsController {
             fileName.append("流失会员");
             wb = supplierchainService.exportLossMemberStatistics(params);
         }
-        if (wb == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        if (wb == null ) {
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         try {
             fileName.append("-").append(System.currentTimeMillis()).append(".xls");
@@ -286,7 +291,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @RequestMapping(value = "exportOrgQuoteTotalCostTime")
-    public Result<Object> exportOrgQuoteTotalCostTime(HttpServletResponse response, String startTime, String endTime) {
+    public Result<Object> exportOrgQuoteTotalCostTime(HttpServletResponse response, String startTime, String endTime) throws IOException {
         Map<String, Object> params = new HashMap<>();
         params.put("startTime", startTime);
         params.put("endTime", endTime);
@@ -295,8 +300,10 @@ public class SalesDataStatisticsController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         HSSFWorkbook wb = supplierchainService.exportOrgQuoteTotalCostTime(params);
-        if(wb == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+        if (wb == null ) {
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         String fileName = "询报价统计-报价用时-" + System.currentTimeMillis() + ".xls";
         try {
@@ -929,7 +936,7 @@ public class SalesDataStatisticsController {
      * @return
      */
     @RequestMapping(value = "exportOrderInfoDoneRate02")
-    public Object exportOrderInfoDoneRate02(HttpServletResponse response,String type,String startTime, String endTime, Integer sort) {
+    public Object exportOrderInfoDoneRate02(HttpServletResponse response,String type,String startTime, String endTime, Integer sort) throws IOException {
         Map<String,Object> params = new HashMap<>();
         params.put("startTime",startTime);
         params.put("endTime",endTime);
@@ -952,7 +959,9 @@ public class SalesDataStatisticsController {
             wb = supplierchainService.exportDayOrderInfoDoneRateGroupbyCountry(params);
         }
         if (wb == null ) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
         }
         try {
             fileName.append("-").append(System.currentTimeMillis()).append(".xls");
