@@ -169,10 +169,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         int row01Size = row01.size();
         if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
             headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
         } else {
+            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
             row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-            headerList.add(0, "");
         }
+        headerList.add(0, "");
         row01.add(0, "总访问（次）");
 
         // 填充数据
@@ -494,12 +496,20 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public HSSFWorkbook exportEfficiencyByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = efficiencyByCountry(params);
         List<Object> headerList = map.get("nameList");
-        int headerListSize = headerList.size();
-        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-        headerList.add(0, "");
         List<Object> row01 = map.get("dataList");
+
+        int headerListSize = headerList.size();
         int row01Size = row01.size();
-        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+        } else {
+            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+        }
+
+
+        headerList.add(0, "");
         row01.add(0, "万美元");
 
         // 填充数据

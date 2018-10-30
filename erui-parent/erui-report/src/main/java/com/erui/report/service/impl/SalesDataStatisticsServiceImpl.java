@@ -856,7 +856,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> row01 = map.get("profitPercents");
         int headerListSize = headerList.size();
         int row01Size = row01.size();
-        if (params.get("sort") != null && "1".equals(params.get("sort"))) {
+        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
             headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
             row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
         } else {
