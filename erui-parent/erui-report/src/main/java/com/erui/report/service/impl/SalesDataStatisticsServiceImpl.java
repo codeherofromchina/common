@@ -1328,10 +1328,17 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyOrg(params);
+        if (map == null) {
+            return null;
+        }
         List<Object> headerList = map.get("nameList");
         headerList.add(0, "");
         List<Object> row01 = map.get("rateList");
         row01.add(0, "完成率（%）");
+
+        if (headerList == null || row01 == null) {
+            return null;
+        }
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
@@ -1397,9 +1404,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyArea(Map<String, Object> params) {
 
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyArea(params);
+        if (map == null) {
+            return null;
+        }
         List<Object> headerList = map.get("nameList");
         List<Object> row01 = map.get("rateList");
-        if (map == null || headerList == null) {
+        if (row01 == null || headerList == null) {
             return null;
         }
 
@@ -1469,9 +1479,12 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public HSSFWorkbook exportDayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = dayOrderInfoDoneRateGroupbyCountry(params);
+        if (map == null) {
+            return null;
+        }
         List<Object> headerList = map.get("nameList");
         List<Object> row01 = map.get("rateList");
-        if (map == null || headerList == null) {
+        if (row01 == null || headerList == null) {
             return null;
         }
 
