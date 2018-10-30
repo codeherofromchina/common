@@ -74,10 +74,11 @@
         </if>
     </select>
 
+
     <!--按照地区统计客户拜访统计-->
     <select id="visitStatisticsByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        ma.`name` as `name`, COUNT(DISTINCT bv.id) as num
+        ma.`name` as `name`, COUNT(DISTINCT bv.id) as num,COUNT(DISTINCT bv.id)/count(DISTINCT b.id) as avgP
         FROM
         erui_buyer.buyer_visit bv
         INNER JOIN
@@ -104,7 +105,7 @@
     <!--按照国家统计客户拜访统计-->
     <select id="visitStatisticsByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        ma.`name` AS `name`, COUNT(DISTINCT bv.id) AS num
+        ma.`name` AS `name`, COUNT(DISTINCT bv.id) AS num,COUNT(DISTINCT bv.id)/count(DISTINCT b.id) as avgP
         FROM
         erui_buyer.buyer_visit bv
         INNER JOIN
@@ -122,6 +123,7 @@
         <if test="sort != 1" >
             DESC
         </if>
+        ,ma.`name`
     </select>
 
 
