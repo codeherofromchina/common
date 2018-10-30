@@ -950,6 +950,9 @@ public class SalesDataStatisticsController {
             fileName.append("国家完成率");
             wb = supplierchainService.exportDayOrderInfoDoneRateGroupbyCountry(params);
         }
+        if (wb == null ) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         try {
             fileName.append("-").append(System.currentTimeMillis()).append(".xls");
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
