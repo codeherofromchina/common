@@ -936,6 +936,7 @@ public class SalesDataStatisticsController {
         params.put("sort",sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
+
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         HSSFWorkbook wb = null;
