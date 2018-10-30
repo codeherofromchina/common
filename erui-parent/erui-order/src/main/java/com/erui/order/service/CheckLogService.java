@@ -19,7 +19,12 @@ public interface CheckLogService {
      * @return
      */
     CheckLog findLastLog(int type, Integer refId);
-
+    /**
+     *
+     * @param refId   项目或订单ID，根据type
+     * @return
+     */
+    CheckLog findLogOne(Integer refId);
     /**
      * 插入审核日志
      * @param checkLog_i

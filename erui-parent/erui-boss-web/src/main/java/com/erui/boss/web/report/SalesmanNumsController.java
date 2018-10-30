@@ -145,10 +145,10 @@ public class SalesmanNumsController {
         if (StringUtils.isNumeric(pageSizeStr)) {
             pageSize = Integer.parseInt(pageSizeStr);
             if (pageSize < 1) {
-                pageSize = new Integer(20);
+                pageSize = new Integer(10);
             }
         } else {
-            pageSize = new Integer(20);
+            pageSize = new Integer(10);
         }
         params.put("pageNum", pageNum);
         params.put("pageSize", pageSize);

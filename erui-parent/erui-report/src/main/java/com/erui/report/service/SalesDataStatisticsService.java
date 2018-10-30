@@ -69,25 +69,25 @@ public interface SalesDataStatisticsService {
     Map<String,List<Object>> orgQuoteTotalCostTime(Map<String, Object> params);
 
     /**
-     *报价金额按事业部统计
+     * 报价金额按地区统计
      * @param params
      * @return
      */
-    Map<String,List<Object>> quoteAmountGroupOrg(Map<String, Object> params);
+    Map<String,List<Object>> quoteAmountGroupArea(Map<String, Object> params);
 
     /**
-     * 询单数量按事业部统计
+     * 询单数量按地区统计
      * @param params
      * @return
      */
-    Map<String,List<Object>> inquiryNumbersGroupOrg(Map<String, Object> params);
+    Map<String,List<Object>> inquiryNumbersGroupArea(Map<String, Object> params);
 
     /**
-     * 报价数量按事业部统计
+     * 报价数量按地区统计
      * @param params
      * @return
      */
-    Map<String,List<Object>> quoteNumbersGroupOrg(Map<String, Object> params);
+    Map<String,List<Object>> quoteNumbersGroupArea(Map<String, Object> params);
 
     /**
      * 订单数据统计-整体-按事业部分析
@@ -181,4 +181,40 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String,List<Object>> orderInfoDoneRateGroupbyOrg(Map<String, Object> params);
+
+    /**
+     * 地区完成率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderInfoDoneRateGroupbyArea(Map<String, Object> params);
+
+    /**
+     * 国家完成率
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> orderInfoDoneRateGroupbyCountry(Map<String, Object> params);
+
+
+    /**
+     * 事业部完成率/按照天计算公式计算
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> dayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params);
+
+    /**
+     * 地区完成率/按照天计算公式计算
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> dayOrderInfoDoneRateGroupbyArea(Map<String, Object> params);
+
+    /**
+     * 国家完成率/按照天计算公式计算
+     * @param params
+     * @return
+     */
+    Map<String,List<Object>> dayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params);
 }

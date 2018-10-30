@@ -8,10 +8,7 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
-import com.erui.order.dao.BackLogDao;
-import com.erui.order.dao.CheckLogDao;
-import com.erui.order.dao.OrderDao;
-import com.erui.order.dao.ProjectDao;
+import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
@@ -61,8 +58,8 @@ public class ProjectServiceImpl implements ProjectService {
     private CheckLogService checkLogService;
     @Autowired
     private CheckLogDao checkLogDao;
-
-
+    @Autowired
+    private ProjectProfitDao projectProfitDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
 
@@ -153,12 +150,16 @@ public class ProjectServiceImpl implements ProjectService {
 
             return true;
         } else {
-            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales())) && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
+            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
+                    && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
                 //Order order = projectUpdate.getOrder();
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                //projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                ProjectProfit projectProfit = project.getProjectProfit();
+                projectProfit.setProject(project);
+                projectProfitDao.save(projectProfit);
                 project.copyProjectDescTo(projectUpdate);
-                order.setStatus(Order.StatusEnum.DONE.getCode());
-                applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                //order.setStatus(Order.StatusEnum.DONE.getCode());
+                //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
 
                 //现货的情况直接完成 ，删除 “办理项目/驳回”  待办提示
                 BackLog backLog = new BackLog();
@@ -167,6 +168,7 @@ public class ProjectServiceImpl implements ProjectService {
                 backLogService.updateBackLogByDelYn(backLog);
 
             } else {
+
                 // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
                 if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -177,7 +179,27 @@ public class ProjectServiceImpl implements ProjectService {
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
                     }
+                    ProjectProfit projectProfit = project.getProjectProfit();
+                    projectProfit.setProject(project);
+                    projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
+                    Integer auditingLevel = project.getAuditingLevel();
+                    Integer orderCategory = order.getOrderCategory();
+                    if (orderCategory != null && orderCategory == 1) { // 预投
+                        auditingLevel = 4; // 四级审核
+                    } else if (orderCategory != null && orderCategory == 3) { // 试用
+                        auditingLevel = 2; // 二级审核
+                    } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+                        // 既不是预投。又不是试用，则需要检查参数
+                        throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+                    }
+                    projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+                    projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
+                    projectUpdate.setCeo(project.getCeo());
+                    projectUpdate.setCeoId(project.getCeoId());
+                    projectUpdate.setChairman(project.getChairman());
+                    projectUpdate.setChairmanId(project.getChairmanId());
+                    projectUpdate.setAuditingLevel(auditingLevel);
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                         // 提交到项目经理，则项目成员不能设置
                         projectUpdate.setPurchaseUid(null);
@@ -188,6 +210,10 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setWarehouseName(null);
                         projectUpdate.setWarehouseUid(null);
                         projectUpdate.setPurchaseName(null);
+                        projectUpdate.setBuAuditerId(project.getBuAuditerId());
+                        projectUpdate.setBuAuditer(project.getBuAuditer());
+                        projectUpdate.setLogisticsAuditerId(project.getLogisticsAuditerId());
+                        projectUpdate.setLogisticsAuditer(project.getLogisticsAuditer());
 
                         //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
                         BackLog backLog = new BackLog();
@@ -216,8 +242,8 @@ public class ProjectServiceImpl implements ProjectService {
                         Integer managerUid = projectUpdate.getManagerUid();//项目经理
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
-
-                    } else if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        //当参数项目状态为 AUDIT为提交审核状态 状态不入库
+                    } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                     }
@@ -275,13 +301,11 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setRemarks(project.getRemarks());
                         projectUpdate.setExeChgDate(project.getExeChgDate());
 
-
-                        if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING) {
+                        /*//有项目经理提交   10月19日流程修改为先审核再填写项目经理信息
+                        if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
                             // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
                             submitProjectProcessCheckAuditParams(project, projectUpdate, order);
-                        }
-
-
+                        }*/
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
                         BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
                         if (backLogs != null) {
@@ -294,30 +318,36 @@ public class ProjectServiceImpl implements ProjectService {
                     // 其他分支，错误
                     throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
                 }
-                // 修改状态
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 //修改备注  在项目完成前商务技术可以修改项目备注
                 if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
                     projectUpdate.setRemarks(project.getRemarks());
                 }
                 // 操作相关订单信息
-                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     //Order order = projectUpdate.getOrder();
                     try {
                         order.getGoodsList().forEach(gd -> {
-                                    gd.setStartDate(projectUpdate.getStartDate());
-                                    gd.setDeliveryDate(projectUpdate.getDeliveryDate());
-                                    gd.setProjectRequirePurchaseDate(projectUpdate.getRequirePurchaseDate());
-                                    gd.setExeChgDate(projectUpdate.getExeChgDate());
+                                    gd.setStartDate(project.getStartDate());
+                                    gd.setDeliveryDate(project.getDeliveryDate());
+                                    gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
+                                    gd.setExeChgDate(project.getExeChgDate());
                                 }
                         );
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
+                    projectUpdate.setStartDate(project.getStartDate());
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                    projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
+                    if (projectUpdate.getExeChgDate() == null) {
+                        // 只有为空才能设置，就是只可以设置一次
+                        projectUpdate.setExeChgDate(project.getExeChgDate());
+                    }
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
                     applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                    //现货出库和海外销（当地采购）的单子流程状态改为 已发运
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 10));
                     orderDao.save(order);
 
                     //如果是直接执行项目，删除   “执行项目”  待办提示信息
@@ -389,7 +419,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingLevel = 4; // 四级审核
         } else if (orderCategory != null && orderCategory == 3) { // 试用
             auditingLevel = 2; // 二级审核
-        } else if (auditingLevel == null || (auditingLevel < 2 || auditingLevel > 4)) {
+        } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
             // 既不是预投。又不是试用，则需要检查参数
             throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
         }
@@ -401,7 +431,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("31025,31274");
+        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -412,84 +442,99 @@ public class ProjectServiceImpl implements ProjectService {
         Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
+                List<Predicate> searchList = new ArrayList<>(); // 前端查询条件的AND关系列表
+                List<Predicate> backList = new ArrayList<>(); // 隐藏的背后过滤条件AND关系列表
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
-                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
-                }
-                // 审核状态查询
-                if (null != condition.getAuditingStatus()) {
-                    list.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
-                }
-                //根据项目名称模糊查询
-                if (StringUtil.isNotBlank(condition.getProjectName())) {
-                    list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
-                }
-                //根据项目开始时间查询
-                if (condition.getStartDate() != null) {
-                    list.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
-                }
-                //根据执行分公司查询
-                if (StringUtil.isNotBlank(condition.getExecCoName())) {
-                    list.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
-                }
-                //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
-                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
-                }
-                //要求采购到货日期
-                if (condition.getRequirePurchaseDate() != null) {
-                    list.add(cb.equal(root.get("requirePurchaseDate").as(Date.class), NewDateUtil.getDate(condition.getRequirePurchaseDate())));
-                }
-                //执行单变更后日期
-                if (condition.getExeChgDate() != null) {
-                    list.add(cb.equal(root.get("exeChgDate").as(Date.class), NewDateUtil.getDate(condition.getExeChgDate())));
-                }
-                //根据事业部
-                if (StringUtil.isNotBlank(condition.getBusinessUnitName())) {
-                    list.add(cb.like(root.get("businessUnitName").as(String.class), "%" + condition.getBusinessUnitName() + "%"));
-                }
-                //根据分销部
-                if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
-                    list.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
-                }
-                String[] projectStatus = null;
-                //根据项目状态
-                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
-                    projectStatus = condition.getProjectStatus().split(",");
-                    list.add(root.get("projectStatus").in(projectStatus));
+                    searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                    searchList.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据项目名称模糊查询
+                if (StringUtil.isNotBlank(condition.getProjectName())) {
+                    searchList.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
+                }
+                //根据项目开始时间查询
+                if (condition.getStartDate() != null) {
+                    searchList.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
+                }
+                //根据项目状态
+                String[] projectStatus = null;
+                if (StringUtil.isNotBlank(condition.getProjectStatus())) {
+                    projectStatus = condition.getProjectStatus().split(",");
+                    searchList.add(root.get("projectStatus").in(projectStatus));
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
                     if (StringUtils.equals("1", condition.getProcessProgress())) {
-                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                        searchList.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                     } else {
-                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                        searchList.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                     }
                 }
-                //根据是否已生成出口通知单
-                if (condition.getDeliverConsignHas() != null) {
-                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
-                }
-                //根据采购经办人   purchaseUid     qualityUid    managerUid logisticsUid warehouseUid
-                if (condition.getPurchaseUid() != null) {
-                    list.add(cb.equal(root.get("purchaseUid").as(Integer.class), condition.getPurchaseUid()));
-                }
-                //根据品控经办人
-                if (condition.getQualityUid() != null) {
-                    list.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
+                //根据事业部
+                if (StringUtil.isNotBlank(condition.getBusinessUnitName())) {
+                    searchList.add(cb.like(root.get("businessUnitName").as(String.class), "%" + condition.getBusinessUnitName() + "%"));
                 }
                 //根据商务技术经办人
                 if (condition.getBusinessUid02() != null) {
-                    list.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid02()));
+                    searchList.add(cb.equal(root.get("businessUid").as(Integer.class), condition.getBusinessUid02()));
+                }
+                //根据项目创建查询 开始时间
+                if (condition.getStartTime() != null) {
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
+                    searchList.add(startTime);
+                }
+                //根据项目创建查询 结束时间
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
+                    searchList.add(endTime);
+                }
+
+
+                // 审核状态查询
+                if (null != condition.getAuditingStatus()) {
+                    backList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+                }
+                //根据执行分公司查询
+                if (StringUtil.isNotBlank(condition.getExecCoName())) {
+                    backList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                }
+                //执行单约定交付日期 NewDateUtil.getDate(condition.getDeliveryDate())
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    backList.add(cb.like(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
+                }
+                //要求采购到货日期
+                if (condition.getRequirePurchaseDate() != null) {
+                    backList.add(cb.equal(root.get("requirePurchaseDate").as(Date.class), NewDateUtil.getDate(condition.getRequirePurchaseDate())));
+                }
+                //执行单变更后日期
+                if (condition.getExeChgDate() != null) {
+                    backList.add(cb.equal(root.get("exeChgDate").as(Date.class), NewDateUtil.getDate(condition.getExeChgDate())));
+                }
+                //根据分销部
+                if (StringUtil.isNotBlank(condition.getDistributionDeptName())) {
+                    backList.add(cb.like(root.get("distributionDeptName").as(String.class), "%" + condition.getDistributionDeptName() + "%"));
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    backList.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //根据采购经办人   purchaseUid     qualityUid    managerUid logisticsUid warehouseUid
+                if (condition.getPurchaseUid() != null) {
+                    backList.add(cb.equal(root.get("purchaseUid").as(Integer.class), condition.getPurchaseUid()));
+                }
+                //根据品控经办人
+                if (condition.getQualityUid() != null) {
+                    backList.add(cb.equal(root.get("qualityUid").as(Integer.class), condition.getQualityUid()));
                 }
                 //根据下发部门
                 if (StringUtils.isNotBlank(condition.getSendDeptId02())) {
-                    list.add(cb.equal(root.get("sendDeptId").as(String.class), condition.getSendDeptId02()));
+                    backList.add(cb.equal(root.get("sendDeptId").as(String.class), condition.getSendDeptId02()));
                 }
                 //下发部门
                 String[] bid = null;
@@ -522,37 +567,23 @@ public class ProjectServiceImpl implements ProjectService {
                     or = cb.or(businessUid, sendDeptId);
                 }
                 if (or != null) {
-                    list.add(or);
+                    backList.add(or);
                 } else {
                     if (sendDeptId != null) {
-                        list.add(sendDeptId);
+                        backList.add(sendDeptId);
                     } else if (managerUid != null) {
-                        list.add(managerUid);
+                        backList.add(managerUid);
                     } else if (businessUid != null) {
-                        list.add(businessUid);
+                        backList.add(businessUid);
                     }
                 }
-
-
                 //根据物流经办人
                 if (condition.getLogisticsUid() != null) {
-                    list.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
+                    backList.add(cb.equal(root.get("logisticsUid").as(Integer.class), condition.getLogisticsUid()));
                 }
                 //根据仓库经办人
                 if (condition.getWarehouseUid() != null) {
-                    list.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
-                }
-                //根据项目创建查询 开始时间
-                if (condition.getStartTime() != null) {
-                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
-                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT);
-                    list.add(startTime);
-                }
-                //根据项目创建查询 结束时间
-                if (condition.getEndTime() != null) {
-                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
-                    Predicate endTime = cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endT);
-                    list.add(endTime);
+                    backList.add(cb.equal(root.get("warehouseUid").as(Integer.class), condition.getWarehouseUid()));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
@@ -560,23 +591,26 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 if (country != null) {
                     Join<Project, Order> orderRoot = root.join("order");
-                    list.add(orderRoot.get("country").in(country));
+                    backList.add(orderRoot.get("country").in(country));
                 }
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                Predicate and = cb.and(predicates);
-
                 // 审核人查询,和其他关系是or，所有写在最后
+                Predicate[] backPredicates = new Predicate[backList.size()];
+                backPredicates = backList.toArray(backPredicates);
+                Predicate and = cb.and(backPredicates);
                 if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
                     Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
                     Predicate or1 = cb.or(and, auditingUserIdP);
                     Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class), "%," + condition.getAuditingUserId() + ",%");
-                    return cb.or(or1, auditingUserId02);
+                    searchList.add(cb.or(or1, auditingUserId02));
                 } else {
-                    return and;
+                    searchList.add(and);
                 }
+                Predicate[] predicates = new Predicate[searchList.size()];
+                predicates = searchList.toArray(predicates);
+                return cb.and(predicates);
             }
         }, pageRequest);
+
         for (Project project : pageList) {
             if (project.getOrder() != null) {
                 project.setoId(project.getOrder().getId());
@@ -1032,13 +1066,13 @@ public class ProjectServiceImpl implements ProjectService {
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
                 String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
-                if (auditingProcess_order.equals("0")) {
+                if (auditingProcess_order != null && auditingProcess_order == 0) {
                     order.setStatus(1);
                 }
                 order.setAuditingUserId(auditingUserId_order);
                 order.setAuditingStatus(auditingStatus_i);
                 order.setAuditingProcess(auditingProcess_order);
-                //orderDao.save(order);
+                orderDao.save(order);
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
@@ -1051,51 +1085,23 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingLevel = project.getAuditingLevel();
             Integer logistics_audit = project.getLogisticsAudit();
             // 处理进度
-            switch (curAuditProcess) {
-                case 1: // 事业部利润核算
-                    // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
-                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
-                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
-                        auditingProcess_i = checkLog.getNextAuditingProcess();
-                        auditingUserId_i = checkLog.getNextAuditingUserId();
-                        // 驳回后的修改
-                        paramProject.copyProjectDescTo(project); // 只修改基本信息
-                        paramProject.setProjectStatus("EXECUTING"); // 驳回处理后设置状态为执行中
-
-                        //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
-                    } else {
-                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
-//                        auditingProcess_i = "2,3"; // 2.法务审核、3.财务审核
-//                        auditingUserId_i = "30979,31274"; // 姜聪聪 / 展召申
-                    }
-                    break;
-                case 2: // 法务审核
-                    String replace = auditingUserId.replace("31025", "");
-                    if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
-                        if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
-                            auditingProcess_i = "5"; //
-                            auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
-                        } else {
-                            // 直接事业部审核
-                            auditingProcess_i = "6"; //
-                            auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
-                        }
-                    } else {
-                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("2", ""), ",");
-                        auditingUserId_i = StringUtils.strip(replace, ",");
-                    }
-                    // 添加销售合同号和海外销售合同号
+            CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
+            //if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+            if (false) { // 驳回后的处理
+                auditingProcess_i = checkLog.getNextAuditingProcess();
+                auditingUserId_i = checkLog.getNextAuditingUserId();
+                // 驳回后的修改
+                paramProject.copyProjectDescTo(project); // 只修改基本信息
+                //判断是否传送了海外销售合同号，如果传送，则修正相应订单中的销售合同号和海外销售合同号
+                String contractNoOs = paramProject.getContractNoOs();
+                if (StringUtils.isNotBlank(contractNoOs)) {
+                    //如果传送，则修正相应订单中的销售合同号和海外销售合同号
                     String contractNo = paramProject.getContractNo();
-                    String contractNoOs = paramProject.getContractNoOs();
-                    if(StringUtils.isBlank(contractNo)) {
-                        // 销售合同号不能为空
-                        return false;
-                    }
                     // 判断销售合同号不能重复
                     List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
                     if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
                         Integer projectId = project.getId();
-                        for(Integer proId:contractNoProjectIds){
+                        for (Integer proId : contractNoProjectIds) {
                             if (proId.intValue() != projectId.intValue()) {
                                 return false;
                             }
@@ -1103,57 +1109,113 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     order.setContractNoOs(contractNoOs);
                     order.setContractNo(contractNo);
-                    project.setContractNo(contractNo);
-                    break;
-                case 3:
-                    auditingProcess_i = auditingProcess.replace("3", "4");
-                    auditingUserId_i = auditingUserId.replace("31274", "39252"); // 直接进入到下一步结算审核
-                    break;
-                case 4:
-                    String replace2 = auditingUserId.replace("39252", "");
-                    if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
-                        if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
-                            auditingProcess_i = "5"; //
-                            auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
+                }
+                paramProject.setProjectStatus("SUBMIT"); // 驳回处理后设置状态为执行中
+
+            } else {
+                switch (curAuditProcess) {
+                    case 1: // 事业部利润核算
+                        // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
+//                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
+//                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
+//                        auditingProcess_i = checkLog.getNextAuditingProcess();
+//                        auditingUserId_i = checkLog.getNextAuditingUserId();
+//                        // 驳回后的修改
+//                        paramProject.copyProjectDescTo(project); // 只修改基本信息
+//                        paramProject.setProjectStatus("EXECUTING"); // 驳回处理后设置状态为执行中
+//
+//                        //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
+//                    } else {
+//                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
+//                    }
+                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
+
+                    case 2: // 法务审核
+                        String replace = auditingUserId.replace("31025", "");
+                        if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
+                            if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
+                                auditingProcess_i = "5"; //
+                                auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
+                            } else {
+                                // 直接事业部审核
+                                auditingProcess_i = "6"; //
+                                auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                            }
                         } else {
-                            // 直接事业部审核
-                            auditingProcess_i = "6"; //
-                            auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                            auditingProcess_i = StringUtils.strip(auditingProcess.replace("2", ""), ",");
+                            auditingUserId_i = StringUtils.strip(replace, ",");
                         }
-                    } else {
-                        auditingProcess_i = StringUtils.strip(auditingProcess.replace("4", ""), ",");
-                        auditingUserId_i = StringUtils.strip(replace2, ",");
-                    }
-                    break;
-                case 5: // 物流审核
-                    auditingProcess_i = "6"; //
-                    auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
-                    break;
-                case 6:
-                    if (auditingLevel > 1) {
-                        auditingProcess_i = "7"; //
-                        auditingUserId_i = "31973"; //黄永霞
+                        // 添加销售合同号和海外销售合同号
+                        String contractNo = paramProject.getContractNo();
+                        String contractNoOs = paramProject.getContractNoOs();
+                       /* if (project.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
+                            // 销售合同号不能为空
+                            return false;
+                        }*/
+                        // 判断销售合同号不能重复
+                        List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
+                        if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                            Integer projectId = project.getId();
+                            for (Integer proId : contractNoProjectIds) {
+                                if (proId.intValue() != projectId.intValue()) {
+                                    return false;
+                                }
+                            }
+                        }
+                        order.setContractNoOs(contractNoOs);
+                        order.setContractNo(contractNo);
+                        project.setContractNo(contractNo);
                         break;
-                    }
-                case 7:
-                    if (auditingLevel > 2) {
-                        auditingProcess_i = "8"; //
-                        auditingUserId_i = "30772"; //杨海涛
+                    case 3:
+                        auditingProcess_i = auditingProcess.replace("3", "4");
+                        auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
                         break;
-                    }
-                case 8:
-                    if (auditingLevel > 3) {
-                        auditingProcess_i = "9"; //
-                        auditingUserId_i = "32046"; //冷成志
+                    case 4:
+                        String replace2 = auditingUserId.replace("39252", "");
+                        if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
+                            if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
+                                auditingProcess_i = "5"; //
+                                auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
+                            } else {
+                                // 直接事业部审核
+                                auditingProcess_i = "6"; //
+                                auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                            }
+                        } else {
+                            auditingProcess_i = StringUtils.strip(auditingProcess.replace("4", ""), ",");
+                            auditingUserId_i = StringUtils.strip(replace2, ",");
+                        }
                         break;
-                    }
-                case 9:
-                    auditingStatus_i = 4; // 完成
-                    auditingProcess_i = null; // 无下一审核进度和审核人
-                    auditingUserId_i = null;
-                    break;
-                default:
-                    return false;
+                    case 5: // 物流审核
+                        auditingProcess_i = "6"; //
+                        auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
+                        break;
+                    case 6:
+                        if (auditingLevel > 1) {
+                            auditingProcess_i = "7"; //
+                            auditingUserId_i = "31973"; //黄永霞
+                            break;
+                        }
+                    case 7:
+                        if (auditingLevel > 2) {
+                            auditingProcess_i = "8"; //
+                            auditingUserId_i = "30772"; //杨海涛
+                            break;
+                        }
+                    case 8:
+                        if (auditingLevel > 3) {
+                            auditingProcess_i = "9"; //
+                            auditingUserId_i = "32046"; //冷成志
+                            break;
+                        }
+                    case 9:
+                        auditingStatus_i = 4; // 完成
+                        auditingProcess_i = null; // 无下一审核进度和审核人
+                        auditingUserId_i = null;
+                        break;
+                    default:
+                        return false;
+                }
             }
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }

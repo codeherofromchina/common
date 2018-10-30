@@ -159,6 +159,8 @@ public class Project {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Purch> purchs = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "project")
+    private ProjectProfit projectProfit;
     /**
      * 审核人列表信息
      */
@@ -210,6 +212,14 @@ public class Project {
     private Integer chairmanId;        //董事长审核人id
 
     private String chairman;           //董事长审核人
+
+    public ProjectProfit getProjectProfit() {
+        return projectProfit;
+    }
+
+    public void setProjectProfit(ProjectProfit projectProfit) {
+        this.projectProfit = projectProfit;
+    }
 
     public Integer getLogisticsAudit() {
         return logisticsAudit;
@@ -756,8 +766,10 @@ public class Project {
         project.setProfitPercent(this.profitPercent);
         project.setTotalPriceUsd(this.totalPriceUsd);
         project.setHasManager(this.hasManager);
-        project.setExeChgDate(this.exeChgDate);
-        project.setRequirePurchaseDate(this.requirePurchaseDate);
+        if(project.exeChgDate == null) {
+            project.setExeChgDate(this.exeChgDate);
+        }
+        //project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setPurchaseName(this.purchaseName);
         project.setQualityUid(this.qualityUid);
@@ -772,14 +784,17 @@ public class Project {
         project.setWarehouseUid(this.warehouseUid);
         project.setSendDeptId(this.sendDeptId);
         project.setRemarks(this.remarks);
-        project.setProjectStatus(this.projectStatus);
+        if (!"AUDIT".equals(this.projectStatus)){
+            project.setProjectStatus(this.projectStatus);
+        }
         project.setLogisticsAudit(this.logisticsAudit);
         project.setLogisticsAuditerId(this.getLogisticsAuditerId());
         project.setLogisticsAuditer(this.logisticsAuditer);
-        project.setBuAuditerId(this.getBuAuditerId());
-        project.setBuAuditer(this.getBuAuditer());
+        project.setBuAuditerId(this.buAuditerId);
+        project.setBuAuditer(this.buAuditer);
         return true;
     }
+
     // 项目审核接口中使用，审核的原因字段
     @Transient
     private String auditingReason;
@@ -871,7 +886,7 @@ public class Project {
 
     public static enum ProjectStatusEnum {
 
-        SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
+        AUDIT("AUDIT", "未执行", 1),SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
         EXECUTING("EXECUTING", "正常执行", 3), DONE("DONE", "正常完成", 4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行", 5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
         DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), TURNDOWN("TURNDOWN", "驳回", 11);

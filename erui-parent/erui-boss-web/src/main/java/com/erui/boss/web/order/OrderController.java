@@ -55,7 +55,6 @@ public class OrderController {
                 vo.setGoodsList(null);
                 vo.setOrderAccountDelivers(null);
                 vo.setOrderAccounts(null);
-                vo.setDeliverConsignC(null);
             });
         }
         return new Result<>(orderPage);
@@ -224,7 +223,7 @@ public class OrderController {
             } else if (addOrderVo.getCustomerType() == null) {
                 result.setMsg("客户类型不能为空");
                 result.setEnMsg("Customer type must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(1) && !addOrderVo.getOrderCategory().equals(6) && !addOrderVo.getOrderCategory().equals(3)) {
+            } else if (StringUtils.isBlank(addOrderVo.getPerLiableRepay()) && !addOrderVo.getOrderCategory().equals(6)) {
                 result.setMsg("回款责任人不能为空");
                 result.setEnMsg("Collection manager must be filled in");
             } else if (addOrderVo.getBusinessUnitId() == null) {
@@ -309,7 +308,7 @@ public class OrderController {
         }
         // 判断通过，审核项目并返回是否审核成功
         boolean flag;
-        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
+        if (addOrderVo.getStatus() != null && addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             orderService.updateOrder(addOrderVo);
             flag = true;
         } else {

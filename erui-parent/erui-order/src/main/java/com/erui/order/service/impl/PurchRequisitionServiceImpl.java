@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -174,7 +173,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
             String contractNo = save.getContractNo();   //销售合同号
             String projectNo = save.getProjectNo();//项目号
-            newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
             newBackLog.setHostId(save.getId());    //父ID，列表页id   项目id
             Integer purchaseUid = save.getPurchaseUid();//采购经办人id
             newBackLog.setUid(purchaseUid);   ////经办人id
@@ -214,7 +213,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         }
         purchRequisitionAdd.setProjectNo(purchRequisition.getProjectNo());
         purchRequisitionAdd.setSubmitDate(purchRequisition.getSubmitDate());
-        purchRequisitionAdd.setTradeMethod(purchRequisition.getTradeMethod());
+        purchRequisitionAdd.setTradeMethod(project.getProjectProfit().getProjectType());
         purchRequisitionAdd.setTransModeBn(project.getOrder().getTradeTerms());
         purchRequisitionAdd.setDeliveryPlace(purchRequisition.getDeliveryPlace());
         purchRequisitionAdd.setFactorySend(purchRequisition.isFactorySend());
@@ -268,7 +267,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
             String contractNo = save.getContractNo();   //销售合同号
             String projectNo = save.getProjectNo();//项目号
-            newBackLog.setInformTheContent(contractNo+" | "+projectNo);  //提示内容
+            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
             newBackLog.setHostId(save.getId());    //父ID，列表页id
             Integer purchaseUid = save.getPurchaseUid();//采购经办人id
             newBackLog.setUid(purchaseUid);   ////经办人id

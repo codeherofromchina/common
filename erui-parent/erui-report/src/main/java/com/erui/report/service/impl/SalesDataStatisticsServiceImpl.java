@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,7 +21,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsService {
-    private static final String UNKNOW = "未知";
+    private static final String UNKNOW = "其他";
     @Autowired
     private SalesDataStatisticsMapper salesDataStatisticsMapper;
     // 业绩指标业务类
@@ -129,10 +127,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> lossMemberStatistics(Map<String, Object> params) {
+        long start01 = System.currentTimeMillis();
         // 查找会员总数
         List<Map<String, Object>> totalBuyer = salesDataStatisticsMapper.buyerTotalCountGoupByArea(params);
+        long start02 = System.currentTimeMillis();
         // 查找流失会员数
         List<Map<String, Object>> lossBuyer = salesDataStatisticsMapper.buyerLossCountGoupByArea(params);
+        long start03 = System.currentTimeMillis();
         if (totalBuyer == null || totalBuyer.size() == 0 || lossBuyer == null || lossBuyer.size() == 0) {
             return null;
         }
@@ -148,21 +149,20 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     private Map<String, List<Object>> _handleMemberNum(List<Map<String, Object>> totalBuyer, List<Map<String, Object>> otherBuyer) {
-        Map<String, Long> numMap = otherBuyer.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("countryName"), vo -> (Long) vo.get("total")));
+        Map<String, Long> numMap = otherBuyer.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (Long) vo.get("total")));
         List<Object> countries = new ArrayList<>();
         List<Object> totalNums = new ArrayList<>();
         List<Object> nums = new ArrayList<>();
         List<Object> rateList = new ArrayList<>();
         for (Map<String, Object> map : totalBuyer) {
-            String countryName = (String) map.get("countryName");
+            String areaName = (String) map.get("areaName");
             Long total = (Long) map.get("total");
-            Long num = numMap.get(countryName);
+            Long num = numMap.get(areaName);
             if (num == null) {
                 num = 0L;
             }
-            double rate = num / (double) total * 100;
-            BigDecimal bigDecimalRate = new BigDecimal(rate, new MathContext(4, RoundingMode.DOWN));
-            countries.add(countryName == null ? UNKNOW : countryName);
+            BigDecimal bigDecimalRate = new BigDecimal(num * 100).divide(new BigDecimal(total), 2, BigDecimal.ROUND_DOWN); // 乘100是为了前端不用转换成百分数直接显示
+            countries.add(areaName == null ? UNKNOW : areaName);
             totalNums.add(total);
             nums.add(num);
             rateList.add(bigDecimalRate);
@@ -204,7 +204,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     @Override
-    public Map<String, List<Object>> quoteAmountGroupOrg(Map<String, Object> params) {
+    public Map<String, List<Object>> quoteAmountGroupArea(Map<String, Object> params) {
         // 总报价金额
         List<Map<String, Object>> quoteTotalAmount = salesDataStatisticsMapper.quoteTotalAmountGroupByArea(params);
         // 会员报价总金额
@@ -224,10 +224,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             String areaName = (String) map.get("areaName");
             BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
             names.add(areaName == null ? UNKNOW : areaName);
-            totalAmounts.add(totalAmount.divide(tenThousand,2,BigDecimal.ROUND_DOWN));
+            totalAmounts.add(totalAmount.divide(tenThousand, 2, BigDecimal.ROUND_DOWN));
             BigDecimal memTotalAmount = memberQuoteAmountMap.remove(areaName);
             if (memTotalAmount != null) {
-                memTotalAmounts.add(memTotalAmount.divide(tenThousand,2,BigDecimal.ROUND_DOWN));
+                memTotalAmounts.add(memTotalAmount.divide(tenThousand, 2, BigDecimal.ROUND_DOWN));
             } else {
                 memTotalAmounts.add(BigDecimal.ZERO);
             }
@@ -240,7 +240,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
 
     @Override
-    public Map<String, List<Object>> inquiryNumbersGroupOrg(Map<String, Object> params) {
+    public Map<String, List<Object>> inquiryNumbersGroupArea(Map<String, Object> params) {
         // 总询单数量
         List<Map<String, Object>> inquiryTotalNum = salesDataStatisticsMapper.inquiryTotalNumGroupByArea(params);
         // 会员询单总数量
@@ -280,7 +280,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @return
      */
     @Override
-    public Map<String, List<Object>> quoteNumbersGroupOrg(Map<String, Object> params) {
+    public Map<String, List<Object>> quoteNumbersGroupArea(Map<String, Object> params) {
         // 总报价数量
         List<Map<String, Object>> quoteTotalNum = salesDataStatisticsMapper.quoteTotalNumGroupByArea(params);
         // 会员报价总数量
@@ -332,7 +332,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             areaNames.add(orgName == null ? UNKNOW : orgName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
         }
         result.put("names", areaNames);
         result.put("totalNums", totalNums);
@@ -357,7 +357,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             names.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("totalNums", totalNums);
@@ -383,7 +383,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             Long totalNum = (Long) map.get("totalNum");
             orgNames.add(orgName == null ? UNKNOW : orgName);
             totalNums.add(totalNum == null ? 0L : totalNum);
-            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount);
+            totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
         }
         result.put("names", orgNames);
         result.put("totalNums", totalNums);
@@ -447,7 +447,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             String name = (String) map.get("name");
             BigDecimal profitPercent = (BigDecimal) map.get("profitPercent");
             names.add(name == null ? UNKNOW : name);
-            profitPercentList.add(profitPercent == null ? BigDecimal.ZERO : profitPercent);
+            profitPercentList.add(profitPercent == null ? BigDecimal.ZERO : profitPercent.setScale(2, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("profitPercents", profitPercentList);
@@ -463,7 +463,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderStatisticsMonoRateGroupByOrg(Map<String, Object> params) {
-        // 订单信息的国家利润率
+        // 订单信息的事业部成单率
         List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByOrg(params);
         if (countryMonoRate == null || countryMonoRate.size() == 0) {
             return null;
@@ -480,7 +480,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      */
     @Override
     public Map<String, List<Object>> orderStatisticsMonoRateGroupByArea(Map<String, Object> params) {
-        // 订单信息的国家利润率
+        // 订单信息的地区成单率
         List<Map<String, Object>> countryMonoRate = salesDataStatisticsMapper.orderStatisticsMonoRateGroupByArea(params);
         if (countryMonoRate == null || countryMonoRate.size() == 0) {
             return null;
@@ -522,13 +522,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         BigDecimal oneHundred = new BigDecimal(100);
         for (Map<String, Object> map : monoRateInfo) {
             String name = (String) map.get("name");
-            Long quoteNum = (Long) map.get("quoteNum");
-            Long doneNum = (Long) map.get("doneNum");
+            BigDecimal quoteNum = (BigDecimal) map.get("quoteNum");
+            BigDecimal doneNum = (BigDecimal) map.get("doneNum");
             BigDecimal rate = (BigDecimal) map.get("rate");
             names.add(name == null ? UNKNOW : name);
-            quoteNums.add(quoteNum == null ? 0L : quoteNum);
-            doneNums.add(doneNum == null ? 0L : doneNum);
-            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred, new MathContext(2, RoundingMode.HALF_UP)));
+            quoteNums.add(quoteNum == null ? 0L : quoteNum.longValue());
+            doneNums.add(doneNum == null ? 0L : doneNum.longValue());
+            rates.add(rate == null ? BigDecimal.ZERO : rate.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("quoteNums", quoteNums);
@@ -564,9 +564,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
         for(Map<String, Object> map:purchasingPowerList){
             BigDecimal cycle = (BigDecimal) map.get("cycle");
-            if (cycle == null) {
+            if (cycle != null) {
                 cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);
-            }else {
+            } else {
                 cycle = BigDecimal.ZERO;
             }
             map.put("cycle", cycle);
@@ -613,61 +613,263 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     /**
      * 订单数据统计 - 事业部完成率
+     * 实际金额/计划金额
      *
      * @param params
      * @return
      */
     @Override
     public Map<String, List<Object>> orderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
-        List<Map<String, Object>> planPriceList = orderInfoPlanPrice(params);
-        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
-        if (planPriceList == null || planPriceList.size() == 0) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找事业部指标
+        Map<Integer, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByOrg(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
             return null;
         }
-        Map<Integer, BigDecimal> donePriceMap = donePriceList.parallelStream().collect(Collectors.toMap(vo -> (Integer) vo.get("orgId"), vo -> (BigDecimal) vo.get("totalPrice")));
-        List<Object> names = new ArrayList<>();
-        List<Object> rateList = new ArrayList<>();
-        for (Map<String, Object> planPrice : planPriceList) {
-            Object bn = planPrice.get("bn");
-            Object name = planPrice.get("name");
-            BigDecimal planQuota = (BigDecimal) planPrice.get("quota");
-            BigDecimal doneQuota = donePriceMap.get(bn);
-            if (doneQuota == null || doneQuota == BigDecimal.ZERO) {
-                rateList.add(0); // 完成率是0
-            } else {
-                rateList.add(doneQuota.divide(planQuota).setScale(4, BigDecimal.ROUND_DOWN));
-            }
-            names.add(name);
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateData(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
+
+    /**
+     * 订单数据统计 - 事业部完成率
+     * （实际金额/实际天数）/(计划金额/计划天数)
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyOrg(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找事业部指标
+        Map<Integer, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByOrg(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
         }
-        Map<String, List<Object>> result = new HashMap<>();
-        result.put("names", names);
-        result.put("rateList", rateList);
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
+
+    /**
+     * 订单数据统计 - 地区完成率
+     * 实际金额/计划金额
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderInfoDoneRateGroupbyArea(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找地区指标
+        Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByArea(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyArea(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateData(donePriceList, planPriceMap02, ascFlag);
         return result;
     }
 
     /**
-     * 查询计划业绩信息
+     * 订单数据统计 - 地区完成率
+     * （实际金额/实际天数）/(计划金额/计划天数)
      *
-     * @param params type   1：事业部完成率   2：地区完成率   3：国家完成率
+     * @param params
      * @return
      */
-    private List<Map<String, Object>> orderInfoPlanPrice(Map<String, Object> params) {
-//        List<Map<String, Object>> planPrice = null;
-//        Integer type = (Integer) params.get("type");
-////        List<String> prescriptionList = NewDateUtil.allSpanYearList(DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.FULL_FORMAT_STR), DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.FULL_FORMAT_STR));
-//        List<String> prescriptionList = null;
-//        List<PerformanceIndicators> performanceIndicatorsList = performanceIndicatorsService.findByPrescription(prescriptionList);
-//        if (type == 1) {
-//
-//
-//        } else if (type == 2) {
-//
-//        } else if (type == 3) {
-//
-//        }
-//        return planPrice;
-        return null;
+    @Override
+    public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyArea(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找地区指标
+        Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByArea(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyArea(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        return result;
     }
 
+
+    /**
+     * 订单数据统计 - 国家完成率
+     * 实际金额/计划金额
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> orderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找国家指标
+        Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByCountry(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyCountry(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateData(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
+    /**
+     * 订单数据统计 - 国家完成率
+     * 实际金额/实际天数）/(计划金额/计划天数)
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> dayOrderInfoDoneRateGroupbyCountry(Map<String, Object> params) {
+        boolean ascFlag = "1".equals(params.get("sort"));
+        // 查找国家指标
+        Map<String, Map<String, Object>> planPriceMap = performanceIndicatorsService.performanceIndicatorsWhereTimeByCountry(params);
+        if (planPriceMap == null || planPriceMap.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyCountry(params);
+        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        return result;
+    }
+
+
+    /**
+     * 处理完成率数据信息
+     */
+    private Map<String, List<Object>> _handleOrderInfoDoneRateData(List<Map<String, Object>> donePriceList, Map<Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
+        Map<String, List<Object>> result = new HashMap<>();
+        Set<Object> keyList = new HashSet<>();
+        keyList.addAll(planPriceMap.keySet());
+        Map<Object, Map<String, Object>> donePriceMap = donePriceList.parallelStream().collect(Collectors.toMap(vo -> {
+            Object key = vo.get("key");
+            keyList.add(key);
+            return key;
+        }, vo -> vo));
+
+
+        List<Object[]> list = new ArrayList<>();
+        BigDecimal oneHundred = new BigDecimal(100);
+        for (Object key : keyList) {
+            Map<String, Object> planPrice = planPriceMap.get(key);
+            Map<String, Object> donePrice = donePriceMap.get(key);
+            Object[] objArr = new Object[2];
+            String name = donePrice == null ? (String) planPrice.get("name") : (String) donePrice.get("name");
+            objArr[0] = name;
+            if (donePrice != null && planPrice != null) {
+                BigDecimal doneTotalPrice = (BigDecimal) donePrice.get("totalPrice"); // 单位是美元
+                BigDecimal planTotalPrice = (BigDecimal) planPrice.get("totalPrice");// 单位是万美元
+
+                if (planTotalPrice.equals(BigDecimal.ZERO)) {
+                    objArr[1] = BigDecimal.ZERO;
+                } else {
+                    // 实际金额/计划金额/10000*100  --- 转换单位和百分比
+                    objArr[1] = doneTotalPrice.divide(planTotalPrice, 0, BigDecimal.ROUND_DOWN).divide(oneHundred, 2, BigDecimal.ROUND_DOWN);
+                }
+            } else {
+                // 没有实际完成信息或没有计划信息，则完成率设置为0
+                objArr[1] = BigDecimal.ZERO;
+            }
+            list.add(objArr);
+        }
+
+        // 排序
+        list.sort(new Comparator<Object[]>() {
+            @Override
+            public int compare(Object[] o1, Object[] o2) {
+                BigDecimal bd01 = (BigDecimal) o1[1];
+                BigDecimal bd02 = (BigDecimal) o2[1];
+                if (ascFlag) {
+                    return bd01.compareTo(bd02);
+                } else {
+                    return -bd01.compareTo(bd02);
+                }
+            }
+        });
+
+        List<Object> nameList = new ArrayList<>();
+        List<Object> rateList = new ArrayList<>();
+        list.stream().forEach(vo -> {
+            nameList.add((String) vo[0]);
+            rateList.add((BigDecimal) vo[1]);
+        });
+        result.put("nameList", nameList);
+        result.put("rateList", rateList);
+        return result;
+    }
+
+
+    /**
+     * 处理完成率按天平均数据信息
+     */
+    private Map<String, List<Object>> _handleOrderInfoDoneRateDataByDay(List<Map<String, Object>> donePriceList, Map<Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
+        Map<String, List<Object>> result = new HashMap<>();
+        Set<Object> keyList = new HashSet<>();
+        keyList.addAll(planPriceMap.keySet());
+        Map<Object, Map<String, Object>> donePriceMap = donePriceList.parallelStream().collect(Collectors.toMap(vo -> {
+            Object key = vo.get("key");
+            keyList.add(key);
+            return key;
+        }, vo -> vo));
+        List<Object[]> list = new ArrayList<>();
+        BigDecimal oneHundred = new BigDecimal(100);
+        for (Object key : keyList) {
+            Map<String, Object> planPrice = planPriceMap.get(key);
+            Map<String, Object> donePrice = donePriceMap.get(key);
+            Object[] objArr = new Object[2];
+            String name = donePrice == null ? (String) planPrice.get("name") : (String) donePrice.get("name");
+            objArr[0] = name;
+            if (donePrice != null && planPrice != null) {
+                BigDecimal doneTotalPrice = (BigDecimal) donePrice.get("totalPrice"); // 单位是美元
+                Long doneDayNum = (Long) donePrice.get("dayNum"); // 实际金额的天数
+                BigDecimal planTotalPrice = (BigDecimal) planPrice.get("totalPrice");// 单位是万美元
+                Integer planDayNum = (Integer) planPrice.get("dayNum");// 计划金额的天数
+
+                if (planTotalPrice.equals(BigDecimal.ZERO)) {
+                    objArr[1] = BigDecimal.ZERO;
+                } else {
+                    // 实际金额/计划金额/10000*100  --- 转换单位和百分比
+                    BigDecimal donePerPrice = doneTotalPrice.divide(new BigDecimal(doneDayNum), 4, BigDecimal.ROUND_DOWN);
+                    BigDecimal planPerPrice = planTotalPrice.divide(new BigDecimal(planDayNum), 4, BigDecimal.ROUND_DOWN);
+                    objArr[1] = donePerPrice.divide(planPerPrice, 0, BigDecimal.ROUND_DOWN).divide(oneHundred, 2, BigDecimal.ROUND_DOWN);
+                }
+            } else {
+                // 没有实际完成信息或没有计划信息，则完成率设置为0
+                objArr[1] = BigDecimal.ZERO;
+            }
+            list.add(objArr);
+        }
+
+        // 排序
+        list.sort(new Comparator<Object[]>() {
+            @Override
+            public int compare(Object[] o1, Object[] o2) {
+                BigDecimal bd01 = (BigDecimal) o1[1];
+                BigDecimal bd02 = (BigDecimal) o2[1];
+                if (ascFlag) {
+                    return bd01.compareTo(bd02);
+                } else {
+                    return -bd01.compareTo(bd02);
+                }
+            }
+        });
+
+        List<Object> nameList = new ArrayList<>();
+        List<Object> rateList = new ArrayList<>();
+        list.stream().forEach(vo -> {
+            nameList.add((String) vo[0]);
+            rateList.add((BigDecimal) vo[1]);
+        });
+        result.put("nameList", nameList);
+        result.put("rateList", rateList);
+        return result;
+    }
 
 }

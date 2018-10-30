@@ -1,64 +1,59 @@
 package com.erui.order.model;
 
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Order;
-import com.erui.order.entity.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 项目执行统计
  * Created by wangxiaodan on 2018/4/10.
  */
-public class ProjectStatistics {
+public class ProjectGoodsStatistics {
 
-    public ProjectStatistics() {
+    public ProjectGoodsStatistics() {
+    }
+    //序号
+    private Integer id;
+    //未用易瑞签约原因
+    private String nonReson;
+    //是否通过代理商获取
+    private String agent;
+    //代理商代码
+    private String agentNo;
+
+    public Integer getId() {
+        return id;
     }
 
-    public ProjectStatistics(Project project, Order order) {
-        this.orderId = order.getId();
-        this.poNo = order.getPoNo();
-        this.startDate = project.getStartDate();
-        this.contractNo = order.getContractNo();
-        this.inquiryNo = order.getInquiryNo();
-        this.projectNo = project.getProjectNo();
-        this.projectName = project.getProjectName();
-        this.contractNoOs = order.getContractNoOs();
-        this.logiQuoteNo = order.getLogiQuoteNo();
-        this.execCoName = order.getExecCoName();
-        this.distributionDeptName = order.getDistributionDeptName();
-        this.businessUnitName = project.getBusinessUnitName();
-        this.region = order.getRegion();
-        this.crmCode = order.getCrmCode();
-        this.customerType = order.getCustomerType();
-        this.orderType = order.getOrderType();
-        this.totalPrice = project.getTotalPriceUsd();
-        this.paymentModeBn = order.getPaymentModeBn();
-        this.profitPercent = project.getProfitPercent();
-        this.grantType = order.getGrantType();
-        if (project.getDeliveryDate() != null) {
-            // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
-            this.deliveryDate = project.getDeliveryDate();
-        }
-        this.requirePurchaseDate = project.getRequirePurchaseDate();
-        this.exeChgDate = project.getExeChgDate();
-        this.agentName = order.getAgentName();
-        this.businessName = order.getBusinessName();
-        this.tradeTerms = order.getTradeTerms();
-        this.projectStatus = project.getProjectStatus();
-        this.processProgress = project.getProcessProgress();
-        this.overseasSales = order.getOverseasSales();
-        this.currencyBn = order.getCurrencyBn();
-        this.createTime = project.getCreateTime();
-        this.orderCategory = order.getOrderCategory();
-        this.goodsList = order.getGoodsList();
-        this.sendDeptId = project.getSendDeptId();
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getNonReson() {
+        return nonReson;
+    }
+
+    public void setNonReson(String nonReson) {
+        this.nonReson = nonReson;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
+
+    public String getAgentNo() {
+        return agentNo;
+    }
+
+    public void setAgentNo(String agentNo) {
+        this.agentNo = agentNo;
     }
 
     //订单ID
@@ -86,19 +81,27 @@ public class ProjectStatistics {
     private String distributionDeptName;
     //事业部
     private String businessUnitName;
-    //事业部ID
-    private Integer sendDeptId;
     //所属地区
     private String region;
     private String regionZh;
     //CRM客户代码
     private String crmCode;
     //客户类型
-    private Integer customerType;
+    private String customerType;
+    //中文品名
+    private String nameZh;
+    //外文品名
+    private String nameEn;
+    //规格
+    private String model;
+    //合同数量
+    private Integer contractGoodsNum;
+    //单位
+    private String unit;
     //订单类型
     private Integer orderType;
     //海外销类型 TODO
-    private Integer overseasSales;
+    private String overseasSales;
     //项目金额（美元）
     private BigDecimal totalPrice;
     // 前期报价（美元）  TODO
@@ -114,7 +117,7 @@ public class ProjectStatistics {
     //回款记录条数
     private String proCate; //产品分类
     //初步利润率
-    private BigDecimal profitPercent;
+    private String profitPercent;
     //授信情况
     private String grantType;
     //执行单约定交付日期
@@ -149,24 +152,47 @@ public class ProjectStatistics {
     //项目创建时间
     private Date createTime;
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
-    private Integer orderCategory;
-    //订单商品
-    private List<Goods> goodsList = new ArrayList<>();
+    private String orderCategory;
+    //订单商品信息
 
-    public Integer getSendDeptId() {
-        return sendDeptId;
+    public String getNameZh() {
+        return nameZh;
     }
 
-    public void setSendDeptId(Integer sendDeptId) {
-        this.sendDeptId = sendDeptId;
+    public void setNameZh(String nameZh) {
+        this.nameZh = nameZh;
     }
 
-    public List<Goods> getGoodsList() {
-        return goodsList;
+    public String getNameEn() {
+        return nameEn;
     }
 
-    public void setGoodsList(List<Goods> goodsList) {
-        this.goodsList = goodsList;
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public Integer getContractGoodsNum() {
+        return contractGoodsNum;
+    }
+
+    public void setContractGoodsNum(Integer contractGoodsNum) {
+        this.contractGoodsNum = contractGoodsNum;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
     public Date getCreateTime() {
@@ -313,13 +339,6 @@ public class ProjectStatistics {
         this.projectStatus = projectStatus;
     }
 
-    public String getProjectStatusName() {
-        Project.ProjectStatusEnum projectStatusEnum = Project.ProjectStatusEnum.fromCode(projectStatus);
-        if (projectStatusEnum != null) {
-            return projectStatusEnum.getMsg();
-        }
-        return null;
-    }
 
     public String getProcessProgress() {
         return processProgress;
@@ -327,14 +346,6 @@ public class ProjectStatistics {
 
     public void setProcessProgress(String processProgress) {
         this.processProgress = processProgress;
-    }
-
-    public String getProcessProgressName() {
-        Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(processProgress);
-        if (projectProgressEnum != null) {
-            return projectProgressEnum.getMsg();
-        }
-        return null;
     }
 
     public String getBusinessUnitName() {
@@ -369,21 +380,13 @@ public class ProjectStatistics {
         this.crmCode = crmCode;
     }
 
-    public Integer getCustomerType() {
+    public String getCustomerType() {
         return customerType;
     }
 
-    public void setCustomerType(Integer customerType) {
+    public void setCustomerType(String customerType) {
         this.customerType = customerType;
     }
-
-    public String getCustomerTypeName() {
-        if (customerType != null) {
-            return coverOilInt2Str(customerType);
-        }
-        return null;
-    }
-
 
     public Integer getOrderType() {
         return orderType;
@@ -465,20 +468,11 @@ public class ProjectStatistics {
         this.money = money;
     }
 
-    public BigDecimal getProfitPercent() {
+    public String getProfitPercent() {
         return profitPercent;
     }
 
-    public String getProfitPercentStr() {
-        BigDecimal profitPercent = getProfitPercent();
-        if (profitPercent == null) {
-            profitPercent = BigDecimal.ZERO;
-        }
-        profitPercent = profitPercent.setScale(2, BigDecimal.ROUND_HALF_UP);
-        return profitPercent.toString() + "%";
-    }
-
-    public void setProfitPercent(BigDecimal profitPercent) {
+    public void setProfitPercent(String profitPercent) {
         this.profitPercent = profitPercent;
     }
 
@@ -536,30 +530,12 @@ public class ProjectStatistics {
         this.accountCount = accountCount;
     }
 
-    public Integer getOverseasSales() {
+    public String getOverseasSales() {
         return overseasSales;
     }
 
-    public void setOverseasSales(Integer overseasSales) {
+    public void setOverseasSales(String overseasSales) {
         this.overseasSales = overseasSales;
-    }
-
-    public String getOverseasSalesName() {
-        if (overseasSales != null) {
-            switch (overseasSales) {
-                case 1:
-                    return "海外销（装备采购）";
-                case 2:
-                    return "海外销（易瑞采购）";
-                case 3:
-                    return "海外销（当地采购）";
-                case 4:
-                    return "易瑞销";
-                case 5:
-                    return "装备销";
-            }
-        }
-        return null;
     }
 
     public String getCurrencyBnMoney() {
@@ -579,26 +555,10 @@ public class ProjectStatistics {
     }
 
     public String getOrderCategory() {
-        if (orderCategory != null) {
-            switch (orderCategory) {
-                case 1:
-                    return "预投";
-                case 2:
-                    return "售后";
-                case 3:
-                    return "试用";
-                case 4:
-                    return "现货（出库）";
-                case 5:
-                    return "订单";
-                case 6:
-                    return "国内订单";
-            }
-        }
-        return null;
+        return orderCategory;
     }
 
-    public void setOrderCategory(Integer orderCategory) {
+    public void setOrderCategory(String orderCategory) {
         this.orderCategory = orderCategory;
     }
 }
