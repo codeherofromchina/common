@@ -119,6 +119,7 @@ public class MemberInfoController {
             data = memberInfoService.visitStatisticsByCountry(params);
         }
 
+
         Result<Object> result = new Result<>();
         if (data == null || data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);

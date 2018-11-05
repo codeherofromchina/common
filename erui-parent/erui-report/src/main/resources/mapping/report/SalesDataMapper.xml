@@ -86,6 +86,55 @@
         </if>
         GROUP BY inquiry_area ,inquiry_unit HAVING area IS NOT NULL AND country IS NOT NULL
     </select>
+
+
+    <select id="selectInqCountAndInqAmountGroupByCountry" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+          t2.`name`,
+          COUNT(1) AS inqCount,
+          SUM(IFNULL(t3.total_quote_price, 0)) AS inqAmount
+        FROM
+          `erui_rfq`.`inquiry` t1
+        LEFT JOIN
+          `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
+            AND t3.deleted_flag = 'N'
+        LEFT JOIN
+          erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
+            AND t4.in_node = 'MARKET_APPROVING',
+              `erui_dict`.`country` t2
+        WHERE
+            t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
+            and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
+            <if test="startTime!=null and endTime!=null">
+                AND `t4`.`created_at` BETWEEN #{startTime} and #{endTime}
+            </if>
+        GROUP BY t2.bn , t2.`name`;
+    </select>
+
+    <select id="selectQuoteCountAndQuoteAmountGroupByCountry" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+          t2.`name`,
+          COUNT(1) AS quoteCount,
+          SUM(IFNULL(t3.total_quote_price, 0)) AS quoteAmount
+        FROM
+          `erui_rfq`.`inquiry` t1
+        LEFT JOIN
+          `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
+            AND t3.deleted_flag = 'N'
+        LEFT JOIN
+            erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
+            AND t4.in_node = 'MARKET_APPROVING',
+              `erui_dict`.`country` t2
+        WHERE
+            t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
+            and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
+            <if test="startTime!=null and endTime!=null">
+                AND `t4`.`created_at` BETWEEN #{startTime} and #{endTime}
+            </if>
+        GROUP BY t2.bn , t2.`name`;
+    </select>
+
+
     <!-- 查询事业部数据明细 ： 询单金额 、询单数量、报价数量 、报价用时-->
     <!-- 2018-07-31 修改，之前是按照rollin_time的时间纬度来划分的，现在修改为按照erui_rfq.inquiry_check_log中事业部审核流出的时间划分 -->
     <select id="selectOrgDetail" resultType="java.util.Map" parameterType="java.util.Map">

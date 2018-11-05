@@ -5,6 +5,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
+import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.ParamsUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,37 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectAreaDetailByType(params);
+        return new Result<>(data);
+    }
+
+    /**
+     * 查询国家的询报价信息（询单数量、询单金额、报价数量、报价金额）
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/inquiryQuoteByCountry", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> inquiryQuoteByCountry(@RequestBody(required = true) Map<String,Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        String analyzeType = String.valueOf(params.get("analyzeType"));
+        Map<String, Object> data = null;
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+            // 询单数量或询单金额
+            data  = salesDataService.selectInquiryInfoByCountry(params);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+            // 报价数量或报价金额
+            data  = salesDataService.selectQuoteInfoByCountry(params);
+        } else {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+
         return new Result<>(data);
     }
 

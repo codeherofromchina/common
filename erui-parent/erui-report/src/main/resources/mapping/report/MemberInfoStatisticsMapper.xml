@@ -178,11 +178,14 @@
         SELECT
         t1.org_id AS orgId,
         CASE t1.org_id
-        WHEN 1 THEN '易瑞'
-        WHEN 2 THEN '油田设备'
-        WHEN 3 THEN '康博瑞'
-        WHEN 4 THEN '钻采'
-        WHEN 5 THEN 'WEFIC'
+        WHEN 1 THEN '易瑞-钻完井设备事业部'
+        WHEN 2 THEN '易瑞-工业品事业部'
+        WHEN 3 THEN '易瑞-采油工程事业部'
+        WHEN 4 THEN '易瑞'
+        WHEN 5 THEN '油田设备'
+        WHEN 6 THEN '康博瑞'
+        WHEN 7 THEN '钻采'
+        WHEN 8 THEN 'WEFIC'
         ELSE '其他'
         END AS `name`,
         SUM(t1.inquiryNum) AS inquiryNum,
@@ -194,12 +197,15 @@
         FROM
         (SELECT
         CASE
-        WHEN business_unit_id IN (9928 , 9929, 9931, 9930, 9907) THEN 1
-        WHEN business_unit_id IN (9904 , 9905) THEN 2
-        WHEN business_unit_id IN (9902 , 9917) THEN 3
-        WHEN business_unit_id IN (9903 , 9901) THEN 4
-        WHEN business_unit_id IN (9899 , 9916) THEN 5
-        ELSE -1
+        WHEN business_unit_id IN (9907) THEN 1
+        WHEN business_unit_id IN (9969) THEN 2
+        WHEN business_unit_id IN (9970) THEN 3
+        WHEN business_unit_id IN (9928 , 9929, 9931, 9930, 9907) THEN 4
+        WHEN business_unit_id IN (9904 , 9905) THEN 5
+        WHEN business_unit_id IN (9902 , 9917) THEN 6
+        WHEN business_unit_id IN (9903 , 9901) THEN 7
+        WHEN business_unit_id IN (9899 , 9916) THEN 8
+        ELSE 100
         END AS org_id,
         0 AS inquiryNum,
         COUNT(1) AS orderNum
@@ -217,12 +223,15 @@
 
         SELECT
         CASE
-        WHEN org_id IN (9928 , 9929, 9931, 9930, 9907) THEN 1
-        WHEN org_id IN (9904 , 9905) THEN 2
-        WHEN org_id IN (9902 , 9917) THEN 3
-        WHEN org_id IN (9903 , 9901) THEN 4
-        WHEN org_id IN (9899 , 9916) THEN 5
-        ELSE - 1
+        WHEN org_id IN (9907) THEN 1
+        WHEN org_id IN (9969) THEN 2
+        WHEN org_id IN (9970) THEN 3
+        WHEN org_id IN (9928 , 9929, 9931, 9930, 9907) THEN 4
+        WHEN org_id IN (9904 , 9905) THEN 5
+        WHEN org_id IN (9902 , 9917) THEN 6
+        WHEN org_id IN (9903 , 9901) THEN 7
+        WHEN org_id IN (9899 , 9916) THEN 8
+        ELSE 100
         END AS org_id,
         COUNT(1) AS inquiryNum,
         0 AS orderNum
@@ -237,10 +246,7 @@
         </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
-        ORDER BY 5
-        <if test="sort != 1" >
-            DESC
-        </if>
+        ORDER BY 1
     </select>
 
     <!-- 按照地区统计会员签约主体 -->

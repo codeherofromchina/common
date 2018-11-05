@@ -18,6 +18,22 @@ public interface SalesDataMapper {
      * @return 询单金额 、询单数量、报价数量
      */
     List<Map<String,Object>> selectAreaAndCountryDetail(Map<String,Object> params);
+
+    /**
+     * 按照国家分类查询询单数量和询单金额信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> selectInqCountAndInqAmountGroupByCountry(Map<String,Object> params);
+
+    /**
+     * 按照国家分类查询报价数量和报价金额信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> selectQuoteCountAndQuoteAmountGroupByCountry(Map<String,Object> params);
+
+
     /**
      * 查询各事业部数据明细
      * @param params

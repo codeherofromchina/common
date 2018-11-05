@@ -23,6 +23,23 @@ public interface SalesDataService {
      * @return
      */
     Map<String,Object>  selectAreaDetailByType(Map<String,Object> params);
+
+    /**
+     *  询单数量或询单金额
+     *  analyzeType :询单数量、询单金额
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectInquiryInfoByCountry(Map<String,Object> params);
+
+    /**
+     *  报价数量或报价金额
+     *  analyzeType :报价数量、报价金额
+     * @param params
+     * @return
+     */
+    Map<String,Object>  selectQuoteInfoByCountry(Map<String,Object> params);
+
     /**
      * 查询指定分析类型的各事业部数据
      * type ：询单金额 、询单数量、报价数量 、报价用时
