@@ -194,7 +194,7 @@ public class ProjectServiceImpl implements ProjectService {
                         throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
                     }
                     projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
-                    projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
+                    projectUpdate.setBuVpAuditerId(project.getBuVpAuditerId());
                     projectUpdate.setCeo(project.getCeo());
                     projectUpdate.setCeoId(project.getCeoId());
                     projectUpdate.setChairman(project.getChairman());
@@ -424,7 +424,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
         }
         projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
-        projectUpdate.setBuvVpAuditerId(project.getBuvVpAuditerId());
+        projectUpdate.setBuVpAuditerId(project.getBuVpAuditerId());
         projectUpdate.setCeo(project.getCeo());
         projectUpdate.setCeoId(project.getCeoId());
         projectUpdate.setChairman(project.getChairman());
@@ -1193,7 +1193,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 6:
                         if (auditingLevel > 1) {
                             auditingProcess_i = "7"; //
-                            auditingUserId_i = "31973"; //黄永霞
+                            auditingUserId_i = project.getBuVpAuditerId().toString(); //黄永霞 2018 1106修改为选填
                             break;
                         }
                     case 7:

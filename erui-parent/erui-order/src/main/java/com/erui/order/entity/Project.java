@@ -201,7 +201,7 @@ public class Project {
     private String buVpAuditer;      //'事业部vp审核人',
 
     @Column(name = "bu_vp_auditer_id")
-    private Integer buvVpAuditerId;   //'事业部vp审核人',
+    private Integer buVpAuditerId;   //'事业部vp审核人',
 
     @Column(name = "ceo_id")
     private Integer ceoId;             //'eo审核人id',
@@ -309,12 +309,12 @@ public class Project {
         this.buVpAuditer = buVpAuditer;
     }
 
-    public Integer getBuvVpAuditerId() {
-        return buvVpAuditerId;
+    public Integer getBuVpAuditerId() {
+        return buVpAuditerId;
     }
 
-    public void setBuvVpAuditerId(Integer buvVpAuditerId) {
-        this.buvVpAuditerId = buvVpAuditerId;
+    public void setBuVpAuditerId(Integer buVpAuditerId) {
+        this.buVpAuditerId = buVpAuditerId;
     }
 
     public Integer getCeoId() {

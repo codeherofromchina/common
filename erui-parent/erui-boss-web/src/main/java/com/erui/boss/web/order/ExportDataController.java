@@ -239,6 +239,7 @@ public class ExportDataController {
                 project.setPurchRequisition(null);
                 project.setOrder(null);
                 project.setPurchs(null);
+                project.setProjectProfit(null);
                 project.setRegion(bnMapZhRegion.get(project.getRegion()));
             }
 
