@@ -1193,7 +1193,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 6:
                         if (auditingLevel > 1) {
                             auditingProcess_i = "7"; //
-                            auditingUserId_i = "31973"; //黄永霞
+                            auditingUserId_i = project.getBuvVpAuditerId().toString(); //黄永霞 2018 1106修改为选填
                             break;
                         }
                     case 7:
