@@ -47,6 +47,15 @@ public interface SalesDataService {
      * @return
      */
     Map<String,Object>  selectOrgDetailByType(Map<String,Object> params);
+
+
+    /**
+     * 查询各个品类在给定时间内的数量
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectCategoryNumWhereTime(Map<String, Object> params);
+
     /**
      * 查询指定分析类型的各分类数据
      * type ：询单金额 、询单数量、报价数量

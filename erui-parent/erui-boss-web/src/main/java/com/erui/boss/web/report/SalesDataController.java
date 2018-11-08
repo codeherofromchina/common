@@ -217,6 +217,25 @@ public class SalesDataController {
         return new Result<>(data);
     }
 
+
+    /**
+     * 询报价数据统计- 品类比率
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/selectCategoryNum", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> selectCategoryNum(@RequestBody(required = true) Map<String, Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+
+        Map<String, Object> data = salesDataService.selectCategoryNumWhereTime(params);
+        return new Result<>(data);
+    }
+
     /**
      * 询报价数据统计- 导出品类明细
      *
