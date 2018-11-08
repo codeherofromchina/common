@@ -231,8 +231,19 @@ public class SalesDataController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
+        Map<String,Object> data = null ;
+        String analyzeType = String.valueOf(params.get("type"));
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
+            data = salesDataService.selectCategoryInquiryNum(params);
+        } else if (AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单金额
+            data = salesDataService.selectCategoryInquiryAmount(params);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价金额
+            data = salesDataService.selectCategoryQuoteNum(params);
+        }
 
-        Map<String, Object> data = salesDataService.selectCategoryNumWhereTime(params);
+        if(data == null) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
         return new Result<>(data);
     }
 

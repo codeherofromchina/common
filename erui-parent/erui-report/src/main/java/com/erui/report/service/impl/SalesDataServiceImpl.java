@@ -414,13 +414,56 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     /**
-     *  根据时间查询各分类数据数量在页面求得百分比
+     *  根据时间查询各分类询单数量
      * @param params
      * @return [{category:'钻修井设备',num:6209}...]
      */
     @Override
-    public Map<String, Object> selectCategoryNumWhereTime(Map<String, Object> params) {
-        List<Map<String, Object>> maps = readMapper.selectCategoryNumWhereTime(params);
+    public Map<String, Object> selectCategoryInquiryNum(Map<String, Object> params) {
+        List<Map<String, Object>> maps = readMapper.selectCategoryInquiryNum(params);
+        Map<String,Object> result = new HashMap<>();
+        List<String> names = new ArrayList<>();
+        List<Long> nums = new ArrayList<>();
+        for (Map<String, Object> entry:maps) {
+            names.add(String.valueOf(entry.get("category")));
+            nums.add((Long) entry.get("num"));
+        }
+        result.put("names",names);
+        result.put("nums",nums);
+
+        return result;
+    }
+
+    /**
+     *  根据时间查询各分类询单金额
+     * @param params
+     * @return [{category:'钻修井设备',num:2.4532}...]
+     */
+    @Override
+    public Map<String, Object> selectCategoryInquiryAmount(Map<String, Object> params) {
+        List<Map<String, Object>> maps = readMapper.selectCategoryInquiryAmount(params);
+        Map<String,Object> result = new HashMap<>();
+        List<String> names = new ArrayList<>();
+        List<BigDecimal> nums = new ArrayList<>();
+        for (Map<String, Object> entry:maps) {
+            names.add(String.valueOf(entry.get("category")));
+            nums.add(((BigDecimal) entry.get("num")).setScale(2,BigDecimal.ROUND_DOWN));
+        }
+        result.put("names",names);
+        result.put("nums",nums);
+
+        return result;
+    }
+
+
+    /**
+     *  根据时间查询各分类报价数量
+     * @param params
+     * @return [{category:'钻修井设备',num:6209}...]
+     */
+    @Override
+    public Map<String, Object> selectCategoryQuoteNum(Map<String, Object> params) {
+        List<Map<String, Object>> maps = readMapper.selectCategoryQuoteNum(params);
         Map<String,Object> result = new HashMap<>();
         List<String> names = new ArrayList<>();
         List<Long> nums = new ArrayList<>();

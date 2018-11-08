@@ -161,10 +161,10 @@
 
 
 
-    <!-- 根据时间查询各分类数据数量在页面求得百分比 -->
-    <select id="selectCategoryNumWhereTime" resultType="java.util.Map" parameterType="java.util.Map">
+    <!-- 根据时间查询各分类询单数量 -->
+    <select id="selectCategoryInquiryNum" resultType="java.util.Map" parameterType="java.util.Map">
         SELECT
-            t1.category, COUNT(DISTINCT t1.id) AS num
+            t1.category, COUNT(DISTINCT t2.id) AS num
         FROM
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
@@ -177,14 +177,82 @@
                 AND t2.deleted_flag = 'N'
                 AND t1.category IS NOT NULL
                 AND t1.category != ''
-                AND t3.created_at BETWEEN '2017-08-08' AND '2019-08-08'
+                AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                'BIZ_QUOTING',
+                'LOGI_DISPATCHING',
+                'LOGI_QUOTING',
+                'LOGI_APPROVING',
+                'BIZ_APPROVING',
+                'MARKET_APPROVING',
+                'MARKET_CONFIRMING',
+                'QUOTE_SENT',
+                'INQUIRY_CLOSED')
+                <if test="startTime!=null and endTime!=null">
+                        AND t3.created_at BETWEEN #{startTime} and #{endTime}
+                </if>
+        GROUP BY t1.category
+        ORDER BY 2 DESC
+    </select>
+    <!-- 根据时间查询各分类询单金额 -->
+    <select id="selectCategoryInquiryAmount" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+            t1.category, SUM(t4.total_quote_price)/10000 AS num
+        FROM
+            erui_rfq.inquiry_item t1,
+            erui_rfq.inquiry t2,
+            erui_rfq.inquiry_check_log t3,
+            erui_rfq.final_quote t4
+        WHERE
+            t1.inquiry_id = t2.id
+                AND t1.inquiry_id = t3.inquiry_id
+                AND t3.in_node = 'MARKET_APPROVING'
+                AND t2.id = t4.inquiry_id
+                AND t1.deleted_flag = 'N'
+                AND t2.deleted_flag = 'N'
+                AND t4.deleted_flag = 'N'
+                AND t1.category IS NOT NULL
+                AND t1.category != ''
+                AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                'BIZ_QUOTING',
+                'LOGI_DISPATCHING',
+                'LOGI_QUOTING',
+                'LOGI_APPROVING',
+                'BIZ_APPROVING',
+                'MARKET_APPROVING',
+                'MARKET_CONFIRMING',
+                'QUOTE_SENT',
+                'INQUIRY_CLOSED')
                 <if test="startTime!=null and endTime!=null">
                     AND t3.created_at BETWEEN #{startTime} and #{endTime}
                 </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
-
-
+    </select>
+    <!-- 根据时间查询各分类报价数量 -->
+    <select id="selectCategoryQuoteNum" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+            t1.category, COUNT(DISTINCT t4.id) AS num
+        FROM
+            erui_rfq.inquiry_item t1,
+            erui_rfq.inquiry t2,
+            erui_rfq.inquiry_check_log t3,
+            erui_rfq.final_quote t4
+        WHERE
+            t1.inquiry_id = t2.id
+                AND t1.inquiry_id = t3.inquiry_id
+                AND t2.id = t4.inquiry_id
+                AND t3.in_node = 'MARKET_APPROVING'
+                AND t1.deleted_flag = 'N'
+                AND t2.deleted_flag = 'N'
+                AND t4.deleted_flag = 'N'
+                AND t1.category IS NOT NULL
+                AND t1.category != ''
+                AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+                <if test="startTime!=null and endTime!=null">
+                    AND t3.created_at BETWEEN #{startTime} and #{endTime}
+                </if>
+        GROUP BY t1.category
+        ORDER BY 2 DESC
     </select>
 
     <!-- 查询各分类数据： 询单sku金额 、询单sku数量、报价sku数量、报价sku金额 -->

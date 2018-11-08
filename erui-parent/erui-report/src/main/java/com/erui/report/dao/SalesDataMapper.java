@@ -34,12 +34,23 @@ public interface SalesDataMapper {
     List<Map<String,Object>> selectQuoteCountAndQuoteAmountGroupByCountry(Map<String,Object> params);
 
     /**
-     *  根据时间查询各分类数据数量在页面求得百分比
+     *  根据时间查询各分类询单数量
      * @param params
      * @return [{category:'钻修井设备',num:6209}...]
      */
-    List<Map<String,Object>> selectCategoryNumWhereTime(Map<String,Object> params);
-
+    List<Map<String,Object>> selectCategoryInquiryNum(Map<String,Object> params);
+    /**
+     *  根据时间查询各分类询单金额
+     * @param params
+     * @return [{category:'钻修井设备',num:2.4532}...]
+     */
+    List<Map<String,Object>> selectCategoryInquiryAmount(Map<String,Object> params);
+    /**
+     *  根据时间查询各分类报价数量
+     * @param params
+     * @return [{category:'钻修井设备',num:6209}...]
+     */
+    List<Map<String,Object>> selectCategoryQuoteNum(Map<String,Object> params);
 
 
 

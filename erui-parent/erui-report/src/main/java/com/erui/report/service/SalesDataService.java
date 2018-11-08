@@ -50,11 +50,23 @@ public interface SalesDataService {
 
 
     /**
-     * 查询各个品类在给定时间内的数量
+     * 查询各个品类的询单数量
      * @param params
      * @return
      */
-    Map<String, Object> selectCategoryNumWhereTime(Map<String, Object> params);
+    Map<String, Object> selectCategoryInquiryNum(Map<String, Object> params);
+    /**
+     * 查询各个品类的询单金额
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectCategoryInquiryAmount(Map<String, Object> params);
+    /**
+     * 查询各个品类的报价数量
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectCategoryQuoteNum(Map<String, Object> params);
 
     /**
      * 查询指定分析类型的各分类数据
