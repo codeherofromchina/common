@@ -114,7 +114,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
-
+    @Override
+    public Map<String, List<Object>> visitStatisticsByOrg(Map<String, Object> params) {
+        List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByOrg(params);
+        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+        return result;
+    }
 
     @Override
     public Map<String, List<Object>> visitStatisticsByArea(Map<String, Object> params) {
