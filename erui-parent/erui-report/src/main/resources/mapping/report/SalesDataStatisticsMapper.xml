@@ -13,6 +13,7 @@
         WHERE
             t1.`status` = 'APPROVED'
                 AND t1.supplier_type = 'AGENCY'
+                AND t1.deleted_flag= 'N'
                 AND t1.created_at BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name` ORDER BY 2
         <if test="sort != 1" >
@@ -31,6 +32,7 @@
         WHERE
         t1.`status` = 'APPROVED'
         AND t1.supplier_type = 'AGENCY'
+        AND t1.deleted_flag= 'N'
         AND t1.created_at BETWEEN #{startTime} AND #{endTime}
         GROUP BY t2.`name`
         ORDER BY 2
@@ -53,6 +55,7 @@
         WHERE
         t1.`status` = 'APPROVED'
         AND t1.supplier_type = 'AGENCY'
+        AND t1.deleted_flag= 'N'
         AND t1.created_at BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
         ORDER BY 2
