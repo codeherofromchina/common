@@ -62,6 +62,8 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectProfitDao projectProfitDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
+    @Value("#{orderProp[DING_SEND_SMS]}")
+    private String dingSendSms;  //发钉钉通知接口
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
@@ -432,6 +434,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
         projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
+        sendDingtalk(project.getOrder(), "31025");
+        sendDingtalk(project.getOrder(), "39552");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1011,6 +1015,54 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
+    //钉钉通知 审批人
+    public void sendDingtalk(Order order, String user) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //获取token
+                String eruiToken = (String) ThreadLocalUtil.getObject();
+                logger.info("发送短信的用户token:" + eruiToken);
+                if (StringUtils.isNotBlank(eruiToken)) {
+                    //try {
+                    // 根据id获取商务经办人信息
+                    String jsonParam = "{\"id\":\"" + user + "\"}";
+                    Map<String, String> header = new HashMap<>();
+                    header.put("Cookie", eruiToken);
+                    header.put("Content-Type", "application/json");
+                    header.put("accept", "*/*");
+                    String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                    logger.info("人员详情返回信息：" + userInfo);
+                    //钉钉通知接口头信息
+                    Map<String, String> header2 = new HashMap<>();
+                    header2.put("Cookie", eruiToken);
+                    header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                    // 获取商务经办人手机号
+                    JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                    Integer code = jsonObject.getInteger("code");
+                    String userName = null;  //商务经办人手机号
+                    //if (code == 1) {
+                        JSONObject data = jsonObject.getJSONObject("data");
+                        //userName = data.getString("name");
+                        //发送短信
+                        StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append("toUser=").append(user);
+
+                        //【销售合同审批通知】您好！姜洪伟的订单，已申请销售合同审批。
+                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批001。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                        stringBuffer.append("&type=toUser");
+                        Long startTime = System.currentTimeMillis();
+                        String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                        Long endTime = System.currentTimeMillis();
+                        System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
+                        logger.info("发送钉钉通知返回状态" + s1);
+                   // }
+                }
+            }
+        }).start();
+
+    }
+
     /**
      * 审核项目操作
      *
@@ -1222,6 +1274,7 @@ public class ProjectServiceImpl implements ProjectService {
         checkLogService.insert(checkLog_i);
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
+        sendDingtalk(project.getOrder(), auditingUserId_i);
         project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
