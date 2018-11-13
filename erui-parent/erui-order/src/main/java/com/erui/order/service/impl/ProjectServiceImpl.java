@@ -436,9 +436,9 @@ public class ProjectServiceImpl implements ProjectService {
         //projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
         //sendDingtalk(project.getOrder(), "31025");
         //sendDingtalk(project.getOrder(), "39552");
-        projectUpdate.setAuditingUserId("39427,39427");
-        //sendDingtalk(project.getOrder(), "39427");
-        //sendDingtalk(project.getOrder(), "39427");
+        projectUpdate.setAuditingUserId("39427,39410");
+        sendDingtalk(project.getOrder(), "39427");
+        sendDingtalk(project.getOrder(), "39410");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1019,7 +1019,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     //钉钉通知 审批人
-    public void sendDingtalk(Order order, String user) {
+    private void sendDingtalk(Order order, String user) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -1225,7 +1225,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 3:
                         auditingProcess_i = auditingProcess.replace("3", "4");
                         //auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
-                        auditingUserId_i = auditingUserId.replace("39427", "39427");
+                        auditingUserId_i = auditingUserId.replace("39410", "39427");
                         break;
                     case 4:
                         //String replace2 = auditingUserId.replace("39252", "");
