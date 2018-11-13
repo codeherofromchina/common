@@ -1187,7 +1187,8 @@ public class ProjectServiceImpl implements ProjectService {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
 
                     case 2: // 法务审核
-                        String replace = auditingUserId.replace("31025", "");
+                        //String replace = auditingUserId.replace("31025", "");
+                        String replace = auditingUserId.replace("39427", "");
                         if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
