@@ -433,9 +433,12 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
-        sendDingtalk(project.getOrder(), "31025");
-        sendDingtalk(project.getOrder(), "39552");
+        //projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
+        //sendDingtalk(project.getOrder(), "31025");
+        //sendDingtalk(project.getOrder(), "39552");
+        projectUpdate.setAuditingUserId("39427,39427");
+        //sendDingtalk(project.getOrder(), "39427");
+        //sendDingtalk(project.getOrder(), "39427");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1044,14 +1047,15 @@ public class ProjectServiceImpl implements ProjectService {
                 if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     //获取通知者姓名员工编号
-                    userName = data.getString("name");
+                    //userName = data.getString("name");
                     userNo = data.getString("user_no");
+                    Long startTime = System.currentTimeMillis();
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
-                    stringBuffer.append("&message=您好！" + userName + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                    stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                            ""+startTime+"");
                     stringBuffer.append("&type=userNo");
-                    Long startTime = System.currentTimeMillis();
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();
                     System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
@@ -1220,10 +1224,12 @@ public class ProjectServiceImpl implements ProjectService {
                         break;
                     case 3:
                         auditingProcess_i = auditingProcess.replace("3", "4");
-                        auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
+                        //auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
+                        auditingUserId_i = auditingUserId.replace("39427", "39427");
                         break;
                     case 4:
-                        String replace2 = auditingUserId.replace("39252", "");
+                        //String replace2 = auditingUserId.replace("39252", "");
+                        String replace2 = auditingUserId.replace("39427", "");
                         if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
@@ -1251,13 +1257,15 @@ public class ProjectServiceImpl implements ProjectService {
                     case 7:
                         if (auditingLevel > 2) {
                             auditingProcess_i = "8"; //
-                            auditingUserId_i = "30772"; //杨海涛
+                            //auditingUserId_i = "30772"; //杨海涛
+                            auditingUserId_i = "39427";
                             break;
                         }
                     case 8:
                         if (auditingLevel > 3) {
                             auditingProcess_i = "9"; //
-                            auditingUserId_i = "32046"; //冷成志
+                            //auditingUserId_i = "32046"; //冷成志
+                            auditingUserId_i = "39427";
                             break;
                         }
                     case 9:
