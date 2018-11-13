@@ -1257,12 +1257,12 @@ public class OrderServiceImpl implements OrderService {
 
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws Exception {
+        //获取token
+        final String eruiToken =  (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 //订单下达后通知商务技术经办人
-                //获取token
-                String eruiToken = (String) ThreadLocalUtil.getObject();
                 logger.info("发送短信的用户token:" + eruiToken);
                 if (StringUtils.isNotBlank(eruiToken)) {
                     try {
@@ -1306,50 +1306,52 @@ public class OrderServiceImpl implements OrderService {
 
     //销售订单钉钉通知 审批人
     public void sendDingtalk(Order order, String user) throws Exception {
+        //获取token
+        final String eruiToken =  (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //获取token
-                String eruiToken = (String) ThreadLocalUtil.getObject();
                 logger.info("发送短信的用户token:" + eruiToken);
                 //if (StringUtils.isNotBlank(eruiToken)) {
-                    //try {
-                    // 根据id获取商务经办人信息
-                    String jsonParam = "{\"id\":\"" + user + "\"}";
-                    Map<String, String> header = new HashMap<>();
-                    header.put("Cookie", eruiToken);
-                    //header.put("Cookie", "auth=adf73QWyZ/BwVqlooWdK0mUHiVS/iEEESkGlt8PrD1C1zDU18EqWBm5QUvA; language=zh; eruirsakey=ed55d2b71d144c0eb6ef45e6793730f9; eruitoken=952c880ba8bef88952307839250094e9; JSESSIONID=4C76CAEF4EDE097918BA1D8E42E2C554");
-                    header.put("Content-Type", "application/json");
-                    header.put("accept", "*/*");
-                    String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                    logger.info("人员详情返回信息：" + userInfo);
-                    //钉钉通知接口头信息
-                    Map<String, String> header2 = new HashMap<>();
-                    header2.put("Cookie", eruiToken);
-                    header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-                    JSONObject jsonObject = JSONObject.parseObject(userInfo);
-                    Integer code = jsonObject.getInteger("code");
-                    String userName = null;
-                    //if (code == 1) {
-                        JSONObject data = jsonObject.getJSONObject("data");
-                        //获取通知者姓名
-                     //   userName = data.getString("name");
-                        //发送钉钉通知
-                        StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
-                        stringBuffer.append("toUser=").append(user);
-                        stringBuffer.append("&type=toUser");
-                        Long startTime = System.currentTimeMillis();
-                        String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
-                        Long endTime = System.currentTimeMillis();
-                        System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
-                        logger.info("发送钉钉通知返回状态" + s1);
-                    //}
-                    //} catch (Exception e) {
-                    //    throw new MyException(String.format("%s%s%s", "发送钉钉通知异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
-                    //}
+                //try {
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + user + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                //header.put("Cookie", "auth=adf73QWyZ/BwVqlooWdK0mUHiVS/iEEESkGlt8PrD1C1zDU18EqWBm5QUvA; language=zh; eruirsakey=ed55d2b71d144c0eb6ef45e6793730f9; eruitoken=952c880ba8bef88952307839250094e9; JSESSIONID=4C76CAEF4EDE097918BA1D8E42E2C554");
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + userInfo);
+                //钉钉通知接口头信息
+                Map<String, String> header2 = new HashMap<>();
+                header2.put("Cookie", eruiToken);
+                header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                Integer code = jsonObject.getInteger("code");
+                String userName = null;
+                String userNo = null;
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //获取通知者姓名
+                    userName = data.getString("name");
+                    userNo = data.getString("user_no");
+                    //发送钉钉通知
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append("type=userNo");
+                    stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                    stringBuffer.append("&toUser=").append(userNo);
+                    Long startTime = System.currentTimeMillis();
+                    String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                    Long endTime = System.currentTimeMillis();
+                    System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
+                    logger.info("发送钉钉通知返回状态" + s1);
+                }
+                //} catch (Exception e) {
+                //    throw new MyException(String.format("%s%s%s", "发送钉钉通知异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
+                //}
 
-              //  }
+                //  }
             }
         }).start();
 

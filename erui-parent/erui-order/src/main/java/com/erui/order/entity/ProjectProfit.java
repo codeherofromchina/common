@@ -233,7 +233,7 @@ public class ProjectProfit {
     /**
      * 项目核算利润提点比例
      */
-    @Column(name = "raise_rate")
+  /*  @Column(name = "raise_rate")
     private BigDecimal raiseRate;
 
     public BigDecimal getRaiseRate() {
@@ -242,7 +242,7 @@ public class ProjectProfit {
 
     public void setRaiseRate(BigDecimal raiseRate) {
         this.raiseRate = raiseRate;
-    }
+    }*/
 
     public Integer getId() {
         return id;
