@@ -433,12 +433,9 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        //projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
-        //sendDingtalk(projectUpdate.getOrder(), "31025");
-        //sendDingtalk(projectUpdate.getOrder(), "39552");
-        projectUpdate.setAuditingUserId("39427,39410");
-        sendDingtalk(projectUpdate.getOrder(), "39427");
-        sendDingtalk(projectUpdate.getOrder(), "39410");
+        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
+        sendDingtalk(projectUpdate.getOrder(), "31025");
+        sendDingtalk(projectUpdate.getOrder(), "39552");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1187,8 +1184,7 @@ public class ProjectServiceImpl implements ProjectService {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
 
                     case 2: // 法务审核
-                        //String replace = auditingUserId.replace("31025", "");
-                        String replace = auditingUserId.replace("39427", "");
+                        String replace = auditingUserId.replace("31025", "");
                         if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
@@ -1225,13 +1221,10 @@ public class ProjectServiceImpl implements ProjectService {
                         break;
                     case 3:
                         auditingProcess_i = auditingProcess.replace("3", "4");
-                        //auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
-                        auditingUserId_i = auditingUserId.replace("39410", "39412");
+                        auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
                         break;
                     case 4:
-                        //String replace2 = auditingUserId.replace("39252", "");
-                        String replace2 = StringUtils.strip(auditingUserId.replace("39412", ""), ",");
-
+                        String replace2 = auditingUserId.replace("39252", "");
                         if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
@@ -1260,15 +1253,13 @@ public class ProjectServiceImpl implements ProjectService {
                     case 7:
                         if (auditingLevel > 2) {
                             auditingProcess_i = "8"; //
-                            //auditingUserId_i = "30772"; //杨海涛
-                            auditingUserId_i = "39427";
+                            auditingUserId_i = "30772"; //杨海涛
                             break;
                         }
                     case 8:
                         if (auditingLevel > 3) {
                             auditingProcess_i = "9"; //
-                            //auditingUserId_i = "32046"; //冷成志
-                            auditingUserId_i = "39427";
+                            auditingUserId_i = "32046"; //冷成志
                             break;
                         }
                     case 9:
