@@ -1225,11 +1225,11 @@ public class ProjectServiceImpl implements ProjectService {
                     case 3:
                         auditingProcess_i = auditingProcess.replace("3", "4");
                         //auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
-                        auditingUserId_i = auditingUserId.replace("39410", "39427");
+                        auditingUserId_i = auditingUserId.replace("39410", "39412");
                         break;
                     case 4:
                         //String replace2 = auditingUserId.replace("39252", "");
-                        String replace2 = auditingUserId.replace("39427", "");
+                        String replace2 = auditingUserId.replace("39412", "");
                         if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
