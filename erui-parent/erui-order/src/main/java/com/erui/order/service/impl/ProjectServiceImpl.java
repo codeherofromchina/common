@@ -1049,7 +1049,7 @@ public class ProjectServiceImpl implements ProjectService {
                         stringBuffer.append("toUser=").append(user);
 
                         //【销售合同审批通知】您好！姜洪伟的订单，已申请销售合同审批。
-                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                        stringBuffer.append("&message=您好！" + userName + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName()+ "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
                         stringBuffer.append("&type=toUser");
                         Long startTime = System.currentTimeMillis();
                         String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);

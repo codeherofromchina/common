@@ -1336,7 +1336,7 @@ public class OrderServiceImpl implements OrderService {
                      //   userName = data.getString("name");
                         //发送钉钉通知
                         StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批test001。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
                         stringBuffer.append("toUser=").append(user);
                         stringBuffer.append("&type=toUser");
                         Long startTime = System.currentTimeMillis();
