@@ -1023,7 +1023,7 @@ public class ProjectServiceImpl implements ProjectService {
                 //获取token
                 String eruiToken = (String) ThreadLocalUtil.getObject();
                 logger.info("发送短信的用户token:" + eruiToken);
-                if (StringUtils.isNotBlank(eruiToken)) {
+                //if (StringUtils.isNotBlank(eruiToken)) {
                     //try {
                     // 根据id获取商务经办人信息
                     String jsonParam = "{\"id\":\"" + user + "\"}";
@@ -1049,7 +1049,7 @@ public class ProjectServiceImpl implements ProjectService {
                         stringBuffer.append("toUser=").append(user);
 
                         //【销售合同审批通知】您好！姜洪伟的订单，已申请销售合同审批。
-                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批001。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
                         stringBuffer.append("&type=toUser");
                         Long startTime = System.currentTimeMillis();
                         String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
@@ -1057,7 +1057,7 @@ public class ProjectServiceImpl implements ProjectService {
                         System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
                         logger.info("发送钉钉通知返回状态" + s1);
                    // }
-                }
+               // }
             }
         }).start();
 

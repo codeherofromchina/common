@@ -211,13 +211,13 @@ public class HttpRequest {
                     String userName = null;  //商务经办人手机号
                     //if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
-                    userName = data.getString("name");
+                    //userName = data.getString("name");
                     //发送短信
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append("33464");
 
                     //【销售合同审批通知】您好！姜洪伟的订单，已申请销售合同审批。
-                    stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批001。CRM客户代码：" + "shuaiGuo11133"+ "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                    stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批。CRM客户代码：" + "shuaiGuo11133"+ "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
                     stringBuffer.append("&type=toUser");
                     Long startTime = System.currentTimeMillis();
                     String s1 = HttpRequest.sendPost("http://dingtalk.erui.com/notice", stringBuffer.toString(), header2);

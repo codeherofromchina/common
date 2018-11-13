@@ -1312,7 +1312,7 @@ public class OrderServiceImpl implements OrderService {
                 //获取token
                 String eruiToken = (String) ThreadLocalUtil.getObject();
                 logger.info("发送短信的用户token:" + eruiToken);
-                if (StringUtils.isNotBlank(eruiToken)) {
+                //if (StringUtils.isNotBlank(eruiToken)) {
                     //try {
                     // 根据id获取商务经办人信息
                     String jsonParam = "{\"id\":\"" + user + "\"}";
@@ -1336,7 +1336,7 @@ public class OrderServiceImpl implements OrderService {
                      //   userName = data.getString("name");
                         //发送钉钉通知
                         StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批001。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
+                        stringBuffer.append("&message=您好！" + userName + "的订单，已申请销售合同审批test001。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！");
                         stringBuffer.append("toUser=").append(user);
                         stringBuffer.append("&type=toUser");
                         Long startTime = System.currentTimeMillis();
@@ -1349,7 +1349,7 @@ public class OrderServiceImpl implements OrderService {
                     //    throw new MyException(String.format("%s%s%s", "发送钉钉通知异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
                     //}
 
-                }
+              //  }
             }
         }).start();
 

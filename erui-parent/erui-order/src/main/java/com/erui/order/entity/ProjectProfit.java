@@ -230,7 +230,19 @@ public class ProjectProfit {
      */
     @Column(name = "manufacturing_costs")
     private BigDecimal manufacturingCosts;
+    /**
+     * 项目核算利润提点比例
+     */
+    @Column(name = "raise_rate")
+    private BigDecimal raiseRate;
 
+    public BigDecimal getRaiseRate() {
+        return raiseRate;
+    }
+
+    public void setRaiseRate(BigDecimal raiseRate) {
+        this.raiseRate = raiseRate;
+    }
 
     public Integer getId() {
         return id;
