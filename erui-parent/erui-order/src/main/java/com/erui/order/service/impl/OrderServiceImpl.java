@@ -88,6 +88,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+    @Value("#{orderProp[DING_SEND_SMS]}")
+    private String dingSendSms;  //发钉钉通知接口
 
     @Autowired
     private ComplexOrderDao complexOrderDao;
@@ -733,6 +735,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(null);
         }
         order.setAuditingUserId(auditingUserId_i);
+        sendDingtalk(order, auditingUserId_i);
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
@@ -884,7 +887,8 @@ public class OrderServiceImpl implements OrderService {
             }
             //销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
-
+            //钉钉通知回款责任人审批
+            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString());
             //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
@@ -1069,7 +1073,8 @@ public class OrderServiceImpl implements OrderService {
             }
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
-
+            //钉钉通知回款责任人审批人
+            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString());
             //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
@@ -1252,47 +1257,106 @@ public class OrderServiceImpl implements OrderService {
 
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws Exception {
-        //订单下达后通知商务技术经办人
         //获取token
-        String eruiToken = (String) ThreadLocalUtil.getObject();
-        logger.info("发送短信的用户token:" + eruiToken);
-        if (StringUtils.isNotBlank(eruiToken)) {
-            try {
-                // 根据id获取商务经办人信息
-                String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");
-                header.put("accept", "*/*");
-                String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
-                logger.info("人员详情返回信息：" + s);
+        final String eruiToken =  (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //订单下达后通知商务技术经办人
+                logger.info("发送短信的用户token:" + eruiToken);
+                if (StringUtils.isNotBlank(eruiToken)) {
+                    try {
+                        // 根据id获取商务经办人信息
+                        String jsonParam = "{\"id\":\"" + order.getTechnicalId() + "\"}";
+                        Map<String, String> header = new HashMap<>();
+                        header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                        header.put("Content-Type", "application/json");
+                        header.put("accept", "*/*");
+                        String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                        logger.info("人员详情返回信息：" + s);
 
-                // 获取商务经办人手机号
-                JSONObject jsonObject = JSONObject.parseObject(s);
-                Integer code = jsonObject.getInteger("code");
-                String mobile = null;  //商务经办人手机号
-                if (code == 1) {
-                    JSONObject data = jsonObject.getJSONObject("data");
-                    mobile = data.getString("mobile");
-                    //发送短信
-                    Map<String, String> map = new HashMap();
-                    map.put("areaCode", "86");
-                    map.put("to", "[\"" + mobile + "\"]");
-                    map.put("content", "您好，销售合同号：" + order.getContractNo() + "，市场经办人：" + order.getAgentName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
-                    map.put("subType", "0");
-                    map.put("groupSending", "0");
-                    map.put("useType", "订单");
-                    String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
-                    logger.info("发送短信返回状态" + s1);
+                        // 获取商务经办人手机号
+                        JSONObject jsonObject = JSONObject.parseObject(s);
+                        Integer code = jsonObject.getInteger("code");
+                        String mobile = null;  //商务经办人手机号
+                        if (code == 1) {
+                            JSONObject data = jsonObject.getJSONObject("data");
+                            mobile = data.getString("mobile");
+                            //发送短信
+                            Map<String, String> map = new HashMap();
+                            map.put("areaCode", "86");
+                            map.put("to", "[\"" + mobile + "\"]");
+                            map.put("content", "您好，销售合同号：" + order.getContractNo() + "，市场经办人：" + order.getAgentName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                            map.put("subType", "0");
+                            map.put("groupSending", "0");
+                            map.put("useType", "订单");
+                            String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
+                            logger.info("发送短信返回状态" + s1);
+                        }
+
+                    } catch (Exception e) {
+                        throw new MyException(String.format("%s%s%s", "发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
+                    }
+
                 }
-
-            } catch (Exception e) {
-                throw new MyException(String.format("%s%s%s", "发送短信异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
             }
+        }).start();
 
-        }
     }
 
+    //销售订单钉钉通知 审批人
+    public void sendDingtalk(Order order, String user) throws Exception {
+        //获取token
+        final String eruiToken =  (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("发送短信的用户token:" + eruiToken);
+                //if (StringUtils.isNotBlank(eruiToken)) {
+                //try {
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + user + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                //header.put("Cookie", "auth=adf73QWyZ/BwVqlooWdK0mUHiVS/iEEESkGlt8PrD1C1zDU18EqWBm5QUvA; language=zh; eruirsakey=ed55d2b71d144c0eb6ef45e6793730f9; eruitoken=952c880ba8bef88952307839250094e9; JSESSIONID=4C76CAEF4EDE097918BA1D8E42E2C554");
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + userInfo);
+                //钉钉通知接口头信息
+                Map<String, String> header2 = new HashMap<>();
+                header2.put("Cookie", eruiToken);
+                header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                Integer code = jsonObject.getInteger("code");
+                String userName = null;
+                String userNo = null;
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //获取通知者姓名
+                    userName = data.getString("name");
+                    userNo = data.getString("user_no");
+                    //发送钉钉通知
+                    Long startTime = System.currentTimeMillis();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append("type=userNo");
+                    stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                            ""+startTime+"");
+                    stringBuffer.append("&toUser=").append(userNo);
+                    String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                    Long endTime = System.currentTimeMillis();
+                    System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
+                    logger.info("发送钉钉通知返回状态" + s1);
+                }
+                //} catch (Exception e) {
+                //    throw new MyException(String.format("%s%s%s", "发送钉钉通知异常失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sending SMS exceptions to failure"));
+                //}
+
+                //  }
+            }
+        }).start();
+
+    }
 
     @Override
     @Transactional(readOnly = true)

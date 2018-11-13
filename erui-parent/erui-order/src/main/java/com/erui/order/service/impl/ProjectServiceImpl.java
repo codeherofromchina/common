@@ -62,6 +62,8 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectProfitDao projectProfitDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
+    @Value("#{orderProp[DING_SEND_SMS]}")
+    private String dingSendSms;  //发钉钉通知接口
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
@@ -432,6 +434,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
         projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
+        sendDingtalk(projectUpdate.getOrder(), "31025");
+        sendDingtalk(projectUpdate.getOrder(), "39552");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1011,6 +1015,55 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
+    //钉钉通知 审批人
+    private void sendDingtalk(Order order, String user) {
+        //获取token
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("发送短信的用户token:" + eruiToken);
+                //if (StringUtils.isNotBlank(eruiToken)) {
+                //try {
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + user + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + userInfo);
+                //钉钉通知接口头信息
+                Map<String, String> header2 = new HashMap<>();
+                header2.put("Cookie", eruiToken);
+                header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                Integer code = jsonObject.getInteger("code");
+                String userNo = null;
+                String userName = null;  //商务经办人手机号
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //获取通知者姓名员工编号
+                    //userName = data.getString("name");
+                    userNo = data.getString("user_no");
+                    Long startTime = System.currentTimeMillis();
+                    //发送钉钉通知
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append("toUser=").append(userNo);
+                    stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                            ""+startTime+"");
+                    stringBuffer.append("&type=userNo");
+                    String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                    Long endTime = System.currentTimeMillis();
+                    System.out.println("发送通知耗费时间：" + (endTime - startTime) / 1000);
+                    logger.info("发送钉钉通知返回状态" + s1);
+                }
+                // }
+            }
+        }).start();
+
+    }
+
     /**
      * 审核项目操作
      *
@@ -1182,8 +1235,9 @@ public class ProjectServiceImpl implements ProjectService {
                                 auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
                             }
                         } else {
-                            auditingProcess_i = StringUtils.strip(auditingProcess.replace("4", ""), ",");
-                            auditingUserId_i = StringUtils.strip(replace2, ",");
+                            String replaceProcess = auditingProcess.replace("4", "");
+                            auditingProcess_i = StringUtils.strip(replaceProcess,",");
+                            auditingUserId_i = replace2;
                         }
                         break;
                     case 5: // 物流审核
@@ -1222,6 +1276,7 @@ public class ProjectServiceImpl implements ProjectService {
         checkLogService.insert(checkLog_i);
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
+        sendDingtalk(project.getOrder(), auditingUserId_i);
         project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);

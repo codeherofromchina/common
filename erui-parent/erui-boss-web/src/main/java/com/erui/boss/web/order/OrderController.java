@@ -286,6 +286,8 @@ public class OrderController {
      */
     @RequestMapping(value = "auditOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> auditOrder(HttpServletRequest request, @RequestBody AddOrderVo addOrderVo) throws Exception {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         Integer orderId = addOrderVo.getId(); // 订单ID
         String reason = addOrderVo.getAuditingReason(); // 驳回原因
         String type = addOrderVo.getAuditingType(); // 驳回or审核
