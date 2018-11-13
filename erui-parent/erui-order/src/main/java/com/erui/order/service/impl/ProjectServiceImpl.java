@@ -434,11 +434,11 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingLevel(auditingLevel);
         projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
         //projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
-        //sendDingtalk(project.getOrder(), "31025");
-        //sendDingtalk(project.getOrder(), "39552");
+        //sendDingtalk(projectUpdate.getOrder(), "31025");
+        //sendDingtalk(projectUpdate.getOrder(), "39552");
         projectUpdate.setAuditingUserId("39427,39410");
-        sendDingtalk(project.getOrder(), "39427");
-        sendDingtalk(project.getOrder(), "39410");
+        sendDingtalk(projectUpdate.getOrder(), "39427");
+        sendDingtalk(projectUpdate.getOrder(), "39410");
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
