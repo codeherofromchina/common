@@ -66,14 +66,6 @@ public enum ExcelUploadTypeEnum {
         return null;
     }
 
-    public static void main(String[] args) {
-        ExcelUploadTypeEnum[] values = ExcelUploadTypeEnum.values();
-        for (ExcelUploadTypeEnum v : values) {
-            System.out.print(v.getType() + ":" + v.getTable() + ",");
-        }
-
-    }
-
     /**
      * 简单验证单行数据
      *
@@ -97,5 +89,19 @@ public enum ExcelUploadTypeEnum {
 
         return false;
     }
+    public static void main(String[] args) {
+        ExcelUploadTypeEnum[] values = ExcelUploadTypeEnum.values();
+        for (ExcelUploadTypeEnum v : values) {
+            System.out.print(v.getType() + ":" + v.getTable() + ",");
+        }
+        String[] s = {"订单类别", "海外销类型", "销售合同号", "框架协议号", "海外销售合同号", "PO号", /*"物流报价单号",去掉*/
+                "询单号", "订单签约日期", "合同交货日期", "市场经办人员工编号", "获取人员工编号", "签约主体公司", "事业部",
+                "执行分公司", "所属地区", "分销部(获取人所在分类销售)", "国家", "CRM客户代码", "客户类型", "回款负责人员工编号",/*"商务技术经办人员工编号",新添加*/
+                "是否融资项目", "会员类别", "授信情况", "订单类型", "贸易术语", "运输方式",/*"目的港", "目的国", "目的地", 新添加*/ "合同总价", /*"币种",新添加*/
+                "是否含税", "汇率", "合同总价(USD)", "收款方式", "质保金", "预收货款", "收款日期", /*"发货前", "收款日期",去掉*/ "交货要求描述", "客户及项目背景描述",
+                "项目开始日期", "项目名称", "执行单约定交付日期", "合同总价（USD）", "初步利润", "利润额", "执行单变更后日期", "有无项目经理", "下发部门", "项目状态",
+                /*"采购经办人","品控经办人","商务技术经办人",新添加*/ "项目备注"};
 
+
+    }
 }
