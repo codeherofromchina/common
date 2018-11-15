@@ -231,6 +231,16 @@ public class ProjectProfit {
     @Column(name = "manufacturing_costs")
     private BigDecimal manufacturingCosts;
 
+    @Column(name = "raise_rate")
+    private BigDecimal raiseRate;
+
+    public BigDecimal getRaiseRate() {
+        return raiseRate;
+    }
+
+    public void setRaiseRate(BigDecimal raiseRate) {
+        this.raiseRate = raiseRate;
+    }
 
     public Integer getId() {
         return id;
