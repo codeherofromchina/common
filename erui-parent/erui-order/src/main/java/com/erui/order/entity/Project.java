@@ -212,6 +212,20 @@ public class Project {
     private Integer chairmanId;        //董事长审核人id
 
     private String chairman;           //董事长审核人
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "project_attach",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private List<Attachment> attachmentList = new ArrayList<>();
+
+    public List<Attachment> getAttachmentList() {
+        return attachmentList;
+    }
+
+    public void setAttachmentList(List<Attachment> attachmentList) {
+        this.attachmentList = attachmentList;
+    }
 
     public ProjectProfit getProjectProfit() {
         return projectProfit;
@@ -792,6 +806,7 @@ public class Project {
         project.setLogisticsAuditer(this.logisticsAuditer);
         project.setBuAuditerId(this.buAuditerId);
         project.setBuAuditer(this.buAuditer);
+        project.setAttachmentList(this.attachmentList);
         return true;
     }
 

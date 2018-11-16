@@ -644,13 +644,10 @@ public class OrderServiceImpl implements OrderService {
                 //国家负责人审批
                 case 2:
                     //根据订单金额判断 填写审批人级别
-                    if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                        //国家负责人审核完成交给法务审核
-                        auditingProcess_i = "3";
-                        if (order.getAreaLeaderId() != null)
-                            auditingUserId_i = order.getAreaLeaderId().toString();
-                        auditorIds.append("," + auditingUserId_i + ",");
-                    }
+                    //国家负责人审核完成交给法务审核
+                    auditingProcess_i = "3";
+                    auditingUserId_i = "31025";
+                    auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 3: // 法务审核
                     // 添加销售合同号和海外销售合同号
@@ -1278,7 +1275,7 @@ public class OrderServiceImpl implements OrderService {
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws Exception {
         //获取token
-        final String eruiToken =  (String) ThreadLocalUtil.getObject();
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1327,7 +1324,7 @@ public class OrderServiceImpl implements OrderService {
     //销售订单钉钉通知 审批人
     public void sendDingtalk(Order order, String user) throws Exception {
         //获取token
-        final String eruiToken =  (String) ThreadLocalUtil.getObject();
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1361,7 +1358,7 @@ public class OrderServiceImpl implements OrderService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
                     stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                            ""+startTime+"");
+                            "" + startTime + "");
                     stringBuffer.append("&toUser=").append(userNo);
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();
