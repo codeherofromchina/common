@@ -26,4 +26,12 @@ public interface OrderDao extends JpaRepository<Order, Serializable>, JpaSpecifi
     @Modifying
     @Query("update Order o set o.status = 4 ,o.processProgress = 9 where o.id in :ids")
     void updateOrderStatus(@Param(value = "ids") List<Integer> ids);
+    /**
+     * 判断销售合同号是否重复
+     *
+     * @param contractNo
+     * @return Long
+     */
+    @Query(value = "select t1.id from Order t1 where t1.contractNo= :contractNo")
+    List<Integer> findByContractNo(@Param("contractNo") String contractNo);
 }

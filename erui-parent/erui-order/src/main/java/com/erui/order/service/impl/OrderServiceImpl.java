@@ -630,18 +630,11 @@ public class OrderServiceImpl implements OrderService {
 
                     } else {
                     }*/
+                    //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
-                        if (order.getFinancing() == null || order.getFinancing() == 0) {
-                            auditingProcess_i = "6";
-                            auditingUserId_i = order.getTechnicalId().toString();
-                            auditorIds.append("," + auditingUserId_i + ",");
-                        } else {
-                            //若是融资项目
-                            auditingProcess_i = "5"; // 融资审核
-                            auditingUserId_i = order.getFinancingCommissionerId().toString();
-                            auditorIds.append("," + auditingUserId_i + ",");
-                        }
-
+                        auditingProcess_i = "3";
+                        auditingUserId_i = "31025";
+                        auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
                         auditingUserId_i = order.getCountryLeaderId().toString();
@@ -652,43 +645,70 @@ public class OrderServiceImpl implements OrderService {
                 case 2:
                     //根据订单金额判断 填写审批人级别
                     if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                        if (order.getFinancing() == null || order.getFinancing() == 0) {
-                            //若不是融资项目 且订单金额小于10万美元 提交至商品添加
-                            auditingProcess_i = "6";
-                            auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
-                            auditorIds.append("," + auditingUserId_i + ",");
-                        } else if (order.getFinancing() == 1) {
-                            //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
-                            auditingProcess_i = "5"; // 融资审核
-                            auditingUserId_i = order.getFinancingCommissionerId().toString();
-                            auditorIds.append("," + auditingUserId_i + ",");
-                        }
-                    } else {
-                        //订单金额大于10万小于300万 交给区域负责人审核
+                        //国家负责人审核完成交给法务审核
                         auditingProcess_i = "3";
                         if (order.getAreaLeaderId() != null)
                             auditingUserId_i = order.getAreaLeaderId().toString();
                         auditorIds.append("," + auditingUserId_i + ",");
                     }
                     break;
-
-                //区域负责人
-                case 3:
-                    if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                case 3: // 法务审核
+                    // 添加销售合同号和海外销售合同号
+                    String contractNo = addOrderVo.getContractNo();
+                    if (addOrderVo.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
+                        // 销售合同号不能为空
+                        return false;
+                    }
+                    // 判断销售合同号不能重复
+                    List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                        Integer orderId = order.getId();
+                        for (Integer oId : contractNoProjectIds) {
+                            if (oId.intValue() != orderId.intValue()) {
+                                return false;
+                            }
+                        }
+                    }
+                    order.setContractNo(contractNo);
+                    order.getProject().setContractNo(contractNo);
+                    //根据订单金额判断 填写审批人级别
+                    if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
-                            //若不是融资项目 且订单金额小于10万-300万美元 提交至商品添加
-                            auditingProcess_i = "6";
+                            //若不是融资项目 且订单金额小于10万美元 提交至商品添加
+                            auditingProcess_i = "7";
                             auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                             auditorIds.append("," + auditingUserId_i + ",");
                         } else if (order.getFinancing() == 1) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
-                            auditingProcess_i = "5"; // 融资审核
+                            auditingProcess_i = "6"; // 融资审核
+                            auditingUserId_i = order.getFinancingCommissionerId().toString();
+                            auditorIds.append("," + auditingUserId_i + ",");
+                        }
+                    } else {
+                        //订单金额大于10万小于300万 交给区域负责人审核
+                        auditingProcess_i = "4";
+                        if (order.getAreaLeaderId() != null)
+                            auditingUserId_i = order.getAreaLeaderId().toString();
+                        auditorIds.append("," + auditingUserId_i + ",");
+                    }
+                    break;
+                //区域负责人
+                case 4:
+                    if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                        if (order.getFinancing() == null || order.getFinancing() == 0) {
+                            //若不是融资项目 且订单金额小于10万-300万美元 提交至商品添加
+                            auditingProcess_i = "7";
+                            auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                            auditorIds.append("," + auditingUserId_i + ",");
+                        } else if (order.getFinancing() == 1) {
+                            //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
+                            auditingProcess_i = "6"; // 融资审核
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     } else {
                         //订单金额大于300万 交给区域VP审核
-                        auditingProcess_i = "4";
+                        auditingProcess_i = "5";
                         if (order.getAreaVpId() != null)
                             if (order.getAreaVpId() != null)
                                 auditingUserId_i = order.getAreaVpId().toString();
@@ -696,31 +716,31 @@ public class OrderServiceImpl implements OrderService {
                     }
                     break;
                 //区域VP
-                case 4:
+                case 5:
                     if (order.getFinancing() == null || order.getFinancing() == 0) {
                         //若不是融资项目 且订单金额大于1000万美元 提交至商品添加
-                        auditingProcess_i = "6";
+                        auditingProcess_i = "7";
                         auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else if (order.getFinancing() == 1) {
                         //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
-                        auditingProcess_i = "5"; // 融资审核
+                        auditingProcess_i = "6"; // 融资审核
                         auditingUserId_i = order.getFinancingCommissionerId().toString();//郭永涛
                         auditorIds.append("," + auditingUserId_i + ",");
                     }
                     break;
                 //是否融资项目 是 融资审核
-                case 5:
-                    auditingProcess_i = "6";
+                case 6:
+                    auditingProcess_i = "7";
                     auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 //提交商品
-                case 6:
+                case 7:
                     order.setGoodsList(updateOrderGoods(addOrderVo));
                     order.setLogiQuoteNo(addOrderVo.getLogiQuoteNo());
                     auditingStatus_i = 4; // 完成
-                    auditingProcess_i = null; // 无下一审核进度和审核人
+                    auditingProcess_i = "8";// 订单审核完成 无下一审核进度和审核人
                     auditingUserId_i = null;
                     break;
                 default:
