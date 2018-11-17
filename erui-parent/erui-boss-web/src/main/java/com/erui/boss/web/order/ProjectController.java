@@ -99,6 +99,7 @@ public class ProjectController {
             for (Project project : projectPage) {
                 project.setGoodsList(null);
                 project.setPurchRequisition(null);
+                project.setAttachmentList(null);
             }
             return new Result<>(projectPage);
         }
