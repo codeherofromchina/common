@@ -62,10 +62,10 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 }
             }
             result.put("xAxis", dates);
-        } else if (params.get("type").equals("month")) {//处理月的数据
+        } else if (params.get("type").equals("month")) { //处理月的数据
 
-            List<String> dateList = handleMonthToWeekList(dates);//获取每周列表
-            Map<String, Map<String, Object>> dMap = new HashMap<>();//将每个周的数据暂时整理到dMap中
+            List<String> dateList = handleMonthToWeekList(dates); //获取每周列表
+            Map<String, Map<String, Object>> dMap = new HashMap<>(); //将每个周的数据暂时整理到dMap中
             for (String date : dateList) {
                 if (CollectionUtils.isNotEmpty(data)) {
                     for (Map<String, Object> m : data) {
@@ -187,7 +187,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         //查询各大区和国家的数据明细
         List<Map<String, Object>> dataList = readMapper.selectAreaAndCountryDetail(params);
         Map<String, Object> result = new HashMap<>();
-        List<Object> dList = new ArrayList<>();//各大区数据列表存放
+        List<Object> dList = new ArrayList<>(); //各大区数据列表存放
         Set<String> keySet = new HashSet<>();
 
         if (CollectionUtils.isNotEmpty(dataList)) {
@@ -211,7 +211,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                         dataMap.put(areaName, m);
                     }
                 }
-            } else if (StringUtils.isNotEmpty(area) && StringUtils.isEmpty(country)) {//如果只指定了大区，显示该大区下所有国家的数据
+            } else if (StringUtils.isNotEmpty(area) && StringUtils.isEmpty(country)) { //如果只指定了大区，显示该大区下所有国家的数据
                 for (Map<String, Object> m : dataList) {
                     String area1 = m.get("area").toString();
                     String country1 = m.get("country").toString();
@@ -281,9 +281,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                     Long inqCount1 = (Long) o1.get("inqCount");
                     Long inqCount2 = (Long) o2.get("inqCount");
                     if (sortFlag) {
-                        return inqCount1>inqCount2?1:-1;
+                        return inqCount1 > inqCount2 ? 1 : -1;
                     } else {
-                        return inqCount1>=inqCount2?-1:1;
+                        return inqCount1 >= inqCount2 ? -1 : 1;
                     }
                 }
             });
@@ -306,11 +306,11 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             });
             datasList.forEach(vo -> {
                 names.add(vo.get("name"));
-                datas.add(((BigDecimal) vo.get("inqAmount")).divide(new BigDecimal(10000),2,BigDecimal.ROUND_DOWN)); // 转换为万美元
+                datas.add(((BigDecimal) vo.get("inqAmount")).divide(new BigDecimal(10000), 2, BigDecimal.ROUND_DOWN)); // 转换为万美元
             });
         }
-        result.put("names",names);
-        result.put("datas",datas);
+        result.put("names", names);
+        result.put("datas", datas);
         return result;
     }
 
@@ -332,9 +332,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                     Long quoteCount1 = (Long) o1.get("quoteCount");
                     Long quoteCount2 = (Long) o2.get("quoteCount");
                     if (sortFlag) {
-                        return quoteCount1>quoteCount2?1:-1;
+                        return quoteCount1 > quoteCount2 ? 1 : -1;
                     } else {
-                        return quoteCount1>=quoteCount2?-1:1;
+                        return quoteCount1 >= quoteCount2 ? -1 : 1;
                     }
                 }
             });
@@ -357,11 +357,11 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             });
             datasList.forEach(vo -> {
                 names.add(vo.get("name"));
-                datas.add(((BigDecimal) vo.get("quoteAmount")).divide(new BigDecimal(10000),2,BigDecimal.ROUND_DOWN)); // 转换为万美元
+                datas.add(((BigDecimal) vo.get("quoteAmount")).divide(new BigDecimal(10000), 2, BigDecimal.ROUND_DOWN)); // 转换为万美元
             });
         }
-        result.put("names",names);
-        result.put("datas",datas);
+        result.put("names", names);
+        result.put("datas", datas);
         return result;
     }
 
@@ -388,19 +388,19 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         }
         //分析类型 ：默认 、询单数量、询单金额、报价数量、报价金额、报价用时
         String analyzeType = params.get("analyzeType").toString();
-        if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//如果分析类型为询单数量
+        if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //如果分析类型为询单数量
             result.put("orgs", orgList);
             result.put("inqCountList", inqCountList);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
+        } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
             result.put("orgs", orgList);
             result.put("inqAmountList", inqAmountList);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
             result.put("orgs", orgList);
             result.put("quoteCountList", quoteCountList);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //分析类型为报价金额
             result.put("orgs", orgList);
             result.put("quoteAmountList", quoteAmountList);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) {//分析类型为报价用时
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) { //分析类型为报价用时
             result.put("orgs", orgList);
             result.put("inqAmountList", quoteTimeList);
         } else { //默认的总览
@@ -414,65 +414,68 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     /**
-     *  根据时间查询各分类询单数量
+     * 根据时间查询各分类询单数量
+     *
      * @param params
      * @return [{category:'钻修井设备',num:6209}...]
      */
     @Override
     public Map<String, Object> selectCategoryInquiryNum(Map<String, Object> params) {
         List<Map<String, Object>> maps = readMapper.selectCategoryInquiryNum(params);
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         List<String> names = new ArrayList<>();
         List<Long> nums = new ArrayList<>();
-        for (Map<String, Object> entry:maps) {
+        for (Map<String, Object> entry : maps) {
             names.add(String.valueOf(entry.get("category")));
             nums.add((Long) entry.get("num"));
         }
-        result.put("names",names);
-        result.put("nums",nums);
+        result.put("names", names);
+        result.put("nums", nums);
 
         return result;
     }
 
     /**
-     *  根据时间查询各分类询单金额
+     * 根据时间查询各分类询单金额
+     *
      * @param params
      * @return [{category:'钻修井设备',num:2.4532}...]
      */
     @Override
     public Map<String, Object> selectCategoryInquiryAmount(Map<String, Object> params) {
         List<Map<String, Object>> maps = readMapper.selectCategoryInquiryAmount(params);
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         List<String> names = new ArrayList<>();
         List<BigDecimal> nums = new ArrayList<>();
-        for (Map<String, Object> entry:maps) {
+        for (Map<String, Object> entry : maps) {
             names.add(String.valueOf(entry.get("category")));
-            nums.add(((BigDecimal) entry.get("num")).setScale(2,BigDecimal.ROUND_DOWN));
+            nums.add(((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN));
         }
-        result.put("names",names);
-        result.put("nums",nums);
+        result.put("names", names);
+        result.put("nums", nums);
 
         return result;
     }
 
 
     /**
-     *  根据时间查询各分类报价数量
+     * 根据时间查询各分类报价数量
+     *
      * @param params
      * @return [{category:'钻修井设备',num:6209}...]
      */
     @Override
     public Map<String, Object> selectCategoryQuoteNum(Map<String, Object> params) {
         List<Map<String, Object>> maps = readMapper.selectCategoryQuoteNum(params);
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         List<String> names = new ArrayList<>();
         List<Long> nums = new ArrayList<>();
-        for (Map<String, Object> entry:maps) {
+        for (Map<String, Object> entry : maps) {
             names.add(String.valueOf(entry.get("category")));
             nums.add((Long) entry.get("num"));
         }
-        result.put("names",names);
-        result.put("nums",nums);
+        result.put("names", names);
+        result.put("nums", nums);
 
         return result;
     }

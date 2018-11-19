@@ -40,26 +40,26 @@ public class SalesDataController {
         //处理参数
         Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
         Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (startTime == null||StringUtils.isEmpty(params.get("type"))||StringUtils.isEmpty(params.get("analyzeType"))) {
+        if (startTime == null || StringUtils.isEmpty(params.get("type")) || StringUtils.isEmpty(params.get("analyzeType"))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        if(params.get("type").equals("month")){//如果按月查询
-            if(end==null|| startTime.after(end)){
+        if (params.get("type").equals("month")) { //如果按月查询
+            if (end == null || startTime.after(end)) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
             Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
-        }else  if(params.get("type").equals("week")){//如果按周查询
-            if(end==null|| startTime.after(end)){
+            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
+        } else if (params.get("type").equals("week")) { //如果按周查询
+            if (end == null || startTime.after(end)) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
             Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
-        }else if(params.get("type").equals("year")){//如果按年查询
+            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
+        } else if (params.get("type").equals("year")) { //如果按年查询
             Date end2 = DateUtil.getYearLastDay(startTime);
             Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
-            params.put("endTime",DateUtil.formatDate2String(endTime,DateUtil.FULL_FORMAT_STR2));
-        }else {
+            params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
+        } else {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
 
@@ -94,7 +94,7 @@ public class SalesDataController {
      * @return
      */
     @RequestMapping(value = "/inquiryQuoteByCountry", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Result<Object> inquiryQuoteByCountry(@RequestBody(required = true) Map<String,Object> params) {
+    public Result<Object> inquiryQuoteByCountry(@RequestBody(required = true) Map<String, Object> params) {
         //处理参数
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -107,10 +107,10 @@ public class SalesDataController {
         Map<String, Object> data = null;
         if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
             // 询单数量或询单金额
-            data  = salesDataService.selectInquiryInfoByCountry(params);
+            data = salesDataService.selectInquiryInfoByCountry(params);
         } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
             // 报价数量或报价金额
-            data  = salesDataService.selectQuoteInfoByCountry(params);
+            data = salesDataService.selectQuoteInfoByCountry(params);
         } else {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
@@ -231,7 +231,7 @@ public class SalesDataController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        Map<String,Object> data = null ;
+        Map<String, Object> data = null;
         String analyzeType = String.valueOf(params.get("type"));
         if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
             data = salesDataService.selectCategoryInquiryNum(params);
@@ -241,7 +241,7 @@ public class SalesDataController {
             data = salesDataService.selectCategoryQuoteNum(params);
         }
 
-        if(data == null) {
+        if (data == null) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         return new Result<>(data);
@@ -289,17 +289,17 @@ public class SalesDataController {
         if (startTime == null || StringUtils.isEmpty(params.get("type"))) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
-        if (params.get("type").equals("month")) {//如果按月查询
+        if (params.get("type").equals("month")) { //如果按月查询
             if (end == null || startTime.after(end)) {
                 return new Result<>(ResultStatusEnum.PARAM_ERROR);
             }
             Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
             params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("week")) {//如果按周查询
+        } else if (params.get("type").equals("week")) { //如果按周查询
             Date end2 = DateUtil.getDateAfter(startTime, 6);
             Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
             params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
-        } else if (params.get("type").equals("year")) {//如果按年查询
+        } else if (params.get("type").equals("year")) { //如果按年查询
             Date end2 = DateUtil.getYearLastDay(startTime);
             Date endTime = DateUtil.getOperationTime(end2, 23, 59, 59);
             params.put("endTime", DateUtil.formatDate2String(endTime, DateUtil.FULL_FORMAT_STR2));
