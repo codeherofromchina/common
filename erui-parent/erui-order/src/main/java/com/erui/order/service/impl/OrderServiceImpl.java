@@ -1607,7 +1607,7 @@ public class OrderServiceImpl implements OrderService {
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
         Order oc = null;
-        Project project = null;
+        //PurchRequisition purchRequisition = null;
         // 订单总数量
         int orderCount = 0;
         for (int index = 0; index < size; index++) {
@@ -1616,8 +1616,19 @@ public class OrderServiceImpl implements OrderService {
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_MANAGE, response, cellIndex)) {
                 continue;
             }
-            oc = new Order();
-            project = new Project();
+            List<Integer> contractNoProjectIds = orderDao.findByContractNo(strArr[2]);
+            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
+                oc = orderDao.save(byContractNoOrder);
+                  /*  List<Goods> goodsList = order.getGoodsList();
+                    for (Goods gs:goodsList) {
+                        goodsDao.delete(gs);
+                    }*/
+            } else {
+                oc = orderDao.save(oc);
+            }
+            //purchRequisition = new PurchRequisition();
+
             if (strArr[0] != null) {
                 oc.setOrderCategory(Integer.parseInt(strArr[0]));
             }
@@ -1628,33 +1639,35 @@ public class OrderServiceImpl implements OrderService {
             oc.setFrameworkNo(strArr[3]);
             oc.setContractNoOs(strArr[4]);
             oc.setPoNo(strArr[5]);
-            oc.setLogiQuoteNo(strArr[6]);
-            oc.setInquiryNo(strArr[7]);
-            if (strArr[8] != null) {
-                Date signingDate = DateUtil.parseString2DateNoException(strArr[8], "yyyy-MM-dd");
+            oc.setInquiryNo(strArr[6]);
+            //订单签约日期
+            if (strArr[7] != null) {
+                Date signingDate = DateUtil.parseString2DateNoException(strArr[7], "yyyy-MM-dd");
                 oc.setSigningDate(signingDate);
             }
+            //合同交货日期
+            if (strArr[8] != null) {
+                oc.setDeliveryDate(strArr[8]);
+            }
+            //市场经办人员工编号
             if (strArr[9] != null) {
-                oc.setDeliveryDate(strArr[9]);
+                oc.setAgentId(Integer.parseInt(strArr[9]));
             }
             if (strArr[10] != null) {
-                oc.setAgentId(Integer.parseInt(strArr[10]));
+                oc.setAcquireId(Integer.parseInt(strArr[10]));
             }
-            if (strArr[11] != null) {
-                oc.setAcquireId(Integer.parseInt(strArr[11]));
-            }
-            oc.setSigningCo(strArr[12]);
+            oc.setSigningCo(strArr[11]);
             /*if (strArr[13] != null) {
                 oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
             }*/
-            oc.setBusinessUnitName(strArr[13]);
+            oc.setBusinessUnitName(strArr[12]);
            /* if (strArr[14] != null) {
                 oc.setExecCoId(Integer.parseInt(strArr[14]));
             }*/
             //执行分公司
-            oc.setExecCoName(strArr[14]);
+            oc.setExecCoName(strArr[13]);
 
-            oc.setRegion(strArr[15]);
+            oc.setRegion(strArr[14]);
           /*  if (strArr[15] != null) {
                 try {
                     oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
@@ -1665,17 +1678,23 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
             }*/
-            oc.setDistributionDeptName(strArr[16]);
+            oc.setDistributionDeptName(strArr[15]);
             // 国家
-            oc.setCountry(strArr[17]);
+            oc.setCountry(strArr[16]);
             //订单号
-            oc.setCrmCode(strArr[18]);
+            oc.setCrmCode(strArr[17]);
             //客户类型
-            if (strArr[19] != null) {
-                oc.setCustomerType(Integer.parseInt(strArr[19]));
+            if (strArr[18] != null) {
+                oc.setCustomerType(Integer.parseInt(strArr[18]));
             }
             //回款责任人
-            oc.setPerLiableRepay(strArr[20]);
+            if (strArr[19] != null) {
+                oc.setPerLiableRepayId(Integer.parseInt(strArr[19]));
+            }
+            if (strArr[20] != null) {
+                oc.setTechnicalId(Integer.parseInt(strArr[20]));
+                oc.setTechnicalId(Integer.parseInt(strArr[20]));
+            }
             //是否融资
             if (strArr[21] != null) {
                 oc.setFinancing(Integer.parseInt(strArr[21]));
@@ -1694,25 +1713,32 @@ public class OrderServiceImpl implements OrderService {
             oc.setTradeTerms(strArr[25]);
             //运输方式
             oc.setTransportType(strArr[26]);
-            if (strArr[27] != null) {
-                try {
-                    oc.setTotalPrice(new BigDecimal(strArr[27]));
-                } catch (Exception ex) {
-                    logger.error(ex.getMessage());
-                    response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价（美元）非数字");
-                    continue;
-                }
-            }
-            //是否含税
-            if (strArr[28] != null) {
-                oc.setTaxBearing(Integer.parseInt(strArr[28]));
-            }
-            //  汇率  strArr[29]
+            oc.setToPort(strArr[27]);
+            oc.setToCountry(strArr[28]);
+            oc.setToPlace(strArr[29]);
             //合同总价
             if (strArr[30] != null) {
                 try {
-                    oc.setTotalPriceUsd(new BigDecimal(strArr[30]));
+                    oc.setTotalPrice(new BigDecimal(strArr[30]));
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                    response.incrFail();
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "合同总价非数字");
+                    continue;
+                }
+            }
+            oc.setCurrencyBn(strArr[31]);
+            //是否含税
+            if (strArr[32] != null) {
+                oc.setTaxBearing(Integer.parseInt(strArr[32]));
+            }
+            //  汇率  strArr[29]
+            if (strArr[33] != null) {
+                oc.setExchangeRate(new BigDecimal(strArr[33]));
+            }
+            if (strArr[34] != null) {
+                try {
+                    oc.setTotalPrice(new BigDecimal(strArr[34]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -1720,10 +1746,10 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
             }
-            oc.setPaymentModeBn(strArr[31]);
-            if (strArr[33] != null) {
+            oc.setPaymentModeBn(strArr[35]);
+            if (strArr[36] != null) {
                 try {
-                    oc.setQualityFunds(new BigDecimal(strArr[32]));
+                    oc.setQualityFunds(new BigDecimal(strArr[36]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -1733,9 +1759,9 @@ public class OrderServiceImpl implements OrderService {
             }
             OrderPayment orderPayment = new OrderPayment();
             ArrayList<OrderPayment> paymentList = new ArrayList<>();
-            if (strArr[33] != null) {
+            if (strArr[37] != null) {
                 try {
-                    orderPayment.setMoney(new BigDecimal(strArr[33]));
+                    orderPayment.setMoney(new BigDecimal(strArr[37]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -1743,24 +1769,15 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
                 orderPayment.setType(1);
-                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[34], "yyyy-MM-dd"));
+                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[38], "yyyy-MM-dd"));
                 paymentList.add(orderPayment);
             }
-            if (strArr[35] != null) {
-                try {
-                    orderPayment.setMoney(new BigDecimal(strArr[35]));
-                } catch (Exception ex) {
-                    logger.error(ex.getMessage());
-                    response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "质保金 非数字");
-                    continue;
-                }
-                orderPayment.setType(2);
-                orderPayment.setReceiptDate(DateUtil.parseString2DateNoException(strArr[36], "yyyy-MM-dd"));
-                paymentList.add(orderPayment);
-            }
-            oc.setDeliveryRequires(strArr[37]);
-            oc.setCustomerContext(strArr[38]);
+            oc.setDeliveryRequires(strArr[39]);
+            oc.setCustomerContext(strArr[40]);
+            oc.setBusinessUnitId(9970);
+            oc.setAuditingProcess(null);
+            oc.setAuditingStatus(4);
+            oc.setDeleteFlag(Boolean.FALSE);
             Order order = null;
             try {
                 order = orderDao.save(oc);
@@ -1770,18 +1787,24 @@ public class OrderServiceImpl implements OrderService {
                 continue;
             }
             //添加项目
+            Project project = null;
+            if (order.getProject() == null) {
+                project = new Project();
+            } else {
+                project = order.getProject();
+            }
             project.setOrder(order);
             project.setContractNo(strArr[2]);
-            project.setStartDate(DateUtil.parseString2DateNoException(strArr[39], "yyyy-MM-dd"));
-            project.setProjectName(strArr[40]);
+            project.setStartDate(DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd"));
+            project.setProjectName(strArr[42]);
             // 国家
-            project.setCountry(strArr[17]);
+            project.setCountry(strArr[16]);
             //执行约定交付日期
-            project.setDeliveryDate(strArr[41]);
+            project.setDeliveryDate(strArr[43]);
             //合同总价
-            if (strArr[42] != null) {
+            if (strArr[44] != null) {
                 try {
-                    project.setTotalPriceUsd(new BigDecimal(strArr[42]));
+                    project.setTotalPriceUsd(new BigDecimal(strArr[44]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -1789,9 +1812,9 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
             }
-            if (strArr[43] != null) {
+            if (strArr[45] != null) {
                 try {
-                    project.setProfitPercent(new BigDecimal(strArr[43]));
+                    project.setProfitPercent(new BigDecimal(strArr[45]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -1799,13 +1822,13 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
             }
-            if (strArr[44] != null) {
+            if (strArr[46] != null) {
                 try {
-                    project.setProfit(new BigDecimal(strArr[44]));
+                    project.setProfit(new BigDecimal(strArr[46]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
-                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "利润（美元）非数字");
+                    response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "利润额（美元）非数字");
                     continue;
                 }
             }
@@ -1815,14 +1838,28 @@ public class OrderServiceImpl implements OrderService {
             }
             project.setRegion(strArr[15]);
             //执行变更日期
-            project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[45], "yyyy-MM-dd"));
-            //有无项目经理
-            if (strArr[46] != null) {
-                project.setHasManager(Integer.parseInt(strArr[46]));
+            if (strArr[47] != null) {
+                project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[47], "yyyy-MM-dd"));
             }
-            project.setBusinessUnitName(strArr[47]);
-            project.setDistributionDeptName(strArr[16]);
-            project.setProjectStatus(strArr[48]);
+            //有无项目经理
+            if (strArr[48] != null) {
+                project.setHasManager(Integer.parseInt(strArr[48]));
+            }
+            project.setBusinessUnitName(strArr[12]);
+            project.setDistributionDeptName(strArr[49]);
+            project.setProjectStatus("EXECUTING");
+            if (strArr[51] != null) {
+                project.setPurchaseUid(Integer.parseInt(strArr[51]));
+            }
+            if (strArr[52] != null) {
+                project.setQualityUid(Integer.parseInt(strArr[52]));
+            }
+            if (strArr[43] != null) {
+                project.setBusinessUid(Integer.parseInt(strArr[53]));
+            }
+            project.setSendDeptId(9970);
+            project.setAuditingProcess(null);
+            project.setAuditingStatus(4);
             /*if (strArr[49] != null) {
                 project.setRemarks(strArr[49]);
             }*/
@@ -1841,6 +1878,7 @@ public class OrderServiceImpl implements OrderService {
             }*/
             try {
                 projectDao.save(project);
+
             } catch (Exception e) {
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
@@ -1850,6 +1888,79 @@ public class OrderServiceImpl implements OrderService {
         }
 
 
+        response.getFailItems();
+        response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
+        response.setDone(true);
+        return response;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ImportDataResponse importGoods(List<String[]> datas, boolean testOnly) {
+        ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
+        response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        int size = datas.size();
+        Goods goods = null;
+        //PurchRequisition purchRequisition = null;
+        // 订单总数量
+        int orderCount = 0;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int index = 0; index < size; index++) {
+            int cellIndex = index + 2; // 数据从第二行开始
+            String[] strArr = datas.get(index);
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.GOODS_MANAGE, response, cellIndex)) {
+                continue;
+            }
+            List<Integer> contractNoProjectIds = orderDao.findByContractNo(strArr[0]);
+            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                Order byContractNoOrId = orderDao.findByContractNoOrId(strArr[0], null);
+                if (byContractNoOrId.getProject().getPurchRequisition() == null) {
+                    goodsDao.delete(byContractNoOrId.getGoodsList());
+                    goods = new Goods();
+                    goods.setOrder(byContractNoOrId);
+                    goods.setProject(byContractNoOrId.getProject());
+                    if (strArr[0] != null) {
+                        goods.setContractNo(strArr[0]);
+                    }
+                    if (strArr[2] != null) {
+                        goods.setSku(strArr[2]);
+                    }
+                    goods.setNameEn(strArr[3]);
+                    goods.setNameZh(strArr[4]);
+                    goods.setMeteName(strArr[5]);
+                    if (strArr[6] != null) {
+                        goods.setContractGoodsNum(Integer.parseInt(strArr[6]));
+                    }
+                    //单价
+                    if (strArr[7] != null) {
+                        try {
+                            goods.setPrice(new BigDecimal(strArr[7]));
+                        } catch (Exception ex) {
+                            logger.error(ex.getMessage());
+                            response.incrFail();
+                            response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, "商品价格非数字");
+                            continue;
+                        }
+                    }
+                    goods.setDepartment(strArr[8]);
+                    goods.setUnit(strArr[9]);
+                    goods.setBrand(strArr[10]);
+                    goods.setModel(strArr[11]);
+                } else {
+                    System.out.println("问题销售合同号" + stringBuilder.append(" '" + strArr[0] + "' "));
+                }
+            }
+            try {
+                if (goods != null)
+                    goodsDao.save(goods);
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            response.incrSuccess();
+            orderCount++;
+        }
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);

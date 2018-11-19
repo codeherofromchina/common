@@ -46,7 +46,7 @@ public class ImportController {
     @ResponseBody
     public Object importExcel(HttpServletRequest request,
                               @RequestParam(value = "file", required = true) MultipartFile file,
-                              @RequestParam(value = "type", required = true) Integer type){
+                              @RequestParam(value = "type", required = true) Integer type) {
 
         String contentType = file.getContentType();
         String originalFilename = file.getOriginalFilename();
@@ -65,7 +65,7 @@ public class ImportController {
         }
         // 经过上面初步判断后，保存文件到本地 和fastDFS
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
-       // String[] groups = null;
+        // String[] groups = null;
       /*  try {
             byte[] bytes = file.getBytes();
             groups = FastDFSUtil.uploadFile("group1", bytes, ".xlsx", null);
@@ -95,7 +95,7 @@ public class ImportController {
             // 整理结果集并返回
             Result<Object> result = new Result<Object>();
             Map<String, Object> data = new HashMap<>();
-           // data.put("tmpFileName", groups[1]);
+            // data.put("tmpFileName", groups[1]);
             data.put("type", typeEnum.getType());
             data.put("response", importDataResponse);
             result.setData(data);
@@ -247,6 +247,7 @@ public class ImportController {
             return new Result<Object>(ResultStatusEnum.EXCEL_OPERATOR_FAIL);
         }
     }*/
+
     /**
      * 选择具体使用什么业务类导入数据
      *
@@ -269,6 +270,10 @@ public class ImportController {
             case PROJECT_MANAGE:
                 logger.info("导入项目管理校验数据");
                 response = orderService.importProjectData(datas, testOnly);
+                break;
+            case GOODS_MANAGE:
+                logger.info("导入商品校验数据");
+                response = orderService.importGoods(datas, testOnly);
                 break;
             default:
                 response = new ImportDataResponse();
