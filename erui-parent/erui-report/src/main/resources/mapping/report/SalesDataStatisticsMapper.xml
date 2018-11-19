@@ -234,9 +234,14 @@
                 AND t1.id NOT IN (SELECT
                     id
                 FROM
-                    erui_rfq.inquiry t3
+                    erui_rfq.inquiry t3,
+                    (
+                        SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+                        erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+                    ) as z
                 WHERE
-                    t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                    z.log_inquiry_id = t3.id
+                    AND t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
                         'BIZ_QUOTING',
                         'LOGI_DISPATCHING',
                         'LOGI_QUOTING',
@@ -246,7 +251,7 @@
                         'MARKET_CONFIRMING',
                         'QUOTE_SENT',
                         'INQUIRY_CLOSED')
-                        AND t3.inflow_time BETWEEN DATE_ADD(#{startTime},
+                        AND z.log_create_at BETWEEN DATE_ADD(#{startTime},
                         INTERVAL - 6 MONTH) AND #{endTime})
         GROUP BY t3.`name`
     </select>
@@ -265,9 +270,14 @@
         AND t1.id IN (SELECT
         buyer_id
         FROM
-        erui_rfq.inquiry t3
+        erui_rfq.inquiry t3,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+        ) as z
         WHERE
-        t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+        t3.id = z.log_inquiry_id
+        AND t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
         'BIZ_QUOTING',
         'LOGI_DISPATCHING',
         'LOGI_QUOTING',
@@ -277,8 +287,8 @@
         'MARKET_CONFIRMING',
         'QUOTE_SENT',
         'INQUIRY_CLOSED')
-        AND t3.inflow_time <![CDATA[ <= ]]>  #{endTime}
-        AND t3.inflow_time <![CDATA[ >= ]]> DATE_ADD(#{startTime},
+        AND z.log_create_at <![CDATA[ <= ]]>  #{endTime}
+        AND z.log_create_at <![CDATA[ >= ]]> DATE_ADD(#{startTime},
         INTERVAL - 3 MONTH)
         GROUP BY buyer_id)
         GROUP BY t3.`name`
@@ -336,9 +346,14 @@
         FROM
             erui_rfq.inquiry t1
                 LEFT JOIN
-            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn
+            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+            (
+                SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+            ) as z
         WHERE
-           t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+          t1.id = z.log_inquiry_id
+          AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
@@ -353,9 +368,14 @@
             erui_rfq.inquiry t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-            erui_buyer.buyer t4
+            erui_buyer.buyer t4,
+            (
+                SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+            ) as z
         WHERE
-          t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+          t1.id = z.log_inquiry_id
+          AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
             AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
@@ -369,9 +389,14 @@
         FROM
         erui_rfq.inquiry t1
         LEFT JOIN
-        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+        ) as z
         WHERE
-        t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+        t1.id = z.log_inquiry_id
+        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t1.`status` IN ('BIZ_DISPATCHING',
                 'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
                 'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
@@ -387,9 +412,14 @@
         erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-        erui_buyer.buyer t4
+        erui_buyer.buyer t4,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+        ) as z
         WHERE
-        t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+        t1.id = z.log_inquiry_id
+        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
         AND t1.`status` IN ('BIZ_DISPATCHING',
                 'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
@@ -407,9 +437,13 @@
         erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
-        erui_rfq.final_quote t4
+        erui_rfq.final_quote t4,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+        ) as z
         WHERE
-        t4.inquiry_id = t1.id and t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+        t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
@@ -425,9 +459,14 @@
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
         erui_rfq.final_quote t4,
-        erui_buyer.buyer t5
+        erui_buyer.buyer t5,
+        (
+	        SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+	        erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+	    ) as z
         WHERE
-        t4.inquiry_id = t1.id and t1.inflow_time BETWEEN #{startTime} AND #{endTime}
+        t1.id = z.log_inquiry_id
+        AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t5.id = t1.buyer_id and t5.buyer_level in (52,53)
         AND t1.`status` IN ('MARKET_CONFIRMING',
         'QUOTE_SENT','INQUIRY_CLOSED')
@@ -603,11 +642,16 @@
         SELECT
         org_id, COUNT(1) AS quoteNum, 0 AS doneNum
         FROM
-        erui_rfq.inquiry
+        erui_rfq.inquiry i1,
+        (
+        SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+        erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+        ) as z
         WHERE
-        `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        AND inflow_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY org_id) AS t1
+        z.log_inquiry_id = i1.id
+        AND i1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY i1.org_id) AS t1
         LEFT JOIN
         erui_sys.org t2 ON t1.org_id = t2.id
         GROUP BY t2.`name`
@@ -634,13 +678,18 @@
         GROUP BY t1.region
         UNION ALL
         SELECT
-        area_bn, COUNT(1) AS quoteNum, 0 AS doneNum
+        i1.area_bn, COUNT(1) AS quoteNum, 0 AS doneNum
         FROM
-        erui_rfq.inquiry
+        erui_rfq.inquiry i1,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+        ) as z
         WHERE
-        `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        AND inflow_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY area_bn) AS t1
+        i1.id = z.log_inquiry_id
+        AND i1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY i1.area_bn) AS t1
         LEFT JOIN
         erui_operation.market_area t2 ON t2.bn = t1.area_bn AND t2.lang = 'zh'
         GROUP BY t2.`name`
@@ -667,13 +716,18 @@
             GROUP BY t1.country
               UNION ALL
             SELECT
-            country_bn, COUNT(1) AS quoteNum, 0 AS doneNum
+            i1.country_bn, COUNT(1) AS quoteNum, 0 AS doneNum
             FROM
-            erui_rfq.inquiry
+            erui_rfq.inquiry i1,
+            (
+                SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+            ) as z
             WHERE
-            `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-            AND inflow_time BETWEEN #{startTime} AND #{endTime}
-            GROUP BY country_bn) AS t1
+            i1.id = z.log_inquiry_id
+            AND i1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+            AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
+            GROUP BY i1.country_bn) AS t1
             LEFT JOIN
             erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
             GROUP BY t2.`name`
