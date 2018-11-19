@@ -228,7 +228,7 @@
         WHEN business_unit_id IN (9907) THEN 1
         WHEN business_unit_id IN (9969) THEN 2
         WHEN business_unit_id IN (9970) THEN 3
-        WHEN business_unit_id IN (9928 , 9929, 9931, 9930, 9907) THEN 4
+        WHEN business_unit_id IN (9928 , 9929, 9931, 9930 ) THEN 4
         WHEN business_unit_id IN (9904 , 9905) THEN 5
         WHEN business_unit_id IN (9902 , 9917) THEN 6
         WHEN business_unit_id IN (9903 , 9901) THEN 7
@@ -254,7 +254,7 @@
         WHEN org_id IN (9907) THEN 1
         WHEN org_id IN (9969) THEN 2
         WHEN org_id IN (9970) THEN 3
-        WHEN org_id IN (9928 , 9929, 9931, 9930, 9907) THEN 4
+        WHEN org_id IN (9928 , 9929, 9931, 9930) THEN 4
         WHEN org_id IN (9904 , 9905) THEN 5
         WHEN org_id IN (9902 , 9917) THEN 6
         WHEN org_id IN (9903 , 9901) THEN 7
