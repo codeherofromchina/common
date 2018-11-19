@@ -1054,7 +1054,7 @@ public class ProjectServiceImpl implements ProjectService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                            ""+startTime+"");
+                            "" + startTime + "");
                     stringBuffer.append("&type=userNo");
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();
@@ -1207,8 +1207,8 @@ public class ProjectServiceImpl implements ProjectService {
                             }
                         } else {
                             String replaceProcess = auditingProcess.replace("4", "");
-                            auditingProcess_i = StringUtils.strip(replaceProcess,",");
-                            auditingUserId_i = StringUtils.strip(replace2,",");
+                            auditingProcess_i = StringUtils.strip(replaceProcess, ",");
+                            auditingUserId_i = StringUtils.strip(replace2, ",");
                         }
                         break;
                     case 15: // 物流审核
@@ -1245,7 +1245,11 @@ public class ProjectServiceImpl implements ProjectService {
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
-        order.setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        if (StringUtils.isNotBlank(auditingProcess_i)) {
+            project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+        } else {
+            project.getOrder().setAuditingProcess(null);
+        }
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
         sendDingtalk(project.getOrder(), auditingUserId_i);
