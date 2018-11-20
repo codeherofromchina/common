@@ -18,6 +18,42 @@ public interface SalesDataMapper {
      * @return 询单金额 、询单数量、报价数量
      */
     List<Map<String,Object>> selectAreaAndCountryDetail(Map<String,Object> params);
+
+    /**
+     * 按照国家分类查询询单数量和询单金额信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> selectInqCountAndInqAmountGroupByCountry(Map<String,Object> params);
+
+    /**
+     * 按照国家分类查询报价数量和报价金额信息
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> selectQuoteCountAndQuoteAmountGroupByCountry(Map<String,Object> params);
+
+    /**
+     *  根据时间查询各分类询单数量
+     * @param params
+     * @return [{category:'钻修井设备',num:6209}...]
+     */
+    List<Map<String,Object>> selectCategoryInquiryNum(Map<String,Object> params);
+    /**
+     *  根据时间查询各分类询单金额
+     * @param params
+     * @return [{category:'钻修井设备',num:2.4532}...]
+     */
+    List<Map<String,Object>> selectCategoryInquiryAmount(Map<String,Object> params);
+    /**
+     *  根据时间查询各分类报价数量
+     * @param params
+     * @return [{category:'钻修井设备',num:6209}...]
+     */
+    List<Map<String,Object>> selectCategoryQuoteNum(Map<String,Object> params);
+
+
+
     /**
      * 查询各事业部数据明细
      * @param params

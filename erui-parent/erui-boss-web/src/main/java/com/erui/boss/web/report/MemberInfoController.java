@@ -111,13 +111,17 @@ public class MemberInfoController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         String type = String.valueOf(params.get("type"));
-        if ("1".equals(type)) { // 地区
-            /// 按照地区统计客户拜访统计
+        if ("1".equals(type)) { // 事业部
+            /// 按照事业部统计客户拜访统计
+            data = memberInfoService.visitStatisticsByOrg(params);
+        } else if("2".equals(type)) { // 地区
+            // 按照地区统计客户拜访统计
             data = memberInfoService.visitStatisticsByArea(params);
         } else { // 国家
             /// 按照国家统计客户拜访统计
             data = memberInfoService.visitStatisticsByCountry(params);
         }
+
 
         Result<Object> result = new Result<>();
         if (data == null || data.size() == 0) {
