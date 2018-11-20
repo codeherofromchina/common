@@ -806,7 +806,6 @@ public class Project {
         project.setLogisticsAuditer(this.logisticsAuditer);
         project.setBuAuditerId(this.buAuditerId);
         project.setBuAuditer(this.buAuditer);
-        project.setAttachmentList(this.attachmentList);
         return true;
     }
 

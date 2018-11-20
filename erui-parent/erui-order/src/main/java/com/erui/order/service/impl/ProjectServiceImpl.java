@@ -159,6 +159,7 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
+                project.setAttachmentList(project.getAttachmentList());
                 project.copyProjectDescTo(projectUpdate);
                 //order.setStatus(Order.StatusEnum.DONE.getCode());
                 //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -185,6 +186,7 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
+                    project.setAttachmentList(project.getAttachmentList());
                     Integer auditingLevel = project.getAuditingLevel();
                     Integer orderCategory = order.getOrderCategory();
                     if (orderCategory != null && orderCategory == 1) { // 预投
