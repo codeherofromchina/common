@@ -455,6 +455,10 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
+                // 根据审核进度
+                if (condition.getAuditingProcess() != null) {
+                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     searchList.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));

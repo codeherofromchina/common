@@ -729,6 +729,8 @@ public class OrderServiceImpl implements OrderService {
                 //是否融资项目 是 融资审核
                 case 5:
                     auditingProcess_i = "6";
+                    //设置项目审核流程
+                    order.getProject().setAuditingProcess(auditingProcess_i);
                     auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
@@ -738,6 +740,7 @@ public class OrderServiceImpl implements OrderService {
                     order.setLogiQuoteNo(addOrderVo.getLogiQuoteNo());
                     //订单审核完成后项目才能办理项目
                     order.getProject().setAuditingStatus(1);
+
                     auditingStatus_i = 4; // 完成
                     auditingProcess_i = "6";// 订单审核完成 无下一审核进度和审核人
                     auditingUserId_i = null;
