@@ -1274,11 +1274,6 @@ public class ProjectServiceImpl implements ProjectService {
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
-        if (StringUtils.isNotBlank(auditingProcess_i)) {
-            project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
-        } else {
-            project.getOrder().setAuditingProcess(null);
-        }
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
         sendDingtalk(project.getOrder(), auditingUserId_i);
