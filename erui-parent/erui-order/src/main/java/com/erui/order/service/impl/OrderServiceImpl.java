@@ -652,7 +652,7 @@ public class OrderServiceImpl implements OrderService {
                 case 8: // 法务审核
                     // 添加销售合同号和海外销售合同号
                     String contractNo = addOrderVo.getContractNo();
-                    if (addOrderVo.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
+                    if (order.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         return false;
                     }
