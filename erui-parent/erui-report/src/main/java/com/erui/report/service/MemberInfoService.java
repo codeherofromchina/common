@@ -27,6 +27,12 @@ public interface MemberInfoService {
     // 导出按照国家统计会员等级
     HSSFWorkbook exportMembershipGradeByCountry(Map<String, Object> params);
 
+    /**
+     * 按照事业部统计客户拜访统计
+     * @param params
+     * @return
+     */
+    public Map<String, List<Object>> visitStatisticsByOrg(Map<String, Object> params);
 
     /**
      * 按照地区统计客户拜访统计

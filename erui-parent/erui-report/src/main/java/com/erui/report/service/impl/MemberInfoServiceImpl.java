@@ -114,6 +114,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+    @Override
+    public Map<String, List<Object>> visitStatisticsByOrg(Map<String, Object> params) {
+        List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByOrg(params);
+        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+        return result;
+    }
 
     @Override
     public Map<String, List<Object>> visitStatisticsByArea(Map<String, Object> params) {
@@ -130,13 +136,13 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
         List<Object> row01 = map.get("numList");
         row01.add(0, "总访问（次）");
-//        List<Object> row02 = map.get("avgList");
-//        row02.add(0, "平均访问（次）");
+        List<Object> row02 = map.get("avgList");
+        row02.add(0, "平均访问（次）");
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
-//        rowList.add(row02.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -276,11 +282,16 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         int totalInquiryNum = 0;
         int totalOrderNum = 0;
         BigDecimal oneHundred = new BigDecimal(100);
+        int eruiTotalOrderNum = 0; // 这里需要把orgId为1、2、3的总数加到4上来，sql控制了1、2、3在4的前面
+        int eruiTotalInquiryNum = 0; // 这里需要把orgId为1、2、3的总数加到4上来，sql控制了1、2、3在4的前面
         for (Map<String, Object> map : singleCustomerData) {
             String name = (String) map.get("name");
             if (StringUtils.isBlank(name)) {
                 map.put("name", "其他");
             }
+            Long orgId = (Long) map.get("orgId");
+
+
             BigDecimal inquiryNum = (BigDecimal) map.get("inquiryNum");
             totalInquiryNum += inquiryNum.intValue();
             map.put("inquiryNum", inquiryNum.intValue());// 询单数量转换成整数
@@ -291,6 +302,14 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             bigDecimal = bigDecimal.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN);
             map.put("rate", bigDecimal);
             resultData.add(map);
+            if (orgId != null && orgId == 1 || orgId == 2 || orgId == 3 || orgId == 4) {
+                eruiTotalOrderNum += orderNum.intValue();
+                eruiTotalInquiryNum += inquiryNum.intValue();
+            }
+            if (orgId != null && orgId == 4) {
+                map.put("inquiryNum", eruiTotalInquiryNum);
+                map.put("orderNum", eruiTotalOrderNum);
+            }
         }
         Map<String, Object> total = new HashMap<>();
         total.put("name", "合计");
