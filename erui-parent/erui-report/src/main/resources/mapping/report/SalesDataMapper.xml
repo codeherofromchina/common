@@ -6,107 +6,350 @@
     <!-- 查询销售数据的趋势图-->
     <!-- 2018-07-31 修改，之前是按照rollin_time的时间纬度来划分的，现在修改为按照erui_rfq.inquiry_check_log中事业部审核流出的时间划分 -->
     <select id="selectInqQuoteTrendData" resultType="java.util.Map" parameterType="java.util.Map">
-        <!--
-            SELECT
-            COUNT(1) AS inqCount ,
-            IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
-            SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
-            SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
-            FROM_DAYS(TO_DAYS(z.log_create_at)) AS datetime
-            FROM erui_rfq.v_inquiry_count2
-            left join (
-                SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
-                erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
-            ) as z ON erui_rfq.v_inquiry_count2.id = `z`.`log_inquiry_id`
-            WHERE 1=1
-            <if test="startTime!=null and endTime!=null">
-                and z.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-            </if>
-            GROUP BY TO_DAYS(z.log_create_at) HAVING datetime IS NOT NULL
-        -->
         SELECT
-        COUNT(1) AS inqCount,
-        IFNULL(SUM(IFNULL(total_quote_price, 0.00)),
-        0.00) AS inqAmount,
-        SUM((CASE
-        WHEN
-        quote_status = 'QUOTED'
-        OR quote_status = 'COMPLETED'
-        THEN
-        1
-        ELSE 0
-        END)) AS quoteCount,
-        SUM(IFNULL((CASE
-        WHEN
-        quote_status = 'QUOTED'
-        OR quote_status = 'COMPLETED'
-        THEN
-        total_quote_price
-        ELSE 0.00
-        END),
-        0.00)) AS quoteAmount,
-        FROM_DAYS(TO_DAYS(z.log_create_at)) AS datetime
+            SUM(inqCount) AS inqCount,
+            SUM(inqAmount) AS inqAmount,
+            SUM(quoteCount) AS quoteCount,
+            SUM(quoteAmount) AS quoteAmount,
+            datetime
         FROM
-        erui_rfq.inquiry t1
-        LEFT JOIN
-        erui_rfq.final_quote t2 ON t1.id = t2.inquiry_id,
-        (SELECT
-        inquiry_id AS log_inquiry_id, created_at AS log_create_at
-        FROM
-        erui_rfq.inquiry_check_log
-        WHERE
-        created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-        AND in_node = 'MARKET_APPROVING'
-        GROUP BY inquiry_id) AS z
-        WHERE
-        t1.id = `z`.`log_inquiry_id`
-        GROUP BY TO_DAYS(z.log_create_at)
-        HAVING datetime IS NOT NULL
+            (SELECT
+                COUNT(1) AS inqCount,
+                    SUM(ifnull(t2.total_quote_price,0)) AS inqAmount,
+                    0 AS quoteCount,
+                    0 AS quoteAmount,
+                    FROM_DAYS(TO_DAYS(t3.log_create_at)) AS datetime
+            FROM
+                erui_rfq.inquiry t1, erui_rfq.final_quote t2,
+                (
+                    SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+                    erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+                ) as t3
+            WHERE
+                t1.id = t2.inquiry_id
+                    AND t1.id = t3.log_inquiry_id
+                    AND t3.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                    AND t1.deleted_flag = 'N'
+                    AND t1.`status` != 'DRAFT' GROUP BY TO_DAYS(t3.log_create_at) UNION ALL SELECT
+                0 AS inqCount,
+                    0 AS inqAmount,
+                    COUNT(1) AS quoteCount,
+                    SUM(ifnull(t2.total_quote_price,0)) AS quoteAmount,
+                    FROM_DAYS(TO_DAYS(t3.log_create_at)) AS datetime
+            FROM
+                erui_rfq.inquiry t1, erui_rfq.final_quote t2,
+                (
+                    SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
+                    erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+                ) as t3
+            WHERE
+                t1.id = t2.inquiry_id
+                    AND t2.deleted_flag = 'N'
+                    AND t1.deleted_flag = 'N'
+                    AND t1.`status` != 'DRAFT'
+                    AND t3.log_inquiry_id = t1.id
+                    AND t3.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+            GROUP BY TO_DAYS(t3.log_create_at)) AS t
+        GROUP BY datetime
     </select>
 
     <!-- 查询各大区和国家的数据明细 ： 询单金额 、询单数量、报价数量-->
     <!-- 2018-07-31 修改，之前是按照rollin_time的时间纬度来划分的，现在修改为按照erui_rfq.inquiry_check_log中事业部审核流出的时间划分 -->
     <select id="selectAreaAndCountryDetail" resultType="java.util.Map" parameterType="java.util.Map">
         SELECT
-        COUNT(1) AS inqCount ,
-        IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
-        SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
-        SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
-        inquiry_area AS area,
-        inquiry_unit AS country
-        FROM erui_rfq.v_inquiry_count2
-        left join (
-            SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
-        ) as z ON erui_rfq.v_inquiry_count2.id = `z`.`log_inquiry_id`
-        WHERE 1=1
+        SUM(inqCount) AS inqCount,
+        SUM(inqAmount) AS inqAmount,
+        SUM(quoteCount) AS quoteCount,
+        SUM(quoteAmount) AS quoteAmount,
+        d.`name` AS area,
+        b.`name` AS country
+        FROM
+        (SELECT
+        1 AS inqCount,
+        IFNULL(t2.total_quote_price, 0) AS inqAmount,
+        0 AS quoteCount,
+        0 AS quoteAmount,
+        t1.id AS inquiryId,
+        t1.country_bn AS country_bn
+        FROM
+        erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
+        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        in_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id) AS t3
+        WHERE
+        t1.id = t2.inquiry_id
+        AND t1.id = t3.log_inquiry_id
         <if test="startTime!=null and endTime!=null">
-            <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN #{startTime} and #{endTime}
+            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
         </if>
-        GROUP BY inquiry_area ,inquiry_unit HAVING area IS NOT NULL AND country IS NOT NULL
+        AND t1.deleted_flag = 'N'
+        AND t1.`status` != 'DRAFT' UNION ALL SELECT
+        0 AS inqCount,
+        0 AS inqAmount,
+        1 AS quoteCount,
+        IFNULL(t2.total_quote_price, 0) AS quoteAmount,
+        t1.id AS inquiryId,
+        t1.country_bn AS country_bn
+        FROM
+        erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
+        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        in_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id) AS t3
+        WHERE
+        t1.id = t2.inquiry_id
+        AND t2.deleted_flag = 'N'
+        AND t1.deleted_flag = 'N'
+        AND t1.`status` != 'DRAFT'
+        AND t3.log_inquiry_id = t1.id
+        <if test="startTime!=null and endTime!=null">
+            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) as a
+        LEFT JOIN
+        `erui_dict`.`country` `b` ON `a`.`country_bn` = `b`.`bn`
+        AND `b`.`lang` = 'zh'
+        AND `b`.`deleted_flag` = 'N'
+        LEFT JOIN
+        `erui_operation`.`market_area_country` `c` ON `a`.`country_bn` = `c`.`country_bn`
+        LEFT JOIN
+        `erui_operation`.`market_area` `d` ON `c`.`market_area_bn` = `d`.`bn`
+        AND `d`.`lang` = 'zh'
+        AND `d`.`deleted_flag` = 'N'
+        GROUP BY d.`name` , b.`name`
+        HAVING d.`name` IS NOT NULL AND b.`name` IS NOT NULL
     </select>
+
+
+    <select id="selectInqCountAndInqAmountGroupByCountry" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+          t2.`name`,
+          COUNT(1) AS inqCount,
+          SUM(IFNULL(t3.total_quote_price, 0)) AS inqAmount
+        FROM
+          `erui_rfq`.`inquiry` t1
+        LEFT JOIN
+          `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
+            AND t3.deleted_flag = 'N'
+        LEFT JOIN
+          erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
+            AND t4.in_node = 'MARKET_APPROVING',
+              `erui_dict`.`country` t2
+        WHERE
+            t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
+            and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
+            <if test="startTime!=null and endTime!=null">
+                AND `t4`.`created_at` BETWEEN #{startTime} and #{endTime}
+            </if>
+        GROUP BY t2.bn , t2.`name`;
+    </select>
+
+    <select id="selectQuoteCountAndQuoteAmountGroupByCountry" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+          t2.`name`,
+          COUNT(1) AS quoteCount,
+          SUM(IFNULL(t3.total_quote_price, 0)) AS quoteAmount
+        FROM
+          `erui_rfq`.`inquiry` t1
+        LEFT JOIN
+          `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
+            AND t3.deleted_flag = 'N'
+        LEFT JOIN
+            erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
+            AND t4.in_node = 'MARKET_APPROVING',
+              `erui_dict`.`country` t2
+        WHERE
+            t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
+            and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
+            <if test="startTime!=null and endTime!=null">
+                AND `t4`.`created_at` BETWEEN #{startTime} and #{endTime}
+            </if>
+        GROUP BY t2.bn , t2.`name`;
+    </select>
+
+
     <!-- 查询事业部数据明细 ： 询单金额 、询单数量、报价数量 、报价用时-->
     <!-- 2018-07-31 修改，之前是按照rollin_time的时间纬度来划分的，现在修改为按照erui_rfq.inquiry_check_log中事业部审核流出的时间划分 -->
     <select id="selectOrgDetail" resultType="java.util.Map" parameterType="java.util.Map">
         SELECT
-        COUNT(1) AS inqCount ,
-        IFNULL(SUM(IFNULL(quotation_price,0.00)),0.00) AS inqAmount ,
-        SUM((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN 1 ELSE 0 END)) AS quoteCount,
-        SUM(IFNULL((CASE WHEN quoted_status ='已报价' OR quoted_status='已完成' THEN quotation_price  ELSE 0.00 END),0.00)) AS quoteAmount,
-        IFNULL(AVG(IFNULL(quote_need_time,0)),0) AS quoteTime,
-        organization AS org
-        FROM erui_rfq.v_inquiry_count2
-        left join (
-            SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
-        ) as z ON erui_rfq.v_inquiry_count2.id = `z`.`log_inquiry_id`
-        WHERE 1=1
+        SUM(inqCount) AS inqCount,
+        SUM(inqAmount) AS inqAmount,
+        SUM(quoteCount) AS quoteCount,
+        SUM(quoteAmount) AS quoteAmount,
+        ifnull(SUM(quoteTime) / SUM(quoteCount),0) AS quoteTime,
+        e.`name` AS org
+        FROM
+        (SELECT
+        1 AS inqCount,
+        IFNULL(t2.total_quote_price, 0) AS inqAmount,
+        0 AS quoteCount,
+        0 AS quoteAmount,
+        t1.id AS inquiryId,
+        t1.org_id AS org_id,
+        0 AS quoteTime
+        FROM
+        erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
+        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        in_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id) AS t3
+        WHERE
+        t1.id = t2.inquiry_id
+        AND t1.id = t3.log_inquiry_id
+        AND t1.deleted_flag = 'N'
         <if test="startTime!=null and endTime!=null">
-            <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN #{startTime} and #{endTime}
+            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
         </if>
-        GROUP BY organization HAVING org IS NOT NULL
+        AND t1.`status` != 'DRAFT' UNION ALL SELECT
+        0 AS inqCount,
+        0 AS inqAmount,
+        1 AS quoteCount,
+        IFNULL(t2.total_quote_price, 0) AS quoteAmount,
+        t1.id AS inquiryId,
+        t1.org_id AS org_id,
+        (UNIX_TIMESTAMP(`t3`.`log_create_at`) - UNIX_TIMESTAMP(`t1`.`created_at`)) / 3600 AS quoteTime
+        FROM
+        erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
+        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        in_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id) AS t3
+        WHERE
+        t1.id = t2.inquiry_id
+        AND t2.deleted_flag = 'N'
+        AND t1.deleted_flag = 'N'
+        AND t1.`status` != 'DRAFT'
+        AND t3.log_inquiry_id = t1.id
+        <if test="startTime!=null and endTime!=null">
+            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS a
+        LEFT JOIN
+        `erui_sys`.`org` `e` ON `a`.`org_id` = `e`.`id`
+        AND `e`.`deleted_flag` = 'N'
+        GROUP BY `e`.`name`
+        HAVING `e`.`name` IS NOT NULL
+    </select>
+
+
+
+
+    <!-- 根据时间查询各分类询单数量 -->
+    <select id="selectCategoryInquiryNum" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+            t1.category, COUNT(DISTINCT t2.id) AS num
+        FROM
+            erui_rfq.inquiry_item t1,
+            erui_rfq.inquiry t2,
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            in_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) as t3
+        WHERE
+            t1.inquiry_id = t2.id
+                AND t1.inquiry_id = t3.log_inquiry_id
+                AND t1.deleted_flag = 'N'
+                AND t2.deleted_flag = 'N'
+                AND t1.category IS NOT NULL
+                AND t1.category != ''
+                AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                'BIZ_QUOTING',
+                'LOGI_DISPATCHING',
+                'LOGI_QUOTING',
+                'LOGI_APPROVING',
+                'BIZ_APPROVING',
+                'MARKET_APPROVING',
+                'MARKET_CONFIRMING',
+                'QUOTE_SENT',
+                'INQUIRY_CLOSED')
+                <if test="startTime!=null and endTime!=null">
+                        AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
+                </if>
+        GROUP BY t1.category
+        ORDER BY 2 DESC
+    </select>
+    <!-- 根据时间查询各分类询单金额 -->
+    <select id="selectCategoryInquiryAmount" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+            t1.category, SUM(t4.total_quote_price)/10000 AS num
+        FROM
+            erui_rfq.inquiry_item t1,
+            erui_rfq.inquiry t2,
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            in_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) as t3,
+            erui_rfq.final_quote t4
+        WHERE
+            t1.inquiry_id = t2.id
+                AND t1.inquiry_id = t3.log_inquiry_id
+                AND t2.id = t4.inquiry_id
+                AND t1.deleted_flag = 'N'
+                AND t2.deleted_flag = 'N'
+                AND t4.deleted_flag = 'N'
+                AND t1.category IS NOT NULL
+                AND t1.category != ''
+                AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                'BIZ_QUOTING',
+                'LOGI_DISPATCHING',
+                'LOGI_QUOTING',
+                'LOGI_APPROVING',
+                'BIZ_APPROVING',
+                'MARKET_APPROVING',
+                'MARKET_CONFIRMING',
+                'QUOTE_SENT',
+                'INQUIRY_CLOSED')
+                <if test="startTime!=null and endTime!=null">
+                    AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
+                </if>
+        GROUP BY t1.category
+        ORDER BY 2 DESC
+    </select>
+    <!-- 根据时间查询各分类报价数量 -->
+    <select id="selectCategoryQuoteNum" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+            t1.category, COUNT(DISTINCT t4.id) AS num
+        FROM
+            erui_rfq.inquiry_item t1,
+            erui_rfq.inquiry t2,
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            in_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) as t3,
+            erui_rfq.final_quote t4
+        WHERE
+            t1.inquiry_id = t2.id
+                AND t1.inquiry_id = t3.log_inquiry_id
+                AND t2.id = t4.inquiry_id
+                AND t1.deleted_flag = 'N'
+                AND t2.deleted_flag = 'N'
+                AND t4.deleted_flag = 'N'
+                AND t1.category IS NOT NULL
+                AND t1.category != ''
+                AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+                <if test="startTime!=null and endTime!=null">
+                    AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
+                </if>
+        GROUP BY t1.category
+        ORDER BY 2 DESC
     </select>
 
     <!-- 查询各分类数据： 询单sku金额 、询单sku数量、报价sku数量、报价sku金额 -->
