@@ -250,11 +250,16 @@
         FROM
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
-            erui_rfq.inquiry_check_log t3
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            in_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) as t3
         WHERE
             t1.inquiry_id = t2.id
-                AND t1.inquiry_id = t3.inquiry_id
-                AND t3.in_node = 'MARKET_APPROVING'
+                AND t1.inquiry_id = t3.log_inquiry_id
                 AND t1.deleted_flag = 'N'
                 AND t2.deleted_flag = 'N'
                 AND t1.category IS NOT NULL
@@ -270,7 +275,7 @@
                 'QUOTE_SENT',
                 'INQUIRY_CLOSED')
                 <if test="startTime!=null and endTime!=null">
-                        AND t3.created_at BETWEEN #{startTime} and #{endTime}
+                        AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
                 </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
@@ -282,12 +287,17 @@
         FROM
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
-            erui_rfq.inquiry_check_log t3,
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            in_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) as t3,
             erui_rfq.final_quote t4
         WHERE
             t1.inquiry_id = t2.id
-                AND t1.inquiry_id = t3.inquiry_id
-                AND t3.in_node = 'MARKET_APPROVING'
+                AND t1.inquiry_id = t3.log_inquiry_id
                 AND t2.id = t4.inquiry_id
                 AND t1.deleted_flag = 'N'
                 AND t2.deleted_flag = 'N'
@@ -305,7 +315,7 @@
                 'QUOTE_SENT',
                 'INQUIRY_CLOSED')
                 <if test="startTime!=null and endTime!=null">
-                    AND t3.created_at BETWEEN #{startTime} and #{endTime}
+                    AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
                 </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
@@ -317,13 +327,18 @@
         FROM
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
-            erui_rfq.inquiry_check_log t3,
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            in_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id) as t3,
             erui_rfq.final_quote t4
         WHERE
             t1.inquiry_id = t2.id
-                AND t1.inquiry_id = t3.inquiry_id
+                AND t1.inquiry_id = t3.log_inquiry_id
                 AND t2.id = t4.inquiry_id
-                AND t3.in_node = 'MARKET_APPROVING'
                 AND t1.deleted_flag = 'N'
                 AND t2.deleted_flag = 'N'
                 AND t4.deleted_flag = 'N'
@@ -331,7 +346,7 @@
                 AND t1.category != ''
                 AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
                 <if test="startTime!=null and endTime!=null">
-                    AND t3.created_at BETWEEN #{startTime} and #{endTime}
+                    AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
                 </if>
         GROUP BY t1.category
         ORDER BY 2 DESC

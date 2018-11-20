@@ -64,6 +64,9 @@ public class SalesDataController {
         }
 
         Map<String, Object> data = salesDataService.selectInqQuoteTrendData(params);
+        if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         return new Result<>(data);
     }
 
@@ -84,6 +87,9 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectAreaDetailByType(params);
+        if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         return new Result<>(data);
     }
 
@@ -113,6 +119,10 @@ public class SalesDataController {
             data = salesDataService.selectQuoteInfoByCountry(params);
         } else {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+
+        if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         }
 
         return new Result<>(data);
@@ -165,6 +175,9 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectOrgDetailByType(params);
+        if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         return new Result<>(data);
     }
 
@@ -214,6 +227,9 @@ public class SalesDataController {
         }
 
         Map<String, Object> data = salesDataService.selectCategoryDetailByType(params);
+        if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         return new Result<>(data);
     }
 
@@ -241,7 +257,7 @@ public class SalesDataController {
             data = salesDataService.selectCategoryQuoteNum(params);
         }
 
-        if (data == null) {
+        if (data == null || data.size() == 0) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         return new Result<>(data);
@@ -308,6 +324,9 @@ public class SalesDataController {
         }
 
         Map<String, Object> data = salesDataService.selectCustomerVisitDetail(params);
+        if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
         return new Result<>(data);
     }
 
