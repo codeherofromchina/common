@@ -23,6 +23,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author:SHIGS
@@ -185,7 +186,8 @@ public class CheckLogServiceImpl implements CheckLogService {
             map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
-        return cList;
+        List<CheckLog> sorted = cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
+        return sorted;
     }
 
     @Deprecated
