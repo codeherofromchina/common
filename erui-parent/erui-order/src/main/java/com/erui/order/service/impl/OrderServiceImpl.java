@@ -632,7 +632,7 @@ public class OrderServiceImpl implements OrderService {
                     }*/
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
-                        auditingProcess_i = "3";
+                        auditingProcess_i = "8";
                         auditingUserId_i = "31025";
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
@@ -645,7 +645,7 @@ public class OrderServiceImpl implements OrderService {
                 case 2:
                     //根据订单金额判断 填写审批人级别
                     //国家负责人审核完成交给法务审核
-                    auditingProcess_i = "3";
+                    auditingProcess_i = "8";
                     auditingUserId_i = "31025";
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
