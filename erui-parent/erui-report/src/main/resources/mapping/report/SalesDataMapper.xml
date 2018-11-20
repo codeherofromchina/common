@@ -22,8 +22,8 @@
             FROM
                 erui_rfq.inquiry t1, erui_rfq.final_quote t2,
                 (
-                    SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-                    erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+                    SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                    erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
                 ) as t3
             WHERE
                 t1.id = t2.inquiry_id
@@ -39,8 +39,8 @@
             FROM
                 erui_rfq.inquiry t1, erui_rfq.final_quote t2,
                 (
-                    SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-                    erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+                    SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                    erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
                 ) as t3
             WHERE
                 t1.id = t2.inquiry_id
@@ -73,11 +73,11 @@
         t1.country_bn AS country_bn
         FROM
         erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        in_node = 'BIZ_DISPATCHING'
+        out_node = 'BIZ_DISPATCHING'
         GROUP BY inquiry_id) AS t3
         WHERE
         t1.id = t2.inquiry_id
@@ -95,11 +95,11 @@
         t1.country_bn AS country_bn
         FROM
         erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        in_node = 'MARKET_CONFIRMING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id) AS t3
         WHERE
         t1.id = t2.inquiry_id
@@ -138,13 +138,13 @@
             AND t3.deleted_flag = 'N'
         LEFT JOIN
           erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
-            AND t4.in_node = 'MARKET_APPROVING',
+            AND t4.out_node = 'MARKET_APPROVING',
               `erui_dict`.`country` t2
         WHERE
             t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
             and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
             <if test="startTime!=null and endTime!=null">
-                AND `t4`.`created_at` BETWEEN #{startTime} and #{endTime}
+                AND `t4`.`out_at` BETWEEN #{startTime} and #{endTime}
             </if>
         GROUP BY t2.bn , t2.`name`;
     </select>
@@ -161,13 +161,13 @@
             AND t3.deleted_flag = 'N'
         LEFT JOIN
             erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
-            AND t4.in_node = 'MARKET_APPROVING',
+            AND t4.out_node = 'MARKET_APPROVING',
               `erui_dict`.`country` t2
         WHERE
             t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
             and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
             <if test="startTime!=null and endTime!=null">
-                AND `t4`.`created_at` BETWEEN #{startTime} and #{endTime}
+                AND `t4`.`out_at` BETWEEN #{startTime} and #{endTime}
             </if>
         GROUP BY t2.bn , t2.`name`;
     </select>
@@ -194,11 +194,11 @@
         0 AS quoteTime
         FROM
         erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        in_node = 'BIZ_DISPATCHING'
+        out_node = 'BIZ_DISPATCHING'
         GROUP BY inquiry_id) AS t3
         WHERE
         t1.id = t2.inquiry_id
@@ -217,11 +217,11 @@
         (UNIX_TIMESTAMP(`t3`.`log_create_at`) - UNIX_TIMESTAMP(`t1`.`created_at`)) / 3600 AS quoteTime
         FROM
         erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        in_node = 'MARKET_CONFIRMING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id) AS t3
         WHERE
         t1.id = t2.inquiry_id
@@ -251,11 +251,11 @@
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
             (SELECT
-            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
             FROM
             erui_rfq.inquiry_check_log
             WHERE
-            in_node = 'MARKET_APPROVING'
+            out_node = 'MARKET_APPROVING'
             GROUP BY inquiry_id) as t3
         WHERE
             t1.inquiry_id = t2.id
@@ -288,11 +288,11 @@
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
             (SELECT
-            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
             FROM
             erui_rfq.inquiry_check_log
             WHERE
-            in_node = 'MARKET_APPROVING'
+            out_node = 'MARKET_APPROVING'
             GROUP BY inquiry_id) as t3,
             erui_rfq.final_quote t4
         WHERE
@@ -328,11 +328,11 @@
             erui_rfq.inquiry_item t1,
             erui_rfq.inquiry t2,
             (SELECT
-            inquiry_id AS log_inquiry_id, MAX(into_at) AS log_create_at
+            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
             FROM
             erui_rfq.inquiry_check_log
             WHERE
-            in_node = 'MARKET_APPROVING'
+            out_node = 'MARKET_APPROVING'
             GROUP BY inquiry_id) as t3,
             erui_rfq.final_quote t4
         WHERE
@@ -366,8 +366,8 @@
         FROM
         erui_rfq.v_inquiry_sku2
         left join (
-            SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'MARKET_APPROVING' group by inquiry_id
         ) as z ON erui_rfq.v_inquiry_sku2.inquiry_id = `z`.`log_inquiry_id`
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
@@ -385,8 +385,8 @@
         FROM
         erui_rfq.v_inquiry_sku2
         left join (
-            SELECT inquiry_id as log_inquiry_id,max(created_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_APPROVING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'MARKET_APPROVING' group by inquiry_id
         ) as z ON erui_rfq.v_inquiry_sku2.inquiry_id = `z`.`log_inquiry_id`
         WHERE 1=1
         <if test="startTime!=null and endTime!=null">
