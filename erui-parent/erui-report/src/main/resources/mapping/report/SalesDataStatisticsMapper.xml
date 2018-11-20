@@ -236,8 +236,8 @@
                 FROM
                     erui_rfq.inquiry t3,
                     (
-                        SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-                        erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+                        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                        erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
                     ) as z
                 WHERE
                     z.log_inquiry_id = t3.id
@@ -272,8 +272,8 @@
         FROM
         erui_rfq.inquiry t3,
         (
-            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
         ) as z
         WHERE
         t3.id = z.log_inquiry_id
@@ -348,8 +348,8 @@
                 LEFT JOIN
             erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
             (
-                SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-                erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+                SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
             ) as z
         WHERE
           t1.id = z.log_inquiry_id
@@ -370,8 +370,8 @@
             erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
             erui_buyer.buyer t4,
             (
-                SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-                erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+                SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
             ) as z
         WHERE
           t1.id = z.log_inquiry_id
@@ -391,8 +391,8 @@
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
         (
-            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
         ) as z
         WHERE
         t1.id = z.log_inquiry_id
@@ -414,8 +414,8 @@
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
         erui_buyer.buyer t4,
         (
-            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'BIZ_DISPATCHING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
         ) as z
         WHERE
         t1.id = z.log_inquiry_id
@@ -439,8 +439,8 @@
         erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
         erui_rfq.final_quote t4,
         (
-            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
         ) as z
         WHERE
         t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
@@ -461,8 +461,8 @@
         erui_rfq.final_quote t4,
         erui_buyer.buyer t5,
         (
-	        SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-	        erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+	        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+	        erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
 	    ) as z
         WHERE
         t1.id = z.log_inquiry_id
@@ -644,8 +644,8 @@
         FROM
         erui_rfq.inquiry i1,
         (
-        SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-        erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+        erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
         ) as z
         WHERE
         z.log_inquiry_id = i1.id
@@ -682,8 +682,8 @@
         FROM
         erui_rfq.inquiry i1,
         (
-            SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-            erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
         ) as z
         WHERE
         i1.id = z.log_inquiry_id
@@ -720,8 +720,8 @@
             FROM
             erui_rfq.inquiry i1,
             (
-                SELECT inquiry_id as log_inquiry_id,max(into_at) as log_create_at FROM
-                erui_rfq.inquiry_check_log where in_node = 'MARKET_CONFIRMING' group by inquiry_id
+                SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
             ) as z
             WHERE
             i1.id = z.log_inquiry_id
