@@ -154,8 +154,8 @@ public class CheckLogServiceImpl implements CheckLogService {
                     // 如果订单审核通过，则所有订单的日志需要返回
                     resultCheckLogs.add(checkLog);
                 } else if (orderAuditingStatus < 4) {
-                    // 如果订单还没有审核通过，则只能返回订单的审核列表
-                    if (checkLog.getType() == 1 && checkLog.getAuditingProcess() < order.getAuditingProcess()) {
+                    // 如果订单还没有审核通过，则只能返回订单的审核列表 因需求修改，法务审核在订单审核里为case： 8
+                    if (checkLog.getType() == 1 && (checkLog.getAuditingProcess() < order.getAuditingProcess() || checkLog.getAuditingProcess() == 8)) {
                         resultCheckLogs.add(checkLog);
                     }
                     continue;
