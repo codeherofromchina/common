@@ -264,13 +264,21 @@
         COUNT(1) AS inquiryNum,
         0 AS orderNum
         FROM
-        erui_rfq.inquiry
+        erui_rfq.inquiry,
+        (SELECT
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
         WHERE
-        deleted_flag = 'N'
-        AND `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        AND quote_status IN ('QUOTED' , 'COMPLETED')
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id) as t4
+        WHERE
+        t4.log_inquiry_id = t1.id AND
+        t1.deleted_flag = 'N'
+        AND t1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         <if test="startTime!=null and startTime!=''">
-            AND inflow_time BETWEEN #{startTime} AND #{endTime}
+            AND t4.log_create_at BETWEEN #{startTime} AND #{endTime}
         </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
