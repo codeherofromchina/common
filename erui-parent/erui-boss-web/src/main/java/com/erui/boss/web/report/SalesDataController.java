@@ -88,7 +88,7 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectAreaDetailByType(params);
-        if (data == null || data.size() == 0 || ((List)data.get("datas")).size() == 0) {
+        if (data == null || data.size() == 0 || ((List) data.get("datas")).size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(data);

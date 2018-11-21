@@ -1,13 +1,11 @@
 package com.erui.report.util;
 
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /*
