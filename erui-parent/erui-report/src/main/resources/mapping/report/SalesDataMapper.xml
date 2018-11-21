@@ -135,18 +135,23 @@
           `erui_rfq`.`inquiry` t1
         LEFT JOIN
           `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
-            AND t3.deleted_flag = 'N'
-        LEFT JOIN
-          erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
-            AND t4.out_node = 'MARKET_APPROVING',
+            AND t3.deleted_flag = 'N',
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            out_node = 'BIZ_DISPATCHING'
+            GROUP BY inquiry_id) as t4,
               `erui_dict`.`country` t2
         WHERE
+            t1.id = t4.log_inquiry_id AND
             t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
             and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
             <if test="startTime!=null and endTime!=null">
-                AND `t4`.`out_at` BETWEEN #{startTime} and #{endTime}
+                AND `t4`.`log_create_at` BETWEEN #{startTime} and #{endTime}
             </if>
-        GROUP BY t2.bn , t2.`name`;
+        GROUP BY t2.bn , t2.`name`
     </select>
 
     <select id="selectQuoteCountAndQuoteAmountGroupByCountry" resultType="java.util.Map" parameterType="java.util.Map">
@@ -158,18 +163,23 @@
           `erui_rfq`.`inquiry` t1
         LEFT JOIN
           `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
-            AND t3.deleted_flag = 'N'
-        LEFT JOIN
-            erui_rfq.inquiry_check_log t4 ON t1.id = `t4`.`inquiry_id`
-            AND t4.out_node = 'MARKET_APPROVING',
+            AND t3.deleted_flag = 'N',
+            (SELECT
+            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+            FROM
+            erui_rfq.inquiry_check_log
+            WHERE
+            out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id) as t4,
               `erui_dict`.`country` t2
         WHERE
+            t1.id = t4.log_inquiry_id AND
             t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
             and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
             <if test="startTime!=null and endTime!=null">
-                AND `t4`.`out_at` BETWEEN #{startTime} and #{endTime}
+                AND `t4`.`log_create_at` BETWEEN #{startTime} and #{endTime}
             </if>
-        GROUP BY t2.bn , t2.`name`;
+        GROUP BY t2.bn , t2.`name`
     </select>
 
 

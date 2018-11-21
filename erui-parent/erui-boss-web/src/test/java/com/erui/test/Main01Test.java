@@ -1,5 +1,8 @@
 package com.erui.test;
 
+import com.erui.comm.util.data.string.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +31,23 @@ public class Main01Test {
         while (tables.next()) {
             tableName = tables.getString("TABLE_NAME");
             tableRemarks = tables.getString("REMARKS");
-            System.out.println("-----------" + tableName + "-------------------" + tableRemarks);
+            String tableTitle = tableName;
+            if (StringUtil.isNotBlank(tableRemarks)) {
+                tableTitle = tableRemarks + "(" + tableTitle + ")";
+            }
+
+            System.out.println(tableTitle);
+            System.out.println("名称 \t字段 \t数据类型 \t默认值 \t允许NULL \t说明");
             colRet = dbMetaData.getColumns(null, "%", tableName, "%");
             while (colRet.next()) {
                 columnName = colRet.getString("COLUMN_NAME");
                 columnType = colRet.getString("TYPE_NAME");
+                String columnDef = colRet.getString("COLUMN_DEF");
                 int datasize = colRet.getInt("COLUMN_SIZE");
                 int digits = colRet.getInt("DECIMAL_DIGITS");
                 int nullable = colRet.getInt("NULLABLE");
                 columnRemarks = colRet.getString("REMARKS");
-                System.out.println(columnName + " \t" + columnType + " \t" + datasize + " \t" + digits + " \t" + nullable + " \t" + columnRemarks);
+                System.out.println(" \t" + columnName + " \t" + columnType+"("+datasize+") \t" + (columnDef==null?"":columnDef) + " \t" + (nullable==1?"TRUE":"FALSE") + " \t" + columnRemarks);
             }
             colRet.close();
             colRet = null;
