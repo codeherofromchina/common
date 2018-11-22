@@ -111,12 +111,12 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 }
             }
             result.put("xAxis", dateList);
-        } else if (params.get("type").equals("year")) {//如果为年 ，展示12个月份的
+        } else if (params.get("type").equals("year")) { //如果为年 ，展示12个月份的
             List<String> monthList = new ArrayList<>();
             for (int i = 1; i <= 12; i++) {
                 monthList.add(i + "月");
             }
-            Map<String, Map<String, Object>> dMap = new HashMap<>();//将每个周的数据暂时整理到dMap中
+            Map<String, Map<String, Object>> dMap = new HashMap<>(); //将每个周的数据暂时整理到dMap中
             for (String month : monthList) {
                 if (CollectionUtils.isNotEmpty(data)) {
                     for (Map<String, Object> m : data) {
@@ -166,13 +166,14 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
         //处理结果
 
-        if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//询单数量
+        if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //询单数量
             result.put("yAxis", inqCounts);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//询单金额
-            result.put("yAxis", inqAmounts);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//报价数量
+        } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //询单金额
+//            result.put("yAxis", inqAmounts); // TODO 这里的询单金额暂时返回报价金额的数据，前端版本冲突，暂时无法修改
+            result.put("yAxis", quoteAmounts);
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //报价数量
             result.put("yAxis", quoteCounts);
-        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//报价金额
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //报价金额
             result.put("yAxis", quoteAmounts);
         } else {
             return null;
@@ -219,7 +220,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                         dataMap.put(country1, m);
                     }
                 }
-            } else {//指定了大区和国家，显示指定国家的数据
+            } else { //指定了大区和国家，显示指定国家的数据
                 for (Map<String, Object> m : dataList) {
                     String area1 = m.get("area").toString();
                     String country1 = m.get("country").toString();
@@ -231,25 +232,30 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             //如果有数据
             if (MapUtils.isNotEmpty(dataMap)) {
                 keySet = dataMap.keySet();
-                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //分析类型为询单数量
                     for (String key : keySet) {
                         int inqCount = Integer.parseInt(dataMap.get(key).get("inqCount").toString());
                         dList.add(inqCount);
                     }
                 }
-                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
+//                    for (String key : keySet) {
+//                        Double inqAmount = Double.parseDouble(dataMap.get(key).get("inqAmount").toString());
+//                        dList.add(RateUtil.doubleChainRateTwo(inqAmount, 10000));
+//                    }
+                    // TODO 暂时返回报价金额内容，前端版本问题无法修正，后端暂时修改
                     for (String key : keySet) {
-                        Double inqAmount = Double.parseDouble(dataMap.get(key).get("inqAmount").toString());
-                        dList.add(RateUtil.doubleChainRateTwo(inqAmount, 10000));
+                        Double quoteAmount = Double.parseDouble(dataMap.get(key).get("quoteAmount").toString());
+                        dList.add(RateUtil.doubleChainRateTwo(quoteAmount, 10000));
                     }
                 }
-                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
                     for (String key : keySet) {
                         int quoteCount = Integer.parseInt(dataMap.get(key).get("quoteCount").toString());
                         dList.add(quoteCount);
                     }
                 }
-                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //分析类型为报价金额
                     for (String key : keySet) {
                         Double quoteAmount = Double.parseDouble(dataMap.get(key).get("quoteAmount").toString());
                         dList.add(RateUtil.doubleChainRateTwo(quoteAmount, 10000));
@@ -342,7 +348,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 names.add(vo.get("name"));
                 datas.add(vo.get("quoteCount"));
             });
-        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
             datasList.sort(new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> o1, Map<String, Object> o2) {
@@ -393,7 +399,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             result.put("inqCountList", inqCountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
             result.put("orgs", orgList);
-            result.put("inqAmountList", inqAmountList);
+//            result.put("inqAmountList", inqAmountList);
+            // TODO 临时返回报价金额内容
+            result.put("inqAmountList", quoteAmountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
             result.put("orgs", orgList);
             result.put("quoteCountList", quoteCountList);

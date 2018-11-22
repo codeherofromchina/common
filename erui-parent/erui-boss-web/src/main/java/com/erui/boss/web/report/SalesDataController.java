@@ -112,10 +112,12 @@ public class SalesDataController {
         }
         String analyzeType = String.valueOf(params.get("analyzeType"));
         Map<String, Object> data = null;
-        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
             // 询单数量或询单金额
             data = salesDataService.selectInquiryInfoByCountry(params);
-        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)
+                || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+            // TODO  || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)   这里应该在上面的if中，临时修改为请求询单金额时返回报价金额内容，service中也有修改
             // 报价数量或报价金额
             data = salesDataService.selectQuoteInfoByCountry(params);
         } else {
