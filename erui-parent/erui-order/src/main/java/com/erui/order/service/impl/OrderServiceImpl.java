@@ -668,7 +668,7 @@ public class OrderServiceImpl implements OrderService {
                         order.getProject().setContractNo(contractNo);
                     }
                     //根据订单金额判断 填写审批人级别
-                    if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                    if (order.getOrderCategory() == 6) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 提交至商品添加
                             auditingProcess_i = "6";
@@ -680,13 +680,28 @@ public class OrderServiceImpl implements OrderService {
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
-                    } else {
-                        //订单金额大于10万小于300万 交给区域负责人审核
-                        auditingProcess_i = "3";
-                        if (order.getAreaLeaderId() != null)
-                            auditingUserId_i = order.getAreaLeaderId().toString();
-                        auditorIds.append("," + auditingUserId_i + ",");
+                    }else {
+                        if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                            if (order.getFinancing() == null || order.getFinancing() == 0) {
+                                //若不是融资项目 且订单金额小于10万美元 提交至商品添加
+                                auditingProcess_i = "6";
+                                auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                                auditorIds.append("," + auditingUserId_i + ",");
+                            } else if (order.getFinancing() == 1) {
+                                //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
+                                auditingProcess_i = "5"; // 融资审核
+                                auditingUserId_i = order.getFinancingCommissionerId().toString();
+                                auditorIds.append("," + auditingUserId_i + ",");
+                            }
+                        } else {
+                            //订单金额大于10万小于300万 交给区域负责人审核
+                            auditingProcess_i = "3";
+                            if (order.getAreaLeaderId() != null)
+                                auditingUserId_i = order.getAreaLeaderId().toString();
+                            auditorIds.append("," + auditingUserId_i + ",");
+                        }
                     }
+
                     break;
                 //区域负责人
                 case 3:
