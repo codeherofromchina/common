@@ -186,6 +186,8 @@ public class CheckLogServiceImpl implements CheckLogService {
             if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())){
                 map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
                 map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            }else {
+                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
             }
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
