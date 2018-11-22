@@ -294,22 +294,23 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
             BigDecimal inquiryNum = (BigDecimal) map.get("inquiryNum");
             totalInquiryNum += inquiryNum.intValue();
-            map.put("inquiryNum", inquiryNum.intValue());// 询单数量转换成整数
+            map.put("inquiryNum", inquiryNum.intValue()); // 询单数量转换成整数
             BigDecimal orderNum = (BigDecimal) map.get("orderNum");
             totalOrderNum += orderNum.intValue();
-            map.put("orderNum", orderNum.intValue());// 订单数量转换成整数
+            map.put("orderNum", orderNum.intValue()); // 订单数量转换成整数
             BigDecimal bigDecimal = (BigDecimal) map.get("rate");
             bigDecimal = bigDecimal.multiply(oneHundred).setScale(2, BigDecimal.ROUND_DOWN);
             map.put("rate", bigDecimal);
             resultData.add(map);
-            if (orgId != null && orgId == 1 || orgId == 2 || orgId == 3 || orgId == 4) {
+            if (orgId != null && orgId == 1 || orgId == 4) {
                 eruiTotalOrderNum += orderNum.intValue();
                 eruiTotalInquiryNum += inquiryNum.intValue();
+                if (orgId == 4) {
+                    map.put("inquiryNum", eruiTotalInquiryNum);
+                    map.put("orderNum", eruiTotalOrderNum);
+                }
             }
-            if (orgId != null && orgId == 4) {
-                map.put("inquiryNum", eruiTotalInquiryNum);
-                map.put("orderNum", eruiTotalOrderNum);
-            }
+
         }
         Map<String, Object> total = new HashMap<>();
         total.put("name", "合计");

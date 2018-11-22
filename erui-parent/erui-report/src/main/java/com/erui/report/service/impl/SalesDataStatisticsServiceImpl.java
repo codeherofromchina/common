@@ -36,7 +36,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> result = null;
         List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierCountryStatisticsData(params);
         List<Map<String, Object>> countryAmount = salesDataStatisticsMapper.agencySupplierTotalAmountByCountry(params);
-        result = _handleSimpleData(result, datas,countryAmount);
+        result = _handleSimpleData(result, datas, countryAmount);
         return result;
     }
 
@@ -46,7 +46,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierCountryStatisticsData(params);
         List<Map<String, Object>> countryAmount = salesDataStatisticsMapper.agencySupplierTotalAmountByCountry(params);
         // 创建excel
-        HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-国家统计", params,countryAmount);
+        HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-国家统计", params, countryAmount);
         return workbook;
     }
 
@@ -55,7 +55,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> result = null;
         List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierOrgStatisticsData(params);
         List<Map<String, Object>> orgAmount = salesDataStatisticsMapper.agencySupplierTotalAmountByOrg(params);
-        result = _handleSimpleData(result, datas,orgAmount);
+        result = _handleSimpleData(result, datas, orgAmount);
         return result;
     }
 
@@ -65,7 +65,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierOrgStatisticsData(params);
         List<Map<String, Object>> orgAmount = salesDataStatisticsMapper.agencySupplierTotalAmountByOrg(params);
         // 创建excel
-        HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-事业部统计", params,orgAmount);
+        HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-事业部统计", params, orgAmount);
         return workbook;
     }
 
@@ -75,7 +75,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> result = null;
         List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierAreaStatisticsData(params);
         List<Map<String, Object>> areaAmount = salesDataStatisticsMapper.agencySupplierTotalAmountByArea(params);
-        result = _handleSimpleData(result, datas,areaAmount);
+        result = _handleSimpleData(result, datas, areaAmount);
         return result;
     }
 
@@ -85,7 +85,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Map<String, Object>> datas = salesDataStatisticsMapper.agencySupplierAreaStatisticsData(params);
         List<Map<String, Object>> areaAmount = salesDataStatisticsMapper.agencySupplierTotalAmountByArea(params);
         // 创建excel
-        HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-地区统计", params,areaAmount);
+        HSSFWorkbook workbook = _handleExcelSimpleData(datas, "代理商-地区统计", params, areaAmount);
         return workbook;
     }
 
@@ -152,10 +152,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      * @param result
      * @param datas
      */
-    private Map<String, List<Object>> _handleSimpleData(Map<String, List<Object>> result, List<Map<String, Object>> datas,List<Map<String, Object>> amountInfo) {
-        Map<String,Map<String,Object>> amountMapInfo = null;
+    private Map<String, List<Object>> _handleSimpleData(Map<String, List<Object>> result, List<Map<String, Object>> datas, List<Map<String, Object>> amountInfo) {
+        Map<String, Map<String, Object>> amountMapInfo = null;
         if (amountInfo != null && amountInfo.size() > 0) {
-            amountMapInfo = amountInfo.stream().collect(Collectors.toMap(vo -> (String)vo.get("name"),vo -> vo));
+            amountMapInfo = amountInfo.stream().collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         } else {
             amountMapInfo = new HashMap<>();
         }
@@ -170,10 +170,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
                 if (stringObjectMap != null) {
                     BigDecimal totalAmount = (BigDecimal) stringObjectMap.get("total");
                     BigDecimal unitTotal = (BigDecimal) stringObjectMap.get("unitTotal");
-                    if(totalAmount == null || totalAmount.equals(BigDecimal.ZERO) || unitTotal == null || unitTotal.equals(BigDecimal.ZERO)) {
+                    if (totalAmount == null || totalAmount.equals(BigDecimal.ZERO) || unitTotal == null || unitTotal.equals(BigDecimal.ZERO)) {
                         rates.add(0);
                     } else {
-                        rates.add(unitTotal.divide(totalAmount,4,BigDecimal.ROUND_DOWN));
+                        rates.add(unitTotal.divide(totalAmount, 4, BigDecimal.ROUND_DOWN));
                     }
                 } else {
                     rates.add(0);
@@ -194,8 +194,8 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
      *
      * @param datas
      */
-    private HSSFWorkbook _handleExcelSimpleData(List<Map<String, Object>> datas, String workbookName, Map<String, Object> params,List<Map<String, Object>> countryAmount) {
-        Map<String, List<Object>> result = _handleSimpleData(null, datas,countryAmount);
+    private HSSFWorkbook _handleExcelSimpleData(List<Map<String, Object>> datas, String workbookName, Map<String, Object> params, List<Map<String, Object>> countryAmount) {
+        Map<String, List<Object>> result = _handleSimpleData(null, datas, countryAmount);
         List<Object> headerList = result.get("name");
         headerList.add(0, "");
         List<Object> row01 = result.get("counts");

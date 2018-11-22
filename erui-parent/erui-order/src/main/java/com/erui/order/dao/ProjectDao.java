@@ -50,16 +50,6 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
     @Query(value = "select t1.id from Project t1 where t1.projectName= :projectName")
     Integer findIdByProjectName(@Param("projectName") String projectName);
 
-
-    /**
-     * 判断销售合同号是否重复
-     *
-     * @param contractNo
-     * @return Long
-     */
-    @Query(value = "select t1.id from Project t1 where t1.contractNo= :contractNo")
-    List<Integer> findByContractNo(@Param("contractNo") String contractNo);
-
     /**
      * @Author:SHIGS
      * @Description修改项目状态

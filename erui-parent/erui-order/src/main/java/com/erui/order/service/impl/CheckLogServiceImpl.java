@@ -23,6 +23,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author:SHIGS
@@ -154,8 +155,11 @@ public class CheckLogServiceImpl implements CheckLogService {
                     // 如果订单审核通过，则所有订单的日志需要返回
                     resultCheckLogs.add(checkLog);
                 } else if (orderAuditingStatus < 4) {
-                    // 如果订单还没有审核通过，则只能返回订单的审核列表
-                    if (checkLog.getType() == 1 && checkLog.getAuditingProcess() < order.getAuditingProcess()) {
+                    // 如果订单还没有审核通过，则只能返回订单的审核列表 因需求修改，法务审核在订单审核里为case： 8
+                    if (checkLog.getType() == 1 && (checkLog.getAuditingProcess() < order.getAuditingProcess() || checkLog.getAuditingProcess() == 8)) {
+                        if (order.getAuditingProcess() < 3 && checkLog.getAuditingProcess() == 8) {
+                            continue;
+                        }
                         resultCheckLogs.add(checkLog);
                     }
                     continue;
@@ -182,10 +186,16 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         Map<String, CheckLog> map = new LinkedMap<>();
         for (CheckLog cLog : resultCheckLogs) {
-            map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
+                map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
+                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            } else {
+                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            }
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
-        return cList;
+        List<CheckLog> collect = cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
+        return collect;
     }
 
     @Deprecated

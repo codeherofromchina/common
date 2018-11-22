@@ -229,9 +229,9 @@
         WHEN business_unit_id IN (9969) THEN 2
         WHEN business_unit_id IN (9970) THEN 3
         WHEN business_unit_id IN (9928 , 9929, 9931, 9930 ) THEN 4
-        WHEN business_unit_id IN (9904 , 9905) THEN 5
-        WHEN business_unit_id IN (9902 , 9917) THEN 6
-        WHEN business_unit_id IN (9903 , 9901) THEN 7
+        WHEN business_unit_id IN (9904 , 9905, 9906, 9937) THEN 5
+        WHEN business_unit_id IN (9902 , 9917, 9938) THEN 6
+        WHEN business_unit_id IN (9903 , 9901, 9940) THEN 7
         WHEN business_unit_id IN (9899 , 9916) THEN 8
         ELSE 100
         END AS org_id,
@@ -254,23 +254,30 @@
         WHEN org_id IN (9907) THEN 1
         WHEN org_id IN (9969) THEN 2
         WHEN org_id IN (9970) THEN 3
-        WHEN org_id IN (9928 , 9929, 9931, 9930) THEN 4
-        WHEN org_id IN (9904 , 9905) THEN 5
-        WHEN org_id IN (9902 , 9917) THEN 6
-        WHEN org_id IN (9903 , 9901) THEN 7
+        WHEN org_id IN (9928 , 9929, 9931, 9930 ) THEN 4
+        WHEN org_id IN (9904 , 9905, 9906, 9937) THEN 5
+        WHEN org_id IN (9902 , 9917, 9938) THEN 6
+        WHEN org_id IN (9903 , 9901, 9940) THEN 7
         WHEN org_id IN (9899 , 9916) THEN 8
         ELSE 100
         END AS org_id,
         COUNT(1) AS inquiryNum,
         0 AS orderNum
         FROM
-        erui_rfq.inquiry
+        erui_rfq.inquiry as t1,
+        (SELECT
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
         WHERE
-        deleted_flag = 'N'
-        AND `status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        AND quote_status IN ('QUOTED' , 'COMPLETED')
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id) as t4
+        WHERE
+        t4.log_inquiry_id = t1.id AND
+        t1.deleted_flag = 'N'
+        AND t1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
         <if test="startTime!=null and startTime!=''">
-            AND inflow_time BETWEEN #{startTime} AND #{endTime}
+            AND t4.log_create_at BETWEEN #{startTime} AND #{endTime}
         </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
