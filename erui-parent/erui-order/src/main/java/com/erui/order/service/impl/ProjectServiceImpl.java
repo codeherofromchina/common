@@ -251,6 +251,8 @@ public class ProjectServiceImpl implements ProjectService {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                         projectUpdate.getOrder().setAuditingProcess(13);
+                        projectUpdate.getOrder().setAuditingUserId("39552");
+
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
