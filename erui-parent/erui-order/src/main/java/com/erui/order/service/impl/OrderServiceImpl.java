@@ -652,22 +652,21 @@ public class OrderServiceImpl implements OrderService {
                 case 8: // 法务审核
                     // 添加销售合同号和海外销售合同号
                     String contractNo = addOrderVo.getContractNo();
-                    if (order.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
+                    if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
-                        return false;
-                    }
-                    // 判断销售合同号不能重复
-                    List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
-                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
-                        Integer orderId = order.getId();
-                        for (Integer oId : contractNoProjectIds) {
-                            if (oId.intValue() != orderId.intValue()) {
-                                return false;
+                        // 判断销售合同号不能重复
+                        List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+                        if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                            Integer orderId = order.getId();
+                            for (Integer oId : contractNoProjectIds) {
+                                if (oId.intValue() != orderId.intValue()) {
+                                    return false;
+                                }
                             }
                         }
+                        order.setContractNo(contractNo);
+                        order.getProject().setContractNo(contractNo);
                     }
-                    order.setContractNo(contractNo);
-                    order.getProject().setContractNo(contractNo);
                     //根据订单金额判断 填写审批人级别
                     if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
