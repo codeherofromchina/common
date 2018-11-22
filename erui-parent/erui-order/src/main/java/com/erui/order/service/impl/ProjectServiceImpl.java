@@ -1123,7 +1123,7 @@ public class ProjectServiceImpl implements ProjectService {
         String auditingUserId_i = null; // 项目审核当前人
         CheckLog checkLog_i = null; // 审核日志
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
-            CheckLog checkLog = checkLogDao.findOne(project.getCheckLogId());
+            CheckLog checkLog = checkLogDao.findOne(paramProject.getCheckLogId());
             auditingStatus_i = 3;
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
