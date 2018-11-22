@@ -1134,6 +1134,7 @@ public class ProjectServiceImpl implements ProjectService {
                 order.setAuditingUserId(auditingUserId_order);
                 order.setAuditingStatus(auditingStatus_i);
                 order.setAuditingProcess(auditingProcess_order);
+                order.getProject().setAuditingStatus(0);
                 orderDao.save(order);
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
