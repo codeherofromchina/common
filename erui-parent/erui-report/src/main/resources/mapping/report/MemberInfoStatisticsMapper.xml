@@ -264,7 +264,7 @@
         COUNT(1) AS inquiryNum,
         0 AS orderNum
         FROM
-        erui_rfq.inquiry,
+        erui_rfq.inquiry as t1,
         (SELECT
         inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
         FROM
