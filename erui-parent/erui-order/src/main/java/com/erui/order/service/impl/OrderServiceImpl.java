@@ -630,18 +630,11 @@ public class OrderServiceImpl implements OrderService {
 
                     } else {
                     }*/
+                    //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
-                        if (order.getFinancing() == null || order.getFinancing() == 0) {
-                            auditingProcess_i = "6";
-                            auditingUserId_i = order.getTechnicalId().toString();
-                            auditorIds.append("," + auditingUserId_i + ",");
-                        } else {
-                            //若是融资项目
-                            auditingProcess_i = "5"; // 融资审核
-                            auditingUserId_i = order.getFinancingCommissionerId().toString();
-                            auditorIds.append("," + auditingUserId_i + ",");
-                        }
-
+                        auditingProcess_i = "8";
+                        auditingUserId_i = "31025";
+                        auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
                         auditingUserId_i = order.getCountryLeaderId().toString();
@@ -650,6 +643,31 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 //国家负责人审批
                 case 2:
+                    //根据订单金额判断 填写审批人级别
+                    //国家负责人审核完成交给法务审核
+                    auditingProcess_i = "8";
+                    auditingUserId_i = "31025";
+                    auditorIds.append("," + auditingUserId_i + ",");
+                    break;
+                case 8: // 法务审核
+                    // 添加销售合同号和海外销售合同号
+                    String contractNo = addOrderVo.getContractNo();
+                    if (order.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
+                        // 销售合同号不能为空
+                        return false;
+                    }
+                    // 判断销售合同号不能重复
+                    List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                        Integer orderId = order.getId();
+                        for (Integer oId : contractNoProjectIds) {
+                            if (oId.intValue() != orderId.intValue()) {
+                                return false;
+                            }
+                        }
+                    }
+                    order.setContractNo(contractNo);
+                    order.getProject().setContractNo(contractNo);
                     //根据订单金额判断 填写审批人级别
                     if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
@@ -671,7 +689,6 @@ public class OrderServiceImpl implements OrderService {
                         auditorIds.append("," + auditingUserId_i + ",");
                     }
                     break;
-
                 //区域负责人
                 case 3:
                     if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
@@ -712,6 +729,8 @@ public class OrderServiceImpl implements OrderService {
                 //是否融资项目 是 融资审核
                 case 5:
                     auditingProcess_i = "6";
+                    //设置项目审核流程
+                    order.getProject().setAuditingProcess(auditingProcess_i);
                     auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
@@ -719,8 +738,11 @@ public class OrderServiceImpl implements OrderService {
                 case 6:
                     order.setGoodsList(updateOrderGoods(addOrderVo));
                     order.setLogiQuoteNo(addOrderVo.getLogiQuoteNo());
+                    //订单审核完成后项目才能办理项目
+                    order.getProject().setAuditingStatus(1);
+
                     auditingStatus_i = 4; // 完成
-                    auditingProcess_i = null; // 无下一审核进度和审核人
+                    auditingProcess_i = "6";// 订单审核完成 无下一审核进度和审核人
                     auditingUserId_i = null;
                     break;
                 default:
@@ -857,7 +879,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setCreateTime(new Date());
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
-            projectAdd.setAuditingStatus(1);
+            projectAdd.setAuditingStatus(0);
             //商务技术经办人名称
             Project project = projectDao.save(projectAdd);
             //添加项目利润核算单信息
@@ -1049,7 +1071,7 @@ public class OrderServiceImpl implements OrderService {
             project.setProcessProgress("1");
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             //新建项目审批状态为未审核
-            project.setAuditingStatus(1);
+            project.setAuditingStatus(0);
             //projectAdd.setProjectProfit(projectProfit);
             Project project1 = projectDao.save(project);
             //添加项目利润核算单信息
@@ -1258,7 +1280,7 @@ public class OrderServiceImpl implements OrderService {
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws Exception {
         //获取token
-        final String eruiToken =  (String) ThreadLocalUtil.getObject();
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1307,7 +1329,7 @@ public class OrderServiceImpl implements OrderService {
     //销售订单钉钉通知 审批人
     public void sendDingtalk(Order order, String user) throws Exception {
         //获取token
-        final String eruiToken =  (String) ThreadLocalUtil.getObject();
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1341,7 +1363,7 @@ public class OrderServiceImpl implements OrderService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
                     stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                            ""+startTime+"");
+                            "" + startTime + "");
                     stringBuffer.append("&toUser=").append(userNo);
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();

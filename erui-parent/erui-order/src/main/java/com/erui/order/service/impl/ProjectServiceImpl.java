@@ -159,6 +159,7 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
+                projectUpdate.setAttachmentList(project.getAttachmentList());
                 project.copyProjectDescTo(projectUpdate);
                 //order.setStatus(Order.StatusEnum.DONE.getCode());
                 //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -185,6 +186,7 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
+                    projectUpdate.setAttachmentList(project.getAttachmentList());
                     Integer auditingLevel = project.getAuditingLevel();
                     Integer orderCategory = order.getOrderCategory();
                     if (orderCategory != null && orderCategory == 1) { // 预投
@@ -248,6 +250,7 @@ public class ProjectServiceImpl implements ProjectService {
                     } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+                        projectUpdate.getOrder().setAuditingProcess(13);
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
@@ -432,8 +435,10 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setChairman(project.getChairman());
         projectUpdate.setChairmanId(project.getChairmanId());
         projectUpdate.setAuditingLevel(auditingLevel);
-        projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
-        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全
+        /*projectUpdate.setAuditingProcess("2,3"); // 2.法务审核、3.财务审核
+        projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全*/
+        projectUpdate.setAuditingProcess("13"); // 3.财务审核
+        projectUpdate.setAuditingUserId("39552"); // 田万全
         sendDingtalk(projectUpdate.getOrder(), "31025");
         sendDingtalk(projectUpdate.getOrder(), "39552");
         projectUpdate.setAuditingStatus(2); // 审核中
@@ -451,6 +456,10 @@ public class ProjectServiceImpl implements ProjectService {
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                // 根据审核进度
+                if (condition.getAuditingProcess() != null) {
+                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
@@ -1114,18 +1123,18 @@ public class ProjectServiceImpl implements ProjectService {
         String auditingUserId_i = null; // 项目审核当前人
         CheckLog checkLog_i = null; // 审核日志
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
-            CheckLog checkLog = checkLogDao.findOne(project.getCheckLogId());
+            CheckLog checkLog = checkLogDao.findOne(paramProject.getCheckLogId());
             auditingStatus_i = 3;
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
                 String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
                 if (auditingProcess_order != null && auditingProcess_order == 0) {
-                    order.setStatus(1);
+                    project.getOrder().setStatus(1);
                 }
-                order.setAuditingUserId(auditingUserId_order);
-                order.setAuditingStatus(auditingStatus_i);
-                order.setAuditingProcess(auditingProcess_order);
-                orderDao.save(order);
+                project.getOrder().setAuditingUserId(auditingUserId_order);
+                project.getOrder().setAuditingStatus(auditingStatus_i);
+                project.getOrder().setAuditingProcess(auditingProcess_order);
+                project.getOrder().getProject().setAuditingStatus(0);
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
@@ -1145,46 +1154,14 @@ public class ProjectServiceImpl implements ProjectService {
                 auditingUserId_i = checkLog.getNextAuditingUserId();
                 // 驳回后的修改
                 paramProject.copyProjectDescTo(project); // 只修改基本信息
-                //判断是否传送了海外销售合同号，如果传送，则修正相应订单中的销售合同号和海外销售合同号
-                String contractNoOs = paramProject.getContractNoOs();
-                if (StringUtils.isNotBlank(contractNoOs)) {
-                    //如果传送，则修正相应订单中的销售合同号和海外销售合同号
-                    String contractNo = paramProject.getContractNo();
-                    // 判断销售合同号不能重复
-                    List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
-                    if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
-                        Integer projectId = project.getId();
-                        for (Integer proId : contractNoProjectIds) {
-                            if (proId.intValue() != projectId.intValue()) {
-                                return false;
-                            }
-                        }
-                    }
-                    order.setContractNoOs(contractNoOs);
-                    order.setContractNo(contractNo);
-                }
                 paramProject.setProjectStatus("SUBMIT"); // 驳回处理后设置状态为执行中
 
             } else {
                 switch (curAuditProcess) {
-                    case 1: // 事业部利润核算
-                        // 判断是驳回处理，还是正常核算，查找最近一条日志，看是否是驳回日志
-//                    CheckLog checkLog = checkLogService.findLastLog(2, order.getId());
-//                    if (checkLog != null && "-1".equals(checkLog.getOperation())) { // 驳回后的处理
-//                        auditingProcess_i = checkLog.getNextAuditingProcess();
-//                        auditingUserId_i = checkLog.getNextAuditingUserId();
-//                        // 驳回后的修改
-//                        paramProject.copyProjectDescTo(project); // 只修改基本信息
-//                        paramProject.setProjectStatus("EXECUTING"); // 驳回处理后设置状态为执行中
-//
-//                        //submitProjectProcessCheckAuditParams(paramProject,project,order); // 审核信息不做修改，注释
-//                    } else {
-//                        throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
-//                    }
+                    case 11: // 事业部利润核算
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
-
-                    case 2: // 法务审核
-                        String replace = StringUtils.strip(auditingUserId.replace("31025", ""));
+                    case 12: // 法务审核
+                        /*String replace = auditingUserId.replace("31025", "");
                         if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
@@ -1201,10 +1178,10 @@ public class ProjectServiceImpl implements ProjectService {
                         // 添加销售合同号和海外销售合同号
                         String contractNo = paramProject.getContractNo();
                         String contractNoOs = paramProject.getContractNoOs();
-                       /* if (project.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
+                       *//* if (project.getOrderCategory() != 3 && StringUtils.isBlank(contractNo)) {
                             // 销售合同号不能为空
                             return false;
-                        }*/
+                        }*//*
                         // 判断销售合同号不能重复
                         List<Integer> contractNoProjectIds = projectDao.findByContractNo(contractNo);
                         if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
@@ -1217,21 +1194,21 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         order.setContractNoOs(contractNoOs);
                         order.setContractNo(contractNo);
-                        project.setContractNo(contractNo);
+                        project.setContractNo(contractNo);*/
                         break;
-                    case 3:
-                        auditingProcess_i = auditingProcess.replace("3", "4");
+                    case 13:
+                        auditingProcess_i = auditingProcess.replace("13", "14");
                         auditingUserId_i = auditingUserId.replace("39552", "39252"); // 直接进入到下一步结算审核
                         break;
-                    case 4:
+                    case 14:
                         String replace2 = StringUtils.strip(auditingUserId.replace("39252", ""));
                         if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
-                                auditingProcess_i = "5"; //
+                                auditingProcess_i = "15"; //
                                 auditingUserId_i = String.valueOf(project.getLogisticsAuditerId()); //
                             } else {
                                 // 直接事业部审核
-                                auditingProcess_i = "6"; //
+                                auditingProcess_i = "16"; //
                                 auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
                             }
                         } else {
@@ -1240,29 +1217,29 @@ public class ProjectServiceImpl implements ProjectService {
                             auditingUserId_i = StringUtils.strip(replace2, ",");
                         }
                         break;
-                    case 5: // 物流审核
-                        auditingProcess_i = "6"; //
+                    case 15: // 物流审核
+                        auditingProcess_i = "16"; //
                         auditingUserId_i = String.valueOf(project.getBuAuditerId()); //
                         break;
-                    case 6:
+                    case 16:
                         if (auditingLevel > 1) {
-                            auditingProcess_i = "7"; //
-                            auditingUserId_i = project.getBuVpAuditerId().toString(); //黄永霞 2018 1106修改为选填
+                            auditingProcess_i = "17"; //
+                            auditingUserId_i = project.getBuVpAuditerId().toString(); //黄永霞
                             break;
                         }
-                    case 7:
+                    case 17:
                         if (auditingLevel > 2) {
-                            auditingProcess_i = "8"; //
+                            auditingProcess_i = "18"; //
                             auditingUserId_i = "30772"; //杨海涛
                             break;
                         }
-                    case 8:
+                    case 18:
                         if (auditingLevel > 3) {
-                            auditingProcess_i = "9"; //
+                            auditingProcess_i = "19"; //
                             auditingUserId_i = "32046"; //冷成志
                             break;
                         }
-                    case 9:
+                    case 19:
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = null; // 无下一审核进度和审核人
                         auditingUserId_i = null;
@@ -1274,10 +1251,22 @@ public class ProjectServiceImpl implements ProjectService {
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
+        if (!paramProject.getAuditingType().equals("-1")) {
+            if (StringUtils.isNotBlank(auditingProcess_i)) {
+                project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+            } else {
+                project.getOrder().setAuditingProcess(null);
+            }
+            if (StringUtils.isNotBlank(auditingUserId_i)) {
+                project.getOrder().setAuditingUserId(auditingUserId_i);
+            } else {
+                project.getOrder().setAuditingUserId(null);
+            }
+            project.setAuditingStatus(auditingStatus_i);
+        }
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
         sendDingtalk(project.getOrder(), auditingUserId_i);
-        project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
         return true;
