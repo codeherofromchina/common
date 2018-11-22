@@ -159,7 +159,7 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
-                project.setAttachmentList(project.getAttachmentList());
+                projectUpdate.setAttachmentList(project.getAttachmentList());
                 project.copyProjectDescTo(projectUpdate);
                 //order.setStatus(Order.StatusEnum.DONE.getCode());
                 //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -186,7 +186,7 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
-                    project.setAttachmentList(project.getAttachmentList());
+                    projectUpdate.setAttachmentList(project.getAttachmentList());
                     Integer auditingLevel = project.getAuditingLevel();
                     Integer orderCategory = order.getOrderCategory();
                     if (orderCategory != null && orderCategory == 1) { // 预投
@@ -1129,13 +1129,12 @@ public class ProjectServiceImpl implements ProjectService {
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
                 String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
                 if (auditingProcess_order != null && auditingProcess_order == 0) {
-                    order.setStatus(1);
+                    project.getOrder().setStatus(1);
                 }
-                order.setAuditingUserId(auditingUserId_order);
-                order.setAuditingStatus(auditingStatus_i);
-                order.setAuditingProcess(auditingProcess_order);
-                order.getProject().setAuditingStatus(0);
-                orderDao.save(order);
+                project.getOrder().setAuditingUserId(auditingUserId_order);
+                project.getOrder().setAuditingStatus(auditingStatus_i);
+                project.getOrder().setAuditingProcess(auditingProcess_order);
+                project.getOrder().getProject().setAuditingStatus(0);
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
@@ -1252,20 +1251,22 @@ public class ProjectServiceImpl implements ProjectService {
             checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
-        if (StringUtils.isNotBlank(auditingProcess_i)) {
-            project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
-        } else {
-            project.getOrder().setAuditingProcess(null);
-        }
-        if (StringUtils.isNotBlank(auditingUserId_i)) {
-            project.getOrder().setAuditingUserId(auditingUserId_i);
-        } else {
-            project.getOrder().setAuditingUserId(null);
+        if (!paramProject.getAuditingType().equals("-1")) {
+            if (StringUtils.isNotBlank(auditingProcess_i)) {
+                project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+            } else {
+                project.getOrder().setAuditingProcess(null);
+            }
+            if (StringUtils.isNotBlank(auditingUserId_i)) {
+                project.getOrder().setAuditingUserId(auditingUserId_i);
+            } else {
+                project.getOrder().setAuditingUserId(null);
+            }
+            project.setAuditingStatus(auditingStatus_i);
         }
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
         sendDingtalk(project.getOrder(), auditingUserId_i);
-        project.setAuditingStatus(auditingStatus_i);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
         return true;
