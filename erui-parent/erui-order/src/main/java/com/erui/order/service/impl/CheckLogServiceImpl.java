@@ -188,8 +188,8 @@ public class CheckLogServiceImpl implements CheckLogService {
             map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
-        cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
-        return cList;
+        List<CheckLog> collect = cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
+        return collect;
     }
 
     @Deprecated
