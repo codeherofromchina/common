@@ -1256,6 +1256,11 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             project.getOrder().setAuditingProcess(null);
         }
+        if (StringUtils.isNotBlank(auditingUserId_i)) {
+            project.getOrder().setAuditingUserId(auditingUserId_i);
+        } else {
+            project.getOrder().setAuditingUserId(null);
+        }
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
         sendDingtalk(project.getOrder(), auditingUserId_i);
