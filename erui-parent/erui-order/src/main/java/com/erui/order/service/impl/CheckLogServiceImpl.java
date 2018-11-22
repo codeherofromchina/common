@@ -157,7 +157,10 @@ public class CheckLogServiceImpl implements CheckLogService {
                 } else if (orderAuditingStatus < 4) {
                     // 如果订单还没有审核通过，则只能返回订单的审核列表 因需求修改，法务审核在订单审核里为case： 8
                     if (checkLog.getType() == 1 && (checkLog.getAuditingProcess() < order.getAuditingProcess() || checkLog.getAuditingProcess() == 8)) {
-                            resultCheckLogs.add(checkLog);
+                        if (order.getAuditingProcess() < 3 && checkLog.getAuditingProcess() == 8) {
+                            continue;
+                        }
+                        resultCheckLogs.add(checkLog);
                     }
                     continue;
                 }
@@ -183,10 +186,10 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         Map<String, CheckLog> map = new LinkedMap<>();
         for (CheckLog cLog : resultCheckLogs) {
-            if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())){
+            if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
                 map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
                 map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
-            }else {
+            } else {
                 map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
             }
         }
