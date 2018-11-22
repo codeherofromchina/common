@@ -1140,6 +1140,8 @@ public class ProjectServiceImpl implements ProjectService {
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
+                project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                project.getOrder().setAuditingUserId(auditingUserId_i);
                 // 设置项目为SUBMIT:未执行
                 project.setProjectStatus("SUBMIT");
             }
