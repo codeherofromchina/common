@@ -255,9 +255,12 @@ public class SalesDataController {
         if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
             data = salesDataService.selectCategoryInquiryNum(params);
         } else if (AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单金额
-            data = salesDataService.selectCategoryInquiryAmount(params);
-        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价金额
+            //data = salesDataService.selectCategoryInquiryAmount(params);
+            data = salesDataService.selectCategoryQuoteAmount(params);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价数量
             data = salesDataService.selectCategoryQuoteNum(params);
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+            data = salesDataService.selectCategoryQuoteAmount(params);
         }
 
         if (data == null || data.size() == 0) {

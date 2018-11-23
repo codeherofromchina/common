@@ -488,6 +488,29 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         return result;
     }
 
+
+    /**
+     * 根据时间查询各分类报价金额
+     *
+     * @param params
+     * @return [{category:'钻修井设备',num:500.03}...]
+     */
+    @Override
+    public Map<String, Object> selectCategoryQuoteAmount(Map<String, Object> params) {
+        List<Map<String, Object>> maps = readMapper.selectCategoryQuoteAmount(params);
+        Map<String, Object> result = new HashMap<>();
+        List<String> names = new ArrayList<>();
+        List<BigDecimal> nums = new ArrayList<>();
+        for (Map<String, Object> entry : maps) {
+            names.add(String.valueOf(entry.get("category")));
+            nums.add(((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN));
+        }
+        result.put("names", names);
+        result.put("nums", nums);
+
+        return result;
+    }
+
     @Override
     public Map<String, Object> selectCategoryDetailByType(Map<String, Object> params) {
         //查询各分类数据的相关数据
