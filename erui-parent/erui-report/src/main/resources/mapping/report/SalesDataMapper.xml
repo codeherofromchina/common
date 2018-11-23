@@ -365,7 +365,6 @@
 
     <!-- 根据时间查询各分类报价金额 -->
     <select id="selectCategoryQuoteAmount" resultType="java.util.Map" parameterType="java.util.Map">
-        aaaa
         SELECT
         t1.category, SUM(t4.total_quote_price)/10000 AS num
         FROM
