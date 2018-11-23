@@ -263,7 +263,7 @@ public class SalesDataController {
             data = salesDataService.selectCategoryQuoteAmount(params);
         }
 
-        if (data == null || data.size() == 0) {
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         return new Result<>(data);
