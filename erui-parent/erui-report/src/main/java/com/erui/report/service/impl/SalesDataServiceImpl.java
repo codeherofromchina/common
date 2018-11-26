@@ -138,7 +138,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                                 mm.put("inqCount", inqCount2 + inqCount);
                                 mm.put("inqAmount", inqAmount2 + inqAmount);
                                 mm.put("quoteCount", quoteCount2 + quoteCount);
-                                mm.put("quoteAmount2", quoteAmount2 + quoteAmount);
+                                mm.put("quoteAmount", quoteAmount2 + quoteAmount);
                             } else {
                                 dMap.put(month, m);
                             }
