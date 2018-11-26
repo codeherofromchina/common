@@ -264,7 +264,7 @@ public class SalesDataController {
         }
 
         if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
-            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+            return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(data);
     }
