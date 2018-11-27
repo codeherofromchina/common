@@ -2,6 +2,8 @@ package com.erui.order.service;
 
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -57,7 +59,7 @@ public interface ProjectService {
      * @param projectNoList
      * @param purchaseUid
      * @param pageNum
-     * @param pageSize
+     * @param
      * @return {id:项目ID,projectNo:项目编号,projectName:项目名称}
      * @throws Exception
      */
@@ -95,4 +97,11 @@ public interface ProjectService {
      * @return
      */
     boolean audit(Project project, String auditorId,String auditorName, Project paramsProject);
+    /**
+     * 导出核算利润表
+     * @param workbook
+     * @param results  请求的参数
+     * @return
+     */
+    void addProfitData(XSSFWorkbook workbook, Map<String, Object> results);
 }

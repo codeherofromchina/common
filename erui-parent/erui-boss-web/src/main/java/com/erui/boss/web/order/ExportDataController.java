@@ -8,6 +8,7 @@ import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
+import com.erui.comm.util.pinyin4j.Pinyin4j;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.model.GoodsStatistics;
@@ -18,20 +19,26 @@ import com.erui.order.service.OrderService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -260,6 +267,65 @@ public class ExportDataController {
     }
 
     /**
+     * @Author:SHIGS
+     * @Description 项目核算利润导出
+     * @Date:18:16 2018
+     * @modified By
+     */
+    @RequestMapping(value = "/exportCheckProfit")
+    public ModelAndView exportCheckProfit(HttpServletResponse response, HttpServletRequest request) {
+        Map<String, String> params = getParameters(request);
+        OutputStream out = null;
+        try {
+            // 获取数据
+            //Project project = this.projectService.findByIdOrOrderId(Integer.parseInt(params.get("id")),Integer.parseInt(params.get("orderId")));
+            Project project = this.projectService.findByIdOrOrderId(null, 4125);
+            Map<String, Object> results = new HashMap<>();
+            results.put("projectDec", project);
+
+            // 拿到模板文件
+            // 获取模板文件内容
+            String tempPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
+            String suffix = EXCEL_SUFFIX;
+            File file = new File(tempPath);
+            byte[] data = FileUtils.readFileToByteArray(file);
+            FileInputStream tps = new FileInputStream(new File(tempPath));
+            final XSSFWorkbook tpWorkbook = new XSSFWorkbook(tps);
+            out = response.getOutputStream();
+            // 输出到客户端
+            response.reset();
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95"+DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date())+suffix + "\"");
+            // 新建一个Excel的工作空间
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            // 把模板复制到新建的Excel
+            workbook = tpWorkbook;
+            // 填充数据
+            this.projectService.addProfitData(workbook, results);
+            // 输出Excel内容，生成Excel文件
+            if (workbook != null) {
+                workbook.write(out);
+            }
+
+        } catch (final Exception e) {
+            LOGGER.error("异常" + e.getMessage(), e);
+        } finally {
+            try {
+                // 最后记得关闭输出流
+                response.flushBuffer();
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (final IOException e) {
+                LOGGER.error("异常" + e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    /**
      * 下载excel到客户端
      *
      * @param workbook
@@ -321,4 +387,7 @@ public class ExportDataController {
         return result;
     }
 
+    private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel/报价利润核算单.xlsx";
+    private final static String EXCEL_SUFFIX = ".xlsx";
+    private final static String EXCEL_SUFFIX02 = ".xls";
 }
