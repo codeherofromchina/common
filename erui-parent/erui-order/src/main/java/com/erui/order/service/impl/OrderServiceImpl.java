@@ -38,6 +38,7 @@ import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -2502,20 +2503,41 @@ public class OrderServiceImpl implements OrderService {
         }
         //物流报价单编号：市场填写
         if (orderDec.getCurrencyBn() != null ) {
-            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("币种：              ", "币种："+orderDec.getCurrencyBn());
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("币种：              ", "币种："+orderDec.getCurrencyBn()+"  ");
             sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
         }
         if (orderDec.getTotalPrice() != null ) {
-            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("小写：        ", "小写："+orderDec.getTotalPrice());
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("小写：        ", "小写："+orderDec.getTotalPrice()+"  ");
             sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
         }
         //是否含税
         if (orderDec.getTaxBearing()==1 ) {
-            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("□ 含税", sheet1.getRow(3).getCell(11).getStringCellValue()+"含税");
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("□ 含税", sheet1.getRow(3).getCell(11).getStringCellValue()+" 含税");
             sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
         }else {
-            String string54C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("□不含税", sheet1.getRow(3).getCell(11).getStringCellValue()+"不含税");
-            sheet1.getRow(5).getCell(2).setCellValue(string54C2);
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("□不含税", sheet1.getRow(3).getCell(11).getStringCellValue()+"不含税");
+            sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
+        }
+        if (orderDec.getDeliveryDate()!= null ) {
+            sheet1.getRow(6).getCell(2).setCellValue(orderDec.getDeliveryDate());
+        }
+        //是有预收款
+        if (orderDec.getOrderPayments()!=null ) {
+            List<OrderPayment> orderPayments = orderDec.getOrderPayments();
+            List<OrderPayment> collect = orderPayments.stream().filter(orderPayment -> orderPayment.getType().equals(1)).collect(Collectors.toList());
+            if (collect.size()>0){
+                if (collect.get(0)!=null){
+                    String stringR6C5 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("□ 是", sheet1.getRow(3).getCell(11).getStringCellValue()+" 是");
+                    sheet1.getRow(5).getCell(2).setCellValue(stringR6C5);
+                    if (collect.get(0).getReceiptDate()!=null){
+                        String stringR6C502 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("        年      月      日", sheet1.getRow(3).getCell(11).getStringCellValue()+" 是");
+                        sheet1.getRow(5).getCell(2).setCellValue(stringR6C502);
+                    }
+                }
+            }
+        }else {
+            String stringR6C5 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("□ 否", sheet1.getRow(3).getCell(11).getStringCellValue()+" 否");
+            sheet1.getRow(6).getCell(6).setCellValue(stringR6C5);
         }
     }
 }

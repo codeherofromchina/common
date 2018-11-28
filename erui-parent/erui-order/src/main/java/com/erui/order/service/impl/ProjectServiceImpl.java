@@ -1314,8 +1314,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDec.getBusinessUnitName() != null) {
             row4.getCell(4).setCellValue(projectDec.getBusinessUnitName());
         }
-        if (projectDec.getProjectNo() != null) {
-            sheet1.getRow(5).getCell(1).setCellValue(projectDec.getProjectNo());
+        if (projectDec.getContractNo() != null) {
+            sheet1.getRow(5).getCell(1).setCellValue(projectDec.getContractNo());
         }
         if (projectDec.getProjectName() != null) {
             //7行
@@ -1439,9 +1439,9 @@ public class ProjectServiceImpl implements ProjectService {
             if (projectProfit.getForeignTaxes() != null) {
                 sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
             }
-            if (projectProfit.getContractAmount() != null) {
+            /*if (projectProfit.getContractAmount() != null) {
                 sheet1.getRow(39).getCell(2).setCellValue((projectProfit.getContractAmount().multiply(new BigDecimal(0.02)).setScale(2,BigDecimal.ROUND_HALF_UP)).toString());
-            }
+            }*/
             if (projectProfit.getBeforeProfit() != null) {
                 sheet1.getRow(40).getCell(2).setCellValue(projectProfit.getBeforeProfit().toString());
             }
@@ -1459,10 +1459,10 @@ public class ProjectServiceImpl implements ProjectService {
             sheet1.getRow(44).getCell(1).setCellValue(projectDec.getBusinessName());
         }
         if (projectDec.getBuAuditer() != null) {
-            sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuAuditer());
+            sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuVpAuditer());
         }
         if (projectDec.getBuVpAuditer() != null) {
-            sheet1.getRow(44).getCell(4).setCellValue(projectDec.getBuVpAuditer());
+            sheet1.getRow(44).getCell(4).setCellValue("田万全");
         }
         sheet1.getRow(7).getCell(4).setCellValue("");
     }
