@@ -1464,6 +1464,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDec.getBuVpAuditer() != null) {
             sheet1.getRow(44).getCell(4).setCellValue(projectDec.getBuVpAuditer());
         }
+        sheet1.getRow(7).getCell(4).setCellValue("");
     }
 
     // 处理日志

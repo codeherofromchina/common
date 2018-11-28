@@ -276,14 +276,26 @@ public class ExportDataController {
     @RequestMapping(value = "/exportCheckProfit")
     public ModelAndView exportCheckProfit(HttpServletResponse response, HttpServletRequest request) {
         Map<String, String> params = getParameters(request);
+
+        Integer id = null;
+        if (params.containsKey("id") && params.get("id") != null) {
+            id = Integer.parseInt(params.get("id"));
+        }
+        Integer orderId = null;
+        if (params.containsKey("orderId") && params.get("orderId") != null) {
+            orderId = Integer.parseInt(params.get("orderId"));
+        }
         OutputStream out = null;
         try {
             // 获取数据
-            Project project = this.projectService.findByIdOrOrderId(Integer.parseInt(params.get("id")),Integer.parseInt(params.get("orderId")));
+            Project project = null;
+            if (id != null || orderId != null) {
+                project = this.projectService.findByIdOrOrderId(id, orderId);
+            }
             Map<String, Object> results = new HashMap<>();
-            if (project!=null){
+            if (project != null) {
                 results.put("projectDec", project);
-            }else {
+            } else {
                 return null;
             }
 
@@ -300,7 +312,7 @@ public class ExportDataController {
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition",
-                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95"+DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date())+suffix + "\"");
+                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
             // 新建一个Excel的工作空间
             XSSFWorkbook workbook = new XSSFWorkbook();
             // 把模板复制到新建的Excel
@@ -328,6 +340,7 @@ public class ExportDataController {
         }
         return null;
     }
+
     /**
      * @Author:SHIGS
      * @Description 项目核算利润导出
@@ -353,13 +366,13 @@ public class ExportDataController {
             FileInputStream tps = new FileInputStream(file);
             final XSSFWorkbook tpWorkbook = new XSSFWorkbook(tps);
             out = response.getOutputStream();
-            String encode = URLEncoder.encode(ExcelUploadTypeEnum.getByType(17).getTable(),"UTF-8");
+            String encode = URLEncoder.encode(ExcelUploadTypeEnum.getByType(17).getTable(), "UTF-8");
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition",
                     "attachment; filename=\"" +
-                            ""+encode+""+DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date())+suffix + "\"");
+                            "" + encode + "" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
             // 新建一个Excel的工作空间
             XSSFWorkbook workbook = new XSSFWorkbook();
             // 把模板复制到新建的Excel
@@ -387,6 +400,7 @@ public class ExportDataController {
         }
         return null;
     }
+
     /**
      * 下载excel到客户端
      *

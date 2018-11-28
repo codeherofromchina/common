@@ -2509,5 +2509,13 @@ public class OrderServiceImpl implements OrderService {
             String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("小写：        ", "小写："+orderDec.getTotalPrice());
             sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
         }
+        //是否含税
+        if (orderDec.getTaxBearing()==1 ) {
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("□ 含税", sheet1.getRow(3).getCell(11).getStringCellValue()+"含税");
+            sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
+        }else {
+            String string54C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("□不含税", sheet1.getRow(3).getCell(11).getStringCellValue()+"不含税");
+            sheet1.getRow(5).getCell(2).setCellValue(string54C2);
+        }
     }
 }
