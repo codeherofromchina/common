@@ -33,11 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -185,8 +180,7 @@ public class ProjectServiceImpl implements ProjectService {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
                     }
-                }
-                if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
+                } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
                     // 之前只保存了项目，则流程可以是提交到项目经理和执行
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
@@ -200,11 +194,9 @@ public class ProjectServiceImpl implements ProjectService {
                     Integer orderCategory = order.getOrderCategory();
                     if (orderCategory != null && orderCategory == 1) { // 预投
                         auditingLevel = 4; // 四级审核
-                    }
-                    if (orderCategory != null && orderCategory == 3) { // 试用
+                    } else if (orderCategory != null && orderCategory == 3) { // 试用
                         auditingLevel = 2; // 二级审核
-                    }
-                    if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+                    } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
                         // 既不是预投。又不是试用，则需要检查参数
                         throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
                     }
@@ -258,16 +250,14 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setUid(managerUid);   //项目经理id
                         backLogService.addBackLogByDelYn(newBackLog);
                         //当参数项目状态为 AUDIT为提交审核状态 状态不入库
-                    }
-                    if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
+                    } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                         projectUpdate.getOrder().setAuditingProcess(13);
                         projectUpdate.getOrder().setAuditingUserId("39552");
 
                     }
-                }
-                if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
                         projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
                         projectDao.save(projectUpdate);
@@ -437,11 +427,9 @@ public class ProjectServiceImpl implements ProjectService {
         Integer orderCategory = order.getOrderCategory();
         if (orderCategory != null && orderCategory == 1) { // 预投
             auditingLevel = 4; // 四级审核
-        }
-        if (orderCategory != null && orderCategory == 3) { // 试用
+        } else if (orderCategory != null && orderCategory == 3) { // 试用
             auditingLevel = 2; // 二级审核
-        }
-        if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+        } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
             // 既不是预投。又不是试用，则需要检查参数
             throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
         }
@@ -589,14 +577,11 @@ public class ProjectServiceImpl implements ProjectService {
                 Predicate or = null;
                 if (managerUid != null && businessUid != null && sendDeptId != null) {
                     or = cb.or(managerUid, businessUid, sendDeptId);
-                }
-                if (managerUid != null && businessUid != null) {
+                } else if (managerUid != null && businessUid != null) {
                     or = cb.or(managerUid, businessUid);
-                }
-                if (managerUid != null && sendDeptId != null) {
+                } else if (managerUid != null && sendDeptId != null) {
                     or = cb.or(managerUid, sendDeptId);
-                }
-                if (businessUid != null && sendDeptId != null) {
+                } else if (businessUid != null && sendDeptId != null) {
                     or = cb.or(businessUid, sendDeptId);
                 }
                 if (or != null) {
@@ -604,11 +589,9 @@ public class ProjectServiceImpl implements ProjectService {
                 } else {
                     if (sendDeptId != null) {
                         backList.add(sendDeptId);
-                    }
-                    if (managerUid != null) {
+                    } else if (managerUid != null) {
                         backList.add(managerUid);
-                    }
-                    if (businessUid != null) {
+                    } else if (businessUid != null) {
                         backList.add(businessUid);
                     }
                 }
@@ -713,8 +696,7 @@ public class ProjectServiceImpl implements ProjectService {
         Integer intPurchaseUid = null;
         if (StringUtils.isNotBlank(purchaseUid) && !StringUtils.isNumeric(purchaseUid)) {
             throw new MyException(String.format("%s%s%s", "采购经办人参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchasing manager's error in purchasing"));
-        }
-        if (StringUtils.isNotBlank(purchaseUid)) {
+        } else if (StringUtils.isNotBlank(purchaseUid)) {
             intPurchaseUid = Integer.parseInt(purchaseUid);
         }
 
@@ -949,14 +931,11 @@ public class ProjectServiceImpl implements ProjectService {
                 Predicate or = null;
                 if (managerUid != null && businessUid != null && sendDeptId != null) {
                     or = cb.or(managerUid, businessUid, sendDeptId);
-                }
-                if (managerUid != null && businessUid != null) {
+                } else if (managerUid != null && businessUid != null) {
                     or = cb.or(managerUid, businessUid);
-                }
-                if (managerUid != null && sendDeptId != null) {
+                } else if (managerUid != null && sendDeptId != null) {
                     or = cb.or(managerUid, sendDeptId);
-                }
-                if (businessUid != null && sendDeptId != null) {
+                } else if (businessUid != null && sendDeptId != null) {
                     or = cb.or(businessUid, sendDeptId);
                 }
                 if (or != null) {
@@ -964,11 +943,9 @@ public class ProjectServiceImpl implements ProjectService {
                 } else {
                     if (sendDeptId != null) {
                         list.add(sendDeptId);
-                    }
-                    if (managerUid != null) {
+                    } else if (managerUid != null) {
                         list.add(managerUid);
-                    }
-                    if (businessUid != null) {
+                    } else if (businessUid != null) {
                         list.add(businessUid);
                     }
                 }
@@ -1301,7 +1278,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectDao.save(project);
         return true;
     }
-
     @Override
     public void addProfitData(XSSFWorkbook workbook, Map<String, Object> results) {
         Project projectDec = (Project) results.get("projectDec");
