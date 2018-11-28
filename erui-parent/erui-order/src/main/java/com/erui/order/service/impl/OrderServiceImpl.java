@@ -19,6 +19,9 @@ import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -680,7 +683,7 @@ public class OrderServiceImpl implements OrderService {
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
-                    }else {
+                    } else {
                         if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                             if (order.getFinancing() == null || order.getFinancing() == 0) {
                                 //若不是融资项目 且订单金额小于10万美元 提交至商品添加
@@ -2432,5 +2435,79 @@ public class OrderServiceImpl implements OrderService {
         return response;
     }
 
-
+    @Override
+    public void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results) {
+        Order orderDec = (Order) results.get("orderDesc");
+        // 获取第二个sheet页
+        Sheet sheet1 = workbook.getSheetAt(0);
+        //替换 填写签约主体公司
+        if (orderDec.getSigningCo() != null) {
+            String stringCell0 = sheet1.getRow(0).getCell(0).getStringCellValue().replace("填写签约主体公司", Order.COM.getByEn(orderDec.getSigningCo()).getMsg());
+            sheet1.getRow(0).getCell(0).setCellValue(stringCell0);
+        }
+        if (orderDec.getExecCoId() != null) {
+            Company company = companyService.findByIdLazy(orderDec.getExecCoId());
+            String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", company.getName());
+            sheet1.getRow(2).getCell(2).setCellValue(stringRC2);
+        }
+        //项目名称
+        if (orderDec.getProject() != null && orderDec.getProject().getProjectName() != null) {
+            String stringR2C6 = sheet1.getRow(2).getCell(6).getStringCellValue().replace("项目名称", orderDec.getProject().getProjectName());
+            sheet1.getRow(2).getCell(6).setCellValue(stringR2C6);
+        }
+        //销售合同号
+        if (orderDec.getContractNo() != null ) {
+            String stringR2C6 = sheet1.getRow(2).getCell(9).getStringCellValue().replace("法律事务部取号", orderDec.getContractNo());
+            sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
+        }
+        //客户代码
+        if (orderDec.getCrmCode() != null ) {
+            String stringR3C1 = sheet1.getRow(3).getCell(2).getStringCellValue().replace("市场填写", orderDec.getCrmCode());
+            sheet1.getRow(3).getCell(2).setCellValue(stringR3C1);
+        }
+        //询单号
+        if (orderDec.getInquiryNo() != null ) {
+            String stringR3C4 = sheet1.getRow(3).getCell(4).getStringCellValue().replace("询单号", orderDec.getInquiryNo());
+            sheet1.getRow(3).getCell(4).setCellValue(stringR3C4);
+        }
+        //是否预投
+        if (orderDec.getOrderCategory()==1 ) {
+            String stringR3C6 = sheet1.getRow(3).getCell(6).getStringCellValue().replace("□", sheet1.getRow(3).getCell(11).getStringCellValue());
+            sheet1.getRow(3).getCell(6).setCellValue(stringR3C6);
+        }else {
+            String stringR3C7 = sheet1.getRow(3).getCell(7).getStringCellValue().replace("□", sheet1.getRow(3).getCell(11).getStringCellValue());
+            sheet1.getRow(3).getCell(7).setCellValue(stringR3C7);
+        }
+        //项目编号：业务单元项目执行单号
+        if (orderDec.getProjectNo() != null ) {
+            String stringR3C9 = sheet1.getRow(3).getCell(9).getStringCellValue().replace("业务单元项目执行单号", orderDec.getProjectNo());
+            sheet1.getRow(3).getCell(9).setCellValue(stringR3C9);
+        }
+        //是否融资
+        if (orderDec.getFinancing()==1 ) {
+            String stringR4C2 = sheet1.getRow(4).getCell(2).getStringCellValue().replace("□", sheet1.getRow(3).getCell(11).getStringCellValue());
+            sheet1.getRow(4).getCell(2).setCellValue(stringR4C2);
+        }else {
+            String stringR4C4 = sheet1.getRow(4).getCell(4).getStringCellValue().replace("□", sheet1.getRow(3).getCell(11).getStringCellValue());
+            sheet1.getRow(4).getCell(4).setCellValue(stringR4C4);
+        }
+        //物流报价单编号：市场填写
+        if (orderDec.getLogiQuoteNo() != null ) {
+            String stringR4C8 = sheet1.getRow(4).getCell(8).getStringCellValue().replace("市场填写", orderDec.getLogiQuoteNo());
+            sheet1.getRow(4).getCell(8).setCellValue(stringR4C8);
+        }
+        //贸易术语
+        if (orderDec.getTradeTerms() != null ) {
+            sheet1.getRow(4).getCell(10).setCellValue(orderDec.getTradeTerms());
+        }
+        //物流报价单编号：市场填写
+        if (orderDec.getCurrencyBn() != null ) {
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("币种：              ", "币种："+orderDec.getCurrencyBn());
+            sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
+        }
+        if (orderDec.getTotalPrice() != null ) {
+            String stringR5C2 = sheet1.getRow(5).getCell(2).getStringCellValue().replace("小写：        ", "小写："+orderDec.getTotalPrice());
+            sheet1.getRow(5).getCell(2).setCellValue(stringR5C2);
+        }
+    }
 }

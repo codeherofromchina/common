@@ -18,6 +18,7 @@ import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.OrderService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.StatisticsService;
+import com.erui.report.util.ExcelUploadTypeEnum;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -278,18 +279,21 @@ public class ExportDataController {
         OutputStream out = null;
         try {
             // 获取数据
-            //Project project = this.projectService.findByIdOrOrderId(Integer.parseInt(params.get("id")),Integer.parseInt(params.get("orderId")));
-            Project project = this.projectService.findByIdOrOrderId(null, 4125);
+            Project project = this.projectService.findByIdOrOrderId(Integer.parseInt(params.get("id")),Integer.parseInt(params.get("orderId")));
             Map<String, Object> results = new HashMap<>();
-            results.put("projectDec", project);
+            if (project!=null){
+                results.put("projectDec", project);
+            }else {
+                return null;
+            }
 
             // 拿到模板文件
             // 获取模板文件内容
             String tempPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
             String suffix = EXCEL_SUFFIX;
-            File file = new File(tempPath);
+            File file = new File(tempPath, ExcelUploadTypeEnum.getByType(16).getTable() + suffix);
             byte[] data = FileUtils.readFileToByteArray(file);
-            FileInputStream tps = new FileInputStream(new File(tempPath));
+            FileInputStream tps = new FileInputStream(file);
             final XSSFWorkbook tpWorkbook = new XSSFWorkbook(tps);
             out = response.getOutputStream();
             // 输出到客户端
@@ -324,7 +328,65 @@ public class ExportDataController {
         }
         return null;
     }
+    /**
+     * @Author:SHIGS
+     * @Description 项目核算利润导出
+     * @Date:18:16 2018
+     * @modified By
+     */
+    @RequestMapping(value = "/exportOrderContract")
+    public ModelAndView exportOrderContract(HttpServletResponse response, HttpServletRequest request) {
+        Map<String, String> params = getParameters(request);
+        OutputStream out = null;
+        try {
+            // 获取数据
+            //Project project = this.projectService.findByIdOrOrderId(Integer.parseInt(params.get("id")),Integer.parseInt(params.get("orderId")));
+            Order order = this.orderService.findById(4133);
+            Map<String, Object> results = new HashMap<>();
+            results.put("orderDesc", order);
+            // 拿到模板文件
+            // 获取模板文件内容
+            String tempPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
+            String suffix = EXCEL_SUFFIX;
+            File file = new File(tempPath, ExcelUploadTypeEnum.getByType(17).getTable() + suffix);
+            byte[] data = FileUtils.readFileToByteArray(file);
+            FileInputStream tps = new FileInputStream(file);
+            final XSSFWorkbook tpWorkbook = new XSSFWorkbook(tps);
+            out = response.getOutputStream();
+            String encode = URLEncoder.encode(ExcelUploadTypeEnum.getByType(17).getTable(),"UTF-8");
+            // 输出到客户端
+            response.reset();
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=\"" +
+                            ""+encode+""+DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date())+suffix + "\"");
+            // 新建一个Excel的工作空间
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            // 把模板复制到新建的Excel
+            workbook = tpWorkbook;
+            // 填充数据
+            this.orderService.addOrderContract(workbook, results);
+            // 输出Excel内容，生成Excel文件
+            if (workbook != null) {
+                workbook.write(out);
+            }
 
+        } catch (final Exception e) {
+            LOGGER.error("异常" + e.getMessage(), e);
+        } finally {
+            try {
+                // 最后记得关闭输出流
+                response.flushBuffer();
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (final IOException e) {
+                LOGGER.error("异常" + e.getMessage(), e);
+            }
+        }
+        return null;
+    }
     /**
      * 下载excel到客户端
      *
@@ -387,7 +449,7 @@ public class ExportDataController {
         return result;
     }
 
-    private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel/报价利润核算单.xlsx";
+    private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
     private final static String EXCEL_SUFFIX = ".xlsx";
     private final static String EXCEL_SUFFIX02 = ".xls";
 }

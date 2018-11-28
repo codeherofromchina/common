@@ -8,6 +8,7 @@ import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.OutListCondition;
 import com.erui.order.util.excel.ImportDataResponse;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -129,4 +130,6 @@ public interface OrderService {
      * @return
      */
     boolean audit(Order order, String auditorId,String auditorName,AddOrderVo addOrderVo) throws Exception;
+
+    void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
 }

@@ -1331,15 +1331,15 @@ public class ProjectServiceImpl implements ProjectService {
                 String projectType = null;
                 switch (projectProfit.getProjectType()) {
                     case "1":
-                        projectType = "✅加工贸易";
+                        projectType = "加工贸易";
                         sheet1.getRow(7).getCell(1).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
                         break;
                     case "2":
-                        projectType = "✅一般贸易";
+                        projectType = "一般贸易";
                         sheet1.getRow(7).getCell(2).setCellValue(projectType);
                         break;
                     case "3":
-                        projectType = "✅转口贸易";
+                        projectType = "转口贸易";
                         sheet1.getRow(7).getCell(3).setCellValue(projectType);
                         break;
                     default:

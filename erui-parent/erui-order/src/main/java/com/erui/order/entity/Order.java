@@ -4,6 +4,7 @@ import com.erui.order.util.GoodsUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -1362,5 +1363,47 @@ public class Order {
 
     public void setAdvanceMoney(BigDecimal advanceMoney) {
         this.advanceMoney = advanceMoney;
+    }
+
+    public static enum COM {
+        COMPANY1("Shandong Kerui Petroleum Equipment Co., Ltd.", "山东科瑞石油装备有限公司"),
+        COMPANY2("Shandong Kerui Machinery Manufacturing Co., Ltd.", "山东科瑞机械制造有限公司"),
+        COMPANY3("Shandong Hengye Petroleum New Technology Application Co., Ltd.", "山东恒业石油新技术应用有限公司"),
+        COMPANY4("Shandong Kerui Oilfield Service Group Co., Ltd.", "山东科瑞油田服务集团股份有限公司"),
+        COMPANY5("Shandong Kerui Compressor Co., Ltd.", "山东科瑞压缩机有限公司"),
+        COMPANY6("Shandong Kerui Well Control Equipment Manufacture Co., Ltd.", "山东科瑞井控系统制造有限公司"),
+        COMPANY7("Shandong Dongshi Drilling Equipment Co., Ltd.", "山东东石钻采设备有限公司"),
+        COMPANY8("Shandong Kerui Pump Co., Ltd.", "山东科瑞泵业有限公司"),
+        COMPANY9("Shandong Kerui International Logistics Co., Ltd.", "山东科瑞国际物流有限公司"),
+        COMPANY10("Shandong Kerui Engineering Group Co., Ltd.", "山东科瑞石油天然气工程集团有限公司"),
+        COMPANY11("Shandong Huiheng Petroleum Equipment Company Ltd.", "山东汇恒石油设备有限公司"),
+        COMPANY12("Erui International Electronic Commerce Co., Ltd.", "易瑞国际电子商务有限公司");
+        private String code;
+        private String msg;
+
+        COM(String code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public static COM getByEn(String enName) {
+            if (enName != null) {
+                COM[] values = COM.values();
+                for (COM cm : values) {
+                    if (StringUtils.equals(cm.getMsg(), enName) || StringUtils.equals(cm.getCode(), enName)) {
+                        return cm;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }
