@@ -1314,11 +1314,13 @@ public class ProjectServiceImpl implements ProjectService {
                         break;
                     case "2":
                         projectType = "一般贸易";
-                        sheet1.getRow(7).getCell(2).setCellValue(projectType);
+                        sheet1.getRow(7).getCell(2).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
+
                         break;
                     case "3":
                         projectType = "转口贸易";
-                        sheet1.getRow(7).getCell(3).setCellValue(projectType);
+                        sheet1.getRow(7).getCell(3).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
+
                         break;
                     default:
                         projectType = "";
@@ -1451,10 +1453,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDec.getBuAuditer() != null) {
             sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuAuditer());
         }
-        if (projectDec.getBuVpAuditer() != null) {
-            String stringR44C4 = sheet1.getRow(44).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：财务，田万全");
-            sheet1.getRow(44).getCell(4).setCellValue(stringR44C4);
-        }
+        String stringR44C4 = sheet1.getRow(44).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：财务，田万全");
+        sheet1.getRow(44).getCell(4).setCellValue(stringR44C4);
         sheet1.getRow(7).getCell(4).setCellValue("");
     }
 
