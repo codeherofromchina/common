@@ -72,10 +72,10 @@ public class PerformanceController {
      */
     @RequestMapping(value = "/areaList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     @ResponseBody
-    public Object areaList(@RequestBody Map<String,String> params) {
+    public Object areaList(@RequestBody Map<String, String> params) {
         Result<Object> result = new Result<>();
         List<InquiryAreaVO> arayList = performanceService.selectAllAreaAndCountryList();
-        if (MapUtils.isNotEmpty(params)&&StringUtils.isNotEmpty(params.get("areaName"))) {
+        if (MapUtils.isNotEmpty(params) && StringUtils.isNotEmpty(params.get("areaName"))) {
             List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(params.get("areaName")))
                     .collect(Collectors.toList());
             if (ll.size() > 0) {

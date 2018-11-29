@@ -138,7 +138,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                                 mm.put("inqCount", inqCount2 + inqCount);
                                 mm.put("inqAmount", inqAmount2 + inqAmount);
                                 mm.put("quoteCount", quoteCount2 + quoteCount);
-                                mm.put("quoteAmount2", quoteAmount2 + quoteAmount);
+                                mm.put("quoteAmount", quoteAmount2 + quoteAmount);
                             } else {
                                 dMap.put(month, m);
                             }
@@ -481,6 +481,29 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         for (Map<String, Object> entry : maps) {
             names.add(String.valueOf(entry.get("category")));
             nums.add((Long) entry.get("num"));
+        }
+        result.put("names", names);
+        result.put("nums", nums);
+
+        return result;
+    }
+
+
+    /**
+     * 根据时间查询各分类报价金额
+     *
+     * @param params
+     * @return [{category:'钻修井设备',num:500.03}...]
+     */
+    @Override
+    public Map<String, Object> selectCategoryQuoteAmount(Map<String, Object> params) {
+        List<Map<String, Object>> maps = readMapper.selectCategoryQuoteAmount(params);
+        Map<String, Object> result = new HashMap<>();
+        List<String> names = new ArrayList<>();
+        List<BigDecimal> nums = new ArrayList<>();
+        for (Map<String, Object> entry : maps) {
+            names.add(String.valueOf(entry.get("category")));
+            nums.add(((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN));
         }
         result.put("names", names);
         result.put("nums", nums);

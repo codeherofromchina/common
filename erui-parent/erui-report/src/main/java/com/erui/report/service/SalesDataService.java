@@ -79,6 +79,15 @@ public interface SalesDataService {
      */
     Map<String, Object> selectCategoryQuoteNum(Map<String, Object> params);
 
+
+    /**
+     * 查询各个品类的报价金额
+     *
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectCategoryQuoteAmount(Map<String, Object> params);
+
     /**
      * 查询指定分析类型的各分类数据
      * type ：询单金额 、询单数量、报价数量
