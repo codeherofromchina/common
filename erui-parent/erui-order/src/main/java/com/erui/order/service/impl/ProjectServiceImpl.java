@@ -1308,11 +1308,11 @@ public class ProjectServiceImpl implements ProjectService {
                 //8行
                 String projectType = null;
                 switch (projectProfit.getProjectType()) {
-                    case "1":
+                    case "2":
                         projectType = "加工贸易";
                         sheet1.getRow(7).getCell(1).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
                         break;
-                    case "2":
+                    case "1":
                         projectType = "一般贸易";
                         sheet1.getRow(7).getCell(2).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
 
@@ -1426,9 +1426,9 @@ public class ProjectServiceImpl implements ProjectService {
                 sheet1.getRow(38).getCell(2).setCellFormula(null);
                 sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
             }
-            if (projectProfit.getContractAmount() != null) {
+            if (projectProfit.getManageFee() != null) {
                 sheet1.getRow(39).getCell(2).setCellFormula(null);
-                sheet1.getRow(39).getCell(2).setCellValue((projectProfit.getContractAmount().multiply(new BigDecimal(0.02)).setScale(2, BigDecimal.ROUND_HALF_UP)).toString());
+                sheet1.getRow(39).getCell(2).setCellValue(projectProfit.getManageFee().toString());
             }
             if (projectProfit.getBeforeProfit() != null) {
                 sheet1.getRow(40).getCell(2).setCellFormula(null);
