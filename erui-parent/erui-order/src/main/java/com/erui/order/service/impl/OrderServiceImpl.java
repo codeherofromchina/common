@@ -2790,8 +2790,8 @@ public class OrderServiceImpl implements OrderService {
             sheet1.getRow(21).getCell(1).setCellValue(stringR21C1);
         }
         if (orderDec.getProject() != null) {
-            //是否物流审核
-            if (orderDec.getProject().getLogisticsAudit() != null && orderDec.getProject().getLogisticsAudit() == 1 && orderDec.getProject().getLogisticsAuditer() != null) {
+            //是否物流审核 1:不需要  2：需要
+            if (orderDec.getProject().getLogisticsAudit() != null && orderDec.getProject().getLogisticsAudit() == 2 && orderDec.getProject().getLogisticsAuditer() != null) {
                 String stringR27C1 = sheet1.getRow(27).getCell(1).getStringCellValue().replace("□ 是", sheet1.getRow(3).getCell(11).getStringCellValue() + " 是");
                 sheet1.getRow(27).getCell(1).setCellValue(stringR27C1);
                 //审核人
