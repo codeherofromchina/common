@@ -350,13 +350,20 @@ public class ExportDataController {
     @RequestMapping(value = "/exportOrderContract")
     public ModelAndView exportOrderContract(HttpServletResponse response, HttpServletRequest request) {
         Map<String, String> params = getParameters(request);
+        Integer id = null;
+        if (params.containsKey("id") && params.get("id") != null) {
+            id = Integer.parseInt(params.get("id"));
+        }
         OutputStream out = null;
         try {
             // 获取数据
-            //Project project = this.projectService.findByIdOrOrderId(Integer.parseInt(params.get("id")),Integer.parseInt(params.get("orderId")));
-            Order order = this.orderService.findById(4133);
+            Order order = this.orderService.findById(id);
             Map<String, Object> results = new HashMap<>();
-            results.put("orderDesc", order);
+            if (order != null) {
+                results.put("orderDesc", order);
+            } else {
+                return null;
+            }
             // 拿到模板文件
             // 获取模板文件内容
             String tempPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);

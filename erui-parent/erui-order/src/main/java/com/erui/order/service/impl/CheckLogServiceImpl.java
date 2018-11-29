@@ -201,31 +201,36 @@ public class CheckLogServiceImpl implements CheckLogService {
     @Deprecated
     @Transactional(readOnly = true)
     public List<CheckLog> findPassed2(Integer orderId) {
-        PageRequest request = new PageRequest(0, 100, Sort.Direction.DESC, "createTime");
-        Page<CheckLog> all = checkLogDao.findAll(new Specification<CheckLog>() {
-            List<Predicate> list = new ArrayList<>();
-
-            @Override
-            public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                // 根据销售同号模糊查询
-                if (orderId != null) {
-                    list.add(cb.equal(root.get("orderId").as(Integer.class), orderId));
-                }
-//                list.add(cb.equal(root.get("type").as(Integer.class), 1));
-                list.add(cb.between(root.get("operation").as(String.class), "1", "2"));
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-                return cb.and(predicates);
+        List<CheckLog> resultCheckLogs = new ArrayList<>();
+        if (orderId != null) {
+            List<CheckLog> checkLogList = findListByOrderIdOrderByTypeAndAuditingProcess(orderId);
+            Order order = orderService.findById(orderId);
+            Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态，如果为空说明没有任何审核进度
+            if (orderAuditingStatus == null) {
+                return resultCheckLogs;
             }
-        }, request);
-        List<CheckLog> checkLogList = all.getContent();
-        Map<Integer, CheckLog> map = new HashMap<>();
-        if (checkLogList != null && checkLogList.size() > 0) {
-            for (CheckLog cLog : checkLogList) {
-                map.put(cLog.getAuditingProcess(), cLog);
+            if (order.getProject().getAuditingStatus() == 4 && order.getProject().getAuditingProcess() == null){
+                for (CheckLog checkLog : checkLogList) {
+                    // 只查找通过和立项的审核
+                    if (!checkLog.getOperation().equals("-1")) {
+                        resultCheckLogs.add(checkLog);
+                    }
+                }
+            }else {
+                return resultCheckLogs;
+            }
+            Map<String, CheckLog> map = new LinkedMap<>();
+            for (CheckLog cLog : resultCheckLogs) {
+                if (map.containsKey(cLog.getAuditingProcess())) {
+                    map.remove(cLog.getAuditingProcess());
+                    map.put(cLog.getAuditingProcess().toString(), cLog);
+                } else {
+                    map.put(cLog.getAuditingProcess().toString(), cLog);
+                }
             }
             List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
-            return cList;
+            List<CheckLog> collect = cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
+            return collect;
         }
         return null;
     }

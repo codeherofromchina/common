@@ -331,6 +331,17 @@ public class Order {
     private String audiRemark;//所经过审核人
     @Column(name = "financing_commissioner_id")
     private Integer financingCommissionerId;//融资专员Id
+    //如果项目审核完成返回前端 值为 1
+    @Transient
+    private Integer proAuditStatus = 0;
+
+    public Integer getProAuditStatus() {
+        return proAuditStatus;
+    }
+
+    public void setProAuditStatus(Integer proAuditStatus) {
+        this.proAuditStatus = proAuditStatus;
+    }
 
     public Integer getFinancingCommissionerId() {
         return financingCommissionerId;

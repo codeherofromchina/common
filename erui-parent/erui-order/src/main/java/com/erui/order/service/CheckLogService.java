@@ -44,4 +44,11 @@ public interface CheckLogService {
      * @modified By
      */
     List<CheckLog> findPassed(Integer orderId);
+    /**
+     * @Author:SHIGS
+     * @Description 根据订单查找已经通过审核的日志导出销售合同审批表用
+     * @Date:18:38 2018/8/29
+     * @modified By
+     */
+    List<CheckLog> findPassed2(Integer orderId);
 }

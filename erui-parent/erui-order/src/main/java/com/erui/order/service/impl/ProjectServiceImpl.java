@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1278,6 +1279,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectDao.save(project);
         return true;
     }
+
     @Override
     public void addProfitData(XSSFWorkbook workbook, Map<String, Object> results) {
         Project projectDec = (Project) results.get("projectDec");
@@ -1389,6 +1391,7 @@ public class ProjectServiceImpl implements ProjectService {
                 sheet1.getRow(29).getCell(2).setCellValue(projectProfit.getTravelExpenses().toString());
             }
             if (projectProfit.getProjectCost() != null) {
+                sheet1.getRow(30).getCell(2).setCellValue("");
                 sheet1.getRow(30).getCell(2).setCellValue(projectProfit.getProjectCost().toString());
             }
             if (projectProfit.getGrossProfit() != null) {
@@ -1415,13 +1418,15 @@ public class ProjectServiceImpl implements ProjectService {
             if (projectProfit.getForeignTaxes() != null) {
                 sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
             }
-            /*if (projectProfit.getContractAmount() != null) {
-                sheet1.getRow(39).getCell(2).setCellValue((projectProfit.getContractAmount().multiply(new BigDecimal(0.02)).setScale(2,BigDecimal.ROUND_HALF_UP)).toString());
-            }*/
+            if (projectProfit.getContractAmount() != null) {
+                sheet1.getRow(39).getCell(2).setCellValue("");
+                sheet1.getRow(39).getCell(2).setCellValue((projectProfit.getContractAmount().multiply(new BigDecimal(0.02)).setScale(2, BigDecimal.ROUND_HALF_UP)).toString());
+            }
             if (projectProfit.getBeforeProfit() != null) {
                 sheet1.getRow(40).getCell(2).setCellValue(projectProfit.getBeforeProfit().toString());
             }
             if (projectProfit.getRaiseFee() != null) {
+                sheet1.getRow(41).getCell(2).setCellValue("");
                 sheet1.getRow(41).getCell(2).setCellValue(projectProfit.getRaiseFee().toString());
             }
             if (projectProfit.getAfterProfit() != null) {
@@ -1431,14 +1436,14 @@ public class ProjectServiceImpl implements ProjectService {
                 sheet1.getRow(43).getCell(2).setCellValue(projectProfit.getQuotationProfit().toString());
             }
         }
-        if (projectDec.getBusinessUid() != null) {
+        if (projectDec.getBusinessName() != null) {
             sheet1.getRow(44).getCell(1).setCellValue(projectDec.getBusinessName());
         }
         if (projectDec.getBuAuditer() != null) {
-            sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuVpAuditer());
+            sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuAuditer());
         }
         if (projectDec.getBuVpAuditer() != null) {
-            sheet1.getRow(44).getCell(4).setCellValue("田万全");
+            sheet1.getRow(44).getCell(4).setCellValue("财务，田万全");
         }
         sheet1.getRow(7).getCell(4).setCellValue("");
     }
