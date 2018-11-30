@@ -103,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
     public Order findById(Integer id) {
         Order order = orderDao.findOne(id);
         if (order != null) {
-            if (order.getProject().getAuditingStatus() == 4) {
+            if (order.getProject() != null && order.getProject().getAuditingStatus() != null && order.getProject().getAuditingStatus() == 4) {
                 order.setProAuditStatus(1);
             }
             order.getGoodsList().size();
@@ -119,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
     public Order findByIdLang(Integer id, String lang) {
         Order order = orderDao.findOne(id);
         if (order != null) {
-            if (order.getProject().getAuditingStatus() == 4) {
+            if (order.getProject() != null && order.getProject().getAuditingStatus() != null && order.getProject().getAuditingStatus() == 4) {
                 order.setProAuditStatus(1);
             }
             Integer size = order.getGoodsList().size();
