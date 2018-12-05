@@ -19,7 +19,6 @@ import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -33,12 +32,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -151,7 +148,7 @@ public class OrderServiceImpl implements OrderService {
 
         //收款总金额  -  发货总金额
         BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
-        if(subtract.compareTo(BigDecimal.valueOf(0)) != -1 ){    //-1 小于     0 等于      1 大于
+        if(subtract.compareTo(BigDecimal.valueOf(0)) != -1 ){    //-1 小于     0 等于      1 大于x
             order.setAdvanceMoney(subtract);     //预收金额
         }else {
             order.setAdvanceMoney(BigDecimal.valueOf(0));     //预收金额
@@ -179,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -365,8 +362,10 @@ public class OrderServiceImpl implements OrderService {
                                 list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
-                                    condition.getCreateUserId())));
+                            if (condition.getCreateUserId() != null) {
+                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId())));
+                            }
                         }
                     }
                 } /*else {
@@ -1651,6 +1650,8 @@ public class OrderServiceImpl implements OrderService {
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        StringBuilder errorContractNo = new StringBuilder();
+        Map<String, Integer> map = new HashMap<String, Integer>();
         int size = datas.size();
         Order oc = null;
         //PurchRequisition purchRequisition = null;
@@ -1659,11 +1660,20 @@ public class OrderServiceImpl implements OrderService {
         for (int index = 0; index < size; index++) {
             int cellIndex = index + 2; // 数据从第二行开始
             String[] strArr = datas.get(index);
+            if (map.containsKey(strArr[2])) {
+                response.setOtherMsg("列表中重复的销售合同号：" + strArr[2]);
+                return response;
+            }
+            map.put(strArr[2], index);
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.ORDER_MANAGE, response, cellIndex)) {
                 continue;
             }
             List<Integer> contractNoProjectIds = orderDao.findByContractNo(strArr[2]);
             if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                if (contractNoProjectIds.size() > 1) {
+                    errorContractNo.append(strArr[2] + ";");
+                    continue;
+                }
                 Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
                 oc = orderDao.save(byContractNoOrder);
                   /*  List<Goods> goodsList = order.getGoodsList();
@@ -1671,7 +1681,7 @@ public class OrderServiceImpl implements OrderService {
                         goodsDao.delete(gs);
                     }*/
             } else {
-                oc = orderDao.save(oc);
+                oc = new Order();
             }
             //purchRequisition = new PurchRequisition();
 
@@ -1706,13 +1716,17 @@ public class OrderServiceImpl implements OrderService {
             /*if (strArr[13] != null) {
                 oc.setBusinessUnitId(Integer.parseInt(strArr[13]));
             }*/
-            oc.setBusinessUnitName(strArr[12]);
+            if (strArr[12] != null) {
+                oc.setBusinessUnitId(Integer.parseInt(strArr[12]));
+            }
+            oc.setBusinessUnitName(strArr[56]);
            /* if (strArr[14] != null) {
                 oc.setExecCoId(Integer.parseInt(strArr[14]));
             }*/
-            //执行分公司
-            oc.setExecCoName(strArr[13]);
-
+            //执行分公司id
+            if (strArr[13] != null) {
+                oc.setExecCoId(Integer.parseInt(strArr[13]));
+            }
             oc.setRegion(strArr[14]);
           /*  if (strArr[15] != null) {
                 try {
@@ -1820,6 +1834,13 @@ public class OrderServiceImpl implements OrderService {
             }
             oc.setDeliveryRequires(strArr[39]);
             oc.setCustomerContext(strArr[40]);
+            //执行分公司
+            oc.setExecCoName(strArr[57]);
+            //订单创建日期
+            if (strArr[41] != null) {
+                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
+                oc.setCreateTime(createDate);
+            }
             oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
@@ -1841,7 +1862,12 @@ public class OrderServiceImpl implements OrderService {
             }
             project.setOrder(order);
             project.setContractNo(strArr[2]);
-            project.setStartDate(DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd"));
+            //项目创建日期和开始日期
+            if (strArr[41] != null) {
+                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
+                project.setCreateTime(createDate);
+                project.setStartDate(createDate);
+            }
             project.setProjectName(strArr[42]);
             // 国家
             project.setCountry(strArr[16]);
@@ -1891,9 +1917,11 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[48] != null) {
                 project.setHasManager(Integer.parseInt(strArr[48]));
             }
-            project.setBusinessUnitName(strArr[12]);
-            project.setDistributionDeptName(strArr[49]);
-            project.setProjectStatus("EXECUTING");
+            project.setBusinessUnitName(strArr[56]);
+            if (strArr[49] != null) {
+                project.setSendDeptId(Integer.parseInt(strArr[49]));
+            }
+            project.setProjectStatus(strArr[50]);
             if (strArr[51] != null) {
                 project.setPurchaseUid(Integer.parseInt(strArr[51]));
             }
@@ -1903,7 +1931,10 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[43] != null) {
                 project.setBusinessUid(Integer.parseInt(strArr[53]));
             }
-            project.setSendDeptId(9970);
+            if (project.getHasManager() == 1 && strArr[54] != null) {
+                project.setManagerUid(Integer.parseInt(strArr[54]));
+            }
+            project.setRemarks(strArr[55]);
             project.setAuditingProcess(null);
             project.setAuditingStatus(4);
             /*if (strArr[49] != null) {
@@ -1937,6 +1968,7 @@ public class OrderServiceImpl implements OrderService {
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
+        response.setOtherMsg(errorContractNo.toString());
         return response;
     }
 
@@ -1946,23 +1978,30 @@ public class OrderServiceImpl implements OrderService {
         ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
         int size = datas.size();
-        Goods goods = null;
+        //问题销售合同号
+        Set<String> problemContractNo = new HashSet<>();
+        Set<String> problemContractNo2 = new HashSet<>();
+        List<Goods> data = new ArrayList<>();
         //PurchRequisition purchRequisition = null;
         // 订单总数量
         int orderCount = 0;
-        StringBuilder stringBuilder = new StringBuilder();
         for (int index = 0; index < size; index++) {
             int cellIndex = index + 2; // 数据从第二行开始
             String[] strArr = datas.get(index);
             if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.GOODS_MANAGE, response, cellIndex)) {
                 continue;
             }
-            List<Integer> contractNoProjectIds = orderDao.findByContractNo(strArr[0]);
-            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
-                Order byContractNoOrId = orderDao.findByContractNoOrId(strArr[0], null);
+            List<Integer> contractNoProjectIds = new ArrayList<>();
+            if (orderDao.findByContractNo(strArr[0]) != null) {
+                contractNoProjectIds = orderDao.findByContractNo(strArr[0]);
+            }
+            if (contractNoProjectIds != null && contractNoProjectIds.size() == 1) {
+                Order byContractNoOrId = orderDao.findOne(contractNoProjectIds.get(0));
                 if (byContractNoOrId.getProject().getPurchRequisition() == null) {
-                    goodsDao.delete(byContractNoOrId.getGoodsList());
-                    goods = new Goods();
+                    if (byContractNoOrId.getGoodsList() != null && byContractNoOrId.getGoodsList().size() > 0) {
+                        goodsDao.deleteInBatch(byContractNoOrId.getGoodsList());
+                    }
+                    Goods goods = new Goods();
                     goods.setOrder(byContractNoOrId);
                     goods.setProject(byContractNoOrId.getProject());
                     if (strArr[0] != null) {
@@ -1992,21 +2031,45 @@ public class OrderServiceImpl implements OrderService {
                     goods.setUnit(strArr[9]);
                     goods.setBrand(strArr[10]);
                     goods.setModel(strArr[11]);
+                    goods.setPrePurchsedNum(0);
+                    try {
+                        if (data.size() == 50) {
+                            goodsDao.save(data);
+                            data.clear();
+                        }
+                        data.add(goods);
+                    } catch (Exception e) {
+                        response.incrFail();
+                        response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), data.size(), e.getMessage());
+                    }
                 } else {
-                    System.out.println("问题销售合同号" + stringBuilder.append(" '" + strArr[0] + "' "));
+                    problemContractNo.add(strArr[0]);
                 }
-            }
-            try {
-                if (goods != null)
-                    goodsDao.save(goods);
-            } catch (Exception e) {
-                response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), cellIndex, e.getMessage());
-                continue;
+
+            }else {
+                problemContractNo2.add(strArr[0]);
             }
             response.incrSuccess();
             orderCount++;
         }
+        try {
+            if (!data.isEmpty()) {
+                goodsDao.save(data);
+            }
+        } catch (Exception e) {
+            response.incrFail();
+            response.pushFailItem(ExcelUploadTypeEnum.ORDER_MANAGE.getTable(), data.size(), e.getMessage());
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder2 = new StringBuilder();
+        for (String s : problemContractNo) {
+            stringBuilder.append(s + ";");
+        }
+        for (String s : problemContractNo2) {
+            stringBuilder2.append(s + ";");
+        }
+        System.out.println("库里不存在"+stringBuilder2.toString());
+        response.setOtherMsg("已走到采购申请"+stringBuilder.toString());
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
@@ -2605,7 +2668,7 @@ public class OrderServiceImpl implements OrderService {
         }
         //单位总：国家负责人
         if (orderDec.getCountryLeader() != null) {
-            String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("单位总：国家负责人", "单位总：" + orderDec.getCountryLeader());
+            String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("单位总：", "单位总：" + orderDec.getCountryLeader());
             sheet1.getRow(14).getCell(2).setCellValue(stringR14C2);
         }
         List<CheckLog> passed = new ArrayList<>();
