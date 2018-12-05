@@ -2668,7 +2668,7 @@ public class OrderServiceImpl implements OrderService {
         }
         //单位总：国家负责人
         if (orderDec.getCountryLeader() != null) {
-            String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("单位总：国家负责人", "单位总：" + orderDec.getCountryLeader());
+            String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("单位总：", "单位总：" + orderDec.getCountryLeader());
             sheet1.getRow(14).getCell(2).setCellValue(stringR14C2);
         }
         List<CheckLog> passed = new ArrayList<>();
