@@ -116,6 +116,12 @@ public interface OrderService {
 
 
     ImportDataResponse importData(List<String[]> datas, boolean testOnly);
+    /**
+     * @Author:SHIGS
+     * @Description导入商品
+     * @Date:19:04 2018/4/18
+     * @modified By
+     */
     ImportDataResponse importGoods(List<String[]> datas, boolean testOnly);
     ImportDataResponse importOrder(List<String[]> datas, boolean testOnly);
     ImportDataResponse importProjectData(List<String[]> datas, boolean testOnly);
