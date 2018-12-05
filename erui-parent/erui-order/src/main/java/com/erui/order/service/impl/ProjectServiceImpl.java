@@ -453,7 +453,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(readOnly = true)
     @Override
     public Page<Project> findByPage(ProjectListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         Page<Project> pageList = projectDao.findAll(new Specification<Project>() {
             @Override
             public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
