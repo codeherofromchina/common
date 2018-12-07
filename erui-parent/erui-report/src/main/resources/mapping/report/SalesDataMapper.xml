@@ -24,10 +24,10 @@
                 (
                     SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
                     erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+                    HAVING max(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                 ) as t3
             WHERE
                 t1.id = t3.log_inquiry_id
-                    AND t3.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                     AND t1.deleted_flag = 'N'
                     AND t1.`status` != 'DRAFT' GROUP BY TO_DAYS(t3.log_create_at) UNION ALL SELECT
                 0 AS inqCount,
@@ -40,6 +40,7 @@
                 (
                     SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
                     erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                    HAVING max(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                 ) as t3
             WHERE
                 t1.id = t2.inquiry_id
@@ -47,7 +48,6 @@
                     AND t1.deleted_flag = 'N'
                     AND t1.`status` != 'DRAFT'
                     AND t3.log_inquiry_id = t1.id
-                    AND t3.log_create_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
             GROUP BY TO_DAYS(t3.log_create_at)) AS t
         GROUP BY datetime
     </select>
@@ -77,12 +77,13 @@
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'BIZ_DISPATCHING'
-        GROUP BY inquiry_id) AS t3
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3
         WHERE
         t1.id = t3.log_inquiry_id
-        <if test="startTime!=null and endTime!=null">
-            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-        </if>
         AND t1.deleted_flag = 'N'
         AND t1.`status` != 'DRAFT' UNION ALL SELECT
         0 AS inqCount,
@@ -98,16 +99,18 @@
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
-        GROUP BY inquiry_id) AS t3
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3
         WHERE
         t1.id = t2.inquiry_id
         AND t2.deleted_flag = 'N'
         AND t1.deleted_flag = 'N'
         AND t1.`status` != 'DRAFT'
         AND t3.log_inquiry_id = t1.id
-        <if test="startTime!=null and endTime!=null">
-            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-        </if>
+
         ) as a
         LEFT JOIN
         `erui_dict`.`country` `b` ON `a`.`country_bn` = `b`.`bn`
@@ -140,15 +143,16 @@
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'BIZ_DISPATCHING'
-            GROUP BY inquiry_id) as t4,
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
+            ) as t4,
               `erui_dict`.`country` t2
         WHERE
             t1.id = t4.log_inquiry_id AND
             t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
             and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
-            <if test="startTime!=null and endTime!=null">
-                AND `t4`.`log_create_at` BETWEEN #{startTime} and #{endTime}
-            </if>
         GROUP BY t2.bn , t2.`name`
     </select>
 
@@ -168,15 +172,16 @@
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'MARKET_CONFIRMING'
-            GROUP BY inquiry_id) as t4,
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
+        ) as t4,
               `erui_dict`.`country` t2
         WHERE
             t1.id = t4.log_inquiry_id AND
             t1.`deleted_flag` = 'N' AND t1.`status` <![CDATA[ <> ]]> 'DRAFT'
             and t1.`country_bn` = `t2`.`bn` AND `t2`.`lang` = 'zh' and quote_status in ('QUOTED','COMPLETED')
-            <if test="startTime!=null and endTime!=null">
-                AND `t4`.`log_create_at` BETWEEN #{startTime} and #{endTime}
-            </if>
         GROUP BY t2.bn , t2.`name`
     </select>
 
@@ -207,13 +212,14 @@
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'BIZ_DISPATCHING'
-        GROUP BY inquiry_id) AS t3
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3
         WHERE
         t1.id = t3.log_inquiry_id
         AND t1.deleted_flag = 'N'
-        <if test="startTime!=null and endTime!=null">
-            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-        </if>
         AND t1.`status` != 'DRAFT' UNION ALL SELECT
         0 AS inqCount,
         0 AS inqAmount,
@@ -229,16 +235,17 @@
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
-        GROUP BY inquiry_id) AS t3
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3
         WHERE
         t1.id = t2.inquiry_id
         AND t2.deleted_flag = 'N'
         AND t1.deleted_flag = 'N'
         AND t1.`status` != 'DRAFT'
         AND t3.log_inquiry_id = t1.id
-        <if test="startTime!=null and endTime!=null">
-            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-        </if>
         ) AS a
         LEFT JOIN
         `erui_sys`.`org` `e` ON `a`.`org_id` = `e`.`id`
@@ -263,7 +270,11 @@
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'MARKET_APPROVING'
-            GROUP BY inquiry_id) as t3
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
+            ) as t3
         WHERE
             t1.inquiry_id = t2.id
                 AND t1.inquiry_id = t3.log_inquiry_id
@@ -281,9 +292,6 @@
                 'MARKET_CONFIRMING',
                 'QUOTE_SENT',
                 'INQUIRY_CLOSED')
-                <if test="startTime!=null and endTime!=null">
-                        AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-                </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
     </select>
@@ -300,7 +308,11 @@
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'MARKET_APPROVING'
-            GROUP BY inquiry_id) as t3,
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
+            ) as t3,
             erui_rfq.final_quote t4
         WHERE
             t1.inquiry_id = t2.id
@@ -321,9 +333,6 @@
                 'MARKET_CONFIRMING',
                 'QUOTE_SENT',
                 'INQUIRY_CLOSED')
-                <if test="startTime!=null and endTime!=null">
-                    AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-                </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
     </select>
@@ -340,7 +349,11 @@
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'MARKET_APPROVING'
-            GROUP BY inquiry_id) as t3,
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
+            ) as t3,
             erui_rfq.final_quote t4
         WHERE
             t1.inquiry_id = t2.id
@@ -352,9 +365,6 @@
                 AND t1.category IS NOT NULL
                 AND t1.category != ''
                 AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-                <if test="startTime!=null and endTime!=null">
-                    AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-                </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
     </select>
@@ -373,7 +383,11 @@
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
-        GROUP BY inquiry_id) as t3,
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) as t3,
         erui_rfq.final_quote t4
         WHERE
         t1.inquiry_id = t2.id
@@ -385,9 +399,6 @@
         AND t1.category IS NOT NULL
         AND t1.category != ''
         AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        <if test="startTime!=null and endTime!=null">
-            AND t3.log_create_at BETWEEN #{startTime} and #{endTime}
-        </if>
         GROUP BY t1.category
         ORDER BY 2 DESC
     </select>
@@ -408,12 +419,10 @@
         left join (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'MARKET_APPROVING' group by inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING max(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
         ) as z ON erui_rfq.v_inquiry_sku2.inquiry_id = `z`.`log_inquiry_id`
-        WHERE 1=1
-        <if test="startTime!=null and endTime!=null">
-            <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN #{startTime} and #{endTime}
-        </if>
         GROUP BY pro_category HAVING category IS NOT NULL
       ) a
       LEFT JOIN
@@ -427,13 +436,11 @@
         left join (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'MARKET_APPROVING' group by inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING max(out_at) BETWEEN  #{startTime} and #{endTime}
+            </if>
         ) as z ON erui_rfq.v_inquiry_sku2.inquiry_id = `z`.`log_inquiry_id`
-        WHERE 1=1
-        <if test="startTime!=null and endTime!=null">
-             <!-- and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s") -->
-            and `z`.`log_create_at` BETWEEN  #{startTime} and #{endTime}
-        </if>
-		and quotation_num in (SELECT serial_no FROM erui_rfq.inquiry WHERE quote_status in ('QUOTED' , 'COMPLETED'))
+        WHERE quotation_num in (SELECT serial_no FROM erui_rfq.inquiry WHERE quote_status in ('QUOTED' , 'COMPLETED'))
         GROUP BY pro_category HAVING category IS NOT NULL
       ) b
       ON a.category=b.category

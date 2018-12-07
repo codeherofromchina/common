@@ -350,10 +350,10 @@
             (
                 SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
                 erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
             ) as z
         WHERE
           t1.id = z.log_inquiry_id
-          AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
@@ -372,10 +372,10 @@
             (
                 SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
                 erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
             ) as z
         WHERE
           t1.id = z.log_inquiry_id
-          AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
             AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
@@ -393,10 +393,10 @@
         (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
         ) as z
         WHERE
         t1.id = z.log_inquiry_id
-        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t1.`status` IN ('BIZ_DISPATCHING',
                 'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
                 'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
@@ -416,10 +416,10 @@
         (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
         ) as z
         WHERE
         t1.id = z.log_inquiry_id
-        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
         AND t1.`status` IN ('BIZ_DISPATCHING',
                 'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
@@ -441,9 +441,10 @@
         (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
         ) as z
         WHERE
-        t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id
         AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
@@ -463,10 +464,11 @@
         (
 	        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
 	        erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+	        HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
 	    ) as z
         WHERE
         t1.id = z.log_inquiry_id
-        AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        AND t4.inquiry_id = t1.id
         AND t5.id = t1.buyer_id and t5.buyer_level in (52,53)
         AND t1.`status` IN ('MARKET_CONFIRMING',
         'QUOTE_SENT','INQUIRY_CLOSED')
