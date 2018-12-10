@@ -809,6 +809,9 @@ public class OrderServiceImpl implements OrderService {
         checkLog.setOperation(operation);
         checkLog.setType(type);
         return checkLog;
+
+
+
     }
 
     @Override
@@ -1844,6 +1847,7 @@ public class OrderServiceImpl implements OrderService {
             oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
+            oc.setStatus(3);
             oc.setDeleteFlag(Boolean.FALSE);
             Order order = null;
             try {
@@ -1934,8 +1938,15 @@ public class OrderServiceImpl implements OrderService {
             if (project.getHasManager() == 1 && strArr[54] != null) {
                 project.setManagerUid(Integer.parseInt(strArr[54]));
             }
+            if (strArr[0] != null) {
+                project.setOrderCategory(Integer.parseInt(strArr[0]));
+            }
+            if (strArr[1] != null) {
+                project.setOverseasSales(Integer.parseInt(strArr[1]));
+            }
             project.setRemarks(strArr[55]);
             project.setAuditingProcess(null);
+            project.setPurchDone(false);
             project.setAuditingStatus(4);
             /*if (strArr[49] != null) {
                 project.setRemarks(strArr[49]);
@@ -2032,6 +2043,11 @@ public class OrderServiceImpl implements OrderService {
                     goods.setBrand(strArr[10]);
                     goods.setModel(strArr[11]);
                     goods.setPrePurchsedNum(0);
+                    goods.setPrePurchsedNum(0);
+                    goods.setInspectNum(0);
+                    goods.setInstockNum(0);
+                    goods.setOutstockApplyNum(0);
+                    goods.setExchanged(false);
                     try {
                         if (data.size() == 50) {
                             goodsDao.save(data);
