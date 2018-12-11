@@ -1653,6 +1653,7 @@ public class OrderServiceImpl implements OrderService {
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        StringBuilder existsContractNo = new StringBuilder();
         StringBuilder errorContractNo = new StringBuilder();
         Map<String, Integer> map = new HashMap<String, Integer>();
         int size = datas.size();
@@ -1673,6 +1674,7 @@ public class OrderServiceImpl implements OrderService {
             }
             List<Integer> contractNoProjectIds = orderDao.findByContractNo(strArr[2]);
             if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                existsContractNo.append(strArr[2] + ";");
                 if (contractNoProjectIds.size() > 1) {
                     errorContractNo.append(strArr[2] + ";");
                     continue;
@@ -1979,7 +1981,7 @@ public class OrderServiceImpl implements OrderService {
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
-        response.setOtherMsg(errorContractNo.toString());
+        response.setOtherMsg("销售合同号大于1"+errorContractNo.toString()+"; "+"销售合同号已存在："+existsContractNo.toString());
         return response;
     }
 
