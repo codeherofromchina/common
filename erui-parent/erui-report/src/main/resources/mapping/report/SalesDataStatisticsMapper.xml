@@ -4,17 +4,23 @@
 
     <!--查询代理供应商按照事业部纬度、时间条件统计总数-->
     <select id="agencySupplierOrgStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
-       SELECT
-            t2.`name`, COUNT(1) AS total
+        SELECT
+        t2.`name`,count(distinct t1.proxy_no) AS total
         FROM
-            erui_supplier.supplier t1
-                LEFT JOIN
-            erui_sys.org t2 ON t1.org_id = t2.id
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_sys.org t2 ON t1.org_id = t2.id and t2.deleted_flag= 'N',
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log log
         WHERE
-            t1.`status` = 'APPROVED'
-                AND t1.supplier_type = 'AGENCY'
-                AND t1.deleted_flag= 'N'
-                AND t1.created_at BETWEEN #{startTime} AND #{endTime}
+        action = 'CREATE'
+        AND out_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id
+        HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
+        WHERE
+        t1.id = t3.inquiry_id and t1.proxy_flag = 'Y' and t1.deleted_flag='N'
         GROUP BY t2.`name` ORDER BY 2
         <if test="sort != 1" >
           DESC
@@ -58,16 +64,23 @@
     <!--查询代理供应商按照国家纬度、时间条件统计总数-->
     <select id="agencySupplierCountryStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t2.`name`, COUNT(1) AS total
+        t2.`name`, COUNT(DISTINCT t1.proxy_no) AS total
         FROM
-        erui_supplier.supplier t1
+        erui_rfq.inquiry t1
         LEFT JOIN
-        erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
+        erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log log
         WHERE
-        t1.`status` = 'APPROVED'
-        AND t1.supplier_type = 'AGENCY'
-        AND t1.deleted_flag= 'N'
-        AND t1.created_at BETWEEN #{startTime} AND #{endTime}
+        action = 'CREATE'
+        AND out_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id
+        HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
+        WHERE
+        t1.id = t3.inquiry_id
+        AND t1.proxy_flag = 'Y'
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -114,19 +127,26 @@
     <!--查询代理供应商按照地区纬度、时间条件统计总数-->
     <select id="agencySupplierAreaStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t3.`name`, COUNT(1) AS total
+        t3.`name`, COUNT(DISTINCT t1.proxy_no) AS total
         FROM
-        erui_supplier.supplier t1
+        erui_rfq.inquiry t1
         LEFT JOIN
         erui_operation.market_area_country t2 ON t1.country_bn = t2.country_bn
         LEFT JOIN
         erui_operation.market_area t3 ON t3.lang = 'zh'
-        AND t3.bn = t2.market_area_bn
+        AND t3.bn = t2.market_area_bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log log
         WHERE
-        t1.`status` = 'APPROVED'
-        AND t1.supplier_type = 'AGENCY'
-        AND t1.deleted_flag= 'N'
-        AND t1.created_at BETWEEN #{startTime} AND #{endTime}
+        action = 'CREATE'
+        AND out_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id
+        HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t4
+        WHERE
+        t1.id = t4.inquiry_id
+        AND t1.proxy_flag = 'Y'
         GROUP BY t3.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -296,7 +316,7 @@
 
     <!-- 事业部报价用时 -->
     <select id="orgQuoteTotalCostTime" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT
+        <!-- SELECT
         org.`name` AS `name`,
         SUM((UNIX_TIMESTAMP(b.out_at) - UNIX_TIMESTAMP(b.into_at))) / 3600 AS costTimes,
         COUNT(b.inquiry_id) AS total
@@ -307,7 +327,55 @@
         WHERE
         b.inquiry_id = t.id
         AND t.org_id = org.id
-        AND t.inflow_time BETWEEN #{startTime} AND #{endTime}
+        AND t.created_at BETWEEN #{startTime} AND #{endTime}
+        AND b.in_node IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+        'BIZ_QUOTING',
+        'LOGI_DISPATCHING',
+        'LOGI_QUOTING',
+        'LOGI_APPROVING',
+        'BIZ_APPROVING',
+        'MARKET_APPROVING',
+        'REJECT_QUOTING',
+        'REJECT_MARKET')
+        AND (NOT EXISTS( SELECT
+        *
+        FROM
+        erui_rfq.inquiry_check_log a
+        WHERE
+        a.id <![CDATA[ <> ]]> b.id
+        AND a.inquiry_id = b.inquiry_id
+        AND a.out_at >= b.out_at
+        AND a.into_at <![CDATA[ <= ]]> b.into_at
+        AND a.in_node = b.in_node
+        AND a.out_node = b.out_node))
+        AND EXISTS( SELECT
+        c.id
+        FROM
+        erui_rfq.inquiry_check_log c
+        WHERE
+        b.inquiry_id = c.inquiry_id
+        AND c.in_node = 'BIZ_APPROVING')
+        GROUP BY org.`name`
+        ORDER BY 2 DESC -->
+
+        SELECT
+        org.`name` AS `name`,
+        SUM((UNIX_TIMESTAMP(b.out_at) - UNIX_TIMESTAMP(b.into_at))) / 3600 AS costTimes,
+        COUNT(b.inquiry_id) AS total
+        FROM
+        erui_rfq.inquiry_check_log b,
+        erui_rfq.inquiry t,
+        erui_sys.org AS org,
+        (SELECT
+        inquiry_id AS log_inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_APPROVING'
+        GROUP BY inquiry_id having MAX(out_at) BETWEEN  #{startTime} AND #{endTime}) AS t3
+        WHERE
+        b.inquiry_id = t.id and t3.log_inquiry_id = t.id
+        AND t.org_id = org.id
         AND b.in_node IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
         'BIZ_QUOTING',
         'LOGI_DISPATCHING',
@@ -350,10 +418,10 @@
             (
                 SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
                 erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
             ) as z
         WHERE
           t1.id = z.log_inquiry_id
-          AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
@@ -372,10 +440,10 @@
             (
                 SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
                 erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
             ) as z
         WHERE
           t1.id = z.log_inquiry_id
-          AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
             AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
                 AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
@@ -393,10 +461,10 @@
         (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
         ) as z
         WHERE
         t1.id = z.log_inquiry_id
-        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t1.`status` IN ('BIZ_DISPATCHING',
                 'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
                 'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
@@ -416,10 +484,10 @@
         (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
         ) as z
         WHERE
         t1.id = z.log_inquiry_id
-        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
         AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
         AND t1.`status` IN ('BIZ_DISPATCHING',
                 'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
@@ -441,9 +509,10 @@
         (
             SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
             erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
         ) as z
         WHERE
-        t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id
         AND t1.`status` IN ('MARKET_CONFIRMING',
                 'QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
@@ -463,10 +532,11 @@
         (
 	        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
 	        erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+	        HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
 	    ) as z
         WHERE
         t1.id = z.log_inquiry_id
-        AND t4.inquiry_id = t1.id and z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        AND t4.inquiry_id = t1.id
         AND t5.id = t1.buyer_id and t5.buyer_level in (52,53)
         AND t1.`status` IN ('MARKET_CONFIRMING',
         'QUOTE_SENT','INQUIRY_CLOSED')

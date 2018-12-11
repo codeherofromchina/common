@@ -266,19 +266,20 @@
         FROM
         erui_rfq.inquiry as t1,
         (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
-        GROUP BY inquiry_id) as t4
+        GROUP BY inquiry_id
+        <if test="startTime!=null and startTime!=''">
+            HAVING MAX(out_at) BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ) as t4
         WHERE
         t4.log_inquiry_id = t1.id AND
         t1.deleted_flag = 'N'
         AND t1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        <if test="startTime!=null and startTime!=''">
-            AND t4.log_create_at BETWEEN #{startTime} AND #{endTime}
-        </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
         ORDER BY 1

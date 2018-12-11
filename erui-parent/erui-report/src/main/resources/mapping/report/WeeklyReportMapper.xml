@@ -198,13 +198,13 @@
 									SELECT inquiry_id ,  MIN(out_at)  AS diff
 									FROM erui_rfq.inquiry_check_log
 									WHERE  in_node='DRAFT' OR out_node='BIZ_DISPATCHING'
-									GROUP BY inquiry_id)AS t4 ON t1.id = t4.inquiry_id
+									GROUP BY inquiry_id
+									 HAVING  MIN(out_at)  BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")  and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+									)AS t4 ON t1.id = t4.inquiry_id
         WHERE
                 t1.deleted_flag = 'N'
                 AND t1.status != 'DRAFT'
 								AND t1.inquiry_source='BOSS'
-                AND t4.diff   BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-        and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
 				) AS t5
         GROUP BY t5.`name`
     </select>
@@ -239,13 +239,14 @@
         LEFT OUTER JOIN (SELECT inquiry_id ,  MAX(out_at)  AS diff
                                         FROM erui_rfq.inquiry_check_log
                                         WHERE  in_node='BIZ_APPROVING' OR out_node='MARKET_APPROVING'
-                                        GROUP BY inquiry_id) AS t4 ON t1.id=t4.inquiry_id
+                                        GROUP BY inquiry_id
+                                        HAVING   MAX(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                                        ) AS t4 ON t1.id=t4.inquiry_id
             WHERE
                 t1.deleted_flag = 'N'
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
         ) AS t5
-    WHERE  t5.createTime BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     GROUP BY
         t5.`name`
     </select>
