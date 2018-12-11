@@ -32,6 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -400,7 +401,7 @@ public class OrderServiceImpl implements OrderService {
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 //vo.setAttachmentSet(null);
-                if (vo.getDeliverConsignC() && vo.getStatus() != null &&  vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag;
                     if (vo.getGoodsList() != null || vo.getGoodsList().size() > 0) {
                         flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
@@ -809,6 +810,8 @@ public class OrderServiceImpl implements OrderService {
         checkLog.setOperation(operation);
         checkLog.setType(type);
         return checkLog;
+
+
     }
 
     @Override
@@ -1025,7 +1028,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
-        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
+        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
@@ -1650,6 +1653,7 @@ public class OrderServiceImpl implements OrderService {
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
         ImportDataResponse response = new ImportDataResponse(new String[]{"projectAccount"});
         response.setOtherMsg(NewDateUtil.getBeforeSaturdayWeekStr(null));
+        StringBuilder existsContractNo = new StringBuilder();
         StringBuilder errorContractNo = new StringBuilder();
         Map<String, Integer> map = new HashMap<String, Integer>();
         int size = datas.size();
@@ -1670,6 +1674,7 @@ public class OrderServiceImpl implements OrderService {
             }
             List<Integer> contractNoProjectIds = orderDao.findByContractNo(strArr[2]);
             if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                existsContractNo.append(strArr[2] + ";");
                 if (contractNoProjectIds.size() > 1) {
                     errorContractNo.append(strArr[2] + ";");
                     continue;
@@ -1844,6 +1849,7 @@ public class OrderServiceImpl implements OrderService {
             oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
+            oc.setStatus(3);
             oc.setDeleteFlag(Boolean.FALSE);
             Order order = null;
             try {
@@ -1934,8 +1940,15 @@ public class OrderServiceImpl implements OrderService {
             if (project.getHasManager() == 1 && strArr[54] != null) {
                 project.setManagerUid(Integer.parseInt(strArr[54]));
             }
+            if (strArr[0] != null) {
+                project.setOrderCategory(Integer.parseInt(strArr[0]));
+            }
+            if (strArr[1] != null) {
+                project.setOverseasSales(Integer.parseInt(strArr[1]));
+            }
             project.setRemarks(strArr[55]);
             project.setAuditingProcess(null);
+            project.setPurchDone(false);
             project.setAuditingStatus(4);
             /*if (strArr[49] != null) {
                 project.setRemarks(strArr[49]);
@@ -1968,7 +1981,7 @@ public class OrderServiceImpl implements OrderService {
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
-        response.setOtherMsg(errorContractNo.toString());
+        response.setOtherMsg("销售合同号大于1"+errorContractNo.toString()+"; "+"销售合同号已存在："+existsContractNo.toString());
         return response;
     }
 
@@ -2032,6 +2045,11 @@ public class OrderServiceImpl implements OrderService {
                     goods.setBrand(strArr[10]);
                     goods.setModel(strArr[11]);
                     goods.setPrePurchsedNum(0);
+                    goods.setPrePurchsedNum(0);
+                    goods.setInspectNum(0);
+                    goods.setInstockNum(0);
+                    goods.setOutstockApplyNum(0);
+                    goods.setExchanged(false);
                     try {
                         if (data.size() == 50) {
                             goodsDao.save(data);
@@ -2046,7 +2064,7 @@ public class OrderServiceImpl implements OrderService {
                     problemContractNo.add(strArr[0]);
                 }
 
-            }else {
+            } else {
                 problemContractNo2.add(strArr[0]);
             }
             response.incrSuccess();
@@ -2068,8 +2086,8 @@ public class OrderServiceImpl implements OrderService {
         for (String s : problemContractNo2) {
             stringBuilder2.append(s + ";");
         }
-        System.out.println("库里不存在"+stringBuilder2.toString());
-        response.setOtherMsg("已走到采购申请"+stringBuilder.toString());
+        System.out.println("库里不存在" + stringBuilder2.toString());
+        response.setOtherMsg("已走到采购申请" + stringBuilder.toString());
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
