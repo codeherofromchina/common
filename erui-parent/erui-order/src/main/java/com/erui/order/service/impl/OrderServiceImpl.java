@@ -670,25 +670,27 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if (companyMap.containsKey(order.getSigningCo())) {
-                        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
-                        String lastContractNo = orderDao.findLastContractNo(prefix);
-                        if (StringUtils.isBlank(lastContractNo)) {
-                            contractNo = StringUtil.genContractNo(null);
-                        } else {
-                            contractNo = StringUtil.genContractNo(lastContractNo);
-                        }
+                    if (StringUtils.isBlank(order.getContractNo())) {
+                        if (companyMap.containsKey(order.getSigningCo())) {
+                            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                            String lastContractNo = orderDao.findLastContractNo(prefix);
+                            if (StringUtils.isBlank(lastContractNo)) {
+                                contractNo = StringUtil.genContractNo(null);
+                            } else {
+                                contractNo = StringUtil.genContractNo(lastContractNo);
+                            }
 
-                    } else if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
-                        String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
-                        String lastContractNo = orderDao.findLastContractNo(prefix);
-                        if (StringUtils.isBlank(lastContractNo)) {
-                            contractNo = StringUtil.genContractNo02(null);
+                        } else if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
+                            String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                            String lastContractNo = orderDao.findLastContractNo(prefix);
+                            if (StringUtils.isBlank(lastContractNo)) {
+                                contractNo = StringUtil.genContractNo02(null);
+                            } else {
+                                contractNo = StringUtil.genContractNo02(lastContractNo);
+                            }
                         } else {
-                            contractNo = StringUtil.genContractNo02(lastContractNo);
+                            contractNo = addOrderVo.getContractNo();
                         }
-                    } else {
-                        contractNo = addOrderVo.getContractNo();
                     }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
