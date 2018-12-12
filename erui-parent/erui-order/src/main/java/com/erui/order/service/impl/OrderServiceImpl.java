@@ -18,6 +18,7 @@ import com.erui.order.service.*;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -660,8 +661,35 @@ public class OrderServiceImpl implements OrderService {
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107
-                    // 添加销售合同号和海外销售合同号
-                    String contractNo = addOrderVo.getContractNo();
+                    Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                            .put("Erui International USA, LLC", 1)
+                            .put("Erui International (Canada) Co., Ltd.", 2)
+                            .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                            .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                            .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                            .build();
+                    // 添加销售合同号
+                    String contractNo = null;
+                    if (companyMap.containsKey(order.getSigningCo())) {
+                        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                        String lastContractNo = orderDao.findLastContractNo(prefix);
+                        if (StringUtils.isBlank(lastContractNo)) {
+                            contractNo = StringUtil.genContractNo(null);
+                        } else {
+                            contractNo = StringUtil.genContractNo(lastContractNo);
+                        }
+
+                    } else if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
+                        String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                        String lastContractNo = orderDao.findLastContractNo(prefix);
+                        if (StringUtils.isBlank(lastContractNo)) {
+                            contractNo = StringUtil.genContractNo02(null);
+                        } else {
+                            contractNo = StringUtil.genContractNo02(lastContractNo);
+                        }
+                    } else {
+                        contractNo = addOrderVo.getContractNo();
+                    }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         // 判断销售合同号不能重复
@@ -1981,7 +2009,7 @@ public class OrderServiceImpl implements OrderService {
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
-        response.setOtherMsg("销售合同号大于1"+errorContractNo.toString()+"; "+"销售合同号已存在："+existsContractNo.toString());
+        response.setOtherMsg("销售合同号大于1" + errorContractNo.toString() + "; " + "销售合同号已存在：" + existsContractNo.toString());
         return response;
     }
 
