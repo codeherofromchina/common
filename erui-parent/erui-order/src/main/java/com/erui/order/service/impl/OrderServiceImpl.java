@@ -18,6 +18,7 @@ import com.erui.order.service.*;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -660,8 +661,37 @@ public class OrderServiceImpl implements OrderService {
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107
-                    // 添加销售合同号和海外销售合同号
-                    String contractNo = addOrderVo.getContractNo();
+                    Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                            .put("Erui International USA, LLC", 1)
+                            .put("Erui International (Canada) Co., Ltd.", 2)
+                            .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                            .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                            .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                            .build();
+                    // 添加销售合同号
+                    String contractNo = null;
+                    if (StringUtils.isBlank(order.getContractNo())) {
+                        if (companyMap.containsKey(order.getSigningCo())) {
+                            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                            String lastContractNo = orderDao.findLastContractNo(prefix);
+                            if (StringUtils.isBlank(lastContractNo)) {
+                                contractNo = StringUtil.genContractNo(null);
+                            } else {
+                                contractNo = StringUtil.genContractNo(lastContractNo);
+                            }
+
+                        } else if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
+                            String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                            String lastContractNo = orderDao.findLastContractNo(prefix);
+                            if (StringUtils.isBlank(lastContractNo)) {
+                                contractNo = StringUtil.genContractNo02(null);
+                            } else {
+                                contractNo = StringUtil.genContractNo02(lastContractNo);
+                            }
+                        } else {
+                            contractNo = addOrderVo.getContractNo();
+                        }
+                    }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         // 判断销售合同号不能重复
@@ -1679,12 +1709,13 @@ public class OrderServiceImpl implements OrderService {
                     errorContractNo.append(strArr[2] + ";");
                     continue;
                 }
-                Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
-                oc = orderDao.save(byContractNoOrder);
+                //Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
+               // oc = orderDao.save(byContractNoOrder);
                   /*  List<Goods> goodsList = order.getGoodsList();
                     for (Goods gs:goodsList) {
                         goodsDao.delete(gs);
                     }*/
+                continue;
             } else {
                 oc = new Order();
             }
@@ -1849,7 +1880,13 @@ public class OrderServiceImpl implements OrderService {
             oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
-            oc.setStatus(3);
+            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum()>2){
+                oc.setProcessProgress("SHIPED");
+                oc.setStatus(4);
+            }else {
+                oc.setProcessProgress("EXECUTING");
+                oc.setStatus(3);
+            }
             oc.setDeleteFlag(Boolean.FALSE);
             Order order = null;
             try {
@@ -1914,7 +1951,12 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
             }
-            project.setRegion(strArr[15]);
+            if (strArr[15]!=null){
+                project.setRegion(strArr[15]);
+            }else {
+                project.setRegion("");
+            }
+
             //执行变更日期
             if (strArr[47] != null) {
                 project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[47], "yyyy-MM-dd"));
@@ -1928,6 +1970,13 @@ public class OrderServiceImpl implements OrderService {
                 project.setSendDeptId(Integer.parseInt(strArr[49]));
             }
             project.setProjectStatus(strArr[50]);
+            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum()>2){
+                project.setProcessProgress("SHIPED");
+                project.setPurchDone(true);
+            }else {
+                project.setProcessProgress("EXECUTING");
+                project.setPurchDone(false);
+            }
             if (strArr[51] != null) {
                 project.setPurchaseUid(Integer.parseInt(strArr[51]));
             }
@@ -1948,7 +1997,6 @@ public class OrderServiceImpl implements OrderService {
             }
             project.setRemarks(strArr[55]);
             project.setAuditingProcess(null);
-            project.setPurchDone(false);
             project.setAuditingStatus(4);
             /*if (strArr[49] != null) {
                 project.setRemarks(strArr[49]);
@@ -1981,7 +2029,7 @@ public class OrderServiceImpl implements OrderService {
         response.getFailItems();
         response.getSumMap().put("orderCount", new BigDecimal(orderCount)); // 订单总数量
         response.setDone(true);
-        response.setOtherMsg("销售合同号大于1"+errorContractNo.toString()+"; "+"销售合同号已存在："+existsContractNo.toString());
+        response.setOtherMsg("销售合同号大于1" + errorContractNo.toString() + "; " + "销售合同号已存在：" + existsContractNo.toString());
         return response;
     }
 

@@ -632,6 +632,40 @@ public class StringUtil {
 
     }
 
+    // 生成易瑞销售合同
+    public static String genContractNo(String oldContractNo) {
+        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+        String beginNumStr = "01";
+        if (StringUtils.isNotBlank(oldContractNo) && oldContractNo.length() == 13 &&
+                (oldContractNo.substring(0, 11).compareTo(prefix) >= 0 )) {
+            String seq = oldContractNo.substring(3);
+            long seqLong = Long.parseLong(seq);
+            seqLong += 1;
+            // 末尾从0001开始 TODO 月份可能提前跑到13，产品确认一天易瑞类100%不会超过99单
+            if (seqLong % 100 == 0) {
+                seqLong += 1;
+            }
+            return "YRX" + String.valueOf(seqLong);
+        }
+        return prefix + beginNumStr;
+    }
+    // 生成易瑞销售合同
+    public static String genContractNo02(String oldContractNo) {
+        String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+        String beginNumStr = "01";
+        if (StringUtils.isNotBlank(oldContractNo) && oldContractNo.length() == 15 &&
+                (oldContractNo.substring(0, 13).compareTo(prefix) >= 0 )) {
+            String seq = oldContractNo.substring(5);
+            long seqLong = Long.parseLong(seq);
+            seqLong += 1;
+            // 末尾从0001开始 TODO 月份可能提前跑到13，产品确认一天易瑞类100%不会超过99单
+            if (seqLong % 100 == 0) {
+                seqLong += 1;
+            }
+            return "YRHWX" + String.valueOf(seqLong);
+        }
+        return prefix + beginNumStr;
+    }
     // 生成
     public static String genDeliverConsignNo(String oldDeliverConsignNo) {
         String prefix = "CKFH" + DateUtil.format("yyyyMM", new Date());
@@ -649,8 +683,6 @@ public class StringUtil {
         }
         return prefix + beginNumStr;
     }
-
-
     /**
      * @return
      * @DESCRIPTION 生成自增四位流水号
