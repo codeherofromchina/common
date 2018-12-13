@@ -1709,12 +1709,13 @@ public class OrderServiceImpl implements OrderService {
                     errorContractNo.append(strArr[2] + ";");
                     continue;
                 }
-                Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
-                oc = orderDao.save(byContractNoOrder);
+                //Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
+               // oc = orderDao.save(byContractNoOrder);
                   /*  List<Goods> goodsList = order.getGoodsList();
                     for (Goods gs:goodsList) {
                         goodsDao.delete(gs);
                     }*/
+                continue;
             } else {
                 oc = new Order();
             }
@@ -1879,7 +1880,13 @@ public class OrderServiceImpl implements OrderService {
             oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
-            oc.setStatus(3);
+            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum()>2){
+                oc.setProcessProgress("SHIPED");
+                oc.setStatus(4);
+            }else {
+                oc.setProcessProgress("EXECUTING");
+                oc.setStatus(3);
+            }
             oc.setDeleteFlag(Boolean.FALSE);
             Order order = null;
             try {
@@ -1944,7 +1951,12 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
             }
-            project.setRegion(strArr[15]);
+            if (strArr[15]!=null){
+                project.setRegion(strArr[15]);
+            }else {
+                project.setRegion("");
+            }
+
             //执行变更日期
             if (strArr[47] != null) {
                 project.setExeChgDate(DateUtil.parseString2DateNoException(strArr[47], "yyyy-MM-dd"));
@@ -1958,6 +1970,13 @@ public class OrderServiceImpl implements OrderService {
                 project.setSendDeptId(Integer.parseInt(strArr[49]));
             }
             project.setProjectStatus(strArr[50]);
+            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum()>2){
+                project.setProcessProgress("SHIPED");
+                project.setPurchDone(true);
+            }else {
+                project.setProcessProgress("EXECUTING");
+                project.setPurchDone(false);
+            }
             if (strArr[51] != null) {
                 project.setPurchaseUid(Integer.parseInt(strArr[51]));
             }
@@ -1978,7 +1997,6 @@ public class OrderServiceImpl implements OrderService {
             }
             project.setRemarks(strArr[55]);
             project.setAuditingProcess(null);
-            project.setPurchDone(false);
             project.setAuditingStatus(4);
             /*if (strArr[49] != null) {
                 project.setRemarks(strArr[49]);
