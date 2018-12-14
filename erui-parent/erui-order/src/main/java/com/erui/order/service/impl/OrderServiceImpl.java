@@ -1877,14 +1877,13 @@ public class OrderServiceImpl implements OrderService {
                 Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
                 oc.setCreateTime(createDate);
             }
-            oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
             if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum()>2){
-                oc.setProcessProgress("SHIPED");
+                oc.setProcessProgress("9");
                 oc.setStatus(4);
             }else {
-                oc.setProcessProgress("EXECUTING");
+                oc.setProcessProgress("2");
                 oc.setStatus(3);
             }
             oc.setDeleteFlag(Boolean.FALSE);
@@ -1971,10 +1970,10 @@ public class OrderServiceImpl implements OrderService {
             }
             project.setProjectStatus(strArr[50]);
             if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum()>2){
-                project.setProcessProgress("SHIPED");
+                project.setProcessProgress("9");
                 project.setPurchDone(true);
             }else {
-                project.setProcessProgress("EXECUTING");
+                project.setProcessProgress("2");
                 project.setPurchDone(false);
             }
             if (strArr[51] != null) {
