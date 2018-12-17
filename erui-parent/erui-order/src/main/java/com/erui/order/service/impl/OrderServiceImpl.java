@@ -670,7 +670,9 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if (StringUtils.isBlank(order.getContractNo())) {
+                    if ((addOrderVo.getOrderCategory() != 2 && addOrderVo.getOrderCategory() != 4) || StringUtils.isNotBlank(order.getContractNo())) {
+                        contractNo = addOrderVo.getContractNo();
+                    } else {
                         if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
                             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
@@ -689,8 +691,6 @@ public class OrderServiceImpl implements OrderService {
                                 contractNo = StringUtil.genContractNo02(lastContractNo);
                             }
                         }
-                    } else {
-                        contractNo = addOrderVo.getContractNo();
                     }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
@@ -1710,7 +1710,7 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
                 //Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
-               // oc = orderDao.save(byContractNoOrder);
+                // oc = orderDao.save(byContractNoOrder);
                   /*  List<Goods> goodsList = order.getGoodsList();
                     for (Goods gs:goodsList) {
                         goodsDao.delete(gs);
@@ -1880,10 +1880,10 @@ public class OrderServiceImpl implements OrderService {
             oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
-            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum()>2){
+            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum() > 2) {
                 oc.setProcessProgress("SHIPED");
                 oc.setStatus(4);
-            }else {
+            } else {
                 oc.setProcessProgress("EXECUTING");
                 oc.setStatus(3);
             }
@@ -1951,9 +1951,9 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
             }
-            if (strArr[15]!=null){
+            if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
-            }else {
+            } else {
                 project.setRegion("");
             }
 
@@ -1970,10 +1970,10 @@ public class OrderServiceImpl implements OrderService {
                 project.setSendDeptId(Integer.parseInt(strArr[49]));
             }
             project.setProjectStatus(strArr[50]);
-            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum()>2){
+            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum() > 2) {
                 project.setProcessProgress("SHIPED");
                 project.setPurchDone(true);
-            }else {
+            } else {
                 project.setProcessProgress("EXECUTING");
                 project.setPurchDone(false);
             }
