@@ -670,9 +670,7 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if ((order.getOrderCategory() != 2 && order.getOrderCategory() != 4) || StringUtils.isNotBlank(order.getContractNo())) {
-                        contractNo = addOrderVo.getContractNo();
-                    } else {
+                    if ((order.getOrderCategory() == 2 || order.getOrderCategory() == 4) && StringUtils.isBlank(order.getContractNo())) {
                         if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
                             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
@@ -691,6 +689,8 @@ public class OrderServiceImpl implements OrderService {
                                 contractNo = StringUtil.genContractNo02(lastContractNo);
                             }
                         }
+                    } else {
+                        contractNo = addOrderVo.getContractNo();
                     }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
@@ -848,6 +848,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
+        if ((order.getOrderCategory() != 2 && order.getOrderCategory() != 4) && (addOrderVo.getOrderCategory() == 2 || addOrderVo.getOrderCategory() == 4)) {
+            order.setContractNo("");
+        }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
         order.setAttachmentSet(addOrderVo.getAttachDesc());
