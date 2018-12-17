@@ -670,7 +670,7 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if ((addOrderVo.getOrderCategory() != 2 && addOrderVo.getOrderCategory() != 4) || StringUtils.isNotBlank(order.getContractNo())) {
+                    if ((order.getOrderCategory() != 2 && order.getOrderCategory() != 4) || StringUtils.isNotBlank(order.getContractNo())) {
                         contractNo = addOrderVo.getContractNo();
                     } else {
                         if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
