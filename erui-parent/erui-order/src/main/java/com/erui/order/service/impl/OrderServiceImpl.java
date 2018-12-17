@@ -670,7 +670,7 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if (StringUtils.isBlank(order.getContractNo())) {
+                    if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
                         if (companyMap.containsKey(order.getSigningCo())) {
                             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
@@ -680,7 +680,7 @@ public class OrderServiceImpl implements OrderService {
                                 contractNo = StringUtil.genContractNo(lastContractNo);
                             }
 
-                        } else if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
+                        } else if (StringUtils.isBlank(order.getContractNo())) {
                             String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
                             if (StringUtils.isBlank(lastContractNo)) {
