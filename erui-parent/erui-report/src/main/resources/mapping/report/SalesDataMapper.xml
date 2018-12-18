@@ -22,9 +22,9 @@
             FROM
                 erui_rfq.inquiry t1 left join erui_rfq.final_quote t2 on t1.id = t2.inquiry_id and t2.deleted_flag='N',
                 (
-                    SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                    SELECT inquiry_id as log_inquiry_id,MIN(out_at) as log_create_at FROM
                     erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
-                    HAVING max(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                    HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                 ) as t3
             WHERE
                 t1.id = t3.log_inquiry_id
@@ -38,9 +38,9 @@
             FROM
                 erui_rfq.inquiry t1, erui_rfq.final_quote t2,
                 (
-                    SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                    SELECT inquiry_id as log_inquiry_id,MIN(out_at) as log_create_at FROM
                     erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
-                    HAVING max(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                    HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
                 ) as t3
             WHERE
                 t1.id = t2.inquiry_id
@@ -72,14 +72,14 @@
         t1.country_bn AS country_bn
         FROM
         erui_rfq.inquiry t1 left join erui_rfq.final_quote t2 on t1.id = t2.inquiry_id AND t2.deleted_flag = 'N', (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'BIZ_DISPATCHING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -94,14 +94,14 @@
         t1.country_bn AS country_bn
         FROM
         erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -138,14 +138,14 @@
           `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
             AND t3.deleted_flag = 'N',
             (SELECT
-            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+            inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
             FROM
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'BIZ_DISPATCHING'
             GROUP BY inquiry_id
             <if test="startTime!=null and endTime!=null">
-                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+                HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
             </if>
             ) as t4,
               `erui_dict`.`country` t2
@@ -167,14 +167,14 @@
           `erui_rfq`.`final_quote` t3 ON t1.id = t3.inquiry_id
             AND t3.deleted_flag = 'N',
             (SELECT
-            inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+            inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
             FROM
             erui_rfq.inquiry_check_log
             WHERE
             out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id
             <if test="startTime!=null and endTime!=null">
-                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+                HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
             </if>
         ) as t4,
               `erui_dict`.`country` t2
@@ -230,14 +230,14 @@
         (UNIX_TIMESTAMP(`t3`.`log_create_at`) - UNIX_TIMESTAMP(`t1`.`created_at`)) / 3600 AS quoteTime
         FROM
         erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -266,14 +266,14 @@
         t1.category, t2.id AS id
         FROM
         erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -287,14 +287,14 @@
         t1.material_cat_name AS category, t2.id AS id
         FROM
         erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -358,14 +358,14 @@
         t1.category, t4.id
         FROM
         erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3, erui_rfq.final_quote t4
         WHERE
@@ -381,14 +381,14 @@
         t1.material_cat_name AS category, t4.id
         FROM
         erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3, erui_rfq.final_quote t4
         WHERE
@@ -415,14 +415,14 @@
         t1.category, t1.qty * IFNULL(t2.exw_unit_price, 0) AS amount
         FROM
         erui_rfq.inquiry_item t1, erui_rfq.quote_item t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -436,14 +436,14 @@
         t1.qty * IFNULL(t2.exw_unit_price, 0) AS amount
         FROM
         erui_rfq.inquiry_item t1, erui_rfq.quote_item t2, (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_APPROVING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
