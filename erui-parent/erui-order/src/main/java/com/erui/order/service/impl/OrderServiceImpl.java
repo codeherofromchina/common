@@ -850,6 +850,8 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderDao.findOne(addOrderVo.getId());
         if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
+        } else if (order.getOverseasSales() != addOrderVo.getOverseasSales()) {
+            order.setContractNo("");
         }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
