@@ -140,7 +140,10 @@ public class OrderServiceImpl implements OrderService {
                     order.setExecCoName(company.getName());
                 }
             }
-            String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            String distributionDeptName = null;
+            if (StringUtils.isNotBlank(order.getDistributionDeptName())){
+                distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            }
             order.setDistributionDeptName(distributionDeptName);
         }
 
