@@ -18,6 +18,7 @@ import com.erui.order.service.*;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -139,7 +140,10 @@ public class OrderServiceImpl implements OrderService {
                     order.setExecCoName(company.getName());
                 }
             }
-            String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            String distributionDeptName = null;
+            if (StringUtils.isNotBlank(order.getDistributionDeptName())) {
+                distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            }
             order.setDistributionDeptName(distributionDeptName);
         }
 
@@ -660,8 +664,37 @@ public class OrderServiceImpl implements OrderService {
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107
-                    // 添加销售合同号和海外销售合同号
-                    String contractNo = addOrderVo.getContractNo();
+                    Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                            .put("Erui International USA, LLC", 1)
+                            .put("Erui International (Canada) Co., Ltd.", 2)
+                            .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                            .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                            .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                            .build();
+                    // 添加销售合同号
+                    String contractNo = null;
+                    if ((order.getOverseasSales() == 2 || order.getOverseasSales() == 4) && StringUtils.isBlank(order.getContractNo())) {
+                        if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
+                            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                            String lastContractNo = orderDao.findLastContractNo(prefix);
+                            if (StringUtils.isBlank(lastContractNo)) {
+                                contractNo = StringUtil.genContractNo(null);
+                            } else {
+                                contractNo = StringUtil.genContractNo(lastContractNo);
+                            }
+
+                        } else if (companyMap.containsKey(order.getSigningCo())) {
+                            String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                            String lastContractNo = orderDao.findLastContractNo(prefix);
+                            if (StringUtils.isBlank(lastContractNo)) {
+                                contractNo = StringUtil.genContractNo02(null);
+                            } else {
+                                contractNo = StringUtil.genContractNo02(lastContractNo);
+                            }
+                        }
+                    } else {
+                        contractNo = addOrderVo.getContractNo();
+                    }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         // 判断销售合同号不能重复
@@ -818,6 +851,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
+        if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
+            order.setContractNo("");
+        } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
+            order.setContractNo("");
+        }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
         order.setAttachmentSet(addOrderVo.getAttachDesc());
@@ -825,7 +863,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
 
-        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
+        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
@@ -1847,14 +1885,12 @@ public class OrderServiceImpl implements OrderService {
                 Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
                 oc.setCreateTime(createDate);
             }
-            oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
-            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum()>2){
-                oc.setProcessProgress("SHIPED");
+            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum() > 2) {
+                oc.setProcessProgress("9");
                 oc.setStatus(4);
-            }else {
-                oc.setProcessProgress("EXECUTING");
+            } else {
                 oc.setStatus(3);
             }
             oc.setDeleteFlag(Boolean.FALSE);
@@ -1921,9 +1957,9 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
             }
-            if (strArr[15]!=null){
+
+            if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
-            }else {
                 project.setRegion("");
             }
 
@@ -1940,11 +1976,11 @@ public class OrderServiceImpl implements OrderService {
                 project.setSendDeptId(Integer.parseInt(strArr[49]));
             }
             project.setProjectStatus(strArr[50]);
-            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum()>2){
-                project.setProcessProgress("SHIPED");
+            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum() > 2) {
+                project.setProcessProgress("9");
                 project.setPurchDone(true);
-            }else {
-                project.setProcessProgress("EXECUTING");
+            } else {
+                project.setProcessProgress("2");
                 project.setPurchDone(false);
             }
             if (strArr[51] != null) {
