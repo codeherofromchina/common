@@ -670,8 +670,8 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if (StringUtils.isBlank(order.getContractNo())) {
-                        if (companyMap.containsKey(order.getSigningCo())) {
+                    if ((order.getOrderCategory() == 2 || order.getOrderCategory() == 4) && StringUtils.isBlank(order.getContractNo())) {
+                        if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
                             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
                             if (StringUtils.isBlank(lastContractNo)) {
@@ -680,7 +680,7 @@ public class OrderServiceImpl implements OrderService {
                                 contractNo = StringUtil.genContractNo(lastContractNo);
                             }
 
-                        } else if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
+                        } else if (companyMap.containsKey(order.getSigningCo())) {
                             String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
                             if (StringUtils.isBlank(lastContractNo)) {
@@ -688,9 +688,9 @@ public class OrderServiceImpl implements OrderService {
                             } else {
                                 contractNo = StringUtil.genContractNo02(lastContractNo);
                             }
-                        } else {
-                            contractNo = addOrderVo.getContractNo();
                         }
+                    } else {
+                        contractNo = addOrderVo.getContractNo();
                     }
                     if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
@@ -848,6 +848,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
+        if ((order.getOrderCategory() != 2 && order.getOrderCategory() != 4) && (addOrderVo.getOrderCategory() == 2 || addOrderVo.getOrderCategory() == 4)) {
+            order.setContractNo("");
+        }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
         order.setAttachmentSet(addOrderVo.getAttachDesc());
@@ -1710,7 +1713,7 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
                 //Order byContractNoOrder = orderDao.findByContractNoOrId(strArr[2], null);
-               // oc = orderDao.save(byContractNoOrder);
+                // oc = orderDao.save(byContractNoOrder);
                   /*  List<Goods> goodsList = order.getGoodsList();
                     for (Goods gs:goodsList) {
                         goodsDao.delete(gs);
@@ -1879,10 +1882,10 @@ public class OrderServiceImpl implements OrderService {
             }
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
-            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum()>2){
+            if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum() > 2) {
                 oc.setProcessProgress("9");
                 oc.setStatus(4);
-            }else {
+            } else {
                 oc.setProcessProgress("2");
                 oc.setStatus(3);
             }
@@ -1950,9 +1953,9 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
             }
-            if (strArr[15]!=null){
+            if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
-            }else {
+            } else {
                 project.setRegion("");
             }
 
@@ -1969,10 +1972,10 @@ public class OrderServiceImpl implements OrderService {
                 project.setSendDeptId(Integer.parseInt(strArr[49]));
             }
             project.setProjectStatus(strArr[50]);
-            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum()>2){
+            if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum() > 2) {
                 project.setProcessProgress("9");
                 project.setPurchDone(true);
-            }else {
+            } else {
                 project.setProcessProgress("2");
                 project.setPurchDone(false);
             }
