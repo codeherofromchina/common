@@ -848,7 +848,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
-        if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales()== 4)) {
+        if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
         }
         addOrderVo.copyBaseInfoTo(order);
@@ -858,7 +858,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
 
-        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
+        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
