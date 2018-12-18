@@ -140,7 +140,10 @@ public class OrderServiceImpl implements OrderService {
                     order.setExecCoName(company.getName());
                 }
             }
-            String distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            String distributionDeptName = null;
+            if (StringUtils.isNotBlank(order.getDistributionDeptName())) {
+                distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            }
             order.setDistributionDeptName(distributionDeptName);
         }
 
@@ -849,6 +852,8 @@ public class OrderServiceImpl implements OrderService {
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
+            order.setContractNo("");
+        } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
         }
         addOrderVo.copyBaseInfoTo(order);
