@@ -868,6 +868,7 @@ public class OrderServiceImpl implements OrderService {
                 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
                 && !StringUtils.equals(order.getSigningCo(), addOrderVo.getSigningCo())) {
             order.setContractNo("");
+
         }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
