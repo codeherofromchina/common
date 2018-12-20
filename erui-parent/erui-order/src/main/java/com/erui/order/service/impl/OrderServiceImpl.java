@@ -692,6 +692,15 @@ public class OrderServiceImpl implements OrderService {
                                 contractNo = StringUtil.genContractNo02(lastContractNo);
                             }
                         }
+                    } else if (order.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())
+                            && StringUtils.isBlank(order.getContractNo())) {
+                        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                        String lastContractNo = orderDao.findLastContractNo(prefix);
+                        if (StringUtils.isBlank(lastContractNo)) {
+                            contractNo = StringUtil.genContractNo(null);
+                        } else {
+                            contractNo = StringUtil.genContractNo(lastContractNo);
+                        }
                     } else {
                         contractNo = addOrderVo.getContractNo();
                     }
@@ -855,6 +864,11 @@ public class OrderServiceImpl implements OrderService {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
+        } else if (order.getOrderCategory() == 6
+                && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
+                && !StringUtils.equals(order.getSigningCo(), addOrderVo.getSigningCo())) {
+            order.setContractNo("");
+
         }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
