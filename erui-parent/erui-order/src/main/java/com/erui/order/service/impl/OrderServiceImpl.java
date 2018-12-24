@@ -864,7 +864,7 @@ public class OrderServiceImpl implements OrderService {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
-        } else if (order.getOrderCategory() == 6
+        } else if (order.getOrderCategory() != null && order.getOrderCategory() == 6
                 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
                 && !StringUtils.equals(order.getSigningCo(), addOrderVo.getSigningCo())) {
             order.setContractNo("");
