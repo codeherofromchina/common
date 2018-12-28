@@ -1188,7 +1188,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     public PageInfo<Map<String, Object>> orderInfoBuyCycle(Map<String, Object> params) {
         PageHelper.startPage((Integer) params.get("pageNum"), (Integer) params.get("pageSize"));
         List<Map<String, Object>> purchasingPowerList = salesDataStatisticsMapper.orderInfoBuyCycle(params);
-        for(Map<String, Object> map:purchasingPowerList){
+        for (Map<String, Object> map : purchasingPowerList) {
             BigDecimal cycle = (BigDecimal) map.get("cycle");
             if (cycle != null) {
                 cycle = cycle.setScale(0, BigDecimal.ROUND_HALF_UP);

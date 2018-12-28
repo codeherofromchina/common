@@ -201,11 +201,85 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    @Deprecated
     public Map<String, List<Object>> membershipByArea(Map<String, Object> params) {
         List<Map<String, Object>> membershipNumList = memberInfoStatisticsMapper.membershipByArea(params);
         Map<String, List<Object>> result = _handleVisitStatisticsData(membershipNumList);
         return result;
     }
+
+
+    /**
+     * 按地区统计新增会员
+     * 统计新增会员的成单金额
+     *
+     * @param params {"startTime":"2017-12-01","endTime":"2019-01-02","sort":2}
+     *               sort:1 正序  2 倒序
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> statisticsAddMembershipByArea(Map<String, Object> params) {
+        // 按地区查找所有新增会员
+        List<Map<String, Object>> newMenbersList = memberInfoStatisticsMapper.findAllNewMembershipByArea(params);
+
+        // 使用map、reduce将相同地区的会员整合到一起 {region_name:{region_code:'',crm:[crm1,crm2...]}}
+        Map<String, Map<String, Object>> regionMapInfo = newMenbersList.stream().map(vo -> {
+            String crmCode = (String) vo.get("crm_code");
+            String regionBn = (String) vo.get("region_bn");
+            String regionName = (String) vo.get("region_name");
+            Map<String, Map<String, Object>> singleRegion = new HashMap<>();
+            List crmCodes = new ArrayList();
+            crmCodes.add(crmCode);
+            Map<String, Object> value = new HashMap<>();
+            value.put("regionName", regionName);
+            value.put("regionBn", regionBn);
+            value.put("crmCodes", crmCodes);
+            singleRegion.put(regionName, value);
+            return singleRegion;
+        }).reduce(new HashMap<>(), (v1, v2) -> {
+            Collection<Map<String, Object>> values = v2.values();
+            for (Map<String, Object> value : values) {
+                String regionName = (String) value.get("regionName");
+                if (v1.containsKey(regionName)) {
+                    List crmCodes = (List) value.get("crmCodes");
+                    // 合并crmCode
+                    Map<String, Object> v1Value = v1.get(regionName);
+                    List crmCodes02 = (List) v1Value.get("crmCodes");
+                    crmCodes02.addAll(crmCodes);
+                } else {
+                    // 添加
+                    v1.put(regionName, value);
+                }
+            }
+            return v1;
+        });
+
+        Map<String, List<Object>> result = new HashMap<>();
+
+        List<Object> names = new ArrayList<>(); // 地区名称
+        List<Object> nums = new ArrayList<>(); // 新增客户数量
+        List<Object> amounts = new ArrayList<>(); // 新增客户成单金额
+        BigDecimal oneThundand = new BigDecimal(10000);
+        for (Map.Entry<String, Map<String, Object>> entry : regionMapInfo.entrySet()) {
+            String key = entry.getKey();
+            Map<String, Object> value = entry.getValue();
+            String regionBn = (String) value.get("regionBn");
+            List<String> crmCodes = (List<String>) value.get("crmCodes");
+            // 查找该地区的客户成单金额
+            BigDecimal amount = memberInfoStatisticsMapper.findAmountByAreaAndCrm(params, regionBn, crmCodes);
+
+            names.add(key);
+            nums.add(crmCodes.size());
+            amounts.add(amount != null ? amount.divide(oneThundand, 2, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO);
+        }
+
+        result.put("names", names);
+        result.put("num", nums);
+        result.put("amount", amounts);
+
+        return sortStatisticsAddMembershipResult(result, "2".equals((String) params.get("sort")));
+    }
+
 
     @Override
     public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
@@ -233,11 +307,143 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    @Deprecated
     public Map<String, List<Object>> membershipByCountry(Map<String, Object> params) {
         List<Map<String, Object>> membershipNumList = memberInfoStatisticsMapper.membershipByCountry(params);
         Map<String, List<Object>> result = _handleVisitStatisticsData(membershipNumList);
         return result;
     }
+
+    /**
+     * 排序统计新增客户的结果集
+     *
+     * @param map
+     * @return
+     */
+    private Map<String, List<Object>> sortStatisticsAddMembershipResult(Map<String, List<Object>> map, final boolean desc) {
+        if (map == null || map.size() == 0) {
+            return map;
+        }
+        List<Object> names = map.get("names");
+        List<Object> nums = map.get("num");
+        List<Object> amounts = map.get("amount");
+        List<Map<String, Object>> sortList = new ArrayList<>();
+        for (int i = 0; i < names.size(); i++) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("name", names.get(i));
+            m.put("num", nums.get(i));
+            m.put("amount", amounts.get(i));
+            sortList.add(m);
+        }
+        sortList.sort(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                Integer num01 = (Integer) o1.get("num");
+                Integer num02 = (Integer) o2.get("num");
+                return desc ? (num01 - num02) : (num01 - num02);
+            }
+        });
+        List<Object> names2 = new ArrayList<>();
+        List<Object> nums2 = new ArrayList<>();
+        List<Object> amounts2 = new ArrayList<>();
+        for (Map<String, Object> m : sortList) {
+            names2.add(m.get("name"));
+            nums2.add(m.get("num"));
+            amounts2.add(m.get("amount"));
+        }
+        Map<String, List<Object>> sortedResult = new HashMap<>();
+        sortedResult.put("names", names2);
+        sortedResult.put("num", nums2);
+        sortedResult.put("amount", amounts2);
+        return sortedResult;
+    }
+
+    @Override
+    public Map<String, List<Object>> statisticsAddMembershipByCountry(Map<String, Object> params) {
+        // 按地区查找所有新增会员
+        List<Map<String, Object>> newMenbersList = memberInfoStatisticsMapper.findAllNewMembershipByCountry(params);
+
+        // 使用map、reduce将相同地区的会员整合到一起 {region_name:{region_code:'',crm:[crm1,crm2...]}}
+        Map<String, Map<String, Object>> regionMapInfo = newMenbersList.stream().map(vo -> {
+            String crmCode = (String) vo.get("crm_code");
+            String countryBn = (String) vo.get("country_bn");
+            String countryName = (String) vo.get("country_name");
+            Map<String, Map<String, Object>> singleRegion = new HashMap<>();
+            List crmCodes = new ArrayList();
+            crmCodes.add(crmCode);
+            Map<String, Object> value = new HashMap<>();
+            value.put("countryName", countryName);
+            value.put("countryBn", countryBn);
+            value.put("crmCodes", crmCodes);
+            singleRegion.put(countryName, value);
+            return singleRegion;
+        }).reduce(new HashMap<>(), (v1, v2) -> {
+            Collection<Map<String, Object>> values = v2.values();
+            for (Map<String, Object> value : values) {
+                String countryName = (String) value.get("countryName");
+                if (v1.containsKey(countryName)) {
+                    List crmCodes = (List) value.get("crmCodes");
+                    // 合并crmCode
+                    Map<String, Object> v1Value = v1.get(countryName);
+                    List crmCodes02 = (List) v1Value.get("crmCodes");
+                    crmCodes02.addAll(crmCodes);
+                } else {
+                    // 添加
+                    v1.put(countryName, value);
+                }
+            }
+            return v1;
+        });
+        if (regionMapInfo.size() > 10) {
+            // 过滤出会员数量最多的10个国家，因为国家信息太多才需要过滤
+            Collection<Map<String, Object>> values = regionMapInfo.values();
+            int[] sortIntArr = new int[values.size()];
+            int i = 0;
+            for (Map<String, Object> v : values) {
+                List crmCodes = (List) v.get("crmCodes");
+                sortIntArr[i++] = crmCodes.size();
+            }
+            Arrays.sort(sortIntArr);
+            int limitNum = sortIntArr[sortIntArr.length - 10];
+            for (Iterator<Map.Entry<String, Map<String, Object>>> it = regionMapInfo.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, Map<String, Object>> next = it.next();
+                Map<String, Object> v = next.getValue();
+                String countryName = (String) v.get("countryName");
+                List crmCodes = (List) v.get("crmCodes");
+                if (crmCodes.size() < limitNum) {
+                    it.remove();
+                }
+            }
+        }
+
+
+        Map<String, List<Object>> result = new HashMap<>();
+
+        List<Object> names = new ArrayList<>(); // 国家名称
+        List<Object> nums = new ArrayList<>(); // 新增客户数量
+        List<Object> amounts = new ArrayList<>(); // 新增客户成单金额
+        BigDecimal oneThundand = new BigDecimal(10000);
+        for (Map.Entry<String, Map<String, Object>> entry : regionMapInfo.entrySet()) {
+            String key = entry.getKey();
+            Map<String, Object> value = entry.getValue();
+            String countryBn = (String) value.get("countryBn");
+            List<String> crmCodes = (List<String>) value.get("crmCodes");
+            // 查找该地区的客户成单金额
+            BigDecimal amount = memberInfoStatisticsMapper.findAmountByCountryAndCrm(params, countryBn, crmCodes);
+
+            names.add(key);
+            nums.add(crmCodes.size());
+            amounts.add(amount != null ? amount.divide(oneThundand, 2, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO);
+        }
+
+        result.put("names", names);
+        result.put("num", nums);
+        result.put("amount", amounts);
+
+
+        return sortStatisticsAddMembershipResult(result, "2".equals((String) params.get("sort")));
+    }
+
 
     @Override
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {

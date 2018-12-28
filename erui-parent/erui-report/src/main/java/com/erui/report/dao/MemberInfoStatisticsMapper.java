@@ -1,5 +1,8 @@
 package com.erui.report.dao;
 
+import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +58,26 @@ public interface MemberInfoStatisticsMapper {
      * @return
      */
     List<Map<String, Object>> membershipByArea(Map<String, Object> params);
+
+    /**
+     * 按照地区查找新增客户
+     *
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> findAllNewMembershipByArea(Map<String, Object> params);
+    List<Map<String, Object>> findAllNewMembershipByCountry(Map<String, Object> params);
+
+    /**
+     * 查找指定地区和客户的成单金额
+     *
+     * @param params
+     * @param regionBn
+     * @param crmCodes
+     * @return
+     */
+    BigDecimal findAmountByAreaAndCrm(@Param("params") Map<String, Object> params, @Param("region") String regionBn, @Param("crmCodes") List<String> crmCodes);
+    BigDecimal findAmountByCountryAndCrm(@Param("params") Map<String, Object> params, @Param("country") String countryBn, @Param("crmCodes") List<String> crmCodes);
 
     /**
      * 按照国家统计客户统计
