@@ -370,19 +370,28 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> result = new HashMap<>();
         List<Object> names = new ArrayList<>();
         List<Object> costTimeList = new ArrayList<>();
+        List<Object> clarifyTimeList = new ArrayList<>();
         for (Map<String, Object> map : totalBuyer) {
             String name = (String) map.get("name");
             Long total = (Long) map.get("total");
             BigDecimal costTimes = (BigDecimal) map.get("costTimes");
+            BigDecimal clarifyTimes = (BigDecimal) map.get("clarifyTimes");
             names.add(name);
             if (total != null && total > 0) {
                 costTimeList.add(costTimes.divide(new BigDecimal(total), 4, BigDecimal.ROUND_DOWN));
             } else {
                 costTimeList.add(BigDecimal.ZERO);
             }
+
+            if (clarifyTimes != null) {
+                clarifyTimeList.add(clarifyTimes.setScale(4, BigDecimal.ROUND_DOWN));
+            } else {
+                clarifyTimeList.add(BigDecimal.ZERO);
+            }
         }
         result.put("orgNames", names);
         result.put("costTimes", costTimeList);
+        result.put("clarifyTimes", clarifyTimeList); // 澄清时间
         return result;
     }
 
@@ -394,11 +403,14 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         headerList.add(0, "");
         List<Object> row1 = map.get("costTimes");
         row1.add(0, "平均报价时间（小时）");
+        List<Object> row2 = map.get("costTimes");
+        row2.add(0, "澄清时间（小时）");
 
 
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row1.toArray());
+        rowList.add(row2.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -415,16 +427,50 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     /**
      * 报价金额
-     *
+     * @see SalesDataStatisticsServiceImpl#newQuoteAmountGroupArea
      * @param params
      * @return
      */
     @Override
+    @Deprecated
     public Map<String, List<Object>> quoteAmountGroupArea(Map<String, Object> params) {
         // 总报价金额
         List<Map<String, Object>> quoteTotalAmount = salesDataStatisticsMapper.quoteTotalAmountGroupByArea(params);
         // 会员报价总金额
         List<Map<String, Object>> memberQuoteAmount = salesDataStatisticsMapper.memberQuoteAmountGroupByArea(params);
+        // 处理数据
+        if (quoteTotalAmount == null || quoteTotalAmount.size() == 0) {
+            return null;
+        }
+        Map<String, BigDecimal> memberQuoteAmountMap = memberQuoteAmount.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (BigDecimal) vo.get("totalAmount")));
+
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> totalAmounts = new ArrayList<>();
+        List<Object> memTotalAmounts = new ArrayList<>();
+        BigDecimal tenThousand = new BigDecimal(10000);
+        for (Map<String, Object> map : quoteTotalAmount) {
+            String areaName = (String) map.get("areaName");
+            BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
+            names.add(areaName == null ? UNKNOW : areaName);
+            totalAmounts.add(totalAmount.divide(tenThousand, 2, BigDecimal.ROUND_DOWN));
+            BigDecimal memTotalAmount = memberQuoteAmountMap.remove(areaName);
+            if (memTotalAmount != null) {
+                memTotalAmounts.add(memTotalAmount.divide(tenThousand, 2, BigDecimal.ROUND_DOWN));
+            } else {
+                memTotalAmounts.add(BigDecimal.ZERO);
+            }
+        }
+        result.put("names", names);
+        result.put("totalAmounts", totalAmounts);
+        result.put("memTotalAmounts", memTotalAmounts);
+        return result;
+    }
+    public Map<String, List<Object>> newQuoteAmountGroupArea(Map<String, Object> params) {
+        // 总报价金额
+        List<Map<String, Object>> quoteTotalAmount = salesDataStatisticsMapper.quoteTotalAmountGroupByArea(params);
+        // 会员报价总金额
+        List<Map<String, Object>> memberQuoteAmount = salesDataStatisticsMapper.newMemberQuoteAmountGroupByArea(params);
         // 处理数据
         if (quoteTotalAmount == null || quoteTotalAmount.size() == 0) {
             return null;
@@ -483,12 +529,50 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     }
 
 
+    /**
+     *
+     * @param params
+     * @return
+     */
     @Override
+    @Deprecated
     public Map<String, List<Object>> inquiryNumbersGroupArea(Map<String, Object> params) {
         // 总询单数量
         List<Map<String, Object>> inquiryTotalNum = salesDataStatisticsMapper.inquiryTotalNumGroupByArea(params);
         // 会员询单总数量
         List<Map<String, Object>> memberInquiryNum = salesDataStatisticsMapper.memberInquiryNumGroupByArea(params);
+        // 处理数据
+        if (inquiryTotalNum == null || inquiryTotalNum.size() == 0) {
+            return null;
+        }
+        Map<String, Long> memberInquiryNumMap = memberInquiryNum.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (Long) vo.get("total")));
+
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> totalNums = new ArrayList<>();
+        List<Object> memTotalNums = new ArrayList<>();
+        for (Map<String, Object> map : inquiryTotalNum) {
+            String areaName = (String) map.get("areaName");
+            Long total = (Long) map.get("total");
+            names.add(areaName == null ? UNKNOW : areaName);
+            totalNums.add(total);
+            Long memTotalNum = memberInquiryNumMap.remove(areaName);
+            if (memTotalNum != null) {
+                memTotalNums.add(memTotalNum);
+            } else {
+                memTotalNums.add(0L);
+            }
+        }
+        result.put("names", names);
+        result.put("totalNums", totalNums);
+        result.put("memTotalNums", memTotalNums);
+        return result;
+    }
+    public Map<String, List<Object>> newInquiryNumbersGroupArea(Map<String, Object> params) {
+        // 总询单数量
+        List<Map<String, Object>> inquiryTotalNum = salesDataStatisticsMapper.inquiryTotalNumGroupByArea(params);
+        // 会员询单总数量
+        List<Map<String, Object>> memberInquiryNum = salesDataStatisticsMapper.newMemberInquiryNumGroupByArea(params);
         // 处理数据
         if (inquiryTotalNum == null || inquiryTotalNum.size() == 0) {
             return null;
@@ -547,15 +631,50 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 报价数量按事业部统计
      *
+     * @see  SalesDataStatisticsServiceImpl#newQuoteNumbersGroupArea(Map)
      * @param params
      * @return
      */
     @Override
+    @Deprecated
     public Map<String, List<Object>> quoteNumbersGroupArea(Map<String, Object> params) {
         // 总报价数量
         List<Map<String, Object>> quoteTotalNum = salesDataStatisticsMapper.quoteTotalNumGroupByArea(params);
         // 会员报价总数量
         List<Map<String, Object>> memberQuoteNum = salesDataStatisticsMapper.memberQuoteNumGroupByArea(params);
+        // 处理数据
+        if (quoteTotalNum == null || quoteTotalNum.size() == 0) {
+            return null;
+        }
+        Map<String, Long> memberQuoteNumMap = memberQuoteNum.parallelStream().collect(Collectors.toMap(vo -> (String) vo.get("areaName"), vo -> (Long) vo.get("total")));
+
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>();
+        List<Object> totalNums = new ArrayList<>();
+        List<Object> memTotalNums = new ArrayList<>();
+        for (Map<String, Object> map : quoteTotalNum) {
+            String areaName = (String) map.get("areaName");
+            Long total = (Long) map.get("total");
+            names.add(areaName == null ? UNKNOW : areaName);
+            totalNums.add(total);
+            Long memTotalNum = memberQuoteNumMap.remove(areaName);
+            if (memTotalNum != null) {
+                memTotalNums.add(memTotalNum);
+            } else {
+                memTotalNums.add(0L);
+
+            }
+        }
+        result.put("names", names);
+        result.put("totalNums", totalNums);
+        result.put("memTotalNums", memTotalNums);
+        return result;
+    }
+    public Map<String, List<Object>> newQuoteNumbersGroupArea(Map<String, Object> params) {
+        // 总报价数量
+        List<Map<String, Object>> quoteTotalNum = salesDataStatisticsMapper.quoteTotalNumGroupByArea(params);
+        // 会员报价总数量
+        List<Map<String, Object>> memberQuoteNum = salesDataStatisticsMapper.newMemberQuoteNumGroupByArea(params);
         // 处理数据
         if (quoteTotalNum == null || quoteTotalNum.size() == 0) {
             return null;

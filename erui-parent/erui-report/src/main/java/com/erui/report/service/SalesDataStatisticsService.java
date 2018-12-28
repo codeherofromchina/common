@@ -101,6 +101,7 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String, List<Object>> quoteAmountGroupArea(Map<String, Object> params);
+    Map<String, List<Object>> newQuoteAmountGroupArea(Map<String, Object> params);
 
     // 导出报价金额按地区统计
     HSSFWorkbook exportQuoteAmountGroupArea(Map<String, Object> params);
@@ -112,6 +113,7 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String, List<Object>> inquiryNumbersGroupArea(Map<String, Object> params);
+    Map<String, List<Object>> newInquiryNumbersGroupArea(Map<String, Object> params);
 
     // 导出询单数量按地区统计
     HSSFWorkbook exportInquiryNumbersGroupArea(Map<String, Object> params);
@@ -123,6 +125,7 @@ public interface SalesDataStatisticsService {
      * @return
      */
     Map<String, List<Object>> quoteNumbersGroupArea(Map<String, Object> params);
+    Map<String, List<Object>> newQuoteNumbersGroupArea(Map<String, Object> params);
 
     // 导出报价数量按地区统计
     HSSFWorkbook exportQuoteNumbersGroupArea(Map<String, Object> params);
