@@ -76,7 +76,7 @@ public class DeliverConsignController {
             if (deliverConsign.getId() != null) {
                 flag = deliverConsignService.updateDeliverConsign(deliverConsign);
             } else {
-                flag = deliverConsignService.addDeliverConsign(deliverConsign);
+                flag = deliverConsignService.addDelgitiverConsign(deliverConsign);
             }
             if (flag) {
                 return new Result<>();

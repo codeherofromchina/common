@@ -54,6 +54,7 @@ public class DeliverConsign {
     @JoinColumn(name = "deliver_consign_id")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Set<DeliverConsignGoods> deliverConsignGoodsSet = new HashSet<>();
+    @Column(name = "deliver_yn")
     private int deliverYn;
 
     public Integer getId() {
@@ -175,6 +176,10 @@ public class DeliverConsign {
 
     public void setDeliverConsignGoodsSet(Set<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
+    }
+
+    public int getDeliverYn() {
+        return deliverYn;
     }
 
     public void setDeliverYn(int deliverYn) {

@@ -206,7 +206,7 @@ public class Order {
 
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "order_id")
+  //  @JoinColumn(name = "order_id")
     @JsonIgnore
     private Project project;
 
