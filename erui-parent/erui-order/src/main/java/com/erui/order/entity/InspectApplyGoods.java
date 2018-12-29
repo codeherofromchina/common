@@ -3,6 +3,7 @@ package com.erui.order.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -15,24 +16,26 @@ public class InspectApplyGoods {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "inspect_apply_id")
     @JsonIgnore
     private InspectApply inspectApply;
 
-    @Column(name="inspect_report_id")
-    private Integer inspectReportId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inspect_report_id")
+    private InspectReport inspectReport;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
     private Goods goods;
 
+    // 务必没有任何增删改的权限
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "purch_goods_id")
     private PurchGoods purchGoods;
 
     @Transient
-    private Integer gId; // 商品ID
+    private Integer purchGid; // 采购商品ID
 
 
     /**
@@ -51,15 +54,22 @@ public class InspectApplyGoods {
     @Column(name = "inspect_num")
     private Integer inspectNum;
 
+    private BigDecimal height;
+
+    private String lwh;
+
     private Integer samples;
 
     private String remarks;
 
     private Integer unqualified;
+
     @Column(name = "unqualified_desc")
     private String unqualifiedDesc;
+
     @Column(name = "instock_num")
     private Integer instockNum;
+
 
     @Column(name = "create_time")
     private Date createTime;
@@ -81,12 +91,12 @@ public class InspectApplyGoods {
         this.inspectApply = inspectApply;
     }
 
-    public Integer getInspectReportId() {
-        return inspectReportId;
+    public InspectReport getInspectReport() {
+        return inspectReport;
     }
 
-    public void setInspectReportId(Integer inspectReportId) {
-        this.inspectReportId = inspectReportId;
+    public void setInspectReport(InspectReport inspectReport) {
+        this.inspectReport = inspectReport;
     }
 
     public Goods getGoods() {
@@ -97,12 +107,12 @@ public class InspectApplyGoods {
         this.goods = goods;
     }
 
-    public Integer getgId() {
-        return gId;
+    public Integer getPurchGid() {
+        return purchGid;
     }
 
-    public void setgId(Integer gId) {
-        this.gId = gId;
+    public void setPurchGid(Integer purchGid) {
+        this.purchGid = purchGid;
     }
 
     public PurchGoods getPurchGoods() {
@@ -135,6 +145,22 @@ public class InspectApplyGoods {
 
     public void setInspectNum(Integer inspectNum) {
         this.inspectNum = inspectNum;
+    }
+
+    public BigDecimal getHeight() {
+        return height;
+    }
+
+    public void setHeight(BigDecimal height) {
+        this.height = height;
+    }
+
+    public String getLwh() {
+        return lwh;
+    }
+
+    public void setLwh(String lwh) {
+        this.lwh = lwh;
     }
 
     public Integer getSamples() {

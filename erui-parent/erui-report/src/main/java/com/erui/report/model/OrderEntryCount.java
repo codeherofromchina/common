@@ -25,6 +25,8 @@ public class OrderEntryCount {
     private Date storageDate;
 
     private String remark;
+    private String docType;
+    private  Integer stockCount;
 
     public Integer getId() {
         return id;
@@ -52,6 +54,22 @@ public class OrderEntryCount {
 
     public String getContractNum() {
         return contractNum;
+    }
+
+    public String getDocType() {
+        return docType;
+    }
+
+    public void setDocType(String docType) {
+        this.docType = docType;
+    }
+
+    public Integer getStockCount() {
+        return stockCount;
+    }
+
+    public void setStockCount(Integer stockCount) {
+        this.stockCount = stockCount;
     }
 
     public void setContractNum(String contractNum) {

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.power.dao.FuncPermResourcesMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.power.model.FuncPermResources" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="func_perm_id" property="funcPermId" jdbcType="BIGINT" />
+    <result column="resources_id" property="resourcesId" jdbcType="VARCHAR" />
+    <result column="auth" property="auth" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, func_perm_id, resources_id, auth
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.power.model.FuncPermResourcesExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from func_perm_resources
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from func_perm_resources
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from func_perm_resources
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.power.model.FuncPermResourcesExample" >
+    delete from func_perm_resources
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.power.model.FuncPermResources" >
+    insert into func_perm_resources (id, func_perm_id, resources_id, 
+      auth)
+    values (#{id,jdbcType=BIGINT}, #{funcPermId,jdbcType=BIGINT}, #{resourcesId,jdbcType=VARCHAR}, 
+      #{auth,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.power.model.FuncPermResources" >
+    insert into func_perm_resources
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="funcPermId != null" >
+        func_perm_id,
+      </if>
+      <if test="resourcesId != null" >
+        resources_id,
+      </if>
+      <if test="auth != null" >
+        auth,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="funcPermId != null" >
+        #{funcPermId,jdbcType=BIGINT},
+      </if>
+      <if test="resourcesId != null" >
+        #{resourcesId,jdbcType=VARCHAR},
+      </if>
+      <if test="auth != null" >
+        #{auth,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.power.model.FuncPermResourcesExample" resultType="java.lang.Integer" >
+    select count(*) from func_perm_resources
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update func_perm_resources
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.funcPermId != null" >
+        func_perm_id = #{record.funcPermId,jdbcType=BIGINT},
+      </if>
+      <if test="record.resourcesId != null" >
+        resources_id = #{record.resourcesId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auth != null" >
+        auth = #{record.auth,jdbcType=BIT},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update func_perm_resources
+    set id = #{record.id,jdbcType=BIGINT},
+      func_perm_id = #{record.funcPermId,jdbcType=BIGINT},
+      resources_id = #{record.resourcesId,jdbcType=VARCHAR},
+      auth = #{record.auth,jdbcType=BIT}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.power.model.FuncPermResources" >
+    update func_perm_resources
+    <set >
+      <if test="funcPermId != null" >
+        func_perm_id = #{funcPermId,jdbcType=BIGINT},
+      </if>
+      <if test="resourcesId != null" >
+        resources_id = #{resourcesId,jdbcType=VARCHAR},
+      </if>
+      <if test="auth != null" >
+        auth = #{auth,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.power.model.FuncPermResources" >
+    update func_perm_resources
+    set func_perm_id = #{funcPermId,jdbcType=BIGINT},
+      resources_id = #{resourcesId,jdbcType=VARCHAR},
+      auth = #{auth,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

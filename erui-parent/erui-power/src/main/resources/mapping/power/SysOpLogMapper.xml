@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.power.dao.SysOpLogMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.power.model.SysOpLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="op_id" property="opId" jdbcType="BIGINT" />
+    <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="action" property="action" jdbcType="VARCHAR" />
+    <result column="obj_id" property="objId" jdbcType="BIGINT" />
+    <result column="op_log" property="opLog" jdbcType="VARCHAR" />
+    <result column="op_result" property="opResult" jdbcType="CHAR" />
+    <result column="op_at" property="opAt" jdbcType="TIMESTAMP" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="deleted_flag" property="deletedFlag" jdbcType="CHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.power.model.SysOpLog" extends="BaseResultMap" >
+    <result column="op_note" property="opNote" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, op_id, category, action, obj_id, op_log, op_result, op_at, created_at, deleted_flag
+  </sql>
+  <sql id="Blob_Column_List" >
+    op_note
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.power.model.SysOpLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sys_op_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.power.model.SysOpLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_op_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sys_op_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from sys_op_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.power.model.SysOpLogExample" >
+    delete from sys_op_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.power.model.SysOpLog" >
+    insert into sys_op_log (id, op_id, category, 
+      action, obj_id, op_log, 
+      op_result, op_at, created_at, 
+      deleted_flag, op_note)
+    values (#{id,jdbcType=BIGINT}, #{opId,jdbcType=BIGINT}, #{category,jdbcType=VARCHAR}, 
+      #{action,jdbcType=VARCHAR}, #{objId,jdbcType=BIGINT}, #{opLog,jdbcType=VARCHAR}, 
+      #{opResult,jdbcType=CHAR}, #{opAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{deletedFlag,jdbcType=CHAR}, #{opNote,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.power.model.SysOpLog" >
+    insert into sys_op_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="opId != null" >
+        op_id,
+      </if>
+      <if test="category != null" >
+        category,
+      </if>
+      <if test="action != null" >
+        action,
+      </if>
+      <if test="objId != null" >
+        obj_id,
+      </if>
+      <if test="opLog != null" >
+        op_log,
+      </if>
+      <if test="opResult != null" >
+        op_result,
+      </if>
+      <if test="opAt != null" >
+        op_at,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="deletedFlag != null" >
+        deleted_flag,
+      </if>
+      <if test="opNote != null" >
+        op_note,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="opId != null" >
+        #{opId,jdbcType=BIGINT},
+      </if>
+      <if test="category != null" >
+        #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="action != null" >
+        #{action,jdbcType=VARCHAR},
+      </if>
+      <if test="objId != null" >
+        #{objId,jdbcType=BIGINT},
+      </if>
+      <if test="opLog != null" >
+        #{opLog,jdbcType=VARCHAR},
+      </if>
+      <if test="opResult != null" >
+        #{opResult,jdbcType=CHAR},
+      </if>
+      <if test="opAt != null" >
+        #{opAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deletedFlag != null" >
+        #{deletedFlag,jdbcType=CHAR},
+      </if>
+      <if test="opNote != null" >
+        #{opNote,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.power.model.SysOpLogExample" resultType="java.lang.Integer" >
+    select count(*) from sys_op_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update sys_op_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.opId != null" >
+        op_id = #{record.opId,jdbcType=BIGINT},
+      </if>
+      <if test="record.category != null" >
+        category = #{record.category,jdbcType=VARCHAR},
+      </if>
+      <if test="record.action != null" >
+        action = #{record.action,jdbcType=VARCHAR},
+      </if>
+      <if test="record.objId != null" >
+        obj_id = #{record.objId,jdbcType=BIGINT},
+      </if>
+      <if test="record.opLog != null" >
+        op_log = #{record.opLog,jdbcType=VARCHAR},
+      </if>
+      <if test="record.opResult != null" >
+        op_result = #{record.opResult,jdbcType=CHAR},
+      </if>
+      <if test="record.opAt != null" >
+        op_at = #{record.opAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createdAt != null" >
+        created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deletedFlag != null" >
+        deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
+      </if>
+      <if test="record.opNote != null" >
+        op_note = #{record.opNote,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update sys_op_log
+    set id = #{record.id,jdbcType=BIGINT},
+      op_id = #{record.opId,jdbcType=BIGINT},
+      category = #{record.category,jdbcType=VARCHAR},
+      action = #{record.action,jdbcType=VARCHAR},
+      obj_id = #{record.objId,jdbcType=BIGINT},
+      op_log = #{record.opLog,jdbcType=VARCHAR},
+      op_result = #{record.opResult,jdbcType=CHAR},
+      op_at = #{record.opAt,jdbcType=TIMESTAMP},
+      created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
+      op_note = #{record.opNote,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update sys_op_log
+    set id = #{record.id,jdbcType=BIGINT},
+      op_id = #{record.opId,jdbcType=BIGINT},
+      category = #{record.category,jdbcType=VARCHAR},
+      action = #{record.action,jdbcType=VARCHAR},
+      obj_id = #{record.objId,jdbcType=BIGINT},
+      op_log = #{record.opLog,jdbcType=VARCHAR},
+      op_result = #{record.opResult,jdbcType=CHAR},
+      op_at = #{record.opAt,jdbcType=TIMESTAMP},
+      created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      deleted_flag = #{record.deletedFlag,jdbcType=CHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.power.model.SysOpLog" >
+    update sys_op_log
+    <set >
+      <if test="opId != null" >
+        op_id = #{opId,jdbcType=BIGINT},
+      </if>
+      <if test="category != null" >
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="action != null" >
+        action = #{action,jdbcType=VARCHAR},
+      </if>
+      <if test="objId != null" >
+        obj_id = #{objId,jdbcType=BIGINT},
+      </if>
+      <if test="opLog != null" >
+        op_log = #{opLog,jdbcType=VARCHAR},
+      </if>
+      <if test="opResult != null" >
+        op_result = #{opResult,jdbcType=CHAR},
+      </if>
+      <if test="opAt != null" >
+        op_at = #{opAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deletedFlag != null" >
+        deleted_flag = #{deletedFlag,jdbcType=CHAR},
+      </if>
+      <if test="opNote != null" >
+        op_note = #{opNote,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.power.model.SysOpLog" >
+    update sys_op_log
+    set op_id = #{opId,jdbcType=BIGINT},
+      category = #{category,jdbcType=VARCHAR},
+      action = #{action,jdbcType=VARCHAR},
+      obj_id = #{objId,jdbcType=BIGINT},
+      op_log = #{opLog,jdbcType=VARCHAR},
+      op_result = #{opResult,jdbcType=CHAR},
+      op_at = #{opAt,jdbcType=TIMESTAMP},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      deleted_flag = #{deletedFlag,jdbcType=CHAR},
+      op_note = #{opNote,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.power.model.SysOpLog" >
+    update sys_op_log
+    set op_id = #{opId,jdbcType=BIGINT},
+      category = #{category,jdbcType=VARCHAR},
+      action = #{action,jdbcType=VARCHAR},
+      obj_id = #{objId,jdbcType=BIGINT},
+      op_log = #{opLog,jdbcType=VARCHAR},
+      op_result = #{opResult,jdbcType=CHAR},
+      op_at = #{opAt,jdbcType=TIMESTAMP},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      deleted_flag = #{deletedFlag,jdbcType=CHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

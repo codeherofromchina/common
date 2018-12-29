@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -13,8 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name="area")
 public class Area {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+   /* @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)*/
     private Integer id;
 
     /**
@@ -22,11 +23,19 @@ public class Area {
      */
     private String name;
 
-    @Column(name="create_time")
-    private Date createTime;
+    private String lang;
+    @Id
+    @GeneratedValue
+    private String bn;
+
+    private String status;
+
+    @JsonIgnore
+    @Column(name = "deleted_flag")
+    private Character deletedFlag;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="area_id")
+    @JoinColumn(name="area_bn",insertable=false,updatable=false)
     private Set<Company> companySet = new HashSet<>();
 
     public Integer getId() {
@@ -45,11 +54,35 @@ public class Area {
         this.name = name;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public String getLang() {
+        return lang;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
+    public String getBn() {
+        return bn;
+    }
+
+    public void setBn(String bn) {
+        this.bn = bn;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Character getDeletedFlag() {
+        return deletedFlag;
+    }
+
+    public void setDeletedFlag(Character deletedFlag) {
+        this.deletedFlag = deletedFlag;
     }
 }

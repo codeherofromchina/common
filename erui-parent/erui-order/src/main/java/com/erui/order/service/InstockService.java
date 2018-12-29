@@ -34,7 +34,7 @@ public interface InstockService {
      * @param instock
      * @return
      */
-    boolean save(Instock instock);
+    boolean save(Instock instock) throws Exception;
 
     /**
      * 查询入库单详情
@@ -42,4 +42,13 @@ public interface InstockService {
      * @return
      */
     Instock detail(Integer id);
+
+
+    /**
+     * 入库详情信息   转交经办人
+     *
+     * @param instock
+     * @return
+     */
+    boolean instockDeliverAgent(Instock instock) throws Exception;
 }

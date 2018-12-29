@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.HrCountMapper">
+    <resultMap id="BaseResultMap" type="com.erui.report.model.HrCount">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="create_at" property="createAt" jdbcType="TIMESTAMP"/>
+        <result column="big_depart" property="bigDepart" jdbcType="VARCHAR"/>
+        <result column="department" property="department" jdbcType="VARCHAR"/>
+        <result column="plan_count" property="planCount" jdbcType="INTEGER"/>
+        <result column="regular_count" property="regularCount" jdbcType="INTEGER"/>
+        <result column="try_count" property="tryCount" jdbcType="INTEGER"/>
+        <result column="turn_right_count" property="turnRightCount" jdbcType="INTEGER"/>
+        <result column="china_count" property="chinaCount" jdbcType="INTEGER"/>
+        <result column="foreign_count" property="foreignCount" jdbcType="INTEGER"/>
+        <result column="new_count" property="newCount" jdbcType="INTEGER"/>
+        <result column="group_transfer_in" property="groupTransferIn" jdbcType="INTEGER"/>
+        <result column="group_transfer_out" property="groupTransferOut" jdbcType="INTEGER"/>
+        <result column="dimission_count" property="dimissionCount" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+    id, create_at, big_depart, department, plan_count, regular_count, try_count, turn_right_count, 
+    china_count, foreign_count, new_count, group_transfer_in, group_transfer_out, dimission_count
+  </sql>
+    <select id="selectStart" resultType="java.util.Date">
+    SELECT create_at FROM `hr_count` WHERE create_at IS NOT NULL ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") ASC LIMIT 1
+  </select>
+    <select id="selectEnd" resultType="java.util.Date" parameterType="com.erui.report.model.HrCountExample">
+        SELECT create_at FROM `hr_count`
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        ORDER BY DATE_FORMAT(create_at,"%Y-%m-%d %H:%i%S") DESC LIMIT 1
+    </select>
+    <select id="selectBigDepart" resultType="java.util.Map" parameterType="com.erui.report.model.HrCount">
+    SELECT big_depart FROM `hr_count` GROUP BY big_depart;
+  </select>
+    <select id="selectHrCountByPart" resultType="java.util.Map" parameterType="com.erui.report.model.HrCountExample">
+        SELECT IFNULL(SUM(turn_right_count),0)AS turnRightCount,IFNULL(SUM(new_count),0)AS
+        newCount,IFNULL(SUM(dimission_count),0)AS dimissionCount ,
+        IFNULL(SUM(group_transfer_in),0)AS groupTransferIn ,IFNULL(SUM(group_transfer_out),0)AS groupTransferOut
+        FROM `hr_count`
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <!-- 查询大部门累计数据
+     <select id="selectBigDepartCountByExample" resultType="java.util.Map"
+             parameterType="com.erui.report.model.HrCountExample">
+         SELECT IFNULL(SUM(new_count),0)AS newCount,IFNULL(SUM(dimission_count),0)AS dimissionCount ,
+         IFNULL(SUM(group_transfer_in),0)AS groupTransferIn ,IFNULL(SUM(group_transfer_out),0)AS
+         groupTransferOut,big_depart
+         FROM `hr_count`
+         <if test="_parameter != null">
+             <include refid="Example_Where_Clause"/>
+         </if>
+         <if test="orderByClause != null">
+             order by ${orderByClause}
+         </if>
+         GROUP BY big_depart
+     </select>-->
+    <select id="selectDepartmentCountByExample" resultType="java.util.Map"
+            parameterType="com.erui.report.model.HrCountExample">
+        SELECT IFNULL(SUM(new_count),0)AS newCount,IFNULL(SUM(dimission_count),0)AS dimissionCount ,
+        IFNULL(SUM(group_transfer_in),0)AS groupTransferIn ,IFNULL(SUM(group_transfer_out),0)AS
+        groupTransferOut,big_depart,department
+        FROM `hr_count`
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        GROUP BY department,big_depart
+    </select>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.HrCountExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from hr_count
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+
+    <select id="findImmediateNum" resultType="java.util.Map" parameterType="com.erui.report.model.HrCountExample">
+        select FROM_DAYS(TO_DAYS(create_at)),sum(plan_count)AS plan_count,SUM(regular_count)AS
+        regular_count,SUM(try_count)AS try_count,SUM(turn_right_count)AS turn_right_count,SUM(china_count)AS
+        china_count,SUM(foreign_count)AS foreign_count
+        from hr_count
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        group by TO_DAYS(create_at) order by 1 DESC limit 1
+    </select>
+    <!-- 即时查询大部门数据-->
+    <!-- <select id="findImmediateBigDepartNum" resultType="java.util.Map"
+             parameterType="com.erui.report.model.HrCountExample">
+         select FROM_DAYS(TO_DAYS(create_at)),sum(plan_count)AS plan_count,SUM(regular_count)AS
+         regular_count,SUM(try_count)AS try_count,SUM(turn_right_count)AS turn_right_count,SUM(china_count)AS
+         china_count,SUM(foreign_count)AS foreign_count ,big_depart
+         from hr_count
+         <if test="_parameter != null">
+             <include refid="Example_Where_Clause"/>
+         </if>
+         GROUP BY big_depart
+     </select>-->
+    <select id="findImmediateDepartmentNum" resultType="java.util.Map"
+            parameterType="com.erui.report.model.HrCountExample">
+        select FROM_DAYS(TO_DAYS(create_at)),sum(plan_count)AS plan_count,SUM(regular_count)AS
+        regular_count,SUM(try_count)AS try_count,SUM(turn_right_count)AS turn_right_count,SUM(china_count)AS
+        china_count,SUM(foreign_count)AS foreign_count,big_depart,department
+        from hr_count
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        GROUP BY big_depart,department
+    </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from hr_count
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from hr_count
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.erui.report.model.HrCountExample">
+        delete from hr_count
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.erui.report.model.HrCount">
+    insert into hr_count (id, create_at, big_depart, 
+      department, plan_count, regular_count, 
+      try_count, turn_right_count, china_count, 
+      foreign_count, new_count, group_transfer_in, 
+      group_transfer_out, dimission_count)
+    values (#{id,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{bigDepart,jdbcType=VARCHAR}, 
+      #{department,jdbcType=VARCHAR}, #{planCount,jdbcType=INTEGER}, #{regularCount,jdbcType=INTEGER}, 
+      #{tryCount,jdbcType=INTEGER}, #{turnRightCount,jdbcType=INTEGER}, #{chinaCount,jdbcType=INTEGER}, 
+      #{foreignCount,jdbcType=INTEGER}, #{newCount,jdbcType=INTEGER}, #{groupTransferIn,jdbcType=INTEGER}, 
+      #{groupTransferOut,jdbcType=INTEGER}, #{dimissionCount,jdbcType=INTEGER})
+  </insert>
+    <insert id="insertSelective" parameterType="com.erui.report.model.HrCount">
+        insert into hr_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="bigDepart != null">
+                big_depart,
+            </if>
+            <if test="department != null">
+                department,
+            </if>
+            <if test="planCount != null">
+                plan_count,
+            </if>
+            <if test="regularCount != null">
+                regular_count,
+            </if>
+            <if test="tryCount != null">
+                try_count,
+            </if>
+            <if test="turnRightCount != null">
+                turn_right_count,
+            </if>
+            <if test="chinaCount != null">
+                china_count,
+            </if>
+            <if test="foreignCount != null">
+                foreign_count,
+            </if>
+            <if test="newCount != null">
+                new_count,
+            </if>
+            <if test="groupTransferIn != null">
+                group_transfer_in,
+            </if>
+            <if test="groupTransferOut != null">
+                group_transfer_out,
+            </if>
+            <if test="dimissionCount != null">
+                dimission_count,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="bigDepart != null">
+                #{bigDepart,jdbcType=VARCHAR},
+            </if>
+            <if test="department != null">
+                #{department,jdbcType=VARCHAR},
+            </if>
+            <if test="planCount != null">
+                #{planCount,jdbcType=INTEGER},
+            </if>
+            <if test="regularCount != null">
+                #{regularCount,jdbcType=INTEGER},
+            </if>
+            <if test="tryCount != null">
+                #{tryCount,jdbcType=INTEGER},
+            </if>
+            <if test="turnRightCount != null">
+                #{turnRightCount,jdbcType=INTEGER},
+            </if>
+            <if test="chinaCount != null">
+                #{chinaCount,jdbcType=INTEGER},
+            </if>
+            <if test="foreignCount != null">
+                #{foreignCount,jdbcType=INTEGER},
+            </if>
+            <if test="newCount != null">
+                #{newCount,jdbcType=INTEGER},
+            </if>
+            <if test="groupTransferIn != null">
+                #{groupTransferIn,jdbcType=INTEGER},
+            </if>
+            <if test="groupTransferOut != null">
+                #{groupTransferOut,jdbcType=INTEGER},
+            </if>
+            <if test="dimissionCount != null">
+                #{dimissionCount,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.erui.report.model.HrCountExample" resultType="java.lang.Integer">
+        select count(*) from hr_count
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update hr_count
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=INTEGER},
+            </if>
+            <if test="record.createAt != null">
+                create_at = #{record.createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.bigDepart != null">
+                big_depart = #{record.bigDepart,jdbcType=VARCHAR},
+            </if>
+            <if test="record.department != null">
+                department = #{record.department,jdbcType=VARCHAR},
+            </if>
+            <if test="record.planCount != null">
+                plan_count = #{record.planCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.regularCount != null">
+                regular_count = #{record.regularCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.tryCount != null">
+                try_count = #{record.tryCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.turnRightCount != null">
+                turn_right_count = #{record.turnRightCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.chinaCount != null">
+                china_count = #{record.chinaCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.foreignCount != null">
+                foreign_count = #{record.foreignCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.newCount != null">
+                new_count = #{record.newCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.groupTransferIn != null">
+                group_transfer_in = #{record.groupTransferIn,jdbcType=INTEGER},
+            </if>
+            <if test="record.groupTransferOut != null">
+                group_transfer_out = #{record.groupTransferOut,jdbcType=INTEGER},
+            </if>
+            <if test="record.dimissionCount != null">
+                dimission_count = #{record.dimissionCount,jdbcType=INTEGER},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update hr_count
+        set id = #{record.id,jdbcType=INTEGER},
+        create_at = #{record.createAt,jdbcType=TIMESTAMP},
+        big_depart = #{record.bigDepart,jdbcType=VARCHAR},
+        department = #{record.department,jdbcType=VARCHAR},
+        plan_count = #{record.planCount,jdbcType=INTEGER},
+        regular_count = #{record.regularCount,jdbcType=INTEGER},
+        try_count = #{record.tryCount,jdbcType=INTEGER},
+        turn_right_count = #{record.turnRightCount,jdbcType=INTEGER},
+        china_count = #{record.chinaCount,jdbcType=INTEGER},
+        foreign_count = #{record.foreignCount,jdbcType=INTEGER},
+        new_count = #{record.newCount,jdbcType=INTEGER},
+        group_transfer_in = #{record.groupTransferIn,jdbcType=INTEGER},
+        group_transfer_out = #{record.groupTransferOut,jdbcType=INTEGER},
+        dimission_count = #{record.dimissionCount,jdbcType=INTEGER}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.HrCount">
+        update hr_count
+        <set>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="bigDepart != null">
+                big_depart = #{bigDepart,jdbcType=VARCHAR},
+            </if>
+            <if test="department != null">
+                department = #{department,jdbcType=VARCHAR},
+            </if>
+            <if test="planCount != null">
+                plan_count = #{planCount,jdbcType=INTEGER},
+            </if>
+            <if test="regularCount != null">
+                regular_count = #{regularCount,jdbcType=INTEGER},
+            </if>
+            <if test="tryCount != null">
+                try_count = #{tryCount,jdbcType=INTEGER},
+            </if>
+            <if test="turnRightCount != null">
+                turn_right_count = #{turnRightCount,jdbcType=INTEGER},
+            </if>
+            <if test="chinaCount != null">
+                china_count = #{chinaCount,jdbcType=INTEGER},
+            </if>
+            <if test="foreignCount != null">
+                foreign_count = #{foreignCount,jdbcType=INTEGER},
+            </if>
+            <if test="newCount != null">
+                new_count = #{newCount,jdbcType=INTEGER},
+            </if>
+            <if test="groupTransferIn != null">
+                group_transfer_in = #{groupTransferIn,jdbcType=INTEGER},
+            </if>
+            <if test="groupTransferOut != null">
+                group_transfer_out = #{groupTransferOut,jdbcType=INTEGER},
+            </if>
+            <if test="dimissionCount != null">
+                dimission_count = #{dimissionCount,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.erui.report.model.HrCount">
+    update hr_count
+    set create_at = #{createAt,jdbcType=TIMESTAMP},
+      big_depart = #{bigDepart,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      plan_count = #{planCount,jdbcType=INTEGER},
+      regular_count = #{regularCount,jdbcType=INTEGER},
+      try_count = #{tryCount,jdbcType=INTEGER},
+      turn_right_count = #{turnRightCount,jdbcType=INTEGER},
+      china_count = #{chinaCount,jdbcType=INTEGER},
+      foreign_count = #{foreignCount,jdbcType=INTEGER},
+      new_count = #{newCount,jdbcType=INTEGER},
+      group_transfer_in = #{groupTransferIn,jdbcType=INTEGER},
+      group_transfer_out = #{groupTransferOut,jdbcType=INTEGER},
+      dimission_count = #{dimissionCount,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <update id="truncateTable">
+    truncate table hr_count
+  </update>
+</mapper>

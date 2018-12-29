@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.erui.order.util.IReceiverDate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="order_payment")
-public class OrderPayment {
+public class OrderPayment implements IReceiverDate{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -26,9 +27,17 @@ public class OrderPayment {
 
     @Column(name = "receipt_date")
     private Date receiptDate;
+    @Column(name = " receipt_time")
+    private Integer receiptTime;
 
-    @Column(name = "create_time")
-    private Date createTime;
+
+    public Integer getReceiptTime() {
+        return receiptTime;
+    }
+
+    public void setReceiptTime(Integer receiptTime) {
+        this.receiptTime = receiptTime;
+    }
 
     public Integer getId() {
         return id;
@@ -76,14 +85,6 @@ public class OrderPayment {
 
     public void setReceiptDate(Date receiptDate) {
         this.receiptDate = receiptDate;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
     }
 
 }

@@ -2,16 +2,22 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.*;
+import com.erui.order.entity.Goods;
+import com.erui.order.entity.Order;
+import com.erui.order.entity.Purch;
+import com.erui.order.entity.PurchGoods;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
+import org.apache.commons.lang3.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +37,33 @@ public class PurchController {
     @Autowired
     private ProjectService projectService;
 
+
+    /**
+     * 根据订单id查询(进行中/已完成)采购列表
+     *
+     * @param params {orderId:"订单ID"}
+     * @return
+     */
+    @RequestMapping(value = "listByOrderId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> listByOrderId(@RequestBody Map<String, Integer> params) {
+
+        List<Map<String, Object>> data = null;
+        Integer orderId = params.get("orderId");
+        if (orderId != null && orderId > 0) {
+            try {
+                data = purchService.listByOrderId(orderId);
+            } catch (Exception e) {
+                logger.error("错误", e);
+                return new Result<>(ResultStatusEnum.FAIL);
+            }
+        } else {
+            data = new ArrayList<>();
+        }
+
+
+        return new Result<>(data);
+    }
+
     /**
      * 获取采购单列表
      *
@@ -38,26 +71,29 @@ public class PurchController {
      */
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> list(@RequestBody Purch condition) {
+        int page = condition.getPage();
+        if (page < 1) {
+            return new Result<>(ResultStatusEnum.PAGE_ERROR);
+        }
         Page<Purch> purchPage = purchService.findByPage(condition);
-
+        // 转换为控制层需要的数据
         if (purchPage.hasContent()) {
             purchPage.getContent().forEach(vo -> {
                 vo.setAttachments(null);
                 vo.setPurchPaymentList(null);
+
+                if (vo.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+                    if (vo.getPurchGoodsList().stream().anyMatch(purchGoods -> {
+                        return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
+                    })) {
+                        vo.setInspected(Boolean.FALSE);
+                    } else {
+                        vo.setInspected(Boolean.TRUE);
+                    }
+                }
                 vo.setPurchGoodsList(null);
-
-                List<String> projectNoList = new ArrayList<>();
-                List<String> contractNoList = new ArrayList<>();
-
-                vo.getProjects().stream().forEach(project -> {
-                    projectNoList.add(project.getProjectNo());
-                    contractNoList.add(project.getContractNo());
-                });
-                vo.setProjectNos(StringUtils.join(projectNoList, ","));
-                vo.setContractNos(StringUtils.join(contractNoList, ","));
             });
         }
-
         return new Result<>(purchPage);
     }
 
@@ -70,13 +106,19 @@ public class PurchController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody Purch purch) {
-
-
         boolean continueFlag = true;
+        String errorMsg = null;
         // 状态检查
         Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
+        // 不是提交也不是保存
         if (statusEnum != Purch.StatusEnum.BEING && statusEnum != Purch.StatusEnum.READY) {
             continueFlag = false;
+            errorMsg = "数据的状态不正确";
+        }
+        // 查看采购号是否存在
+        if (StringUtils.isBlank(purch.getPurchNo())) {
+            continueFlag = false;
+            errorMsg = "采购合同号不能为空";
         }
 
 
@@ -93,22 +135,26 @@ public class PurchController {
                 }
             } catch (Exception ex) {
                 logger.error("采购单操作失败：{}", purch, ex);
+                errorMsg = ex.getMessage();
             }
         }
 
-        return new Result<>(ResultStatusEnum.FAIL);
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
 
     /**
      * 获取采购详情信息
      *
-     * @param id 采购ID
+     * @param purch {id:采购ID}
      * @return
      */
-    @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public Result<Object> detail(@RequestParam(name = "id", required = true) Integer id) {
-        Purch data = purchService.findDetailInfo(id);
+    @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> detail(@RequestBody Purch purch) {
+        if (purch == null || purch.getId() == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Purch data = purchService.findDetailInfo(purch.getId());
         if (data != null) {
             return new Result<>(data);
         }
@@ -120,36 +166,70 @@ public class PurchController {
     /**
      * 为添加报检单而获取采购信息
      *
-     * @param purchId 采购ID
+     * @param params {purchId:采购ID}
      * @return
      */
-    @RequestMapping("getInfoForInspectApply")
-    public Result<Object> getInfoForInspectApply(@RequestParam(name = "purchId", required = true) Integer purchId) {
-        Purch purch = purchService.findPurchAndGoodsInfo(purchId);
+    @RequestMapping(value = "getInfoForInspectApply", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> getInfoForInspectApply(@RequestBody Map<String, Integer> params) {
+        if (params.get("purchId") == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+        Purch purch = purchService.findPurchAndGoodsInfo(params.get("purchId"));
 
         // 只有进行中的采购才可以新增报检单信息
         if (purch != null && purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             // 整合数据
             Map<String, Object> data = new HashMap<>();
             data.put("purchId", purch.getId());
+            data.put("purchNo", purch.getPurchNo()); // 采购号
             data.put("purchaseId", purch.getAgentId()); // 采购经办人ID
             data.put("purchaseName", purch.getAgentName()); // 采购经办人名称
             data.put("supplierId", purch.getSupplierId()); // 供应商ID
             data.put("supplierName", purch.getSupplierName()); // 供应商名称
             data.put("department", purch.getDepartment()); // 下发部门
+            data.put("currencyBn", purch.getCurrencyBn()); // 币种
 
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
-            List<Goods> list = purchGoodsList.stream().filter(vo -> {
-                // 只要已报检数量小于采购数量的商品显示
-                return vo.getInspectNum() < vo.getPurchaseNum();
-            }).map(vo -> {
-                Goods goods = vo.getGoods();
-                goods.setPurchasedNum(vo.getPurchaseNum()); // 采购数量
-                goods.setInspectNum(vo.getInspectNum()); // 报检数量
 
-                return goods;
-            }).collect(Collectors.toList());
-            data.put("goodsList", list);
+            if (purchGoodsList.stream().anyMatch(purchGoods -> {
+                return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
+            })) {
+                data.put("inspected",Boolean.FALSE);
+            } else {
+                data.put("inspected",Boolean.TRUE);
+            }
+            if (!(Boolean) data.get("inspected")) {
+                List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
+                    // 只要已报检数量小于采购数量的商品显示
+                    return vo.getInspectNum() < vo.getPurchaseNum();
+                }).map(vo -> {
+                    Map<String, Object> map = new HashMap<>();
+                    Goods goods = vo.getGoods();
+                    Order order = goods.getOrder();
+                    map.put("id", goods.getId());
+                    map.put("purchGid", vo.getId());
+                    map.put("contractNo", goods.getContractNo());
+                    map.put("projectNo", goods.getProjectNo());
+                    map.put("sku", goods.getSku());
+                    map.put("proType", goods.getProType());
+                    map.put("nameEn", goods.getNameEn());
+                    map.put("nameZh", goods.getNameZh());
+                    map.put("brand", goods.getBrand());
+                    map.put("model", goods.getModel());
+                    map.put("execCoName", order.getExecCoName()); // 执行分公司
+                    map.put("purchaseNum", vo.getPurchaseNum());
+                    map.put("hasInspectNum", vo.getPreInspectNum());
+                    map.put("inspectNum", vo.getPurchaseNum() - vo.getPreInspectNum()); // 报检数量
+                    map.put("unit", goods.getUnit());
+                    map.put("nonTaxPrice", vo.getNonTaxPrice());
+                    map.put("taxPrice", vo.getTaxPrice());
+                    map.put("purchasePrice", vo.getPurchasePrice());
+                    map.put("totalPrice", vo.getTotalPrice());
+                    map.put("purchaseRemark", vo.getPurchaseRemark());
+                    return map;
+                }).collect(Collectors.toList());
+                data.put("goodsList", list);
+            }
 
             return new Result<>(data);
         }

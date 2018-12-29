@@ -10,6 +10,16 @@ public class InqOrdTrendVo {
     private List<Integer> inqCounts;
     private List<Integer> ordCounts;
 
+    private List<Integer> quoteCounts;
+
+    public List<Integer> getQuoteCounts() {
+        return quoteCounts;
+    }
+
+    public void setQuoteCounts(List<Integer> quoteCounts) {
+        this.quoteCounts = quoteCounts;
+    }
+
     public List<String> getDate() {
         return date;
     }

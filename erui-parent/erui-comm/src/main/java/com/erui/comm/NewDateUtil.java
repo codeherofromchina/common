@@ -1,12 +1,14 @@
 package com.erui.comm;
 
 
+import com.alibaba.fastjson.JSON;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class NewDateUtil {
@@ -24,7 +26,8 @@ public class NewDateUtil {
         return null;
     }
 
-    //向后退时间
+
+    //向后退时间111
     public static Date recedeTime(int day) {
         LocalDateTime dateTime = LocalDateTime.now();
         dateTime.minusDays(day);
@@ -56,7 +59,6 @@ public class NewDateUtil {
             if (localDate.isBefore(paramDate)) { // 大于周五，不在上周内
                 return false;
             }
-
             localDate = localDate.minusDays(6); // 获取相对于周五的上周六
 
             if (localDate.isAfter(paramDate)) { // 小于上周六，不在上周内
@@ -66,7 +68,32 @@ public class NewDateUtil {
         }
         return false;
     }
+    /**
+     * 给定日期是否在上周五之前（定义一周是从周六开始到下周五结束）
+     *
+     * @param date
+     * @return
+     */
+    public static boolean lessFridayWeek(Date date) {
+        if (date != null) {
+            Instant instant = date.toInstant();
+            ZoneId zoneId = ZoneId.systemDefault();
+            LocalDate paramDate = instant.atZone(zoneId).toLocalDate();
 
+            LocalDate localDate = LocalDate.now();
+            DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+            if (dayOfWeek.compareTo(DayOfWeek.FRIDAY) > 0) { // 大于周五，算本周五就可以
+                localDate = localDate.minusDays(dayOfWeek.getValue() - DayOfWeek.FRIDAY.getValue());
+            } else { // 计算上周五
+                localDate = localDate.minusDays(dayOfWeek.getValue() + (DayOfWeek.SUNDAY.getValue() - DayOfWeek.FRIDAY.getValue()));
+            }
+            if (localDate.isBefore(paramDate)) { // 大于周五，不在上周内
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 获取给定日期的上周日期的连续字符串
@@ -216,16 +243,6 @@ public class NewDateUtil {
     }
 
 
-    public static void main(String[] args) throws ParseException {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-        boolean b = inSaturdayWeek(dateFormat.parse("2017-11-13"));
-        System.out.println(b);
-
-        Date date = getDate(new Date());
-        System.out.println(format("yyyy-MM-dd HH:mm:ss",date));
-
-    }
 
     /**
      * 只获取给定日期的年月日日期
@@ -244,5 +261,63 @@ public class NewDateUtil {
         return Date.from(localDate.atStartOfDay(zoneId).toInstant());
     }
 
+    /**
+     * 获取所有跨度的年字符串列表
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public static Map<String,Integer> allSpanYearList(Date startTime, Date endTime) {
+        Map<String,Integer> result = new TreeMap<>();
+        Calendar startCalendar = Calendar.getInstance();
+        Calendar endCalendar = Calendar.getInstance();
+        startCalendar.setTime(startTime);
+        endCalendar.setTime(endTime);
 
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        if (endCalendar.compareTo(startCalendar) >= 0) {
+            Calendar downCalendar = null;
+            do {
+                downCalendar = Calendar.getInstance();
+                int startYear = startCalendar.get(Calendar.YEAR);
+                downCalendar.set(startYear+1,0,0,0,0,0);
+                int day = downCalendar.get(Calendar.DAY_OF_YEAR);
+                int day2 = startCalendar.get(Calendar.DAY_OF_YEAR);
+
+                System.out.println(dateFormat.format(downCalendar.getTime()));
+                System.out.println(dateFormat.format(startCalendar.getTime()));
+
+
+                System.out.println(day + " " + day2);
+                result.put(String.valueOf(startYear),day - day2 + 1);
+
+                downCalendar.add(Calendar.DAY_OF_MONTH,1);
+                startCalendar = downCalendar;
+            }while (startCalendar.compareTo(endCalendar) < 0);
+
+
+//            result.add(String.valueOf(startYear));
+//
+//            startCalendar.add(Calendar.YEAR,1);
+//            while(endCalendar.compareTo(startCalendar) > 0) {
+//                int year = startCalendar.get(Calendar.YEAR);
+//                result.add(String.valueOf(year));
+//                startCalendar.add(Calendar.YEAR,1);
+//            }
+//            int endYear = endCalendar.get(Calendar.YEAR);
+//            if (!result.get(result.size()-1).equals(String.valueOf(endYear))) {
+//                result.add(String.valueOf(endYear));
+//            }
+        }
+        return result;
+    }
+
+
+    public static void main(String[] args) throws ParseException {
+        Date date = new Date();
+        Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2030-01-01 12:23:33");
+        Map<String,Integer> strings = allSpanYearList(date, date2);
+        System.out.println(JSON.toJSONString(strings));
+    }
 }

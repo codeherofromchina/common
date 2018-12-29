@@ -2,10 +2,6 @@ package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -41,7 +37,7 @@ public class OrderAccount {
     private BigDecimal goodsPrice;  //发货金额
 
     @Column(name = "deliver_date")
-    private Date deliverDate;
+    private Date deliverDate;   //发货时间
 
     @Column(name = "create_user_id")
     private Integer createUserId;   //创建人
@@ -59,7 +55,13 @@ public class OrderAccount {
     private Date deleteTime;    //删除时间
 
     @Column(name = "del_yn")
-    private Integer delYn;  //删除标识
+    private Integer delYn =1;  //删除标识    0：删除   1：存在'''
+
+
+    @Column(name = "credit_log_id")
+    private Integer creditLogId;  //授信记录id
+
+
 
     public Integer getId() {
         return id;
@@ -178,5 +180,13 @@ public class OrderAccount {
 
     public void setDelYn(Integer delYn) {
         this.delYn = delYn;
+    }
+
+    public Integer getCreditLogId() {
+        return creditLogId;
+    }
+
+    public void setCreditLogId(Integer creditLogId) {
+        this.creditLogId = creditLogId;
     }
 }

@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -12,7 +13,7 @@ import java.util.*;
 @Table(name = "instock")
 public class Instock {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
@@ -20,6 +21,7 @@ public class Instock {
      */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspect_report_id")
+    @JsonIgnore
     private InspectReport inspectReport;
 
     @Column(name = "inspect_apply_no")
@@ -29,15 +31,17 @@ public class Instock {
     private String supplierName;
     // 仓库经办人ID
     private Integer uid;
+
     // 仓库经办人名称
     private String uname;
     // 下发部门，和仓库经办人管理
     private String department;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "instock_date")
-    private Date instockDate;
+    private Date instockDate;   //入库日期
 
-    private Integer status;
+    private Integer status = 1;
 
     private String remarks;
 
@@ -49,6 +53,15 @@ public class Instock {
     private Integer currentUserId;
     @Column(name = "current_user_name")
     private String currentUserName;
+
+    @Column(name = "out_check")
+    private Integer outCheck; //是否外检（ 0：否   1：是）
+
+    @Column(name = "submenu_name ")
+    private String submenuName ; //入库分单人姓名
+
+    @Column(name = "submenu_id ")
+    private Integer submenuId ; //入库分单人id
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "instock_id")
@@ -182,8 +195,32 @@ public class Instock {
         this.currentUserName = currentUserName;
     }
 
+    public Integer getOutCheck() {
+        return outCheck;
+    }
+
+    public void setOutCheck(Integer outCheck) {
+        this.outCheck = outCheck;
+    }
+
+    public String getSubmenuName() {
+        return submenuName;
+    }
+
+    public Integer getSubmenuId() {
+        return submenuId;
+    }
+
+    public void setSubmenuName(String submenuName) {
+        this.submenuName = submenuName;
+    }
+
+    public void setSubmenuId(Integer submenuId) {
+        this.submenuId = submenuId;
+    }
+
     public static enum StatusEnum {
-        INIT(0, "未编辑"), SAVED(1, "保存"), SUBMITED(2, "提交");
+        INIT(1, "未编辑"), SAVED(2, "保存"), SUBMITED(3, "提交");
         private int status;
         private String msg;
 

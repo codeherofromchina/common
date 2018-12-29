@@ -1,11 +1,10 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 看货通知单
@@ -22,32 +21,42 @@ public class DeliverNotice {
      */
     @Column(name = "deliver_notice_no")
     private String deliverNoticeNo;
+    @OneToOne(mappedBy = "deliverNotice", fetch = FetchType.LAZY)
+    private DeliverDetail deliverDetail;
 
-    // 销售合同号
     @Transient
-    private String contractNo;
+    private String contractNo; // 销售合同号
     // 出口通知单号
     @Transient
     private String deliverConsignNo;
+
+    @Transient
+    private String projectNo;   //项目号
+
+    @Transient
+    private String country;     //国家查询
 
     @Transient
     private int page = 0;
     @Transient
     private int rows = 50;
 
-    @Transient
+
     private int status; //看货通知单状态
 
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)  //看货通知单，出口发货通知单关联表
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)  //看货通知单，出口发货通知单关联表
     @JoinTable(name = "deliver_notice_consign",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
     @JsonIgnore
-    private Set<DeliverConsign> deliverConsigns = new HashSet<>();
+    private List<DeliverConsign> deliverConsigns = new ArrayList<>();
 
     @Column(name = "sender_id")
-    private Integer senderId;
+    private Integer senderId;   //下单人
+
+    @Transient
+    private String deliverConsignIds;   //出口通知单id
 
     /**
      * 下单人名称
@@ -55,7 +64,8 @@ public class DeliverNotice {
     @Column(name = "sender_name")
     private String senderName;
 
-    @Column(name = "send_date")
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @Column(name = "send_date") //下单日期
     private Date sendDate;
     @Column(name = "trade_terms")
     private String tradeTerms;
@@ -70,11 +80,13 @@ public class DeliverNotice {
      * 紧急程度 COMMONLY:一般 URGENT:紧急 PARTICULAR:异常紧急
      */
     private String urgency;
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
     private Integer numers;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -84,6 +96,7 @@ public class DeliverNotice {
     @Column(name = "create_user_name")
     private String createUserName;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
     @Column(name = "prepare_req")
@@ -98,9 +111,13 @@ public class DeliverNotice {
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 
+    public String getDeliverConsignIds() {
+        return deliverConsignIds;
+    }
 
-
-
+    public void setDeliverConsignIds(String deliverConsignIds) {
+        this.deliverConsignIds = deliverConsignIds;
+    }
 
     public Integer getId() {
         return id;
@@ -159,12 +176,16 @@ public class DeliverNotice {
         return status;
     }
 
-    public Set<DeliverConsign> getDeliverConsigns() {
+    public List<DeliverConsign> getDeliverConsigns() {
         return deliverConsigns;
     }
 
-    public void setDeliverConsigns(Set<DeliverConsign> deliverConsigns) {
+    public void setDeliverConsigns(List<DeliverConsign> deliverConsigns) {
         this.deliverConsigns = deliverConsigns;
+    }
+
+    public void setDeliverDetail(DeliverDetail deliverDetail) {
+        this.deliverDetail = deliverDetail;
     }
 
     public Integer getSenderId() {
@@ -301,5 +322,25 @@ public class DeliverNotice {
 
     public void setAttachmentSet(Set<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
+    }
+
+    public DeliverDetail getDeliverDetail() {
+        return deliverDetail;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 }

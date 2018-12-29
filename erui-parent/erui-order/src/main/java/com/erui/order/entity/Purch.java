@@ -1,21 +1,19 @@
 package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
-import com.erui.comm.util.data.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 采购信息
  */
 @Entity
 @Table(name = "purch")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Purch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,8 +43,6 @@ public class Purch {
     @Column(name = "pur_chg_date")
     private Date purChgDate;
 
-    @Column(name = "exe_chg_date")
-    private Date exeChgDate;
 
     // 供应商ID
     @Column(name = "supplier_id")
@@ -109,12 +105,14 @@ public class Purch {
 
     @Column(name = "delete_flag")
     @JsonIgnore
-    private Boolean deleteFlag;
+    private Boolean deleteFlag = Boolean.FALSE;
 
     @Column(name = "delete_time")
     @JsonIgnore
     private Date deleteTime;
 
+    // 是否报检完成 true：完成  false：未完成
+    private Boolean inspected = Boolean.FALSE;
 
     private String remarks;
 
@@ -126,7 +124,7 @@ public class Purch {
     private String projectNos;
     // 分页信息参数
     @Transient
-    private int page = 0; // 默认从0开始
+    private int page = 1; // 默认从1开始
     @Transient
     private int rows = 20; // 默认每页20条记录
 
@@ -137,6 +135,10 @@ public class Purch {
             inverseJoinColumns = @JoinColumn(name = "project_id"))
     @JsonIgnore
     private List<Project> projects = new ArrayList<>();
+/*
+    @ManyToMany(mappedBy="purchs")
+    @JsonIgnore
+    private Set<Project> projects = new HashSet<>();*/
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_attach",
@@ -223,14 +225,6 @@ public class Purch {
 
     public void setPurChgDate(Date purChgDate) {
         this.purChgDate = purChgDate;
-    }
-
-    public Date getExeChgDate() {
-        return exeChgDate;
-    }
-
-    public void setExeChgDate(Date exeChgDate) {
-        this.exeChgDate = exeChgDate;
     }
 
     public Integer getSupplierId() {
@@ -344,6 +338,9 @@ public class Purch {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+        if (this.createTime != null) {
+            this.updateTime = this.createTime;
+        }
     }
 
     public Integer getCreateUserId() {
@@ -380,6 +377,14 @@ public class Purch {
 
     public Date getDeleteTime() {
         return deleteTime;
+    }
+
+    public Boolean getInspected() {
+        return inspected;
+    }
+
+    public void setInspected(Boolean inspected) {
+        this.inspected = inspected;
     }
 
     public void setDeleteTime(Date deleteTime) {
@@ -455,7 +460,7 @@ public class Purch {
      * 采购状态枚举
      */
     public static enum StatusEnum {
-        READY(0, "未进行"), BEING(1, "进行中"), DONE(2, "已完成");
+        READY(1, "未进行/保存"), BEING(2, "进行中/提交"), DONE(3, "已完成");
 
         private int code;
         private String msg;
@@ -545,7 +550,6 @@ public class Purch {
         this.setSigningDate(NewDateUtil.getDate(purch.getSigningDate())); //采购合同签订日期
         this.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         this.setPurChgDate(NewDateUtil.getDate(purch.getPurChgDate()));
-        this.setExeChgDate(NewDateUtil.getDate(purch.getExeChgDate()));
         this.setSupplierId(purch.getSupplierId());
         this.setSupplierName(purch.getSupplierName());
         this.setTotalPrice(purch.getTotalPrice());

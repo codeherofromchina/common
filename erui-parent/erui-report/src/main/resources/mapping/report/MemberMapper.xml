@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.MemberMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.report.model.Member" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="input_date" property="inputDate" jdbcType="TIMESTAMP" />
+    <result column="general_member_count" property="generalMemberCount" jdbcType="INTEGER" />
+    <result column="general_member_rebuy" property="generalMemberRebuy" jdbcType="INTEGER" />
+    <result column="senior_member_count" property="seniorMemberCount" jdbcType="INTEGER" />
+    <result column="senior_member_rebuy" property="seniorMemberRebuy" jdbcType="INTEGER" />
+    <result column="gold_member_count" property="goldMemberCount" jdbcType="INTEGER" />
+    <result column="gold_member_rebuy" property="goldMemberRebuy" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, input_date, general_member_count, general_member_rebuy, senior_member_count, 
+    senior_member_rebuy, gold_member_count, gold_member_rebuy
+  </sql>
+ <select id="selectByTime" resultType="int" parameterType="com.erui.report.model.MemberExample">
+   SELECT IFNULL( SUM( IFNULL(general_member_count,0) + IFNULL(senior_member_count,0)+IFNULL(gold_member_count,0)),0) FROM `member`
+     <if test="_parameter != null" >
+     <include refid="Example_Where_Clause" />
+   </if>
+   <if test="orderByClause != null" >
+     order by ${orderByClause}
+   </if>
+  </select>
+
+  <select id="selectMemberByTime" resultType="java.util.Map">
+        SELECT SUM(IFNULL(general_member_count,0))AS s1,SUM(IFNULL(general_member_rebuy,0))AS s2,SUM(IFNULL(senior_member_count,0))AS s3,SUM(IFNULL(senior_member_rebuy,0))AS s4,SUM(gold_member_count)AS s5,SUM(IFNULL(gold_member_rebuy,0))AS s6
+        FROM `member`
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.MemberExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from member
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <!--查询会员汇总数量-->
+  <select id="selectOperateSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+      count(1) as registerCount,
+      IFNULL(SUM(CASE source_name WHEN '门户' THEN 1 ELSE 0 END ),0)+
+      IFNULL(SUM(CASE source_name WHEN '移动端' THEN 1 ELSE 0 END ),0) as doorCount,
+      IFNULL(SUM(CASE source_name WHEN '后台' THEN 1 ELSE 0 END ),0) AS backStageCount,
+      IFNULL(SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END ),0) AS generalCount,
+      IFNULL(SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END ),0) AS seniorCount
+    FROM erui_buyer.v_buyer where 1=1
+    <if test="startTime!=null and endTime!=null">
+      and created_at BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+  </select>
+  <!--查询会员趋势图数据-->
+  <select id="selectOperateTrend" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT
+      DATE_FORMAT(created_at,"%Y-%m-%d") AS creatTime,
+      COUNT(1) AS totalCount,
+      SUM(CASE level_name WHEN '普通会员' THEN 1 ELSE 0 END) AS generalCount,
+      SUM(CASE level_name WHEN '高级会员' THEN 1 ELSE 0 END) AS seniorCount
+    FROM erui_buyer.v_buyer
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and created_at BETWEEN
+      DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    GROUP BY STR_TO_DATE(creatTime,"%Y-%m-%d") having STR_TO_DATE(creatTime,"%Y-%m-%d") is not null  ;
+
+  </select>
+
+  <!--查询注册人数询单量和注册人数订单量-->
+  <select id="selectRegisterInqAndOrdCount" resultType="java.util.Map" parameterType="java.util.Map" >
+    SELECT a.registerInq ,b.registerOrd FROM
+    (
+        SELECT COUNT(inq.quotation_num) AS registerInq FROM inquiry_count AS inq WHERE 1=1
+               and inq.cust_description is not null and inq.cust_description!=''
+                  and  inq.cust_description
+                  IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                              <if test="startTime!=null and endTime!=null">
+                                and created_at BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                              </if>
+                     )
+    ) AS a ,
+
+    (
+        SELECT COUNT(ord.execute_num) AS registerOrd FROM order_count AS ord WHERE 1=1
+                and ord.cust_description is not  null and ord.cust_description!=''
+                 and ord.cust_description
+                 IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1
+                         <if test="startTime!=null and endTime!=null">
+                         and created_at BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                         </if>
+                    )
+    ) AS b
+
+
+  </select>
+  <!--查询各区域的注册数量-->
+  <select id="selectRegisterCountGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(1) AS registerCount,
+            region AS area
+    FROM erui_buyer.v_buyer
+    WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+     GROUP BY region HAVING region IS NOT NULL
+
+
+  </select>
+
+  <!--查询会员交易频率明细-->
+  <select id="selectCustOrdRateDetail" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT
+      COUNT(cust_description) buyCount,
+      `cust_description` custName
+      FROM  order_count
+	  WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+	  AND cust_description
+      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is not null  and buyer_code!=''
+          )
+      GROUP BY
+      cust_description
+      HAVING
+      cust_description IS NOT NULL
+  </select>
+  <!--查询会员询单频率明细-->
+  <select id="selectCustInqRateDetail" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT
+      COUNT(cust_description) inqCount,
+      `cust_description` custName
+      FROM  erui_rfq.v_inquiry_count
+	  WHERE 1=1
+    <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+	  AND cust_description
+      IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code is not null  and buyer_code!=''
+      )
+      GROUP BY
+      cust_description
+      HAVING
+      cust_description IS NOT NULL
+  </select>
+  <!--查询会员询单汇总数据-->
+  <select id="selectCustInqSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+  SELECT
+         IFNULL(t1.fristCustCount,0) as firstCustCount,
+         t2.seniorCount as  seniorCustCount
+  from
+      (
+          SELECT  COUNT(distinct(cust_description)) AS fristCustCount
+          FROM erui_rfq.v_inquiry_count as t1
+          WHERE 1=1 AND cust_description IS NOT NULL
+                <if test="startTime!=null and endTime!=null">
+                and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                </if>
+                and not EXISTS (select * from inquiry_count where 1=1
+                                    <if test="startTime!=null">
+                                  and    rollin_time &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                                    </if>
+                                and t1.cust_description= cust_description)
+      ) AS t1,
+      (
+          SELECT COUNT(DISTINCT(cust_description)) AS seniorCount
+          FROM erui_rfq.v_inquiry_count WHERE 1=1
+                    <if test="startTime!=null and endTime!=null">
+                       and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                       and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                    </if>
+                    AND cust_description
+                    IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员')
+      ) AS t2
+
+  </select>
+
+  <!--查询各区域的询单数据-->
+  <select id="selectCustInqDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+           COUNT(1) AS inqTimes  ,
+           inquiry_area AS area
+    FROM  erui_rfq.v_inquiry_count
+    WHERE 1=1 and  cust_description is not null
+    <if test="startTime!=null and endTime!=null">
+      and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
+
+  </select>
+    <!--查询各区域 客户编码为null的询单数据-->
+    <select id="selectCustIsNullInqDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+        SELECT COUNT(1) AS custCount ,
+        COUNT(1) AS inqTimes  ,
+        inquiry_area AS area
+        FROM  erui_rfq.v_inquiry_count
+        WHERE 1=1 and  cust_description is  null
+        <if test="startTime!=null and endTime!=null">
+            and rollin_time BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        </if>
+        GROUP BY inquiry_area HAVING inquiry_area IS NOT NULL
+
+    </select>
+  <!--/查询各时间段内询单人数量-->
+  <select id="selectInqCustRegistTimeSummary" resultType="java.util.Map" parameterType="java.util.Map" >
+
+      SELECT
+      oneTable.oneMothCount+threeTable.threeMothCount+otherTable.moreThanThreeMothCount
+      AS totalCount,
+      oneTable.oneMothCount,threeTable.threeMothCount,otherTable.moreThanThreeMothCount
+      from
+
+      (
+      SELECT COUNT(DISTINCT(cust_description)) AS oneMothCount FROM erui_rfq.v_inquiry_count WHERE 1=1
+      AND cust_description IS NOT NULL  AND cust_description !=''
+      AND cust_description IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE buyer_code
+      IS NOT NULL AND buyer_code!='' AND DATE_ADD(created_at,INTERVAL 1 MONTH) >= NOW())
+      and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      )
+      as oneTable,
+      (
+      SELECT COUNT(DISTINCT(cust_description)) AS threeMothCount FROM erui_rfq.v_inquiry_count
+      WHERE 1=1
+      AND cust_description IS NOT NULL  AND cust_description !=''
+      and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+            and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      AND cust_description
+      IN (SELECT buyer_code FROM erui_buyer.v_buyer WHERE buyer_code IS NOT NULL AND
+      buyer_code!='' AND DATE_ADD(created_at,INTERVAL 1 MONTH) &lt; NOW() AND
+      DATE_ADD(created_at,INTERVAL 3 MONTH)  >=NOW() )
+      )
+      as threeTable,
+      (
+      SELECT COUNT(DISTINCT(cust_description)) AS moreThanThreeMothCount
+      FROM erui_rfq.v_inquiry_count WHERE 1=1
+      AND cust_description IS NOT NULL  AND cust_description !=''
+      and rollin_time BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      AND cust_description
+      IN (SELECT buyer_code FROM erui_buyer.v_buyer WHERE buyer_code IS NOT NULL
+      AND buyer_code!='' AND   DATE_ADD(created_at,INTERVAL 3 MONTH) &lt;  NOW()
+      )
+      )
+      as otherTable
+
+  </select>
+
+
+
+  <!--查询会员订单汇总数据-->
+  <select id="selectCustOrdSummaryData" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT t1.dealCount1+t2.dealCount2 as dealCount, t1.dealAmount1+t2.dealAmount2  AS dealAmount,
+           IFNULL(t3.firstDealCount,0) AS firstDealCount ,
+           t4.seniorDealCount
+    from
+      (SELECT IFNULL(SUM(IFNULL(project_account,0.00)),0.00) AS dealAmount1,COUNT(DISTINCT(cust_description)) AS dealCount1
+      FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NOT NULL)
+      AS t1,
+      (SELECT IFNULL(SUM(IFNULL(project_account,0.00)),0.00) AS dealAmount2 ,COUNT(1) AS dealCount2
+      FROM order_count WHERE 1=1
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN
+          DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      AND cust_description IS NULL)
+      AS t2,
+      (
+      SELECT  COUNT(distinct(cust_description)) AS firstDealCount
+      FROM order_count as tt
+      WHERE 1=1 AND cust_description IS NOT NULL
+      <if test="startTime!=null and endTime!=null">
+          and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+          and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      and not EXISTS (select * from order_count where 1=1
+      <if test="startTime!=null">
+          and    project_start &lt; DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      </if>
+      and tt.cust_description= cust_description)
+      ) AS t3,
+        (
+          SELECT COUNT(DISTINCT(cust_description)) AS seniorDealCount
+          FROM order_count WHERE 1=1
+               <if test="startTime!=null and endTime!=null">
+                   and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                   and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+               </if>
+                   AND cust_description
+                   IN (SELECT  buyer_code FROM erui_buyer.v_buyer WHERE 1=1 AND level_name='高级会员')
+        ) AS t4
+
+  </select>
+  <!--查询各区域的会员的订单数据-->
+  <select id="selectCustOrdDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(DISTINCT(cust_description)) AS custCount ,
+    COUNT(1) AS ordTimes  ,
+    order_area AS area
+    FROM  order_count
+    WHERE 1=1 and cust_description is not null
+    <if test="startTime!=null and endTime!=null">
+      and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    GROUP BY order_area HAVING order_area IS NOT NULL
+
+  </select>
+  <!--查询各区域的客户编码为null的订单数据-->
+  <select id="selectCustIsNullOrdDataGroupByArea" resultType="java.util.Map" parameterType="java.util.Map" >
+
+    SELECT COUNT(1) AS custCount ,
+    COUNT(1) AS ordTimes  ,
+    order_area AS area
+    FROM  order_count
+    WHERE 1=1 and cust_description is  null
+    <if test="startTime!=null and endTime!=null">
+      and project_start BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+      and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+    </if>
+    GROUP BY order_area HAVING order_area IS NOT NULL
+
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from member
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from member
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.report.model.MemberExample" >
+    delete from member
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.report.model.Member" >
+    insert into member (id, input_date, general_member_count, 
+      general_member_rebuy, senior_member_count, 
+      senior_member_rebuy, gold_member_count, gold_member_rebuy
+      )
+    values (#{id,jdbcType=BIGINT}, #{inputDate,jdbcType=TIMESTAMP}, #{generalMemberCount,jdbcType=INTEGER}, 
+      #{generalMemberRebuy,jdbcType=INTEGER}, #{seniorMemberCount,jdbcType=INTEGER}, 
+      #{seniorMemberRebuy,jdbcType=INTEGER}, #{goldMemberCount,jdbcType=INTEGER}, #{goldMemberRebuy,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.report.model.Member" >
+    insert into member
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="inputDate != null" >
+        input_date,
+      </if>
+      <if test="generalMemberCount != null" >
+        general_member_count,
+      </if>
+      <if test="generalMemberRebuy != null" >
+        general_member_rebuy,
+      </if>
+      <if test="seniorMemberCount != null" >
+        senior_member_count,
+      </if>
+      <if test="seniorMemberRebuy != null" >
+        senior_member_rebuy,
+      </if>
+      <if test="goldMemberCount != null" >
+        gold_member_count,
+      </if>
+      <if test="goldMemberRebuy != null" >
+        gold_member_rebuy,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="inputDate != null" >
+        #{inputDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="generalMemberCount != null" >
+        #{generalMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="generalMemberRebuy != null" >
+        #{generalMemberRebuy,jdbcType=INTEGER},
+      </if>
+      <if test="seniorMemberCount != null" >
+        #{seniorMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="seniorMemberRebuy != null" >
+        #{seniorMemberRebuy,jdbcType=INTEGER},
+      </if>
+      <if test="goldMemberCount != null" >
+        #{goldMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="goldMemberRebuy != null" >
+        #{goldMemberRebuy,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.report.model.MemberExample" resultType="java.lang.Integer" >
+    select count(*) from member
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update member
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.inputDate != null" >
+        input_date = #{record.inputDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.generalMemberCount != null" >
+        general_member_count = #{record.generalMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.generalMemberRebuy != null" >
+        general_member_rebuy = #{record.generalMemberRebuy,jdbcType=INTEGER},
+      </if>
+      <if test="record.seniorMemberCount != null" >
+        senior_member_count = #{record.seniorMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.seniorMemberRebuy != null" >
+        senior_member_rebuy = #{record.seniorMemberRebuy,jdbcType=INTEGER},
+      </if>
+      <if test="record.goldMemberCount != null" >
+        gold_member_count = #{record.goldMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.goldMemberRebuy != null" >
+        gold_member_rebuy = #{record.goldMemberRebuy,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update member
+    set id = #{record.id,jdbcType=BIGINT},
+      input_date = #{record.inputDate,jdbcType=TIMESTAMP},
+      general_member_count = #{record.generalMemberCount,jdbcType=INTEGER},
+      general_member_rebuy = #{record.generalMemberRebuy,jdbcType=INTEGER},
+      senior_member_count = #{record.seniorMemberCount,jdbcType=INTEGER},
+      senior_member_rebuy = #{record.seniorMemberRebuy,jdbcType=INTEGER},
+      gold_member_count = #{record.goldMemberCount,jdbcType=INTEGER},
+      gold_member_rebuy = #{record.goldMemberRebuy,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.Member" >
+    update member
+    <set >
+      <if test="inputDate != null" >
+        input_date = #{inputDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="generalMemberCount != null" >
+        general_member_count = #{generalMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="generalMemberRebuy != null" >
+        general_member_rebuy = #{generalMemberRebuy,jdbcType=INTEGER},
+      </if>
+      <if test="seniorMemberCount != null" >
+        senior_member_count = #{seniorMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="seniorMemberRebuy != null" >
+        senior_member_rebuy = #{seniorMemberRebuy,jdbcType=INTEGER},
+      </if>
+      <if test="goldMemberCount != null" >
+        gold_member_count = #{goldMemberCount,jdbcType=INTEGER},
+      </if>
+      <if test="goldMemberRebuy != null" >
+        gold_member_rebuy = #{goldMemberRebuy,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.Member" >
+    update member
+    set input_date = #{inputDate,jdbcType=TIMESTAMP},
+      general_member_count = #{generalMemberCount,jdbcType=INTEGER},
+      general_member_rebuy = #{generalMemberRebuy,jdbcType=INTEGER},
+      senior_member_count = #{seniorMemberCount,jdbcType=INTEGER},
+      senior_member_rebuy = #{seniorMemberRebuy,jdbcType=INTEGER},
+      gold_member_count = #{goldMemberCount,jdbcType=INTEGER},
+      gold_member_rebuy = #{goldMemberRebuy,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="truncateTable" >
+    truncate table member
+  </update>
+</mapper>

@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * 口发货通知单商品
+ * 出口发货通知单商品
  */
 @Entity
 @Table(name = "deliver_consign_goods")
@@ -16,7 +16,7 @@ public class DeliverConsignGoods {
     private Integer id;
 
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="goods_id")
     private Goods goods;
 
@@ -42,6 +42,22 @@ public class DeliverConsignGoods {
     @Column(name = "create_user_id")
     private Integer createUserId;
 
+    //出库备注
+    @Column(name = "outbound_remark")
+    private String outboundRemark;
+
+    @Column(name = "outbound_num")
+    private Integer outboundNum = 0;  //出库数量
+
+    @Column(name = "straight_num")
+    private Integer straightNum = 0; //厂家直发数量
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "deliver_detail_goods",
+            joinColumns = @JoinColumn(name = "deliver_consign_goods_id"),
+            inverseJoinColumns = @JoinColumn(name = "deliver_detail_id"))
+    @JsonIgnore
+    private DeliverDetail deliverDetail;
 
 
     public Integer getId() {
@@ -107,5 +123,37 @@ public class DeliverConsignGoods {
 
     public void setCreateUserId(Integer createUserId) {
         this.createUserId = createUserId;
+    }
+
+    public String getOutboundRemark() {
+        return outboundRemark;
+    }
+
+    public void setOutboundRemark(String outboundRemark) {
+        this.outboundRemark = outboundRemark;
+    }
+
+    public DeliverDetail getDeliverDetail() {
+        return deliverDetail;
+    }
+
+    public void setDeliverDetail(DeliverDetail deliverDetail) {
+        this.deliverDetail = deliverDetail;
+    }
+
+    public Integer getOutboundNum() {
+        return outboundNum;
+    }
+
+    public Integer getStraightNum() {
+        return straightNum;
+    }
+
+    public void setOutboundNum(Integer outboundNum) {
+        this.outboundNum = outboundNum;
+    }
+
+    public void setStraightNum(Integer straightNum) {
+        this.straightNum = straightNum;
     }
 }

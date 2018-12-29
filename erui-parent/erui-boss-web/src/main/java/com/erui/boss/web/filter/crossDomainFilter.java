@@ -1,6 +1,5 @@
 package com.erui.boss.web.filter;
 
-import com.erui.comm.ExcelReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,11 +15,12 @@ import java.io.IOException;
 @Component("crossDomainFilter")
 public class crossDomainFilter implements Filter {
 
-    private static final Logger logger = LoggerFactory.getLogger(crossDomainFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(crossDomainFilter.class);
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
@@ -29,26 +29,32 @@ public class crossDomainFilter implements Filter {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
 
             // 跨域
-//            String origin = httpRequest.getHeader("Origin");
-//            if (origin == null) {
-//                httpResponse.addHeader("Access-Control-Allow-Origin", "*");
-//            } else {
-//                httpResponse.addHeader("Access-Control-Allow-Origin", origin);
-//            }
-            httpResponse.addHeader("Access-Control-Allow-Origin", "*");
+            String origin = httpRequest.getHeader("Origin");
+            if (origin == null) {
+                httpResponse.addHeader("Access-Control-Allow-Origin", "*");
+            } else {
+                httpResponse.addHeader("Access-Control-Allow-Origin", origin);
+            }
+
             httpResponse.addHeader("Access-Control-Allow-Headers", "Origin, x-requested-with, Content-Type, Accept,X-Cookie,token");
             httpResponse.addHeader("Access-Control-Allow-Credentials", "true");
             httpResponse.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS,DELETE");
-            if ( httpRequest.getMethod().equals("OPTIONS") ) {
+            if (httpRequest.getMethod().equals("OPTIONS")) {
                 httpResponse.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
+            if (httpRequest.getMethod().equals("HEAD")) {
+                httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
             chain.doFilter(request, response);
         } catch (Exception e) {
-            logger.error("Exception in crossDomainFilter.doFilter", e);
+            LOGGER.error("Exception in crossDomainFilter.doFilter", e);
             throw e;
         }
     }
+
     @Override
     public void destroy() {
     }

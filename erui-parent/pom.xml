@@ -8,6 +8,7 @@
     <artifactId>erui-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
+        <module>erui-out-web</module>
         <module>erui-boss-web</module>
         <module>erui-comm</module>
         <module>erui-power</module>
@@ -18,6 +19,7 @@
         <module>erui-cms</module>
         <module>erui-monitor</module>
         <module>erui-report</module>
+        <module>erui-quartz</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -28,6 +30,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <spring.version>4.2.2.RELEASE</spring.version>
+        <!-- hibernate 版本号 -->
+        <hibernate.version>5.1.0.Final</hibernate.version>
     </properties>
 
     <dependencies>
@@ -103,11 +107,6 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-orm</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
                 <version>${spring.version}</version>
             </dependency>
@@ -166,6 +165,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <attach>true</attach>
                 </configuration>

@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -15,27 +16,48 @@ public class DeliverDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name="pack_total")
+    private Integer packTotal;
+
     // 产品放行单号,自动生成
     @Column(name = "deliver_detail_no")
     private String deliverDetailNo;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "deliver_detail_id")
+    @JsonIgnore
+    private List<Iogistics> iogistics = new ArrayList<>();    //物流表
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "deliver_notice_id")
     @JsonIgnore
-    private DeliverNotice deliverNotice; //看货通知单ID
+    private DeliverNotice deliverNotice;    //看货通知单ID
+
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinColumn(name = "deliver_consign_id")
+    @JsonIgnore
+    private DeliverConsign deliverConsign;    //出库通知单ID
 
     // 销售合同号
     @Transient
     private String contractNo;
 
-    // 出口通知单号
+    // 项目号
     @Transient
     private String projectNo;
 
+    @Transient
+    private String deliverConsignNo;    //出口通知单号
 
+    @Transient
+    private String prepareReq;  //备货要求
+
+    @Transient
+    private String packageReq;  //包装要求
+
+/*
     @Column(name = "product_discharged_no")
-    private String productDischargedNo;    //产品放行单号
+    private String productDischargedNo;    //产品放行单号*/
 
     /**
      * 开单日期
@@ -46,12 +68,12 @@ public class DeliverDetail {
     @Column(name = "carrier_co")
     private String carrierCo;   //承运单位名称
 
-
     private String driver;  //司机姓名
 
     @Column(name = "plate_no")
     private String plateNo; //车牌号码
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "pickup_date")
     private Date pickupDate;    //取货日期
 
@@ -64,12 +86,22 @@ public class DeliverDetail {
     @Column(name = "ware_houseman")
     private Integer wareHouseman;   //仓库经办人
 
+    @Column(name = "ware_houseman_name")
+    private String wareHousemanName;   //仓库经办人姓名
+
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "send_date")
     private Date sendDate;  ///发运日期
 
     private Integer sender; //发运人员
 
+    @Column(name="sender_name")
+    private String senderName; //发运人员姓名
+
     private Integer reviewer;   //协办/复核人
+
+    @Column(name = "reviewer_name")
+    private String reviewerName;    //协办/复核人名字
 
     @Column(name = "goods_chk_status")
     private String goodsChkStatus;  //实物检验结论
@@ -81,95 +113,137 @@ public class DeliverDetail {
     private Integer checkerUid; //检验工程师 ID
 
     // 检验工程师名称
-    @Column(name = "checker_uname")
+    @Column(name = "checker_name")
     private String checkerName;
 
     @Column(name = "check_dept")
     private String checkDept;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "check_date")
     private Date checkDate; //检验日期
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "release_date")
     private Date releaseDate;   //放行日期
 
     @Column(name = "release_uid")
     private Integer releaseUid; //最终放行人
 
+    @Column(name = "release_name")
+    private String releaseName; //最终放行人姓名
+
     @Column(name = "quality_leader_id")
     private Integer qualityLeaderId;    //质量分管领导
 
+    @Column(name = "quality_leader_name")
+    private String qualityleaderName;    //质量分管领导姓名
+
     private Integer applicant;  //特殊放行申请人
 
+    @Column(name = "applicant_name")
+    private String applicantName;  //特殊放行申请人姓名
+
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "applicant_date")
     private Date applicantDate; //特殊放行申请日期
 
     private Integer approver;   //批准人
 
+    @Column(name = "approver_name")
+    private String approverName;   //批准人姓名
+
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "approval_date")
     private Date approvalDate;  //批准日期
 
 
     private String opinion; //审批意见
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "leave_date")
     private Date leaveDate; //出库时间
 
     @Column(name = "logistics_user_id")
     private Integer logisticsUserId;    //物流经办人
 
+    @Column(name = "logistics_user_name")
+    private String logisticsUserName;    //物流经办人名称
+
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "logistics_date")
     private Date logisticsDate; //物流经办时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "booking_time")
     private Date bookingTime;   //订舱时间
 
     @Column(name = "logi_invoice_no")
     private String logiInvoiceNo;   //物流发票号
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "packing_time")
     private Date packingTime;   //通知市场箱单时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "leave_factory")
     private Date leaveFactory;  //离厂时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "sailing_date")
     private Date sailingDate;   //船期或航班
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "customs_clearance")
     private Date customsClearance;  //报关放行时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "leave_port_time")
     private Date leavePortTime; //实际离港时间
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @Column(name = "accomplish_date")
+    private Date accomplishDate; //实际完成时间
+
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "arrival_port_time")
     private Date arrivalPortTime;   //预计抵达时间
-
-
-    @Transient
-    private Integer createUserId;
-    @Transient
-    private String createUserName;
-
     /**
      * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人已完整 5：完善物流状态中 6：项目完结
      */
     private Integer status;
+    @Column(name = "create_user_id")
+    private Integer createUserId;//创建人id
 
+    @Column(name="create_user_name")
+    private String createUserName;//创建人姓名
+
+    @Column(name = "confirm_the_goods")
+    private Date confirmTheGoods;   //确认收货
+
+    @Column(name = "submenu_name ")
+    private String submenuName ; //出库分单人姓名
+
+    @Column(name = "submenu_id ")
+    private Integer submenuId ; //出库分单人id
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonIgnore
+    /*@JsonIgnore*/
     private List<Attachment> attachmentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_goods",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_goods_id"))
-    @JsonIgnore
+    /*@JsonIgnore*/
     private List<DeliverConsignGoods> deliverConsignGoodsList = new ArrayList<>();
+
+
+    @Column(name = "out_check")
+    private Integer outCheck = 1;  //是否外键（1：是 0：否）
 
 
     private String reason; //特殊情况产品放行原因
@@ -188,18 +262,89 @@ public class DeliverDetail {
         this.id = id;
     }
 
-    public void setProductDischargedNo(String productDischargedNo) {
+    public Integer getPackTotal() {
+        return packTotal;
+    }
+
+    public void setPackTotal(Integer packTotal) {
+        this.packTotal = packTotal;
+    }
+
+    /*  public void setProductDischargedNo(String productDischargedNo) {
         this.productDischargedNo = productDischargedNo;
     }
 
     public String getProductDischargedNo() {
         return productDischargedNo;
+    }*/
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public void setReleaseName(String releaseName) {
+        this.releaseName = releaseName;
+    }
+
+    public void setQualityleaderName(String qualityleaderName) {
+        this.qualityleaderName = qualityleaderName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public void setApproverName(String approverName) {
+        this.approverName = approverName;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public String getReleaseName() {
+        return releaseName;
+    }
+
+    public String getQualityleaderName() {
+        return qualityleaderName;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public String getApproverName() {
+        return approverName;
     }
 
     public DeliverNotice getDeliverNotice() {
         return deliverNotice;
     }
 
+    public Date getConfirmTheGoods() {
+        return confirmTheGoods;
+    }
+
+    public void setConfirmTheGoods(Date confirmTheGoods) {
+        this.confirmTheGoods = confirmTheGoods;
+    }
 
     public void setDeliverNotice(DeliverNotice deliverNotice) {
         this.deliverNotice = deliverNotice;
@@ -211,6 +356,14 @@ public class DeliverDetail {
 
     public void setCarrierCo(String carrierCo) {
         this.carrierCo = carrierCo;
+    }
+
+    public String getLogisticsUserName() {
+        return logisticsUserName;
+    }
+
+    public void setLogisticsUserName(String logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
     }
 
     public String getDriver() {
@@ -287,6 +440,21 @@ public class DeliverDetail {
 
     public String getGoodsChkStatus() {
         return goodsChkStatus;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public DeliverDetail setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+        return this;
+    }
+
+
+    public DeliverDetail setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+        return this;
     }
 
     public void setGoodsChkStatus(String goodsChkStatus) {
@@ -378,6 +546,14 @@ public class DeliverDetail {
         return approvalDate;
     }
 
+    public Date getAccomplishDate() {
+        return accomplishDate;
+    }
+
+    public void setAccomplishDate(Date accomplishDate) {
+        this.accomplishDate = accomplishDate;
+    }
+
 
     public String getDeliverDetailNo() {
         return deliverDetailNo;
@@ -405,6 +581,22 @@ public class DeliverDetail {
 
     public void setApprovalDate(Date approvalDate) {
         this.approvalDate = approvalDate;
+    }
+
+    public String getPrepareReq() {
+        return prepareReq;
+    }
+
+    public void setPrepareReq(String prepareReq) {
+        this.prepareReq = prepareReq;
+    }
+
+    public void setPackageReq(String packageReq) {
+        this.packageReq = packageReq;
+    }
+
+    public String getPackageReq() {
+        return packageReq;
     }
 
     public String getOpinion() {
@@ -568,29 +760,64 @@ public class DeliverDetail {
         return projectNo;
     }
 
-
-    public Integer getCreateUserId() {
-        return createUserId;
+    public DeliverConsign getDeliverConsign() {
+        return deliverConsign;
     }
 
-    public void setCreateUserId(Integer createUserId) {
-        this.createUserId = createUserId;
+    public void setDeliverConsign(DeliverConsign deliverConsign) {
+        this.deliverConsign = deliverConsign;
     }
 
     public String getCreateUserName() {
         return createUserName;
     }
 
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public List<Iogistics> getIogistics() {
+        return iogistics;
+    }
+
+    public void setIogistics(List<Iogistics> iogistics) {
+        this.iogistics = iogistics;
+    }
+
+    public Integer getOutCheck() {
+        return outCheck;
+    }
+
+    public void setOutCheck(Integer outCheck) {
+        this.outCheck = outCheck;
+    }
+
+    public String getSubmenuName() {
+        return submenuName;
+    }
+
+    public void setSubmenuName(String submenuName) {
+        this.submenuName = submenuName;
+    }
+
+    public void setSubmenuId(Integer submenuId) {
+        this.submenuId = submenuId;
+    }
+
+    public Integer getSubmenuId() {
+        return submenuId;
     }
 
     /**
-     * 出库到物流的状态 0：出库保存/草稿  1：出库提交  2：出库质检保存  3：出库质检提交 4：物流人完整 5：完善物流状态中 6：项目完结',
+     * 出库到物流的状态1：出库保存/草稿 2：出库提交 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结
      */
     public static enum StatusEnum {
-        SAVED_OUTSTOCK(0, "出库保存"), SUBMITED_OUTSTOCK(1, "出库提交"), SAVED_OUT_INSPECT(2, "出库质检保存"),
-        SUBMITED_OUT_INSPECT(3, "出库质检提交"), PROCESS_LOGI_PERSON(4, "物流人完整"), PROCESS_LOGI(5, "完善物流状态中"), DONE_PROJECT(6, "项目完结");
+        SAVED_OUTSTOCK(1, "出库保存"), SUBMITED_OUTSTOCK(2, "出库提交"), SAVED_OUT_INSPECT(3, "出库质检保存"),
+        SUBMITED_OUT_INSPECT(4, "出库质检提交"), PROCESS_LOGI_PERSON(5, "确认出库"), PROCESS_LOGI(6, "完善物流状态中"), DONE_PROJECT(7, "项目完结");
 
         private int statusCode;
         private String statusMsg;
@@ -609,7 +836,7 @@ public class DeliverDetail {
         }
 
         public static StatusEnum fromStatusCode(Integer statusCode) {
-            if (statusCode == null) {
+            if (statusCode != null) {
                 int sInt = statusCode.intValue();
                 for (StatusEnum se : StatusEnum.values()) {
                     if (se.statusCode == sInt) {
@@ -618,8 +845,6 @@ public class DeliverDetail {
                 }
             }
             return null;
-
-
         }
     }
 }

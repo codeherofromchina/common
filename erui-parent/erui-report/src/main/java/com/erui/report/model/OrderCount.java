@@ -21,6 +21,7 @@ public class OrderCount {
     private String orderArea;
 
     private String custDescription;
+    private String custCategory;
 
     private String proName;
 
@@ -206,6 +207,14 @@ public class OrderCount {
 
     public void setCustDescription(String custDescription) {
         this.custDescription = custDescription == null ? null : custDescription.trim();
+    }
+
+    public String getCustCategory() {
+        return custCategory;
+    }
+
+    public void setCustCategory(String custCategory) {
+        this.custCategory = custCategory;
     }
 
     public String getProName() {

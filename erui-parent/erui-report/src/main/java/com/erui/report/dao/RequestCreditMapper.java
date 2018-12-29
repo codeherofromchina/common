@@ -28,6 +28,16 @@ public interface RequestCreditMapper {
 
     List<Map> selectNextRequestTrend(RequestCreditExample example);
 
+    List<Map<String, Object>> selectReceiveGroupByArea(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByCompany(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByOrg(RequestCreditExample example);
+    List<Map<String, Object>> selectReceiveGroupByBackDate(RequestCreditExample example);
+
+    //查询账龄分析数据
+    Map<String, Object> selectAgingSummary(Map<String, String> map);
+    //根据条件查询个大区的账龄数据
+    List<Map<String,Object>> selectAgingSummaryByConditionGroupByArea(Map<String, String> map);
+
     int countByExample(RequestCreditExample example);
 
     int deleteByExample(RequestCreditExample example);
@@ -51,4 +61,8 @@ public interface RequestCreditMapper {
     int updateByPrimaryKey(RequestCredit record);
 
     void truncateTable();
+
+    List<Map<String,String>>   selectAllCompanyAndOrgList();
+
+    Double selectReceive(RequestCreditExample example);
 }

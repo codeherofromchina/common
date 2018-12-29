@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.SalesDataStatisticsMapper">
+
+    <!--查询代理供应商按照事业部纬度、时间条件统计总数-->
+    <select id="agencySupplierOrgStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name`,count(distinct t1.proxy_no) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_sys.org t2 ON t1.org_id = t2.id and t2.deleted_flag= 'N',
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log log
+        WHERE
+        action = 'CREATE'
+        AND out_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id
+        HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
+        WHERE
+        t1.id = t3.inquiry_id and t1.proxy_flag = 'Y' and t1.deleted_flag='N'
+        GROUP BY t2.`name` ORDER BY 2
+        <if test="sort != 1" >
+          DESC
+        </if>
+    </select>
+
+
+    <!--查询代理供成单配件商品的总金额和全部总金额-->
+    <select id="agencySupplierTotalAmountByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t6.name,
+        SUM(quote_unit_price) as total,
+        SUM(CASE t5.supplier_type
+        WHEN 'AGENCY' THEN quote_unit_price
+        ELSE 0
+        END) as unitTotal
+        FROM
+        erui_order.`order` t1,
+        erui_rfq.inquiry t2,
+        erui_rfq.final_quote t3,
+        erui_rfq.final_quote_item t4,
+        erui_supplier.supplier t5,
+        erui_sys.org t6
+        WHERE
+        t1.inquiry_no = t2.serial_no
+        AND t2.id = t3.inquiry_id
+        AND t3.id = t4.quote_id
+        AND t4.supplier_id = t5.id
+        AND t5.org_id = t6.id
+        AND t1.delete_flag = 0
+        AND t2.deleted_flag = 'N'
+        AND t3.deleted_flag = 'N'
+        AND t4.deleted_flag = 'N'
+        AND t5.deleted_flag = 'N'
+        AND t6.deleted_flag = 'N'
+        AND t5.`status` = 'APPROVED'
+        AND t1.create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t6.name
+    </select>
+
+    <!--查询代理供应商按照国家纬度、时间条件统计总数-->
+    <select id="agencySupplierCountryStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name`, COUNT(DISTINCT t1.proxy_no) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log log
+        WHERE
+        action = 'CREATE'
+        AND out_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id
+        HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
+        WHERE
+        t1.id = t3.inquiry_id
+        AND t1.proxy_flag = 'Y'
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+
+
+    <!--查询代理供成单配件商品的总金额和全部总金额-->
+    <select id="agencySupplierTotalAmountByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t6.name,
+        SUM(quote_unit_price) as total,
+        SUM(CASE t5.supplier_type
+        WHEN 'AGENCY' THEN quote_unit_price
+        ELSE 0
+        END) as unitTotal
+        FROM
+        erui_order.`order` t1,
+        erui_rfq.inquiry t2,
+        erui_rfq.final_quote t3,
+        erui_rfq.final_quote_item t4,
+        erui_supplier.supplier t5,
+        erui_dict.country t6
+        WHERE
+        t1.inquiry_no = t2.serial_no
+        AND t2.id = t3.inquiry_id
+        AND t3.id = t4.quote_id
+        AND t4.supplier_id = t5.id
+        AND t5.country_bn = t6.bn
+        AND t1.delete_flag = 0
+        AND t2.deleted_flag = 'N'
+        AND t3.deleted_flag = 'N'
+        AND t4.deleted_flag = 'N'
+        AND t5.deleted_flag = 'N'
+        AND t6.deleted_flag = 'N'
+        AND t6.lang = 'zh'
+        AND t5.`status` = 'APPROVED'
+        AND t1.create_time between #{startTime} AND #{endTime}
+        GROUP BY t6.name
+    </select>
+
+    <!--查询代理供应商按照地区纬度、时间条件统计总数-->
+    <select id="agencySupplierAreaStatisticsData" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name`, COUNT(DISTINCT t1.proxy_no) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area_country t2 ON t1.country_bn = t2.country_bn
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh'
+        AND t3.bn = t2.market_area_bn,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log log
+        WHERE
+        action = 'CREATE'
+        AND out_node = 'BIZ_DISPATCHING'
+        GROUP BY inquiry_id
+        HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t4
+        WHERE
+        t1.id = t4.inquiry_id
+        AND t1.proxy_flag = 'Y'
+        GROUP BY t3.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+    <!--查询代理供成单配件商品的总金额和全部总金额-->
+    <select id="agencySupplierTotalAmountByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t7.name,
+            SUM(quote_unit_price) as total,
+            SUM(CASE t5.supplier_type
+                WHEN 'AGENCY' THEN quote_unit_price
+                ELSE 0
+            END) as unitTotal
+        FROM
+            erui_order.`order` t1,
+            erui_rfq.inquiry t2,
+            erui_rfq.final_quote t3,
+            erui_rfq.final_quote_item t4,
+            erui_supplier.supplier t5,
+            erui_operation.market_area_country t6,
+            erui_operation.market_area t7
+        WHERE
+            t1.inquiry_no = t2.serial_no
+                AND t2.id = t3.inquiry_id
+                AND t3.id = t4.quote_id
+                AND t4.supplier_id = t5.id
+                AND t5.country_bn = t6.country_bn
+                AND t7.bn = t6.market_area_bn
+                AND t1.delete_flag = 0
+                AND t2.deleted_flag = 'N'
+                AND t3.deleted_flag = 'N'
+                AND t4.deleted_flag = 'N'
+                AND t5.deleted_flag = 'N'
+                AND t7.deleted_flag = 'N'
+                AND t7.lang = 'zh'
+                AND t5.`status` = 'APPROVED'
+                AND t1.create_time between #{startTime} AND #{endTime}
+        GROUP BY t7.name
+    </select>
+
+    <!--查询询单失败列表，按照失败时间查询-->
+    <select id="inquiryFailListByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t1.id,
+        t1.serial_no,
+        t2.`name` AS country_name,
+        t3.`name` AS org_name,
+        t4.`name` AS area_name,
+        t5.op_note,
+        t5.created_at
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_dict.country t2 ON t2.lang = 'zh' AND t2.bn = t1.country_bn
+        LEFT JOIN
+        erui_sys.org t3 ON t3.id = t1.org_id
+        AND t3.deleted_flag = 'N'
+        LEFT JOIN
+        erui_operation.market_area t4 ON t4.bn = t1.area_bn AND t4.lang = 'zh'
+        INNER JOIN
+        erui_rfq.inquiry_check_log t5
+        WHERE
+        t1.id = t5.inquiry_id
+        AND t5.action = 'FAIL'
+        <if test="startTime!=null and startTime!=''">
+          AND t5.created_at BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ORDER BY t1.created_at DESC
+    </select>
+
+    <!-- 会员总数 -->
+    <select id="buyerTotalCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+        erui_buyer.buyer t1
+        LEFT JOIN
+        erui_operation.market_area_country t2 ON t1.country_bn = t2.country_bn
+        LEFT JOIN
+        erui_operation.market_area t3 ON t2.market_area_bn = t3.bn AND t3.lang = 'zh' AND t3.deleted_flag = 'N'
+        WHERE
+        t1.created_at <![CDATA[ <= ]]> #{endTime} AND t1.`status` IN ('PASS' , 'ARROVED') AND t1.deleted_flag = 'N'
+        GROUP BY t3.`name`
+        order by 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 会员流失数-->
+    <select id="buyerLossCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+            erui_buyer.buyer t1
+             left join erui_operation.market_area_country t2 on t1.country_bn = t2.country_bn
+            left join erui_operation.market_area t3 on t2.market_area_bn = t3.bn and t3.lang='zh' and t3.deleted_flag = 'N'
+        WHERE
+            t1.`status` IN ('PASS' , 'ARROVED')
+                AND t1.deleted_flag = 'N'
+                AND t1.created_at BETWEEN DATE_ADD(#{startTime},
+                INTERVAL - 6 MONTH) AND #{endTime}
+                AND t1.id NOT IN (SELECT
+                    id
+                FROM
+                    erui_rfq.inquiry t3,
+                    (
+                        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                        erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+                    ) as z
+                WHERE
+                    z.log_inquiry_id = t3.id
+                    AND t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+                        'BIZ_QUOTING',
+                        'LOGI_DISPATCHING',
+                        'LOGI_QUOTING',
+                        'LOGI_APPROVING',
+                        'BIZ_APPROVING',
+                        'MARKET_APPROVING',
+                        'MARKET_CONFIRMING',
+                        'QUOTE_SENT',
+                        'INQUIRY_CLOSED')
+                        AND z.log_create_at BETWEEN DATE_ADD(#{startTime},
+                        INTERVAL - 6 MONTH) AND #{endTime})
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 会员活跃数-->
+    <select id="buyerActiveCountGoupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+        erui_buyer.buyer t1
+         left join erui_operation.market_area_country t2 on t1.country_bn = t2.country_bn
+        left join erui_operation.market_area t3 on t2.market_area_bn = t3.bn and t3.lang='zh' and t3.deleted_flag = 'N'
+        WHERE
+        t1.`status` IN ('PASS' , 'ARROVED')
+        AND t1.deleted_flag = 'N'
+        AND t1.id IN (SELECT
+        buyer_id
+        FROM
+        erui_rfq.inquiry t3,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+        ) as z
+        WHERE
+        t3.id = z.log_inquiry_id
+        AND t3.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING',
+        'BIZ_QUOTING',
+        'LOGI_DISPATCHING',
+        'LOGI_QUOTING',
+        'LOGI_APPROVING',
+        'BIZ_APPROVING',
+        'MARKET_APPROVING',
+        'MARKET_CONFIRMING',
+        'QUOTE_SENT',
+        'INQUIRY_CLOSED')
+        AND z.log_create_at <![CDATA[ <= ]]>  #{endTime}
+        AND z.log_create_at <![CDATA[ >= ]]> DATE_ADD(#{startTime},
+        INTERVAL - 3 MONTH)
+        GROUP BY buyer_id)
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 事业部报价用时 -->
+    <select id="orgQuoteTotalCostTime" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            org.`name`,
+            SUM((UNIX_TIMESTAMP(t1.out_at) - UNIX_TIMESTAMP(t1.into_at))) / 3600 AS costTimes,
+            COUNT(t1.id) AS total
+        FROM
+            (SELECT
+                inquiry.id,
+                    inquiry.org_id,
+                    MAX(log1.out_at) AS out_at,
+                    MIN(log2.into_at) AS into_at
+            FROM
+                erui_rfq.inquiry inquiry, erui_rfq.inquiry_check_log log1, erui_rfq.inquiry_check_log log2, (SELECT
+                inquiry_id AS log_inquiry_id
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                out_node = 'MARKET_APPROVING'
+            GROUP BY inquiry_id
+            HAVING MAX(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
+            WHERE
+                t3.log_inquiry_id = inquiry.id
+                    AND inquiry.id = log1.inquiry_id
+                    AND inquiry.id = log2.inquiry_id
+                    AND log1.in_node = 'BIZ_APPROVING'
+                    AND log2.in_node = 'BIZ_DISPATCHING'
+            GROUP BY inquiry.id , inquiry.org_id) t1,
+            erui_sys.org AS org
+        WHERE
+            t1.org_id = org.id
+        GROUP BY org.`name`
+    </select>
+
+    <!-- 总报价数量 -->
+    <select id="quoteTotalNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+            (
+                SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
+            ) as z
+        WHERE
+          t1.id = z.log_inquiry_id
+                AND t1.`status` IN ('MARKET_CONFIRMING',
+                'QUOTE_SENT','INQUIRY_CLOSED')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+    <!-- 会员报价总数量 -->
+    <select id="memberQuoteNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+            erui_buyer.buyer t4,
+            (
+                SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+                HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
+            ) as z
+        WHERE
+          t1.id = z.log_inquiry_id
+            AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
+                AND t1.`status` IN ('MARKET_CONFIRMING',
+                'QUOTE_SENT','INQUIRY_CLOSED')
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 总询单数量 -->
+    <select id="inquiryTotalNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
+        ) as z
+        WHERE
+        t1.id = z.log_inquiry_id
+        AND t1.`status` IN ('BIZ_DISPATCHING',
+                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
+                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+    <!-- 会员询单总数量 -->
+    <select id="memberInquiryNumGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, COUNT(t1.id) AS total
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        erui_buyer.buyer t4,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'BIZ_DISPATCHING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
+        ) as z
+        WHERE
+        t1.id = z.log_inquiry_id
+        AND t4.id = t1.buyer_id and t4.buyer_level in (52,53)
+        AND t1.`status` IN ('BIZ_DISPATCHING',
+                'CC_DISPATCHING','BIZ_QUOTING','LOGI_DISPATCHING','LOGI_QUOTING',
+                'LOGI_APPROVING','BIZ_APPROVING','MARKET_APPROVING','MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+
+    <!-- 总报价金额 -->
+    <select id="quoteTotalAmountGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, sum(t4.total_quote_price) AS totalAmount
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        erui_rfq.final_quote t4,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+            HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
+        ) as z
+        WHERE
+        t1.id = z.log_inquiry_id AND t4.inquiry_id = t1.id
+        AND t1.`status` IN ('MARKET_CONFIRMING',
+                'QUOTE_SENT','INQUIRY_CLOSED')
+        GROUP BY t3.`name`
+        ORDER BY 2 DESC
+    </select>
+
+    <!-- 会员报价总金额 -->
+    <select id="memberQuoteAmountGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS areaName, sum(t4.total_quote_price) AS totalAmount
+        FROM
+        erui_rfq.inquiry t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t3.lang = 'zh' AND t3.bn = t1.area_bn,
+        erui_rfq.final_quote t4,
+        erui_buyer.buyer t5,
+        (
+	        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+	        erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+	        HAVING max(out_at) BETWEEN #{startTime} AND #{endTime}
+	    ) as z
+        WHERE
+        t1.id = z.log_inquiry_id
+        AND t4.inquiry_id = t1.id
+        AND t5.id = t1.buyer_id and t5.buyer_level in (52,53)
+        AND t1.`status` IN ('MARKET_CONFIRMING',
+        'QUOTE_SENT','INQUIRY_CLOSED')
+        GROUP BY t3.`name`
+    </select>
+
+
+    <!-- 订单数据统计 - 整体 - 按地区纬度查询订单的金额和数量 -->
+    <select id="orderStatisticsWholeInfoGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.`name` AS areaName,
+            SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
+            COUNT(1) AS totalNum
+        FROM
+            erui_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn,
+            erui_order.`project` t3
+        WHERE
+            t1.`status` >= 3 and t1.id = t3.order_id
+            <if test="startTime!=null and startTime!=''">
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
+            </if>
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 订单数据统计 - 整体 - 按事业部纬度查询订单的金额和数量 -->
+    <select id="orderStatisticsWholeInfoGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.id AS orgId,
+            t3.`name` AS orgName,
+            SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
+            COUNT(1) AS totalNum
+        FROM
+            erui_order.`order` as t1
+            left join
+            erui_sys.org t3 on t3.deleted_flag='N' and t3.`status`='NORMAL' and t3.id = t1.business_unit_id
+            ,erui_order.`project` t2
+        WHERE
+            t1.`status` >= 3 and t1.id = t2.order_id
+            <if test="startTime!=null and startTime!=''">
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+            </if>
+        GROUP BY t3.id , t3.`name`
+        ORDER BY 3
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 订单数据统计 - 整体 - 按国家纬度查询订单的金额和数量 -->
+    <select id="orderStatisticsWholeInfoGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.`name` AS countryName,
+            SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
+            COUNT(1) AS totalNum
+        FROM
+            erui_order.`order` t1
+                LEFT JOIN
+            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn,
+            erui_order.`project` t3
+        WHERE
+            t1.`status` >= 3 and t1.id = t3.order_id
+            <if test="startTime!=null and startTime!=''">
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
+            </if>
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+    <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的国家利润率 -->
+    <select id="orderStatisticsProfitPercentGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.`name` AS `name`,
+            SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
+        FROM
+            erui_order.`order` t1
+                LEFT JOIN
+            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn,
+            erui_order.`project` t3
+        WHERE
+            t1.id = t3.order_id AND t1.`status` >= 3
+                AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+                    'DELAYED_EXECUTION',
+                    'DELAYED_COMPLETE',
+                    'UNSHIPPED',
+                    'DELAYED_UNSHIPPED',
+                    'PAUSE')
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的地区利润率 -->
+    <select id="orderStatisticsProfitPercentGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t2.`name` AS `name`,
+            SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
+        FROM
+            erui_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn,
+            erui_order.`project` t3
+        WHERE
+            t1.id = t3.order_id AND t1.`status` >= 3
+                AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+                        'DELAYED_EXECUTION',
+                        'DELAYED_COMPLETE',
+                        'UNSHIPPED',
+                        'DELAYED_UNSHIPPED',
+                        'PAUSE')
+                AND t3.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 销售数据统计 - 订单数据统计 - 利润 - 订单信息的事业部利润率 -->
+    <select id="orderStatisticsProfitPercentGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.id AS orgId,
+        t2.`name` AS `name`,
+        SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
+        FROM
+        erui_order.`order` t1
+        LEFT JOIN
+        erui_sys.org t2 ON t2.id = t1.`business_unit_id`,
+        erui_order.`project` t3
+        WHERE
+        t1.id = t3.order_id AND t1.`status` >= 3
+        AND t3.`project_status` IN ('EXECUTING' , 'DONE',
+        'DELAYED_EXECUTION',
+        'DELAYED_COMPLETE',
+        'UNSHIPPED',
+        'DELAYED_UNSHIPPED',
+        'PAUSE')
+        AND t3.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t2.id , t2.`name`
+        ORDER BY 3
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+
+    <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的事业部成单率 -->
+    <select id="orderStatisticsMonoRateGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name` AS `name`,
+        SUM(quoteNum) AS quoteNum,
+        SUM(doneNum) AS doneNum,
+        SUM(doneNum) / SUM(quoteNum) AS rate
+        FROM
+        (SELECT
+        t1.business_unit_id AS org_id,
+        0 AS quoteNum,
+        COUNT(1) AS doneNum
+        FROM
+        erui_order.`order` t1, erui_order.`project` t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t1.business_unit_id
+        UNION ALL
+        SELECT
+        org_id, COUNT(1) AS quoteNum, 0 AS doneNum
+        FROM
+        erui_rfq.inquiry i1,
+        (
+        SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+        erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+        ) as z
+        WHERE
+        z.log_inquiry_id = i1.id
+        AND i1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY i1.org_id) AS t1
+        LEFT JOIN
+        erui_sys.org t2 ON t1.org_id = t2.id
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的地区成单率 -->
+    <select id="orderStatisticsMonoRateGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t2.`name` AS `name`,
+        SUM(quoteNum) AS quoteNum,
+        SUM(doneNum) AS doneNum,
+        SUM(doneNum) / SUM(quoteNum) AS rate
+        FROM
+        (SELECT
+        t1.region AS area_bn, 0 AS quoteNum, COUNT(1) AS doneNum
+        FROM
+        erui_order.`order` t1, erui_order.`project` t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t1.region
+        UNION ALL
+        SELECT
+        i1.area_bn, COUNT(1) AS quoteNum, 0 AS doneNum
+        FROM
+        erui_rfq.inquiry i1,
+        (
+            SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+            erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+        ) as z
+        WHERE
+        i1.id = z.log_inquiry_id
+        AND i1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY i1.area_bn) AS t1
+        LEFT JOIN
+        erui_operation.market_area t2 ON t2.bn = t1.area_bn AND t2.lang = 'zh'
+        GROUP BY t2.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 销售数据统计 - 订单数据统计 - 成单率 - 订单信息的国家成单率 -->
+    <select id="orderStatisticsMonoRateGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+            SELECT
+            t2.`name` AS `name`,
+            SUM(quoteNum) AS quoteNum,
+            SUM(doneNum) AS doneNum,
+            SUM(doneNum) / SUM(quoteNum) AS rate
+            FROM
+            (SELECT
+            t1.country AS country_bn, 0 AS quoteNum, COUNT(1) AS doneNum
+            FROM
+            erui_order.`order` t1, erui_order.`project` t2
+            WHERE
+            t1.id = t2.order_id AND t1.`status` >= 3
+            AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+            GROUP BY t1.country
+              UNION ALL
+            SELECT
+            i1.country_bn, COUNT(1) AS quoteNum, 0 AS doneNum
+            FROM
+            erui_rfq.inquiry i1,
+            (
+                SELECT inquiry_id as log_inquiry_id,max(out_at) as log_create_at FROM
+                erui_rfq.inquiry_check_log where out_node = 'MARKET_CONFIRMING' group by inquiry_id
+            ) as z
+            WHERE
+            i1.id = z.log_inquiry_id
+            AND i1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+            AND z.log_create_at BETWEEN #{startTime} AND #{endTime}
+            GROUP BY i1.country_bn) AS t1
+            LEFT JOIN
+            erui_dict.country t2 ON t2.lang = 'zh' AND t1.country_bn = t2.bn
+            GROUP BY t2.`name`
+            ORDER BY 2
+            <if test="sort != 1" >
+                DESC
+            </if>
+    </select>
+
+    <!-- 销售数据统计 - 订单数据统计 - 购买力 -->
+    <select id="orderInfoPurchasingPower" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        tb1.id,
+        tb1.buyer_id AS buyer_id,
+        tb2.buyer_no AS buyer_code,
+        tb3.bn AS area_bn,
+        tb3.`name` AS areaName,
+        tb4.bn AS country_bn,
+        tb4.`name` AS countryName,
+        tb1.total_price_usd / 10000 AS maxQuotePrice,
+        tb2.totalQuotePrice / 10000 AS totalQuotePrice,
+        MAX(tb5.start_date) AS created_at
+        FROM
+        erui_order.`order` AS tb1,
+        erui_order.`project` tb5,
+        (SELECT
+        t3.id AS buyer_id,
+        t3.buyer_no AS buyer_no,
+        t3.buyer_code as buyer_code,
+        t3.area_bn AS area_bn,
+        t3.country_bn AS country_bn,
+        MAX(IFNULL(t1.total_price_usd, 0)) AS maxQuotePrice,
+        SUM(IFNULL(t1.total_price_usd, 0)) AS totalQuotePrice
+        FROM
+        erui_order.`order` t1, erui_order.`project` t2, erui_buyer.buyer t3
+        WHERE
+        t1.id = t2.order_id
+        AND t1.crm_code = t3.buyer_code
+        AND t1.crm_code IS NOT NULL
+        AND t1.`status` >= 3
+        <if test="startTime!=null and startTime!=''">
+            AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        </if>
+        GROUP BY t3.id , t3.buyer_no , t3.area_bn , t3.country_bn) AS tb2
+        LEFT JOIN
+        erui_operation.market_area tb3 ON tb2.area_bn = tb3.bn AND tb3.lang = 'zh'
+        LEFT JOIN
+        erui_dict.country tb4 ON tb2.country_bn = tb4.bn
+        AND tb4.lang = 'zh'
+        WHERE
+        tb1.crm_code = tb2.buyer_code
+        AND IFNULL(tb1.total_price_usd, 0) = tb2.maxQuotePrice
+        AND tb1.id = tb5.order_id
+        <if test="startTime!=null and startTime!=''">
+            AND tb5.start_date BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="countryBn!=null and countryBn!=''">
+            AND tb2.country_bn = #{countryBn}
+        </if>
+        <if test="areaBn!=null and areaBn!=''">
+            AND tb2.area_bn = #{areaBn}
+        </if>
+        <if test="buyerCode!=null and buyerCode!=''">
+            AND tb2.buyer_no LIKE '%${buyerCode}%'
+        </if>
+        GROUP BY tb2.buyer_id , tb2.buyer_no , tb2.area_bn , tb2.country_bn
+    </select>
+    <!-- 销售数据统计 - 订单数据统计 - 复购周期 -->
+    <select id="orderInfoBuyCycle" parameterType="java.util.Map" resultType="java.util.Map">
+            SELECT
+            tb1.buyer_code,
+            tb2.`name` AS areaName,
+            tb1.country_bn,
+            tb1.area_bn,
+            tb3.`name` AS countryName,
+            tb1.cycle
+            FROM
+            (SELECT
+            t5.buyer_no AS buyer_code,
+            t5.country_bn AS country_bn,
+            t5.area_bn AS area_bn,
+            CASE
+            WHEN COUNT(1) > 1 THEN (DATEDIFF(MAX(t4.start_date), MIN(t4.start_date))+1) / (COUNT(1)-1)
+            ELSE 0
+            END AS cycle
+            FROM
+            erui_order.`order` t1, erui_order.`project` t4, erui_buyer.`buyer` t5
+            WHERE
+            t1.`status` >= 3 AND t1.id = t4.order_id
+            AND t1.crm_code IS NOT NULL
+            AND t1.crm_code = t5.buyer_code
+            <if test="startTime!=null and startTime!=''">
+                AND t4.start_date BETWEEN #{startTime} AND #{endTime}
+            </if>
+            GROUP BY t5.buyer_no , t5.country_bn , t5.area_bn) AS tb1
+            LEFT JOIN
+            erui_operation.market_area tb2 ON tb1.area_bn = tb2.bn AND tb2.lang = 'zh'
+            LEFT JOIN
+            erui_dict.country tb3 ON tb1.country_bn = tb3.bn
+            AND tb3.lang = 'zh'
+            WHERE
+            1 = 1
+            <if test="countryBn!=null and countryBn!=''">
+                AND tb1.country_bn = #{countryBn}
+            </if>
+            <if test="areaBn!=null and areaBn!=''">
+                AND tb1.area_bn = #{areaBn}
+            </if>
+            <if test="buyerCode!=null and buyerCode!=''">
+                AND tb1.buyer_code LIKE '%${buyerCode}%'
+            </if>
+    </select>
+
+
+    <!-- 销售数据统计 - 订单数据统计 - 新老会员贡献度 - 全部成单额 -->
+    <select id="allMembersContribution" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName,
+            SUM(t1.total_price_usd) AS totalAmount
+        FROM
+            erui_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
+            erui_order.`project` t2
+        WHERE
+            t1.id = t2.order_id
+                AND t2.project_status IN ('EXECUTING' , 'DONE',
+                'DELAYED_EXECUTION',
+                'DELAYED_COMPLETE',
+                'UNSHIPPED',
+                'DELAYED_UNSHIPPED',
+                'PAUSE')
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`;
+    </select>
+
+    <!-- 销售数据统计 - 订单数据统计 - 新老会员贡献度 - 新会员成单额 -->
+    <select id="newMembersContribution" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.`name` AS areaName,
+            SUM(t1.total_price_usd) AS totalAmount
+        FROM
+            erui_order.`order` t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
+            erui_order.`project` t2,
+            erui_buyer.buyer t4
+        WHERE
+            t1.id = t2.order_id
+                AND t1.crm_code = t4.buyer_code
+                AND t4.`status` in  ('APPROVED','PASS')
+                AND t4.created_at BETWEEN DATE_ADD(#{startTime},
+                INTERVAL -3 MONTH) AND #{endTime}
+                AND t2.project_status IN ('EXECUTING' , 'DONE',
+                'DELAYED_EXECUTION',
+                'DELAYED_COMPLETE',
+                'UNSHIPPED',
+                'DELAYED_UNSHIPPED',
+                'PAUSE')
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 订单数据统计 - 订单的事业部分组完成金额 -->
+    <select id="orderInfoDonePriceGroupbyOrg" parameterType="java.util.Map" resultType="java.util.Map">
+            SELECT
+                t3.id AS `key`,
+                t3.`name` AS `name`,
+                SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice,
+                (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
+            FROM
+                erui_order.`order` AS t1
+                    LEFT JOIN
+                erui_sys.org t3 ON t1.business_unit_id = t3.id,
+                erui_order.`project` AS t2
+            WHERE
+                t1.id = t2.order_id AND t1.`status` > 2
+                    AND t1.business_unit_id IS NOT NULL
+                    AND t3.`name` IS NOT NULL
+                    AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+            GROUP BY t3.id , t3.`name`
+    </select>
+
+    <!-- 订单数据统计 - 订单的地区分组完成金额 -->
+    <select id="orderInfoDonePriceGroupbyArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t3.bn AS `key`,
+            t3.`name` AS `name`,
+            SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice,
+            (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
+        FROM
+            erui_order.`order` AS t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
+            erui_order.`project` AS t2
+        WHERE
+            t1.id = t2.order_id AND t1.`status` > 2
+                AND t1.region IS NOT NULL
+                AND t3.`name` IS NOT NULL
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.bn , t3.`name`
+    </select>
+
+    <!-- 订单数据统计 - 订单的国家分组完成金额 -->
+    <select id="orderInfoDonePriceGroupbyCountry" parameterType="java.util.Map" resultType="java.util.Map">
+            SELECT
+                t3.bn AS `key`,
+                t3.`name` AS `name`,
+                SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice,
+                (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
+            FROM
+                erui_order.`order` AS t1
+                    LEFT JOIN
+                erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh' AND t3.deleted_flag = 'N',
+                erui_order.`project` AS t2
+            WHERE
+                t1.id = t2.order_id AND t1.`status` > 2
+                    AND t1.country IS NOT NULL
+                    AND t3.`name` IS NOT NULL
+                    AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+            GROUP BY t3.bn , t3.`name`
+    </select>
+</mapper>

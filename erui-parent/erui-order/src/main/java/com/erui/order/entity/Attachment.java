@@ -1,7 +1,6 @@
 package com.erui.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,7 +10,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "attachment")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +32,8 @@ public class Attachment {
     private String frontDate;
     @Column(name = "delete_flag")
     @JsonIgnore
-    private Boolean deleteFlag;
+    private Boolean deleteFlag = Boolean.FALSE;
+
     @Column(name = "delete_time")
     @JsonIgnore
     private Date deleteTime;
@@ -42,6 +41,15 @@ public class Attachment {
     @Column(name = "create_time")
     @JsonIgnore
     private Date createTime;
+    private Integer type;
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
     public Integer getId() {
         return id;

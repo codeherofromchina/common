@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -15,7 +16,7 @@ public class InspectReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "inspect_apply_id")
     @JsonIgnore
     private InspectApply inspectApply;
@@ -65,11 +66,24 @@ public class InspectReport {
     @Column(name = "ncr_no")
     private String ncrNo;
 
+    // 检验日期
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "check_date")
     private Date checkDate;
 
+    // 检验完成日期
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "done_date")
     private Date doneDate;
+
+    // 最后的检验完成日期，取最后的报检日期
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @Column(name = "last_done_date")
+    private Date lastDoneDate;
+
+    // 报检日期 -- 列表中需要，来源：报检单-报检日期
+    @Transient
+    private Date inspectDate;
 
     @Column(name = "report_remarks")
     private String reportRemarks;
@@ -118,6 +132,9 @@ public class InspectReport {
     private Integer createUserId;
     @Transient
     private String createUserName;
+
+    @Transient
+    private Integer inspectApplyID;  //到货报检单id
 
     @Transient
     private int page = 0;
@@ -227,6 +244,22 @@ public class InspectReport {
 
     public void setDoneDate(Date doneDate) {
         this.doneDate = doneDate;
+    }
+
+    public Date getLastDoneDate() {
+        return lastDoneDate;
+    }
+
+    public void setLastDoneDate(Date lastDoneDate) {
+        this.lastDoneDate = lastDoneDate;
+    }
+
+    public Date getInspectDate() {
+        return inspectDate;
+    }
+
+    public void setInspectDate(Date inspectDate) {
+        this.inspectDate = inspectDate;
     }
 
     public String getReportRemarks() {
@@ -348,6 +381,14 @@ public class InspectReport {
 
     public void setInspectGoodsList(List<InspectApplyGoods> inspectGoodsList) {
         this.inspectGoodsList = inspectGoodsList;
+    }
+
+    public Integer getInspectApplyID() {
+        return inspectApplyID;
+    }
+
+    public void setInspectApplyID(Integer inspectApplyID) {
+        this.inspectApplyID = inspectApplyID;
     }
 
     public static enum StatusEnum {

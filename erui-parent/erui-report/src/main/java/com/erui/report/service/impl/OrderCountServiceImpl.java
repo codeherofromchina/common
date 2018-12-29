@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.CateDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -78,16 +79,17 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
 
             oc.setOrderArea(strArr[6]);
             oc.setCustDescription(strArr[7]);
+            oc.setCustCategory(strArr[8]);
 
-            oc.setProName(strArr[8]);
-            oc.setEnglishName(strArr[9]);
-            oc.setSpecification(strArr[10]);
-            oc.setIsOilGas(strArr[11]);
-            oc.setPlatProCategory(strArr[12]);
-            oc.setProCategory(strArr[13]);
-            if (strArr[14] != null) {
+            oc.setProName(strArr[9]);
+            oc.setEnglishName(strArr[10]);
+            oc.setSpecification(strArr[11]);
+            oc.setIsOilGas(strArr[12]);
+            oc.setPlatProCategory(strArr[13]);
+            oc.setProCategory(strArr[14]);
+            if (strArr[15] != null) {
                 try {
-                    oc.setOrderCount(new BigDecimal(strArr[14]).intValue());
+                    oc.setOrderCount(new BigDecimal(strArr[15]).intValue());
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -95,15 +97,15 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            oc.setOrderUnit(strArr[15]);
+            oc.setOrderUnit(strArr[16]);
             // 订货号
-            oc.setSaleNum(strArr[16]);
+            oc.setSaleNum(strArr[17]);
             //订单号
-            oc.setOrderNum(strArr[17]);
+            oc.setOrderNum(strArr[18]);
 
-            if (strArr[18] != null) {
+            if (strArr[19] != null) {
                 try {
-                    oc.setProjectAccount(new BigDecimal(strArr[18]));
+                    oc.setProjectAccount(new BigDecimal(strArr[19]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -112,11 +114,11 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            oc.setPreProfit(strArr[19]);
-            oc.setBackForm(strArr[20]);
-            if (strArr[21] != null) {
+            oc.setPreProfit(strArr[20]);
+            oc.setBackForm(strArr[21]);
+            if (strArr[22] != null) {
                 try {
-                    oc.setBackDate(DateUtil.parseString2Date(strArr[21], "yyyy/M/d", "yyyy/M/d",
+                    oc.setBackDate(DateUtil.parseString2Date(strArr[22], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -125,9 +127,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[22] != null) {
+            if (strArr[23] != null) {
                 try {
-                    oc.setBackAmount(new BigDecimal(strArr[22]));
+                    oc.setBackAmount(new BigDecimal(strArr[23]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -135,10 +137,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            oc.setCreditExtension(strArr[23]);
-            if (strArr[24] != null) {
+            oc.setCreditExtension(strArr[24]);
+            if (strArr[25] != null) {
                 try {
-                    oc.setProjectStart(DateUtil.parseString2Date(strArr[24], "yyyy/M/d", "yyyy/M/d",
+                    oc.setProjectStart(DateUtil.parseString2Date(strArr[25], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -147,9 +149,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[25] != null) {
+            if (strArr[26] != null) {
                 try {
-                    oc.setExePromiseDate(DateUtil.parseString2Date(strArr[25], "yyyy/M/d", "yyyy/M/d",
+                    oc.setExePromiseDate(DateUtil.parseString2Date(strArr[26], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -158,9 +160,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[26] != null) {
+            if (strArr[27] != null) {
                 try {
-                    oc.setExePromiseUpdateDate(DateUtil.parseString2Date(strArr[26], "yyyy/M/d", "yyyy/M/d",
+                    oc.setExePromiseUpdateDate(DateUtil.parseString2Date(strArr[27], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -169,9 +171,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[27] != null) {
+            if (strArr[28] != null) {
                 try {
-                    oc.setRequirePurchaseGetDate(DateUtil.parseString2Date(strArr[27], "yyyy/M/d", "yyyy/M/d",
+                    oc.setRequirePurchaseGetDate(DateUtil.parseString2Date(strArr[28], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -181,17 +183,17 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            oc.setMarketManager(strArr[28]);
-            oc.setBusinessManager(strArr[29]);
-            oc.setPurchaseManager(strArr[30]);
-            oc.setSupplier(strArr[31]);
-            oc.setPurchaseContractNu(strArr[32]);
-            oc.setPreQuotesAccount(strArr[33]);
-            oc.setPurchaseAccountCny(strArr[34]);
-            oc.setPurchaseAccountUsd(strArr[35]);
-            if (strArr[36] != null) {
+            oc.setMarketManager(strArr[29]);
+            oc.setBusinessManager(strArr[30]);
+            oc.setPurchaseManager(strArr[31]);
+            oc.setSupplier(strArr[32]);
+            oc.setPurchaseContractNu(strArr[33]);
+            oc.setPreQuotesAccount(strArr[34]);
+            oc.setPurchaseAccountCny(strArr[35]);
+            oc.setPurchaseAccountUsd(strArr[36]);
+            if (strArr[37] != null) {
                 try {
-                    oc.setPurchaseContractDate(DateUtil.parseString2Date(strArr[36], "yyyy/M/d", "yyyy/M/d",
+                    oc.setPurchaseContractDate(DateUtil.parseString2Date(strArr[37], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -200,9 +202,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[37] != null) {
+            if (strArr[38] != null) {
                 try {
-                    oc.setPurchaseContractDeliveryDate(DateUtil.parseString2Date(strArr[37], "yyyy/M/d", "yyyy/M/d",
+                    oc.setPurchaseContractDeliveryDate(DateUtil.parseString2Date(strArr[38], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -212,10 +214,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            oc.setPurchasePaymentMode(strArr[38]);
-            if (strArr[39] != null) {
+            oc.setPurchasePaymentMode(strArr[39]);
+            if (strArr[40] != null) {
                 try {
-                    oc.setToFactoryPaymentDate(DateUtil.parseString2Date(strArr[39], "yyyy/M/d", "yyyy/M/d",
+                    oc.setToFactoryPaymentDate(DateUtil.parseString2Date(strArr[40], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -225,9 +227,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            if (strArr[40] != null) {
+            if (strArr[41] != null) {
                 try {
-                    oc.setPurchaseGetDate(DateUtil.parseString2Date(strArr[40], "yyyy/M/d", "yyyy/M/d",
+                    oc.setPurchaseGetDate(DateUtil.parseString2Date(strArr[41], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -236,9 +238,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[41] != null) {
+            if (strArr[42] != null) {
                 try {
-                    oc.setInspectionDate(DateUtil.parseString2Date(strArr[41], "yyyy/M/d", "yyyy/M/d",
+                    oc.setInspectionDate(DateUtil.parseString2Date(strArr[42], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -247,9 +249,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[42] != null) {
+            if (strArr[43] != null) {
                 try {
-                    oc.setInspectionFinashDate(DateUtil.parseString2Date(strArr[42], "yyyy/M/d", "yyyy/M/d",
+                    oc.setInspectionFinashDate(DateUtil.parseString2Date(strArr[43], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -259,9 +261,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            if (strArr[43] != null) {
+            if (strArr[44] != null) {
                 try {
-                    oc.setToStorageDate(DateUtil.parseString2Date(strArr[43], "yyyy/M/d", "yyyy/M/d",
+                    oc.setToStorageDate(DateUtil.parseString2Date(strArr[44], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -271,9 +273,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            if (strArr[44] != null) {
+            if (strArr[45] != null) {
                 try {
-                    oc.setBookingDate(DateUtil.parseString2Date(strArr[44], "yyyy/M/d", "yyyy/M/d",
+                    oc.setBookingDate(DateUtil.parseString2Date(strArr[45], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -282,9 +284,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[45] != null) {
+            if (strArr[46] != null) {
                 try {
-                    oc.setMarketRequestDate(DateUtil.parseString2Date(strArr[45], "yyyy/M/d", "yyyy/M/d",
+                    oc.setMarketRequestDate(DateUtil.parseString2Date(strArr[46], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -294,10 +296,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            oc.setForwardManager(strArr[46]);
-            if (strArr[47] != null) {
+            oc.setForwardManager(strArr[47]);
+            if (strArr[48] != null) {
                 try {
-                    oc.setPackageDate(DateUtil.parseString2Date(strArr[47], "yyyy/M/d", "yyyy/M/d",
+                    oc.setPackageDate(DateUtil.parseString2Date(strArr[48], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -307,9 +309,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            if (strArr[48] != null) {
+            if (strArr[49] != null) {
                 try {
-                    oc.setStorageOutDate(DateUtil.parseString2Date(strArr[48], "yyyy/M/d", "yyyy/M/d",
+                    oc.setStorageOutDate(DateUtil.parseString2Date(strArr[49], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -318,9 +320,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[49] != null) {
+            if (strArr[50] != null) {
                 try {
-                    oc.setAckageNoticeDate(DateUtil.parseString2Date(strArr[49], "yyyy/M/d", "yyyy/M/d",
+                    oc.setAckageNoticeDate(DateUtil.parseString2Date(strArr[50], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -330,9 +332,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            if (strArr[50] != null) {
+            if (strArr[51] != null) {
                 try {
-                    oc.setShipAirDate(DateUtil.parseString2Date(strArr[50], "yyyy/M/d", "yyyy/M/d",
+                    oc.setShipAirDate(DateUtil.parseString2Date(strArr[51], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -342,9 +344,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            if (strArr[51] != null) {
+            if (strArr[52] != null) {
                 try {
-                    oc.setArriveDate(DateUtil.parseString2Date(strArr[51], "yyyy/M/d", "yyyy/M/d",
+                    oc.setArriveDate(DateUtil.parseString2Date(strArr[52], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -354,11 +356,11 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            oc.setLogisticsNum(strArr[52]);
+            oc.setLogisticsNum(strArr[53]);
 
-            if (strArr[53] != null) {
+            if (strArr[54] != null) {
                 try {
-                    oc.setPreLogisticsAmount(new BigDecimal(strArr[53]));
+                    oc.setPreLogisticsAmount(new BigDecimal(strArr[54]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -366,9 +368,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[54] != null) {
+            if (strArr[55] != null) {
                 try {
-                    oc.setLogisticsForwardAmount(new BigDecimal(strArr[54]));
+                    oc.setLogisticsForwardAmount(new BigDecimal(strArr[55]));
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -377,9 +379,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
 
             }
-            if (strArr[55] != null) {
+            if (strArr[56] != null) {
                 try {
-                    oc.setFinishDate(DateUtil.parseString2Date(strArr[55], "yyyy/M/d", "yyyy/M/d",
+                    oc.setFinishDate(DateUtil.parseString2Date(strArr[56], "yyyy/M/d", "yyyy/M/d",
                             DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -389,10 +391,10 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                 }
             }
 
-            oc.setTradeTerms(strArr[56]);
-            if (strArr[57] != null) {
+            oc.setTradeTerms(strArr[57]);
+            if (strArr[58] != null) {
                 try {
-                    oc.setPurchaseDelayDate(new BigDecimal(strArr[57]).intValue());
+                    oc.setPurchaseDelayDate(new BigDecimal(strArr[58]).intValue());
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -400,9 +402,9 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            if (strArr[58] != null) {
+            if (strArr[59] != null) {
                 try {
-                    oc.setLogisticsDelayDate(new BigDecimal(strArr[58]).intValue());
+                    oc.setLogisticsDelayDate(new BigDecimal(strArr[59]).intValue());
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                     response.incrFail();
@@ -410,12 +412,12 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
                     continue;
                 }
             }
-            oc.setProjectStatus(strArr[59]);
-            oc.setReasonType(strArr[60]);
-            oc.setReasonCategory(strArr[61]);
-            oc.setRealityReason(strArr[62]);
-            oc.setProjectProgress(strArr[63]);
-            oc.setRemark(strArr[64]);
+            oc.setProjectStatus(strArr[60]);
+            oc.setReasonType(strArr[61]);
+            oc.setReasonCategory(strArr[62]);
+            oc.setRealityReason(strArr[63]);
+            oc.setProjectProgress(strArr[64]);
+            oc.setRemark(strArr[65]);
 
             try {
                 if (!testOnly) {
@@ -571,23 +573,13 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
     /**
      * 按照项目开始区间统计事业部的订单数量和金额
      *
-     * @param startDate
-     * @param endDate
+     * @param params
      * @return {"totalAmount":'总订单金额',"totalNum":'总订单数量',"organization":'事业部'}
      */
     @Override
-    public List<Map<String, Object>> findCountAndAmountByRangProjectStartGroupOrigation(Date startDate, Date endDate) {
-        OrderCountExample example = new OrderCountExample();
-        Criteria criteria = example.createCriteria();
-        if (startDate != null) {
-            criteria.andProjectStartGreaterThanOrEqualTo(startDate);
-        }
-        if (endDate != null) {
-            criteria.andProjectStartLessThan(endDate);
-        }
+    public List<Map<String, Object>> findCountAndAmountByRangProjectStartGroupOrigation(Map<String,Object> params) {
 
-        List<Map<String, Object>> list = readMapper.findCountAndAmountByExampleGroupOrigation(example);
-
+        List<Map<String, Object>> list = readMapper.findCountAndAmountByExampleGroupOrigation(params);
         if (list == null) {
             list = new ArrayList<>();
         }
@@ -619,4 +611,141 @@ public class OrderCountServiceImpl extends BaseService<OrderCountMapper> impleme
         }
         return list;
     }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseDetail(Date startTime, Date endTime, Object area,Object isOil) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        if(area!=null&&!String.valueOf(area).equals("")){
+            criteria.andOrderAreaEqualTo(area.toString());
+        }
+        if(isOil!=null&&!String.valueOf(isOil).equals("")){
+            criteria.andCustCategoryEqualTo(isOil.toString());
+        }
+        return readMapper.selectRePurchaseDetail(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseCustGroupByCustCategory(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectRePurchaseCustGroupByCustCategory(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustCountGroupByCustCategory(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectCustCountGroupByCustCategory(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseCustGroupByArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectRePurchaseCustGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustCountGroupByArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectCustCountGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectRePurchaseCustGroupByOrg(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectRePurchaseCustGroupByOrg(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectCustCountGroupByOrg(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectCustCountGroupByOrg(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectDataGroupByArea(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectDataGroupByArea(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectDataGroupByOrg(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selectDataGroupByOrg(example);
+    }
+
+    @Override
+    public List<Map<String, Object>> selecOrdDetailGroupByCategory(Date startTime, Date endTime) {
+        OrderCountExample example = new OrderCountExample();
+        Criteria criteria = example.createCriteria();
+        if (startTime != null) {
+            criteria.andProjectStartGreaterThanOrEqualTo(startTime);
+        }
+        if (endTime != null) {
+            criteria.andProjectStartLessThan(endTime);
+        }
+        return readMapper.selecOrdDetailGroupByCategory(example);
+    }
+
 }

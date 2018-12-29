@@ -8,7 +8,7 @@ import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.*;
-
+import com.erui.report.util.SupplyPlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -326,7 +326,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             Map<String, Map<String, Integer>> dateMap = new HashMap<>();
             Map<String, Integer> datamap;
             for (int i = 0; i < list.size(); i++) {
-                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "yyyy年MM月dd日");
+                String date2 = DateUtil.formatDate2String(list.get(i).getCreateAt(), "yyyy-MM-dd");
                 if (dateMap.containsKey(date2)) {
                     Map<String, Integer> map = dateMap.get(date2);
                     Integer sku = map.get("sku");
@@ -347,15 +347,14 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             }
             for (int i = 0; i < days; i++) {
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
-                String datet2 = DateUtil.format("yyyy年MM月dd日", date);
-                String datet3 = DateUtil.format("MM月dd日", date);
+                String datet2 = DateUtil.format("yyyy-MM-dd", date);
                 if (dateMap.containsKey(datet2)) {
-                    DateTime[i] = (datet3);
+                    DateTime[i] = (datet2);
                     SPUFinishCount[i] = (dateMap.get(datet2).get("spu"));
                     SKUFinishCount[i] = (dateMap.get(datet2).get("sku"));
                     suppliyFinishCount[i] = (dateMap.get(datet2).get("suppliy"));
                 } else {
-                    DateTime[i] = (datet3);
+                    DateTime[i] = (datet2);
                     SPUFinishCount[i] = (0);
                     SKUFinishCount[i] = (0);
                     suppliyFinishCount[i] = (0);
@@ -365,7 +364,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         } else {
             for (int i = 0; i < days; i++) {
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
-                String datet2 = DateUtil.format("MM月dd日", date);
+                String datet2 = DateUtil.format("yyyy-MM-dd", date);
                 DateTime[i] = datet2;
                 suppliyFinishCount[i] = 0;
                 SPUFinishCount[i] = 0;
@@ -386,4 +385,17 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<String> selectOrgList() {
         return readMapper.selectOrgList();
     }
+    @Override
+    public SupplyPlanVo getPlanNum(Date startTime, Date endTime) {
+        SupplyChainExample example = new SupplyChainExample();
+        SupplyChainExample.Criteria criteria = example.createCriteria();
+        if (startTime != null){
+            criteria.andCreateAtGreaterThanOrEqualTo(startTime);
+        }
+        if(endTime != null) {
+            criteria.andCreateAtLessThan(endTime);
+        }
+        return   this.readMapper.selectPlanCount(example);
+    }
+
 }

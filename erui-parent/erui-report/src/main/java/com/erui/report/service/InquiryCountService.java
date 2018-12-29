@@ -1,11 +1,13 @@
 package com.erui.report.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.erui.report.model.CateDetailVo;
 import com.erui.report.model.InquiryCount;
+import com.erui.report.model.InquiryVo;
 import com.erui.report.util.*;
 
 /*
@@ -30,12 +32,19 @@ public interface InquiryCountService {
     /*
     * 查询询单单数
     * */
-    public int inquiryCountByTime(Date startTime,Date endTime,String[] quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
 
+     int inquiryCountByTime(Date startTime,Date endTime,String[] quotedStatus,double leastQuoteTime,double maxQuoteTime,String org,String area);
     /*
     * 查询询单总金额
     * */
-	public Double inquiryAmountByTime(Date startDate,Date endDate,String area) ;
+	 Double inquiryAmountByTime(Date startDate,Date endDate,String area,String country,String[] quotedStatus) ;
+
+	/**
+	 * 获取询单基本信息根据条件
+	 * @param params
+	 * @return count : 数量  amount ：金额  ， chainAdd ：环比新增  ，chainRate ：环比率
+	 */
+	Map<String,Object> selectInqInfoByCondition(Map<String,Object> params);
 
 	/**
 	 * 导入客户中心-询单数据
@@ -43,74 +52,48 @@ public interface InquiryCountService {
 	 * @param testOnly	true:只检测数据  false:插入正式库
 	 * @return
 	 */
-	public ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
-	/*
-	* 根据油气类别查询产品数量
-	* */
-	public int selectProCountByExample(Date startTime,Date endTime,String isOil,String proCategory);
-
-
-	/*
-	* 查询产品Top3
-	* */
-	public List<Map<String,Object>> selectProTop3(Map<String,Object>params);
-	
-	 /**
-	  * @Author:SHIGS
-	  * @Description 查询产品Top3总数
-	  * @Date:2:02 2017/11/2
-	  * @modified By
-	  */
-	Map<String,Object> selectProTop3Total(Date startTime,Date endTime);
-
-    List<CateDetailVo> selectInqDetailByCategory(Date startTime,Date endTime);
-
-
+	 ImportDataResponse importData(List<String[]> datas, boolean testOnly) ;
 	/*
 	* 查询事业部列表
 	* */
-	 public  List<String>   selectOrgList();
-	/*
-   * 查询销售大区列表
-   * */
-	public  List<String>   selectAreaList();
-	/*
-   * 根据时间查询询单列表
-   * */
-	List<InquiryCount> selectListByTime(Date startTime, Date endTime);
-	
-	
+	List<String>   selectOrgList();
+	/**
+	 * 查询询单视图列表
+	 * @return
+	 */
+	List<InquiryVo> selectListByTime(Map<String,Object> params);
 	/**
      * 查询所有询单中的所有大区和城市列表（
      * @return
      */
-    public List<InquiryAreaVO> selectAllAreaAndCountryList() ;
+     List<InquiryAreaVO> selectAllAreaAndCountryList() ;
+	/**
+     * 查询所有询单中的所有大区和城市列表（
+     * @return
+     */
+     List<InquiryAreaVO> selectAllAreaAndOrgList() ;
 
 	/**
-	 * 获取询单数据汇总
-	 * @param area
-	 * @param country
+	 * 获取询单报价用时分析数据
+	 * @param params
 	 * @return
 	 */
-	public CustomerNumSummaryVO numSummary(Date startTime,Date endTime,String area,String country);
-
+	Map<String,Object> selectQuoteTimeSummaryData(Map<String,Object> params);
 	/**
 	 * 询订单分类 TOP N
 	 * @param topN
 	 * @param platCategory	指定分类
 	 * @return
 	 */
-	public List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
-
-	CustomerNumSummaryVO selectNumSummaryByExample(Date startTime,Date endTime);
+	@Deprecated
+	 List<CustomerCategoryNumVO> inquiryOrderCategoryTopNum(Integer topN, Date startTime, Date endTime, String... platCategory);
 
 	/**
 	 * 按照转入日期区间统计事业部的询单数量
-	 * @param startDate
-	 * @param endDate
+	 * @param params
 	 * @return  {"total":'总询单数量--Long',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Date startDate, Date endDate);
+	List<Map<String,Object>> findCountByRangRollinTimeGroupOrigation(Map<String,Object> params);
 
 	/**
 	 * 询订单趋势图数据
@@ -126,13 +109,38 @@ public interface InquiryCountService {
 	 * @param endTime
 	 * @return {"totalAmount":'金额--BigDecimal',"total":'总询单数量--Long',"area":'区域--String'}
 	 */
-    List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime);
+    List<Map<String,Object>> findCountAndPriceByRangRollinTimeGroupArea(Date startTime, Date endTime,int rtnCount,String[] quotes);
 
 	/**
 	 * 按照转入日期区间统计事业部的平均报价时间
-	 * @param startDate
-	 * @param endDate
+	 * @param params
 	 * @return  {"avgNeedTime":'平均响应时间--BigDecimal',"organization":'事业部--String'}
 	 */
-	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Date startDate, Date endDate);
+	List<Map<String,Object>> findAvgNeedTimeByRollinTimeGroupOrigation(Map<String,Object> params);
+	/**
+	 * 从boss读取询单数据
+	 * @param list
+	 */
+	void inquiryData( List<HashMap> list)throws  Exception;
+	/**
+	 * 获取询单退回的次数和平均次数
+	 * @param startTime
+	 * @param endTime
+	 */
+	List<Map<String,Object>> selectRejectCount(Date startTime, Date endTime);
+	/**
+	 * 获取退回询单数
+	 * @param params
+	 */
+	int selectInqRtnCountByTime(Map<String,Object> params);
+	/**
+	 * 查询询单、交易的人数和单数
+	 * @param params
+	 */
+	Map<String,Object> selectInqAndOrdCountAndPassengers(Map<String,Object> params);
+	/**
+	 * 查询询单、交易的人数和单数
+	 * @param org
+	 */
+	 String getStandardOrg(String org);
 }

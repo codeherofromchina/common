@@ -11,6 +11,7 @@
 	</parent>
 
 	<artifactId>erui-comm</artifactId>
+	<version>${project.parent.version}</version>
 
 	<packaging>jar</packaging>
 
@@ -102,13 +103,45 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.6.3</version>
         </dependency>
-    </dependencies>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging</artifactId>
+			<version>3.3.0.Final</version>
+		</dependency>
+	</dependencies>
 
 	<repositories>
 		<repository>
 			<id>nexus-releases</id>
 			<name>Nexus Releases Repository</name>
-			<url>http://172.18.19.140:8081/nexus/content/repositories/releases/</url>
+
+			<url>http://172.18.19.140:8081/nexus/repository/3dpp/</url>
+
 		</repository>
 	</repositories>
 
@@ -116,13 +149,77 @@
 		<repository>
 			<id>nexus-releases</id>
 			<name>Nexus Releases Repository</name>
-			<url>http://172.18.19.140:8081/nexus/content/repositories/releases/</url>
+
+			<url>http://172.18.19.140:8081/nexus/repositories/maven-releases/</url>
+
 		</repository>
 		<snapshotRepository>
 			<id>nexus-snapshots</id>
 			<name>Nexus Snapshots Repository</name>
-			<url>http://172.18.19.140:8081/nexus/content/repositories/snapshots/</url>
+
+			<url>http://172.18.19.140:8081/nexus/repository/maven-snapshots/</url>
+
 		</snapshotRepository>
 	</distributionManagement>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<!-- 覆盖原有文件 -->
+							<overwrite>true</overwrite>
+							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+							<!-- 也可以用下面这样的方式（指定相对url的方式指定outputDirectory） <outputDirectory>target/classes</outputDirectory> -->
+							<!-- 待处理的资源定义 -->
+							<resources>
+								<resource>
+									<!-- 指定resources插件处理哪个目录下的资源文件 -->
+									<directory>src/main/resources/${package.environment}</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
+
+	<profiles>
+		<profile>
+			<id>zhengshi</id>
+			<properties>
+				<package.environment>zhengshi</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>production</id>
+			<properties>
+				<package.environment>production</package.environment>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>

@@ -9,26 +9,34 @@ import java.util.Date;
 public class DeliverD {
 
 
-    private String productDischargedNo; //产品放行单号
+    private String deliverDetailNo; //产品放行单号
 
     private String contractNo; //销售合同号
 
     private String projectNo;    //项目号
 
-    private Date BillingDate;   //开单日期
+    private Date billingDate;   //开单日期
 
     private Date releaseDate; //放行日期
 
     private Integer wareHouseman;   //仓库经办人
 
+    private Integer status;   //仓库出库管理状态
+
+    private String deliverConsignNo; //出口通知单号
+
+    private Date leaveDate; //出库时间
+
     private Integer page;
 
     private Integer rows;
 
+    public String getDeliverDetailNo() {
+        return deliverDetailNo;
+    }
 
-
-    public String getProductDischargedNo() {
-        return productDischargedNo;
+    public void setDeliverDetailNo(String deliverDetailNo) {
+        this.deliverDetailNo = deliverDetailNo;
     }
 
     public String getContractNo() {
@@ -40,7 +48,7 @@ public class DeliverD {
     }
 
     public Date getBillingDate() {
-        return BillingDate;
+        return billingDate;
     }
 
     public Date getReleaseDate() {
@@ -68,7 +76,7 @@ public class DeliverD {
     }
 
     public void setBillingDate(Date billingDate) {
-        BillingDate = billingDate;
+        this.billingDate = billingDate;
     }
 
     public void setReleaseDate(Date releaseDate) {
@@ -87,7 +95,27 @@ public class DeliverD {
         this.rows = rows;
     }
 
-    public void setProductDischargedNo(String productDischargedNo) {
-        this.productDischargedNo = productDischargedNo;
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
     }
 }

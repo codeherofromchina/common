@@ -1,55 +1,66 @@
 package com.erui.order.entity;
 
+import com.erui.order.util.GoodsUtils;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 订单表
  */
 @Entity
 @Table(name = "`order`")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "contract_no")
+    @Size(max = 255, message = "销售合同号填写不规范，请重新输入")
     private String contractNo;
 
     @Column(name = "framework_no")
+    @Size(max = 255, message = "框架协议号填写不规范，请重新输入")
     private String frameworkNo;
 
     @Column(name = "contract_no_os")
+    @Size(max = 255, message = "海外销售合同号填写不规范，请重新输入")
     private String contractNoOs;
 
     @Column(name = "po_no")
     private String poNo;
 
     @Column(name = "logi_quote_no")
+    @Size(max = 255, message = "物流报价单号填写不规范，请重新输入")
     private String logiQuoteNo;
 
     @Column(name = "inquiry_no")
     private String inquiryNo;
 
     @Column(name = "order_type")
-    private boolean orderType = true;
+    private Integer orderType;
 
     @Column(name = "order_source")
-    private String orderSource;
+    private Integer orderSource;
 
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
 
     @Column(name = "delivery_date")
-    private Date deliveryDate;
+    private String deliveryDate;
 
     @Column(name = "signing_co")
-    private Integer signingCo;
+    @Size(max = 255, message = "合同交货日期填写不规范，请重新输入")
+    private String signingCo;
 
     @Column(name = "agent_id")
     private Integer agentId;
@@ -62,8 +73,8 @@ public class Order {
 
     private String region;
 
-    @Column(name = "distribution_dept_id")
-    private Integer distributionDeptId;
+    @Column(name = "distribution_dept_name")
+    private String distributionDeptName;
 
     private String country;
 
@@ -71,7 +82,7 @@ public class Order {
     private String crmCode;
 
     @Column(name = "customer_type")
-    private boolean customerType;
+    private Integer customerType;
 
     @Column(name = "per_liable_repay")
     private String perLiableRepay;
@@ -81,17 +92,21 @@ public class Order {
 
     @Column(name = "technical_id")
     private Integer technicalId;
-    @Column(name = "technical_id_dept")
-    private String technicalIdDept;
+
+    @Column(name = "business_name")
+    private String businessName;   //商务技术经办人名称
+
+   /* @Column(name = "technical_id_dept")
+    private String technicalIdDept;*/
 
     @Column(name = "grant_type")
     private String grantType;
 
-    @Column(name = "is_preinvest")
-    private boolean isPreinvest = false;
+    @Column(name = "preinvest")
+    private Integer preinvest;
 
-    @Column(name = "is_financing")
-    private boolean isFinancing = false;
+    @Column(name = "financing")
+    private Integer financing;
 
     @Column(name = "trade_terms")
     private String tradeTerms;
@@ -124,7 +139,7 @@ public class Order {
     private String currencyBn;
 
     @Column(name = "tax_bearing")
-    private Boolean taxBearing;
+    private Integer taxBearing;
 
     @Column(name = "payment_mode_bn")
     private String paymentModeBn;
@@ -133,33 +148,37 @@ public class Order {
     private BigDecimal qualityFunds;
 
     /**
-     * 收款状态 0:未付款 1:部分付款 2:收款完成
+     * 收款状态 1:未付款 2:部分付款 3:收款完成
      */
     @Column(name = "pay_status")
-    private Integer payStatus;
+    private Integer payStatus = 1;
 
     private Integer status;
-
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "create_time")
     private Date createTime;
 
     @Column(name = "deliver_consign_c")
-    private boolean deliverConsignC = true;
+    private Boolean deliverConsignC = true;
 
     @Column(name = "create_user_id")
     private Integer createUserId;
 
+    @Column(name = "create_user_name")
+    private String createUserName;
+
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
-
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delete_time")
     private Date deleteTime;
 
     @Column(name = "receivable_account_remaining")
-    private BigDecimal receivableAccountRemaining;
+    private BigDecimal receivableAccountRemaining;  //应收账款余额
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -167,7 +186,7 @@ public class Order {
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
@@ -178,7 +197,7 @@ public class Order {
     @JoinColumn(name = "order_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<OrderPayment> orderPayments = new ArrayList<>();
 
     @Column(name = "delivery_requires")
@@ -186,32 +205,426 @@ public class Order {
 
     @Column(name = "customer_context")
     private String customerContext;
+
     @Column(name = "exec_co_name")
     private String execCoName;
 
-    @Column(name = "distribution_dept_name")
-    private String distributionDeptName;
-
     @Column(name = "business_unit_name")
     private String businessUnitName;
-
+    @Column(name = "acquire_id")
+    private Integer acquireId;
+    //合同总价（美元）
+    @Column(name = "total_price_usd")
+    private BigDecimal totalPriceUsd;
+    //项目号
+    @Column(name = "project_no")
+    private String projectNo;
+    //利率
+    @Column(name = "exchange_rate")
+    private BigDecimal exchangeRate;
+    //流程进度
+    @Column(name = "process_progress")
+    private String processProgress;
+    //是否已生成出口通知单
+    @Column(name = "deliver_consign_has")
+    private Integer deliverConsignHas;
     @Transient
     private int page = 0;
-
     @Transient
     private int rows = 50;
-
-   @Column(name = "delivery_date_no")
-    private Date deliveryDateNo;    //执行单约定交付日期
-
-
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-  //  @JoinColumn(name = "order_id")
+    //订单列表增加确认收货按钮标识
+    @Transient
+    private Boolean orderFinish = false;//true时可以确认收货
+    /*@Column(name = "delivery_date_no")
+     private Date deliveryDateNo;    //执行单约定交付日期*/
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "order")
     @JsonIgnore
     private Project project;
+    @Column(name = "buyer_id")
+    private Integer buyerId;
+    @Column(name = "inquiry_id")
+    private String inquiryId;
+    //会员类别 1科瑞订单 2 易瑞订单
+    @Column(name = "order_belongs")
+    private Integer orderBelongs;
+
+    //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
+    @Column(name = "order_category")
+    private Integer orderCategory;
+    //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
+    @Column(name = "overseas_sales")
+    private Integer overseasSales;
+
+    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAccount> orderAccounts = new ArrayList<>();
+
+    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAccountDeliver> orderAccountDelivers = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private List<DeliverConsign> deliverConsign;
+
+    // 已发货总金额 （财务管理）
+    @Column(name = "shipments_money")
+    private BigDecimal shipmentsMoney;   //已发货总金额 （财务管理）
+
+    //已收款总金额  （财务管理）
+    @Column(name = "already_gathering_money")
+    private BigDecimal alreadyGatheringMoney;   //已收款总金额  （财务管理）
+
+    @Transient
+    // 已发货总金额USD （财务管理）
+    private BigDecimal alreadyGatheringMoneyUSD;   //已发货总金额 （财务管理）
+
+    @Transient
+    // 已发货总金额 （财务管理）
+    private String currencyBnShipmentsMoney;   //已发货总金额 （财务管理）
+
+    @Transient
+    //已收款总金额  （财务管理）
+    private String currencyBnAlreadyGatheringMoney;   //已收款总金额  （财务管理）
+
+    @Transient
+    // 已发货总金额USD （财务管理）
+    private String currencyBnReceivableAccountRemaining;   //应收账款余额
+    //'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
+    @Column(name = "purch_req_create")
+    private Integer purchReqCreate;
+    //是否已经提交出库质检 1 未提交 2 已提交
+    @Column(name = "inspect_n")
+    private Integer inspectN;
+    //审批流所需字段
+    @Column(name = "auditing_status")
+    private Integer auditingStatus;   //审核状态
+
+    @Column(name = "auditing_process")
+    private Integer auditingProcess; //审核进度
+
+    @Column(name = "auditing_user_id")
+    private String auditingUserId;   //当前审核人ID，逗号分隔多个
+
+    @Column(name = "country_leader_id")
+    private Integer countryLeaderId; //国家负责人ID
+
+    @Column(name = "country_leader")
+    private String countryLeader;   //国家负责人
+
+    @Column(name = "area_leader_id")
+    private Integer areaLeaderId;   //区域负责Id
+
+    @Column(name = "area_leader")
+    private String areaLeader;      //区域负责人
+
+    @Column(name = "area_vp_id")
+    private Integer areaVpId;       //区域VP ID
+
+    @Column(name = "area_vp")
+    private String areaVp;          //区域VP
+
+    @Column(name = "per_liable_repay_id")
+    private Integer perLiableRepayId; //回款责任人
+    @Column(name = "audi_remark")
+    private String audiRemark;//所经过审核人
+    @Column(name = "financing_commissioner_id")
+    private Integer financingCommissionerId;//融资专员Id
+    //如果项目审核完成返回前端 值为 1
+    @Transient
+    private Integer proAuditStatus = 0;
+
+    public Integer getProAuditStatus() {
+        return proAuditStatus;
+    }
+
+    public void setProAuditStatus(Integer proAuditStatus) {
+        this.proAuditStatus = proAuditStatus;
+    }
+
+    public Integer getFinancingCommissionerId() {
+        return financingCommissionerId;
+    }
+
+    public void setFinancingCommissionerId(Integer financingCommissionerId) {
+        this.financingCommissionerId = financingCommissionerId;
+    }
+
+    public String getAudiRemark() {
+        return audiRemark;
+    }
+
+    public void setAudiRemark(String audiRemark) {
+        this.audiRemark = audiRemark;
+    }
+
+    public Integer getPerLiableRepayId() {
+        return perLiableRepayId;
+    }
+
+    public void setPerLiableRepayId(Integer perLiableRepayId) {
+        this.perLiableRepayId = perLiableRepayId;
+    }
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
+
+    public Integer getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public String getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(String auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
+    public Integer getCountryLeaderId() {
+        return countryLeaderId;
+    }
+
+    public void setCountryLeaderId(Integer countryLeaderId) {
+        this.countryLeaderId = countryLeaderId;
+    }
+
+    public String getCountryLeader() {
+        return countryLeader;
+    }
+
+    public void setCountryLeader(String countryLeader) {
+        this.countryLeader = countryLeader;
+    }
+
+    public Integer getAreaLeaderId() {
+        return areaLeaderId;
+    }
+
+    public void setAreaLeaderId(Integer areaLeaderId) {
+        this.areaLeaderId = areaLeaderId;
+    }
+
+    public String getAreaLeader() {
+        return areaLeader;
+    }
+
+    public void setAreaLeader(String areaLeader) {
+        this.areaLeader = areaLeader;
+    }
+
+    public Integer getAreaVpId() {
+        return areaVpId;
+    }
+
+    public void setAreaVpId(Integer areaVpId) {
+        this.areaVpId = areaVpId;
+    }
+
+    public String getAreaVp() {
+        return areaVp;
+    }
+
+    public void setAreaVp(String areaVp) {
+        this.areaVp = areaVp;
+    }
+
+    public Integer getInspectN() {
+        return inspectN;
+    }
+
+    @Column(name = "advance_money")
+    private BigDecimal advanceMoney;    //预收金额
+
+    @Transient
+    private BigDecimal lineOfCredit;    //授信额度
+
+    @Transient
+    private BigDecimal creditAvailable;    //可用授信额度
 
 
+    @Transient
+    private BigDecimal thisShipmentsMoney;    //本批次发货金额   未用到返回字段使用
 
+
+    public void setInspectN(Integer inspectN) {
+        this.inspectN = inspectN;
+    }
+
+    public Integer getPurchReqCreate() {
+        return purchReqCreate;
+    }
+
+    public void setPurchReqCreate(Integer purchReqCreate) {
+        this.purchReqCreate = purchReqCreate;
+    }
+
+    public Integer getOrderCategory() {
+        return orderCategory;
+    }
+
+    public void setOrderCategory(Integer orderCategory) {
+        this.orderCategory = orderCategory;
+    }
+
+    public Integer getOverseasSales() {
+        return overseasSales;
+    }
+
+    public void setOverseasSales(Integer overseasSales) {
+        this.overseasSales = overseasSales;
+    }
+
+    public Integer getOrderBelongs() {
+        return orderBelongs;
+    }
+
+    public void setOrderBelongs(Integer orderBelongs) {
+        this.orderBelongs = orderBelongs;
+    }
+
+    public Integer getDeliverConsignHas() {
+        return deliverConsignHas;
+    }
+
+    public void setDeliverConsignHas(Integer deliverConsignHas) {
+        this.deliverConsignHas = deliverConsignHas;
+    }
+
+    public String getProcessProgressName() {
+        Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(getProcessProgress());
+        if (projectProgressEnum != null) {
+            return projectProgressEnum.getMsg();
+        }
+        return null;
+    }
+
+    public String getEnProcessProgressName() {
+        Project.enProjectProgressEnum enProjectProgressEnum = Project.enProjectProgressEnum.enProjectProgressFromCode(getProcessProgress());
+        if (enProjectProgressEnum != null) {
+            return enProjectProgressEnum.getMsg();
+        }
+        return null;
+    }
+
+    public String getProcessProgress() {
+        return processProgress;
+    }
+
+    public void setProcessProgress(String processProgress) {
+        this.processProgress = processProgress;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public BigDecimal getTotalPriceUsd() {
+        return totalPriceUsd;
+    }
+
+    //金额千位以逗号分割
+    /*public String getTotalPriceUsdSplit() {
+        if (getTotalPriceUsd() != null) {
+            DecimalFormat decimalFormat = new DecimalFormat("#,###.#");
+            String format = decimalFormat.format(getTotalPriceUsd());
+            return format;
+        }
+        return null;
+    }*/
+    //去掉千位分隔符
+    public BigDecimal getTotalPriceUsdSplit() {
+        if (getTotalPriceUsd() != null) {
+            return getTotalPriceUsd();
+        }
+        return null;
+    }
+
+    public void setTotalPriceUsd(BigDecimal totalPriceUsd) {
+        this.totalPriceUsd = totalPriceUsd;
+    }
+
+    public BigDecimal getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(BigDecimal exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
+    public Integer getBuyerId() {
+        return buyerId;
+    }
+
+    public void setBuyerId(Integer buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public String getInquiryId() {
+        return inquiryId;
+    }
+
+    public void setInquiryId(String inquiryId) {
+        this.inquiryId = inquiryId;
+    }
+
+    public Boolean getOrderFinish() {
+        return orderFinish;
+    }
+
+    public void setOrderFinish(Boolean orderFinish) {
+        this.orderFinish = orderFinish;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public Integer getAcquireId() {
+        return acquireId;
+    }
+
+    public void setAcquireId(Integer acquireId) {
+        this.acquireId = acquireId;
+    }
+
+    public Integer getPreinvest() {
+        return preinvest;
+    }
+
+    public void setPreinvest(Integer preinvest) {
+        this.preinvest = preinvest;
+    }
+
+    public Integer getFinancing() {
+        return financing;
+    }
+
+    public void setFinancing(Integer financing) {
+        this.financing = financing;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
 
     public String getExecCoName() {
         return execCoName;
@@ -219,15 +632,6 @@ public class Order {
 
     public void setPage(int page) {
         this.page = page;
-    }
-
-    public void setDeliveryDateNo(Date deliveryDateNo) {
-        this.deliveryDateNo = deliveryDateNo;
-    }
-
-    public Date getDeliveryDateNo() {
-
-        return deliveryDateNo;
     }
 
     public void setExecCoName(String execCoName) {
@@ -260,7 +664,7 @@ public class Order {
 
     public String getInquiryNo() {
         if (inquiryNo == null)
-            setPoNo("");
+            setInquiryNo("");
         return inquiryNo;
     }
 
@@ -268,54 +672,48 @@ public class Order {
         this.inquiryNo = inquiryNo;
     }
 
-    public boolean isOrderType() {
-        return orderType;
-    }
 
-    public void setOrderType(boolean orderType) {
-        this.orderType = orderType;
-    }
-
-    public String getOrderSource() {
-        if (orderSource == null)
-            setOrderSource("");
+    public Integer getOrderSource() {
         return orderSource;
     }
 
-    public void setOrderSource(String orderSource) {
+    public String getOrderSourceName() {
+        if (getOrderSource() == null) {
+            return null;
+        }
+        // 1 门户订单 2 门户询单 3 线下订单',
+        if (getOrderSource() != null) {
+            if (getOrderSource() == 1) {
+                return "门户订单";
+            } else if (getOrderSource() == 2) {
+                return "市场询单";
+            } else if (getOrderSource() == 3) {
+                return "线下订单";
+            }
+        }
+        return null;
+    }
+
+
+    public String getEnOrderSourceName() {
+        if (getOrderSource() == null) {
+            return null;
+        }
+        // 1 门户订单 2 门户询单 3 线下订单',
+        if (getOrderSource() != null) {
+            if (getOrderSource() == 1) {
+                return "Online orders";
+            } else if (getOrderSource() == 2) {
+                return "BOSS inquiry";
+            } else if (getOrderSource() == 3) {
+                return "Offline orders";
+            }
+        }
+        return null;
+    }
+
+    public void setOrderSource(Integer orderSource) {
         this.orderSource = orderSource;
-    }
-
-    public boolean isCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(boolean customerType) {
-        this.customerType = customerType;
-    }
-
-    public boolean isPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setPreinvest(boolean preinvest) {
-        isPreinvest = preinvest;
-    }
-
-    public boolean isFinancing() {
-        return isFinancing;
-    }
-
-    public void setFinancing(boolean financing) {
-        isFinancing = financing;
-    }
-
-    public boolean isDeliverConsignC() {
-        return deliverConsignC;
-    }
-
-    public void setDeliverConsignC(boolean deliverConsignC) {
-        this.deliverConsignC = deliverConsignC;
     }
 
     public Integer getId() {
@@ -369,11 +767,35 @@ public class Order {
         this.logiQuoteNo = logiQuoteNo;
     }
 
-    public Boolean getOrderType() {
+    public Integer getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(Boolean orderType) {
+    public String getOrderTypeName() {
+        if (getOrderType() != null) {
+
+            if (getOrderType() == 1) {
+                return "油气";
+            } else {
+                return "非油气";
+            }
+        }
+        return null;
+    }
+
+    public String getEnOrderTypeName() {
+
+        if (getOrderType() != null) {
+            if (getOrderType() == 1) {
+                return "Oil & gas";
+            } else {
+                return "Non-oil or gas";
+            }
+        }
+        return null;
+    }
+
+    public void setOrderType(Integer orderType) {
         this.orderType = orderType;
     }
 
@@ -385,20 +807,21 @@ public class Order {
         this.signingDate = signingDate;
     }
 
-    public Date getDeliveryDate() {
+    public String getDeliveryDate() {
         return deliveryDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
+    public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
-    public Integer getSigningCo() {
+    public String getSigningCo() {
         return signingCo;
     }
 
-    public void setSigningCo(Integer signingCo) {
+    public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
+
     }
 
     public Integer getAgentId() {
@@ -425,14 +848,6 @@ public class Order {
         this.region = region;
     }
 
-    public Integer getDistributionDeptId() {
-        return distributionDeptId;
-    }
-
-    public void setDistributionDeptId(Integer distributionDeptId) {
-        this.distributionDeptId = distributionDeptId;
-    }
-
     public String getCountry() {
         return country;
     }
@@ -449,11 +864,11 @@ public class Order {
         this.crmCode = crmCode;
     }
 
-    public Boolean getCustomerType() {
+    public Integer getCustomerType() {
         return customerType;
     }
 
-    public void setCustomerType(Boolean customerType) {
+    public void setCustomerType(Integer customerType) {
         this.customerType = customerType;
     }
 
@@ -481,14 +896,6 @@ public class Order {
         this.technicalId = technicalId;
     }
 
-    public String getTechnicalIdDept() {
-        return technicalIdDept;
-    }
-
-    public void setTechnicalIdDept(String technicalIdDept) {
-        this.technicalIdDept = technicalIdDept;
-    }
-
     public Project getProject() {
         return project;
     }
@@ -503,22 +910,6 @@ public class Order {
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
-    }
-
-    public Boolean getIsPreinvest() {
-        return isPreinvest;
-    }
-
-    public void setIsPreinvest(Boolean isPreinvest) {
-        this.isPreinvest = isPreinvest;
-    }
-
-    public Boolean getIsFinancing() {
-        return isFinancing;
-    }
-
-    public void setIsFinancing(Boolean isFinancing) {
-        this.isFinancing = isFinancing;
     }
 
     public int getPage() {
@@ -598,6 +989,10 @@ public class Order {
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
+      /*  if (totalPrice == null) {
+            BigDecimal bigDecimal = new BigDecimal("0.00");
+            totalPrice = bigDecimal;
+        }*/
         this.totalPrice = totalPrice;
     }
 
@@ -609,11 +1004,11 @@ public class Order {
         this.currencyBn = currencyBn;
     }
 
-    public Boolean getTaxBearing() {
+    public Integer getTaxBearing() {
         return taxBearing;
     }
 
-    public void setTaxBearing(Boolean taxBearing) {
+    public void setTaxBearing(Integer taxBearing) {
         this.taxBearing = taxBearing;
     }
 
@@ -637,12 +1032,52 @@ public class Order {
         return payStatus;
     }
 
+    public String getPayStatusName() {
+        // 1:未付款 2:部分付款 3:收款完成
+        if (getPayStatus() == 1) {
+            return "未收款";
+        } else if (getPayStatus() == 2) {
+            return "部分收款";
+        } else if (getPayStatus() == 3) {
+            return "收款完成";
+        }
+        return null;
+    }
+
+    public String getEnPayStatusName() {
+        // 1:未付款 2:部分付款 3:收款完成
+        if (getPayStatus() == 1) {
+            return "Uncollected";
+        } else if (getPayStatus() == 2) {
+            return "Partly collected";
+        } else if (getPayStatus() == 3) {
+            return "Totally collected";
+        }
+        return null;
+    }
+
     public void setPayStatus(Integer payStatus) {
         this.payStatus = payStatus;
     }
 
     public Integer getStatus() {
         return status;
+    }
+
+    public String getOrderStatusName() {
+        Order.StatusEnum statusEnum = Order.fromCode(getStatus());
+        if (statusEnum != null) {
+            return statusEnum.getMsg();
+        }
+        return null;
+    }
+
+    public String getEnOrderStatusName() {
+        Order.enStatusEnum enStatusEnum = Order.enFromCode(getStatus());
+        if (enStatusEnum != null) {
+            return enStatusEnum.getMsg();
+        }
+        return null;
     }
 
     public void setStatus(Integer status) {
@@ -697,11 +1132,11 @@ public class Order {
         this.deleteTime = deleteTime;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 
@@ -714,8 +1149,10 @@ public class Order {
     }
 
     public List<Goods> getGoodsList() {
+        GoodsUtils.sortGoodsByParentAndSon(goodsList);
         return goodsList;
     }
+
 
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
@@ -746,4 +1183,240 @@ public class Order {
         this.customerContext = customerContext;
     }
 
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public BigDecimal getShipmentsMoney() {
+        return shipmentsMoney;
+    }
+
+    public void setShipmentsMoney(BigDecimal shipmentsMoney) {
+        this.shipmentsMoney = shipmentsMoney;
+    }
+
+    public void setAlreadyGatheringMoney(BigDecimal alreadyGatheringMoney) {
+        this.alreadyGatheringMoney = alreadyGatheringMoney;
+    }
+
+
+    public BigDecimal getAlreadyGatheringMoney() {
+        return alreadyGatheringMoney;
+    }
+
+    public BigDecimal getAlreadyGatheringMoneyUSD() {
+        return alreadyGatheringMoneyUSD;
+    }
+
+    public void setAlreadyGatheringMoneyUSD(BigDecimal alreadyGatheringMoneyUSD) {
+        this.alreadyGatheringMoneyUSD = alreadyGatheringMoneyUSD;
+    }
+
+    public List<OrderAccount> getOrderAccounts() {
+        return orderAccounts;
+    }
+
+    public void setOrderAccounts(List<OrderAccount> orderAccounts) {
+        this.orderAccounts = orderAccounts;
+    }
+
+    public void setOrderAccountDelivers(List<OrderAccountDeliver> orderAccountDelivers) {
+        this.orderAccountDelivers = orderAccountDelivers;
+    }
+
+    public String getCurrencyBnShipmentsMoney() {
+        return currencyBnShipmentsMoney;
+    }
+
+    public void setCurrencyBnShipmentsMoney(String currencyBnShipmentsMoney) {
+        this.currencyBnShipmentsMoney = currencyBnShipmentsMoney;
+    }
+
+    public void setCurrencyBnAlreadyGatheringMoney(String currencyBnAlreadyGatheringMoney) {
+        this.currencyBnAlreadyGatheringMoney = currencyBnAlreadyGatheringMoney;
+    }
+
+
+    public String getCurrencyBnAlreadyGatheringMoney() {
+        return currencyBnAlreadyGatheringMoney;
+    }
+
+    public String getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(String currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
+    }
+
+    public List<OrderAccountDeliver> getOrderAccountDelivers() {
+        return orderAccountDelivers;
+    }
+
+    public List<DeliverConsign> getDeliverConsign() {
+        return deliverConsign;
+    }
+
+    public void setDeliverConsign(List<DeliverConsign> deliverConsign) {
+        this.deliverConsign = deliverConsign;
+    }
+
+    public static enum StatusEnum {
+        INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
+
+        public int code;
+        public String msg;
+
+        StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+    public static StatusEnum fromCode(Integer code) {
+        if (code != null) {
+            for (StatusEnum statusEnum : StatusEnum.values()) {
+                if (statusEnum.getCode() == code) {
+                    return statusEnum;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static enum enStatusEnum {
+        INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished");
+
+        public int code;
+        public String msg;
+
+        enStatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
+    public static enStatusEnum enFromCode(Integer code) {
+        if (code != null) {
+            for (enStatusEnum enStatusEnum : enStatusEnum.values()) {
+                if (enStatusEnum.getCode() == code) {
+                    return enStatusEnum;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 审核状态
+     * //1：待审核、2：审核中、3：驳回、4：通过
+     */
+    public static enum AuditingStatusEnum {
+        WAIT(1), PROCESSING(2), REJECT(3), THROUGH(4);
+
+        private int status;
+
+        private AuditingStatusEnum(int status) {
+            this.status = status;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+    }
+
+    public BigDecimal getLineOfCredit() {
+        return lineOfCredit;
+    }
+
+    public void setLineOfCredit(BigDecimal lineOfCredit) {
+        this.lineOfCredit = lineOfCredit;
+    }
+
+    public BigDecimal getCreditAvailable() {
+        return creditAvailable;
+    }
+
+    public void setCreditAvailable(BigDecimal creditAvailable) {
+        this.creditAvailable = creditAvailable;
+    }
+
+    public BigDecimal getThisShipmentsMoney() {
+        return thisShipmentsMoney;
+    }
+
+    public void setThisShipmentsMoney(BigDecimal thisShipmentsMoney) {
+        this.thisShipmentsMoney = thisShipmentsMoney;
+    }
+
+    public BigDecimal getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(BigDecimal advanceMoney) {
+        this.advanceMoney = advanceMoney;
+    }
+
+    public static enum COM {
+        COMPANY1("Shandong Kerui Petroleum Equipment Co., Ltd.", "山东科瑞石油装备有限公司"),
+        COMPANY2("Shandong Kerui Machinery Manufacturing Co., Ltd.", "山东科瑞机械制造有限公司"),
+        COMPANY3("Shandong Hengye Petroleum New Technology Application Co., Ltd.", "山东恒业石油新技术应用有限公司"),
+        COMPANY4("Shandong Kerui Oilfield Service Group Co., Ltd.", "山东科瑞油田服务集团股份有限公司"),
+        COMPANY5("Shandong Kerui Compressor Co., Ltd.", "山东科瑞压缩机有限公司"),
+        COMPANY6("Shandong Kerui Well Control Equipment Manufacture Co., Ltd.", "山东科瑞井控系统制造有限公司"),
+        COMPANY7("Shandong Dongshi Drilling Equipment Co., Ltd.", "山东东石钻采设备有限公司"),
+        COMPANY8("Shandong Kerui Pump Co., Ltd.", "山东科瑞泵业有限公司"),
+        COMPANY9("Shandong Kerui International Logistics Co., Ltd.", "山东科瑞国际物流有限公司"),
+        COMPANY10("Shandong Kerui Engineering Group Co., Ltd.", "山东科瑞石油天然气工程集团有限公司"),
+        COMPANY11("Shandong Huiheng Petroleum Equipment Company Ltd.", "山东汇恒石油设备有限公司"),
+        COMPANY12("Erui International Electronic Commerce Co., Ltd.", "易瑞国际电子商务有限公司");
+        private String code;
+        private String msg;
+
+        COM(String code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public static COM getByEn(String enName) {
+            if (enName != null) {
+                COM[] values = COM.values();
+                for (COM cm : values) {
+                    if (StringUtils.equals(cm.getMsg(), enName) || StringUtils.equals(cm.getCode(), enName)) {
+                        return cm;
+                    }
+                }
+            }
+            return null;
+        }
+    }
 }

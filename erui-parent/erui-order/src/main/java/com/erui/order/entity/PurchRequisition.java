@@ -10,61 +10,65 @@ import java.util.*;
  * 采购申请单
  */
 @Entity
-@Table(name="purch_requisition")
+@Table(name = "purch_requisition")
 public class PurchRequisition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "order_id")
+    private Integer orderId;
     /**
      * 项目
      */
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="project_id")
+    @OneToOne
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
     private Project project;
+
     @Transient
     private Integer proId;
-    @Column(name="contract_no")
+    @Column(name = "contract_no")
     private String contractNo;
 
-    @Column(name="pm_uid")
+    @Column(name = "project_no")
+    private String projectNo;
+
+    @Column(name = "pm_uid")
     private Integer pmUid;
 
     private Integer department;
 
-    @Column(name="submit_date")
+    @Column(name = "submit_date")
     private Date submitDate;
 
-    @Column(name="trade_method")
+    @Column(name = "trade_method")
     private String tradeMethod;
 
-    @Column(name="trans_mode_bn")
+    @Column(name = "trans_mode_bn")
     private String transModeBn;
 
-    @Column(name="factory_send")
+    @Column(name = "factory_send")
     private boolean factorySend = false;
 
-    @Column(name="delivery_place")
+    @Column(name = "delivery_place")
     private String deliveryPlace;
 
     private String requirements;
 
     private Integer status;
 
-    @Column(name="create_time")
-    @JsonIgnore
-    private Date createTime;
 
     private String remarks;
-
-    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    //
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_attach",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    private Set<Attachment> attachmentSet = new HashSet<>();
+    private List<Attachment> attachmentSet = new ArrayList<>();
 
 
-    @OneToMany(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_goods",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
             inverseJoinColumns = @JoinColumn(name = "goods_id"))
@@ -78,12 +82,12 @@ public class PurchRequisition {
         this.id = id;
     }
 
-    public Integer getProId() {
-        return proId;
+    public Integer getOrderId() {
+        return orderId;
     }
 
-    public void setProId(Integer proId) {
-        this.proId = proId;
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
     public Project getProject() {
@@ -92,6 +96,22 @@ public class PurchRequisition {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public Integer getProId() {
+        return proId;
+    }
+
+    public void setProId(Integer proId) {
+        this.proId = proId;
+    }
+
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
     }
 
     public String getContractNo() {
@@ -142,12 +162,12 @@ public class PurchRequisition {
         this.transModeBn = transModeBn;
     }
 
-    public void setFactorySend(boolean factorySend) {
-        this.factorySend = factorySend;
-    }
-
     public boolean isFactorySend() {
         return factorySend;
+    }
+
+    public void setFactorySend(boolean factorySend) {
+        this.factorySend = factorySend;
     }
 
     public String getDeliveryPlace() {
@@ -174,13 +194,6 @@ public class PurchRequisition {
         this.status = status;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
 
     public String getRemarks() {
         return remarks;
@@ -190,11 +203,11 @@ public class PurchRequisition {
         this.remarks = remarks;
     }
 
-    public Set<Attachment> getAttachmentSet() {
+    public List<Attachment> getAttachmentSet() {
         return attachmentSet;
     }
 
-    public void setAttachmentSet(Set<Attachment> attachmentSet) {
+    public void setAttachmentSet(List<Attachment> attachmentSet) {
         this.attachmentSet = attachmentSet;
     }
 
@@ -202,8 +215,28 @@ public class PurchRequisition {
         return goodsList;
     }
 
-
     public void setGoodsList(List<Goods> goodsList) {
         this.goodsList = goodsList;
+    }
+
+
+    public static enum StatusEnum {
+        SAVED(1, "保存"), SUBMITED(2, "提交");
+
+        public int code;
+        public String msg;
+
+        StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
     }
 }

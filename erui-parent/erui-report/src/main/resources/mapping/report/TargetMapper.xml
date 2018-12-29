@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.TargetMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.report.model.Target" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="target_status" property="targetStatus" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="orgnization" property="orgnization" jdbcType="VARCHAR" />
+    <result column="target_moth" property="targetMoth" jdbcType="INTEGER" />
+    <result column="target_ammount" property="targetAmmount" jdbcType="DECIMAL" />
+    <result column="target_count" property="targetCount" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, target_status, area, country, orgnization, target_moth, target_ammount, target_count
+  </sql>
+  <select id="selectTargetGroupByOrg" resultType="java.util.Map">
+    select
+    SUM(IFNULL(target_ammount,0)) AS  ammount,
+    orgnization as org
+    from target
+    GROUP  BY  orgnization HAVING orgnization IS  NOT  NULL
+  </select>
+
+  <select id="selectTargetGroupByArea" resultType="java.util.Map" >
+    select
+    SUM(IFNULL(target_ammount,0)) AS  ammount,
+    area AS  area
+    from target
+   GROUP  BY  area HAVING  area IS  NOT  NULL
+  </select>
+  <select id="selectTargetAmountByCondition" resultType="java.lang.Double" parameterType="com.erui.report.model.TargetExample" >
+    select
+    SUM(IFNULL(target_ammount,0)) AS  ammount
+    from target
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.TargetExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from target
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from target
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from target
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.report.model.TargetExample" >
+    delete from target
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.report.model.Target" >
+    insert into target (id, target_status, area, 
+      country, orgnization, target_moth, 
+      target_ammount, target_count)
+    values (#{id,jdbcType=BIGINT}, #{targetStatus,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+      #{country,jdbcType=VARCHAR}, #{orgnization,jdbcType=VARCHAR}, #{targetMoth,jdbcType=INTEGER}, 
+      #{targetAmmount,jdbcType=DECIMAL}, #{targetCount,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.report.model.Target" >
+    insert into target
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="targetStatus != null" >
+        target_status,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="country != null" >
+        country,
+      </if>
+      <if test="orgnization != null" >
+        orgnization,
+      </if>
+      <if test="targetMoth != null" >
+        target_moth,
+      </if>
+      <if test="targetAmmount != null" >
+        target_ammount,
+      </if>
+      <if test="targetCount != null" >
+        target_count,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="targetStatus != null" >
+        #{targetStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="orgnization != null" >
+        #{orgnization,jdbcType=VARCHAR},
+      </if>
+      <if test="targetMoth != null" >
+        #{targetMoth,jdbcType=INTEGER},
+      </if>
+      <if test="targetAmmount != null" >
+        #{targetAmmount,jdbcType=DECIMAL},
+      </if>
+      <if test="targetCount != null" >
+        #{targetCount,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.report.model.TargetExample" resultType="java.lang.Integer" >
+    select count(*) from target
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update target
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.targetStatus != null" >
+        target_status = #{record.targetStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.area != null" >
+        area = #{record.area,jdbcType=VARCHAR},
+      </if>
+      <if test="record.country != null" >
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgnization != null" >
+        orgnization = #{record.orgnization,jdbcType=VARCHAR},
+      </if>
+      <if test="record.targetMoth != null" >
+        target_moth = #{record.targetMoth,jdbcType=INTEGER},
+      </if>
+      <if test="record.targetAmmount != null" >
+        target_ammount = #{record.targetAmmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.targetCount != null" >
+        target_count = #{record.targetCount,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update target
+    set id = #{record.id,jdbcType=BIGINT},
+      target_status = #{record.targetStatus,jdbcType=VARCHAR},
+      area = #{record.area,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      orgnization = #{record.orgnization,jdbcType=VARCHAR},
+      target_moth = #{record.targetMoth,jdbcType=INTEGER},
+      target_ammount = #{record.targetAmmount,jdbcType=DECIMAL},
+      target_count = #{record.targetCount,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.report.model.Target" >
+    update target
+    <set >
+      <if test="targetStatus != null" >
+        target_status = #{targetStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="orgnization != null" >
+        orgnization = #{orgnization,jdbcType=VARCHAR},
+      </if>
+      <if test="targetMoth != null" >
+        target_moth = #{targetMoth,jdbcType=INTEGER},
+      </if>
+      <if test="targetAmmount != null" >
+        target_ammount = #{targetAmmount,jdbcType=DECIMAL},
+      </if>
+      <if test="targetCount != null" >
+        target_count = #{targetCount,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.report.model.Target" >
+    update target
+    set target_status = #{targetStatus,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      orgnization = #{orgnization,jdbcType=VARCHAR},
+      target_moth = #{targetMoth,jdbcType=INTEGER},
+      target_ammount = #{targetAmmount,jdbcType=DECIMAL},
+      target_count = #{targetCount,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

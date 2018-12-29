@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.MemberInfoStatisticsMapper">
+
+    <!--按地区统计会员等级（普通会员、高级会员）-->
+    <select id="membershipGradeByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        IFNULL(ma.`name`, '其他') AS `name`,
+        SUM(IF(b.`buyer_level` = 52, 1, 0)) AS normalGrade,
+        SUM(IF(b.`buyer_level` = 53, 1, 0)) AS topGrade
+        FROM
+        `erui_buyer`.`buyer` b
+        LEFT JOIN
+        erui_operation.market_area_country mac ON mac.country_bn = b.country_bn
+        LEFT JOIN
+        erui_operation.market_area ma ON mac.market_area_bn = ma.bn
+        AND ma.lang = 'zh'
+        AND ma.deleted_flag = 'N'
+        WHERE
+        b.deleted_flag = 'N'
+        AND b.created_at BETWEEN #{startTime} AND #{endTime}
+        AND ((b.`deleted_flag` = 'N')
+        OR (b.`deleted_flag` = 'N'
+        AND b.`source` = 1
+        AND b.`buyer_code` IS NOT NULL
+        AND b.`buyer_code` <![CDATA[ <> ]]> ''))
+        GROUP BY ma.`name`
+        HAVING SUM(CASE b.`buyer_level`
+        WHEN 52 THEN 1
+        WHEN 53 THEN 1
+        ELSE 0
+        END) > 0
+        ORDER BY SUM(IF(b.`buyer_level` = 52
+        OR b.`buyer_level` = 53,
+        1,
+        0))
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+    <!--按国家统计会员等级（普通会员、高级会员）-->
+    <select id="membershipGradeByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        IFNULL(ma.`name`, '其他') AS `name`,
+        SUM(IF(b.`buyer_level` = 52, 1, 0)) AS normalGrade,
+        SUM(IF(b.`buyer_level` = 53, 1, 0)) AS topGrade
+        FROM
+        `erui_buyer`.`buyer` b
+        LEFT JOIN
+        erui_dict.country ma ON b.country_bn = ma.bn
+        AND ma.deleted_flag = 'N'
+        AND ma.lang = 'zh'
+        WHERE
+        b.deleted_flag = 'N'
+        AND b.created_at BETWEEN #{startTime} AND #{endTime}
+        AND ((b.`deleted_flag` = 'N')
+        OR (b.`deleted_flag` = 'N'
+        AND b.`source` = 1
+        AND b.`buyer_code` IS NOT NULL
+        AND b.`buyer_code` <![CDATA[ <> ]]> ''))
+        GROUP BY ma.`name`
+        HAVING SUM(CASE b.`buyer_level`
+        WHEN 52 THEN 1
+        WHEN 53 THEN 1
+        ELSE 0
+        END) > 0
+        ORDER BY SUM(IF(b.`buyer_level` = 52
+        OR b.`buyer_level` = 53,
+        1,
+        0))
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+
+    <!--按照事业部统计客户拜访统计-->
+    <select id="visitStatisticsByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name`,
+        COUNT(DISTINCT bv.id) AS num,
+        COUNT(DISTINCT bv.id) / COUNT(DISTINCT b.id) AS avgP
+        FROM
+        erui_buyer.buyer_visit AS bv,
+        erui_buyer.buyer b,
+        erui_sys.employee t1,
+        erui_sys.org_member t2,
+        erui_sys.org t3
+        WHERE
+        bv.created_by = t1.id
+        AND b.id = bv.buyer_id
+        AND t1.id = t2.employee_id
+        AND t2.org_id = t3.id
+        AND bv.visit_at BETWEEN #{startTime} AND #{endTime}
+        AND t3.deleted_flag = 'N'
+        AND t1.deleted_flag = 'N'
+        AND bv.deleted_flag = 'N'
+        GROUP BY t3.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+    <!--按照地区统计客户拜访统计-->
+    <select id="visitStatisticsByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        ma.`name` as `name`, COUNT(DISTINCT bv.id) as num,COUNT(DISTINCT bv.id)/count(DISTINCT b.id) as avgP
+        FROM
+        erui_buyer.buyer_visit bv
+        INNER JOIN
+        erui_buyer.buyer b ON bv.buyer_id = b.id
+        INNER JOIN
+        erui_operation.market_area_country mac ON mac.country_bn = b.country_bn
+        INNER JOIN
+        erui_operation.market_area ma ON mac.market_area_bn = ma.bn
+        WHERE
+        bv.deleted_flag = 'N'
+        AND b.deleted_flag = 'N'
+        AND ma.deleted_flag = 'N'
+        AND bv.visit_at BETWEEN #{startTime} AND #{endTime}
+        AND ma.lang = 'zh'
+        GROUP BY ma.`name`
+        ORDER BY COUNT(DISTINCT bv.id)
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+
+
+    <!--按照国家统计客户拜访统计-->
+    <select id="visitStatisticsByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        ma.`name` AS `name`, COUNT(DISTINCT bv.id) AS num,COUNT(DISTINCT bv.id)/count(DISTINCT b.id) as avgP
+        FROM
+        erui_buyer.buyer_visit bv
+        INNER JOIN
+        erui_buyer.buyer b ON bv.buyer_id = b.id
+        INNER JOIN
+        erui_dict.country ma ON b.country_bn = ma.bn
+        WHERE
+        bv.deleted_flag = 'N'
+        AND b.deleted_flag = 'N'
+        AND ma.deleted_flag = 'N'
+        AND bv.visit_at BETWEEN #{startTime} AND #{endTime}
+        AND ma.lang = 'zh'
+        GROUP BY ma.`name`
+        ORDER BY COUNT(DISTINCT bv.id)
+        <if test="sort != 1" >
+            DESC
+        </if>
+        ,ma.`name`
+    </select>
+
+
+    <!--按照国家统计客户统计-->
+    <select id="membershipByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        ma.`name`, COUNT(DISTINCT b.id) AS num
+        FROM
+        erui_buyer.buyer b
+        INNER JOIN
+        erui_dict.country ma ON b.country_bn = ma.bn
+        WHERE
+        b.deleted_flag = 'N'
+        AND ma.deleted_flag = 'N'
+        AND b.created_at BETWEEN #{startTime} AND #{endTime}
+        AND ma.lang = 'zh'
+        AND b.`status` in ('arroved','pass')
+        GROUP BY ma.`name`
+        ORDER BY COUNT(DISTINCT b.id)
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+
+    <!--按照地区统计客户统计-->
+    <select id="membershipByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        ma.`name`, COUNT(DISTINCT b.id) as num
+        FROM
+        erui_buyer.buyer b
+        INNER JOIN
+        erui_operation.market_area_country mac ON mac.country_bn = b.country_bn
+        INNER JOIN
+        erui_operation.market_area ma ON mac.market_area_bn = ma.bn
+        WHERE
+        b.deleted_flag = 'N'
+        AND ma.deleted_flag = 'N'
+        AND b.created_at BETWEEN #{startTime} AND #{endTime}
+        AND b.`status` in ('arroved','pass')
+        AND ma.lang = 'zh'
+        GROUP BY ma.`name`
+        ORDER BY COUNT(DISTINCT b.id)
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+
+    <!-- 成单客户信息 -->
+    <select id="singleCustomer" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t1.org_id AS orgId,
+        CASE t1.org_id
+        WHEN 1 THEN '易瑞-钻完井设备事业部'
+        WHEN 2 THEN '易瑞-工业品事业部'
+        WHEN 3 THEN '易瑞-采油工程事业部'
+        WHEN 4 THEN '易瑞'
+        WHEN 5 THEN '油田设备'
+        WHEN 6 THEN '康博瑞'
+        WHEN 7 THEN '钻采'
+        WHEN 8 THEN 'WEFIC'
+        ELSE '其他'
+        END AS `name`,
+        SUM(t1.inquiryNum) AS inquiryNum,
+        SUM(t1.orderNum) AS orderNum,
+        CASE SUM(t1.inquiryNum)
+        WHEN 0 THEN 0
+        ELSE SUM(t1.orderNum) / SUM(t1.inquiryNum)
+        END AS rate
+        FROM
+        (SELECT
+        CASE
+        WHEN business_unit_id IN (9907) THEN 1
+        WHEN business_unit_id IN (9969) THEN 2
+        WHEN business_unit_id IN (9970) THEN 3
+        WHEN business_unit_id IN (9928 , 9929, 9931, 9930 ) THEN 4
+        WHEN business_unit_id IN (9904 , 9905, 9906, 9937) THEN 5
+        WHEN business_unit_id IN (9902 , 9917, 9938) THEN 6
+        WHEN business_unit_id IN (9903 , 9901, 9940) THEN 7
+        WHEN business_unit_id IN (9899 , 9916) THEN 8
+        ELSE 100
+        END AS org_id,
+        0 AS inquiryNum,
+        COUNT(1) AS orderNum
+        FROM
+        erui_order.`order`, erui_order.`project`
+        WHERE
+        `order`.id = `project`.order_id
+        AND `status` >= 3 AND `order`.delete_flag = 0
+        <if test="startTime!=null and startTime!=''">
+            AND `project`.start_date BETWEEN #{startTime} AND #{endTime}
+        </if>
+        GROUP BY business_unit_id
+
+        UNION ALL
+
+        SELECT
+        CASE
+        WHEN org_id IN (9907) THEN 1
+        WHEN org_id IN (9969) THEN 2
+        WHEN org_id IN (9970) THEN 3
+        WHEN org_id IN (9928 , 9929, 9931, 9930 ) THEN 4
+        WHEN org_id IN (9904 , 9905, 9906, 9937) THEN 5
+        WHEN org_id IN (9902 , 9917, 9938) THEN 6
+        WHEN org_id IN (9903 , 9901, 9940) THEN 7
+        WHEN org_id IN (9899 , 9916) THEN 8
+        ELSE 100
+        END AS org_id,
+        COUNT(1) AS inquiryNum,
+        0 AS orderNum
+        FROM
+        erui_rfq.inquiry as t1,
+        (SELECT
+        inquiry_id AS log_inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and startTime!=''">
+            HAVING MAX(out_at) BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ) as t4
+        WHERE
+        t4.log_inquiry_id = t1.id AND
+        t1.deleted_flag = 'N'
+        AND t1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        GROUP BY org_id) AS t1
+        GROUP BY t1.org_id
+        ORDER BY 1
+    </select>
+
+    <!-- 按照地区统计会员签约主体 -->
+    <select id="signingBodyByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS `name`,
+        SUM(CASE t1.signing_co
+        WHEN '易瑞国际电子商务有限公司' THEN 1
+        WHEN 'Erui International Electronic Commerce Co., Ltd.' THEN 1
+        ELSE 0
+        END) AS eruiNum,
+        SUM(CASE
+        WHEN t1.signing_co <![CDATA[ <> ]]> '易瑞国际电子商务有限公司' AND t1.signing_co <![CDATA[ <> ]]> 'Erui International Electronic Commerce Co., Ltd.' THEN 1
+        ELSE 0
+        END) AS otherNum
+        FROM
+        erui_order.`order` AS t1
+        LEFT JOIN
+        erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
+        AND t3.deleted_flag = 'N',
+        erui_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 按照国家统计会员签约主体 -->
+    <select id="signingBodyByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS `name`,
+        SUM(CASE t1.signing_co
+        WHEN '易瑞国际电子商务有限公司' THEN 1
+        WHEN 'Erui International Electronic Commerce Co., Ltd.' THEN 1
+        ELSE 0
+        END) AS eruiNum,
+        SUM(CASE
+        WHEN t1.signing_co <![CDATA[ <> ]]> '易瑞国际电子商务有限公司' AND t1.signing_co <![CDATA[ <> ]]> 'Erui International Electronic Commerce Co., Ltd.' THEN 1
+        ELSE 0
+        END) AS otherNum
+        FROM
+        erui_order.`order` AS t1
+        LEFT JOIN
+        erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
+        AND t3.deleted_flag = 'N',
+        erui_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+    <!-- 按照事业部统计会员签约主体 -->
+    <select id="signingBodyByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        t3.`name` AS `name`,
+        SUM(CASE t1.signing_co
+        WHEN '易瑞国际电子商务有限公司' THEN 1
+        WHEN 'Erui International Electronic Commerce Co., Ltd.' THEN 1
+        ELSE 0
+        END) AS eruiNum,
+        SUM(CASE
+        WHEN t1.signing_co <![CDATA[ <> ]]> '易瑞国际电子商务有限公司' AND t1.signing_co <![CDATA[ <> ]]> 'Erui International Electronic Commerce Co., Ltd.' THEN 1
+        ELSE 0
+        END) AS otherNum
+        FROM
+        erui_order.`order` AS t1
+        LEFT JOIN
+        erui_sys.org t3 ON t1.business_unit_id = t3.id
+        AND t3.deleted_flag = 'N',
+        erui_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+        ORDER BY 2
+        <if test="sort != 1" >
+            DESC
+        </if>
+    </select>
+
+    <!-- 按地区获取订单的总金额 -->
+    <select id="orderTotalPriceByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            IFNULL(t3.`name`, '其他') AS `name`,
+            SUM(t1.total_price_usd) AS totalPriceUsd,
+            (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
+        FROM
+            erui_order.`order` AS t1
+                LEFT JOIN
+            erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
+                AND t3.deleted_flag = 'N',
+            erui_order.`project` AS t2
+        WHERE
+            t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+                AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+    </select>
+
+    <!-- 按国家获取订单的总金额 -->
+    <select id="orderTotalPriceByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        IFNULL(t3.`name`, '其他') AS `name`,
+        SUM(t1.total_price_usd) AS totalPriceUsd,
+        (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
+        FROM
+        erui_order.`order` AS t1
+        LEFT JOIN
+        erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
+        AND t3.deleted_flag = 'N',
+        erui_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+    </select>
+</mapper>

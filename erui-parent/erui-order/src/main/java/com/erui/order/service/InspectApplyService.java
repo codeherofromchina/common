@@ -1,5 +1,6 @@
 package com.erui.order.service;
 
+import com.erui.order.entity.Attachment;
 import com.erui.order.entity.InspectApply;
 import java.util.List;
 
@@ -16,10 +17,10 @@ public interface InspectApplyService {
 
     /**
      * 根据采购单ID查询主报检单列表
-     * @param parchId
+     * @param purchIds
      * @return
      */
-    List<InspectApply> findMasterListByParchId(Integer parchId);
+    List<InspectApply> findMasterListByPurchaseId(Integer[] purchIds);
 
 
     /**
@@ -27,7 +28,7 @@ public interface InspectApplyService {
      * @param inspectApply
      * @return
      */
-    public boolean insert(InspectApply inspectApply);
+    public boolean insert(InspectApply inspectApply) throws Exception;
 
     /**
      * 更新报检单信息
@@ -41,7 +42,7 @@ public interface InspectApplyService {
      * @param inspectApply
      * @return
      */
-    boolean againApply(InspectApply inspectApply);
+    boolean againApply(InspectApply inspectApply) throws Exception;
 
     /**
      * 根据父报检单获取下面的报检单
@@ -56,4 +57,20 @@ public interface InspectApplyService {
      * @return
      */
     InspectApply findDetail(Integer id);
+
+    //
+    List<Attachment> findTmpAttachmentByInspectApplyId(Integer inspectApplyId);
+
+    /**
+     * 完善临时整改意见
+     * @param inspectApply 关键参数 {id:"",msg:"",attachmentList:[{}...]}
+     */
+    void fullTmpMsg(InspectApply inspectApply);
+
+    /**
+     * 通过父质检单ID，查找子最后一次质检失败的报检单
+     * @param parentId
+     * @return
+     */
+    InspectApply findSonFailDetail(Integer parentId);
 }
