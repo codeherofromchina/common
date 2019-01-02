@@ -322,7 +322,7 @@
         0 AS inquiryNum,
         COUNT(1) AS orderNum
         FROM
-        erui_new_order.`order`, erui_new_order.`project`
+        erui_order.`order`, erui_order.`project`
         WHERE
         `order`.id = `project`.order_id
         AND `status` >= 3 AND `order`.delete_flag = 0
@@ -383,11 +383,11 @@
         ELSE 0
         END) AS otherNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -411,11 +411,11 @@
         ELSE 0
         END) AS otherNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -439,11 +439,11 @@
         ELSE 0
         END) AS otherNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_sys.org t3 ON t1.business_unit_id = t3.id
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -461,11 +461,11 @@
             SUM(t1.total_price_usd) AS totalPriceUsd,
             (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
         FROM
-            erui_new_order.`order` AS t1
+            erui_order.`order` AS t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
                 AND t3.deleted_flag = 'N',
-            erui_new_order.`project` AS t2
+            erui_order.`project` AS t2
         WHERE
             t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -479,11 +479,11 @@
         SUM(t1.total_price_usd) AS totalPriceUsd,
         (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}

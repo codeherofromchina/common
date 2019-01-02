@@ -123,6 +123,11 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-jdk5</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 
 

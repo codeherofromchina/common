@@ -773,6 +773,7 @@ public class Order {
 
     public String getOrderTypeName() {
         if (getOrderType() != null) {
+
             if (getOrderType() == 1) {
                 return "油气";
             } else {
@@ -783,6 +784,7 @@ public class Order {
     }
 
     public String getEnOrderTypeName() {
+
         if (getOrderType() != null) {
             if (getOrderType() == 1) {
                 return "Oil & gas";
