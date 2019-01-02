@@ -1974,6 +1974,7 @@ public class OrderServiceImpl implements OrderService {
 
             if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
+            } else {
                 project.setRegion("");
             }
 
