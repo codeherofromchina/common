@@ -38,7 +38,7 @@
         ELSE 0
         END) as unitTotal
         FROM
-        erui_new_order.`order` t1,
+        erui_order.`order` t1,
         erui_rfq.inquiry t2,
         erui_rfq.final_quote t3,
         erui_rfq.final_quote_item t4,
@@ -100,7 +100,7 @@
         ELSE 0
         END) as unitTotal
         FROM
-        erui_new_order.`order` t1,
+        erui_order.`order` t1,
         erui_rfq.inquiry t2,
         erui_rfq.final_quote t3,
         erui_rfq.final_quote_item t4,
@@ -164,7 +164,7 @@
                 ELSE 0
             END) as unitTotal
         FROM
-            erui_new_order.`order` t1,
+            erui_order.`order` t1,
             erui_rfq.inquiry t2,
             erui_rfq.final_quote t3,
             erui_rfq.final_quote_item t4,
@@ -492,10 +492,10 @@
             SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
-            erui_new_order.`order` t1
+            erui_order.`order` t1
                 LEFT JOIN
             erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn,
-            erui_new_order.`project` t3
+            erui_order.`project` t3
         WHERE
             t1.`status` >= 3 and t1.id = t3.order_id
             <if test="startTime!=null and startTime!=''">
@@ -515,10 +515,10 @@
             SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
-            erui_new_order.`order` as t1
+            erui_order.`order` as t1
             left join
             erui_sys.org t3 on t3.deleted_flag='N' and t3.`status`='NORMAL' and t3.id = t1.business_unit_id
-            ,erui_new_order.`project` t2
+            ,erui_order.`project` t2
         WHERE
             t1.`status` >= 3 and t1.id = t2.order_id
             <if test="startTime!=null and startTime!=''">
@@ -537,10 +537,10 @@
             SUM(IFNULL(t1.total_price_usd, 0))/10000 AS totalAmount,
             COUNT(1) AS totalNum
         FROM
-            erui_new_order.`order` t1
+            erui_order.`order` t1
                 LEFT JOIN
             erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn,
-            erui_new_order.`project` t3
+            erui_order.`project` t3
         WHERE
             t1.`status` >= 3 and t1.id = t3.order_id
             <if test="startTime!=null and startTime!=''">
@@ -559,10 +559,10 @@
             t2.`name` AS `name`,
             SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
         FROM
-            erui_new_order.`order` t1
+            erui_order.`order` t1
                 LEFT JOIN
             erui_dict.country t2 ON t2.lang = 'zh' AND t1.country = t2.bn,
-            erui_new_order.`project` t3
+            erui_order.`project` t3
         WHERE
             t1.id = t3.order_id AND t1.`status` >= 3
                 AND t3.`project_status` IN ('EXECUTING' , 'DONE',
@@ -584,10 +584,10 @@
             t2.`name` AS `name`,
             SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
         FROM
-            erui_new_order.`order` t1
+            erui_order.`order` t1
                 LEFT JOIN
             erui_operation.market_area t2 ON t2.lang = 'zh' AND t1.region = t2.bn,
-            erui_new_order.`project` t3
+            erui_order.`project` t3
         WHERE
             t1.id = t3.order_id AND t1.`status` >= 3
                 AND t3.`project_status` IN ('EXECUTING' , 'DONE',
@@ -610,10 +610,10 @@
         t2.`name` AS `name`,
         SUM(t3.profit_percent * t3.total_price_usd) / SUM(t3.total_price_usd) AS profitPercent
         FROM
-        erui_new_order.`order` t1
+        erui_order.`order` t1
         LEFT JOIN
         erui_sys.org t2 ON t2.id = t1.`business_unit_id`,
-        erui_new_order.`project` t3
+        erui_order.`project` t3
         WHERE
         t1.id = t3.order_id AND t1.`status` >= 3
         AND t3.`project_status` IN ('EXECUTING' , 'DONE',
@@ -644,7 +644,7 @@
         0 AS quoteNum,
         COUNT(1) AS doneNum
         FROM
-        erui_new_order.`order` t1, erui_new_order.`project` t2
+        erui_order.`order` t1, erui_order.`project` t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -682,7 +682,7 @@
         (SELECT
         t1.region AS area_bn, 0 AS quoteNum, COUNT(1) AS doneNum
         FROM
-        erui_new_order.`order` t1, erui_new_order.`project` t2
+        erui_order.`order` t1, erui_order.`project` t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -720,7 +720,7 @@
             (SELECT
             t1.country AS country_bn, 0 AS quoteNum, COUNT(1) AS doneNum
             FROM
-            erui_new_order.`order` t1, erui_new_order.`project` t2
+            erui_order.`order` t1, erui_order.`project` t2
             WHERE
             t1.id = t2.order_id AND t1.`status` >= 3
             AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -762,8 +762,8 @@
         tb2.totalQuotePrice / 10000 AS totalQuotePrice,
         MAX(tb5.start_date) AS created_at
         FROM
-        erui_new_order.`order` AS tb1,
-        erui_new_order.`project` tb5,
+        erui_order.`order` AS tb1,
+        erui_order.`project` tb5,
         (SELECT
         t3.id AS buyer_id,
         t3.buyer_no AS buyer_no,
@@ -773,7 +773,7 @@
         MAX(IFNULL(t1.total_price_usd, 0)) AS maxQuotePrice,
         SUM(IFNULL(t1.total_price_usd, 0)) AS totalQuotePrice
         FROM
-        erui_new_order.`order` t1, erui_new_order.`project` t2, erui_buyer.buyer t3
+        erui_order.`order` t1, erui_order.`project` t2, erui_buyer.buyer t3
         WHERE
         t1.id = t2.order_id
         AND t1.crm_code = t3.buyer_code
@@ -825,7 +825,7 @@
             ELSE 0
             END AS cycle
             FROM
-            erui_new_order.`order` t1, erui_new_order.`project` t4, erui_buyer.`buyer` t5
+            erui_order.`order` t1, erui_order.`project` t4, erui_buyer.`buyer` t5
             WHERE
             t1.`status` >= 3 AND t1.id = t4.order_id
             AND t1.crm_code IS NOT NULL
@@ -859,10 +859,10 @@
             t3.`name` AS areaName,
             SUM(t1.total_price_usd) AS totalAmount
         FROM
-            erui_new_order.`order` t1
+            erui_order.`order` t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
-            erui_new_order.`project` t2
+            erui_order.`project` t2
         WHERE
             t1.id = t2.order_id
                 AND t2.project_status IN ('EXECUTING' , 'DONE',
@@ -881,10 +881,10 @@
             t3.`name` AS areaName,
             SUM(t1.total_price_usd) AS totalAmount
         FROM
-            erui_new_order.`order` t1
+            erui_order.`order` t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
-            erui_new_order.`project` t2,
+            erui_order.`project` t2,
             erui_buyer.buyer t4
         WHERE
             t1.id = t2.order_id
@@ -910,10 +910,10 @@
                 SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice,
                 (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
             FROM
-                erui_new_order.`order` AS t1
+                erui_order.`order` AS t1
                     LEFT JOIN
                 erui_sys.org t3 ON t1.business_unit_id = t3.id,
-                erui_new_order.`project` AS t2
+                erui_order.`project` AS t2
             WHERE
                 t1.id = t2.order_id AND t1.`status` > 2
                     AND t1.business_unit_id IS NOT NULL
@@ -930,10 +930,10 @@
             SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice,
             (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
         FROM
-            erui_new_order.`order` AS t1
+            erui_order.`order` AS t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh',
-            erui_new_order.`project` AS t2
+            erui_order.`project` AS t2
         WHERE
             t1.id = t2.order_id AND t1.`status` > 2
                 AND t1.region IS NOT NULL
@@ -950,10 +950,10 @@
                 SUM(IFNULL(t1.total_price_usd, 0)) AS totalPrice,
                 (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
             FROM
-                erui_new_order.`order` AS t1
+                erui_order.`order` AS t1
                     LEFT JOIN
                 erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh' AND t3.deleted_flag = 'N',
-                erui_new_order.`project` AS t2
+                erui_order.`project` AS t2
             WHERE
                 t1.id = t2.order_id AND t1.`status` > 2
                     AND t1.country IS NOT NULL
