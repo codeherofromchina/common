@@ -456,12 +456,16 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
         List<Object> row02 = new ArrayList<>();
 
-        Integer total = row01.parallelStream().map(vo -> (Integer) vo).reduce(0,(a, b) -> a + b);
+        Integer total = row01.parallelStream().map(vo -> ((BigDecimal) vo).intValue()).reduce(0,( a , b) -> a + b);
+        BigDecimal totalBigDecimal = BigDecimal.ZERO;
+        if (total != null && total != 0) {
+            totalBigDecimal = new BigDecimal(total);
+        }
         for (Object obj:row01) {
-            if (total == 0 || total == null) {
+            if (totalBigDecimal == totalBigDecimal.ZERO) {
                 row02.add(BigDecimal.ZERO);
             } else {
-                row02.add(new BigDecimal(((Integer) obj).intValue() / total.intValue()).setScale(4, BigDecimal.ROUND_DOWN));
+                row02.add(((BigDecimal) obj).divide(totalBigDecimal,4,BigDecimal.ROUND_DOWN));
             }
         }
         row01.add(0, "品类数量");
