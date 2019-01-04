@@ -8,6 +8,7 @@ import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.ParamsUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -275,22 +276,30 @@ public class SalesDataController {
 
 
     /**
-     * 询报价数据统计- 品类比率
+     * 导出询报价数据统计- 品类比率
      *
-     * @param params
      * @return
      */
-    @RequestMapping(value = "/exportSelectCategoryNum", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    @RequestMapping(value = "/exportSelectCategoryNum", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Result<Object> exportSelectCategoryNum(HttpServletResponse response,
-                                                  @RequestBody(required = true) Map<String, Object> params)
+                                                  String startTime,
+                                                  String endTime,
+                                                  String type,
+                                                  String orgId,
+                                                  String areaBn)
             throws Exception {
+        Map<String, Object> params = new HashMap();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("type", type);
+        params.put("orgId", orgId);
+        params.put("areaBn", areaBn);
         //处理参数
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String analyzeType = String.valueOf(params.get("type"));
-        HSSFWorkbook wb = salesDataService.exportSelectCategoryNum(params, analyzeType);
+        HSSFWorkbook wb = salesDataService.exportSelectCategoryNum(params, type);
 
 
         if (wb == null) {

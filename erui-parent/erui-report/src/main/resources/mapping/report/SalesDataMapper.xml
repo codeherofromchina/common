@@ -451,10 +451,11 @@
         ) AS t3,erui_rfq.inquiry t4
         WHERE
         t1.id = t2.inquiry_item_id
-        <if test="areaBn!=null">
+        AND t1.inquiry_id = t4.id
+        <if test="areaBn!=null and areaBn!=''">
             AND t4.area_bn = #{areaBn}
         </if>
-        <if test="orgId!=null">
+        <if test="orgId!=null and orgId!=''">
             AND t4.org_id = #{orgId}
         </if>
         AND t1.inquiry_id = t3.log_inquiry_id
@@ -478,10 +479,11 @@
         ) AS t3,erui_rfq.inquiry t4
         WHERE
         t1.id = t2.inquiry_item_id
-        <if test="areaBn!=null">
+        AND t1.inquiry_id = t4.id
+        <if test="areaBn!=null and areaBn!=''">
             AND t4.area_bn = #{areaBn}
         </if>
-        <if test="orgId!=null">
+        <if test="orgId!=null and orgId!=''">
             AND t4.org_id = #{orgId}
         </if>
         AND t1.inquiry_id = t3.log_inquiry_id
