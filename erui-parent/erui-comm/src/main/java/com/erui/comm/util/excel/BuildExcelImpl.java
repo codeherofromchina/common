@@ -80,6 +80,7 @@ public class BuildExcelImpl implements BuildExcel {
 				}
 			}
 		}else{       // List<Map> or List<List<Map>>....
+			HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
 			for(int i=0;i<datas.size();i++){
 				if(datas.get(i) instanceof List){    // 若是List<List<Map>> 递归
 					createBody((List)datas.get(i),keys,sheet,hssfWorkBook,sheet.getLastRowNum());
@@ -126,13 +127,11 @@ public class BuildExcelImpl implements BuildExcel {
 							Object obj = m.get(keys[j]);
 							HSSFCell cell = row.createCell(j);
 							if(obj instanceof BigDecimal){
-								HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
 								HSSFDataFormat format= hssfWorkBook.createDataFormat();
 								//cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 								cell.setCellStyle(cellStyle);
 								cell.setCellValue(((BigDecimal)obj).doubleValue());
 							} else if (obj instanceof Double){
-								HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();  
 					            HSSFDataFormat format= hssfWorkBook.createDataFormat();  
 					            //cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 								cell.setCellStyle(cellStyle);
