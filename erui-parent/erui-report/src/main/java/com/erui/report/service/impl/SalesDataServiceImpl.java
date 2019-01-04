@@ -920,7 +920,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         //声明工作簿
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFCellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+        cellStyle.setAlignment(HorizontalAlignment.CENTER); //设置字体居中
 
         //生成一个表格
         XSSFSheet sheet = wb.createSheet("销售数据统计-询报价品类明细");
@@ -942,13 +942,13 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 XSSFCell cell0 = row1.createCell(0);
                 cell0.setCellValue(m.get("category").toString());
                 XSSFCell cell1 = row1.createCell(1);
-                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //分析类型为询单数量
                     cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
-                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
                     cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 10000));
-                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
                     cell1.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
-                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //分析类型为报价金额
                     cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 10000));
                 } else {
                     cell1.setCellValue(0);

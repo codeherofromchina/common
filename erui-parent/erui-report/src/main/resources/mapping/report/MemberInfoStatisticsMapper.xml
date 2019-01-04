@@ -204,25 +204,26 @@
     <!--按照地区查找新增客户-->
     <select id="findAllNewMembershipByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            o1.crm_code,
-            o1.region AS region_bn,
-            o1.sdate,
-            o2.`name` AS region_name
+            COUNT(DISTINCT crm_code) AS totalNum,
+            SUM(total_price_usd)/1000 AS totalPrice,
+            region_bn,
+            region_name
         FROM
             (SELECT
-                t2.crm_code, t2.region, MIN(t1.start_date) AS sdate
+                t1.crm_code,
+                    t1.region AS region_bn,
+                    t3.`name` AS region_name,
+                    t1.total_price_usd
             FROM
-                erui_new_order.project t1, erui_new_order.`order` t2
+                erui_order.`order` t1, erui_order.project t2, erui_operation.market_area t3, erui_buyer.buyer t4
             WHERE
-                t1.order_id = t2.id
-                    AND t1.start_date IS NOT NULL
-                    AND t2.crm_code IS NOT NULL
-                    AND t2.crm_code != ''
-            GROUP BY t2.crm_code , t2.region) AS o1,
-            erui_operation.market_area o2
-        WHERE
-            o1.region = o2.bn AND o2.lang = 'zh'
-                AND o1.sdate BETWEEN #{startTime} AND #{endTime}
+                t1.id = t2.order_id
+                    AND t1.region = t3.bn
+                    AND t3.lang = 'zh'
+                    AND t1.crm_code = t4.buyer_code
+                    AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                    AND t2.start_date > t4.membership_time) AS t
+        GROUP BY region_bn , region_name order by 1 desc
     </select>
 
 
@@ -230,60 +231,30 @@
     <!--按照国家查找新增客户-->
     <select id="findAllNewMembershipByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            o1.crm_code,
-            o1.country AS country_bn,
-            o1.sdate,
-            o2.`name` AS country_name
+            COUNT(DISTINCT crm_code) AS totalNum,
+            SUM(total_price_usd) / 1000 AS totalPrice,
+            country_bn,
+            country_name
         FROM
             (SELECT
-                t2.crm_code, t2.country, MIN(t1.start_date) AS sdate
+                t1.crm_code,
+                    t1.country AS country_bn,
+                    t3.`name` AS country_name,
+                    t1.total_price_usd
             FROM
-                erui_new_order.project t1, erui_new_order.`order` t2
+                erui_order.`order` t1, erui_order.project t2, erui_dict.country t3, erui_buyer.buyer t4
             WHERE
-                t1.order_id = t2.id
-                    AND t1.start_date IS NOT NULL
-                    AND t2.crm_code IS NOT NULL
-                    AND t2.crm_code != ''
-            GROUP BY t2.crm_code , t2.region) AS o1,
-            erui_dict.country o2
-        WHERE
-            o1.country = o2.bn AND o2.lang = 'zh'
-                AND o1.sdate BETWEEN #{startTime} AND #{endTime}
+                t1.id = t2.order_id
+                    AND t1.country = t3.bn
+                    AND t3.lang = 'zh'
+                    AND t1.crm_code = t4.buyer_code
+                    AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                    AND t2.start_date > t4.membership_time) AS t
+        GROUP BY country_bn , country_name
+        ORDER BY 1 DESC
+        LIMIT 10
     </select>
 
-    <!--按照地区查找新增客户成单金额-->
-    <select id="findAmountByAreaAndCrm" resultType="java.math.BigDecimal">
-        SELECT
-            SUM(t2.total_price_usd) AS am
-        FROM
-            erui_new_order.project t1,
-            erui_new_order.`order` t2
-        WHERE
-            t1.order_id = t2.id
-            AND t1.start_date BETWEEN #{params.startTime} AND #{params.endTime}
-            AND t2.region = #{region}
-            AND t2.crm_code IN
-            <foreach collection="crmCodes" item="item" index="index" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-    </select>
-
-    <!--按照国家查找新增客户成单金额-->
-    <select id="findAmountByCountryAndCrm" resultType="java.math.BigDecimal">
-        SELECT
-        SUM(t2.total_price_usd) AS am
-        FROM
-        erui_new_order.project t1,
-        erui_new_order.`order` t2
-        WHERE
-        t1.order_id = t2.id
-        AND t1.start_date BETWEEN #{params.startTime} AND #{params.endTime}
-        AND t2.country = #{country}
-        AND t2.crm_code IN
-        <foreach collection="crmCodes" item="item" index="index" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-    </select>
 
     <!-- 成单客户信息 -->
     <select id="singleCustomer" parameterType="java.util.Map" resultType="java.util.Map">

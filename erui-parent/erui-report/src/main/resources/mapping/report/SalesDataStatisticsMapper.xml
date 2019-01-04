@@ -31,34 +31,33 @@
     <!--查询代理供成单配件商品的总金额和全部总金额-->
     <select id="agencySupplierTotalAmountByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t6.name,
-        SUM(quote_unit_price) as total,
-        SUM(CASE t5.supplier_type
-        WHEN 'AGENCY' THEN quote_unit_price
-        ELSE 0
-        END) as unitTotal
+            t4.name,
+            SUM(IFNULL(t2.total_quote_price, 0)) AS total,
+            SUM(CASE
+                WHEN t1.proxy_flag = 'Y' THEN IFNULL(t2.total_quote_price, 0)
+                ELSE 0
+            END) AS unitTotal
         FROM
-        erui_order.`order` t1,
-        erui_rfq.inquiry t2,
-        erui_rfq.final_quote t3,
-        erui_rfq.final_quote_item t4,
-        erui_supplier.supplier t5,
-        erui_sys.org t6
+            erui_rfq.inquiry t1,
+            erui_rfq.final_quote t2,
+            (SELECT
+                inquiry_id AS log_inquiry_id
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id
+            HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3,
+            erui_sys.org t4
         WHERE
-        t1.inquiry_no = t2.serial_no
-        AND t2.id = t3.inquiry_id
-        AND t3.id = t4.quote_id
-        AND t4.supplier_id = t5.id
-        AND t5.org_id = t6.id
-        AND t1.delete_flag = 0
-        AND t2.deleted_flag = 'N'
-        AND t3.deleted_flag = 'N'
-        AND t4.deleted_flag = 'N'
-        AND t5.deleted_flag = 'N'
-        AND t6.deleted_flag = 'N'
-        AND t5.`status` = 'APPROVED'
-        AND t1.create_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY t6.name
+            t1.id = t2.inquiry_id
+                AND t2.deleted_flag = 'N'
+                AND t1.deleted_flag = 'N'
+                AND t1.`status` != 'DRAFT'
+                AND t3.log_inquiry_id = t1.id
+                AND t4.id = t1.org_id
+                AND t4.deleted_flag = 'N'
+        GROUP BY t4.name
     </select>
 
     <!--查询代理供应商按照国家纬度、时间条件统计总数-->
@@ -93,35 +92,33 @@
     <!--查询代理供成单配件商品的总金额和全部总金额-->
     <select id="agencySupplierTotalAmountByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-        t6.name,
-        SUM(quote_unit_price) as total,
-        SUM(CASE t5.supplier_type
-        WHEN 'AGENCY' THEN quote_unit_price
-        ELSE 0
-        END) as unitTotal
+            t4.name,
+            SUM(IFNULL(t2.total_quote_price, 0)) AS total,
+            SUM(CASE
+                WHEN t1.proxy_flag = 'Y' THEN IFNULL(t2.total_quote_price, 0)
+                ELSE 0
+            END) AS unitTotal
         FROM
-        erui_order.`order` t1,
-        erui_rfq.inquiry t2,
-        erui_rfq.final_quote t3,
-        erui_rfq.final_quote_item t4,
-        erui_supplier.supplier t5,
-        erui_dict.country t6
+            erui_rfq.inquiry t1,
+            erui_rfq.final_quote t2,
+            (SELECT
+                inquiry_id AS log_inquiry_id
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id
+            HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3,
+            erui_dict.country t4
         WHERE
-        t1.inquiry_no = t2.serial_no
-        AND t2.id = t3.inquiry_id
-        AND t3.id = t4.quote_id
-        AND t4.supplier_id = t5.id
-        AND t5.country_bn = t6.bn
-        AND t1.delete_flag = 0
-        AND t2.deleted_flag = 'N'
-        AND t3.deleted_flag = 'N'
-        AND t4.deleted_flag = 'N'
-        AND t5.deleted_flag = 'N'
-        AND t6.deleted_flag = 'N'
-        AND t6.lang = 'zh'
-        AND t5.`status` = 'APPROVED'
-        AND t1.create_time between #{startTime} AND #{endTime}
-        GROUP BY t6.name
+            t1.id = t2.inquiry_id
+                AND t2.deleted_flag = 'N'
+                AND t1.deleted_flag = 'N'
+                AND t1.`status` != 'DRAFT'
+                AND t3.log_inquiry_id = t1.id
+                AND t1.country_bn = t4.bn
+                AND t4.lang = 'zh'
+        GROUP BY t4.name
     </select>
 
     <!--查询代理供应商按照地区纬度、时间条件统计总数-->
@@ -157,37 +154,35 @@
     <!--查询代理供成单配件商品的总金额和全部总金额-->
     <select id="agencySupplierTotalAmountByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t7.name,
-            SUM(quote_unit_price) as total,
-            SUM(CASE t5.supplier_type
-                WHEN 'AGENCY' THEN quote_unit_price
+            o2.name,
+            SUM(IFNULL(t2.total_quote_price, 0)) AS total,
+            SUM(CASE
+                WHEN t1.proxy_flag = 'Y' THEN IFNULL(t2.total_quote_price, 0)
                 ELSE 0
-            END) as unitTotal
+            END) AS unitTotal
         FROM
-            erui_order.`order` t1,
-            erui_rfq.inquiry t2,
-            erui_rfq.final_quote t3,
-            erui_rfq.final_quote_item t4,
-            erui_supplier.supplier t5,
-            erui_operation.market_area_country t6,
-            erui_operation.market_area t7
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_operation.market_area_country o1 ON t1.country_bn = o1.country_bn
+                LEFT JOIN
+            erui_operation.market_area o2 ON o2.lang = 'zh'
+                AND o2.bn = o1.market_area_bn,
+            erui_rfq.final_quote t2,
+            (SELECT
+                inquiry_id AS log_inquiry_id
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id
+            HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
         WHERE
-            t1.inquiry_no = t2.serial_no
-                AND t2.id = t3.inquiry_id
-                AND t3.id = t4.quote_id
-                AND t4.supplier_id = t5.id
-                AND t5.country_bn = t6.country_bn
-                AND t7.bn = t6.market_area_bn
-                AND t1.delete_flag = 0
+            t1.id = t2.inquiry_id
                 AND t2.deleted_flag = 'N'
-                AND t3.deleted_flag = 'N'
-                AND t4.deleted_flag = 'N'
-                AND t5.deleted_flag = 'N'
-                AND t7.deleted_flag = 'N'
-                AND t7.lang = 'zh'
-                AND t5.`status` = 'APPROVED'
-                AND t1.create_time between #{startTime} AND #{endTime}
-        GROUP BY t7.name
+                AND t1.deleted_flag = 'N'
+                AND t1.`status` != 'DRAFT'
+                AND t3.log_inquiry_id = t1.id
+        GROUP BY o2.name
     </select>
 
     <!--查询询单失败列表，按照失败时间查询-->

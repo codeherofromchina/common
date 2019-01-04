@@ -68,16 +68,6 @@ public interface MemberInfoStatisticsMapper {
     List<Map<String, Object>> findAllNewMembershipByArea(Map<String, Object> params);
     List<Map<String, Object>> findAllNewMembershipByCountry(Map<String, Object> params);
 
-    /**
-     * 查找指定地区和客户的成单金额
-     *
-     * @param params
-     * @param regionBn
-     * @param crmCodes
-     * @return
-     */
-    BigDecimal findAmountByAreaAndCrm(@Param("params") Map<String, Object> params, @Param("region") String regionBn, @Param("crmCodes") List<String> crmCodes);
-    BigDecimal findAmountByCountryAndCrm(@Param("params") Map<String, Object> params, @Param("country") String countryBn, @Param("crmCodes") List<String> crmCodes);
 
     /**
      * 按照国家统计客户统计
