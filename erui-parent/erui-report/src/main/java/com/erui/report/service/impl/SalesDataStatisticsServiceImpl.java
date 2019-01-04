@@ -206,6 +206,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();

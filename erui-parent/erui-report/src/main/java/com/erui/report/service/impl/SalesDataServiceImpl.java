@@ -2,6 +2,9 @@ package com.erui.report.service.impl;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
+import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.SalesDataMapper;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
@@ -10,6 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Service;
@@ -419,6 +423,67 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         }
 
         return result;
+    }
+
+    /**
+     * 导出品类信息 - 询报价数据统计 - 品类、品类事业部、品类地区
+     * @param params
+     * @param analyzeType
+     * @return
+     */
+    @Override
+    public HSSFWorkbook exportSelectCategoryNum(Map<String, Object> params, String analyzeType) {
+        // 查询数据
+        Map<String, Object> data = null;
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
+            data = selectCategoryInquiryNum(params);
+        } else if (AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
+            data = selectCategoryQuoteAmount(params);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价数量
+            data = selectCategoryQuoteNum(params);
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
+            data = selectCategoryQuoteAmount(params);
+        }
+
+        // 组织数据
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
+            return null;
+        }
+
+        List<Object> headerList = (List<Object>) data.get("names");
+        headerList.add(0, "");
+        List<Object> row01 = (List<Object>) data.get("nums");
+
+        List<Object> row02 = new ArrayList<>();
+
+        Integer total = row01.parallelStream().map(vo -> (Integer) vo).reduce(0,(a, b) -> a + b);
+        for (Object obj:row01) {
+            if (total == 0 || total == null) {
+                row02.add(BigDecimal.ZERO);
+            } else {
+                row02.add(new BigDecimal(((Integer) obj).intValue() / total.intValue()).setScale(4, BigDecimal.ROUND_DOWN));
+            }
+        }
+        row01.add(0, "品类数量");
+        row02.add(0, "品类占比");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        // 生成excel并返回
+        String workbookName = "询报价数据统计-品类占比";
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                workbookName);
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, workbookName + "（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
     /**
@@ -966,7 +1031,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         //声明工作簿
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFCellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+        cellStyle.setAlignment(HorizontalAlignment.CENTER); //设置字体居中
 
         //生成一个表格
         XSSFSheet sheet = wb.createSheet("询报价事业部明细");

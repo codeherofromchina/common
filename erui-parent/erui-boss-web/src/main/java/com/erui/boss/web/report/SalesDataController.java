@@ -1,5 +1,6 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.HttpUtils;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
@@ -7,6 +8,7 @@ import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.ParamsUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -161,6 +163,8 @@ public class SalesDataController {
         return null;
     }
 
+
+
     /**
      * 询报价数据统计-事业部明细
      *
@@ -270,8 +274,39 @@ public class SalesDataController {
     }
 
 
+    /**
+     * 询报价数据统计- 品类比率
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/exportSelectCategoryNum", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> exportSelectCategoryNum(HttpServletResponse response,
+                                                  @RequestBody(required = true) Map<String, Object> params)
+            throws Exception {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String analyzeType = String.valueOf(params.get("type"));
+        HSSFWorkbook wb = salesDataService.exportSelectCategoryNum(params, analyzeType);
 
 
+        if (wb == null) {
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
+        }
+        try {
+            String fileName = "询报价数据统计-品类信息" + System.currentTimeMillis() + ".xls";
+            HttpUtils.setExcelResponseHeader(response, fileName.toString());
+            wb.write(response.getOutputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
     /**
