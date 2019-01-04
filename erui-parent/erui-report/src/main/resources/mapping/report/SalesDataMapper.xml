@@ -283,10 +283,10 @@
         AND t2.deleted_flag = 'N'
         AND t1.category IS NOT NULL
         AND t1.category != ''
-        <if test="areaBn!=null">
+        <if test="areaBn!=null and areaBn!=''">
             AND t2.area_bn = #{areaBn}
         </if>
-        <if test="orgId!=null">
+        <if test="orgId!=null and orgId!=''">
             AND t2.org_id = #{orgId}
         </if>
         AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING', 'BIZ_QUOTING', 'LOGI_DISPATCHING', 'LOGI_QUOTING', 'LOGI_APPROVING', 'BIZ_APPROVING', 'MARKET_APPROVING', 'MARKET_CONFIRMING', 'QUOTE_SENT', 'INQUIRY_CLOSED') UNION ALL SELECT
@@ -374,7 +374,7 @@
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        out_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
             HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
@@ -403,7 +403,7 @@
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        out_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
             HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
@@ -443,7 +443,7 @@
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        out_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
             HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
@@ -470,7 +470,7 @@
         FROM
         erui_rfq.inquiry_check_log
         WHERE
-        out_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
             HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
