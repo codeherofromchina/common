@@ -647,7 +647,8 @@ public class OrderServiceImpl implements OrderService {
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
-                        auditingUserId_i = "28107";
+                        //auditingUserId_i = "28107";
+                        auditingUserId_i = "39427";
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
