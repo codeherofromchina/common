@@ -895,7 +895,8 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        order.setFinancingCommissionerId(39535);
+        //order.setFinancingCommissionerId(39535);
+        order.setFinancingCommissionerId(39427);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1098,7 +1099,8 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        order.setFinancingCommissionerId(39535);
+        //order.setFinancingCommissionerId(39535);
+        order.setFinancingCommissionerId(39427);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
