@@ -20,6 +20,7 @@
         HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
         WHERE
         t1.id = t3.inquiry_id and t1.proxy_flag = 'Y' and t1.deleted_flag='N'
+        AND t1.`status` in ('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t2.`name` ORDER BY 2
         <if test="sort != 1" >
           DESC
@@ -56,6 +57,7 @@
                 AND t3.log_inquiry_id = t1.id
                 AND t4.id = t1.org_id
                 AND t4.deleted_flag = 'N'
+                AND t1.`status` in ('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t4.name
     </select>
 
@@ -78,6 +80,7 @@
         WHERE
         t1.id = t3.inquiry_id
         AND t1.proxy_flag = 'Y'
+        AND t1.`status` in ('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t2.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -116,6 +119,7 @@
                 AND t3.log_inquiry_id = t1.id
                 AND t1.country_bn = t4.bn
                 AND t4.lang = 'zh'
+                AND t1.`status` in ('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t4.name
     </select>
 
@@ -141,6 +145,7 @@
         WHERE
         t1.id = t4.inquiry_id
         AND t1.proxy_flag = 'Y'
+        AND t1.`status` in ('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY t3.`name`
         ORDER BY 2
         <if test="sort != 1" >
@@ -179,6 +184,7 @@
                 AND t1.deleted_flag = 'N'
                 AND t1.`status` != 'DRAFT'
                 AND t3.log_inquiry_id = t1.id
+                AND t1.`status` in ('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED')
         GROUP BY o2.name
     </select>
 
