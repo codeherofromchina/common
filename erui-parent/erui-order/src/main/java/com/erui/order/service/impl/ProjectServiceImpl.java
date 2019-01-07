@@ -1066,15 +1066,16 @@ public class ProjectServiceImpl implements ProjectService {
                     //userName = data.getString("name");
                     userNo = data.getString("user_no");
                     Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     if (!rejectFlag) {
                         stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + startTime + "");
+                                "" + sendTime + "");
                     } else {
-                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + startTime + "");
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime + "");
                     }
                     stringBuffer.append("&type=userNo");
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);

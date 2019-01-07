@@ -1441,14 +1441,15 @@ public class OrderServiceImpl implements OrderService {
                     userNo = data.getString("user_no");
                     //发送钉钉通知
                     Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
                     if (!rejectFlag) {
                         stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + startTime + "");
+                                "" + sendTime + "");
                     } else {
                         stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + startTime + "");
+                                "" + sendTime + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
