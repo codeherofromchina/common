@@ -164,6 +164,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             List<Object> names = new ArrayList<>();
             List<Object> countNums = new ArrayList<>();
             List<Object> rates = new ArrayList<>();
+            BigDecimal oneHundred = new BigDecimal(100);
             for (Map<String, Object> data : datas) {
                 Object name = data.get("name");
                 Map<String, Object> stringObjectMap = amountMapInfo.get(name);
@@ -173,7 +174,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
                     if (totalAmount == null || totalAmount.equals(BigDecimal.ZERO) || unitTotal == null || unitTotal.equals(BigDecimal.ZERO)) {
                         rates.add(0);
                     } else {
-                        rates.add(unitTotal.divide(totalAmount, 4, BigDecimal.ROUND_DOWN));
+                        rates.add(unitTotal.divide(totalAmount, 4, BigDecimal.ROUND_DOWN).multiply(oneHundred));
                     }
                 } else {
                     rates.add(0);
