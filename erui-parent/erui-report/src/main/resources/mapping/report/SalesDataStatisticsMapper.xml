@@ -15,7 +15,7 @@
         FROM
         erui_rfq.inquiry_check_log log
         WHERE
-        in_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
         WHERE
@@ -44,7 +44,7 @@
             FROM
                 erui_rfq.inquiry_check_log
             WHERE
-                in_node = 'MARKET_APPROVING'
+                out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id
             HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3,
             erui_sys.org t4
@@ -72,7 +72,7 @@
         FROM
         erui_rfq.inquiry_check_log log
         WHERE
-        in_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
         WHERE
@@ -104,7 +104,7 @@
             FROM
                 erui_rfq.inquiry_check_log
             WHERE
-                in_node = 'MARKET_APPROVING'
+                out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id
             HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3,
             erui_dict.country t4
@@ -135,7 +135,7 @@
         FROM
         erui_rfq.inquiry_check_log log
         WHERE
-        in_node = 'MARKET_APPROVING'
+        out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t4
         WHERE
@@ -170,7 +170,7 @@
             FROM
                 erui_rfq.inquiry_check_log
             WHERE
-                in_node = 'MARKET_APPROVING'
+                out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id
             HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
         WHERE
