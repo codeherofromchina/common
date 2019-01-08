@@ -81,7 +81,8 @@ public class CheckLogServiceImpl implements CheckLogService {
         if (orderId != null) {
             List<CheckLog> checkLogList = checkLogDao.findByOrderId(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
-                return checkLogList;
+                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).collect(Collectors.toList());
+                return collect;
             }
         }
         return null;
@@ -122,6 +123,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    cb.lessThanOrEqualTo(root.get("type").as(Integer.class),2);
                     return cb.equal(root.get("orderId").as(Integer.class), orderId);
                 }
             }, new Sort(Sort.Direction.DESC, "type", "auditingProcess"));

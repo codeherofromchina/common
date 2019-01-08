@@ -7,9 +7,8 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.service.AttachmentService;
-import com.erui.order.service.BackLogService;
-import com.erui.order.service.PurchService;
+import com.erui.order.service.*;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -53,6 +52,13 @@ public class PurchServiceImpl implements PurchService {
     private BackLogService backLogService;
     @Autowired
     private BackLogDao backLogDao;
+
+    @Autowired
+    private CheckLogDao checkLogDao;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private CheckLogService checkLogService;
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -166,6 +172,107 @@ public class PurchServiceImpl implements PurchService {
         return result;
     }
 
+    /**
+     * 采购订单审核项目操作
+     *
+     * @param purch
+     * @param auditorId
+     * @param paramPurch 参数项目
+     * @return
+     */
+    @Transactional
+    @Override
+    public boolean audit(Purch purch, String auditorId, String auditorName, Purch paramPurch) {
+        //@param rejectFlag true:驳回项目   false:审核项目
+        StringBuilder auditorIds = null;
+        if (purch.getAudiRemark() != null) {
+            auditorIds = new StringBuilder(purch.getAudiRemark());
+        } else {
+            auditorIds = new StringBuilder("");
+        }
+        boolean rejectFlag = "-1".equals(paramPurch.getAuditingType());
+        String reason = paramPurch.getAuditingReason();
+
+        //Order order = purch.getOrder();
+        // 获取当前审核进度
+        Integer auditingProcess = purch.getAuditingProcess();
+        Integer auditingUserId = purch.getAuditingUserId();
+        Integer curAuditProcess = null;
+        if (auditorId.equals(auditingUserId)) {
+            curAuditProcess = auditingProcess;
+        }
+        if (curAuditProcess == null) {
+            return false;
+        }
+        auditorIds.append("," + auditorId + ",");
+
+        // 定义最后处理结果变量，最后统一操作
+        Integer auditingStatus_i = 2; // 默认状态为审核中
+        Integer auditingProcess_i = null; // 项目审核当前进度
+        Integer auditingUserId_i = null; // 项目审核当前人
+        CheckLog checkLog_i = null; // 审核日志
+        if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
+            CheckLog checkLog = checkLogDao.findOne(paramPurch.getCheckLogId());
+            auditingStatus_i = 3;
+            if (checkLog.getType() == 3) {  // 驳回到采购订单办理
+                auditingProcess_i = checkLog.getAuditingProcess(); // 事业部利润核算 处理
+                auditingUserId_i = checkLog.getAuditingUserId(); // 要驳回给谁
+            }
+            // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
+            checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
+        } else {
+            switch (curAuditProcess) {
+                case 21: // 采购经办人审核核算
+                    auditingProcess_i = 22;
+                    auditingUserId_i = purch.getBusinessAuditerId();
+                    break;
+                case 22://商务技术经办人审核
+                 /*   List<Project> projects = purch.getProjects();
+                    Set<Integer> businessNames = new HashSet<>();
+                    if (projects.size()>1){
+                        for (Project project:projects) {
+                            businessNames.add(project.getBusinessUid());
+                        }
+                    } else {
+                        auditingProcess_i = 23;
+                        auditingUserId_i = purch.getLegalAuditerId();
+                    }*/
+                    auditingProcess_i = 23;
+                    auditingUserId_i = purch.getLegalAuditerId();
+                    break;
+                case 23://法务经办人审核
+                    auditingProcess_i = 24;
+                    auditingUserId_i = purch.getFinanceAuditerId();
+                    break;
+                case 24://财务经办人审核
+                    auditingProcess_i = 25;
+                    auditingUserId_i = purch.getBuVpAuditerId();
+                    break;
+                case 25://事业部vp审核
+                    if (purch.getTotalPrice()!=null&&purch.getTotalPrice().doubleValue()<=1000000){
+                        auditingProcess_i = 26;
+                        auditingUserId_i = purch.getChairmanId();
+                    }else {
+                        auditingProcess_i = null;
+                        auditingUserId_i = null;
+                    }
+                    break;
+                case 26://总裁审核
+                    auditingProcess_i = null;
+                    auditingUserId_i = null;
+                    break;
+                default:
+                    return false;
+            }
+            checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 2);
+        }
+        checkLogService.insert(checkLog_i);
+        purch.setAuditingStatus(auditingStatus_i);
+        purch.setAuditingProcess(auditingProcess_i);
+        purch.setAuditingUserId(auditingUserId_i);
+        purchDao.save(purch);
+        return true;
+    }
 
     /**
      * 根据条件分页查询采购单信息
@@ -362,13 +469,13 @@ public class PurchServiceImpl implements PurchService {
         }
         Purch save = purchDao.save(purch);
 
-        if(save.getStatus() == 2){
+        if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
-            Set<String>  projectNoSet = new HashSet<>();
-            if(projects.size() > 0){
-                for (Project project : projects){
+            Set<String> projectNoSet = new HashSet<>();
+            if (projects.size() > 0) {
+                for (Project project : projects) {
                     String projectNo = project.getProjectNo();
-                    if(projectNo != null){
+                    if (projectNo != null) {
                         projectNoSet.add(projectNo);
                     }
                 }
@@ -378,7 +485,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(purch.getPurchNo());  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id
@@ -668,13 +775,13 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setStatus(3);
         }
         Purch save = purchDao.save(dbPurch);
-        if(save.getStatus() == 2){
+        if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
-            Set<String>  projectNoSet = new HashSet<>();
-            if(projects.size() > 0){
-                for (Project project : projects){
+            Set<String> projectNoSet = new HashSet<>();
+            if (projects.size() > 0) {
+                for (Project project : projects) {
                     String projectNo = project.getProjectNo();
-                    if(projectNo != null){
+                    if (projectNo != null) {
                         projectNoSet.add(projectNo);
                     }
                 }
@@ -684,7 +791,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(dbPurch.getPurchNo());  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id

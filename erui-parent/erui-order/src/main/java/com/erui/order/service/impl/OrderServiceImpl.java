@@ -829,7 +829,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 处理日志
-    private CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+    @Override
+    public CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
                                       String auditingMsg, String operation, int type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setOrderId(orderId);
@@ -2707,7 +2708,7 @@ public class OrderServiceImpl implements OrderService {
                         String stringR6C502 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("        年      月      日", DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()));
                         sheet1.getRow(6).getCell(5).setCellValue(stringR6C502);
                     }
-                    //[{"text":"请选择","value":0},{"text":"发货后","value":4},{"text":"货到后","value":5},
+                    //[{"text":"请选择","value":0},{"text":"发货后","value":4},{"text":"货到后","value":5},git
                     // {"text":"提单日后","value":6},{"text":"交货后","value":7},{"text":"验收后","value":8}]
                     stringBuilder.append("预收货款：" + op.getMoney() + orderDec.getCurrencyBn() + " 收款日期：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()) + ";");
                 } else if (op.getType() == 4) {

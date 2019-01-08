@@ -1,8 +1,10 @@
 package com.erui.order.dao;
 
 import com.erui.order.entity.CheckLog;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
 import java.util.List;
