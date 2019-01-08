@@ -138,10 +138,11 @@ public class CheckLogServiceImpl implements CheckLogService {
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
         List<CheckLog> resultCheckLogs = new ArrayList<>();
+        Order order = null;
         if (orderId != null) {
             List<CheckLog> checkLogList = findListByOrderIdOrderByTypeAndAuditingProcess(orderId);
 //            List<CheckLog> checkLogList = findListByOrderIdOrderByCreateTimeDesc(orderId);
-            Order order = orderService.findById(orderId);
+            order = orderService.findById(orderId);
             Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态，如果为空说明没有任何审核进度
             if (orderAuditingStatus == null) {
                 return resultCheckLogs;
@@ -150,7 +151,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             // 通过项目和订单判断可以驳回到之前的步骤列表
             for (CheckLog checkLog : checkLogList) {
                 // 只查找通过和立项的审核
-                if (checkLog.getOperation() == "-1") {
+                if (StringUtils.equals("-1", checkLog.getOperation())) {
                     continue;
                 }
                 if (orderAuditingStatus == 4 && checkLog.getType() == 1) {
@@ -190,9 +191,12 @@ public class CheckLogServiceImpl implements CheckLogService {
         for (CheckLog cLog : resultCheckLogs) {
             if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
                 map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
-                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
             } else {
                 map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            }
+            map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            if (order.getAuditingProcess() != null && order.getAuditingProcess() == 8) {
+                map.remove(order.getAuditingProcess() + "_" + cLog.getType());
             }
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
@@ -211,14 +215,14 @@ public class CheckLogServiceImpl implements CheckLogService {
             if (orderAuditingStatus == null) {
                 return resultCheckLogs;
             }
-            if (order.getProject().getAuditingStatus() == 4 && order.getProject().getAuditingProcess() == null){
+            if (order.getProject().getAuditingStatus() == 4 && order.getProject().getAuditingProcess() == null) {
                 for (CheckLog checkLog : checkLogList) {
                     // 只查找通过和立项的审核
                     if (!checkLog.getOperation().equals("-1")) {
                         resultCheckLogs.add(checkLog);
                     }
                 }
-            }else {
+            } else {
                 return resultCheckLogs;
             }
             Map<String, CheckLog> map = new LinkedMap<>();
