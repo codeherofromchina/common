@@ -149,7 +149,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             // 通过项目和订单判断可以驳回到之前的步骤列表
             for (CheckLog checkLog : checkLogList) {
                 // 只查找通过和立项的审核
-                if (checkLog.getOperation() == "-1") {
+                if (StringUtils.equals("-1", checkLog.getOperation())) {
                     continue;
                 }
                 if (orderAuditingStatus == 4 && checkLog.getType() == 1) {
@@ -193,8 +193,7 @@ public class CheckLogServiceImpl implements CheckLogService {
                 map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
             }
             map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
-            if (order.getAuditingProcess() != null && order.getAuditingStatus() != null
-                    && order.getAuditingProcess() <= 8 && order.getAuditingStatus() == 2) {
+            if (order.getAuditingProcess() != null && order.getAuditingProcess() == 8) {
                 map.remove(order.getAuditingProcess() + "_" + cLog.getType());
             }
         }
