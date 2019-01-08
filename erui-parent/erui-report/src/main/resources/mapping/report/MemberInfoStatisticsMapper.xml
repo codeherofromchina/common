@@ -238,7 +238,7 @@
         0 AS inquiryNum,
         COUNT(1) AS orderNum
         FROM
-        erui_new_order.`order`, erui_new_order.`project`
+        erui_order.`order`, erui_order.`project`
         WHERE
         `order`.id = `project`.order_id
         AND `status` >= 3 AND `order`.delete_flag = 0
@@ -266,19 +266,20 @@
         FROM
         erui_rfq.inquiry as t1,
         (SELECT
-        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
+        inquiry_id AS log_inquiry_id
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
-        GROUP BY inquiry_id) as t4
+        GROUP BY inquiry_id
+        <if test="startTime!=null and startTime!=''">
+            HAVING MAX(out_at) BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ) as t4
         WHERE
         t4.log_inquiry_id = t1.id AND
         t1.deleted_flag = 'N'
         AND t1.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
-        <if test="startTime!=null and startTime!=''">
-            AND t4.log_create_at BETWEEN #{startTime} AND #{endTime}
-        </if>
         GROUP BY org_id) AS t1
         GROUP BY t1.org_id
         ORDER BY 1
@@ -298,11 +299,11 @@
         ELSE 0
         END) AS otherNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -326,11 +327,11 @@
         ELSE 0
         END) AS otherNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -354,11 +355,11 @@
         ELSE 0
         END) AS otherNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_sys.org t3 ON t1.business_unit_id = t3.id
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -376,11 +377,11 @@
             SUM(t1.total_price_usd) AS totalPriceUsd,
             (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
         FROM
-            erui_new_order.`order` AS t1
+            erui_order.`order` AS t1
                 LEFT JOIN
             erui_operation.market_area t3 ON t1.region = t3.bn AND t3.lang = 'zh'
                 AND t3.deleted_flag = 'N',
-            erui_new_order.`project` AS t2
+            erui_order.`project` AS t2
         WHERE
             t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -394,11 +395,11 @@
         SUM(t1.total_price_usd) AS totalPriceUsd,
         (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
         FROM
-        erui_new_order.`order` AS t1
+        erui_order.`order` AS t1
         LEFT JOIN
         erui_dict.country t3 ON t1.country = t3.bn AND t3.lang = 'zh'
         AND t3.deleted_flag = 'N',
-        erui_new_order.`project` AS t2
+        erui_order.`project` AS t2
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}

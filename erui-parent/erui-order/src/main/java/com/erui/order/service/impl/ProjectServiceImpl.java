@@ -1453,7 +1453,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDec.getBuAuditer() != null) {
             sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuAuditer());
         }
-        String stringR44C4 = sheet1.getRow(44).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：财务，田万全");
+        String stringR44C4 = sheet1.getRow(44).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：田万全");
         sheet1.getRow(44).getCell(4).setCellValue(stringR44C4);
         sheet1.getRow(7).getCell(4).setCellValue("");
     }

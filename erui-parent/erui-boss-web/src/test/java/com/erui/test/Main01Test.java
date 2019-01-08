@@ -14,7 +14,7 @@ public class Main01Test {
 
     private static String user = "root";
     private static String password = "HjuiGuo!Ji%gh";
-    private static String url = "jdbc:mysql://39.107.75.138:3306/erui_new_order?characterEncoding=utf-8";
+    private static String url = "jdbc:mysql://39.107.75.138:3306/erui_order?characterEncoding=utf-8";
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         List<String> tableNames = new ArrayList<>();

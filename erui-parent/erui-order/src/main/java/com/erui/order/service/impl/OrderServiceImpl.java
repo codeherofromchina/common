@@ -141,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             String distributionDeptName = null;
-            if (StringUtils.isNotBlank(order.getDistributionDeptName())){
+            if (StringUtils.isNotBlank(order.getDistributionDeptName())) {
                 distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
             }
             order.setDistributionDeptName(distributionDeptName);
@@ -692,6 +692,15 @@ public class OrderServiceImpl implements OrderService {
                                 contractNo = StringUtil.genContractNo02(lastContractNo);
                             }
                         }
+                    } else if (order.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())
+                            && StringUtils.isBlank(order.getContractNo())) {
+                        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                        String lastContractNo = orderDao.findLastContractNo(prefix);
+                        if (StringUtils.isBlank(lastContractNo)) {
+                            contractNo = StringUtil.genContractNo(null);
+                        } else {
+                            contractNo = StringUtil.genContractNo(lastContractNo);
+                        }
                     } else {
                         contractNo = addOrderVo.getContractNo();
                     }
@@ -856,6 +865,11 @@ public class OrderServiceImpl implements OrderService {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
+        } else if (order.getOrderCategory() != null && order.getOrderCategory() == 6
+                && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
+                && !StringUtils.equals(order.getSigningCo(), addOrderVo.getSigningCo())) {
+            order.setContractNo("");
+
         }
         addOrderVo.copyBaseInfoTo(order);
         // 处理附件信息
@@ -1886,14 +1900,12 @@ public class OrderServiceImpl implements OrderService {
                 Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
                 oc.setCreateTime(createDate);
             }
-            oc.setBusinessUnitId(9970);
             oc.setAuditingProcess(null);
             oc.setAuditingStatus(4);
             if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum() > 2) {
-                oc.setProcessProgress("SHIPED");
+                oc.setProcessProgress("9");
                 oc.setStatus(4);
             } else {
-                oc.setProcessProgress("EXECUTING");
                 oc.setStatus(3);
             }
             oc.setDeleteFlag(Boolean.FALSE);
@@ -1960,9 +1972,9 @@ public class OrderServiceImpl implements OrderService {
             if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
             }
+
             if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
-            } else {
                 project.setRegion("");
             }
 
@@ -1980,10 +1992,10 @@ public class OrderServiceImpl implements OrderService {
             }
             project.setProjectStatus(strArr[50]);
             if (Project.ProjectStatusEnum.fromCode(project.getProjectStatus()).getNum() > 2) {
-                project.setProcessProgress("SHIPED");
+                project.setProcessProgress("9");
                 project.setPurchDone(true);
             } else {
-                project.setProcessProgress("EXECUTING");
+                project.setProcessProgress("2");
                 project.setPurchDone(false);
             }
             if (strArr[51] != null) {
