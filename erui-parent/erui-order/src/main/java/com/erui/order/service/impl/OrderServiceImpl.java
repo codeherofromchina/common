@@ -1443,6 +1443,7 @@ public class OrderServiceImpl implements OrderService {
                     stringBuffer.append("type=userNo");
                     stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                             "" + startTime + "");
+
                     stringBuffer.append("&toUser=").append(userNo);
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();
