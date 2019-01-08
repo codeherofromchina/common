@@ -647,8 +647,7 @@ public class OrderServiceImpl implements OrderService {
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
-                        //auditingUserId_i = "28107";
-                        auditingUserId_i = "39427";
+                        auditingUserId_i = "28107";
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
@@ -661,8 +660,7 @@ public class OrderServiceImpl implements OrderService {
                     //根据订单金额判断 填写审批人级别
                     //国家负责人审核完成交给法务审核
                     auditingProcess_i = "8";
-                    //auditingUserId_i = "28107";
-                    auditingUserId_i = "39427";
+                    auditingUserId_i = "28107";
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107
@@ -897,8 +895,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        //order.setFinancingCommissionerId(39535);
-        order.setFinancingCommissionerId(39427);
+        order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1101,8 +1098,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        //order.setFinancingCommissionerId(39535);
-        order.setFinancingCommissionerId(39427);
+        order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -2626,7 +2622,12 @@ public class OrderServiceImpl implements OrderService {
         //销售合同号
         if (orderDec.getContractNo() != null) {
             String stringR2C6 = sheet1.getRow(2).getCell(9).getStringCellValue().replace("法律事务部取号", orderDec.getContractNo());
-            sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
+            //销售合同号后 添加框架协议号20190108上线
+            if (orderDec.getFrameworkNo() != null) {
+                sheet1.getRow(3).getCell(2).setCellValue(stringR2C6 + "/框架协议号:" + orderDec.getFrameworkNo());
+            } else {
+                sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
+            }
         }
         //客户代码
         if (orderDec.getCrmCode() != null) {
