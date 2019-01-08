@@ -187,15 +187,15 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         Map<String, CheckLog> map = new LinkedMap<>();
         for (CheckLog cLog : resultCheckLogs) {
-                if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
-                    map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
-                } else {
-                    map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
-                }
+            if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
                 map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
-                if (order.getAuditingProcess() != null && order.getAuditingProcess() == 8) {
-                    map.remove(order.getAuditingProcess() + "_" + cLog.getType());
-                }
+            } else {
+                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            }
+            map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            if (order.getAuditingProcess() != null && order.getAuditingProcess() == 8) {
+                map.remove(order.getAuditingProcess() + "_" + cLog.getType());
+            }
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
         List<CheckLog> collect = cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
