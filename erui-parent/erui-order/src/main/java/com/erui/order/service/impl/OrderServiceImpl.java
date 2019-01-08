@@ -823,7 +823,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(null);
         }
         order.setAuditingUserId(auditingUserId_i);
-        sendDingtalk(order, auditingUserId_i);
+        sendDingtalk(order, auditingUserId_i, rejectFlag);
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
@@ -988,7 +988,7 @@ public class OrderServiceImpl implements OrderService {
             //销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
             //钉钉通知回款责任人审批
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString());
+            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(),false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
@@ -1174,7 +1174,7 @@ public class OrderServiceImpl implements OrderService {
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
             //钉钉通知回款责任人审批人
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString());
+            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(),false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
@@ -1405,7 +1405,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //销售订单钉钉通知 审批人
-    public void sendDingtalk(Order order, String user) throws Exception {
+    public void sendDingtalk(Order order, String user, boolean rejectFlag) throws Exception {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -1438,10 +1438,17 @@ public class OrderServiceImpl implements OrderService {
                     userNo = data.getString("user_no");
                     //发送钉钉通知
                     Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
+                    String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
-                    stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                            "" + startTime + "");
+                    if (!rejectFlag) {
+                        stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    } else {
+                        stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }
                     stringBuffer.append("&toUser=").append(userNo);
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();
@@ -2616,7 +2623,12 @@ public class OrderServiceImpl implements OrderService {
         //销售合同号
         if (orderDec.getContractNo() != null) {
             String stringR2C6 = sheet1.getRow(2).getCell(9).getStringCellValue().replace("法律事务部取号", orderDec.getContractNo());
-            sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
+            //销售合同号后 添加框架协议号20190108上线
+            if (orderDec.getFrameworkNo() != null) {
+                sheet1.getRow(3).getCell(2).setCellValue(stringR2C6 + "/框架协议号:" + orderDec.getFrameworkNo());
+            } else {
+                sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
+            }
         }
         //客户代码
         if (orderDec.getCrmCode() != null) {

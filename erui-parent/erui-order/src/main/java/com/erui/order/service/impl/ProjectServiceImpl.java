@@ -445,8 +445,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全*/
         projectUpdate.setAuditingProcess("13"); // 3.财务审核
         projectUpdate.setAuditingUserId("39552"); // 田万全
-        sendDingtalk(projectUpdate.getOrder(), "31025");
-        sendDingtalk(projectUpdate.getOrder(), "39552");
+        sendDingtalk(projectUpdate.getOrder(), "31025", false);
+        sendDingtalk(projectUpdate.getOrder(), "39552", false);
         projectUpdate.setAuditingStatus(2); // 审核中
     }
 
@@ -1031,7 +1031,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     //钉钉通知 审批人
-    private void sendDingtalk(Order order, String user) {
+    private void sendDingtalk(Order order, String user, boolean rejectFlag) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -1062,11 +1062,18 @@ public class ProjectServiceImpl implements ProjectService {
                     //userName = data.getString("name");
                     userNo = data.getString("user_no");
                     Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
+                    String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
-                    stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                            "" + startTime + "");
+                    if (!rejectFlag) {
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    } else {
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }
                     stringBuffer.append("&type=userNo");
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
                     Long endTime = System.currentTimeMillis();
@@ -1274,7 +1281,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         project.setAuditingProcess(auditingProcess_i);
         project.setAuditingUserId(auditingUserId_i);
-        sendDingtalk(project.getOrder(), auditingUserId_i);
+        sendDingtalk(project.getOrder(), auditingUserId_i, rejectFlag);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
         return true;
