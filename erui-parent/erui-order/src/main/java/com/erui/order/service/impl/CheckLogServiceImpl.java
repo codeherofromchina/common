@@ -197,6 +197,9 @@ public class CheckLogServiceImpl implements CheckLogService {
                     && order.getAuditingProcess() <= 8 && order.getAuditingStatus() == 2) {
                 map.remove(order.getAuditingProcess() + "_" + cLog.getType());
             }
+            if (StringUtils.equals("-1",cLog.getOperation())){
+                map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
+            }
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
         List<CheckLog> collect = cList.stream().sorted(Comparator.comparing(CheckLog::getCreateTime).reversed()).collect(Collectors.toList());
@@ -231,6 +234,9 @@ public class CheckLogServiceImpl implements CheckLogService {
                     map.put(cLog.getAuditingProcess().toString(), cLog);
                 } else {
                     map.put(cLog.getAuditingProcess().toString(), cLog);
+                }
+                if (StringUtils.equals("-1",cLog.getOperation())){
+                    map.remove(cLog.getAuditingProcess());
                 }
             }
             List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
