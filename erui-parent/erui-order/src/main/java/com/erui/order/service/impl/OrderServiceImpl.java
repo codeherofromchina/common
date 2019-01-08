@@ -1443,14 +1443,15 @@ public class OrderServiceImpl implements OrderService {
                     //发送钉钉通知
                     Long startTime = System.currentTimeMillis();
                     Date sendTime = new Date(startTime);
+                    String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
                     if (!rejectFlag) {
                         stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + sendTime + "");
+                                "" + sendTime02 + "");
                     } else {
                         stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + sendTime + "");
+                                "" + sendTime02 + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
