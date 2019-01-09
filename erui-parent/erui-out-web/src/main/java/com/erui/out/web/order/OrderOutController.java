@@ -169,5 +169,16 @@ public class OrderOutController {
         }
         return result;
     }
+    /**
+     * 确认订单
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "orderTest", method = RequestMethod.GET)
+    public String orderTest() {
+        String name = "orderTest";
+        return name;
+    }
 
 }
