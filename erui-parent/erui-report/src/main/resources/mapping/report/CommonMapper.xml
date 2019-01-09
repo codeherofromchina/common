@@ -54,4 +54,16 @@
             t1.lang = 'zh' AND t1.deleted_flag = 'N'
                 AND t1.bn = #{countryBn}
     </select>
+
+
+    <!--国家编码查找国家名称和地区信息-->
+    <select id="findAreaInfoByBn" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+        t1.region_bn AS areaBn,
+        t2.`name` AS areaName
+        FROM
+        erui_operation.market_area AS t1
+        WHERE
+        t1.bn=#{areaBn} AND t1.lang = 'zh'
+    </select>
 </mapper>

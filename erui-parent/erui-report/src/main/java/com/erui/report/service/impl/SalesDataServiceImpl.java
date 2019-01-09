@@ -6,6 +6,7 @@ import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.SalesDataMapper;
+import com.erui.report.service.CommonService;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.SetList;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 @Service
 public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implements SalesDataService {
 
+    @Autowired
+    private CommonService commonService;
 
     @Override
     public Map<String, Object> selectInqQuoteTrendData(Map<String, String> params) throws Exception {
@@ -476,8 +480,27 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         rowList.add(row01.toArray());
         rowList.add(row02.toArray());
 
+        String orgId = (String) params.get("orgId");
+        String areaBn = (String) params.get("areaBn");
+        String latitudeName = "";
+        if (StringUtils.isNotBlank(orgId) && StringUtils.isNumeric(orgId)) {
+            Map<String, Object> orgInfo = commonService.findOrgInfoById(Integer.parseInt(orgId));
+            latitudeName = "-事业部";
+            if (orgInfo.get("orgName") != null) {
+                String orgName = (String) orgInfo.get("orgName");
+                latitudeName += "-" + orgName;
+            }
+        } else if (StringUtils.isNotBlank(areaBn)) {
+            latitudeName = "-地区";
+            Map<String, Object> orgInfo = commonService.findAreaInfoByBn(areaBn);
+            if (orgInfo.get("areaName") != null) {
+                String areaName = (String) orgInfo.get("areaName");
+                latitudeName += "-" + areaName;
+            }
+        }
+
         // 生成excel并返回
-        String workbookName = "询报价数据统计-品类占比";
+        String workbookName = "询报价数据统计-品类占比" + latitudeName;
         BuildExcel buildExcel = new BuildExcelImpl();
         HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
                 workbookName);

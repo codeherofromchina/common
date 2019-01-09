@@ -4,11 +4,11 @@ import com.erui.boss.web.util.HttpUtils;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.ParamsUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -307,8 +307,15 @@ public class SalesDataController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
+        String latitudeName = "";
+        if (StringUtils.isNotBlank(orgId)) {
+            latitudeName = "-事业部";
+        } else if (StringUtils.isNotBlank(areaBn)) {
+            latitudeName = "-地区";
+        }
+
         try {
-            String fileName = "询报价数据统计-品类信息" + System.currentTimeMillis() + ".xls";
+            String fileName = "询报价数据统计-品类信息" + latitudeName + System.currentTimeMillis() + ".xls";
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
         } catch (Exception e) {
