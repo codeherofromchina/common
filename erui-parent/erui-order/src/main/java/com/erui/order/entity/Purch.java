@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.order.service.impl.OrderServiceImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -197,6 +198,33 @@ public class Purch {
     @Transient
     private Integer checkLogId;
 
+    @Column(name = "supply_area")
+    private String supplyArea;
+
+    @Column(name = "contract_version")
+    private String contractVersion;
+
+    @Column(name = "goal_cost")
+    private BigDecimal goalCost;
+
+    @Column(name = "save_amount")
+    private BigDecimal saveAmount;
+
+    @Column(name = "save_mode")
+    private String saveMode;
+
+    @Column(name = "price_mode")
+    private String priceMode;
+
+    @Column(name = "contract_tag")
+    private String contractTag;
+
+    @Column(name = "profit_percent")
+    private BigDecimal profitPercent;
+
+    @Column(name = "tax_bearing")
+    private Integer taxBearing;
+
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "purch_project",
@@ -223,6 +251,88 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+    @Transient
+    private List<String> projectTeachcal = new ArrayList<>();
+
+    public String getSupplyArea() {
+        return supplyArea;
+    }
+
+    public void setSupplyArea(String supplyArea) {
+        this.supplyArea = supplyArea;
+    }
+
+    public String getContractVersion() {
+        return contractVersion;
+    }
+
+    public void setContractVersion(String contractVersion) {
+        this.contractVersion = contractVersion;
+    }
+
+    public BigDecimal getGoalCost() {
+        return goalCost;
+    }
+
+    public void setGoalCost(BigDecimal goalCost) {
+        this.goalCost = goalCost;
+    }
+
+    public BigDecimal getSaveAmount() {
+        return saveAmount;
+    }
+
+    public void setSaveAmount(BigDecimal saveAmount) {
+        this.saveAmount = saveAmount;
+    }
+
+    public String getSaveMode() {
+        return saveMode;
+    }
+
+    public void setSaveMode(String saveMode) {
+        this.saveMode = saveMode;
+    }
+
+    public String getPriceMode() {
+        return priceMode;
+    }
+
+    public void setPriceMode(String priceMode) {
+        this.priceMode = priceMode;
+    }
+
+    public String getContractTag() {
+        return contractTag;
+    }
+
+    public void setContractTag(String contractTag) {
+        this.contractTag = contractTag;
+    }
+
+    public BigDecimal getProfitPercent() {
+        return profitPercent;
+    }
+
+    public void setProfitPercent(BigDecimal profitPercent) {
+        this.profitPercent = profitPercent;
+    }
+
+    public Integer getTaxBearing() {
+        return taxBearing;
+    }
+
+    public void setTaxBearing(Integer taxBearing) {
+        this.taxBearing = taxBearing;
+    }
+
+    public List<String> getProjectTeachcal() {
+        return projectTeachcal;
+    }
+
+    public void setProjectTeachcal(List<String> projectTeachcal) {
+        this.projectTeachcal = projectTeachcal;
+    }
 
     public Integer getAuditingProcess() {
         return auditingProcess;
@@ -792,6 +902,29 @@ public class Purch {
         this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
         this.setAccountDate(purch.getAccountDate()); // 挂账时间
         this.setRemarks(purch.getRemarks()); // 备注
+        this.setPurchAuditerId(purch.getPurchAuditerId());
+        this.setPurchAuditer(purch.getPurchAuditer());
+        this.setBusinessAuditerId(purch.getBusinessAuditerId());
+        this.setBusinessAuditer(purch.getBusinessAuditer());
+        this.setFinanceAuditerId(purch.getFinanceAuditerId());
+        this.setFinanceAuditer(purch.getFinanceAuditer());
+        this.setLegalAuditerId(purch.getLegalAuditerId());
+        this.setLegalAuditer(purch.getLegalAuditer());
+        this.setBusinessAuditerId(purch.getBusinessAuditerId());
+        this.setBusinessAuditer(purch.getBusinessAuditer());
+        if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
+            this.setChairmanId(purch.getChairmanId());
+            this.setChairman(purch.getChairman());
+        }
+        this.setSupplyArea(purch.getSupplyArea());
+        this.setContractVersion(purch.getContractVersion());
+        this.setContractTag(purch.getContractTag());
+        this.setGoalCost(purch.getGoalCost());
+        this.setSaveAmount(purch.getSaveAmount());
+        this.setSaveMode(purch.getSaveMode());
+        this.setPriceMode(purch.getPriceMode());
+        this.setTaxBearing(purch.getTaxBearing());
+        this.setProfitPercent(purch.getProfitPercent());
         if (this.createUserId == null) {
             this.setCreateUserId(purch.getCreateUserId());
             this.setCreateUserName(purch.getCreateUserName());

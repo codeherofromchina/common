@@ -86,11 +86,13 @@ public class PurchServiceImpl implements PurchService {
                 }
             }
             List<String> projectNoList = new ArrayList<>();
+            List<String> teachcals = new ArrayList<>();
             for (Project p : puch.getProjects()) {
                 projectNoList.add(p.getProjectNo());
+                teachcals.add(p.getBusinessUid().toString());
             }
             puch.setProjectNos(StringUtils.join(projectNoList, ","));
-
+            puch.setProjectTeachcal(teachcals);
             return puch;
         }
         return null;
@@ -193,7 +195,6 @@ public class PurchServiceImpl implements PurchService {
         boolean rejectFlag = "-1".equals(paramPurch.getAuditingType());
         String reason = paramPurch.getAuditingReason();
 
-        //Order order = purch.getOrder();
         // 获取当前审核进度
         Integer auditingProcess = purch.getAuditingProcess();
         Integer auditingUserId = purch.getAuditingUserId();
@@ -212,12 +213,10 @@ public class PurchServiceImpl implements PurchService {
         Integer auditingUserId_i = null; // 项目审核当前人
         CheckLog checkLog_i = null; // 审核日志
         if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
-            CheckLog checkLog = checkLogDao.findOne(paramPurch.getCheckLogId());
             auditingStatus_i = 3;
-            if (checkLog.getType() == 3) {  // 驳回到采购订单办理
-                auditingProcess_i = checkLog.getAuditingProcess(); // 事业部利润核算 处理
-                auditingUserId_i = checkLog.getAuditingUserId(); // 要驳回给谁
-            }
+            // 驳回到采购订单办理
+            auditingProcess_i = 20; //驳回到采购订单 处理
+            auditingUserId_i = purch.getCreateUserId(); // 要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
@@ -249,15 +248,17 @@ public class PurchServiceImpl implements PurchService {
                     auditingUserId_i = purch.getBuVpAuditerId();
                     break;
                 case 25://事业部vp审核
-                    if (purch.getTotalPrice()!=null&&purch.getTotalPrice().doubleValue()<=1000000){
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {
                         auditingProcess_i = 26;
                         auditingUserId_i = purch.getChairmanId();
-                    }else {
+                    } else {
+                        auditingStatus_i = 4; // 完成
                         auditingProcess_i = null;
                         auditingUserId_i = null;
                     }
                     break;
                 case 26://总裁审核
+                    auditingStatus_i = 4; // 完成
                     auditingProcess_i = null;
                     auditingUserId_i = null;
                     break;
@@ -267,6 +268,9 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 2);
         }
         checkLogService.insert(checkLog_i);
+        if (!purch.getAuditingType().equals("-1")) {
+            purch.setAuditingStatus(auditingStatus_i);
+        }
         purch.setAuditingStatus(auditingStatus_i);
         purch.setAuditingProcess(auditingProcess_i);
         purch.setAuditingUserId(auditingUserId_i);
@@ -467,8 +471,21 @@ public class PurchServiceImpl implements PurchService {
         if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             purch.setStatus(3);
         }
-        Purch save = purchDao.save(purch);
+        // 采购审批添加部分
+        if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
+            purch.setAuditingStatus(1);
+        } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            purch.setAuditingProcess(21);
+            purch.setAuditingStatus(2);
+            purch.setAuditingUserId(purch.getPurchAuditerId());
+        }
+        CheckLog checkLog_i = null;//审批流日志
 
+        Purch save = purchDao.save(purch);
+        if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            checkLog_i = orderService.fullCheckLogInfo(save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
+        }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
             Set<String> projectNoSet = new HashSet<>();
@@ -774,7 +791,21 @@ public class PurchServiceImpl implements PurchService {
         if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }
+        // 采购审批添加部分
+        if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
+            purch.setAuditingStatus(1);
+        } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            purch.setAuditingProcess(21);
+            purch.setAuditingStatus(2);
+            purch.setAuditingUserId(purch.getPurchAuditerId());
+        }
+        CheckLog checkLog_i = null;//审批流日志
+
         Purch save = purchDao.save(dbPurch);
+        if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            checkLog_i = orderService.fullCheckLogInfo(save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
+        }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
             Set<String> projectNoSet = new HashSet<>();

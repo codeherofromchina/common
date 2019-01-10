@@ -154,7 +154,7 @@ public class PurchController {
      * @param purchParam orderId 要审核或驳回的项目ID
      * @return
      */
-    @RequestMapping(value = "auditOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "auditPurch", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> auditOrder(HttpServletRequest request, @RequestBody Purch purchParam) throws Exception {
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -162,7 +162,7 @@ public class PurchController {
         String reason = purchParam.getAuditingReason(); // 驳回原因
         String type = purchParam.getAuditingType(); // 驳回or审核
         Integer checkLogId = purchParam.getCheckLogId();
-        // 判断订单是否存在，
+        // 判断采购订单是否存在
         Purch purch = purchService.findDetailInfo(purchId);
         if (purch == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
