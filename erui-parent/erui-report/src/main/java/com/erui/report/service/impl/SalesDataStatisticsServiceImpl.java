@@ -405,7 +405,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         headerList.add(0, "");
         List<Object> row1 = map.get("costTimes");
         row1.add(0, "平均报价时间（小时）");
-        List<Object> row2 = map.get("costTimes");
+        List<Object> row2 = map.get("clarifyTimes");
         row2.add(0, "澄清时间（小时）");
 
 
@@ -420,7 +420,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
                 "询报价统计-报价用时");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "询报价统计-报价用时（" + params.get("startTime") + "-" + params.get("endTime") + "）");
