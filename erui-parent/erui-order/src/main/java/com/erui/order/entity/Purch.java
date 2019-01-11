@@ -254,6 +254,14 @@ public class Purch {
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
 
+    public BigDecimal getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(BigDecimal exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
     public String getSupplyArea() {
         return supplyArea;
     }
@@ -917,6 +925,7 @@ public class Purch {
         this.setPriceMode(purch.getPriceMode());
         this.setTaxBearing(purch.getTaxBearing());
         this.setProfitPercent(purch.getProfitPercent());
+        this.setExchangeRate(purch.getExchangeRate());
         if (this.createUserId == null) {
             this.setCreateUserId(purch.getCreateUserId());
             this.setCreateUserName(purch.getCreateUserName());
