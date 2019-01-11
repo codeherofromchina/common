@@ -1,8 +1,13 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -10,7 +15,10 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +38,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchServiceImpl implements PurchService {
+    private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -59,6 +68,10 @@ public class PurchServiceImpl implements PurchService {
     private OrderService orderService;
     @Autowired
     private CheckLogService checkLogService;
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+    @Value("#{orderProp[DING_SEND_SMS]}")
+    private String dingSendSms;  //发钉钉通知接口
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -273,8 +286,62 @@ public class PurchServiceImpl implements PurchService {
         purch.setAuditingStatus(auditingStatus_i);
         purch.setAuditingProcess(auditingProcess_i);
         purch.setAuditingUserId(auditingUserId_i);
+        if (auditingUserId_i != null) {
+            sendDingtalk(purch, auditingUserId_i.toString(), rejectFlag);
+        }
         purchDao.save(purch);
         return true;
+    }
+
+    //钉钉通知 审批人
+    private void sendDingtalk(Purch purch, String user, boolean rejectFlag) {
+        //获取token
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("发送短信的用户token:" + eruiToken);
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + user + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + userInfo);
+                //钉钉通知接口头信息
+                Map<String, String> header2 = new HashMap<>();
+                header2.put("Cookie", eruiToken);
+                header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                Integer code = jsonObject.getInteger("code");
+                String userNo = null;
+                String userName = null;  //商务经办人手机号
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //获取通知者姓名员工编号
+                    //userName = data.getString("name");
+                    userNo = data.getString("user_no");
+                    Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
+                    String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
+                    //发送钉钉通知
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append("toUser=").append(userNo);
+                    if (!rejectFlag) {
+                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请合同审批。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    } else {
+                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请的合同审核未通过。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }
+                    stringBuffer.append("&type=userNo");
+                    String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                    logger.info("发送钉钉通知返回状态" + s1);
+                }
+            }
+        }).start();
+
     }
 
     /**
