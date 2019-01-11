@@ -396,11 +396,13 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(Purch purch) throws Exception {
         Date now = new Date();
-        Long count = purchDao.findCountByPurchNo(purch.getPurchNo());
-        if (count != null && count > 0) {
+        String lastedByPurchNo = purchDao.findLastedByPurchNo();
+        Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
+        if (count != null && count > 1) {
             throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
         }
-        // 设置基础数据
+        // 设置基础数据 自动生成采购合同号
+        purch.setPurchNo(StringUtil.genPurchNo(lastedByPurchNo));
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);

@@ -683,6 +683,23 @@ public class StringUtil {
         }
         return prefix + beginNumStr;
     }
+    // 生成采购合同号
+    public static String genPurchNo(String oldDeliverConsignNo) {
+        String prefix = "YRC" + DateUtil.format("yyyy", new Date());
+        String beginNumStr = "0001";
+        if (StringUtils.isNotBlank(oldDeliverConsignNo) && oldDeliverConsignNo.length() == 11 &&
+                (oldDeliverConsignNo.substring(0, 7).compareTo(prefix) >= 0 )) {
+            String seq = oldDeliverConsignNo.substring(4);
+            long seqLong = Long.parseLong(seq);
+            seqLong += 1;
+            // 末尾从0001开始 TODO 月份可能提前跑到13，产品确认一个月100%不会超过9999单
+            if (seqLong % 10000 == 0) {
+                seqLong += 1;
+            }
+            return "YRC" + String.valueOf(seqLong);
+        }
+        return prefix + beginNumStr;
+    }
     /**
      * @return
      * @DESCRIPTION 生成自增四位流水号

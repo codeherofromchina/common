@@ -120,10 +120,10 @@ public class PurchController {
             errorMsg = "数据的状态不正确";
         }
         // 查看采购号是否存在
-        if (StringUtils.isBlank(purch.getPurchNo())) {
+       /* if (StringUtils.isBlank(purch.getPurchNo())) {
             continueFlag = false;
             errorMsg = "采购合同号不能为空";
-        }
+        }*/
 
 
         if (continueFlag) {
