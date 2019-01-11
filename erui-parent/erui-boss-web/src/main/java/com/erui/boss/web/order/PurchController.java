@@ -8,6 +8,7 @@ import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchGoods;
+import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
 import org.slf4j.Logger;
@@ -155,7 +156,7 @@ public class PurchController {
      * @return
      */
     @RequestMapping(value = "auditPurch", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditOrder(HttpServletRequest request, @RequestBody Purch purchParam) throws Exception {
+    public Result<Object> auditOrder(HttpServletRequest request, @RequestBody PurchParam purchParam) throws Exception {
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
         Integer purchId = purchParam.getId(); // 订单ID

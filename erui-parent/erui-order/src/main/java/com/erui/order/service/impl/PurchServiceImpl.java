@@ -12,6 +12,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
@@ -194,9 +195,9 @@ public class PurchServiceImpl implements PurchService {
      * @param paramPurch 参数项目
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean audit(Purch purch, String auditorId, String auditorName, Purch paramPurch) {
+    public boolean audit(Purch purch, String auditorId, String auditorName, PurchParam paramPurch) {
         //@param rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
         if (purch.getAudiRemark() != null) {
@@ -211,7 +212,7 @@ public class PurchServiceImpl implements PurchService {
         Integer auditingProcess = purch.getAuditingProcess();
         Integer auditingUserId = purch.getAuditingUserId();
         Integer curAuditProcess = null;
-        if (auditorId.equals(auditingUserId)) {
+        if (StringUtils.equals(auditorId,auditingUserId.toString())) {
             curAuditProcess = auditingProcess;
         }
         if (curAuditProcess == null) {
@@ -280,7 +281,7 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 2);
         }
         checkLogService.insert(checkLog_i);
-        if (!purch.getAuditingType().equals("-1")) {
+        if (!paramPurch.getAuditingType().equals("-1")) {
             purch.setAuditingStatus(auditingStatus_i);
         }
         purch.setAuditingStatus(auditingStatus_i);
@@ -289,6 +290,7 @@ public class PurchServiceImpl implements PurchService {
         if (auditingUserId_i != null) {
             sendDingtalk(purch, auditingUserId_i.toString(), rejectFlag);
         }
+        List<PurchGoods> purchGoodsList01 = purch.getPurchGoodsList();
         purchDao.save(purch);
         return true;
     }

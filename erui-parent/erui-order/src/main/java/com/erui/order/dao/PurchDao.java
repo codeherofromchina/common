@@ -23,6 +23,6 @@ public interface PurchDao extends JpaRepository<Purch, Serializable>, JpaSpecifi
     @Query("select count(t.purchNo) from Purch t where t.purchNo=:purchNo")
     Long findCountByPurchNo(@Param("purchNo") String purchNo);
 
-    @Query(value = "SELECT t.purch_no FROM purch t ORDER BY t.purch_no DESC LIMIT 1",nativeQuery=true)
+    @Query(value = "SELECT t.purch_no FROM purch t ORDER BY t.id DESC LIMIT 1",nativeQuery=true)
     String findLastedByPurchNo();
 }

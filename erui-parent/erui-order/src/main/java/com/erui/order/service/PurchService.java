@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchGoods;
+import com.erui.order.requestVo.PurchParam;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -51,5 +52,5 @@ public interface PurchService {
      */
     List<Map<String,Object>> listByOrderId(Integer orderId) throws Exception;
 
-    boolean audit(Purch purch, String s, String s1, Purch purchParam);
+    boolean audit(Purch purch, String s, String s1, PurchParam purchParam);
 }
