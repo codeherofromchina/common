@@ -96,6 +96,23 @@ public class ProjectServiceImpl implements ProjectService {
         return projects;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Integer> findByProjectNos(List<String> projectNos) {
+        List<Project> projects = null;
+        List<Integer> teachnalsList = new ArrayList<>();
+        if (projectNos != null && projectNos.size() > 0) {
+            projects = projectDao.findByProjectNoIn(projectNos);
+        }
+        if (projects!=null&&projects.size()>0){
+            for (Project p:projects) {
+                teachnalsList.add(p.getBusinessUid());
+            }
+            return teachnalsList;
+        }
+        return null;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) throws Exception {

@@ -92,7 +92,6 @@ public class PurchServiceImpl implements PurchService {
                 teachcals.add(p.getBusinessUid().toString());
             }
             puch.setProjectNos(StringUtils.join(projectNoList, ","));
-            puch.setProjectTeachcal(teachcals);
             return puch;
         }
         return null;
@@ -475,10 +474,10 @@ public class PurchServiceImpl implements PurchService {
         }
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-            purch.setAuditingStatus(1);
+            purch.setAuditingStatus(0);
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             purch.setAuditingProcess(21);
-            purch.setAuditingStatus(2);
+            purch.setAuditingStatus(1);
             purch.setAuditingUserId(purch.getPurchAuditerId());
         }
         CheckLog checkLog_i = null;//审批流日志
@@ -795,10 +794,10 @@ public class PurchServiceImpl implements PurchService {
         }
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-            purch.setAuditingStatus(1);
+            purch.setAuditingStatus(0);
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             purch.setAuditingProcess(21);
-            purch.setAuditingStatus(2);
+            purch.setAuditingStatus(1);
             purch.setAuditingUserId(purch.getPurchAuditerId());
         }
         CheckLog checkLog_i = null;//审批流日志

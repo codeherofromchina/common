@@ -251,8 +251,6 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
-    @Transient
-    private List<String> projectTeachcal = new ArrayList<>();
 
     public String getSupplyArea() {
         return supplyArea;
@@ -324,14 +322,6 @@ public class Purch {
 
     public void setTaxBearing(Integer taxBearing) {
         this.taxBearing = taxBearing;
-    }
-
-    public List<String> getProjectTeachcal() {
-        return projectTeachcal;
-    }
-
-    public void setProjectTeachcal(List<String> projectTeachcal) {
-        this.projectTeachcal = projectTeachcal;
     }
 
     public Integer getAuditingProcess() {
