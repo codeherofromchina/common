@@ -861,11 +861,11 @@ public class PurchServiceImpl implements PurchService {
         }
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-            purch.setAuditingStatus(0);
+            dbPurch.setAuditingStatus(0);
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            purch.setAuditingProcess(21);
-            purch.setAuditingStatus(1);
-            purch.setAuditingUserId(purch.getPurchAuditerId());
+            dbPurch.setAuditingProcess(21);
+            dbPurch.setAuditingStatus(1);
+            dbPurch.setAuditingUserId(purch.getPurchAuditerId());
         }
         CheckLog checkLog_i = null;//审批流日志
 
