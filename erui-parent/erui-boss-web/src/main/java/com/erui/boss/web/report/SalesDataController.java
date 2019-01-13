@@ -1,12 +1,15 @@
 package com.erui.boss.web.report;
 
+import com.erui.boss.web.util.HttpUtils;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtils;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.ParamsUtils;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -161,6 +164,8 @@ public class SalesDataController {
         return null;
     }
 
+
+
     /**
      * 询报价数据统计-事业部明细
      *
@@ -254,12 +259,12 @@ public class SalesDataController {
         String analyzeType = String.valueOf(params.get("type"));
         if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
             data = salesDataService.selectCategoryInquiryNum(params);
-        } else if (AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单金额
+        } else if (AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
             //data = salesDataService.selectCategoryInquiryAmount(params);
             data = salesDataService.selectCategoryQuoteAmount(params);
         } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价数量
             data = salesDataService.selectCategoryQuoteNum(params);
-        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
             data = salesDataService.selectCategoryQuoteAmount(params);
         }
 
@@ -268,6 +273,57 @@ public class SalesDataController {
         }
         return new Result<>(data);
     }
+
+
+    /**
+     * 导出询报价数据统计- 品类比率
+     *
+     * @return
+     */
+    @RequestMapping(value = "/exportSelectCategoryNum", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
+    public Result<Object> exportSelectCategoryNum(HttpServletResponse response,
+                                                  String startTime,
+                                                  String endTime,
+                                                  String type,
+                                                  String orgId,
+                                                  String areaBn)
+            throws Exception {
+        Map<String, Object> params = new HashMap();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("type", type);
+        params.put("orgId", orgId);
+        params.put("areaBn", areaBn);
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        HSSFWorkbook wb = salesDataService.exportSelectCategoryNum(params, type);
+
+
+        if (wb == null) {
+            response.setContentType("text/html;charset=UTF-8");
+            new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
+            return null;
+        }
+        String latitudeName = "";
+        if (StringUtils.isNotBlank(orgId)) {
+            latitudeName = "-事业部";
+        } else if (StringUtils.isNotBlank(areaBn)) {
+            latitudeName = "-地区";
+        }
+
+        try {
+            String fileName = "询报价数据统计-品类信息" + latitudeName + System.currentTimeMillis() + ".xls";
+            HttpUtils.setExcelResponseHeader(response, fileName.toString());
+            wb.write(response.getOutputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * 询报价数据统计- 导出品类明细

@@ -49,14 +49,14 @@ public interface WeeklyReportService {
      * @param params
      * @return
      */
-    Map<String,Object> selectOrderInfoGroupByArea(Map<String, Object> params);
+    Map<String, Object> selectOrderInfoGroupByArea(Map<String, Object> params);
 
     /**
      * 查询各个事业部时间端内的询单数量
      * @param params
      * @return
      */
-    Map<String,Object> selectInqNumGroupByOrg(Map<String, Object> params);
+    Map<String, Object> selectInqNumGroupByOrg(Map<String, Object> params);
 
     /**
      * 查询各个事业部时间段的报价数量、金额（万美元）、用时信息

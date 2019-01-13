@@ -201,6 +201,61 @@
     </select>
 
 
+    <!--按照地区查找新增客户-->
+    <select id="findAllNewMembershipByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            COUNT(DISTINCT crm_code) AS totalNum,
+            SUM(total_price_usd)/1000 AS totalPrice,
+            region_bn,
+            region_name
+        FROM
+            (SELECT
+                t1.crm_code,
+                    t1.region AS region_bn,
+                    t3.`name` AS region_name,
+                    t1.total_price_usd
+            FROM
+                erui_order.`order` t1, erui_order.project t2, erui_operation.market_area t3, erui_buyer.buyer t4
+            WHERE
+                t1.id = t2.order_id
+                    AND t1.region = t3.bn
+                    AND t3.lang = 'zh'
+                    AND t1.crm_code = t4.buyer_code
+                    AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                    AND t2.start_date > t4.membership_time) AS t
+        GROUP BY region_bn , region_name order by 1 desc
+    </select>
+
+
+
+    <!--按照国家查找新增客户-->
+    <select id="findAllNewMembershipByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            COUNT(DISTINCT crm_code) AS totalNum,
+            SUM(total_price_usd) / 1000 AS totalPrice,
+            country_bn,
+            country_name
+        FROM
+            (SELECT
+                t1.crm_code,
+                    t1.country AS country_bn,
+                    t3.`name` AS country_name,
+                    t1.total_price_usd
+            FROM
+                erui_order.`order` t1, erui_order.project t2, erui_dict.country t3, erui_buyer.buyer t4
+            WHERE
+                t1.id = t2.order_id
+                    AND t1.country = t3.bn
+                    AND t3.lang = 'zh'
+                    AND t1.crm_code = t4.buyer_code
+                    AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+                    AND t2.start_date > t4.membership_time) AS t
+        GROUP BY country_bn , country_name
+        ORDER BY 1 DESC
+        LIMIT 10
+    </select>
+
+
     <!-- 成单客户信息 -->
     <select id="singleCustomer" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT

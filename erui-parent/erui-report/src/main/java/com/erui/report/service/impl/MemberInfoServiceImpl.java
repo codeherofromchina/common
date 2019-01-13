@@ -201,11 +201,49 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    @Deprecated
     public Map<String, List<Object>> membershipByArea(Map<String, Object> params) {
         List<Map<String, Object>> membershipNumList = memberInfoStatisticsMapper.membershipByArea(params);
         Map<String, List<Object>> result = _handleVisitStatisticsData(membershipNumList);
         return result;
     }
+
+
+    /**
+     * 按地区统计新增会员
+     * 统计新增会员的成单金额
+     *
+     * @param params {"startTime":"2017-12-01","endTime":"2019-01-02","sort":2}
+     *               sort:1 正序  2 倒序
+     * @return
+     */
+    @Override
+    public Map<String, List<Object>> statisticsAddMembershipByArea(Map<String, Object> params) {
+        // 按地区查找所有新增会员
+        List<Map<String, Object>> newMenbersList = memberInfoStatisticsMapper.findAllNewMembershipByArea(params);
+
+        Map<String, List<Object>> result = new HashMap<>();
+        List<Object> names = new ArrayList<>(); // 地区名称
+        List<Object> nums = new ArrayList<>(); // 新增客户数量
+        List<Object> amounts = new ArrayList<>(); // 新增客户成单金额
+
+        newMenbersList.stream().forEach(vo -> {
+            Long totalNum = (Long) vo.get("totalNum");
+            BigDecimal totalPrice = (BigDecimal) vo.get("totalPrice");
+            String regionName = (String) vo.get("region_name");
+
+            names.add(regionName);
+            nums.add(totalNum);
+            amounts.add(totalPrice.setScale(2, BigDecimal.ROUND_DOWN));
+        });
+
+        result.put("names", names);
+        result.put("num", nums);
+        result.put("amount", amounts);
+
+        return result;
+    }
+
 
     @Override
     public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
@@ -233,11 +271,42 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     }
 
     @Override
+    @Deprecated
     public Map<String, List<Object>> membershipByCountry(Map<String, Object> params) {
         List<Map<String, Object>> membershipNumList = memberInfoStatisticsMapper.membershipByCountry(params);
         Map<String, List<Object>> result = _handleVisitStatisticsData(membershipNumList);
         return result;
     }
+
+
+    @Override
+    public Map<String, List<Object>> statisticsAddMembershipByCountry(Map<String, Object> params) {
+        // 按地区查找所有新增会员
+        List<Map<String, Object>> newMenbersList = memberInfoStatisticsMapper.findAllNewMembershipByCountry(params);
+
+        Map<String, List<Object>> result = new HashMap<>();
+
+        List<Object> names = new ArrayList<>(); // 国家名称
+        List<Object> nums = new ArrayList<>(); // 新增客户数量
+        List<Object> amounts = new ArrayList<>(); // 新增客户成单金额
+
+        newMenbersList.stream().forEach(vo -> {
+            Long totalNum = (Long) vo.get("totalNum");
+            BigDecimal totalPrice = (BigDecimal) vo.get("totalPrice");
+            String countryName = (String) vo.get("country_name");
+
+            names.add(countryName);
+            nums.add(totalNum);
+            amounts.add(totalPrice.setScale(2, BigDecimal.ROUND_DOWN));
+        });
+
+        result.put("names", names);
+        result.put("num", nums);
+        result.put("amount", amounts);
+
+        return result;
+    }
+
 
     @Override
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {

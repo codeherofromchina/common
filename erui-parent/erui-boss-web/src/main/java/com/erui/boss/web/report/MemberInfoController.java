@@ -65,11 +65,15 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportEfficiency")
-    public Result<Object> exportEfficiency(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
-        Map<String,Object> params = new HashMap<>();
-        params.put("startTime",startTime);
-        params.put("endTime",endTime);
-        params.put("sort",sort);
+    public Result<Object> exportEfficiency(HttpServletResponse response,
+                                           String type, String startTime,
+                                           String endTime,
+                                           Integer sort)
+            throws IOException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("sort", sort);
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
@@ -81,7 +85,7 @@ public class MemberInfoController {
         } else if ("2".equals(type)) { // 人均效能统计 - 国家统计
             wb = memberInfoService.exportEfficiencyByCountry(params);
         }
-        if (wb == null ) {
+        if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
@@ -114,7 +118,7 @@ public class MemberInfoController {
         if ("1".equals(type)) { // 事业部
             /// 按照事业部统计客户拜访统计
             data = memberInfoService.visitStatisticsByOrg(params);
-        } else if("2".equals(type)) { // 地区
+        } else if ("2".equals(type)) { // 地区
             // 按照地区统计客户拜访统计
             data = memberInfoService.visitStatisticsByArea(params);
         } else { // 国家
@@ -139,11 +143,12 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportVisitStatistics")
-    public Result<Object> exportVisitStatistics(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
-        Map<String,Object> params = new HashMap<>();
-        params.put("startTime",startTime);
-        params.put("endTime",endTime);
-        params.put("sort",sort);
+    public Result<Object> exportVisitStatistics(HttpServletResponse response, String type, String startTime, String endTime, Integer sort)
+            throws IOException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("sort", sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -156,7 +161,7 @@ public class MemberInfoController {
             /// 按照国家统计客户拜访统计
             wb = memberInfoService.exportVisitStatisticsByCountry(params);
         }
-        if (wb == null ) {
+        if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
@@ -174,11 +179,14 @@ public class MemberInfoController {
 
     /**
      * 会员统计
+     * 已废弃：逻辑修改为新增会员统计，见 statisticsAddMembership() 方法 - 2018-12-27
      *
      * @return
+     * @see MemberInfoController#statisticsAddMembership(Map)
      */
     @ResponseBody
     @RequestMapping(value = "membership", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    @Deprecated
     public Result<Object> membership(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -187,11 +195,42 @@ public class MemberInfoController {
         }
         String type = String.valueOf(params.get("type"));
         if ("1".equals(type)) { // 地区
-            /// 按照地区统计客户统计
+            /// 按照地区统计新增客户统计
             data = memberInfoService.membershipByArea(params);
         } else { // 国家
-            /// 按照国家统计客户统计
+            /// 按照国家统计新增客户统计
             data = memberInfoService.membershipByCountry(params);
+        }
+        Result<Object> result = new Result<>();
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
+    }
+
+
+    /**
+     * 新增会员统计
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "statisticsAddMembership", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> statisticsAddMembership(@RequestBody Map<String, Object> params) {
+        Map<String, List<Object>> data = null;
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = String.valueOf(params.get("type"));
+        if ("1".equals(type)) { // 地区
+            /// 按照地区统计客户统计
+            data = memberInfoService.statisticsAddMembershipByArea(params);
+        } else { // 国家
+            /// 按照国家统计客户统计
+            data = memberInfoService.statisticsAddMembershipByCountry(params);
         }
         Result<Object> result = new Result<>();
         if (data == null || data.size() == 0) {
@@ -209,11 +248,16 @@ public class MemberInfoController {
      */
     @ResponseBody
     @RequestMapping(value = "exportMembership")
-    public Result<Object> exportMembership(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
-        Map<String,Object> params = new HashMap<>();
-        params.put("startTime",startTime);
-        params.put("endTime",endTime);
-        params.put("sort",sort);
+    public Result<Object> exportMembership(HttpServletResponse response,
+                                           String type,
+                                           String startTime,
+                                           String endTime,
+                                           Integer sort)
+            throws IOException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("sort", sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -226,7 +270,7 @@ public class MemberInfoController {
             /// 按照国家统计客户统计
             wb = memberInfoService.exportMembershipByCountry(params);
         }
-        if (wb == null ) {
+        if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
@@ -249,7 +293,7 @@ public class MemberInfoController {
     @ResponseBody
     @RequestMapping(value = "membershipGrade", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> membershipGrade(@RequestBody Map<String, Object> params) {
-        Map<String, List<Object>> data = null;
+        Map<String, List<Object>> data;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -278,11 +322,16 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportMembershipGrade")
-    public Result<Object> exportMembershipGrade(HttpServletResponse response,String type,String startTime,String endTime,Integer sort) throws IOException {
-        Map<String,Object> params = new HashMap<>();
-        params.put("startTime",startTime);
-        params.put("endTime",endTime);
-        params.put("sort",sort);
+    public Result<Object> exportMembershipGrade(HttpServletResponse response,
+                                                String type,
+                                                String startTime,
+                                                String endTime,
+                                                Integer sort)
+            throws IOException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("sort", sort);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -295,7 +344,7 @@ public class MemberInfoController {
             /// 按照国家统计会员等级
             wb = memberInfoService.exportMembershipGradeByCountry(params);
         }
-        if (wb == null ) {
+        if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
@@ -353,10 +402,11 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportSigningBody")
-    public Result<Object> exportSigningBody(HttpServletResponse response,String type,String startTime,String endTime) throws IOException {
-        Map<String,Object> params = new HashMap<>();
-        params.put("startTime",startTime);
-        params.put("endTime",endTime);
+    public Result<Object> exportSigningBody(HttpServletResponse response, String type, String startTime, String endTime)
+            throws IOException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -372,7 +422,7 @@ public class MemberInfoController {
             /// 按照国家统计会员签约主体
             wb = memberInfoService.exportSigningBodyByCountry(params);
         }
-        if (wb == null ) {
+        if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
@@ -420,10 +470,10 @@ public class MemberInfoController {
      * @return
      */
     @RequestMapping(value = "exportSingleCustomer")
-    public Result<Object> exportSingleCustomer(HttpServletResponse response,String startTime,String endTime) throws IOException {
-        Map<String,Object> params = new HashMap<>();
-        params.put("startTime",startTime);
-        params.put("endTime",endTime);
+    public Result<Object> exportSingleCustomer(HttpServletResponse response, String startTime, String endTime) throws IOException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
         Map<String, Object> params02 = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params02 == null) {
             params.remove("startTime");
@@ -433,7 +483,7 @@ public class MemberInfoController {
         }
         HSSFWorkbook wb = memberInfoService.exportSingleCustomer(params);
 
-        if (wb == null ) {
+        if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
