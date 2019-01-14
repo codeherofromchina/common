@@ -56,4 +56,14 @@ public class CommonServiceImpl implements CommonService {
         }
         return countryInfo;
     }
+
+
+    @Override
+    public Map<String, Object> findAreaInfoByBn(String areaBn) {
+        Map<String, Object> areaInfo = commonMapper.findAreaInfoByBn(areaBn);
+        if (areaInfo == null) {
+            areaInfo = new HashMap<>();
+        }
+        return areaInfo;
+    }
 }

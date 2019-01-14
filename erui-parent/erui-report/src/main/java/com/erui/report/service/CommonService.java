@@ -10,34 +10,48 @@ public interface CommonService {
 
     /**
      * 事业部列表
+     *
      * @return
      */
-    public List<Map<String,Object>> orgList();
+    public List<Map<String, Object>> orgList();
 
     /**
      * 地区列表
+     *
      * @return
      */
-    public List<Map<String,Object>> areaList();
+    public List<Map<String, Object>> areaList();
 
     /**
      * 国家列表
-     * @param  {"areaBn":"地区编码"}
+     *
+     * @param {"areaBn":"地区编码"}
      * @return
      */
-    public List<Map<String,Object>> countryList(Map<String,Object> params);
+    public List<Map<String, Object>> countryList(Map<String, Object> params);
 
     /**
      * 通过事业部ID查询事业部信息
+     *
      * @param orgId
      * @return
      */
-    Map<String,Object> findOrgInfoById(Integer orgId);
+    Map<String, Object> findOrgInfoById(Integer orgId);
 
     /**
      * 通过国家编码查询国家信息
+     *
      * @param countryBn
      * @return
      */
-    Map<String,Object> findCountryInfoByBn(String countryBn);
+    Map<String, Object> findCountryInfoByBn(String countryBn);
+
+
+    /**
+     * 通过地区编码查询地区信息
+     *
+     * @param areaBn
+     * @return
+     */
+    Map<String, Object> findAreaInfoByBn(String areaBn);
 }

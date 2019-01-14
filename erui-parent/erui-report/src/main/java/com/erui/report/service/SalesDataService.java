@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Map;
@@ -128,4 +129,12 @@ public interface SalesDataService {
      * @return
      */
     XSSFWorkbook exportAreaDetail(Map<String, Object> params);
+
+    /**
+     * 导出品类信息 - 询报价数据统计 - 品类、品类事业部、品类地区
+     * @param params
+     * @param analyzeType
+     * @return
+     */
+    HSSFWorkbook exportSelectCategoryNum(Map<String, Object> params, String analyzeType);
 }
