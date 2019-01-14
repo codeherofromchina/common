@@ -1039,6 +1039,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
+            goods.setContractNo(order.getContractNo());
             goods.setMeteType(pGoods.getMeteType());
             goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());

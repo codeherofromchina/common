@@ -177,7 +177,7 @@ public class PurchController {
         }
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
-        if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
+        if (rejectFlag && (StringUtils.isBlank(reason))) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
         }
         // 判断通过，审核项目并返回是否审核成功
