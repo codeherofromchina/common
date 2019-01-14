@@ -240,16 +240,6 @@ public class PurchServiceImpl implements PurchService {
                     auditingUserId_i = purch.getBusinessAuditerId();
                     break;
                 case 22://商务技术经办人审核
-                    List<Project> projects = purch.getProjects();
-                    Set<Integer> businessNames = new HashSet<>();
-                    if (projects.size()>1){
-                        for (Project project:projects) {
-                            businessNames.add(project.getBusinessUid());
-                        }
-                    } else {
-                        auditingProcess_i = 23;
-                        auditingUserId_i = purch.getLegalAuditerId();
-                    }
                     auditingProcess_i = 23;
                     auditingUserId_i = purch.getLegalAuditerId();
                     break;
