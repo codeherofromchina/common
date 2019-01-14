@@ -190,14 +190,15 @@ public class PurchServiceImpl implements PurchService {
     /**
      * 采购订单审核项目操作
      *
-     * @param purch
+     * @param purchId
      * @param auditorId
      * @param paramPurch 参数项目
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean audit(Purch purch, String auditorId, String auditorName, PurchParam paramPurch) {
+    public boolean audit(Integer purchId, String auditorId, String auditorName, PurchParam paramPurch) {
+        Purch purch = purchDao.findOne(purchId);
         //@param rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
         if (purch.getAudiRemark() != null) {
@@ -239,7 +240,7 @@ public class PurchServiceImpl implements PurchService {
                     auditingUserId_i = purch.getBusinessAuditerId();
                     break;
                 case 22://商务技术经办人审核
-                 /*   List<Project> projects = purch.getProjects();
+                    List<Project> projects = purch.getProjects();
                     Set<Integer> businessNames = new HashSet<>();
                     if (projects.size()>1){
                         for (Project project:projects) {
@@ -248,7 +249,7 @@ public class PurchServiceImpl implements PurchService {
                     } else {
                         auditingProcess_i = 23;
                         auditingUserId_i = purch.getLegalAuditerId();
-                    }*/
+                    }
                     auditingProcess_i = 23;
                     auditingUserId_i = purch.getLegalAuditerId();
                     break;
@@ -290,7 +291,6 @@ public class PurchServiceImpl implements PurchService {
         if (auditingUserId_i != null) {
             sendDingtalk(purch, auditingUserId_i.toString(), rejectFlag);
         }
-        List<PurchGoods> purchGoodsList01 = purch.getPurchGoodsList();
         purchDao.save(purch);
         return true;
     }

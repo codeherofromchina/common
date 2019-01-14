@@ -52,5 +52,5 @@ public interface PurchService {
      */
     List<Map<String,Object>> listByOrderId(Integer orderId) throws Exception;
 
-    boolean audit(Purch purch, String s, String s1, PurchParam purchParam);
+    boolean audit(Integer purchId, String s, String s1, PurchParam purchParam);
 }
