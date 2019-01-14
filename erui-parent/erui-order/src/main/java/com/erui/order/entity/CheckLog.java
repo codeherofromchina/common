@@ -17,6 +17,11 @@ public class CheckLog {
      */
     @Column(name = "order_id")
     private Integer orderId;
+    /**
+     * 采购订单id
+     */
+    @Column(name = "purch_id")
+    private Integer purchId;
 
     @Transient
     private String processName;
@@ -73,6 +78,14 @@ public class CheckLog {
      * -- 1:订单  2：项目
      */
     private Integer type;
+
+    public Integer getPurchId() {
+        return purchId;
+    }
+
+    public void setPurchId(Integer purchId) {
+        this.purchId = purchId;
+    }
 
     /**
      * @return id

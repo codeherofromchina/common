@@ -4,11 +4,9 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Order;
-import com.erui.order.entity.Purch;
-import com.erui.order.entity.PurchGoods;
+import com.erui.order.entity.*;
 import com.erui.order.requestVo.PurchParam;
+import com.erui.order.service.CheckLogService;
 import com.erui.order.service.ProjectService;
 import com.erui.order.service.PurchService;
 import org.slf4j.Logger;
@@ -40,7 +38,7 @@ public class PurchController {
     @Autowired
     private PurchService purchService;
     @Autowired
-    private ProjectService projectService;
+    private CheckLogService checkLogService;
 
 
     /**
@@ -187,6 +185,7 @@ public class PurchController {
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }
+
     /**
      * 获取采购详情信息
      *
@@ -238,9 +237,9 @@ public class PurchController {
             if (purchGoodsList.stream().anyMatch(purchGoods -> {
                 return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
             })) {
-                data.put("inspected",Boolean.FALSE);
+                data.put("inspected", Boolean.FALSE);
             } else {
-                data.put("inspected",Boolean.TRUE);
+                data.put("inspected", Boolean.TRUE);
             }
             if (!(Boolean) data.get("inspected")) {
                 List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {

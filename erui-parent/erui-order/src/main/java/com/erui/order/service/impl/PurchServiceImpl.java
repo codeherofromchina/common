@@ -269,7 +269,7 @@ public class PurchServiceImpl implements PurchService {
                 default:
                     return false;
             }
-            checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 2);
+            checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
         }
         checkLogService.insert(checkLog_i);
         if (!paramPurch.getAuditingType().equals("-1")) {
