@@ -406,7 +406,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> row1 = map.get("costTimes");
         row1.add(0, "平均报价时间（小时）");
         List<Object> row2 = map.get("clarifyTimes");
-        row2.add(0, "澄清时间（小时）");
+        row2.add(0, "平均真实报价时间（小时）");
 
 
         // 填充数据
