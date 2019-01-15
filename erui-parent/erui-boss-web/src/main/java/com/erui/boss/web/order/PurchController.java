@@ -37,8 +37,6 @@ public class PurchController {
 
     @Autowired
     private PurchService purchService;
-    @Autowired
-    private CheckLogService checkLogService;
 
 
     /**

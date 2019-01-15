@@ -213,7 +213,7 @@ public class PurchServiceImpl implements PurchService {
         Integer auditingProcess = purch.getAuditingProcess();
         Integer auditingUserId = purch.getAuditingUserId();
         Integer curAuditProcess = null;
-        if (StringUtils.equals(auditorId,auditingUserId.toString())) {
+        if (StringUtils.equals(auditorId, auditingUserId.toString())) {
             curAuditProcess = auditingProcess;
         }
         if (curAuditProcess == null) {
@@ -232,7 +232,7 @@ public class PurchServiceImpl implements PurchService {
             auditingProcess_i = 20; //驳回到采购订单 处理
             auditingUserId_i = purch.getCreateUserId(); // 要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
             switch (curAuditProcess) {
                 case 21: // 采购经办人审核核算
@@ -269,7 +269,7 @@ public class PurchServiceImpl implements PurchService {
                 default:
                     return false;
             }
-            checkLog_i = orderService.fullCheckLogInfo(purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
         }
         checkLogService.insert(checkLog_i);
         if (!paramPurch.getAuditingType().equals("-1")) {
@@ -543,7 +543,7 @@ public class PurchServiceImpl implements PurchService {
 
         Purch save = purchDao.save(purch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
         }
         if (save.getStatus() == 2) {
@@ -609,7 +609,7 @@ public class PurchServiceImpl implements PurchService {
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
             throw new Exception(String.format("%s%s%s", "采购信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Procurement information does not exist"));
-        } else if (dbPurch.getStatus() != Purch.StatusEnum.READY.getCode()) {
+        } else if (dbPurch.getStatus() != Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 4) {
             throw new Exception(String.format("%s%s%s", "采购信息已提交不能修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchase information has been submitted and can not be modified"));
         }
         final Date now = new Date();
@@ -863,7 +863,7 @@ public class PurchServiceImpl implements PurchService {
 
         Purch save = purchDao.save(dbPurch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
         }
         if (save.getStatus() == 2) {
