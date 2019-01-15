@@ -104,8 +104,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectNos != null && projectNos.size() > 0) {
             projects = projectDao.findByProjectNoIn(projectNos);
         }
-        if (projects!=null&&projects.size()>0){
-            for (Project p:projects) {
+        if (projects != null && projects.size() > 0) {
+            for (Project p : projects) {
                 teachnalsList.add(p.getBusinessUid());
             }
             return teachnalsList;
@@ -353,20 +353,20 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                    //Order order = projectUpdate.getOrder();
-                    try {
-                        order.getGoodsList().forEach(gd -> {
-                                    gd.setStartDate(project.getStartDate());
-                                    gd.setDeliveryDate(project.getDeliveryDate());
-                                    gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
-                                    gd.setExeChgDate(project.getExeChgDate());
-                                }
-                        );
+                    if (nowProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum() && paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        try {
+                            order.getGoodsList().forEach(gd -> {
+                                        gd.setStartDate(project.getStartDate());
+                                        gd.setDeliveryDate(project.getDeliveryDate());
+                                        gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
+                                        gd.setExeChgDate(project.getExeChgDate());
+                                    }
+                            );
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    projectUpdate.setStartDate(project.getStartDate());
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                     projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
                     if (projectUpdate.getExeChgDate() == null) {
