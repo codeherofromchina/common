@@ -902,16 +902,21 @@ public class Purch {
         this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
         this.setAccountDate(purch.getAccountDate()); // 挂账时间
         this.setRemarks(purch.getRemarks()); // 备注
+
         this.setPurchAuditerId(purch.getPurchAuditerId());
         this.setPurchAuditer(purch.getPurchAuditer());
+
         this.setBusinessAuditerId(purch.getBusinessAuditerId());
         this.setBusinessAuditer(purch.getBusinessAuditer());
+
         this.setFinanceAuditerId(purch.getFinanceAuditerId());
         this.setFinanceAuditer(purch.getFinanceAuditer());
+
         this.setLegalAuditerId(purch.getLegalAuditerId());
         this.setLegalAuditer(purch.getLegalAuditer());
+
+        this.setBuVpAuditer(purch.getBuVpAuditer());
         this.setBusinessAuditerId(purch.getBusinessAuditerId());
-        this.setBusinessAuditer(purch.getBusinessAuditer());
         if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
             this.setChairmanId(purch.getChairmanId());
             this.setChairman(purch.getChairman());
