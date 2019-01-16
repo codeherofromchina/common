@@ -16,6 +16,9 @@ import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -416,6 +421,224 @@ public class PurchServiceImpl implements PurchService {
         }
 
         return page;
+    }
+
+    /**
+     * 填充导出采购合同模板
+     *
+     * @param workbook
+     * @param purchId
+     * @throws Exception
+     */
+    @Override
+    public void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception {
+        Purch purch = purchDao.findOne(purchId);
+        if (purch == null || purch.getStatus() == 1 || purch.getAuditingStatus() != 4) {
+            // 采购为空、采购状态未进行、采购未审核都不能导出
+            throw new Exception("采购状态未进行或采购未审核错误");
+        }
+        List<CheckLog> checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+        List<Project> projects = purch.getProjects();
+        StringBuffer businessUnitNames = new StringBuffer(); // 执行事业部
+        Set<String> businessUnitNameSet = new HashSet<>();
+        StringBuffer signingComs = new StringBuffer(); // 签约主体
+        StringBuffer contractNos = new StringBuffer(); // 销售合同号
+        for (Project project : projects) {
+            Order order = project.getOrder();
+            businessUnitNameSet.add(project.getBusinessUnitName());
+            signingComs.append(order.getSigningCo()).append("、");
+            contractNos.append(order.getContractNo()).append("、");
+        }
+        businessUnitNames.append(StringUtils.join(businessUnitNameSet.toArray(new String[businessUnitNameSet.size()]), "、"));
+
+        String tmpStr = null;
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        String checkedStr = row.getCell(4).getStringCellValue();
+        String unCheckedStr = row.getCell(5).getStringCellValue();
+        row.getCell(4).setCellValue("");
+        row.getCell(5).setCellValue("");
+        // 填充数据内容
+        row = sheet.getRow(1);
+
+        row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 部门 -- 执行事业部
+        row.getCell(3).setCellValue(purch.getAgentName()); // 经办人-- 采购经办人
+
+        row = sheet.getRow(2);
+        row.getCell(1).setCellValue(StringUtils.strip(signingComs.toString(), "、")); // 签约主体	-- 签约主体
+        //row.getCell(3).setCellValue(""); // 合同编号前缀 -- YRC
+
+        row = sheet.getRow(3);
+        row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 审核单位	-- 执行事业部
+        row.getCell(3).setCellValue(DateUtil.format(DateUtil.FULL_FORMAT_STR, purch.getSigningDate())); // 合同签订日期
+
+        row = sheet.getRow(4);
+        row.getCell(1).setCellValue(purch.getPurchNo()); // 合同编号	-- YRC+年+四位序列号
+        row.getCell(3).setCellValue(purch.getContractTag()); // 合同标的物
+
+        row = sheet.getRow(5);
+        row.getCell(1).setCellValue(StringUtils.strip(contractNos.toString(), "、")); // 项目编号 -- 销售合同号
+        row.getCell(3).setCellValue(StringUtils.strip(signingComs.toString(), "、")); // 签约公司-- 签约主体
+
+        row = sheet.getRow(6);
+        row.getCell(1).setCellValue(purch.getSupplierName()); // 供应商名称
+        row.getCell(3).setCellValue(purch.getSupplyArea()); // 供应商地区
+
+        row = sheet.getRow(7);
+        tmpStr = row.getCell(1).getStringCellValue();
+        String contractVersion = purch.getContractVersion();
+        if ("1".equals(contractVersion)) {
+            row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "标准版本", checkedStr + "标准版本")); // 合同版本 --  □标准版本    □非标版本
+        } else if ("2".equals(contractVersion)) {
+            row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "非标版本", checkedStr + "非标版本")); // 合同版本 --  □标准版本    □非标版本
+        }
+
+        row = sheet.getRow(9);
+        row.getCell(1).setCellValue(purch.getCurrencyBn()); // 币别
+        BigDecimal rate = purch.getExchangeRate();
+        if (rate != null) {
+            row.getCell(3).setCellValue(rate.setScale(5).toString()); // 汇率
+        }
+
+        row = sheet.getRow(10);
+        row.getCell(1).setCellValue(purch.getTotalPrice().setScale(4, BigDecimal.ROUND_DOWN).toString()); // 合同金额
+        Integer taxBearing = purch.getTaxBearing();
+        if (taxBearing != null && 1 == taxBearing) {
+            row.getCell(2).setCellValue(checkedStr + "含税"); // 含税
+        } else if (taxBearing != null && 2 == taxBearing) {
+            row.getCell(3).setCellValue(checkedStr + "不含税 "); // 不含税
+        }
+
+
+        row = sheet.getRow(11);
+        BigDecimal goalCost = purch.getGoalCost();
+        if (goalCost != null) {
+            row.getCell(1).setCellValue(goalCost.setScale(5).toString()); // 目标成本（人民币）
+        }
+        BigDecimal saveAmount = purch.getSaveAmount();
+        if (saveAmount != null) {
+            row.getCell(3).setCellValue(saveAmount.setScale(5).toString()); // 节约资金（人民币）
+        }
+
+        row = sheet.getRow(12);
+        String priceMode = "无";
+        String saveMode = "无";
+        switch (purch.getPriceMode()) { // 定价方式
+            case "1":
+                priceMode = "招标";
+                break;
+            case "2":
+                priceMode = "招标转竞争性谈判";
+                break;
+            case "3":
+                priceMode = "小额采购谈判";
+                break;
+            case "4":
+                priceMode = "询比价";
+                break;
+            case "5":
+                priceMode = "执行集中谈判（框架协议）价格";
+                break;
+            case "6":
+                priceMode = "参考历史价格";
+                break;
+        }
+        switch (purch.getSaveMode()) { // 节约方式
+            case "1":
+                saveMode = "对比投标";
+                break;
+            case "2":
+                saveMode = "对比项目交付";
+                break;
+            case "3":
+                saveMode = "对比预算";
+                break;
+            case "4":
+                saveMode = "对比历史（含历史对比返点）";
+                break;
+        }
+        row.getCell(1).setCellValue(priceMode); // 定价方式
+        row.getCell(3).setCellValue(saveMode); // 节约方式
+
+        row = sheet.getRow(13);
+        Integer payType = purch.getPayType();
+        switch (payType) {
+            case 1:
+                row.getCell(1).setCellValue("货到验收合格后付款"); // 付款方式
+                break;
+            case 2:
+                row.getCell(1).setCellValue("款到发货"); // 付款方式
+                break;
+            default:
+                row.getCell(1).setCellValue("其他"); // 付款方式
+        }
+        Date arraivalDate = purch.getPurChgDate();
+        if (arraivalDate == null) {
+            arraivalDate = purch.getArrivalDate();
+        }
+        row.getCell(3).setCellValue(DateUtil.format(DateUtil.SHORT_FORMAT_STR, arraivalDate)); // 交货时间
+
+        row = sheet.getRow(14);
+        BigDecimal profitPercent = purch.getProfitPercent();
+        if (profitPercent != null) {
+            row.getCell(1).setCellValue(
+                    profitPercent.multiply(new BigDecimal(100), new MathContext(2, RoundingMode.DOWN)).toString()
+                            + "%"); // 利润率
+        }
+
+        StringBuffer sb1 = new StringBuffer();
+        StringBuffer sb2 = new StringBuffer();
+        StringBuffer sb3 = new StringBuffer();
+        List<Attachment> attachments = purch.getAttachments();
+        if (attachments != null && attachments.size() > 0) {
+
+            for (Attachment attach : attachments) {
+                Integer type = attach.getType();
+                if (type == null) {
+                    sb3.append(attach.getTitle()).append("\r\n");
+                } else if (1 == type) {
+                    sb1.append(attach.getTitle()).append("\r\n");
+                } else if (2 == type) {
+                    sb2.append(attach.getTitle()).append("\r\n");
+                } else {
+                    sb3.append(attach.getTitle()).append("\r\n");
+                }
+
+            }
+        }
+        row = sheet.getRow(16);
+        row.getCell(1).setCellValue(StringUtils.strip(sb1.toString(), "\r\n")); // 合同（PDF格式）及技术协议
+
+        row = sheet.getRow(17);
+        row.getCell(1).setCellValue(StringUtils.strip(sb2.toString(), "\r\n")); // "定价资料（含报价单） 询比价必须上传原始报价单"
+
+        row = sheet.getRow(18);
+        row.getCell(1).setCellValue(StringUtils.strip(sb3.toString(), "\r\n")); // 其他附件
+
+        row = sheet.getRow(19);
+        row.getCell(1).setCellValue(purch.getRemarks()); // 备注
+
+        // 审批历史记录信息
+        if (checkLogList != null && checkLogList.size() > 0) {
+            int index = 23;
+            for (CheckLog checkLog : checkLogList) {
+                row = sheet.createRow(index);
+                row.createCell(0).setCellValue(DateUtil.format(DateUtil.FULL_FORMAT_STR, checkLog.getCreateTime())); // 日期
+                CheckLog.AuditProcessingEnum anEnum = CheckLog.AuditProcessingEnum.findEnum(3, checkLog.getAuditingProcess());
+                row.createCell(1).setCellValue(anEnum.getName() + "/" + checkLog.getAuditingUserName()); // 审核节点/审核人
+
+                String operation = checkLog.getOperation();
+                if ("2".equals(operation)) {
+                    row.createCell(2).setCellValue("通过"); // 审核结果
+                } else if ("-1".equals(operation)) {
+                    row.createCell(2).setCellValue("驳回"); // 审核结果
+                } else if ("1".equals(operation)) {
+                    row.createCell(2).setCellValue("立项"); // 审核结果
+                }
+                row.createCell(3).setCellValue(checkLog.getAuditingMsg()); // 审核意见
+                index++;
+            }
+        }
     }
 
     // 根据销售号和项目号查询采购列表信息

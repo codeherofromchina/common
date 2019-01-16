@@ -58,4 +58,11 @@ public interface CheckLogService {
      * @modified By
      */
     List<CheckLog> findPassed2(Integer orderId);
+
+    /**
+     * 查询采购的所有审核记录
+     * @param purchId
+     * @return
+     */
+    List<CheckLog> findCheckLogsByPurchId(int purchId);
 }

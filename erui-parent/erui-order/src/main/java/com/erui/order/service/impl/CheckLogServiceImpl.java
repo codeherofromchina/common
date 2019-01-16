@@ -255,4 +255,9 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return null;
     }
+
+    @Override
+    public List<CheckLog> findCheckLogsByPurchId(int purchId) {
+        return checkLogDao.findByPurchIdOrderByCreateTime(purchId);
+    }
 }
