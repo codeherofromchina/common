@@ -225,7 +225,7 @@ public class Purch {
     @Column(name = "tax_bearing")
     private Integer taxBearing;
     @Column(name = "exchange_rate")
-    private BigDecimal exchangeRate;//汇率
+    private BigDecimal exchangeRate; //汇率
 
 
     @ManyToMany(fetch = FetchType.LAZY)

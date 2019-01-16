@@ -497,11 +497,11 @@ public class PurchServiceImpl implements PurchService {
         row.getCell(1).setCellValue(purch.getCurrencyBn()); // 币别
         BigDecimal rate = purch.getExchangeRate();
         if (rate != null) {
-            row.getCell(3).setCellValue(rate.setScale(5).toString()); // 汇率
+            row.getCell(3).setCellValue(rate.setScale(2).toString()); // 汇率
         }
 
         row = sheet.getRow(10);
-        row.getCell(1).setCellValue(purch.getTotalPrice().setScale(4, BigDecimal.ROUND_DOWN).toString()); // 合同金额
+        row.getCell(1).setCellValue(purch.getTotalPrice().setScale(2, BigDecimal.ROUND_DOWN).toString()); // 合同金额
         Integer taxBearing = purch.getTaxBearing();
         if (taxBearing != null && 1 == taxBearing) {
             row.getCell(2).setCellValue(checkedStr + "含税"); // 含税
@@ -513,11 +513,11 @@ public class PurchServiceImpl implements PurchService {
         row = sheet.getRow(11);
         BigDecimal goalCost = purch.getGoalCost();
         if (goalCost != null) {
-            row.getCell(1).setCellValue(goalCost.setScale(5).toString()); // 目标成本（人民币）
+            row.getCell(1).setCellValue(goalCost.setScale(2).toString()); // 目标成本（人民币）
         }
         BigDecimal saveAmount = purch.getSaveAmount();
         if (saveAmount != null) {
-            row.getCell(3).setCellValue(saveAmount.setScale(5).toString()); // 节约资金（人民币）
+            row.getCell(3).setCellValue(saveAmount.setScale(2).toString()); // 节约资金（人民币）
         }
 
         row = sheet.getRow(12);
@@ -582,8 +582,8 @@ public class PurchServiceImpl implements PurchService {
         BigDecimal profitPercent = purch.getProfitPercent();
         if (profitPercent != null) {
             row.getCell(1).setCellValue(
-                    profitPercent.multiply(new BigDecimal(100), new MathContext(2, RoundingMode.DOWN)).toString()
-                            + "%"); // 利润率
+                    profitPercent.multiply(new BigDecimal(100),
+                            new MathContext(4, RoundingMode.DOWN)).toString()); // 利润率
         }
 
         StringBuffer sb1 = new StringBuffer();
@@ -667,6 +667,16 @@ public class PurchServiceImpl implements PurchService {
         return result;
     }
 
+
+    public static void main(String[] args) {
+        BigDecimal profitPercent = new BigDecimal("0.4521323");
+        String str = profitPercent.multiply(new BigDecimal(100), new MathContext(4, RoundingMode.DOWN)).toString();
+        System.out.println(str);
+
+
+
+
+    }
 
     /**
      * 新增采购单
