@@ -543,7 +543,7 @@ public class PurchServiceImpl implements PurchService {
 
         Purch save = purchDao.save(purch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
         }
         if (save.getStatus() == 2) {
@@ -863,7 +863,7 @@ public class PurchServiceImpl implements PurchService {
 
         Purch save = purchDao.save(dbPurch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditer().toString(), save.getAuditingReason(), "1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
         }
         if (save.getStatus() == 2) {
