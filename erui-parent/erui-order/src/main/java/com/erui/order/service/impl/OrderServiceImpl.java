@@ -589,7 +589,7 @@ public class OrderServiceImpl implements OrderService {
             auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
             auditorIds.append("," + auditingUserId_i + ",");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), null, curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
             if (auditingProcess_i.equals("0")) {
                 order.setStatus(1);
             }
@@ -814,7 +814,7 @@ public class OrderServiceImpl implements OrderService {
                 default:
                     return false;
             }
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), null, curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
         }
         checkLogService.insert(checkLog_i);
         if (auditingProcess_i != null) {
@@ -839,10 +839,11 @@ public class OrderServiceImpl implements OrderService {
 
     // 处理日志
     @Override
-    public CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
-                                      String auditingMsg, String operation, int type) {
+    public CheckLog fullCheckLogInfo(Integer orderId, Integer purchId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+                                     String auditingMsg, String operation, int type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setOrderId(orderId);
+        checkLog.setPurchId(purchId);
         checkLog.setCreateTime(new Date());
         checkLog.setAuditingProcess(auditingProcess);
         checkLog.setAuditingUserId(auditorId);
@@ -913,7 +914,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), null, 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
             } else {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
@@ -989,7 +990,7 @@ public class OrderServiceImpl implements OrderService {
             //销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
             //钉钉通知回款责任人审批
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(),false);
+            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(), false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
@@ -1111,7 +1112,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null;//审批流日志
         Order order1 = orderDao.save(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
         }
         Date signingDate = null;
@@ -1176,7 +1177,7 @@ public class OrderServiceImpl implements OrderService {
             // 销售订单通知：销售订单下达后通知商务技术经办人
             sendSms(order);
             //钉钉通知回款责任人审批人
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(),false);
+            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(), false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识

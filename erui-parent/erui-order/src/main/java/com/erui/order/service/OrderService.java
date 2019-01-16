@@ -139,6 +139,6 @@ public interface OrderService {
     boolean audit(Order order, String auditorId,String auditorName,AddOrderVo addOrderVo) throws Exception;
 
     void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
-    CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+    CheckLog fullCheckLogInfo(Integer orderId, Integer purchId,Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
                                      String auditingMsg, String operation, int type);
 }
