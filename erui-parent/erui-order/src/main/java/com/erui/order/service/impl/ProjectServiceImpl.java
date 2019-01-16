@@ -1274,7 +1274,7 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                     case 19:
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = null; // 无下一审核进度和审核人
+                        auditingProcess_i = "999"; // 无下一审核进度和审核人
                         auditingUserId_i = null;
                         break;
                     default:

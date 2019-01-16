@@ -66,11 +66,6 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private BackLogService backLogService;
     @Autowired
-    private BackLogDao backLogDao;
-
-    @Autowired
-    private CheckLogDao checkLogDao;
-    @Autowired
     private OrderService orderService;
     @Autowired
     private CheckLogService checkLogService;
@@ -262,13 +257,13 @@ public class PurchServiceImpl implements PurchService {
                         auditingUserId_i = purch.getChairmanId();
                     } else {
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = null;
+                        auditingProcess_i = 999;
                         auditingUserId_i = null;
                     }
                     break;
                 case 26://总裁审核
                     auditingStatus_i = 4; // 完成
-                    auditingProcess_i = null;
+                    auditingProcess_i = 999;
                     auditingUserId_i = null;
                     break;
                 default:
@@ -372,7 +367,9 @@ public class PurchServiceImpl implements PurchService {
                 if (condition.getArrivalDate() != null) {
                     list.add(cb.equal(root.get("arrivalDate").as(Date.class), NewDateUtil.getDate(condition.getArrivalDate())));
                 }
-
+                if (condition.getAuditingProcess() != null) {
+                    list.add(cb.equal(root.get("auditingProcess").as(Integer.class), condition.getAuditingProcess()));
+                }
                 // 根据项目号和销售合同号查询
                 if (!(StringUtils.isBlank(condition.getProjectNos()) && StringUtils.isBlank(condition.getContractNos()))) {
                     Set<Purch> purchSet = findByProjectNoAndContractNo(condition.getProjectNos(), condition.getContractNos());
