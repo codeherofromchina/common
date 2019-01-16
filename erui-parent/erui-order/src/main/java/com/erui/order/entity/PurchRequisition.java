@@ -60,6 +60,7 @@ public class PurchRequisition {
 
 
     private String remarks;
+
     //
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_attach",
