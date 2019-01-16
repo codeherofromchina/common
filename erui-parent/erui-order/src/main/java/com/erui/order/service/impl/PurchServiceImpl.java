@@ -235,24 +235,24 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
             switch (curAuditProcess) {
-                case 21: // 采购经办人审核核算
+                case 21: // 采购负责人审核
                     auditingProcess_i = 22;
                     auditingUserId_i = purch.getBusinessAuditerId();
                     break;
-                case 22://商务技术经办人审核
+                case 22://商务技术审核
                     auditingProcess_i = 23;
                     auditingUserId_i = purch.getLegalAuditerId();
                     break;
-                case 23://法务经办人审核
+                case 23://法务审核
                     auditingProcess_i = 24;
                     auditingUserId_i = purch.getFinanceAuditerId();
                     break;
-                case 24://财务经办人审核
+                case 24://财务审核
                     auditingProcess_i = 25;
                     auditingUserId_i = purch.getBuVpAuditerId();
                     break;
                 case 25://事业部vp审核
-                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
                         auditingProcess_i = 26;
                         auditingUserId_i = purch.getChairmanId();
                     } else {
