@@ -249,6 +249,9 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = statisticsAddMembershipByArea(params);
         List<Object> headerList = map.get("nameList");
+        if (headerList == null || headerList.size() ==0) {
+            return null;
+        }
         headerList.add(0, "");
 
         List<Object> row01 = map.get("numList");
@@ -318,7 +321,9 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> headerList = map.get("nameList");
         List<Object> row01 = map.get("numList");
         List<Object> row02 = map.get("amounts");
-
+        if (headerList == null || headerList.size() == 0) {
+            return null;
+        }
 
         int headerListSize = headerList.size();
         int row01Size = row01.size();
