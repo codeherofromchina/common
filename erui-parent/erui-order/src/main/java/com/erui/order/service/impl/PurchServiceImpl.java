@@ -467,7 +467,7 @@ public class PurchServiceImpl implements PurchService {
 
         row = sheet.getRow(3);
         row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 审核单位	-- 执行事业部
-        row.getCell(3).setCellValue(DateUtil.format(DateUtil.FULL_FORMAT_STR, purch.getSigningDate())); // 合同签订日期
+        row.getCell(3).setCellValue(DateUtil.format(DateUtil.SHORT_FORMAT_STR, purch.getSigningDate())); // 合同签订日期
 
         row = sheet.getRow(4);
         row.getCell(1).setCellValue(purch.getPurchNo()); // 合同编号	-- YRC+年+四位序列号
