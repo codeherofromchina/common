@@ -15,6 +15,9 @@ import java.util.List;
  * @Date Created in 15:45 2018/8/27
  * @modified By
  */
-public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> ,JpaSpecificationExecutor<CheckLog> {
+public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> , JpaSpecificationExecutor<CheckLog> {
     List<CheckLog> findByOrderId(Integer orderId);
+
+
+    List<CheckLog> findByPurchIdOrderByCreateTime(Integer purchId);
 }

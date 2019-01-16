@@ -3,6 +3,7 @@ package com.erui.order.service;
 import com.erui.order.entity.Purch;
 import com.erui.order.entity.PurchGoods;
 import com.erui.order.requestVo.PurchParam;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -53,4 +54,6 @@ public interface PurchService {
     List<Map<String,Object>> listByOrderId(Integer orderId) throws Exception;
 
     boolean audit(Integer purchId, String s, String s1, PurchParam purchParam);
+
+    void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception;
 }
