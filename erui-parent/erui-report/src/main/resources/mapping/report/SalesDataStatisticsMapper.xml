@@ -367,9 +367,9 @@
             FROM
             erui_rfq.inquiry_check_log
             WHERE
-            out_node = 'MARKET_APPROVING'
+            out_node = 'MARKET_CONFIRMING'
             GROUP BY inquiry_id
-            HAVING MAX(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
+            HAVING MIN(out_at) BETWEEN #{startTime} AND #{endTime}) AS t3
             WHERE
             t3.log_inquiry_id = inquiry.id
             AND inquiry.id = log1.inquiry_id

@@ -381,19 +381,19 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             names.add(name);
             if (total != null && total > 0) {
                 costTimeList.add(costTimes.divide(new BigDecimal(total), 4, BigDecimal.ROUND_DOWN));
+                if (clarifyTimes != null) {
+                    clarifyTimeList.add(costTimes.subtract(clarifyTimes).divide(new BigDecimal(total), 4, BigDecimal.ROUND_DOWN));
+                } else {
+                    clarifyTimeList.add(costTimes.divide(new BigDecimal(total), 4, BigDecimal.ROUND_DOWN));
+                }
             } else {
                 costTimeList.add(BigDecimal.ZERO);
             }
 
-            if (clarifyTimes != null) {
-                clarifyTimeList.add(clarifyTimes.setScale(4, BigDecimal.ROUND_DOWN));
-            } else {
-                clarifyTimeList.add(BigDecimal.ZERO);
-            }
         }
         result.put("orgNames", names);
         result.put("costTimes", costTimeList);
-        result.put("clarifyTimes", clarifyTimeList); // 澄清时间
+        result.put("clarifyTimes", clarifyTimeList); // 实际用时：报价用时-澄清时间
         return result;
     }
 
@@ -406,7 +406,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> row1 = map.get("costTimes");
         row1.add(0, "平均报价时间（小时）");
         List<Object> row2 = map.get("clarifyTimes");
-        row2.add(0, "澄清时间（小时）");
+        row2.add(0, "平均真实报价时间（小时）");
 
 
         // 填充数据
@@ -429,9 +429,10 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     /**
      * 报价金额
-     * @see SalesDataStatisticsServiceImpl#newQuoteAmountGroupArea
+     *
      * @param params
      * @return
+     * @see SalesDataStatisticsServiceImpl#newQuoteAmountGroupArea
      */
     @Override
     @Deprecated
@@ -468,6 +469,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         result.put("memTotalAmounts", memTotalAmounts);
         return result;
     }
+
     public Map<String, List<Object>> newQuoteAmountGroupArea(Map<String, Object> params) {
         // 总报价金额
         List<Map<String, Object>> quoteTotalAmount = salesDataStatisticsMapper.quoteTotalAmountGroupByArea(params);
@@ -532,7 +534,6 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
 
     /**
-     *
      * @param params
      * @return
      */
@@ -570,6 +571,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         result.put("memTotalNums", memTotalNums);
         return result;
     }
+
     public Map<String, List<Object>> newInquiryNumbersGroupArea(Map<String, Object> params) {
         // 总询单数量
         List<Map<String, Object>> inquiryTotalNum = salesDataStatisticsMapper.inquiryTotalNumGroupByArea(params);
@@ -633,9 +635,9 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 报价数量按事业部统计
      *
-     * @see  SalesDataStatisticsServiceImpl#newQuoteNumbersGroupArea(Map)
      * @param params
      * @return
+     * @see SalesDataStatisticsServiceImpl#newQuoteNumbersGroupArea(Map)
      */
     @Override
     @Deprecated
@@ -672,6 +674,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         result.put("memTotalNums", memTotalNums);
         return result;
     }
+
     public Map<String, List<Object>> newQuoteNumbersGroupArea(Map<String, Object> params) {
         // 总报价数量
         List<Map<String, Object>> quoteTotalNum = salesDataStatisticsMapper.quoteTotalNumGroupByArea(params);
