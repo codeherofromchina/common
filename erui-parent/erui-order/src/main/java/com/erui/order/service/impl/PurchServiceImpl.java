@@ -768,7 +768,7 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
             if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, save.getPurchAuditerId().toString(), false);
+                sendDingtalk(save, save.getPurchAuditerId().toString(), false);
             }
         }
         if (save.getStatus() == 2) {
@@ -1091,7 +1091,7 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
             if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, save.getPurchAuditerId().toString(), false);
+                sendDingtalk(save, save.getPurchAuditerId().toString(), false);
             }
         }
         if (save.getStatus() == 2) {
