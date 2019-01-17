@@ -253,5 +253,12 @@ public class ProjectController {
         return false;
     }
 
-
+    @RequestMapping("listByTeachnalIds")
+    public Result<Object> listByProjectForPurch(@RequestBody List<String> projectNos) {
+        if (projectNos != null) {
+            List<Integer> teachnalIds = projectService.findByProjectNos(projectNos);
+            return new Result<>(teachnalIds);
+        }
+        return new Result<>(ResultStatusEnum.DATA_NULL);
+    }
 }

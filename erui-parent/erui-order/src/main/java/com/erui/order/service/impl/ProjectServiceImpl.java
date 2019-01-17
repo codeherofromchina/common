@@ -96,6 +96,23 @@ public class ProjectServiceImpl implements ProjectService {
         return projects;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Integer> findByProjectNos(List<String> projectNos) {
+        List<Project> projects = null;
+        List<Integer> teachnalsList = new ArrayList<>();
+        if (projectNos != null && projectNos.size() > 0) {
+            projects = projectDao.findByProjectNoIn(projectNos);
+        }
+        if (projects != null && projects.size() > 0) {
+            for (Project p : projects) {
+                teachnalsList.add(p.getBusinessUid());
+            }
+            return teachnalsList;
+        }
+        return null;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) throws Exception {
@@ -181,6 +198,7 @@ public class ProjectServiceImpl implements ProjectService {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
                     }
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
                     // 之前只保存了项目，则流程可以是提交到项目经理和执行
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -335,20 +353,20 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                    //Order order = projectUpdate.getOrder();
-                    try {
-                        order.getGoodsList().forEach(gd -> {
-                                    gd.setStartDate(project.getStartDate());
-                                    gd.setDeliveryDate(project.getDeliveryDate());
-                                    gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
-                                    gd.setExeChgDate(project.getExeChgDate());
-                                }
-                        );
+                    if (nowProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum() && paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        try {
+                            order.getGoodsList().forEach(gd -> {
+                                        gd.setStartDate(project.getStartDate());
+                                        gd.setDeliveryDate(project.getDeliveryDate());
+                                        gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
+                                        gd.setExeChgDate(project.getExeChgDate());
+                                    }
+                            );
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    projectUpdate.setStartDate(project.getStartDate());
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                     projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
                     if (projectUpdate.getExeChgDate() == null) {
@@ -1257,7 +1275,7 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                     case 19:
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = null; // 无下一审核进度和审核人
+                        auditingProcess_i = "999"; // 无下一审核进度和审核人
                         auditingUserId_i = null;
                         break;
                     default:

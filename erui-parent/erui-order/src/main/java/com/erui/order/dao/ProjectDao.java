@@ -32,6 +32,8 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
      * @return
      */
     List<Project> findByIdIn(List<Integer> projectIds);
+    //根据项目号查找商务技术经办人
+    List<Project> findByProjectNoIn(List<String>  projectNos);
 
     /**
      * 根据项目ID和订单id查找项目列表

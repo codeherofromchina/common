@@ -1,17 +1,28 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.service.AttachmentService;
-import com.erui.order.service.BackLogService;
-import com.erui.order.service.PurchService;
+import com.erui.order.requestVo.PurchParam;
+import com.erui.order.service.*;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +44,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchServiceImpl implements PurchService {
+    private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -52,7 +66,13 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private BackLogService backLogService;
     @Autowired
-    private BackLogDao backLogDao;
+    private OrderService orderService;
+    @Autowired
+    private CheckLogService checkLogService;
+    @Value("#{orderProp[MEMBER_INFORMATION]}")
+    private String memberInformation;  //查询人员信息调用接口
+    @Value("#{orderProp[DING_SEND_SMS]}")
+    private String dingSendSms;  //发钉钉通知接口
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -80,11 +100,12 @@ public class PurchServiceImpl implements PurchService {
                 }
             }
             List<String> projectNoList = new ArrayList<>();
+            List<String> teachcals = new ArrayList<>();
             for (Project p : puch.getProjects()) {
                 projectNoList.add(p.getProjectNo());
+                teachcals.add(p.getBusinessUid().toString());
             }
             puch.setProjectNos(StringUtils.join(projectNoList, ","));
-
             return puch;
         }
         return null;
@@ -166,6 +187,154 @@ public class PurchServiceImpl implements PurchService {
         return result;
     }
 
+    /**
+     * 采购订单审核项目操作
+     *
+     * @param purchId
+     * @param auditorId
+     * @param paramPurch 参数项目
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean audit(Integer purchId, String auditorId, String auditorName, PurchParam paramPurch) {
+        Purch purch = purchDao.findOne(purchId);
+        //@param rejectFlag true:驳回项目   false:审核项目
+        StringBuilder auditorIds = null;
+        if (purch.getAudiRemark() != null) {
+            auditorIds = new StringBuilder(purch.getAudiRemark());
+        } else {
+            auditorIds = new StringBuilder("");
+        }
+        boolean rejectFlag = "-1".equals(paramPurch.getAuditingType());
+        String reason = paramPurch.getAuditingReason();
+
+        // 获取当前审核进度
+        Integer auditingProcess = purch.getAuditingProcess();
+        Integer auditingUserId = purch.getAuditingUserId();
+        Integer curAuditProcess = null;
+        if (StringUtils.equals(auditorId, auditingUserId.toString())) {
+            curAuditProcess = auditingProcess;
+        }
+        if (curAuditProcess == null) {
+            return false;
+        }
+        auditorIds.append("," + auditorId + ",");
+
+        // 定义最后处理结果变量，最后统一操作
+        Integer auditingStatus_i = 2; // 默认状态为审核中
+        Integer auditingProcess_i = null; // 项目审核当前进度
+        Integer auditingUserId_i = null; // 项目审核当前人
+        CheckLog checkLog_i = null; // 审核日志
+        if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
+            auditingStatus_i = 3;
+            // 驳回到采购订单办理
+            auditingProcess_i = 20; //驳回到采购订单 处理
+            auditingUserId_i = purch.getCreateUserId(); // 要驳回给谁
+            // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
+            checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
+        } else {
+            switch (curAuditProcess) {
+                case 21: // 采购负责人审核
+                    auditingProcess_i = 22;
+                    auditingUserId_i = purch.getBusinessAuditerId();
+                    break;
+                case 22://商务技术审核
+                    auditingProcess_i = 23;
+                    auditingUserId_i = purch.getLegalAuditerId();
+                    break;
+                case 23://法务审核
+                    auditingProcess_i = 24;
+                    auditingUserId_i = purch.getFinanceAuditerId();
+                    break;
+                case 24://财务审核
+                    auditingProcess_i = 25;
+                    auditingUserId_i = purch.getBuVpAuditerId();
+                    break;
+                case 25://事业部vp审核
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
+                        auditingProcess_i = 26;
+                        auditingUserId_i = purch.getChairmanId();
+                    } else {
+                        auditingStatus_i = 4; // 完成
+                        auditingProcess_i = 999;
+                        auditingUserId_i = null;
+                    }
+                    break;
+                case 26://总裁审核
+                    auditingStatus_i = 4; // 完成
+                    auditingProcess_i = 999;
+                    auditingUserId_i = null;
+                    break;
+                default:
+                    return false;
+            }
+            checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
+        }
+        checkLogService.insert(checkLog_i);
+        if (!paramPurch.getAuditingType().equals("-1")) {
+            purch.setAuditingStatus(auditingStatus_i);
+        }
+        purch.setAuditingStatus(auditingStatus_i);
+        purch.setAuditingProcess(auditingProcess_i);
+        purch.setAuditingUserId(auditingUserId_i);
+        if (auditingUserId_i != null) {
+            sendDingtalk(purch, auditingUserId_i.toString(), rejectFlag);
+        }
+        purchDao.save(purch);
+        return true;
+    }
+
+    //钉钉通知 审批人
+    private void sendDingtalk(Purch purch, String user, boolean rejectFlag) {
+        //获取token
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("发送短信的用户token:" + eruiToken);
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + user + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + userInfo);
+                //钉钉通知接口头信息
+                Map<String, String> header2 = new HashMap<>();
+                header2.put("Cookie", eruiToken);
+                header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                Integer code = jsonObject.getInteger("code");
+                String userNo = null;
+                String userName = null;  //商务经办人手机号
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //获取通知者姓名员工编号
+                    //userName = data.getString("name");
+                    userNo = data.getString("user_no");
+                    Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
+                    String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
+                    //发送钉钉通知
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append("toUser=").append(userNo);
+                    if (!rejectFlag) {
+                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请合同审批。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    } else {
+                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请的合同审核未通过。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }
+                    stringBuffer.append("&type=userNo");
+                    String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                    logger.info("发送钉钉通知返回状态" + s1);
+                }
+            }
+        }).start();
+
+    }
 
     /**
      * 根据条件分页查询采购单信息
@@ -198,7 +367,9 @@ public class PurchServiceImpl implements PurchService {
                 if (condition.getArrivalDate() != null) {
                     list.add(cb.equal(root.get("arrivalDate").as(Date.class), NewDateUtil.getDate(condition.getArrivalDate())));
                 }
-
+                if (condition.getAuditingProcess() != null) {
+                    list.add(cb.equal(root.get("auditingProcess").as(Integer.class), condition.getAuditingProcess()));
+                }
                 // 根据项目号和销售合同号查询
                 if (!(StringUtils.isBlank(condition.getProjectNos()) && StringUtils.isBlank(condition.getContractNos()))) {
                     Set<Purch> purchSet = findByProjectNoAndContractNo(condition.getProjectNos(), condition.getContractNos());
@@ -249,6 +420,224 @@ public class PurchServiceImpl implements PurchService {
         return page;
     }
 
+    /**
+     * 填充导出采购合同模板
+     *
+     * @param workbook
+     * @param purchId
+     * @throws Exception
+     */
+    @Override
+    public void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception {
+        Purch purch = purchDao.findOne(purchId);
+        if (purch == null || purch.getStatus() == 1 || purch.getAuditingStatus() != 4) {
+            // 采购为空、采购状态未进行、采购未审核都不能导出
+            throw new Exception("采购状态未进行或采购未审核错误");
+        }
+        List<CheckLog> checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+        List<Project> projects = purch.getProjects();
+        StringBuffer businessUnitNames = new StringBuffer(); // 执行事业部
+        Set<String> businessUnitNameSet = new HashSet<>();
+        StringBuffer signingComs = new StringBuffer(); // 签约主体
+        StringBuffer contractNos = new StringBuffer(); // 销售合同号
+        for (Project project : projects) {
+            Order order = project.getOrder();
+            businessUnitNameSet.add(project.getBusinessUnitName());
+            signingComs.append(order.getSigningCo()).append("、");
+            contractNos.append(order.getContractNo()).append("、");
+        }
+        businessUnitNames.append(StringUtils.join(businessUnitNameSet.toArray(new String[businessUnitNameSet.size()]), "、"));
+
+        String tmpStr = null;
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        String checkedStr = row.getCell(4).getStringCellValue();
+        String unCheckedStr = row.getCell(5).getStringCellValue();
+        row.getCell(4).setCellValue("");
+        row.getCell(5).setCellValue("");
+        // 填充数据内容
+        row = sheet.getRow(1);
+
+        row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 部门 -- 执行事业部
+        row.getCell(3).setCellValue(purch.getAgentName()); // 经办人-- 采购经办人
+
+        row = sheet.getRow(2);
+        row.getCell(1).setCellValue(StringUtils.strip(signingComs.toString(), "、")); // 签约主体	-- 签约主体
+        //row.getCell(3).setCellValue(""); // 合同编号前缀 -- YRC
+
+        row = sheet.getRow(3);
+        row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 审核单位	-- 执行事业部
+        row.getCell(3).setCellValue(DateUtil.format(DateUtil.SHORT_FORMAT_STR, purch.getSigningDate())); // 合同签订日期
+
+        row = sheet.getRow(4);
+        row.getCell(1).setCellValue(purch.getPurchNo()); // 合同编号	-- YRC+年+四位序列号
+        row.getCell(3).setCellValue(purch.getContractTag()); // 合同标的物
+
+        row = sheet.getRow(5);
+        row.getCell(1).setCellValue(StringUtils.strip(contractNos.toString(), "、")); // 项目编号 -- 销售合同号
+        row.getCell(3).setCellValue(StringUtils.strip(signingComs.toString(), "、")); // 签约公司-- 签约主体
+
+        row = sheet.getRow(6);
+        row.getCell(1).setCellValue(purch.getSupplierName()); // 供应商名称
+        row.getCell(3).setCellValue(purch.getSupplyArea()); // 供应商地区
+
+        row = sheet.getRow(7);
+        tmpStr = row.getCell(1).getStringCellValue();
+        String contractVersion = purch.getContractVersion();
+        if ("1".equals(contractVersion)) {
+            row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "标准版本", checkedStr + "标准版本")); // 合同版本 --  □标准版本    □非标版本
+        } else if ("2".equals(contractVersion)) {
+            row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "非标版本", checkedStr + "非标版本")); // 合同版本 --  □标准版本    □非标版本
+        }
+
+        row = sheet.getRow(9);
+        row.getCell(1).setCellValue(purch.getCurrencyBn()); // 币别
+        BigDecimal rate = purch.getExchangeRate();
+        if (rate != null) {
+            row.getCell(3).setCellValue(rate.setScale(2).toString()); // 汇率
+        }
+
+        row = sheet.getRow(10);
+        row.getCell(1).setCellValue(purch.getTotalPrice().setScale(2, BigDecimal.ROUND_DOWN).toString()); // 合同金额
+        Integer taxBearing = purch.getTaxBearing();
+        if (taxBearing != null && 1 == taxBearing) {
+            row.getCell(2).setCellValue(checkedStr + "含税"); // 含税
+        } else if (taxBearing != null && 2 == taxBearing) {
+            row.getCell(3).setCellValue(checkedStr + "不含税 "); // 不含税
+        }
+
+
+        row = sheet.getRow(11);
+        BigDecimal goalCost = purch.getGoalCost();
+        if (goalCost != null) {
+            row.getCell(1).setCellValue(goalCost.setScale(2).toString()); // 目标成本（人民币）
+        }
+        BigDecimal saveAmount = purch.getSaveAmount();
+        if (saveAmount != null) {
+            row.getCell(3).setCellValue(saveAmount.setScale(2).toString()); // 节约资金（人民币）
+        }
+
+        row = sheet.getRow(12);
+        String priceMode = "无";
+        String saveMode = "无";
+        switch (purch.getPriceMode()) { // 定价方式
+            case "1":
+                priceMode = "招标";
+                break;
+            case "2":
+                priceMode = "招标转竞争性谈判";
+                break;
+            case "3":
+                priceMode = "小额采购谈判";
+                break;
+            case "4":
+                priceMode = "询比价";
+                break;
+            case "5":
+                priceMode = "执行集中谈判（框架协议）价格";
+                break;
+            case "6":
+                priceMode = "参考历史价格";
+                break;
+        }
+        switch (purch.getSaveMode()) { // 节约方式
+            case "1":
+                saveMode = "对比投标";
+                break;
+            case "2":
+                saveMode = "对比项目交付";
+                break;
+            case "3":
+                saveMode = "对比预算";
+                break;
+            case "4":
+                saveMode = "对比历史（含历史对比返点）";
+                break;
+        }
+        row.getCell(1).setCellValue(priceMode); // 定价方式
+        row.getCell(3).setCellValue(saveMode); // 节约方式
+
+        row = sheet.getRow(13);
+        Integer payType = purch.getPayType();
+        switch (payType) {
+            case 1:
+                row.getCell(1).setCellValue("货到验收合格后付款"); // 付款方式
+                break;
+            case 2:
+                row.getCell(1).setCellValue("款到发货"); // 付款方式
+                break;
+            default:
+                row.getCell(1).setCellValue("其他"); // 付款方式
+        }
+        Date arraivalDate = purch.getPurChgDate();
+        if (arraivalDate == null) {
+            arraivalDate = purch.getArrivalDate();
+        }
+        row.getCell(3).setCellValue(DateUtil.format(DateUtil.SHORT_FORMAT_STR, arraivalDate)); // 交货时间
+
+        row = sheet.getRow(14);
+        BigDecimal profitPercent = purch.getProfitPercent();
+        if (profitPercent != null) {
+            row.getCell(1).setCellValue(
+                    profitPercent.multiply(new BigDecimal(100),
+                            new MathContext(4, RoundingMode.DOWN)).toString()); // 利润率
+        }
+
+        StringBuffer sb1 = new StringBuffer();
+        StringBuffer sb2 = new StringBuffer();
+        StringBuffer sb3 = new StringBuffer();
+        List<Attachment> attachments = purch.getAttachments();
+        if (attachments != null && attachments.size() > 0) {
+
+            for (Attachment attach : attachments) {
+                Integer type = attach.getType();
+                if (type == null) {
+                    sb3.append(attach.getTitle()).append("\r\n");
+                } else if (1 == type) {
+                    sb1.append(attach.getTitle()).append("\r\n");
+                } else if (2 == type) {
+                    sb2.append(attach.getTitle()).append("\r\n");
+                } else {
+                    sb3.append(attach.getTitle()).append("\r\n");
+                }
+
+            }
+        }
+        row = sheet.getRow(16);
+        row.getCell(1).setCellValue(StringUtils.strip(sb1.toString(), "\r\n")); // 合同（PDF格式）及技术协议
+
+        row = sheet.getRow(17);
+        row.getCell(1).setCellValue(StringUtils.strip(sb2.toString(), "\r\n")); // "定价资料（含报价单） 询比价必须上传原始报价单"
+
+        row = sheet.getRow(18);
+        row.getCell(1).setCellValue(StringUtils.strip(sb3.toString(), "\r\n")); // 其他附件
+
+        row = sheet.getRow(19);
+        row.getCell(1).setCellValue(purch.getRemarks()); // 备注
+
+        // 审批历史记录信息
+        if (checkLogList != null && checkLogList.size() > 0) {
+            int index = 23;
+            for (CheckLog checkLog : checkLogList) {
+                row = sheet.createRow(index);
+                row.createCell(0).setCellValue(DateUtil.format(DateUtil.FULL_FORMAT_STR, checkLog.getCreateTime())); // 日期
+                CheckLog.AuditProcessingEnum anEnum = CheckLog.AuditProcessingEnum.findEnum(3, checkLog.getAuditingProcess());
+                row.createCell(1).setCellValue(anEnum.getName() + "/" + checkLog.getAuditingUserName()); // 审核节点/审核人
+
+                String operation = checkLog.getOperation();
+                if ("2".equals(operation)) {
+                    row.createCell(2).setCellValue("通过"); // 审核结果
+                } else if ("-1".equals(operation)) {
+                    row.createCell(2).setCellValue("驳回"); // 审核结果
+                } else if ("1".equals(operation)) {
+                    row.createCell(2).setCellValue("立项"); // 审核结果
+                }
+                row.createCell(3).setCellValue(checkLog.getAuditingMsg()); // 审核意见
+                index++;
+            }
+        }
+    }
+
     // 根据销售号和项目号查询采购列表信息
     private Set<Purch> findByProjectNoAndContractNo(String projectNo, String contractNo) {
         Set<Purch> result = null;
@@ -276,6 +665,16 @@ public class PurchServiceImpl implements PurchService {
     }
 
 
+    public static void main(String[] args) {
+        BigDecimal profitPercent = new BigDecimal("0.4521323");
+        String str = profitPercent.multiply(new BigDecimal(100), new MathContext(4, RoundingMode.DOWN)).toString();
+        System.out.println(str);
+
+
+
+
+    }
+
     /**
      * 新增采购单
      *
@@ -285,11 +684,13 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(Purch purch) throws Exception {
         Date now = new Date();
-        Long count = purchDao.findCountByPurchNo(purch.getPurchNo());
-        if (count != null && count > 0) {
+        String lastedByPurchNo = purchDao.findLastedByPurchNo();
+        Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
+        if (count != null && count > 1) {
             throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
         }
-        // 设置基础数据
+        // 设置基础数据 自动生成采购合同号
+        purch.setPurchNo(StringUtil.genPurchNo(lastedByPurchNo));
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
@@ -360,15 +761,28 @@ public class PurchServiceImpl implements PurchService {
         if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             purch.setStatus(3);
         }
-        Purch save = purchDao.save(purch);
+        // 采购审批添加部分
+        if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
+            purch.setAuditingStatus(0);
+        } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            purch.setAuditingProcess(21);
+            purch.setAuditingStatus(1);
+            purch.setAuditingUserId(purch.getPurchAuditerId());
+        }
+        CheckLog checkLog_i = null;//审批流日志
 
-        if(save.getStatus() == 2){
+        Purch save = purchDao.save(purch);
+        if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
+        }
+        if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
-            Set<String>  projectNoSet = new HashSet<>();
-            if(projects.size() > 0){
-                for (Project project : projects){
+            Set<String> projectNoSet = new HashSet<>();
+            if (projects.size() > 0) {
+                for (Project project : projects) {
                     String projectNo = project.getProjectNo();
-                    if(projectNo != null){
+                    if (projectNo != null) {
                         projectNoSet.add(projectNo);
                     }
                 }
@@ -378,7 +792,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(purch.getPurchNo());  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id
@@ -425,7 +839,7 @@ public class PurchServiceImpl implements PurchService {
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
             throw new Exception(String.format("%s%s%s", "采购信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Procurement information does not exist"));
-        } else if (dbPurch.getStatus() != Purch.StatusEnum.READY.getCode()) {
+        } else if (dbPurch.getStatus() != Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 4) {
             throw new Exception(String.format("%s%s%s", "采购信息已提交不能修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Purchase information has been submitted and can not be modified"));
         }
         final Date now = new Date();
@@ -667,14 +1081,28 @@ public class PurchServiceImpl implements PurchService {
         if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }
+        // 采购审批添加部分
+        if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
+            dbPurch.setAuditingStatus(0);
+        } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            dbPurch.setAuditingProcess(21);
+            dbPurch.setAuditingStatus(1);
+            dbPurch.setAuditingUserId(purch.getPurchAuditerId());
+        }
+        CheckLog checkLog_i = null;//审批流日志
+
         Purch save = purchDao.save(dbPurch);
-        if(save.getStatus() == 2){
+        if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
+        }
+        if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
-            Set<String>  projectNoSet = new HashSet<>();
-            if(projects.size() > 0){
-                for (Project project : projects){
+            Set<String> projectNoSet = new HashSet<>();
+            if (projects.size() > 0) {
+                for (Project project : projects) {
                     String projectNo = project.getProjectNo();
-                    if(projectNo != null){
+                    if (projectNo != null) {
                         projectNoSet.add(projectNo);
                     }
                 }
@@ -684,7 +1112,7 @@ public class PurchServiceImpl implements PurchService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(dbPurch.getPurchNo());  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+save.getSupplierName());  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName());  //提示内容
                 newBackLog.setHostId(save.getId());    //父ID，列表页id
                 Integer purchaseUid = save.getAgentId();//采购经办人id
                 newBackLog.setUid(purchaseUid);   ////经办人id

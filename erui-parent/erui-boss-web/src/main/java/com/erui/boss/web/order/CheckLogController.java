@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,33 @@ public class CheckLogController {
         return new Result<>(listByOrderId);
     }
 
+
+    /**
+     * 根据订单id查询(进行中/已完成)采购列表
+     *
+     * @param params {orderId:"订单ID"}
+     * @return
+     */
+    @RequestMapping(value = "byPurchId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> byPurchId(@RequestBody Map<String, Integer> params) {
+
+        List<CheckLog> data = null;
+        Integer purchId = params.get("purchId");
+        Integer type = params.get("type");
+        if (purchId != null && type != null && purchId > 0) {
+            try {
+                data = checkLogService.findListByPurchId(purchId, type);
+            } catch (Exception e) {
+                logger.error("错误", e);
+                return new Result<>(ResultStatusEnum.FAIL);
+            }
+        } else {
+            data = new ArrayList<>();
+        }
+
+
+        return new Result<>(data);
+    }
     /**
      * @Author:SHIGS
      * @Description 获取审批流通过日志

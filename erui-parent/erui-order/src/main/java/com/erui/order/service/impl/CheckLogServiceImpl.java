@@ -81,12 +81,29 @@ public class CheckLogServiceImpl implements CheckLogService {
         if (orderId != null) {
             List<CheckLog> checkLogList = checkLogDao.findByOrderId(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
-                return checkLogList;
+                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).collect(Collectors.toList());
+                return collect;
             }
         }
         return null;
     }
-
+    @Override
+    public List<CheckLog> findListByPurchId(Integer purchId,Integer type) {
+        List<CheckLog> checkLogList = null;
+        if (purchId != null) {
+            checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
+                @Override
+                public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    cb.equal(root.get("type").as(Integer.class), type);
+                    return cb.equal(root.get("purchId").as(Integer.class), purchId);
+                }
+            }, new Sort(Sort.Direction.DESC, "createTime"));
+        }
+        if (checkLogList == null) {
+            checkLogList = new ArrayList<>();
+        }
+        return checkLogList;
+    }
     /**
      * 根据时间倒叙排序订单的所有审核
      *
@@ -122,6 +139,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    cb.lessThanOrEqualTo(root.get("type").as(Integer.class),2);
                     return cb.equal(root.get("orderId").as(Integer.class), orderId);
                 }
             }, new Sort(Sort.Direction.DESC, "type", "auditingProcess"));
@@ -131,7 +149,6 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return checkLogList;
     }
-
     @Transactional(readOnly = true)
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
@@ -237,5 +254,10 @@ public class CheckLogServiceImpl implements CheckLogService {
             return collect;
         }
         return null;
+    }
+
+    @Override
+    public List<CheckLog> findCheckLogsByPurchId(int purchId) {
+        return checkLogDao.findByPurchIdOrderByCreateTime(purchId);
     }
 }

@@ -1,8 +1,10 @@
 package com.erui.order.dao;
 
 import com.erui.order.entity.CheckLog;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,6 +15,9 @@ import java.util.List;
  * @Date Created in 15:45 2018/8/27
  * @modified By
  */
-public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> ,JpaSpecificationExecutor<CheckLog> {
+public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> , JpaSpecificationExecutor<CheckLog> {
     List<CheckLog> findByOrderId(Integer orderId);
+
+
+    List<CheckLog> findByPurchIdOrderByCreateTime(Integer purchId);
 }

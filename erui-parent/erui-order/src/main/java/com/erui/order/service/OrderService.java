@@ -1,6 +1,7 @@
 package com.erui.order.service;
 
 
+import com.erui.order.entity.CheckLog;
 import com.erui.order.entity.ComplexOrder;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
@@ -138,4 +139,6 @@ public interface OrderService {
     boolean audit(Order order, String auditorId,String auditorName,AddOrderVo addOrderVo) throws Exception;
 
     void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
+    CheckLog fullCheckLogInfo(Integer orderId, Integer purchId,Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+                                     String auditingMsg, String operation, int type);
 }

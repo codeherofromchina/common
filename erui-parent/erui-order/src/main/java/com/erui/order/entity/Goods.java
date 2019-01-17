@@ -223,8 +223,7 @@ public class Goods {
 
 
     // 务必没有修改PurchGoods权限的能力
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goods_id")
+    @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PurchGoods> purchGoods;
 
