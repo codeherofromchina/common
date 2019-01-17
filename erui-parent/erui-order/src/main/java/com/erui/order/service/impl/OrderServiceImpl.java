@@ -2925,7 +2925,7 @@ public class OrderServiceImpl implements OrderService {
                     String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
                     sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
                 } else {
-                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + auditingUserName + "，宋伟                      ＞50万美金");
+                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + cl.getAuditingUserName() + "，宋伟                      ＞50万美金");
                     sheet1.getRow(31).getCell(2).setCellValue(stringR33C102);
                 }
             }
