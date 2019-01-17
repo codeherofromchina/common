@@ -1258,7 +1258,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 16:
                         if (auditingLevel > 1) {
                             auditingProcess_i = "17"; //
-                            auditingUserId_i = project.getBuVpAuditerId().toString(); //黄永霞
+                            auditingUserId_i = project.getBuVpAuditerId().toString();
                             break;
                         }
                     case 17:

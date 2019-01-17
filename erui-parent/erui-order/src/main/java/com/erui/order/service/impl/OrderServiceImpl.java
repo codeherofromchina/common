@@ -2920,13 +2920,14 @@ public class OrderServiceImpl implements OrderService {
             }
             //事业部VP审核
             if (cl.getAuditingProcess() == 17 && cl.getNextAuditingProcess() == null) {
-                String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "黄永霞                      ＞50万美金");
-                sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
-            }
-            //事业部总裁审核
-            if (cl.getAuditingProcess() == 18) {
-                String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "黄永霞，宋伟                      ＞50万美金");
-                sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
+                String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞50万美金";
+                if (cl.getNextAuditingUserId() == null) {
+                    String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
+                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
+                } else {
+                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + auditingUserName + "，宋伟                      ＞50万美金");
+                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C102);
+                }
             }
             //事业部总裁审核接收时间
             if (cl.getAuditingProcess() == 18) {
