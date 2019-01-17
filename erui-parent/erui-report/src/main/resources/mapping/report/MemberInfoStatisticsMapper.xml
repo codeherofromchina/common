@@ -223,7 +223,11 @@
                     AND t1.crm_code = t4.buyer_code
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
                     AND t2.start_date > t4.membership_time) AS t
-        GROUP BY region_bn , region_name order by 1 desc
+        GROUP BY region_bn , region_name
+        order by 1
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
 
@@ -251,8 +255,10 @@
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
                     AND t2.start_date > t4.membership_time) AS t
         GROUP BY country_bn , country_name
-        ORDER BY 1 DESC
-        LIMIT 10
+        ORDER BY 1
+        <if test="sort != 1" >
+            DESC
+        </if>
     </select>
 
 

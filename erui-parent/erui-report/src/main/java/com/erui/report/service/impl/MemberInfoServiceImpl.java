@@ -247,15 +247,22 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
     @Override
     public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
-        Map<String, List<Object>> map = membershipByArea(params);
+        Map<String, List<Object>> map = statisticsAddMembershipByArea(params);
         List<Object> headerList = map.get("nameList");
+        if (headerList == null || headerList.size() ==0) {
+            return null;
+        }
         headerList.add(0, "");
 
         List<Object> row01 = map.get("numList");
-        row01.add(0, "个");
+        row01.add(0, "会员数量（个）");
+        List<Object> row02 = map.get("amounts");
+        row02.add(0, "成单金额（万美元）");
+
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -263,7 +270,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
                 "会员统计-按地区统计");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员统计-按地区统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
@@ -310,25 +317,36 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
     @Override
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {
-        Map<String, List<Object>> map = membershipByCountry(params);
+        Map<String, List<Object>> map = statisticsAddMembershipByCountry(params);
         List<Object> headerList = map.get("nameList");
         List<Object> row01 = map.get("numList");
+        List<Object> row02 = map.get("amounts");
+        if (headerList == null || headerList.size() == 0) {
+            return null;
+        }
 
         int headerListSize = headerList.size();
         int row01Size = row01.size();
+        int row02Size = row02.size();
         if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
             headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
             row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+            row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
         } else {
             headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
             row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
         }
 
         headerList.add(0, "");
-        row01.add(0, "个");
+        row01.add(0, "会员数量（个）");
+        row02.add(0, "成单金额（万美元）");
+
+
         // 填充数据
         List<Object[]> rowList = new ArrayList<>();
         rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
 
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -336,7 +354,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
                 "会员统计-按国家统计");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "会员统计-按国家统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
