@@ -38,9 +38,6 @@ public class PurchController {
     private PurchService purchService;
 
 
-
-
-
     /**
      * 根据订单id查询(进行中/已完成)采购列表
      *
@@ -108,7 +105,9 @@ public class PurchController {
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(@RequestBody Purch purch) {
+    public Result<Object> save(HttpServletRequest request, @RequestBody Purch purch) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         boolean continueFlag = true;
         String errorMsg = null;
         // 状态检查
