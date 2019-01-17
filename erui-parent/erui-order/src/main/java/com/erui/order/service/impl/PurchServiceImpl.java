@@ -281,6 +281,11 @@ public class PurchServiceImpl implements PurchService {
         if (auditingUserId_i != null) {
             sendDingtalk(purch, auditingUserId_i.toString(), rejectFlag);
         }
+        if (auditingStatus_i == 4 && auditingProcess_i == 999) {
+            if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
+                purch.setStatus(3);
+            }
+        }
         purchDao.save(purch);
         return true;
     }
@@ -671,8 +676,6 @@ public class PurchServiceImpl implements PurchService {
         System.out.println(str);
 
 
-
-
     }
 
     /**
@@ -758,9 +761,9 @@ public class PurchServiceImpl implements PurchService {
         List<Project> projectList = new ArrayList<>(projectSet);
         purch.setProjects(projectList);
         // 保存采购单
-        if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
+       /* if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             purch.setStatus(3);
-        }
+        }*/
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
             purch.setAuditingStatus(0);
@@ -1078,9 +1081,9 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         // 更新采购单
-        if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
+       /* if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
-        }
+        }*/
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
             dbPurch.setAuditingStatus(0);
