@@ -248,15 +248,15 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportMembershipByArea(Map<String, Object> params) {
         Map<String, List<Object>> map = statisticsAddMembershipByArea(params);
-        List<Object> headerList = map.get("nameList");
-        if (headerList == null || headerList.size() ==0) {
+        List<Object> headerList = map.get("names");
+        if (headerList == null || headerList.size() == 0) {
             return null;
         }
         headerList.add(0, "");
 
-        List<Object> row01 = map.get("numList");
+        List<Object> row01 = map.get("num");
         row01.add(0, "会员数量（个）");
-        List<Object> row02 = map.get("amounts");
+        List<Object> row02 = map.get("amount");
         row02.add(0, "成单金额（万美元）");
 
         // 填充数据
