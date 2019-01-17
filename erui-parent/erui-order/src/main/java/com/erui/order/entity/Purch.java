@@ -915,8 +915,9 @@ public class Purch {
         this.setLegalAuditerId(purch.getLegalAuditerId());
         this.setLegalAuditer(purch.getLegalAuditer());
 
+        this.setBuVpAuditerId(purch.getBuVpAuditerId());
         this.setBuVpAuditer(purch.getBuVpAuditer());
-        this.setBusinessAuditerId(purch.getBusinessAuditerId());
+
         if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
             this.setChairmanId(purch.getChairmanId());
             this.setChairman(purch.getChairman());
