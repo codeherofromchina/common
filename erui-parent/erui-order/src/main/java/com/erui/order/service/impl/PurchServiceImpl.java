@@ -765,11 +765,11 @@ public class PurchServiceImpl implements PurchService {
 
         Purch save = purchDao.save(purch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
-            checkLogService.insert(checkLog_i);
             if (save.getPurchAuditerId() != null) {
-                sendDingtalk(save, save.getPurchAuditerId().toString(), false);
+                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
+            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -802,7 +802,6 @@ public class PurchServiceImpl implements PurchService {
         checkProjectPurchDone(projectIds);
         return true;
     }
-
 
     private void setGoodsTraceData(Goods goods, Purch purch) {
         // 完善商品的项目执行跟踪信息 (只设置第一次的信息)
@@ -1091,7 +1090,7 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
             if (save.getPurchAuditerId() != null) {
-                sendDingtalk(save, save.getPurchAuditerId().toString(), false);
+                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
         }
         if (save.getStatus() == 2) {
