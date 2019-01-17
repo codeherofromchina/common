@@ -58,8 +58,6 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private PurchPaymentDao purchPaymentDao;
     @Autowired
-    private AttachmentDao attachmentDao;
-    @Autowired
     private OrderDao orderDao;
     @Autowired
     private AttachmentService attachmentService;
@@ -769,6 +767,9 @@ public class PurchServiceImpl implements PurchService {
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             checkLog_i = orderService.fullCheckLogInfo(save.getId(), null, 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
+            if (save.getPurchAuditerId() != null) {
+                sendDingtalk(purch, save.getPurchAuditerId().toString(), false);
+            }
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1089,6 +1090,9 @@ public class PurchServiceImpl implements PurchService {
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
+            if (save.getPurchAuditerId() != null) {
+                sendDingtalk(purch, save.getPurchAuditerId().toString(), false);
+            }
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
