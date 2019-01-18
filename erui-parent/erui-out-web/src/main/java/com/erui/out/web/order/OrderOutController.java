@@ -158,7 +158,7 @@ public class OrderOutController {
      * @return
      */
     @RequestMapping(value = "orderFinish", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderFinish(@RequestBody Order order) {
+    public Result<Object> orderFinish(@RequestBody Order order) throws Exception{
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         boolean flag;
         flag = orderService.orderFinish(order);
