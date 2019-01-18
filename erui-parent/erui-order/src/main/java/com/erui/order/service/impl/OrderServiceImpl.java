@@ -94,6 +94,9 @@ public class OrderServiceImpl implements OrderService {
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
 
+    @Value("#{orderProp[MEMBER_POINTS]}")
+    private String MEMBER_POINTS;
+
     @Autowired
     private ComplexOrderDao complexOrderDao;
 
@@ -1346,18 +1349,49 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean orderFinish(Order order) {
+    public boolean orderFinish(Order order) throws Exception{
         Order order1 = orderDao.findOne(order.getId());
         if (order1 != null) {
             order1.setStatus(order.getStatus());
-            orderDao.save(order1);
+            Order orderUpdate = orderDao.save(order1);
             addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, new Date());
+            if (orderUpdate.getStatus()==4&& orderUpdate.getPayStatus() == 3){
+                memeberPoints(1,orderUpdate.getId());
+            }
             return true;
         }
         return false;
     }
 
+    public void memeberPoints(Integer orderType,Integer orderId) throws Exception {
 
+        //拿取局部返回信息
+        String returnMassage;
+        try {
+            //获取token
+            String eruiToken = (String) ThreadLocalUtil.getObject();
+            // 根据id获取人员信息
+            String jsonParam = "{\"order_type\":\""+orderType+"\",\"order_id\":\"" + orderId + "\"}";
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            returnMassage = HttpRequest.sendPost(MEMBER_POINTS, jsonParam, header);
+            logger.info("人员详情返回信息：" + returnMassage);
+
+            JSONObject jsonObject = JSONObject.parseObject(returnMassage);
+            Integer code = jsonObject.getInteger("code");   //获取查询状态
+            if(code != 1){  //查询数据正确返回 1
+                String message = jsonObject.getString("message");
+                throw new Exception(message);
+            }
+
+        }catch (Exception ex){
+            throw new Exception(String.format("查询授信信息失败"));
+        }
+
+
+    }
     //销售订单通知：销售订单下达后通知商务技术经办人
     public void sendSms(Order order) throws Exception {
         //获取token

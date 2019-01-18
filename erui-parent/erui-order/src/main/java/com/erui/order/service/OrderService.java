@@ -99,7 +99,7 @@ public interface OrderService {
      * @param order
      * @return
      */
-    boolean orderFinish(Order order);
+    boolean orderFinish(Order order)throws Exception;
      /**
       * @Author:SHIGS
       * @Description对接门户订单详情

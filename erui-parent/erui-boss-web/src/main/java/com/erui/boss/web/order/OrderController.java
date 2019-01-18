@@ -373,7 +373,9 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "orderFinish", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderFinish(@RequestBody Order order) {
+    public Result<Object> orderFinish(HttpServletRequest request, @RequestBody Order order) throws Exception {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         boolean flag;
         flag = orderService.orderFinish(order);
