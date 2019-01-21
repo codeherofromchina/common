@@ -87,8 +87,9 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return null;
     }
+
     @Override
-    public List<CheckLog> findListByPurchId(Integer purchId,Integer type) {
+    public List<CheckLog> findListByPurchId(Integer purchId, Integer type) {
         List<CheckLog> checkLogList = null;
         if (purchId != null) {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
@@ -104,6 +105,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return checkLogList;
     }
+
     /**
      * 根据时间倒叙排序订单的所有审核
      *
@@ -139,7 +141,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    cb.lessThanOrEqualTo(root.get("type").as(Integer.class),2);
+                    cb.lessThanOrEqualTo(root.get("type").as(Integer.class), 2);
                     return cb.equal(root.get("orderId").as(Integer.class), orderId);
                 }
             }, new Sort(Sort.Direction.DESC, "type", "auditingProcess"));
@@ -149,6 +151,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         }
         return checkLogList;
     }
+
     @Transactional(readOnly = true)
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
@@ -230,7 +233,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             if (orderAuditingStatus == null) {
                 return resultCheckLogs;
             }
-            if (order.getProject().getAuditingStatus() == 4 && order.getProject().getAuditingProcess() == null) {
+            if (order.getProject().getAuditingStatus() == 4 && "999".equals(order.getProject().getAuditingProcess())) {
                 for (CheckLog checkLog : checkLogList) {
                     // 只查找通过和立项的审核
                     if (!checkLog.getOperation().equals("-1")) {

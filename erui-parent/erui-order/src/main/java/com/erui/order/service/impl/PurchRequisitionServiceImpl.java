@@ -427,7 +427,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             map.put("requirePurchaseDate", project.getRequirePurchaseDate()); // 要求采购到货日期
             map.put("id", pr.getId()); // 采购申请ID
             map.put("status", pr.getStatus()); // 采购申请状态 1:未编辑 2:待确认/已保存 3:已提交
-            if (pr.getGoodsList() != null && pr.getGoodsList().size() > 1) {
+            if (pr.getGoodsList() != null && pr.getGoodsList().size() > 0) {
                 int purchasedNum = 0;
                 int contractNum = 0;
                 for (Goods gs : pr.getGoodsList()) {

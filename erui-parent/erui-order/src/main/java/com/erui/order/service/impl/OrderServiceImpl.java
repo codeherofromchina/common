@@ -2919,13 +2919,13 @@ public class OrderServiceImpl implements OrderService {
                 sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
             }
             //事业部VP审核
-            if (cl.getAuditingProcess() == 17 && cl.getNextAuditingProcess() == null) {
+            if (cl.getAuditingProcess() == 17) {
                 String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞50万美金";
-                if (cl.getNextAuditingUserId() == null) {
+                if ("18".equals(cl.getNextAuditingProcess()) && cl.getNextAuditingUserId() == null) {
                     String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
                     sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
                 } else {
-                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + auditingUserName + "，宋伟                      ＞50万美金");
+                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + cl.getAuditingUserName() + "，宋伟                      ＞50万美金");
                     sheet1.getRow(31).getCell(2).setCellValue(stringR33C102);
                 }
             }
