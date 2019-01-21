@@ -347,7 +347,7 @@ public class WeeklyReportController {
             return null;
         }
         //获取历史数据
-        params.put("onshelf_at_start", "2018-01-01 00:00:00");
+        params.put("onshelf_at_start", "2019-01-01 00:00:00");
         params.put("onshelf_at_end", params.get("endTime").toString());
 //        Date start = DateUtil.parseString2DateNoException("2018-01-01 00:00:00", DateUtil.FULL_FORMAT_STR);
 //        Date endDate = DateUtil.parseString2DateNoException(String.valueOf(params.get("onshelf_at_end")), DateUtil.FULL_FORMAT_STR);
