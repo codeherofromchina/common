@@ -116,6 +116,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Project projectUpdate = projectDao.findOne(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
@@ -374,9 +375,9 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setExeChgDate(project.getExeChgDate());
                     }
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
-                    applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 2, eruiToken));
                     //现货出库和海外销（当地采购）的单子流程状态改为 已发运
-                    applicationContext.publishEvent(new OrderProgressEvent(order, 10));
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 10, eruiToken));
                     orderDao.save(order);
 
                     //如果是直接执行项目，删除   “执行项目”  待办提示信息

@@ -12,6 +12,8 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.PurchDoneCheckEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
@@ -51,6 +53,8 @@ public class PurchServiceImpl implements PurchService {
     private PurchDao purchDao;
     @Autowired
     private ProjectDao projectDao;
+    @Autowired
+    private PurchRequisitionDao purchRequisitionDao;
     @Autowired
     private GoodsDao goodsDao;
     @Autowired
@@ -675,6 +679,7 @@ public class PurchServiceImpl implements PurchService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(Purch purch) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Date now = new Date();
         String lastedByPurchNo = purchDao.findLastedByPurchNo();
         Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
@@ -735,7 +740,7 @@ public class PurchServiceImpl implements PurchService {
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
                 if (!goods.getOrder().getOrderCategory().equals(6)) {
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                 }
             }
             // 增加预采购数量
@@ -761,7 +766,7 @@ public class PurchServiceImpl implements PurchService {
             purch.setAuditingStatus(1);
             purch.setAuditingUserId(purch.getPurchAuditerId());
         }
-        CheckLog checkLog_i = null;//审批流日志
+        CheckLog checkLog_i = null; //审批流日志
 
         Purch save = purchDao.save(purch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
@@ -782,17 +787,17 @@ public class PurchServiceImpl implements PurchService {
                     }
                 }
 
-                //采购新增提交以后  通知采购经办人办理报检单
-                BackLog newBackLog = new BackLog();
-                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
-                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
-                newBackLog.setReturnNo(purch.getPurchNo());  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName());  //提示内容
-                newBackLog.setHostId(save.getId());    //父ID，列表页id   采购id
-                Integer purchaseUid = save.getAgentId();//采购经办人id
-                newBackLog.setUid(purchaseUid);   ////经办人id
-                backLogService.addBackLogByDelYn(newBackLog);
-
+                String returnNo = purch.getPurchNo(); // 返回单号
+                String infoContent = StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName();  //提示内容
+                Integer hostId = save.getId();
+                Integer userId = save.getAgentId(); //经办人id
+                // 推送增加待办事件，通知采购经办人办理报检单
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.INSPECTAPPLY,
+                        returnNo,
+                        infoContent,
+                        hostId,
+                        userId));
             }
 
         }
@@ -829,6 +834,7 @@ public class PurchServiceImpl implements PurchService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Purch purch) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Purch dbPurch = purchDao.findOne(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
@@ -914,7 +920,7 @@ public class PurchServiceImpl implements PurchService {
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
-                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                     }
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
@@ -1016,7 +1022,7 @@ public class PurchServiceImpl implements PurchService {
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
-                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3));
+                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                     }
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
@@ -1104,16 +1110,17 @@ public class PurchServiceImpl implements PurchService {
                     }
                 }
 
-                //采购新增提交以后  通知采购经办人办理报检单
-                BackLog newBackLog = new BackLog();
-                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTAPPLY.getMsg());  //功能名称
-                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
-                newBackLog.setReturnNo(dbPurch.getPurchNo());  //返回单号    返回空，两个标签
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName());  //提示内容
-                newBackLog.setHostId(save.getId());    //父ID，列表页id
-                Integer purchaseUid = save.getAgentId();//采购经办人id
-                newBackLog.setUid(purchaseUid);   ////经办人id
-                backLogService.addBackLogByDelYn(newBackLog);
+                String returnNo = dbPurch.getPurchNo(); // 返回单号
+                String infoContent = StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName();  //提示内容
+                Integer hostId = save.getId();
+                Integer userId = save.getAgentId(); //经办人id
+                // 推送增加待办事件，通知采购经办人办理报检单
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.INSPECTAPPLY,
+                        returnNo,
+                        infoContent,
+                        hostId,
+                        userId));
 
             }
 
@@ -1272,46 +1279,7 @@ public class PurchServiceImpl implements PurchService {
      * @param projectIds 项目ID列表
      */
     private void checkProjectPurchDone(List<Integer> projectIds) throws Exception {
-        List<Integer> updateIds = new ArrayList<>();
-        List<Integer> proIds = new ArrayList<>();
-        List<Integer> orderIds = new ArrayList<>();
-        if (projectIds.size() > 0) {
-            List<Project> projectList = projectDao.findByIdIn(projectIds);
-            for (Project project : projectList) {
-                List<Goods> goodsList = project.getOrder().getGoodsList();
-                boolean purchDone = true;
-                for (Goods goods : goodsList) {
-                    if (!goods.getExchanged() && goods.getPurchasedNum() < goods.getContractGoodsNum()) {
-                        purchDone = false;
-                        break;
-                    }
-                }
-                if (purchDone) {
-                    updateIds.add(project.getId());
-                    if (project.getOrderCategory().equals(6)) {
-                        proIds.add(project.getId());
-                        orderIds.add(project.getOrder().getId());
-                    }
-
-                    //采购数量是已完毕 ，删除   “办理采购订单”  待办提示
-                    BackLog backLog = new BackLog();
-                    backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-                    backLog.setHostId(project.getId());
-                    backLogService.updateBackLogByDelYn(backLog);
-
-                }
-            }
-            if (updateIds.size() > 0) {
-                //项目采购完成
-                projectDao.updateProjectPurchDone(updateIds);
-                //当订单类型为国内订单时项目完结 订单状态修改为已完成 项目状态为已完成 流程进度修改为已发运
-                if (proIds.size() > 0) {
-                    projectDao.updateProjectStatus(proIds);
-                    orderDao.updateOrderStatus(orderIds);
-                }
-            }
-        }
+        applicationContext.publishEvent(new PurchDoneCheckEvent(this, projectIds, projectDao, backLogService, orderDao, purchRequisitionDao));
     }
-
 
 }

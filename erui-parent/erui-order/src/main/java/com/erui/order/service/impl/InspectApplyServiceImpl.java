@@ -113,6 +113,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(InspectApply inspectApply) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Purch purch = purchDao.findOne(inspectApply.getpId());
         if (purch == null || purch.getStatus() != Purch.StatusEnum.BEING.getCode()) {
             // 采购为空或采购已完成，则返回报检失败
@@ -183,7 +184,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
             }
             // 设置预报检商品数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum);
@@ -323,6 +324,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectApply inspectApply) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (dbInspectApply == null || dbInspectApply.getStatus() != InspectApply.StatusEnum.SAVED.getCode()) {
             throw new Exception(String.format("%s%s%s", "报检信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Inspection information does not exist"));
@@ -389,7 +391,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
             }
             // 更新预报检数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum - oldInspectNum);
