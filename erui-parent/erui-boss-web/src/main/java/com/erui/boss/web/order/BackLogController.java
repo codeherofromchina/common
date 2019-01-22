@@ -22,6 +22,7 @@ public class BackLogController {
 
     /**
      * 待办列表查询
+     *
      * @param backLog
      * @return
      */
@@ -29,19 +30,17 @@ public class BackLogController {
     @ResponseBody()
     public Result<Object> findBackLogByList(@RequestBody BackLog backLog) {
         try {
-            Page<BackLog> backLogList= backLogService.findBackLogByList(backLog);
-            if(backLogList.getTotalPages() > 0){
-                for (BackLog backLog1 : backLogList){
+            Page<BackLog> backLogList = backLogService.findBackLogByList(backLog);
+            if (backLogList.getTotalPages() > 0) {
+                for (BackLog backLog1 : backLogList) {
                     String returnNo = backLog1.getReturnNo();
-                    if(null != returnNo){
+                    if (null != returnNo) {
                         backLog1.setTitleContent(returnNo);
                     }
                 }
             }
-
-
             return new Result<>(backLogList);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("待办列表查询错误", e);
         }
         return new Result<>(ResultStatusEnum.FAIL);
@@ -50,6 +49,7 @@ public class BackLogController {
 
     /**
      * 待办事项新增
+     *
      * @param backLog
      * @return
      */
@@ -59,7 +59,7 @@ public class BackLogController {
         Result<Object> result = new Result<>();
         try {
             backLogService.addBackLogByDelYn(backLog);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("待办列表查询错误", e);
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg(e.getMessage());
@@ -68,11 +68,9 @@ public class BackLogController {
     }
 
 
-
-
-
     /**
      * 待办事项逻辑删除
+     *
      * @param backLog
      * @return
      */
@@ -80,16 +78,13 @@ public class BackLogController {
     @ResponseBody()
     public Result<Object> updateBackLogByDelYn(@RequestBody BackLog backLog) {
         try {
-           backLogService.updateBackLogByDelYn(backLog);
-        }catch (Exception e){
+            backLogService.updateBackLogByDelYn(backLog);
+        } catch (Exception e) {
             logger.error("待办列表查询错误", e);
             return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
         }
         return new Result<>();
     }
-
-
-
 
 
 }

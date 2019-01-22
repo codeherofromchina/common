@@ -12,6 +12,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.NotifyPointProjectEvent;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
@@ -93,6 +94,7 @@ public class OrderServiceImpl implements OrderService {
     private String sendSms;  //发短信接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
+
 
     @Autowired
     private ComplexOrderDao complexOrderDao;
@@ -788,7 +790,7 @@ public class OrderServiceImpl implements OrderService {
                     } else if (order.getFinancing() == 1) {
                         //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                         auditingProcess_i = "5"; // 融资审核
-                        auditingUserId_i = order.getFinancingCommissionerId().toString();//郭永涛
+                        auditingUserId_i = order.getFinancingCommissionerId().toString(); //郭永涛
                         auditorIds.append("," + auditingUserId_i + ",");
                     }
                     break;
@@ -797,7 +799,7 @@ public class OrderServiceImpl implements OrderService {
                     auditingProcess_i = "6";
                     //设置项目审核流程
                     order.getProject().setAuditingProcess(auditingProcess_i);
-                    auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                    auditingUserId_i = order.getTechnicalId().toString(); //提交到商务技术经办人
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 //提交商品
@@ -808,7 +810,7 @@ public class OrderServiceImpl implements OrderService {
                     order.getProject().setAuditingStatus(1);
 
                     auditingStatus_i = 4; // 完成
-                    auditingProcess_i = "6";// 订单审核完成 无下一审核进度和审核人
+                    auditingProcess_i = "6"; // 订单审核完成 无下一审核进度和审核人
                     auditingUserId_i = null;
                     break;
                 default:
@@ -861,6 +863,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Order order = orderDao.findOne(addOrderVo.getId());
         if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
@@ -934,7 +937,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
-            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
+            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1, eruiToken));
             Project projectAdd = null;
             if (order.getProject() == null) {
                 projectAdd = new Project();
@@ -977,7 +980,6 @@ public class OrderServiceImpl implements OrderService {
             //projectAdd.setProjectProfit(projectProfit);
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
-            String eruiToken = (String) ThreadLocalUtil.getObject();
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -1074,6 +1076,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
         order.setCreateUserId(addOrderVo.getCreateUserId());
@@ -1109,7 +1112,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingStatus(2);
             order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
         }
-        CheckLog checkLog_i = null;//审批流日志
+        CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
@@ -1121,7 +1124,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
-            applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
+            applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
             if (orderLog.size() > 0) {
                 Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
@@ -1164,7 +1167,6 @@ public class OrderServiceImpl implements OrderService {
             //projectProfit.setExchangeRate(order1.getExchangeRate());
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
-            String eruiToken = (String) ThreadLocalUtil.getObject();
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -1346,12 +1348,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean orderFinish(Order order) {
+    public boolean orderFinish(Order order) throws Exception {
         Order order1 = orderDao.findOne(order.getId());
         if (order1 != null) {
             order1.setStatus(order.getStatus());
-            orderDao.save(order1);
+            Order orderUpdate = orderDao.save(order1);
             addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, new Date());
+            if (Order.fromCode(orderUpdate.getStatus()) == Order.StatusEnum.DONE && orderUpdate.getPayStatus() == 3) {
+                String token = (String) ThreadLocalUtil.getObject();
+                applicationContext.publishEvent(new NotifyPointProjectEvent(applicationContext, orderUpdate.getId(), token));
+            }
             return true;
         }
         return false;
@@ -1913,7 +1919,7 @@ public class OrderServiceImpl implements OrderService {
             oc.setAuditingStatus(4);
             if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum() > 2) {
                 oc.setProcessProgress("9");
-                oc.setStatus(4);
+                oc.setStatus(Order.StatusEnum.DONE.getCode());
             } else {
                 oc.setStatus(3);
             }

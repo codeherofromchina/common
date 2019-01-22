@@ -11,6 +11,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.InspectReportService;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -510,26 +510,26 @@ public class InspectReportServiceImpl implements InspectReportService {
                                 JSONObject ob = (JSONObject) data1.get(i);
                                 listAll.add(ob.getInteger("id"));    //获取物流分单员id
                             }
-                        }else {
+                        } else {
                             throw new  Exception("出库分单员待办事项推送失败");
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         throw new  Exception("出库分单员待办事项推送失败");
                     }
                 }
-                if(listAll.size() > 0){
-                    for (Integer in : listAll){ //分单员有几个人推送几条
-                        BackLog newBackLog = new BackLog();
-                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
-                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
-                        String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
-                        newBackLog.setReturnNo(inspectApplyNo);  //返回单号
-                        String supplierName = save1.getSupplierName();  //供应商名称
-                        newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+supplierName);  //提示内容
-                        newBackLog.setHostId(save.getId());    //父ID，列表页id
-                        newBackLog.setUid(in);   ////经办人id
-                        backLogService.addBackLogByDelYn(newBackLog);
-                    }
+                if (listAll.size() > 0) {
+                    String inspectApplyNo = save1.getInspectApplyNo();  //报检单号
+                    String supplierName = save1.getSupplierName();  //供应商名称
+                    String infoContent = StringUtils.join(projectNoSet, ",") + " | " + supplierName;  //提示内容
+                    Integer hostId = save.getId();
+                    Integer[] hostIdArr = listAll.toArray(new Integer[listAll.size()]);
+                    // 推送待办事件
+                    applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                            BackLog.ProjectStatusEnum.INSTOCKSUBMENU,
+                            inspectApplyNo,
+                            infoContent,
+                            hostId,
+                            hostIdArr));
                 }
             }
 
@@ -537,9 +537,10 @@ public class InspectReportServiceImpl implements InspectReportService {
 
         // 流程进度推送
         if (statusEnum == InspectReport.StatusEnum.DONE) {
+            String token = (String) ThreadLocalUtil.getObject();
             for (InspectApplyGoods inspectGoods : dbInspectReport.getInspectGoodsList()) {
                 Goods goods = inspectGoods.getGoods();
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5, token));
             }
         }
 

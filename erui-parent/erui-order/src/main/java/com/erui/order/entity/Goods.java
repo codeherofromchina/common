@@ -578,6 +578,9 @@ public class Goods {
     }
 
     public Boolean getExchanged() {
+        if (exchanged == null) {
+            return false;
+        }
         return exchanged;
     }
 

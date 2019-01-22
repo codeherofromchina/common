@@ -142,7 +142,7 @@ public class Project {
     //是否已生成出口通知单
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
-    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单
+    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单 6 国内订单
     @Column(name = "order_category")
     private Integer orderCategory;
 

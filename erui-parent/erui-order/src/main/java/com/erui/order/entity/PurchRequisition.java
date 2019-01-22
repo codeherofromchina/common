@@ -58,6 +58,12 @@ public class PurchRequisition {
 
     private Integer status;
 
+    /**
+     * 采购状态 1：未进行  2：采购中  3：采购完成
+     */
+    @Column(name = "purch_status")
+    private Integer purchStatus = 1;
+
 
     private String remarks;
 
@@ -195,6 +201,13 @@ public class PurchRequisition {
         this.status = status;
     }
 
+    public Integer getPurchStatus() {
+        return purchStatus;
+    }
+
+    public void setPurchStatus(Integer purchStatus) {
+        this.purchStatus = purchStatus;
+    }
 
     public String getRemarks() {
         return remarks;
@@ -221,11 +234,11 @@ public class PurchRequisition {
     }
 
 
-    public static enum StatusEnum {
+    public enum StatusEnum {
         SAVED(1, "保存"), SUBMITED(2, "提交");
 
-        public int code;
-        public String msg;
+        private int code;
+        private String msg;
 
         StatusEnum(int code, String msg) {
             this.code = code;
@@ -238,6 +251,36 @@ public class PurchRequisition {
 
         public String getMsg() {
             return msg;
+        }
+    }
+
+
+    public enum PurchStatusEnum {
+        ZERO(1, "未进行"), BEING(2, "进行中"), DONE(3, "完成");
+
+        private int code;
+        private String msg;
+
+        PurchStatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public static String msgFromCode(int code) {
+            for (PurchStatusEnum vo : PurchStatusEnum.values()) {
+                if (vo.getCode() == code) {
+                    return vo.getMsg();
+                }
+            }
+            return "";
         }
     }
 }

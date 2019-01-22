@@ -10,6 +10,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.IogisticsDao;
 import com.erui.order.dao.IogisticsDataDao;
 import com.erui.order.entity.*;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.IogisticsDataService;
 import com.erui.order.service.IogisticsService;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -36,7 +38,8 @@ import java.util.*;
 public class IogisticsServiceImpl implements IogisticsService {
 
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private IogisticsDao iogisticsDao;
 
@@ -263,23 +266,24 @@ public class IogisticsServiceImpl implements IogisticsService {
 
         IogisticsData save1 = iogisticsDataDao.save(save);
         Map<String, Object> map = new HashMap();
-        map.put("contractNo",save.getContractNo());  //销售合同号
-        map.put("theAwbNo",save.getTheAwbNo()); //运单号
-        map.put("submenuName",save.getSubmenuName());   //物流分单员名称
-        map.put("logisticsUserId",save.getLogisticsUserId());   //物流经办人id
+        map.put("contractNo", save.getContractNo());  //销售合同号
+        map.put("theAwbNo", save.getTheAwbNo()); //运单号
+        map.put("submenuName", save.getSubmenuName());   //物流分单员名称
+        map.put("logisticsUserId", save.getLogisticsUserId());   //物流经办人id
         sendSms(map);
 
 
-        //出库信息管理合并出库以后添加
-        BackLog newBackLog = new BackLog();
-        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICSDATA.getMsg());  //功能名称
-        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICSDATA.getNum());    //功能访问路径标识
-        newBackLog.setReturnNo(save1.getDeliverDetailNo());  //返回单号    产品放行单号
-        newBackLog.setInformTheContent(StringUtils.join(deliverConsignNoSet,",")+" | "+save1.getContractNo());  //提示内容   出口发货通知单号  销售合同号
-        newBackLog.setHostId(save1.getId());    //父ID，列表页id
-        newBackLog.setUid(save1.getLogisticsUserId());   ////经办人id
-        backLogService.addBackLogByDelYn(newBackLog);
-
+        String returnNo = save1.getDeliverDetailNo(); // 返回单号
+        String infoContent = StringUtils.join(deliverConsignNoSet, ",") + " | " + save1.getContractNo();  //提示内容
+        Integer hostId = save1.getId();
+        Integer userId = save1.getLogisticsUserId(); //经办人id
+        // 推送增加待办事件，出库信息管理合并出库以后添加
+        applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                BackLog.ProjectStatusEnum.LOGISTICSDATA,
+                returnNo,
+                infoContent,
+                hostId,
+                userId));
         return true;
     }
 
