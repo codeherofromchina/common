@@ -12,6 +12,8 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.PurchDoneCheckEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.CheckLogService;
@@ -467,6 +469,8 @@ public class ProjectServiceImpl implements ProjectService {
         //sendDingtalk(projectUpdate.getOrder(), "31025", false);
         sendDingtalk(projectUpdate.getOrder(), "39552", false);
         projectUpdate.setAuditingStatus(2); // 审核中
+
+        auditBackLogHandle(project, false, "39552");
     }
 
     @Transactional(readOnly = true)
@@ -1159,7 +1163,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingStatus_i = 3;
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
-                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
                 if (auditingProcess_order != null && auditingProcess_order == 0) {
                     project.getOrder().setStatus(1);
                 }
@@ -1167,6 +1171,17 @@ public class ProjectServiceImpl implements ProjectService {
                 project.getOrder().setAuditingStatus(auditingStatus_i);
                 project.getOrder().setAuditingProcess(auditingProcess_order);
                 project.getOrder().getProject().setAuditingStatus(0);
+
+                // 推送待办事件
+                String infoContent = String.format("%s (%s | %s)", project.getOrder().getContractNo(), project.getOrder().getRegion(), project.getOrder().getCountry());
+                String contractNo = project.getOrder().getContractNo();
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.ORDER_REJECT,
+                        contractNo,
+                        infoContent,
+                        project.getOrder().getId(),
+                        Integer.parseInt(auditingUserId_order)));
+
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
@@ -1304,8 +1319,39 @@ public class ProjectServiceImpl implements ProjectService {
         sendDingtalk(project.getOrder(), auditingUserId_i, rejectFlag);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
+
+        auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+
         return true;
     }
+
+    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditingUserId) {
+        try {
+            // 删除上一个待办
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setHostId(project.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());    //功能访问路径标识
+            backLogService.updateBackLogByDelYn(backLog2);
+
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
+                // 推送待办事件
+                String infoContent = project.getProjectName();
+                String projectNo = project.getProjectNo();
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        rejectFlag ? BackLog.ProjectStatusEnum.PROJECT_REJECT : BackLog.ProjectStatusEnum.PROJECT_AUDIT,
+                        projectNo,
+                        infoContent,
+                        project.getId(),
+                        userIdArr));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void addProfitData(XSSFWorkbook workbook, Map<String, Object> results) {

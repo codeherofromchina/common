@@ -14,6 +14,7 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.NotifyPointProjectEvent;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
@@ -829,7 +830,39 @@ public class OrderServiceImpl implements OrderService {
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
+
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i);
+
         return true;
+    }
+
+
+    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId) {
+        try {
+            // 删除上一个待办
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());    //功能访问路径标识
+            backLogService.updateBackLogByDelYn(backLog2);
+
+
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
+                // 推送待办事件
+                String infoContent = String.format("%s (%s | %s)", order.getContractNo(), order.getRegion(), order.getCountry());
+                String contractNo = order.getContractNo();
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        rejectFlag ? BackLog.ProjectStatusEnum.ORDER_REJECT : BackLog.ProjectStatusEnum.ORDER_AUDIT,
+                        contractNo,
+                        infoContent,
+                        order.getId(),
+                        userIdArr));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void reProject(CheckLog checkLog, Project project, Order order) {
@@ -913,6 +946,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
                 order.setAuditingProcess(2);
             }*/
+
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
@@ -923,6 +957,8 @@ public class OrderServiceImpl implements OrderService {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
             }*/
             checkLogService.insert(checkLog_i);
+            // 审核待办
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
         }
         Date signingDate = null;
         if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1111,6 +1147,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(1);
             order.setAuditingStatus(2);
             order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+            auditBackLogHandle(order, false, addOrderVo.getPerLiableRepayId().toString());
         }
         CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);

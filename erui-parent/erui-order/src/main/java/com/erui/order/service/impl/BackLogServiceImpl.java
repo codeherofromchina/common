@@ -119,20 +119,20 @@ public class BackLogServiceImpl implements BackLogService{
     public void updateBackLogByDelYn(BackLog backLog) throws Exception {
         List<BackLog> backLogList = null;
         try {
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),1);
-        }catch (Exception e){
-            logger.error("逻辑删除 - 查询待办事项失败："+e);
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+        } catch (Exception e) {
+            logger.error("逻辑删除 - 查询待办事项失败：" + e);
             throw new Exception(e);
         }
-        if(backLogList.size() > 0){
-            for (BackLog backLog1 : backLogList){
+        if (backLogList.size() > 0) {
+            for (BackLog backLog1 : backLogList) {
                 backLog1.setDelYn(0);
                 backLog1.setDeleteTime(new Date());
             }
             try {
                 backLogDao.save(backLogList);
-            }catch (Exception e){
-                logger.error("逻辑删除 - 修改待办事项失败："+e);
+            } catch (Exception e) {
+                logger.error("逻辑删除 - 修改待办事项失败：" + e);
                 throw new Exception(e);
             }
         }

@@ -162,6 +162,15 @@ public interface OrderService {
      */
     boolean audit(Order order, String auditorId, String auditorName, AddOrderVo addOrderVo) throws Exception;
 
+
+    /**
+     * 订单审核待办事项处理
+     * @param order
+     * @param rejectFlag
+     * @param auditingUserId
+     */
+    void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId);
+
     void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
 
     CheckLog fullCheckLogInfo(Integer orderId, Integer purchId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,

@@ -289,7 +289,37 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         purchDao.save(purch);
+
+        auditBackLogHandle(purch, rejectFlag, auditingUserId_i);
+
         return true;
+    }
+
+
+    private void auditBackLogHandle(Purch purch, boolean rejectFlag, Integer auditingUserId) {
+        try {
+            // 删除上一个待办
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setHostId(purch.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_REJECT.getNum());    //功能访问路径标识
+            backLogService.updateBackLogByDelYn(backLog2);
+
+            if (auditingUserId != null) {
+                // 推送待办事件
+                String infoContent = String.format("%s (%s)", purch.getPurchNo(), purch.getSupplierName());
+                String purchNo = purch.getPurchNo();
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        rejectFlag ? BackLog.ProjectStatusEnum.PURCH_REJECT : BackLog.ProjectStatusEnum.PURCH_AUDIT,
+                        purchNo,
+                        infoContent,
+                        purch.getId(),
+                        auditingUserId));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //钉钉通知 审批人
@@ -765,6 +795,7 @@ public class PurchServiceImpl implements PurchService {
             purch.setAuditingProcess(21);
             purch.setAuditingStatus(1);
             purch.setAuditingUserId(purch.getPurchAuditerId());
+
         }
         CheckLog checkLog_i = null; //审批流日志
 
@@ -775,6 +806,8 @@ public class PurchServiceImpl implements PurchService {
             }
             checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
+            // 待办
+            auditBackLogHandle(save, false, save.getPurchAuditerId());
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1088,6 +1121,7 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setAuditingProcess(21);
             dbPurch.setAuditingStatus(1);
             dbPurch.setAuditingUserId(purch.getPurchAuditerId());
+            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId());
         }
         CheckLog checkLog_i = null;//审批流日志
 
