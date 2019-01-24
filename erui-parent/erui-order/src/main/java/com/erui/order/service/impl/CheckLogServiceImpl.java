@@ -89,6 +89,18 @@ public class CheckLogServiceImpl implements CheckLogService {
     }
 
     @Override
+    public List<CheckLog> findListByOrderIdAndType(Integer orderId, Integer type) {
+        List<CheckLog> checkLogList = null;
+        if (orderId != null) {
+            checkLogList = checkLogDao.findByOrderIdAndType(orderId, type);
+        }
+        if (checkLogList == null) {
+            checkLogList = new ArrayList<>();
+        }
+        return checkLogList;
+    }
+
+    @Override
     public List<CheckLog> findListByPurchId(Integer purchId, Integer type) {
         List<CheckLog> checkLogList = null;
         if (purchId != null) {
