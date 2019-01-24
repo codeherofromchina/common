@@ -2904,6 +2904,13 @@ public class OrderServiceImpl implements OrderService {
             if (cl.getAuditingProcess() == 14) {
                 String stringR24C10 = sheet1.getRow(24).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(24).getCell(10).setCellValue(stringR24C10);
+
+                if (orderDec.getProject().getLogisticsAudit() != 2 ) {
+                    //事业部总监审核接收时间
+                    String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                    sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
+                }
+
             }
             //法务
             if (cl.getAuditingProcess() == 8) {
@@ -2923,18 +2930,12 @@ public class OrderServiceImpl implements OrderService {
             if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 16) {
                 String stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
-            }
 
-            if (cl.getAuditingProcess() == 16) {
                 //事业部总监审核接收时间
                 String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
-
-                if (orderDec.getTotalPriceUsd().compareTo(new BigDecimal(500000)) <= 0) {
-                    String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                    sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
-                }
             }
+
 
 
             //事业部总监审核取走时间
