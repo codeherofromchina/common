@@ -374,7 +374,7 @@
             t3.log_inquiry_id = inquiry.id
             AND inquiry.id = log1.inquiry_id
             AND inquiry.id = log2.inquiry_id
-            AND log1.in_node = 'BIZ_APPROVING'
+            AND log1.in_node = 'MARKET_APPROVING'
             AND log2.in_node = 'BIZ_DISPATCHING'
             GROUP BY inquiry.id , inquiry.org_id) t1,
             erui_sys.org AS org
