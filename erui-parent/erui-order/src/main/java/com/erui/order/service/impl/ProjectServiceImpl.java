@@ -1359,7 +1359,7 @@ public class ProjectServiceImpl implements ProjectService {
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         pse, projectNo,
                         infoContent,
-                        project.getId(),
+                        project.getOrder().getId(),
                         userIdArr));
             }
         } catch (Exception e) {

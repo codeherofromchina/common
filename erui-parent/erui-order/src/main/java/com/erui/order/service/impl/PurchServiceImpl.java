@@ -309,7 +309,7 @@ public class PurchServiceImpl implements PurchService {
 
             if (auditingUserId != null) {
                 // 推送待办事件
-                String infoContent = String.format("%s (%s)", purch.getPurchNo(), purch.getSupplierName());
+                String infoContent = String.format("%s", purch.getPurchNo(), purch.getSupplierName());
                 String purchNo = purch.getPurchNo();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         rejectFlag ? BackLog.ProjectStatusEnum.PURCH_REJECT : BackLog.ProjectStatusEnum.PURCH_AUDIT,
