@@ -843,10 +843,14 @@ public class OrderServiceImpl implements OrderService {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
             backLog2.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
 
             if (StringUtils.isNotBlank(auditingUserId)) {
@@ -854,8 +858,10 @@ public class OrderServiceImpl implements OrderService {
                 // 推送待办事件
                 String infoContent = String.format("%s | %s", order.getRegion(), order.getCountry());
                 String crmCode = order.getCrmCode();
+                Integer auditprocess = order.getAuditingProcess() == null ? -1 : order.getAuditingProcess();
+                BackLog.ProjectStatusEnum pse = rejectFlag ? (auditprocess == 1 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : (auditprocess == 6 ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        rejectFlag ? (order.getStatus() == 1 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : BackLog.ProjectStatusEnum.ORDER_AUDIT,
+                        pse,
                         crmCode,
                         infoContent,
                         order.getId(),

@@ -406,7 +406,7 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(order.getId());    //父ID，列表页id
                     newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
-                    Integer businessUid = projectUpdate.getBusinessUid();//商务技术经办人id
+                    Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
                     newBackLog.setUid(businessUid);   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);
                 }
@@ -1173,12 +1173,16 @@ public class ProjectServiceImpl implements ProjectService {
                 project.getOrder().getProject().setAuditingStatus(0);
 
                 // 推送待办事件
-                String infoContent = String.format("%s (%s | %s)", project.getOrder().getContractNo(), project.getOrder().getRegion(), project.getOrder().getCountry());
-                String contractNo = project.getOrder().getContractNo();
+                String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
+                String crmCode = project.getOrder().getCrmCode();
+                BackLog.ProjectStatusEnum pse = null;
+                if (auditingProcess_order != null && (auditingProcess_order == 0 || auditingProcess_order == 6)) {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT2;
+                } else {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT;
+                }
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        project.getOrder().getStatus() == 1 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT,
-                        contractNo,
-                        infoContent,
+                        pse, crmCode, infoContent,
                         project.getOrder().getId(),
                         Integer.parseInt(auditingUserId_order)));
 
@@ -1327,12 +1331,14 @@ public class ProjectServiceImpl implements ProjectService {
 
     private void auditBackLogHandle(Project project, boolean rejectFlag, String auditingUserId) {
         try {
-            // 删除上一个待办
+            // 删除上一个待办，上一个待办可能是以下几种情况
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());
             backLog2.setHostId(project.getId());
             backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
 
             if (StringUtils.isNotBlank(auditingUserId)) {
@@ -1340,9 +1346,18 @@ public class ProjectServiceImpl implements ProjectService {
                 // 推送待办事件
                 String infoContent = project.getProjectName();
                 String projectNo = project.getProjectNo();
+                String processProgress = project.getProcessProgress();
+                BackLog.ProjectStatusEnum pse = null;
+                if (rejectFlag && StringUtils.equals(processProgress, "6")) {
+                    // 是项目驳回，且驳回到商务技术，则需要编辑页面的地址
+                    pse = BackLog.ProjectStatusEnum.PROJECT_REJECT2;
+                } else if (rejectFlag) {
+                    pse = BackLog.ProjectStatusEnum.PROJECT_REJECT;
+                } else {
+                    pse = BackLog.ProjectStatusEnum.PROJECT_AUDIT;
+                }
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        rejectFlag ? BackLog.ProjectStatusEnum.PROJECT_REJECT : BackLog.ProjectStatusEnum.PROJECT_AUDIT,
-                        projectNo,
+                        pse, projectNo,
                         infoContent,
                         project.getId(),
                         userIdArr));

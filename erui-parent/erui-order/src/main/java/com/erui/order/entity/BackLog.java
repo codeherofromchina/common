@@ -186,8 +186,9 @@ public class BackLog {
         PURCHREQUISITION("办理采购申请", 3), PURCHORDER("办理采购订单", 4), INSPECTAPPLY("办理报检单", 5), INSPECTREPORT("办理入库质检", 6),
         INSTOCKSUBMENU("办理入库分单", 7), TRANSACTINSTOCK("办理入库", 7),
         INSTOCKSUBMENUDELIVER("办理出库分单", 8), TRANSACTDELIVER("办理出库", 8), DELIVERDETAIL("办理出库质检", 9), NOTARIZEDELIVER("确认出库", 8),
-        LOGISTICS("办理物流分单", 10), LOGISTICSDATA("办理物流", 11), ORDER_AUDIT("订单审核", 12), ORDER_REJECT("订单驳回", 13), ORDER_REJECT2("订单驳回（可编辑）", 13), PROJECT_AUDIT("项目审核", 14),
-        PROJECT_REJECT("项目驳回", 15), PURCH_AUDIT("采购订单审核", 16), PURCH_REJECT("采购订单驳回", 17);
+        LOGISTICS("办理物流分单", 10), LOGISTICSDATA("办理物流", 11), ORDER_AUDIT("订单审核", 12), ORDER_REJECT("订单驳回", 13), PROJECT_AUDIT("项目审核", 14),
+        PROJECT_REJECT("项目驳回", 15), PURCH_AUDIT("采购订单审核", 16), PURCH_REJECT("采购订单驳回（可编辑）", 17), ORDER_AUDIT2("订单审核（可编辑）", 18), ORDER_REJECT2("订单驳回（可编辑）", 19),
+        PROJECT_REJECT2("项目驳回（可编辑）", 20);
         private String msg;
 
         private Integer num;
