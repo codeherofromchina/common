@@ -589,9 +589,9 @@ public class OrderServiceImpl implements OrderService {
         if (rejectFlag) { // 如果是驳回，则
             // 直接记录日志，修改审核进度
             CheckLog checkLog = checkLogDao.findOne(addOrderVo.getCheckLogId());
-            auditingStatus_i = 3;//驳回状态
+            auditingStatus_i = 3; //驳回状态
             auditingProcess_i = checkLog.getAuditingProcess().toString(); //驳回给哪一步骤
-            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
             auditorIds.append("," + auditingUserId_i + ",");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), null, curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
@@ -849,14 +849,13 @@ public class OrderServiceImpl implements OrderService {
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());    //功能访问路径标识
             backLogService.updateBackLogByDelYn(backLog2);
 
-
             if (StringUtils.isNotBlank(auditingUserId)) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
-                String infoContent = String.format("%s (%s | %s)", order.getCrmCode(), order.getRegion(), order.getCountry());
+                String infoContent = String.format("%s | %s", order.getRegion(), order.getCountry());
                 String crmCode = order.getCrmCode();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        rejectFlag ? BackLog.ProjectStatusEnum.ORDER_REJECT : BackLog.ProjectStatusEnum.ORDER_AUDIT,
+                        rejectFlag ? (order.getStatus() == 1 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : BackLog.ProjectStatusEnum.ORDER_AUDIT,
                         crmCode,
                         infoContent,
                         order.getId(),

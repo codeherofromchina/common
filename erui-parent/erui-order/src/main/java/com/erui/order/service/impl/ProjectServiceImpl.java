@@ -1176,7 +1176,7 @@ public class ProjectServiceImpl implements ProjectService {
                 String infoContent = String.format("%s (%s | %s)", project.getOrder().getContractNo(), project.getOrder().getRegion(), project.getOrder().getCountry());
                 String contractNo = project.getOrder().getContractNo();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.ORDER_REJECT,
+                        project.getOrder().getStatus() == 1 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT,
                         contractNo,
                         infoContent,
                         project.getOrder().getId(),
