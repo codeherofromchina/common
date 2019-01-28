@@ -1133,7 +1133,6 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setAuditingProcess(21);
             dbPurch.setAuditingStatus(1);
             dbPurch.setAuditingUserId(purch.getPurchAuditerId());
-            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId());
         }
         CheckLog checkLog_i = null; //审批流日志
 
@@ -1144,6 +1143,7 @@ public class PurchServiceImpl implements PurchService {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
+            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId());
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1155,19 +1155,6 @@ public class PurchServiceImpl implements PurchService {
                         projectNoSet.add(projectNo);
                     }
                 }
-
-                String returnNo = dbPurch.getPurchNo(); // 返回单号
-                String infoContent = String.format("%s", purch.getSupplierName()); //提示内容
-                Integer hostId = save.getId();
-                Integer userId = save.getAgentId(); //经办人id
-                // 推送增加待办事件，通知采购经办人办理报检单
-                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.PURCH_AUDIT,
-                        returnNo,
-                        infoContent,
-                        hostId,
-                        "采购",
-                        userId));
 
             }
 
