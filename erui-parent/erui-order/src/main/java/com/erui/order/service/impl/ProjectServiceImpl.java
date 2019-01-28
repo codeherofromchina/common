@@ -1176,8 +1176,10 @@ public class ProjectServiceImpl implements ProjectService {
                 String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
                 String crmCode = project.getOrder().getCrmCode();
                 BackLog.ProjectStatusEnum pse = null;
-                if (auditingProcess_order != null && (auditingProcess_order == 0 || auditingProcess_order == 6)) {
+                if (auditingProcess_order != null && auditingProcess_order == 0) {
                     pse = BackLog.ProjectStatusEnum.ORDER_REJECT2;
+                } else if (auditingProcess_order != null && auditingProcess_order == 6) {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT3;
                 } else {
                     pse = BackLog.ProjectStatusEnum.ORDER_REJECT;
                 }

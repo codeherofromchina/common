@@ -188,7 +188,10 @@ public class BackLog {
         INSTOCKSUBMENUDELIVER("办理出库分单", 8), TRANSACTDELIVER("办理出库", 8), DELIVERDETAIL("办理出库质检", 9), NOTARIZEDELIVER("确认出库", 8),
         LOGISTICS("办理物流分单", 10), LOGISTICSDATA("办理物流", 11), ORDER_AUDIT("订单审核", 12), ORDER_REJECT("订单驳回", 13), PROJECT_AUDIT("项目审核", 14),
         PROJECT_REJECT("项目驳回", 15), PURCH_AUDIT("采购订单审核", 16), PURCH_REJECT("采购订单驳回（可编辑）", 17), ORDER_AUDIT2("订单审核（可编辑）", 18), ORDER_REJECT2("订单驳回（可编辑）", 19),
-        PROJECT_REJECT2("项目驳回（可编辑）", 20);
+        PROJECT_REJECT2("项目驳回（可编辑）", 20), ORDER_REJECT3("项目驳回（可编辑2）", 18);
+        /**
+         * 18：是跳转到商务技术审核人处理订单信息的地址
+         */
         private String msg;
 
         private Integer num;
