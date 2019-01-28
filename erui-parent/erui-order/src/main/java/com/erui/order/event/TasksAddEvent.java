@@ -16,6 +16,7 @@ public class TasksAddEvent extends AsyncBaseEvent {
     private final String returnNo;
     private final String infoContent;
     private final Integer hostId;
+    private final String placeSystem;
     private final Integer[] userIds;
 
     public TasksAddEvent(Object source, BackLogService backLogService, BackLog.ProjectStatusEnum backEnum,
@@ -27,6 +28,20 @@ public class TasksAddEvent extends AsyncBaseEvent {
         this.infoContent = infoContent;
         this.hostId = hostId;
         this.userIds = userId;
+        this.placeSystem = "订单";
+    }
+
+
+    public TasksAddEvent(Object source, BackLogService backLogService, BackLog.ProjectStatusEnum backEnum,
+                         String returnNo, String infoContent, Integer hostId, String placeSystem, Integer... userId) {
+        super(source);
+        this.backLogService = backLogService;
+        this.backEnum = backEnum;
+        this.returnNo = returnNo;
+        this.infoContent = infoContent;
+        this.hostId = hostId;
+        this.userIds = userId;
+        this.placeSystem = placeSystem;
     }
 
     @Override
@@ -36,6 +51,7 @@ public class TasksAddEvent extends AsyncBaseEvent {
             LOGGER.info("增加待办信息[userId:{}\tinfoContent:{}\thostId:{}\treturnNo:{}\tfunction:{}]",
                     userId, infoContent, hostId, returnNo, backEnum);
             backLog = new BackLog();
+            backLog.setPlaceSystem(placeSystem);
             backLog.setFunctionExplainName(backEnum.getMsg());  //功能名称
             backLog.setFunctionExplainId(backEnum.getNum());    //功能访问路径标识
             backLog.setReturnNo(returnNo);  //返回单号

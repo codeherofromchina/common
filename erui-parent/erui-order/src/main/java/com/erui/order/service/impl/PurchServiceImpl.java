@@ -309,14 +309,31 @@ public class PurchServiceImpl implements PurchService {
 
             if (auditingUserId != null) {
                 // 推送待办事件
-                String infoContent = String.format("%s", purch.getPurchNo(), purch.getSupplierName());
+                String infoContent = String.format("%s", purch.getSupplierName());
                 String purchNo = purch.getPurchNo();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         rejectFlag ? BackLog.ProjectStatusEnum.PURCH_REJECT : BackLog.ProjectStatusEnum.PURCH_AUDIT,
                         purchNo,
                         infoContent,
                         purch.getId(),
+                        "采购",
                         auditingUserId));
+            }
+
+            if (purch.getAuditingStatus() == 4 && purch.getAuditingProcess() == 999) {
+                // 推动
+                String returnNo = purch.getPurchNo(); // 返回单号
+                String infoContent = purch.getSupplierName();  //提示内容
+                Integer hostId = purch.getId();
+                Integer userId = purch.getAgentId(); //经办人id
+                // 推送增加待办事件，通知采购经办人办理报检单
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.INSPECTAPPLY,
+                        returnNo,
+                        infoContent,
+                        hostId,
+                        "采购",
+                        userId));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -828,16 +845,18 @@ public class PurchServiceImpl implements PurchService {
                     }
                 }
 
+                // 推送审核待办事件
                 String returnNo = purch.getPurchNo(); // 返回单号
-                String infoContent = StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName();  //提示内容
+                String infoContent = String.format("%s", purch.getSupplierName());
                 Integer hostId = save.getId();
                 Integer userId = save.getAgentId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.INSPECTAPPLY,
+                        BackLog.ProjectStatusEnum.PURCH_AUDIT,
                         returnNo,
                         infoContent,
                         hostId,
+                        "采购",
                         userId));
             }
 
@@ -1131,7 +1150,7 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setAuditingUserId(purch.getPurchAuditerId());
             auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId());
         }
-        CheckLog checkLog_i = null;//审批流日志
+        CheckLog checkLog_i = null; //审批流日志
 
         Purch save = purchDao.save(dbPurch);
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
@@ -1153,15 +1172,16 @@ public class PurchServiceImpl implements PurchService {
                 }
 
                 String returnNo = dbPurch.getPurchNo(); // 返回单号
-                String infoContent = StringUtils.join(projectNoSet, ",") + " | " + save.getSupplierName();  //提示内容
+                String infoContent = String.format("%s", purch.getSupplierName()); //提示内容
                 Integer hostId = save.getId();
                 Integer userId = save.getAgentId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.INSPECTAPPLY,
+                        BackLog.ProjectStatusEnum.PURCH_AUDIT,
                         returnNo,
                         infoContent,
                         hostId,
+                        "采购",
                         userId));
 
             }

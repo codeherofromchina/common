@@ -23,7 +23,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @Author:SHIGS
@@ -79,7 +78,7 @@ public class CheckLogServiceImpl implements CheckLogService {
     @Override
     public List<CheckLog> findListByOrderId(Integer orderId) {
         if (orderId != null) {
-            List<CheckLog> checkLogList = checkLogDao.findByOrderId(orderId);
+            List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
                 List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).collect(Collectors.toList());
                 return collect;

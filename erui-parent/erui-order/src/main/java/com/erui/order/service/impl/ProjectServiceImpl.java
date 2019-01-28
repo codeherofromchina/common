@@ -162,7 +162,7 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
                     String contractNo = order.getContractNo();  //销售合同号
-                    newBackLog.setReturnNo(contractNo);  //返回单号
+                    newBackLog.setReturnNo(contractNo);  // 返回单号
                     String region = order.getRegion();//地区
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                     String country = order.getCountry();//国家
@@ -470,7 +470,7 @@ public class ProjectServiceImpl implements ProjectService {
         sendDingtalk(projectUpdate.getOrder(), "39552", false);
         projectUpdate.setAuditingStatus(2); // 审核中
 
-        auditBackLogHandle(project, false, "39552");
+        auditBackLogHandle(projectUpdate, false, "39552");
     }
 
     @Transactional(readOnly = true)
@@ -1334,7 +1334,7 @@ public class ProjectServiceImpl implements ProjectService {
             // 删除上一个待办，上一个待办可能是以下几种情况
             BackLog backLog2 = new BackLog();
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());
-            backLog2.setHostId(project.getId());
+            backLog2.setHostId(project.getOrder().getId());
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
@@ -1360,6 +1360,7 @@ public class ProjectServiceImpl implements ProjectService {
                         pse, projectNo,
                         infoContent,
                         project.getOrder().getId(),
+                        "项目",
                         userIdArr));
             }
         } catch (Exception e) {

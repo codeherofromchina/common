@@ -76,6 +76,7 @@ public class PurchController {
         if (userId != null) {
             String ui = String.valueOf(userId);
             if (StringUtils.isNotBlank(ui) && StringUtils.isNumeric(ui)) {
+                // 填充条件的当前审核人，查询列表条件使用
                 condition.setAuditingUserId(Integer.parseInt(ui));
             }
         }
