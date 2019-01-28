@@ -285,7 +285,7 @@ public class PurchServiceImpl implements PurchService {
         }
         if (auditingStatus_i == 4 && auditingProcess_i == 999) {
             if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
-                purch.setStatus(3);
+                purch.setStatus(Purch.StatusEnum.DONE.getCode()); // TODO 这里是何意？
             }
         }
         purch.setAudiRemark(auditorIds.toString());

@@ -285,7 +285,6 @@ public class InspectReportServiceImpl implements InspectReportService {
         dbInspectReport.setReportRemarks(inspectReport.getReportRemarks());
         dbInspectReport.setStatus(statusEnum.getCode());
 
-
         // 处理附件信息
         List<Attachment> attachments = attachmentService.handleParamAttachment(dbInspectReport.getAttachments(), inspectReport.getAttachments(), inspectReport.getCreateUserId(), inspectReport.getCreateUserName());
         dbInspectReport.setAttachments(attachments);
