@@ -450,17 +450,23 @@ public class PurchServiceImpl implements PurchService {
                     list.add(cb.equal(root.get("status").as(Integer.class), statusEnum.getCode()));
                 }
 
-//                if (condition.getAuditingUserId() != null) {
-//                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class),
-//                            "%" + condition.getAuditingUserId() + "%");
-//                    Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class),
-//                            "%," + condition.getAuditingUserId() + ",%");
-//                    list.add(cb.or(auditingUserIdP, auditingUserId02));
-//                }
+                Predicate auditCondition = null;
+                if (condition.getAuditingUserId() != null) {
+                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class),
+                            "%" + condition.getAuditingUserId() + "%");
+                    Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class),
+                            "%," + condition.getAuditingUserId() + ",%");
+                    auditCondition = cb.or(auditingUserIdP, auditingUserId02);
+                }
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
-                return cb.and(predicates);
+                Predicate and = cb.and(predicates);
+                if (auditCondition != null) {
+                    return cb.or(and, auditCondition);
+                } else {
+                    return and;
+                }
             }
         }, request);
 
