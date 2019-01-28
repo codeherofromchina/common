@@ -844,22 +844,7 @@ public class PurchServiceImpl implements PurchService {
                         projectNoSet.add(projectNo);
                     }
                 }
-
-                // 推送审核待办事件
-                String returnNo = purch.getPurchNo(); // 返回单号
-                String infoContent = String.format("%s", purch.getSupplierName());
-                Integer hostId = save.getId();
-                Integer userId = save.getAgentId(); //经办人id
-                // 推送增加待办事件，通知采购经办人办理报检单
-                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.PURCH_AUDIT,
-                        returnNo,
-                        infoContent,
-                        hostId,
-                        "采购",
-                        userId));
             }
-
         }
 
         // 检查项目是否已经采购完成

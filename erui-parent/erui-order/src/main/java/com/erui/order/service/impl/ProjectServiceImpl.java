@@ -385,13 +385,13 @@ public class ProjectServiceImpl implements ProjectService {
                     //如果是直接执行项目，删除   “执行项目”  待办提示信息
                     BackLog backLog = new BackLog();
                     backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
-                    backLog.setHostId(projectUpdate.getId());
+                    backLog.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYn(backLog);
 
                     //如果项目是提交状态    如果有项目经理驳回信息删除
                     BackLog backLog2 = new BackLog();
                     backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
-                    backLog2.setHostId(projectUpdate.getId());
+                    backLog2.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYn(backLog2);
 
                     //项目状态是提交状态  通知商务技术经办人办理采购申请
@@ -1364,6 +1364,20 @@ public class ProjectServiceImpl implements ProjectService {
                         project.getOrder().getId(),
                         "项目",
                         userIdArr));
+            } else if ("999".equals(project.getAuditingProcess())) {
+                // 所有审核完成，推送消息到项目商务技术经办人
+
+                String region = project.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = project.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                String infoContent = bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country);  //提示内容
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.EXECUTEPROJECT, project.getProjectNo(),
+                        infoContent,
+                        project.getOrder().getId(),
+                        "项目",
+                        project.getBusinessUid()));
             }
         } catch (Exception e) {
             e.printStackTrace();
