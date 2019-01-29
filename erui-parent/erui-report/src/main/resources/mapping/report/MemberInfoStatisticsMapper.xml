@@ -205,7 +205,7 @@
     <select id="findAllNewMembershipByArea" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             COUNT(DISTINCT crm_code) AS totalNum,
-            SUM(total_price_usd)/1000 AS totalPrice,
+            SUM(total_price_usd)/10000 AS totalPrice,
             region_bn,
             region_name
         FROM
@@ -236,7 +236,7 @@
     <select id="findAllNewMembershipByCountry" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
             COUNT(DISTINCT crm_code) AS totalNum,
-            SUM(total_price_usd) / 1000 AS totalPrice,
+            SUM(total_price_usd) / 10000 AS totalPrice,
             country_bn,
             country_name
         FROM
