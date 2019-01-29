@@ -1661,7 +1661,7 @@ public class OrderServiceImpl implements OrderService {
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
                     bid = condition.getBusinessUnitId().split(",");
                 }
-                if (condition.getType() == 1) {
+                if (condition.getType() != null && condition.getType() == 1) {
                     Predicate createUserId = null;
                     if (condition.getCreateUserId() != null) {
                         createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
@@ -1686,7 +1686,7 @@ public class OrderServiceImpl implements OrderService {
                     } else if (technicalId != null && businessUnitId == null) {
                         list.add(cb.or(technicalId, createUserId));
                     }
-                } else if (condition.getType() == 2) {
+                } else if (condition.getType() != null && condition.getType() == 2) {
                     //根据市场经办人查询
                     if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
                         list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
