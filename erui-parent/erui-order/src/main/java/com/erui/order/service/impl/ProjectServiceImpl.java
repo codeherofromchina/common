@@ -12,6 +12,8 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.PurchDoneCheckEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.CheckLogService;
@@ -160,7 +162,7 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
                     String contractNo = order.getContractNo();  //销售合同号
-                    newBackLog.setReturnNo(contractNo);  //返回单号
+                    newBackLog.setReturnNo(contractNo);  // 返回单号
                     String region = order.getRegion();//地区
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                     String country = order.getCountry();//国家
@@ -383,13 +385,13 @@ public class ProjectServiceImpl implements ProjectService {
                     //如果是直接执行项目，删除   “执行项目”  待办提示信息
                     BackLog backLog = new BackLog();
                     backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
-                    backLog.setHostId(projectUpdate.getId());
+                    backLog.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYn(backLog);
 
                     //如果项目是提交状态    如果有项目经理驳回信息删除
                     BackLog backLog2 = new BackLog();
                     backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
-                    backLog2.setHostId(projectUpdate.getId());
+                    backLog2.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYn(backLog2);
 
                     //项目状态是提交状态  通知商务技术经办人办理采购申请
@@ -404,7 +406,7 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(order.getId());    //父ID，列表页id
                     newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
-                    Integer businessUid = projectUpdate.getBusinessUid();//商务技术经办人id
+                    Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
                     newBackLog.setUid(businessUid);   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);
                 }
@@ -467,6 +469,8 @@ public class ProjectServiceImpl implements ProjectService {
         //sendDingtalk(projectUpdate.getOrder(), "31025", false);
         sendDingtalk(projectUpdate.getOrder(), "39552", false);
         projectUpdate.setAuditingStatus(2); // 审核中
+
+        auditBackLogHandle(projectUpdate, false, "39552");
     }
 
     @Transactional(readOnly = true)
@@ -1159,7 +1163,7 @@ public class ProjectServiceImpl implements ProjectService {
             auditingStatus_i = 3;
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
-                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
                 if (auditingProcess_order != null && auditingProcess_order == 0) {
                     project.getOrder().setStatus(1);
                 }
@@ -1167,6 +1171,23 @@ public class ProjectServiceImpl implements ProjectService {
                 project.getOrder().setAuditingStatus(auditingStatus_i);
                 project.getOrder().setAuditingProcess(auditingProcess_order);
                 project.getOrder().getProject().setAuditingStatus(0);
+
+                // 推送待办事件
+                String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
+                String crmCode = project.getOrder().getCrmCode();
+                BackLog.ProjectStatusEnum pse = null;
+                if (auditingProcess_order != null && auditingProcess_order == 0) {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT2;
+                } else if (auditingProcess_order != null && auditingProcess_order == 6) {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT3;
+                } else {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT;
+                }
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        pse, crmCode, infoContent,
+                        project.getOrder().getId(),
+                        Integer.parseInt(auditingUserId_order)));
+
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
@@ -1304,8 +1325,65 @@ public class ProjectServiceImpl implements ProjectService {
         sendDingtalk(project.getOrder(), auditingUserId_i, rejectFlag);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
+
+        auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+
         return true;
     }
+
+    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditingUserId) {
+        try {
+            // 删除上一个待办，上一个待办可能是以下几种情况
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());
+            backLog2.setHostId(project.getOrder().getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
+                // 推送待办事件
+                String infoContent = project.getProjectName();
+                String projectNo = project.getProjectNo();
+                String processProgress = project.getProcessProgress();
+                BackLog.ProjectStatusEnum pse = null;
+                if (rejectFlag && StringUtils.equals(processProgress, "6")) {
+                    // 是项目驳回，且驳回到商务技术，则需要编辑页面的地址
+                    pse = BackLog.ProjectStatusEnum.PROJECT_REJECT2;
+                } else if (rejectFlag) {
+                    pse = BackLog.ProjectStatusEnum.PROJECT_REJECT;
+                } else {
+                    pse = BackLog.ProjectStatusEnum.PROJECT_AUDIT;
+                }
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        pse, projectNo,
+                        infoContent,
+                        project.getOrder().getId(),
+                        "项目",
+                        userIdArr));
+            } else if ("999".equals(project.getAuditingProcess())) {
+                // 所有审核完成，推送消息到项目商务技术经办人
+
+                String region = project.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = project.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                String infoContent = bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country);  //提示内容
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.EXECUTEPROJECT, project.getProjectNo(),
+                        infoContent,
+                        project.getOrder().getId(),
+                        "项目",
+                        project.getBusinessUid()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void addProfitData(XSSFWorkbook workbook, Map<String, Object> results) {

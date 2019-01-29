@@ -312,6 +312,16 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
+            try {
+                // 删除办理报检单待办事项列表
+                //全部质检合格以后，删除   “办理报检单”  待办提示
+                BackLog backLog = new BackLog();
+                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                backLog.setHostId(purch.getId());
+                backLogService.updateBackLogByDelYn(backLog);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

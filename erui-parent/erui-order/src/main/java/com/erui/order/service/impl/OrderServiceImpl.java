@@ -14,6 +14,7 @@ import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.NotifyPointProjectEvent;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
@@ -36,6 +37,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -586,9 +589,9 @@ public class OrderServiceImpl implements OrderService {
         if (rejectFlag) { // 如果是驳回，则
             // 直接记录日志，修改审核进度
             CheckLog checkLog = checkLogDao.findOne(addOrderVo.getCheckLogId());
-            auditingStatus_i = 3;//驳回状态
+            auditingStatus_i = 3; //驳回状态
             auditingProcess_i = checkLog.getAuditingProcess().toString(); //驳回给哪一步骤
-            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
             auditorIds.append("," + auditingUserId_i + ",");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), null, curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
@@ -829,7 +832,45 @@ public class OrderServiceImpl implements OrderService {
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
+
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i);
+
         return true;
+    }
+
+
+    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId) {
+        try {
+            // 删除上一个待办
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
+            backLog2.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
+                // 推送待办事件
+                String infoContent = String.format("%s | %s", order.getRegion(), order.getCountry());
+                String crmCode = order.getCrmCode();
+                Integer auditprocess = order.getAuditingProcess() == null ? -1 : order.getAuditingProcess();
+                BackLog.ProjectStatusEnum pse = rejectFlag ? (auditprocess == 0 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : (auditprocess == 6 ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        pse,
+                        crmCode,
+                        infoContent,
+                        order.getId(),
+                        userIdArr));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void reProject(CheckLog checkLog, Project project, Order order) {
@@ -913,6 +954,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
                 order.setAuditingProcess(2);
             }*/
+
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
@@ -923,6 +965,8 @@ public class OrderServiceImpl implements OrderService {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
             }*/
             checkLogService.insert(checkLog_i);
+            // 审核待办
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
         }
         Date signingDate = null;
         if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -989,31 +1033,13 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
-            //销售订单通知：销售订单下达后通知商务技术经办人
-            sendSms(order);
-            //钉钉通知回款责任人审批
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(), false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            //订单提交 推送“待办”到项目
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            String contractNo = orderUpdate.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = orderUpdate.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = orderUpdate.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
-            Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
-            newBackLog.setUid(technicalId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+            auditBackLogHandle(orderUpdate,false, orderUpdate.getAuditingUserId());
 
         }
         return order.getId();
@@ -1111,12 +1137,14 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(1);
             order.setAuditingStatus(2);
             order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+
         }
         CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
+            auditBackLogHandle(order1, false, addOrderVo.getPerLiableRepayId().toString());
         }
         Date signingDate = null;
         if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1176,31 +1204,14 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
-            // 销售订单通知：销售订单下达后通知商务技术经办人
-            sendSms(order);
-            //钉钉通知回款责任人审批人
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(), false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            //订单提交 推送“待办”到项目
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            String contractNo = order1.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = order1.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = order1.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(order.getId());    //父ID，列表页id    项目id
-            Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
-            newBackLog.setUid(technicalId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+            // 推送审核内容
+            auditBackLogHandle(order1,false,order1.getAuditingUserId());
 
         }
         return order1.getId();
@@ -2609,6 +2620,7 @@ public class OrderServiceImpl implements OrderService {
         return response;
     }
 
+
     @Override
     public void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results) {
         Order orderDec = (Order) results.get("orderDesc");
@@ -2934,8 +2946,12 @@ public class OrderServiceImpl implements OrderService {
                 //事业部总监审核接收时间
                 String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
-            }
 
+                if (orderDec.getTotalPriceUsd().compareTo(new BigDecimal(500000)) <= 0) {
+                    String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                    sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
+                }
+            }
 
 
             //事业部总监审核取走时间

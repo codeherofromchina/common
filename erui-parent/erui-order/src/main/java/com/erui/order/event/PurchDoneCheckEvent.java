@@ -48,6 +48,7 @@ public class PurchDoneCheckEvent extends BaseEvent {
 
     /**
      * 执行具体业务逻辑
+     * 需要触发事件的地方存在事务
      */
     @Override
     public void execute() {
@@ -64,44 +65,48 @@ public class PurchDoneCheckEvent extends BaseEvent {
                     toIndex = toIndex > size ? size : toIndex;
                     List<Project> projectList = projectDao.findByIdIn(projectIds.subList(fromIndex, toIndex));
                     for (Project project : projectList) {
-                        PurchRequisition purchRequisition = project.getPurchRequisition();
-                        List<Goods> goodsList = project.getOrder().getGoodsList();
-                        boolean purchDone = true;
-                        for (Goods goods : goodsList) {
-                            if (goods.getPurchasedNum() == null || (!goods.getExchanged() && goods.getPurchasedNum() < goods.getContractGoodsNum())) {
-                                purchDone = false;
-                                break;
+                        try {
+                            PurchRequisition purchRequisition = project.getPurchRequisition();
+                            List<Goods> goodsList = project.getOrder().getGoodsList();
+                            boolean purchDone = true;
+                            for (Goods goods : goodsList) {
+                                if (goods.getPurchasedNum() == null || goods.getContractGoodsNum() == null || (!goods.getExchanged() && goods.getPurchasedNum() < goods.getContractGoodsNum())) {
+                                    purchDone = false;
+                                    break;
+                                }
                             }
-                        }
-                        if (purchDone) {
-                            updateIds.add(project.getId());
-                            if (project.getOrderCategory() != null && project.getOrderCategory().equals(6)) {
-                                proIds.add(project.getId());
-                                orderIds.add(project.getOrder().getId());
+                            if (purchDone) {
+                                updateIds.add(project.getId());
+                                if (project.getOrderCategory() != null && project.getOrderCategory().equals(6)) {
+                                    proIds.add(project.getId());
+                                    orderIds.add(project.getOrder().getId());
+                                }
+                                //采购数量是已完毕 ，删除   “办理采购订单”  待办提示
+                                BackLog backLog = new BackLog();
+                                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+                                backLog.setHostId(project.getId());
+                                try {
+                                    // 待办删除未成功不影响正常业务
+                                    backLogService.updateBackLogByDelYn(backLog);
+                                } catch (Exception e) {
+                                    LOGGER.error("待办删除失败projectId:{},FunctionExplainId:{},err:{}", project.getId(), BackLog.ProjectStatusEnum.PURCHORDER.getNum(), e);
+                                    e.printStackTrace();
+                                }
+                                LOGGER.info("采购完成。projectId:{}", project.getId());
+                                if (purchRequisition != null) {
+                                    purchRequisition.setPurchStatus(PurchRequisition.PurchStatusEnum.DONE.getCode());
+                                }
+                            } else {
+                                LOGGER.info("采购未完成。projectId:{}", project.getId());
+                                if (purchRequisition != null) {
+                                    purchRequisition.setPurchStatus(PurchRequisition.PurchStatusEnum.BEING.getCode());
+                                }
                             }
-                            //采购数量是已完毕 ，删除   “办理采购订单”  待办提示
-                            BackLog backLog = new BackLog();
-                            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-                            backLog.setHostId(project.getId());
-                            try {
-                                // 待办删除未成功不影响正常业务
-                                backLogService.updateBackLogByDelYn(backLog);
-                            } catch (Exception e) {
-                                LOGGER.error("待办删除失败projectId:{},FunctionExplainId:{},err:{}", project.getId(), BackLog.ProjectStatusEnum.PURCHORDER.getNum(), e);
-                                e.printStackTrace();
-                            }
-                            LOGGER.info("采购完成。projectId:{}", project.getId());
                             if (purchRequisition != null) {
-                                purchRequisition.setPurchStatus(PurchRequisition.PurchStatusEnum.DONE.getCode());
+                                purchRequisitionDao.save(purchRequisition);
                             }
-                        } else {
-                            LOGGER.info("采购未完成。projectId:{}", project.getId());
-                            if (purchRequisition != null) {
-                                purchRequisition.setPurchStatus(PurchRequisition.PurchStatusEnum.BEING.getCode());
-                            }
-                        }
-                        if (purchRequisition != null) {
-                            purchRequisitionDao.save(purchRequisition);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                 }

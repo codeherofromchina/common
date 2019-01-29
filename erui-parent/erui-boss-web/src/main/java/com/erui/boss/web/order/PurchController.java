@@ -70,7 +70,17 @@ public class PurchController {
      * @return
      */
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> list(@RequestBody Purch condition) {
+    public Result<Object> list(HttpServletRequest request, @RequestBody Purch condition) {
+        // 获取当前用户ID
+        Object userId = request.getSession().getAttribute("userid");
+        if (userId != null) {
+            String ui = String.valueOf(userId);
+            if (StringUtils.isNotBlank(ui) && StringUtils.isNumeric(ui)) {
+                // 填充条件的当前审核人，查询列表条件使用
+                condition.setAuditingUserId(Integer.parseInt(ui));
+            }
+        }
+
         int page = condition.getPage();
         if (page < 1) {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);

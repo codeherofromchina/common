@@ -37,6 +37,9 @@ public interface CheckLogService {
      * @modified By
      */
     List<CheckLog> findListByOrderId(Integer orderId);
+
+
+    List<CheckLog> findListByOrderIdAndType(Integer orderId, Integer type);
     /**
      * @Author:SHIGS
      * @Description 根据订单查找审批日志

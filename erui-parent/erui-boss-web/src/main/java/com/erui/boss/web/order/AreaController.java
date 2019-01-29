@@ -8,6 +8,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +54,7 @@ public class AreaController {
      * @return
      */
     @RequestMapping(value = "a1")
+    @Transactional
     public Result<Object> a1() {
         Map<String, Object> map1 = new HashedMap();
         map1.put("abc", str);
