@@ -856,7 +856,11 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(auditingUserId)) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
-                String infoContent = String.format("%s | %s", order.getRegion(), order.getCountry());
+                String region = order.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = order.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
                 String crmCode = order.getCrmCode();
                 Integer auditprocess = order.getAuditingProcess() == null ? -1 : order.getAuditingProcess();
                 BackLog.ProjectStatusEnum pse = rejectFlag ? (auditprocess == 0 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : (auditprocess == 6 ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
