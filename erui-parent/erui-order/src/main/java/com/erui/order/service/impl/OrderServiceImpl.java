@@ -349,7 +349,7 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark);
                             } else {
                                 orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId);
                             }
