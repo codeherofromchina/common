@@ -419,7 +419,6 @@ public class OrderServiceImpl implements OrderService {
                     }*//*
                 }*/
                 list.add(cb.equal(root.get("deleteFlag"), false));
-                backList.addAll(list);
 
 
                 /*Predicate and = cb.and(predicates);
@@ -433,13 +432,20 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     return and;
                 }*/
-                Predicate[] predicatesBacks = new Predicate[backList.size()];
-                predicatesBacks = backList.toArray(predicatesBacks);
-                Predicate and = cb.and(predicatesBacks);
-                // 有或的关系
-                if (orCondition != null) {
-                    list.add(cb.or(and, orCondition));
+                if (backList.size() > 0) {
+                    Predicate[] predicatesBacks = new Predicate[backList.size()];
+                    predicatesBacks = backList.toArray(predicatesBacks);
+                    Predicate and = cb.and(predicatesBacks);
+                    // 有或的关系
+                    if (orCondition != null) {
+                        list.add(cb.or(and, orCondition));
+                    } else {
+                        list.add(and);
+                    }
+                } else if (orCondition != null) {
+                    list.add(orCondition);
                 }
+
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
