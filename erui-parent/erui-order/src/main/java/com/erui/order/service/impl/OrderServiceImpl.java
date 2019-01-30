@@ -196,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
         JSONObject userInfo = SsoUtils.ssoUserInfo(orderConf.getSsoUser(), token);
         JSONArray roloNos = userInfo.getJSONArray("role_no");
         if (roloNos != null && roloNos.size() > 0) {
-            boolean o34Exist = roloNos.stream().anyMatch(vo -> "o34".equals(vo));
+            boolean o34Exist = roloNos.stream().anyMatch(vo -> "O34".equals(vo));
             if (o34Exist) {
                 JSONArray countryBns = userInfo.getJSONArray("country_bn");
                 countryArr = countryBns.toArray(new String[countryBns.size()]);
