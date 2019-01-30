@@ -216,7 +216,7 @@ public class OrderServiceImpl implements OrderService {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
-                List<Predicate> backList = new ArrayList<>(); // 后台默认增加的条件
+                List<Predicate> orList = new ArrayList<>(); // 后台默认增加的条件
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
@@ -302,7 +302,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据区域所在国家查询
                 if (countryArr != null) {
-                    backList.add(root.get("country").in(countryArr));
+                    orList.add(root.get("country").in(countryArr));
                 }
                 //根据事业部
                 String[] bid = null;
@@ -312,7 +312,6 @@ public class OrderServiceImpl implements OrderService {
                 /*if (bid != null) {
                     list.add(root.get("businessUnitId").in(bid));
                 }*/
-                Predicate orCondition = null;
                 if (condition.getType() == 1) {
                     Predicate createUserId = null;
                     if (condition.getCreateUserId() != null) {
@@ -337,12 +336,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             if (audiRemark != null) {
-                                orCondition = cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark);
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                orCondition = cb.or(and, createUserId, auditingUserId, perLiableRepayId);
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            orCondition = cb.or(and, createUserId);
+                            orList.add(cb.or(and, createUserId));
                         }
                     } else if (businessUnitId != null && technicalId == null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -350,12 +349,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark);
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId);
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            orCondition = cb.or(businessUnitId, createUserId);
+                            orList.add(cb.or(businessUnitId, createUserId));
                         }
                     } else if (technicalId != null && businessUnitId == null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -363,12 +362,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                orCondition =  cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark);
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                orCondition = cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId);
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            orCondition =  cb.or(technicalId, createUserId);
+                            orList.add(cb.or(technicalId, createUserId));
                         }
                     }
                 } else {
@@ -379,15 +378,15 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                orCondition = cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark);
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                orCondition = cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId);
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            orCondition = cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                    condition.getCreateUserId()));
+                            orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                    condition.getCreateUserId())));
                         }
                     } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -395,14 +394,14 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                orCondition = cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark);
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                orCondition = cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId);
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
                             }
                         } else {
                             if (condition.getCreateUserId() != null) {
-                                orCondition = cb.or(cb.equal(root.get("createUserId").as(Integer.class),
-                                        condition.getCreateUserId()));
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId())));
                             }
                         }
                     }
@@ -432,18 +431,11 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     return and;
                 }*/
-                if (backList.size() > 0) {
-                    Predicate[] predicatesBacks = new Predicate[backList.size()];
-                    predicatesBacks = backList.toArray(predicatesBacks);
-                    Predicate and = cb.and(predicatesBacks);
-                    // 有或的关系
-                    if (orCondition != null) {
-                        list.add(cb.or(and, orCondition));
-                    } else {
-                        list.add(and);
-                    }
-                } else if (orCondition != null) {
-                    list.add(orCondition);
+                if (orList.size() > 0) {
+                    Predicate[] predicatesBacks = new Predicate[orList.size()];
+                    predicatesBacks = orList.toArray(predicatesBacks);
+                    Predicate or = cb.or(predicatesBacks);
+                    list.add(or);
                 }
 
                 Predicate[] predicates = new Predicate[list.size()];
