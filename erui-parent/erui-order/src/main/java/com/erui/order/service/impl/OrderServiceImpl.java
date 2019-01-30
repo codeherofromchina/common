@@ -215,10 +215,23 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
+                List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
+                List<Predicate> backList = new ArrayList<>(); // 后台默认增加的条件
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据合同交货日期查询
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
                 }
                 // 根据订单审核状态
                 if (condition.getAuditingProcess() != null) {
@@ -248,14 +261,6 @@ public class OrderServiceImpl implements OrderService {
                     Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
                 }
-                //根据合同交货日期查询
-                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
-                }
-                //根据crm客户代码查询
-                if (StringUtil.isNotBlank(condition.getCrmCode())) {
-                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
-                }
                 //根据框架协议号查询
                 if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
                     list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
@@ -274,10 +279,6 @@ public class OrderServiceImpl implements OrderService {
                 //根据订单来源查询
                 if (StringUtil.isNotBlank(condition.getOrderSource())) {
                     list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
-                }
-                //根据项目号
-                if (StringUtil.isNotBlank(condition.getProjectNo())) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
@@ -301,7 +302,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //根据区域所在国家查询
                 if (countryArr != null) {
-                    list.add(root.get("country").in(countryArr));
+                    backList.add(root.get("country").in(countryArr));
                 }
                 //根据事业部
                 String[] bid = null;
@@ -418,8 +419,9 @@ public class OrderServiceImpl implements OrderService {
                     }*//*
                 }*/
                 list.add(cb.equal(root.get("deleteFlag"), false));
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
+                backList.addAll(list);
+
+
                 /*Predicate and = cb.and(predicates);
                 // 审核人查询,和其他关系是or，所有写在最后
                 if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -431,14 +433,16 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     return and;
                 }*/
-
-                Predicate and = cb.and(predicates);
-
+                Predicate[] predicatesBacks = new Predicate[backList.size()];
+                predicatesBacks = backList.toArray(predicatesBacks);
+                Predicate and = cb.and(predicatesBacks);
                 // 有或的关系
                 if (orCondition != null) {
-                    return cb.or(and, orCondition);
+                    list.add(cb.or(and, orCondition));
                 }
-                return and;
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
             }
         }, pageRequest);
         if (pageList.hasContent()) {
@@ -686,7 +690,7 @@ public class OrderServiceImpl implements OrderService {
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
-                        auditingUserId_i = "28107";
+                        auditingUserId_i = "39564";
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
@@ -699,10 +703,10 @@ public class OrderServiceImpl implements OrderService {
                     //根据订单金额判断 填写审批人级别
                     //国家负责人审核完成交给法务审核
                     auditingProcess_i = "8";
-                    auditingUserId_i = "28107";
+                    auditingUserId_i = "39564";
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
-                case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107
+                case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107   2019-01-30  法务替换为 39564，魏新宝
                     Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
                             .put("Erui International USA, LLC", 1)
                             .put("Erui International (Canada) Co., Ltd.", 2)
