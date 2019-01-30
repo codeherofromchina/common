@@ -46,6 +46,8 @@ public class OrderController {
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         // 设置请求语言
         String lang = CookiesUtil.getLang(request);
         condition.setLang(lang);
