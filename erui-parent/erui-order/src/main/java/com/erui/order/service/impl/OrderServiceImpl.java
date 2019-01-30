@@ -311,6 +311,7 @@ public class OrderServiceImpl implements OrderService {
                 /*if (bid != null) {
                     list.add(root.get("businessUnitId").in(bid));
                 }*/
+                Predicate orCondition = null;
                 if (condition.getType() == 1) {
                     Predicate createUserId = null;
                     if (condition.getCreateUserId() != null) {
@@ -335,11 +336,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             if (audiRemark != null) {
-                                list.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orCondition = cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark);
+                            } else {
+                                orCondition = cb.or(and, createUserId, auditingUserId, perLiableRepayId);
                             }
-                            list.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
                         } else {
-                            list.add(cb.or(and, createUserId));
+                            orCondition = cb.or(and, createUserId);
                         }
                     } else if (businessUnitId != null && technicalId == null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -347,12 +349,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                list.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
+                                orCondition = cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId);
                             }
                         } else {
-                            list.add(cb.or(businessUnitId, createUserId));
+                            orCondition = cb.or(businessUnitId, createUserId);
                         }
                     } else if (technicalId != null && businessUnitId == null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -360,12 +362,13 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orCondition =  cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark);
                             } else {
-                                list.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
+                                orCondition = cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId);
                             }
+                        } else {
+                            orCondition =  cb.or(technicalId, createUserId);
                         }
-                        list.add(cb.or(technicalId, createUserId));
                     }
                 } else {
                     //根据市场经办人查询
@@ -375,15 +378,15 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                                orCondition = cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark);
                             } else {
-                                list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                                orCondition = cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId);
                             }
                         } else {
-                            list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
-                                    condition.getCreateUserId())));
+                            orCondition = cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                    condition.getCreateUserId()));
                         }
                     } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -391,14 +394,14 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                                orCondition = cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark);
                             } else {
-                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                                orCondition = cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId);
                             }
                         } else {
                             if (condition.getCreateUserId() != null) {
-                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
-                                        condition.getCreateUserId())));
+                                orCondition = cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()));
                             }
                         }
                     }
@@ -428,7 +431,14 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     return and;
                 }*/
-                return cb.and(predicates);
+
+                Predicate and = cb.and(predicates);
+
+                // 有或的关系
+                if (orCondition != null) {
+                    return cb.or(and, orCondition);
+                }
+                return and;
             }
         }, pageRequest);
         if (pageList.hasContent()) {
