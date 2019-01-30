@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
@@ -9,6 +10,7 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
+import com.erui.order.OrderConf;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -17,6 +19,7 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
+import com.erui.order.util.SsoUtils;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
@@ -72,7 +75,8 @@ public class OrderServiceImpl implements OrderService {
     private CompanyService companyService;
     @Autowired
     private StatisticsService statisticsService;
-
+    @Autowired
+    private OrderConf orderConf;
     @Autowired
     private IogisticsDataService iogisticsDataService;
 
@@ -183,10 +187,31 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+
+    // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+    private String[] getCountryHeaderByRole() {
+        String[] countryArr = null;
+        // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        String token = (String) ThreadLocalUtil.getObject();
+        JSONObject userInfo = SsoUtils.ssoUserInfo(orderConf.getSsoUser(), token);
+        JSONArray roloNos = userInfo.getJSONArray("role_no");
+        if (roloNos != null && roloNos.size() > 0) {
+            boolean o34Exist = roloNos.stream().anyMatch(vo -> "o34".equals(vo));
+            if (o34Exist) {
+                JSONArray countryBns = userInfo.getJSONArray("country_bn");
+                countryArr = countryBns.toArray(new String[countryBns.size()]);
+            }
+        }
+        return countryArr;
+    }
+
     @Transactional
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
+        // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        String[] countryArr = getCountryHeaderByRole();
+
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -275,10 +300,9 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
                 //根据区域所在国家查询
-               /* String[] country = null;
-                if (StringUtils.isNotBlank(condition.getCountry())) {
-                    country = condition.getCountry().split(",");
-                }*/
+                if (countryArr != null) {
+                    list.add(root.get("country").in(countryArr));
+                }
                 //根据事业部
                 String[] bid = null;
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
