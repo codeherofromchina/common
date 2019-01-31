@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("order/checkLog")
 public class CheckLogController {
-    private final static Logger logger = LoggerFactory.getLogger(CheckLogController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckLogController.class);
     @Autowired
     private CheckLogService checkLogService;
 
@@ -64,7 +64,7 @@ public class CheckLogController {
             try {
                 data = checkLogService.findListByPurchId(purchId, type);
             } catch (Exception e) {
-                logger.error("错误", e);
+                LOGGER.error("错误", e);
                 return new Result<>(ResultStatusEnum.FAIL);
             }
         } else {
