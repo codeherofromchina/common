@@ -3,6 +3,7 @@ package com.erui.order.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -22,6 +23,9 @@ public class CheckLog {
      */
     @Column(name = "purch_id")
     private Integer purchId;
+
+    @Column(name = "audit_seq")
+    private float auditSeq;
 
     @Transient
     private String processName;
@@ -85,6 +89,14 @@ public class CheckLog {
 
     public void setPurchId(Integer purchId) {
         this.purchId = purchId;
+    }
+
+    public float getAuditSeq() {
+        return auditSeq;
+    }
+
+    public void setAuditSeq(float auditSeq) {
+        this.auditSeq = auditSeq;
     }
 
     /**
@@ -283,23 +295,28 @@ public class CheckLog {
     public enum AuditProcessingEnum {
         // 0.订单提交立项 1.回款责任人审核、2.国家负责人审核、3.区域负责人审核、4.区域VP审核、5.融资专员审核
         //  1.事业部利润核算、2.法务审核、3.财务审核、4.结算审核、5.物流审核、6.事业部审核、7.事业部VP审核、8.总裁审核、9.董事长审核
-        A(1, 0, "市场经办人"), B(1, 1, "回款责任人审核"), C(1, 2, "国家负责人审核"), H(1, 8, "法务审核"), D(1, 3, "区域负责人审核"), E(1, 4, "区域VP审核"), F(1, 5, "融资专员审核"), F2(1, 6, "商务技术经办人"), G(1, 7, "事业部利润核算"),
-        I(2, 13, "财务审核"), J(2, 14, "结算审核"), K(2, 15, "物流审核"), L(2, 16, "事业部总监审核"), M(2, 17, "事业部VP审核"), N(2, 18, "总裁审核"), O(2, 19, "董事长审核"),
-        P1(3, 20, "提交审核"), P2(3, 21, "采购负责人审核"), P3(3, 22, "商务技术审核"), P4(3, 23, "法务审核"), P5(3, 24, "财务审核"),P6(3, 25, "事业部vp审核"),P7(3, 26, "总裁审核"),ZZ(0, 999, "已完成");
+        A(1, 0, 0, "市场经办人"), B(1, 1, 1, "回款责任人审核"), C(1, 2, 2, "国家负责人审核"), H(1, 8, 8, "法务审核"), D(1, 3, 8, "区域负责人审核"), E(1, 4, 8, "区域VP审核"), F(1, 5, 8, "融资专员审核"), F2(1, 6, 8, "商务技术经办人"), G(1, 7, 8, "事业部利润核算"),
+        I(2, 13, 8, "财务审核"), J(2, 14, 8, "结算审核"), K(2, 15, 8, "物流审核"), L(2, 16, 8, "事业部总监审核"), M(2, 17, 8, "事业部VP审核"), N(2, 18, 8, "总裁审核"), O(2, 19, 8, "董事长审核"),
+        P1(3, 20, 8, "提交审核"), P2(3, 21, 8, "采购负责人审核"), P3(3, 22, 8, "商务技术审核"), P4(3, 23, 8, "法务审核"), P5(3, 24, 8, "财务审核"), P6(3, 25, 8, "事业部vp审核"), P7(3, 26, 8, "总裁审核"), ZZ(0, 999, 8, "已完成");
         int type;
         int process;
         String name;
+        float auditSeq;
 
-        AuditProcessingEnum(int type, int process, String name) {
+        AuditProcessingEnum(int type, int process, String name, float auditSeq) {
             this.type = type;
             this.process = process;
             this.name = name;
+            this.auditSeq = auditSeq;
         }
 
         public String getName() {
             return name;
         }
 
+        public float getAuditSeq() {
+            return auditSeq;
+        }
 
         public static AuditProcessingEnum findEnum(Integer type, Integer process) {
             if (type == null || process == null) {
