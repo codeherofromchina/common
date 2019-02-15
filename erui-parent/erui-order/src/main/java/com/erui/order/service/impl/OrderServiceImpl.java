@@ -573,6 +573,27 @@ public class OrderServiceImpl implements OrderService {
         orderDao.save(collect);
     }
 
+    @Override
+    public Integer cancelorder (Integer id, String reason) throws Exception {
+        Order order = null;
+        int flag = 1;
+        if (id != null) {
+            order = orderDao.findOne(id);
+            if (order.getStatus() < 3) {
+                order.setStatus(0);
+                order.setCancelReason(reason);
+                order.getProject().setProjectStatus("ORDERCANCEL");
+            }
+            orderDao.save(order);
+            List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(id);
+            List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2).filter(vo -> !vo.getOperation().equals("-1")).collect(Collectors.toList());
+            for (CheckLog ck:dingList){
+                sendDingtalk(order,ck.getAuditingUserName(),true,2);
+            }
+        }
+        return flag;
+    }
+
     //确认检测销售合同号
     @Override
     public Integer checkContractNo(String contractNo, Integer id) {
@@ -864,7 +885,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(null);
         }
         order.setAuditingUserId(auditingUserId_i);
-        sendDingtalk(order, auditingUserId_i, rejectFlag);
+        sendDingtalk(order, auditingUserId_i, rejectFlag,1);
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
@@ -936,7 +957,7 @@ public class OrderServiceImpl implements OrderService {
         checkLog.setAuditingMsg(auditingMsg);
         checkLog.setOperation(operation);
         checkLog.setType(type);
-        CheckLog.AuditProcessingEnum ape =  CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
+        CheckLog.AuditProcessingEnum ape = CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
         checkLog.setAuditSeq(ape.getAuditSeq());
 
         return checkLog;
@@ -1082,7 +1103,7 @@ public class OrderServiceImpl implements OrderService {
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            auditBackLogHandle(orderUpdate,false, orderUpdate.getAuditingUserId());
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
 
         }
         return order.getId();
@@ -1254,7 +1275,7 @@ public class OrderServiceImpl implements OrderService {
             backLogService.updateBackLogByDelYn(backLog);
 
             // 推送审核内容
-            auditBackLogHandle(order1,false,order1.getAuditingUserId());
+            auditBackLogHandle(order1, false, order1.getAuditingUserId());
 
         }
         return order1.getId();
@@ -1468,7 +1489,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //销售订单钉钉通知 审批人
-    public void sendDingtalk(Order order, String user, boolean rejectFlag) throws Exception {
+    public void sendDingtalk(Order order, String user, boolean rejectFlag,Integer type) throws Exception {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -1505,11 +1526,16 @@ public class OrderServiceImpl implements OrderService {
                     String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
-                    if (!rejectFlag) {
+                    if (type == 1){
+                        if (!rejectFlag) {
+                            stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                    "" + sendTime02 + "");
+                        } else {
+                            stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                    "" + sendTime02 + "");
+                        }
+                    }else if (type == 2){
                         stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + sendTime02 + "");
-                    } else {
-                        stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
@@ -2774,22 +2800,22 @@ public class OrderServiceImpl implements OrderService {
             StringBuilder stringBuilder = new StringBuilder();
             switch (orderDec.getPaymentModeBn()) {
                 case "1":
-                    stringBuilder.append("收款方式：信用证  质保金：" + (orderDec.getQualityFunds()==null?"-":orderDec.getQualityFunds().toString()) + ";");
+                    stringBuilder.append("收款方式：信用证  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "2":
-                    stringBuilder.append("收款方式：托收  质保金：" + (orderDec.getQualityFunds()==null?"-":orderDec.getQualityFunds().toString())  + ";");
+                    stringBuilder.append("收款方式：托收  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "3":
-                    stringBuilder.append("收款方式：电汇  质保金：" + (orderDec.getQualityFunds()==null?"-":orderDec.getQualityFunds().toString()) + ";");
+                    stringBuilder.append("收款方式：电汇  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "4":
-                    stringBuilder.append("收款方式：信汇  质保金：" + (orderDec.getQualityFunds()==null?"-":orderDec.getQualityFunds().toString())  + ";");
+                    stringBuilder.append("收款方式：信汇  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "5":
-                    stringBuilder.append("收款方式：票汇  质保金：" + (orderDec.getQualityFunds()==null?"-":orderDec.getQualityFunds().toString())  + ";");
+                    stringBuilder.append("收款方式：票汇  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "6":
-                    stringBuilder.append("收款方式：现金  质保金：" + (orderDec.getQualityFunds()==null?"-":orderDec.getQualityFunds().toString())  + ";");
+                    stringBuilder.append("收款方式：现金  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 default:
                     break;
@@ -2810,7 +2836,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                     //[{"text":"请选择","value":0},{"text":"发货后","value":4},{"text":"货到后","value":5},git
                     // {"text":"提单日后","value":6},{"text":"交货后","value":7},{"text":"验收后","value":8}]
-                    stringBuilder.append("预收货款：" + (op.getMoney() == null ? "-" : (op.getMoney().toString()+ orderDec.getCurrencyBn())) + " 收款日期：" + StringUtils.defaultIfBlank(DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()), "-") + ";");
+                    stringBuilder.append("预收货款：" + (op.getMoney() == null ? "-" : (op.getMoney().toString() + orderDec.getCurrencyBn())) + " 收款日期：" + StringUtils.defaultIfBlank(DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()), "-") + ";");
                 } else if (op.getType() == 4) {
                     stringBuilder.append("收款方式：发货后 " + op.getReceiptTime() + "天 " + getMoney + ";");
                 } else if (op.getType() == 5) {
