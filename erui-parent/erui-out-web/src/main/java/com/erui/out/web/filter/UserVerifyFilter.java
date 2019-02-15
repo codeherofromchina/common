@@ -82,4 +82,11 @@ public class UserVerifyFilter implements Filter {
             throw new Exception("用户验证未通过");
         }
     }
+
+    public static void main(String[] args) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("3a13749d4b3af3b2bb601552278a0051").append('#').append("2048").append('#').append("C20180326000010").append('#').append("1546999655").append('#').append("3a13749d4b3af3b2bb601552278a0051");
+        String encode = MD5.encode(stringBuilder.toString());
+        System.out.println("hash===="+encode);
+    }
 }
