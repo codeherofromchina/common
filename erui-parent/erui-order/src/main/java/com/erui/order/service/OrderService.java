@@ -60,6 +60,13 @@ public interface OrderService {
      * @return
      */
     void deleteOrder(Integer ids[]);
+    /**
+     * 取消订单
+     *
+     * @param id
+     * @return
+     */
+    boolean cancelorder(Integer id,String reason) throws Exception;
 
     /**
      * 修改订单

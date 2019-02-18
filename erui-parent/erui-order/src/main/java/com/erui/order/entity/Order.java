@@ -334,6 +334,16 @@ public class Order {
     //如果项目审核完成返回前端 值为 1
     @Transient
     private Integer proAuditStatus = 0;
+    @Column(name = "cancel_reason")
+    private String cancelReason;//订单取消原因
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
 
     public Integer getProAuditStatus() {
         return proAuditStatus;
